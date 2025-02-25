@@ -1,0 +1,67 @@
+{
+    "name": "fmt",
+    "description": "This package is used for grouping all packages forming FMT SaaS.",
+    "version": "1.0",
+    "authors": ["Yesbabylon"],
+    "license": "AGPL-3",
+    "depends_on": [
+        "core",
+        "communication",
+        "documents",
+        "finance",
+        "hr",
+        "identity",
+        "purchase",
+        "realestate",
+        "stats",
+        "sale"
+    ],
+    "config": {
+        "ORG_NAME": "FMT SRL",
+        "ORG_URL": "https://symbiose.yesbabylon.com",
+        "APP_NAME": "FMT",
+        "APP_LOGO_URL": "/assets/img/brand/logo.svg"
+    },
+    "apps": [
+        {
+            "id": "settings",
+            "name": "Settings",
+            "description": "Manage and configure global and App-specific options and parameters.",
+            "extends": "settings",
+            "icon": "settings",
+            "color": "#FF5F00",
+            "access": {
+                "groups": [
+                    "admins"
+                ]
+            },
+            "params": {
+                "menus": {
+                    "left": "settings.left",
+                    "top": "settings.top"
+                }
+            },
+            "show_in_apps": true
+        },
+        {
+            "id": "fmt",
+            "name": "FMT",
+            "description": "Manage and configure Condominiums.",
+            "extends": "app",
+            "icon": "settings",
+            "color": "#FF5FA0",
+            "access": {
+                "groups": [
+                    "users"
+                ]
+            },
+            "params": {
+                "menus": {
+                    "left": "fmt.left",
+                    "top": "fmt.top"
+                }
+            },
+            "show_in_apps": true
+        }
+    ]
+}

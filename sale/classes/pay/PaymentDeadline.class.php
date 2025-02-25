@@ -1,0 +1,74 @@
+<?php
+/*
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
+namespace sale\pay;
+
+use equal\orm\Model;
+
+class PaymentDeadline extends Model {
+
+    public static function getColumns() {
+        return [
+
+            'name' => [
+                'type'              => 'string',
+                'description'       => 'Short memo of the deadline.',
+                'multilang'         => true
+            ],
+
+            'code' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:3',
+                'pattern'           => '/[0-9]{3}/',
+                'description'       => '3 digits code to serve in payment references.',
+                'required'          => true,
+                'default'           => '000'
+            ],
+
+            'delay_from_event' => [
+                'type'              => 'string',
+                'selection'         => ['order', 'delivery'],
+                'description'       => "Start event date of the deadline counter.",
+                'default'           => 'order'
+            ],
+
+            'delay_from_event_offset' => [
+                'type'              => 'integer',
+                'description'       => "Offset to apply on 'from_event' for getting the issue date.",
+                'default'           => 0
+            ],
+
+            'delay_count' => [
+                'type'              => 'integer',
+                'description'       => "Number of days before reaching the deadline."
+            ],
+
+            'payment_deadline_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'installment',                 // pre-payment (can be converted to invoice): there can be many of those
+                    'invoice'                      // balance invoice (there should be only one ot that type)
+                ],
+                'description'       => "Deadlines are installment except for last one, the final invoice."
+            ],
+
+            'amount_share' => [
+                'type'              => 'float',
+                'usage'             => 'amount/percent',
+                'description'       => "Share of the payment over the total due amount.",
+                'default'           => 1.0
+            ],
+
+            'payment_plan_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'sale\pay\FundingPlan',
+                'description'       => "The payment plan the deadline applies to.",
+                'ondelete'          => 'delete'
+            ]
+
+        ];
+    }
+}

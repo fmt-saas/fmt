@@ -1,0 +1,81 @@
+{
+    "name": "Sale Entries",
+    "description": "Default listing of all sale entries.",
+    "controller": "sale_saleentry-collect",
+    "sort": "desc",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "25%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "customer_id",
+                "label": "Customer",
+                "width": "15%",
+                "readonly": true,
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "product_id",
+                "label": "Product (Catalog)",
+                "width": "15%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "price_id",
+                "label": "Price",
+                "width": "15%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "qty",
+                "label": "Quantity",
+                "width": "10%",
+                "sortable": true
+            },
+            {
+                "id": "item.is_billable",
+                "type": "field",
+                "value": "is_billable",
+                "label": "Is billable",
+                "width": "10%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "id": "item.has_receivable",
+                "type": "field",
+                "value": "has_receivable",
+                "label": "Has receivable",
+                "width": "15%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "id": "item.receivable_id",
+                "type": "field",
+                "value": "receivable_id",
+                "label": "Receivable",
+                "width": "15%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "id": "item.status",
+                "type": "field",
+                "label": "Status",
+                "value": "status",
+                "width": "10%",
+                "sortable": true,
+                "readonly": true
+            }
+        ]
+    }
+}

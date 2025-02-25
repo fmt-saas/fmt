@@ -1,0 +1,210 @@
+{
+    "name": "Stats menu",
+    "access": {
+      "groups": ["stats.default.users"]
+    },
+    "layout": {
+        "items": [
+            {
+                "id": "stats",
+                "label": "Stats",
+                "description": "",
+                "icon": "query_stats",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "stats.documents",
+                        "icon": "settings",
+                        "type": "parent",
+                        "label": "Documents values",
+                        "description": "",
+                        "children": [
+                            {
+                                "id": "settings.all_documents.size_documents",
+                                "type": "entry",
+                                "label": "Taille des documents",
+                                "description": "",
+                                "context": {
+                                    "entity": "documents\\Document",
+                                    "view": "chart.default",
+                                    "mode": "grid"
+                                }
+                            },
+                            {
+                                "id": "settings.all_documents.categories",
+                                "type": "entry",
+                                "label": "Catégories des documents",
+                                "description": "",
+                                "context": {
+                                    "entity": "documents\\DocumentCategory",
+                                    "view": "chart.default",
+                                    "mode": "grid"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "stats.order",
+                        "icon": "settings",
+                        "type": "parent",
+                        "label": "Orders values",
+                        "description": "",
+                        "children": [
+                            {
+                                "id": "stats.order.orders",
+                                "type": "entry",
+                                "label": "CA Commandes",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.default",
+                                    "mode": "grid"
+                                }
+                            },
+                            {
+                                "id": "stats.order.total_orders",
+                                "type": "entry",
+                                "label": "Nombre de commandes",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.orderCount",
+                                    "mode": "grid"
+                                }
+                            },
+                            {
+                                "id": "stats.order.compositionItem",
+                                "type": "entry",
+                                "label": "Nombre de personnes",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.compositionItem",
+                                    "mode": "grid"
+                                }
+                            },
+                            {
+                                "id": "stats.order.total_orders.accomodation",
+                                "type": "entry",
+                                "label": "Nombre de nuitées",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.accomodation",
+                                    "mode": "grid"
+                                }
+                            },
+                            {
+                                "id": "stats.order.total_meals",
+                                "type": "entry",
+                                "label": "CA repas",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.meal",
+                                    "mode": "grid"
+                                }
+                            },
+                            {
+                                "id": "stats.order.total_orders.noInvoice",
+                                "type": "entry",
+                                "label": "CA non facturé",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.noInvoice",
+                                    "mode": "grid"
+                                }
+                            },
+                            {
+                                "id": "stats.order.total_orders.sojournType",
+                                "type": "entry",
+                                "label": "Type de séjour",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.sojournType",
+                                    "mode": "grid"
+                                }
+                            },
+                            {
+                                "id": "stats.order.total_orders.taxes",
+                                "type": "entry",
+                                "label": "Taxes de séjour",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\OrderLine",
+                                    "view": "chart.taxes",
+                                    "mode": "grid"
+                                }
+                            },
+                            {
+                                "id": "stats.order.total_orders.provisional",
+                                "type": "entry",
+                                "label": "CA prévisionnel",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.provisionalCA",
+                                    "mode": "grid"
+                                }
+                            }
+
+                        ]
+                    },
+                    {
+                        "id": "stats.sale",
+                        "icon": "settings",
+                        "type": "parent",
+                        "label": "Sales values",
+                        "description": "",
+                        "children": [
+                            {
+                                "id": "stats.sales",
+                                "type": "entry",
+                                "label": "CA pos",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\pos\\CashdeskSession",
+                                    "view": "chart.default",
+                                    "mode": "grid"
+                                }
+                            },
+                            {
+                                "id": "stats.payment_methods",
+                                "type": "entry",
+                                "label": "Moyens de paiement",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\pos\\CashdeskSession",
+                                    "view": "chart.paymentMethod",
+                                    "mode": "grid"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "stats.finance",
+                        "icon": "settings",
+                        "type": "parent",
+                        "label": "Finance values",
+                        "description": "",
+                        "children": [
+                            {
+                                "id": "stats.finance_funding",
+                                "type": "entry",
+                                "label": "Total Reimbursements",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Funding",
+                                    "view": "chart.default",
+                                    "mode": "grid"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

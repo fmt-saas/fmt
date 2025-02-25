@@ -1,0 +1,46 @@
+{
+    "name": "Invoice Lines",
+    "description": "Displays invoice lines.",
+    "access": {
+        "groups": ["sale.default.users"]
+    },
+    "group_by": [
+        {
+            "field": "invoice_line_group_id",
+            "open": true
+        }
+    ],
+    "operations": {
+        "total": {
+            "total": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "price": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "order": "invoice_line_group_id.order",
+    "sort": "asc",
+    "limit": 500,
+    "extends": {
+        "entity": "finance\\accounting\\InvoiceLine",
+        "view": "list.default"
+    },
+    "layout": {
+        "update": {
+            "item.group": {
+                "after": [
+                    {
+                        "type": "field",
+                        "value": "product_id",
+                        "label": "Product",
+                        "width": "25%"
+                    }
+                ]
+            }
+        }
+    }
+}

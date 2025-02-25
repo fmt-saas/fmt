@@ -1,0 +1,25 @@
+{
+    "name": "Permission",
+    "description": "Default form for Permission with all fields.",
+    "extends": {
+        "entity": "core\\Permission",
+        "view": "form.default"
+    },
+    "layout": {
+        "remove": [
+            "item.group_id",
+            "item.user_id"
+        ],
+        "update": {
+            "column.right": {
+                "append": [
+                    {
+                        "type": "field",
+                        "value": "role_id",
+                        "width": "100%"
+                    }
+                ]
+            }
+        }
+    }
+}

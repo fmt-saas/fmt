@@ -1,0 +1,46 @@
+{
+    "name": "Fundings",
+    "description": "This view is intended for displaying the list of fundings.",
+    "access": {
+        "groups": ["sale.default.users"]
+    },
+    "controller": "sale_pay_funding-collect",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "due_date",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Type",
+                "value": "funding_type",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Invoice",
+                "value": "invoice_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Paid",
+                "value": "is_paid",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Amount Due",
+                "value": "due_amount",
+                "width": "20%"
+            }
+        ]
+    }
+}

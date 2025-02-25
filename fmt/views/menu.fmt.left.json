@@ -1,0 +1,108 @@
+{
+    "name": "Settings menu",
+    "access": {
+        "groups": ["setting.default.users"]
+    },
+    "search": true,
+    "layout": {
+        "items": [
+            {
+
+                "id": "properties",
+                "label": "Properties",
+                "description": "",
+                "icon": "now_widgets",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "condominiums",
+                        "type": "entry",
+                        "label": "Condominiums",
+                        "icon": "how_to_reg",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\property\\Condominium",
+                            "view": "list.default"
+                        }
+                    }
+
+                ]
+            },
+            {
+                "id": "teams",
+                "label": "HR",
+                "description": "",
+                "icon": "now_widgets",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "employees",
+                        "type": "entry",
+                        "label": "Employees",
+                        "icon": "how_to_reg",
+                        "description": "",
+                        "context": {
+                            "entity": "hr\\employee\\Employee",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "teams",
+                        "type": "entry",
+                        "label": "Teams",
+                        "icon": "how_to_reg",
+                        "description": "",
+                        "context": {
+                            "entity": "hr\\Team",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "assignments",
+                        "type": "entry",
+                        "label": "Assignments",
+                        "icon": "how_to_reg",
+                        "description": "",
+                        "context": {
+                            "entity": "hr\\role\\RoleAssignment",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "roles",
+                        "type": "entry",
+                        "label": "Roles",
+                        "icon": "how_to_reg",
+                        "description": "",
+                        "context": {
+                            "entity": "hr\\role\\Role",
+                            "view": "list.default"
+                        }
+                    }
+
+                ]
+            },
+            {
+                "id": "configuration",
+                "label": "Config",
+                "description": "",
+                "icon": "now_widgets",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "pricelist",
+                        "type": "entry",
+                        "label": "Price list",
+                        "icon": "how_to_reg",
+                        "description": "",
+                        "context": {
+                            "entity": "sale\\price\\PriceList",
+                            "view": "list.org",
+                            "domain": ["condo_id", "=", null]
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

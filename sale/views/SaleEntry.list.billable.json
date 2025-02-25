@@ -1,0 +1,39 @@
+{
+    "name": "Billable sale entries",
+    "description": "Listing of billable sale entries.",
+    "help": "List sale entries that are billable but have no receivable generated yet.",
+    "controller": "sale_saleentry-billable-collect",
+    "sort": "desc",
+    "header": {
+        "actions":{
+            "ACTION.CREATE": false
+        },
+        "selection": {
+            "default" : false,
+            "actions" : [
+                {
+                    "id": "header.selection.actions.bill",
+                    "label": "Bill",
+                    "icon": "receipt_long",
+                    "controller": "core_model_transition",
+                    "params": {
+                        "entity": "sale\\SaleEntry",
+                        "transition": "bill"
+                    }
+                }
+            ]
+        }
+    },
+    "extends": {
+        "entity": "sale\\SaleEntry",
+        "view": "list.default"
+    },
+    "layout": {
+        "remove": [
+            "item.is_billable",
+            "item.has_receivable",
+            "item.receivable_id",
+            "item.status"
+        ]
+    }
+}

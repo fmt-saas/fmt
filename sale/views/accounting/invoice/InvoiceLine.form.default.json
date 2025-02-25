@@ -1,0 +1,62 @@
+{
+    "name": "Invoice Line",
+    "description": "Invoice lines describe the products and quantities that are part of an invoice.",
+    "access": {
+        "groups": ["finance.default.users", "sale.default.users"]
+    },
+    "extends": {
+        "entity": "finance\\accounting\\InvoiceLine",
+        "view": "form.default"
+    },
+    "layout": {
+        "update": {
+            "column.invoice-and-line-group": {
+                "after": [
+                    {
+                        "width": "50%",
+                        "items": [
+                            {
+                                "type": "field",
+                                "label": "Description",
+                                "value": "description"
+                            }
+                        ]
+                    },
+                    {
+                        "width": "50%",
+                        "items": [
+                            {
+                                "type": "label",
+                                "width": "33%"
+                            },
+                            {
+                                "type": "field",
+                                "label": "Receivable",
+                                "value": "receivable_id",
+                                "width": "66%",
+                                "readonly": true,
+                                "visible": ["receivable_id", "<>", null]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "item.unit_price": {
+                "before": [
+                    {
+                        "type": "field",
+                        "label": "Product",
+                        "value": "product_id",
+                        "width": "50%"
+                    },
+                    {
+                        "type": "field",
+                        "label": "Price",
+                        "value": "price_id",
+                        "width": "50%"
+                    }
+                ]
+            }
+        }
+    }
+}

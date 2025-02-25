@@ -1,0 +1,33 @@
+{
+    "name": "Vat Rules List",
+    "description": "This view is intented for displaying the VAT rules.",
+    "access": {
+        "groups": ["finance.default.users"]
+     },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "rate",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Type",
+                "value": "vat_rule_type",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Account Chart Line",
+                "value": "account_id",
+                "width": "20%"
+            }
+        ]
+    }
+}

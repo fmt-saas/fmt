@@ -1,0 +1,34 @@
+<?php
+/*
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
+
+namespace sale\accounting\invoice;
+
+class InvoiceLineGroup extends \finance\accounting\InvoiceLineGroup {
+
+    public static function getColumns() {
+        return [
+
+            'invoice_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'sale\accounting\invoice\Invoice',
+                'description'       => 'Invoice the line group is related to.',
+                'required'          => true,
+                'ondelete'          => 'cascade'
+            ],
+
+            'invoice_lines_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'sale\accounting\invoice\InvoiceLine',
+                'foreign_field'     => 'invoice_line_group_id',
+                'description'       => 'Detailed lines of the group.',
+                'ondetach'          => 'delete',
+                'onupdate'          => 'onupdateInvoiceLinesIds'
+            ]
+
+        ];
+    }
+}

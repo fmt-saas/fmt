@@ -1,0 +1,24 @@
+{
+    "name": "Finance & Accounting menu",
+    "access": {
+      "groups": ["finance.default.users"]
+   },
+    "layout": {
+        "items": [
+            {
+                "id": "item.invoices",
+                "label": "Invoices",
+                "description": "",
+                "icon": "library_books",
+                "type": "entry",
+                "route": "/invoices",
+                "context": {
+                    "entity": "finance\\accounting\\Invoice",
+                    "view": "list.default",
+                    "order": "id",
+                    "sort": "desc"
+                }
+            }
+        ]
+    }
+}

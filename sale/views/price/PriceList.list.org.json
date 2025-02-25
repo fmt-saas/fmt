@@ -1,0 +1,29 @@
+{
+    "name": "Price Lists",
+    "description": "This view is intended for displaying the list of price lists.",
+    "access": {
+        "groups": ["sale.default.users"]
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "label": "Description",
+                "value": "description",
+                "width": "40%"
+            },
+            {
+                "type": "field",
+                "label": "Price List Category",
+                "value": "price_list_category_id",
+                "width": "20%"
+            }
+        ]
+    }
+}

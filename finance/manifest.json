@@ -1,0 +1,33 @@
+{
+    "name": "finance",
+    "description": "Manage invoices, vat rules and accounting.",
+    "version": "1.0",
+    "authors": ["Yesbabylon"],
+    "license": "LGPL-3",
+    "depends_on": ["core"],
+    "requires": {
+        "endroid/qr-code": "~4.3.0",
+        "smhg/sepa-qr-data": "~1.1.0"
+    },
+    "apps":[
+        {
+            "id": "finance",
+            "name": "Finance",
+            "extends": "app",
+            "description": "Manage finance and accounting.",
+            "icon": "paid",
+            "color": "#EB6323",
+            "access": {
+                "groups": [
+                    "users"
+                ]
+            },
+            "params": {
+                "menus": {
+                    "left": "finance.left",
+                    "top": "finance.top"
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,129 @@
+{
+    "name": "Employee",
+    "description": "Form holding basic information about an employee (Partner).",
+    "access": {
+        "groups": ["hr.default.users"]
+    },
+    "extends": {
+        "entity": "identity\\Partner",
+        "view": "form.default"
+    },
+    "layout": {
+        "remove": [
+            "section.advanced",
+            "group.partner_info",
+            "field.type_id",
+            "field.has_vat"
+        ],
+        "update": {
+            "field.lang_id": {
+                "after": [
+                    {
+                        "type": "field",
+                        "label": "Identity of Employee",
+                        "value": "partner_identity_id",
+                        "width": "100%"
+                    }
+                ]
+            },
+            "section.identity_info": {
+                "after": [
+                    {
+                        "id": "section.employee",
+                        "label": "Contract details",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items":[
+                                            {
+                                                "type": "field",
+                                                "label": "Role",
+                                                "value": "role_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_start",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_end",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_active",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.teams",
+                        "label": "Teams membership",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "teams_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "view": "list.default",
+                                                        "actions": {
+                                                            "ACTION.SELECT": false,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.assignments",
+                        "label": "Assignments",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "role_assignments_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "view": "list.default",
+                                                        "actions": {
+                                                            "ACTION.SELECT": false,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}

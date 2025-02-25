@@ -1,0 +1,90 @@
+{
+    "name": "Subscription Entry",
+    "description": "Subscription entry.",
+    "actions": [
+        {
+            "id": "action.transition.validate",
+            "label": "Validate",
+            "controller": "model_transition",
+            "params": {
+                "entity": "sale\\subscription\\SubscriptionEntry",
+                "transition": "validate",
+                "ids": []
+            },
+            "visible": [
+                ["status", "in", ["pending", "ready"]]
+            ]
+        },
+        {
+            "id": "action.transition.bill",
+            "label": "Bill",
+            "controller": "model_transition",
+            "params": {
+                "entity": "sale\\subscription\\SubscriptionEntry",
+                "transition": "bill",
+                "ids": []
+            },
+            "visible": [
+                ["status", "=", "validated"],
+                ["is_billable", "=", true]
+            ]
+        }
+    ],
+    "extends": {
+        "entity": "sale\\SaleEntry",
+        "view": "form.default"
+    },
+    "layout": {
+        "update": {
+            "row.main-info-first": {
+                "attributes": {
+                    "columns": [
+                        {
+                            "width": "50%",
+                            "items": [
+                                {
+                                    "type": "field",
+                                    "value": "status",
+                                    "visible": false
+                                },
+                                {
+                                    "type": "field",
+                                    "value": "subscription_id",
+                                    "label": "Subscription",
+                                    "width": "66%",
+                                    "readonly": true
+                                }
+                            ]
+                        },
+                        {
+                            "width": "50%",
+                            "items":  [
+                                {
+                                    "type": "label",
+                                    "width": "33%"
+                                },
+                                {
+                                    "type": "field",
+                                    "value": "date_from",
+                                    "label": "From",
+                                    "width": "33%"
+                                },
+                                {
+                                    "type": "field",
+                                    "value": "date_to",
+                                    "label": "To",
+                                    "width": "33%"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "item.customer_id": {
+                "attributes": {
+                    "readonly": true
+                }
+            }
+        }
+    }
+}

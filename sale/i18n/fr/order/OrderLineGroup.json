@@ -1,0 +1,50 @@
+{
+    "name": "Groupe de lignes de commande",
+    "plural": "Groupes de lignes de commande",
+    "description": "Les groupes de lignes de commande sont liés à une commande et décrivent un ou plusieurs séjours et leurs consommations associées.",
+    "model": {
+        "name": {
+            "label": "Nom du groupe",
+            "description": "Memo pour le groupe.",
+            "help": ""
+        },
+        "order": {
+            "label": "Ordre",
+            "description": "Ordre du groupe dans la liste.",
+            "help": ""
+        },
+        "order_lines_ids": {
+            "label": "Ligne de commande",
+            "description": "Lignes de commande qui appartiennent au groupe.",
+            "help": ""
+        },
+        "order_id": {
+            "label": "Commande",
+            "description": "La commande à laquelle la ligne se rapporte.",
+            "help": "La commande de la ligne se rapporte (par souci de cohérence, les lignes doivent être accessibles en utilisant le groupe auquel elles appartiennent)."
+        },
+        "total": {
+            "label": "Total HTC",
+            "description": "Prix total hors taxes.",
+            "help": ""
+        },
+        "price": {
+            "label": "Prix TTC",
+            "description": "Prix final (TTC).",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Groupe de lignes de commande",
+            "description": "Les groupes de lignes de commande sont liés à une commande et décrivent un ou plusieurs séjours et leurs consommations associées.",
+            "layout": {}
+        },
+        "list.default": {
+            "name": "Groupes de lignes de commande",
+            "description": "Liste des groupes de lignes de commande.",
+            "layout": {}
+        }
+    },
+    "error": {}
+}

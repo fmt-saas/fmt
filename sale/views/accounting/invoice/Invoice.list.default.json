@@ -1,0 +1,53 @@
+{
+    "name": "Invoice",
+    "description": "An invoice is a legal document issued by a seller to a buyer that relates to a sale, and is part of the accounting system.",
+    "access": {
+        "groups": ["sale.default.users"]
+    },
+    "controller": "sale_accounting_invoice_collect",
+    "domain" : ["customer_id", ">", 0],
+    "header": {
+        "actions": {
+            "ACTION.CREATE" : [
+                {
+                    "view": "form.create",
+                    "description": "Overload form to use for invoice creation."
+                }
+            ]
+        }
+    },
+    "extends": {
+        "entity": "finance\\accounting\\Invoice",
+        "view": "list.default"
+    },
+    "operations": {
+        "total": {
+            "total": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "price": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "limit": 100,
+    "layout": {
+        "remove": [
+            "item.invoice_purpose"
+        ],
+        "update": {
+            "item.name": {
+                "after": [
+                    {
+                        "type": "field",
+                        "label": "Customer",
+                        "value": "customer_id",
+                        "width": "20%"
+                    }
+                ]
+            }
+        }
+    }
+}

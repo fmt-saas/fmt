@@ -1,0 +1,77 @@
+{
+    "description": "",
+    "view": {
+        "customers": {
+            "label": "Clients",
+            "help": ""
+        },
+        "settings.customers.types": {
+            "label": "Types de client",
+            "help": ""
+        },
+        "settings.customers.natures": {
+            "label": "Natures de client",
+            "help": ""
+        },
+        "customers.new_customer": {
+            "label": "Nouveau client",
+            "help": ""
+        },
+        "customers.customers": {
+            "label": "Tous les clients",
+            "help": ""
+        },
+        "fundings": {
+            "label": "Financements",
+            "help": ""
+        },
+        "fundings.waiting": {
+            "label": "Paiements en attente",
+            "help": ""
+        },
+        "fundings.overdue": {
+            "label": "Paiements en retard",
+            "help": ""
+        },
+        "invoices": {
+            "label": "Factures",
+            "help": ""
+        },
+        "invoices.invoices": {
+            "label": "Toutes les factures",
+            "help": ""
+        },
+        "invoices.overdue": {
+            "label": "Factures en retard",
+            "help": ""
+        },
+        "contracts": {
+            "label": "Contrats",
+            "help": ""
+        },
+        "contracts.contracts": {
+            "label": "Tous les contrats",
+            "help": ""
+        },
+        "orders": {
+            "label": "Commandes",
+            "help": ""
+        },
+        "orders.new": {
+            "label": "Nouvelle",
+            "help": ""
+        },
+        "orders.all": {
+            "label": "Toutes",
+            "help": ""
+        },
+        "orders.group.all": {
+            "label": "Groupes",
+            "help": ""
+        },
+        "orders.group.line.all": {
+            "label": "Lignes",
+            "help": ""
+        }
+    }
+}

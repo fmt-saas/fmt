@@ -1,0 +1,69 @@
+{
+    "name": "Invoice",
+    "description": "An invoice is a legal document issued by a seller to a buyer that relates to a sale, and is part of the accounting system.",
+    "access": {
+        "groups": ["purchase.default.users"]
+    },
+    "actions": [
+        {
+            "id": "action.invoice",
+            "label": "Invoice",
+            "description": "To Invoice.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "proforma"],
+            "params": {
+                "entity": "purchase\\accounting\\invoice\\Invoice",
+                "transition": "invoice",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.cancel",
+            "label": "Cancel",
+            "description": "Cancel invoice.",
+            "controller": "core_model_transition",
+            "confirm": true,
+            "visible": ["status", "=", "invoice"],
+            "params": {
+                "entity": "purchase\\accounting\\invoice\\Invoice",
+                "transition": "cancel",
+                "ids": []
+            }
+        }
+    ],
+    "extends": {
+        "entity": "finance\\accounting\\Invoice",
+        "view": "form.default"
+    },
+    "layout": {
+        "remove": [
+            "item.invoice_purpose",
+            "section.accounting_entries"
+        ],
+        "update": {
+            "item.invoice_number": {
+                "attributes": {
+                    "widget": {
+                        "heading": true,
+                        "readonly": false
+                    }
+                },
+                "after": [
+                    {
+                        "type": "field",
+                        "label": "Supplier",
+                        "value": "supplier_id",
+                        "width": "50%"
+                    }
+                ]
+            },
+            "item.invoice_lines_ids": {
+                "attributes": {
+                    "widget": {
+                        "view": "list.default"
+                    }
+                }
+            }
+        }
+    }
+}

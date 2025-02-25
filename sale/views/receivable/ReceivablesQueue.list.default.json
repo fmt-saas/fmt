@@ -1,0 +1,57 @@
+{
+    "name": "Receivable Queues",
+    "description": "This view is intended for displaying the Receivable Queues.",
+    "controller": "sale_receivable_receivables-queue-collect",
+    "access": {
+    },
+    "header": {
+        "selection": {
+            "default" : false,
+            "actions" : [
+                {
+                    "id": "header.selection.actions.receivablequeue.invoice",
+                    "label": "Invoice",
+                    "icon": "receipt_long",
+                    "controller": "sale_receivablequeue_invoice",
+                    "confirm": true
+                }
+            ]
+        }
+    },
+    "operations": {
+        "total": {
+            "pending_receivables_count": {
+                "id": "operations.total-receivables",
+                "label": "Total",
+                "usage":"number/integer",
+                "operation": "SUM"
+            }
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "id",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "50%"
+            },
+            {
+                "type": "field",
+                "value": "customer_id",
+                "label": "Customer",
+                "width": "40%"
+            },
+            {
+                "type": "field",
+                "value": "pending_receivables_count",
+                "label": "# Pending receivables",
+                "width": "40%"
+            }
+        ]
+    }
+}

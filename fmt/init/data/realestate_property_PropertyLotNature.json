@@ -1,0 +1,68 @@
+[
+    {
+        "name": "realestate\\property\\PropertyLotNature",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "APARTMENT",
+                "hierarchy": 1,
+                "description": "Residential unit in a building."
+            },
+            {
+                "id": 2,
+                "name": "SHOP",
+                "hierarchy": 1,
+                "description": "Retail space for selling goods."
+            },
+            {
+                "id": 3,
+                "name": "OFFICE",
+                "hierarchy": 1,
+                "description": "Workspace for business or professional activities."
+            },
+            {
+                "id": 4,
+                "name": "WORKSHOP",
+                "hierarchy": 1,
+                "description": "Workspace for business or professional activities."
+            },
+            {
+                "id": 5,
+                "name": "BUILDING",
+                "hierarchy": 1,
+                "description": "Structure with a roof and walls."
+            },
+            {
+                "id": 6,
+                "name": "GARAGE",
+                "hierarchy": 2,
+                "description": "Parking lot for vehicles."
+            },
+            {
+                "id": 7,
+                "name": "PARKING",
+                "hierarchy": 2,
+                "description": "Parking lot for vehicles."
+            },
+            {
+                "id": 8,
+                "name": "BASEMENT",
+                "hierarchy": 2,
+                "description": "Storage space for documents or records."
+            },
+            {
+                "id": 9,
+                "name": "TERRACE",
+                "hierarchy": 3,
+                "description": "Apartment with a terrace."
+            },
+            {
+                "id": 10,
+                "name": "BALCONY",
+                "hierarchy": 3,
+                "description": "Apartment with both a terrace and a balcony."
+            }
+        ]
+    }
+]

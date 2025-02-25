@@ -1,0 +1,31 @@
+{
+    "name": "purchase",
+    "description": "Manage suppliers and their invoices.",
+    "version": "1.0",
+    "authors": ["Yesbabylon"],
+    "license": "LGPL-3",
+    "depends_on": [
+        "core",
+        "finance"
+    ],
+    "apps": [
+        {
+            "id": "purchase",
+            "name": "Purchase",
+            "extends": "app",
+            "description": "Application purchase",
+            "icon": "shopping_cart_checkout",
+            "color": "#a13a32",
+            "access": {
+                "groups": [
+                    "users"
+                ]
+            },
+            "params": {
+                "menus": {
+                    "left": "purchase.left"
+                }
+            }
+        }
+    ]
+}

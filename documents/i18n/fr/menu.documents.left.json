@@ -1,0 +1,17 @@
+{
+    "name": "Documents menu de gauche",
+    "view": {
+        "item.documents": {
+            "label": "Documents",
+            "help": ""
+        },
+        "item.categories": {
+            "label": "Catégories",
+            "help": ""
+        },
+        "item.tags": {
+            "label": "Étiquettes",
+            "help": ""
+        }
+    }
+}

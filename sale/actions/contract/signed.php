@@ -1,0 +1,62 @@
+<?php
+/*
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Original author(s): Yesbabylon SA
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
+use sale\order\Contract;
+use sale\order\Order;
+
+list($params, $providers) = announce([
+    'description'   => "Mark a contract as signed (signed version has been received).",
+    'params'        => [
+        'id' =>  [
+            'description'   => 'Identifier of the targeted contract.',
+            'type'          => 'integer',
+            'min'           => 1,
+            'required'      => true
+        ]
+    ],
+    'access' => [
+        'visibility'        => 'public',		// 'public' (default) or 'private' (can be invoked by CLI only)
+        'groups'            => ['booking.default.user'],// list of groups ids or names granted
+    ],
+    'response'      => [
+        'content-type'  => 'application/json',
+        'charset'       => 'utf-8',
+        'accept-origin' => '*'
+    ],
+    'providers'     => ['context', 'orm', 'auth']
+]);
+
+list($context, $orm, $auth) = [$providers['context'], $providers['orm'], $providers['auth']];
+
+// read contract object
+$contract = Contract::id($params['id'])
+                  ->read(['id', 'name', 'status','order_id', 'valid_until'])
+                  ->first(true);
+
+if(!$contract) {
+    throw new Exception("unknown_contract", QN_ERROR_UNKNOWN_OBJECT);
+}
+
+if($contract['valid_until'] < time()) {
+    throw new Exception("outdated_contract", QN_ERROR_NOT_ALLOWED);
+}
+
+if($contract['status'] != 'sent') {
+    throw new Exception("invalid_status", QN_ERROR_NOT_ALLOWED);
+}
+
+// Update booking status
+Contract::id($params['id'])->update(['status' => 'signed']);
+if($contract['order_id']){
+    Order::updateStatusFromFundings((array) $contract['order_id']);
+}
+
+// #todo - check if required payment have been paid in the meantime
+
+$context->httpResponse()
+        ->status(204)
+        ->send();

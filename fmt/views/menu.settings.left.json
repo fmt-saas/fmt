@@ -1,0 +1,174 @@
+{
+    "name": "Settings menu",
+    "access": {
+        "groups": ["setting.default.users"]
+    },
+    "search": true,
+    "layout": {
+        "items": [
+            {
+
+                "id": "base",
+                "label": "Base",
+                "description": "",
+                "icon": "now_widgets",
+                "type": "parent",
+                "route": "/settings/core",
+                "children": [
+                    {
+                        "id": "security",
+                        "label": "Security",
+                        "description": "",
+                        "icon": "lock_open",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "permissions",
+                                "type": "entry",
+                                "label": "Permissions",
+                                "icon": "how_to_reg",
+                                "description": "",
+                                "context": {
+                                    "entity": "core\\Permission",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "users",
+                                "type": "entry",
+                                "label": "Users",
+                                "icon": "person",
+                                "description": "",
+                                "context": {
+                                    "entity": "core\\User",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "groups",
+                                "type": "entry",
+                                "label": "Groups",
+                                "icon": "group",
+                                "description": "",
+                                "context": {
+                                    "entity": "core\\Group",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "policies",
+                                "type": "entry",
+                                "label": "Security Policies",
+                                "icon": "badge",
+                                "description": "",
+                                "context": {
+                                    "entity": "core\\security\\SecurityPolicy",
+                                    "view": "list.default"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "sale",
+                "label": "Sales",
+                "description": "",
+                "icon": "storefront",
+                "type": "parent",
+                "route": "/settings/sale"
+            },
+            {
+                "id": "finance",
+                "label": "Finance",
+                "description": "",
+                "icon": "paid",
+                "type": "parent",
+                "route": "/settings/finance"
+            },
+            {
+                "id": "purchase",
+                "label": "Purchase",
+                "description": "",
+                "icon": "shopping_cart_checkout",
+                "type": "parent",
+                "route": "/settings/purchase"
+            },
+            {
+                "id": "inventory",
+                "label": "Inventory",
+                "description": "",
+                "icon": "analytics",
+                "type": "parent",
+                "route": "/settings/inventory"
+            },
+            {
+                "id": "settings",
+                "label": "Configuration",
+                "description": "",
+                "icon": "settings",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "settings.scheduler",
+                        "label": "Scheduler",
+                        "description": "",
+                        "icon": "schedule",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "settings.cron.tasks",
+                                "type": "entry",
+                                "label": "Scheduled tasks",
+                                "description": "",
+                                "context": {
+                                    "entity": "core\\Task",
+                                    "view": "list.default"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "settings.settings",
+                        "label": "Settings",
+                        "description": "",
+                        "icon": "settings",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "settings.settings.settings",
+                                "type": "entry",
+                                "label": "Available Settings",
+                                "description": "",
+                                "context": {
+                                    "entity": "symbiose\\setting\\Setting",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "settings.settings.settings_values",
+                                "type": "entry",
+                                "label": "Settings values",
+                                "description": "",
+                                "context": {
+                                    "entity": "symbiose\\setting\\SettingValue",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "settings.settings.settings_sequences",
+                                "type": "entry",
+                                "label": "Settings sequences",
+                                "description": "",
+                                "context": {
+                                    "entity": "symbiose\\setting\\SettingSequence",
+                                    "view": "list.default"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

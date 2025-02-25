@@ -1,0 +1,21 @@
+{
+    "name": "Groups",
+    "description": "This view is intended for displaying the list of product groups.",
+    "access": {
+        "groups": ["pos.default.users", "sale.default.users"]
+     },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "50%"
+            },
+            {
+                "type": "field",
+                "value": "family_id",
+                "width": "50%"
+            }
+        ]
+    }
+}

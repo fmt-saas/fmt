@@ -1,0 +1,57 @@
+{
+    "name": "Pending Receivables",
+    "description": "This view is intended for displaying the Pending Receivables.",
+    "controller": "sale_receivable_receivable-pending-collect",
+    "access": {
+    },
+    "header": {
+        "actions": {
+            "ACTION.CREATE" : false
+        },
+        "selection": {
+            "default": false,
+            "actions" : [
+                {
+                    "id": "header.selection.actions.invoice",
+                    "label": "Invoice",
+                    "icon": "receipt_long",
+                    "controller": "sale_receivable_invoice"
+                }
+            ]
+        }
+    },
+    "domain": ["status", "=", "pending"],
+    "actions" : [
+        {
+            "id": "actions.bulk_invoice",
+            "label": "Invoice all",
+            "icon": "list",
+            "controller": "sale_receivable_bulk-invoice"
+        }
+    ],
+    "operations": {
+        "total": {
+            "total": {
+                "id": "operations.total.total",
+                "label": "Total without vat",
+                "usage":"amount/money:2",
+                "operation": "SUM"
+            },
+            "price": {
+                "id": "operations.total.price",
+                "label": "Total with vat",
+                "usage":"amount/money:2",
+                "operation": "SUM"
+            }
+        }
+    },
+    "extends": {
+        "entity": "sale\\receivable\\Receivable",
+        "view": "list.default"
+    },
+    "layout": {
+        "remove": [
+            "item.invoice_id"
+        ]
+    }
+}

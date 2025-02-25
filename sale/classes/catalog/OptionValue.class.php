@@ -1,0 +1,48 @@
+<?php
+/*
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
+
+namespace sale\catalog;
+
+use equal\orm\Model;
+
+class OptionValue extends Model {
+
+    public static function getDescription() {
+        return 'Option values are the possible values to which an option, for a given product attribute, can be set to.';
+    }
+
+    public static function getColumns() {
+        return [
+
+            'name' => [
+                'type'              => 'string',
+                'description'       => 'Name of the option value.',
+                'required'          => true
+            ],
+
+            'value' => [
+                'type'              => 'string',
+                'description'       => 'The choice (possible value) for the related option.'
+            ],
+
+            'description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain',
+                'description'       => 'Short description of the value.',
+                'multilang'         => true
+            ],
+
+            'option_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'sale\catalog\Option',
+                'description'       => 'Product Option this value relates to.',
+                'required'          => true
+            ]
+
+        ];
+    }
+}

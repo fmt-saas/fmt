@@ -1,0 +1,43 @@
+{
+    "name": "sale",
+    "description": "Manage products and prices to invoice customers.",
+    "version": "1.0",
+    "authors": ["Yesbabylon"],
+    "license": "LGPL-3",
+    "depends_on": [
+        "core",
+        "identity",
+        "finance"
+    ],
+    "requires": {
+        "dompdf/dompdf": "^2.0.8",
+        "twig/intl-extra": "<=3.11.0",
+        "twig/twig": "<=3.11.0"
+    },
+    "apps": [
+        "pos",
+        {
+            "id": "sale",
+            "name": "Sales",
+            "extends": "app",
+            "description": "Sales, commercial transactions, and invoicing",
+            "icon": "storefront",
+            "color": "#f6bd04",
+            "access": {
+                "groups": [
+                    "users"
+                ]
+            },
+            "params": {
+                "menus": {
+                    "left": "sale.left",
+                    "top": "sale.top"
+                },
+                "context": {
+                    "entity": "sale\\pay\\Payment",
+                    "view": "dashboard.default"
+                }
+            }
+        }
+    ]
+}

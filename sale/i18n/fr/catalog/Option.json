@@ -1,0 +1,35 @@
+{
+	"name": "Option",
+	"plural": "Options",
+	"description": "",
+	"model": {
+		"product_model_id": {
+			"label": "Modèle de produit",
+			"description": "Modèle de produit auquel appartient cette option.",
+			"help": ""
+		},
+		"description": {
+			"label": "Description",
+			"description": "Brève description de l'option.",
+			"help": ""
+		}
+	},
+	"view": {
+		"form.default": {
+			"name": "Option",
+			"description": "",
+			"layout": {
+				"section.description": {
+					"label": "Description",
+					"help": ""
+				}
+			}
+		},
+		"list.default": {
+			"name": "Options",
+			"description": "Liste des option.",
+			"layout": {}
+		}
+	},
+	"error": {}
+}

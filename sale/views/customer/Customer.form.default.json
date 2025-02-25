@@ -1,0 +1,131 @@
+{
+    "name": "Customer",
+    "description": "Form holding basic information about a customer.",
+    "access": {
+        "groups": ["sale.default.users"]
+    },
+    "extends": {
+        "entity": "identity\\Partner",
+        "view": "form.default"
+    },
+    "layout": {
+        "remove": [
+            "section.advanced",
+            "group.partner_info",
+            "field.type_id"
+        ],
+        "update": {
+            "field.lang_id": {
+                "after": [
+                    {
+                        "type": "field",
+                        "label": "Identity of Customer",
+                        "value": "partner_identity_id",
+                        "width": "100%"
+                    }
+                ]
+            },
+            "section.identity_info": {
+                "after": [
+                    {
+                        "id": "section.customer",
+                        "label": "Customer specifics",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Customer Nature",
+                                                "value": "customer_nature_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Customer Type",
+                                                "value": "customer_type_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Fare class",
+                                                "value": "rate_class_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "customer_external_ref",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ref_account",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.invoices",
+                        "label": "Invoices",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "invoices_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "view": "list.default",
+                                                        "actions": {
+                                                            "ACTION.SELECT": false,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.contacts",
+                        "label": "Contacts",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "contacts_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "view": "list.default"
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}

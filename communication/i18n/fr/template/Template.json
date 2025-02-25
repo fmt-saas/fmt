@@ -1,0 +1,72 @@
+{
+    "name": "Modèle",
+    "plural": "Modèles",
+    "description": "",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Code mnémo complet du modèle.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Code mnémo du modèle.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Rôle et utilité du modèle.",
+            "help": ""
+        },
+        "category_id": {
+            "label": "Catégorie",
+            "description": "La catégorie à laquelle appartient le modèle.",
+            "help": ""
+        },
+        "type": {
+            "label": "Type",
+            "description": "Le contexte auquel le modèle est destiné.",
+            "selection": {
+                "quote": "devis",
+                "contract": "contrat",
+                "funding": "financement",
+                "invoice": "facture",
+                "option": "option"
+            },
+            "help": ""
+        },
+        "parts_ids": {
+            "label": "Parties",
+            "description": "Parties du template.",
+            "help": ""
+        },
+        "attachments_ids": {
+            "label": "Pièces jointes",
+            "description": "Pièces jointes du template.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Modèle",
+            "description": "Les modèles sont utilisés dans la communication et contiennent plusieurs catégories.",
+            "layout": {
+                "template.parts": {
+                    "label": "Parties"
+                },
+                "template.attachments": {
+                    "label": "Pièces jointes"
+                },
+                "template.description": {
+                    "label": "Description"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Modèles",
+            "description": "Liste des modèles.",
+            "layout": {}
+        }
+    },
+    "error": {}
+}

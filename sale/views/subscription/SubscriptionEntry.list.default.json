@@ -1,0 +1,92 @@
+{
+    "name": "Subscription Entries",
+    "description": "Default listing of all subscription entries.",
+    "domain": ["object_class", "=", "sale\\subscription\\Subscription"],
+    "controller": "sale_subscription_subscriptionentry-collect",
+    "sort": "desc",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "id",
+                "width": "10%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "customer_id",
+                "label": "Customer",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "product_id",
+                "label": "Product (Catalog)",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "subscription_id",
+                "label": "Subscription",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "date_from",
+                "width": "10%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "date_to",
+                "width": "10%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "price_id",
+                "label": "Price",
+                "width": "10%"
+            },
+            {
+                "id": "item.is_billable",
+                "type": "field",
+                "value": "is_billable",
+                "label": "Is Billable",
+                "width": "10%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "id": "item.has_receivable",
+                "type": "field",
+                "value": "has_receivable",
+                "label": "Has receivable",
+                "width": "10%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "id": "item.receivable_id",
+                "type": "field",
+                "value": "receivable_id",
+                "label": "Receivable",
+                "width": "10%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "id": "item.status",
+                "type": "field",
+                "label": "Status",
+                "value": "status",
+                "width": "10%",
+                "sortable": true,
+                "readonly": true
+            }
+        ]
+    }
+}

@@ -1,0 +1,239 @@
+{
+    "name": "Invoice",
+    "description": "Sales invoice details.",
+    "access": {
+        "groups": ["sale.default.users"]
+    },
+    "actions": [
+        {
+            "id": "action.invoice",
+            "label": "Invoice",
+            "description": "To Invoice.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "proforma"],
+            "params": {
+                "entity": "sale\\accounting\\invoice\\Invoice",
+                "transition": "invoice",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.cancel-proforma",
+            "label": "Delete",
+            "description": "Cancel proforma.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "proforma"],
+            "params": {
+                "entity": "sale\\accounting\\invoice\\Invoice",
+                "transition": "cancel-proforma",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.cancel",
+            "label": "Cancel",
+            "description": "Cancel invoice.",
+            "controller": "sale_accounting_invoice_cancel",
+            "confirm": true,
+            "visible": ["status", "=", "invoice"]
+        }
+    ],
+    "routes": [
+        {
+            "id": "route.print.pdf",
+            "label": "Print invoice",
+            "description": "Displays all lines but without group.",
+            "icon": "print",
+            "route": "/?get=sale_accounting_invoice_render-pdf&id=object.id",
+            "target": "_blank",
+            "absolute": true
+        }
+    ],
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "status",
+                                                "visible": false
+                                            },
+                                            {
+                                                "id": "item.invoice_number",
+                                                "type": "field",
+                                                "value": "invoice_number",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "heading": true,
+                                                    "readonly": true
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Customer",
+                                                "value": "customer_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "id": "item.invoice_type",
+                                                "type": "field",
+                                                "value": "invoice_type",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "id": "item.reversed_invoice_id",
+                                                "type": "field",
+                                                "value": "reversed_invoice_id",
+                                                "width": "33%",
+                                                "visible": [[["status", "=", "cancelled"]], [["invoice_type", "=", "credit_note"]]]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "customer_ref",
+                                                "width": "33%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Organisation",
+                                                "value": "organisation_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "id": "item.emission_date",
+                                                "type": "field",
+                                                "value": "emission_date",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "usage": "date/plain"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.invoice_lines",
+                        "label": "Invoice Lines",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "id": "item.invoice_lines_ids",
+                                                "type": "field",
+                                                "value": "invoice_lines_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.default",
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.SELECT": false,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.payments",
+                        "label": "Payment",
+                        "visible": ["status", "=", "invoice"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "id": "item.due_date",
+                                                "type": "field",
+                                                "value": "due_date",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "id": "item.due_date",
+                                                "type": "field",
+                                                "value": "payment_terms_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "funding_id",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.accounting_entries",
+                        "label": "Accounting entries",
+                        "visible": ["status", "<>", "proforma"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "accounting_entries_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.invoice",
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.SELECT": false,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "name": "Invoice Line Groups",
+    "description": "This view is intended for displaying the invoice line groups.",
+    "access": {
+        "groups": ["finance.default.users"]
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Invoice",
+                "value": "invoice_id",
+                "width": "20%"
+            }
+        ]
+    }
+}

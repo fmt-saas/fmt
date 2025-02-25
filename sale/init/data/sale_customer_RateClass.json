@@ -1,0 +1,23 @@
+[
+    {
+        "name": "sale\\customer\\RateClass",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "Default class",
+                "description": "Default fare class."
+            }
+        ]
+    },
+    {
+        "name": "sale\\customer\\RateClass",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "description": "Classe tarifaire par défaut."
+            }
+        ]
+    }
+]

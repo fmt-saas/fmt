@@ -1,0 +1,206 @@
+{
+    "name": "Accounting menu",
+    "access": {
+      "groups": ["finance.default.users"]
+   },
+    "layout": {
+        "items": [
+            {
+                "id": "settings.all_stats",
+                "label": "Stats",
+                "description": "",
+                "icon": "settings",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "settings.all_stats.documents",
+                        "icon": "settings",
+                        "type": "parent",
+                        "label": "Documents values",
+                        "description": "",
+                        "children": [
+                            {
+                                "id": "settings.all_documents.size_documents",
+                                "type": "entry",
+                                "label": "Taille des documents",
+                                "description": "",
+                                "context": {
+                                    "entity": "documents\\Document",
+                                    "view": "chart.default"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "settings.all_stats.orders",
+                        "icon": "settings",
+                        "type": "parent",
+                        "label": "Orders values",
+                        "description": "",
+                        "children": [
+                            {
+                                "id": "settings.all_orders",
+                                "type": "entry",
+                                "label": "CA Commandes",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.default"
+                                }
+                            },
+                            {
+                                "id": "settings.all_orders.total_orders",
+                                "type": "entry",
+                                "label": "Nombre de commandes",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.orderCount"
+                                }
+                            },
+                            {
+                                "id": "settings.all_orders.compositionItem",
+                                "type": "entry",
+                                "label": "Nombre de personnes",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.compositionItem"
+                                }
+                            },
+                            {
+                                "id": "settings.all_orders.total_orders.accomodation",
+                                "type": "entry",
+                                "label": "Nombre de nuitées",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.accomodation"
+                                }
+                            },
+                            {
+                                "id": "settings.all_orders.total_orders.INS",
+                                "type": "entry",
+                                "label": "INS",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.INS"
+                                }
+                            },
+                            {
+                                "id": "settings.all_orders.total_meals",
+                                "type": "entry",
+                                "label": "CA repas",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.meal"
+                                }
+                            },
+                            {
+                                "id": "settings.all_orders.total_orders.noInvoice",
+                                "type": "entry",
+                                "label": "CA non facturé",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.noInvoice"
+                                }
+                            },
+                            {
+                                "id": "settings.all_orders.total_orders.sku",
+                                "type": "entry",
+                                "label": "SKU",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.sku"
+                                }
+                            },
+                            {
+                                "id": "settings.all_orders.total_orders.sojournType",
+                                "type": "entry",
+                                "label": "Type de séjour",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.sojournType"
+                                }
+                            },
+                            {
+                                "id": "settings.all_orders.total_orders.taxes",
+                                "type": "entry",
+                                "label": "Nombre de taxes de séjour",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\OrderLine",
+                                    "view": "chart.taxes"
+                                }
+                            },
+                            {
+                                "id": "settings.all_orders.total_orders.provisional",
+                                "type": "entry",
+                                "label": "CA prévisionnel",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Order",
+                                    "view": "chart.provisionalCA"
+                                }
+                            }
+
+                        ]
+                    },
+                    {
+                        "id": "settings.all_stats.sale",
+                        "icon": "settings",
+                        "type": "parent",
+                        "label": "Sales values",
+                        "description": "",
+                        "children": [
+                            {
+                                "id": "settings.all_stats.sales",
+                                "type": "entry",
+                                "label": "CA pos",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\pos\\CashdeskSession",
+                                    "view": "chart.default"
+                                }
+                            },
+                            {
+                                "id": "settings.all_stats.payment_methods",
+                                "type": "entry",
+                                "label": "Total paiement par carte bancaire",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\pos\\CashdeskSession",
+                                    "view": "chart.paymentMethod"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "settings.all_stats.finance",
+                        "icon": "settings",
+                        "type": "parent",
+                        "label": "Finance values",
+                        "description": "",
+                        "children": [
+                            {
+                                "id": "settings.all_stats.finance_funding",
+                                "type": "entry",
+                                "label": "Total Remboursements",
+                                "description": "",
+                                "context": {
+                                    "entity": "sale\\order\\Funding",
+                                    "view": "chart.default"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
