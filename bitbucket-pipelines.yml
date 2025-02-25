@@ -1,0 +1,51 @@
+pipelines:
+  default:
+    - step:
+        name: Test with eQual dev-2.0
+        image: php:8.3-fpm
+        artifacts:
+          - artifacts/**
+        services:
+          - mysql2
+        script:
+          #memo - current directory is /opt/atlassian/pipelines/agent/build
+          # Install dependencies
+          - apt-get update && apt-get -y install git libzip-dev default-mysql-client
+          - docker-php-ext-install pdo pdo_mysql mysqli zip
+          - docker-php-ext-enable mysqli
+          # Create a directory for artifacts
+          - mkdir -p artifacts
+          - mkdir -p /var/www/html
+          - rm -rf /var/www/html/*
+          - git config --global --add safe.directory '*'
+          # Clone the eQual framework repository
+          - git clone https://github.com/equalframework/equal.git /var/www/html
+          - git -C /var/www/html checkout dev-2.0
+          # Remove the 'packages' directory
+          - mv /var/www/html/packages /var/www/html/packages.core
+          # Copy local files (repository) to 'packages' directory
+          - cp -r . /var/www/html/packages
+          # Restore the equal core package
+          - cp -r /var/www/html/packages.core/core /var/www/html/packages/core
+          # Run equal commands for testing and initialization
+          - php /var/www/html/run.php --do=init_fs
+          - php /var/www/html/run.php --do=test_fs-consistency
+          - php /var/www/html/run.php --do=test_db-connectivity
+          - php /var/www/html/run.php --do=init_db
+          - php /var/www/html/run.php --do=init_package --package=fmt --import=true --import_cascade=false
+          # Run tests without stopping in case of exit(1)
+          - set +e ; php /var/www/html/run.php --do=test_package --package=fmt ; export FAILING=$? ; set -e
+          # Exit according to returned code
+          - exit $FAILING
+definitions:
+  services:
+    mysql1:
+      image: mysql:5.7
+      environment:
+        MYSQL_ROOT_PASSWORD: test
+        MYSQL_DATABASE: equal
+    mysql2:
+      image: mysql:5.7
+      environment:
+        MYSQL_ROOT_PASSWORD: test
+        MYSQL_DATABASE: equal
