@@ -1,0 +1,23 @@
+{
+    "name": "Property Lot",
+    "description": "List of property lots.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "active_ownership_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "25%"
+            }
+        ]
+    }
+}

@@ -1,0 +1,23 @@
+{
+    "name": "Statutory Quotas",
+    "description": "List of quotas assigned to the Property Lots as defined in the notary deed.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "property_lot_id",
+                "width": "40%"
+            },
+            {
+                "type": "field",
+                "value": "property_lot_shares",
+                "width": "20%"
+            }
+		]
+	}
+}

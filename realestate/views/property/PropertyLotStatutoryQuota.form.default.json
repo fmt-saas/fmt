@@ -1,0 +1,42 @@
+{
+    "name": "Statutory Quota",
+    "description": "Quota of the Property Lots, as defined in the notary deed.",
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "label": "General",
+                        "id": "section.main",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "property_lot_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "property_lot_shares",
+                                                "width": "33%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
