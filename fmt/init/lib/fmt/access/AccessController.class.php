@@ -1,14 +1,13 @@
 <?php
 /*
-    This file is part of the eQual framework <http://www.github.com/equalframework/equal>
-    Some Rights Reserved, eQual framework, 2010-2024
-    Original author(s): Cédric FRANCOYS
-    Licensed under GNU LGPL 3 license <http://www.gnu.org/licenses/>
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Original author(s): Yesbabylon SA
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 namespace fmt\access;
 
 use equal\orm\ObjectManager;
-use fmt\setting\Setting;
 use hr\Permission;
 use hr\role\Role;
 use hr\role\RoleAssignment;
@@ -16,24 +15,17 @@ use hr\role\RoleAssignment;
 class AccessController extends \equal\access\AccessController {
 
     private $cache_roles_map = [];
-    private $cache_rights_map = [];
 
-
-    /**
-     * Cache rights for a given user, operation and class.
-     * Create the cache structure if it does not exist yet.
-     *
-     */
-    private function cacheRights($user_id, $operation, $object_class, $rights) {
-        if(!isset($this->cache_rights_map[$user_id])) {
-            $this->cache_rights_map[$user_id] = [];
+    private function cacheRole($user_id, $condo_id, $role, $has_role) {
+        if( !isset($this->cache_roles_map[$user_id]) ) {
+            $this->cache_roles_map[$user_id] = [];
         }
 
-        if(!isset($this->cache_rights_map[$user_id][$operation])) {
-            $this->cache_rights_map[$user_id][$operation] = [];
+        if( !isset($this->cache_roles_map[$user_id][$condo_id]) ) {
+            $this->cache_roles_map[$user_id][$condo_id] = [];
         }
 
-        $this->cache_rights_map[$user_id][$operation][$object_class] = $rights;
+        $this->cache_roles_map[$user_id][$condo_id][$role] = $has_role;
     }
 
     /**
@@ -56,8 +48,7 @@ class AccessController extends \equal\access\AccessController {
             $user_id = $auth->userId();
         }
 
-        if(!isset($this->cache_roles_map[$user_id][$condo_id])) {
-
+        if(!isset($this->cache_roles_map[$user_id][$condo_id][$role])) {
             /** @var \equal\orm\ObjectManager */
             $orm = $this->container->get('orm');
 
@@ -79,16 +70,11 @@ class AccessController extends \equal\access\AccessController {
                     ['condo_id', '=', $condo_id]
                 ]);
 
-            $result = !empty($assignments_ids);
-
-            if( !isset($this->cache_roles_map[$user_id]) ) {
-                $this->cache_roles_map[$user_id] = [];
-            }
-
-            $this->cache_roles_map[$user_id][$condo_id] = $result;
+            $has_role = !empty($assignments_ids);
+            $this->cacheRole($user_id, $condo_id, $role, $has_role);
         }
 
-        return $this->cache_roles_map[$user_id][$condo_id];
+        return $this->cache_roles_map[$user_id][$condo_id][$role];
     }
 
 
@@ -118,20 +104,20 @@ class AccessController extends \equal\access\AccessController {
             $user_id = $auth->userId();
         }
 
+        if(!is_array($object_ids)) {
+            $object_ids = (array) $object_ids;
+        }
+
         if($object_class === '*') {
             return parent::userIsAllowed($user_id, $operation, $object_class, $object_fields, $object_ids);
-        }
-        elseif(isset($this->cache_rights_map[$user_id][$operation][$object_class])) {
-            $rights = $this->cache_rights_map[$user_id][$operation][$object_class];
         }
         else {
             $rights = 0;
 
-            while( !isset($this->cache_rights_map[$user_id][$operation][$object_class]) ) {
+            while( true ) {
 
                 // retrieve rights from user and its groups
                 $rights |= parent::getUserRights($user_id, $object_class, $object_ids, $operation);
-                var_dump($rights);
 
                 if( ($rights & $operation) === $operation ) {
                     break;
@@ -144,30 +130,62 @@ class AccessController extends \equal\access\AccessController {
                 }
 
                 $schema = $model->getSchema();
-                // check user roles only for classes relating to condominiums
-                if(!isset($schema['condo_id'])) {
-                    break;
-                }
-                else {
-                    echo 'checking roles';
-                    $condo_id = Setting::get('fmt', 'main', 'user.condo_id', null, ['user_id' => $user_id]);
-                    // check if user has an assignment for this role
-                    // #memo - if $condo_id is null, it will fetch global entries, if any (i.e. the user has the role for any condo)
-                    $assignments_ids = $orm->search(RoleAssignment::getType(), [
-                            ['user_id', '=', $user_id],
-                            ['condo_id', '=', $condo_id]
-                        ]);
+                // check HR roles only for classes relating to condominiums
+                if(isset($schema['condo_id'])) {
 
-                    if(!is_array($assignments_ids)) {
-                        return false;
+                    $domain = [];
+
+                    if(count($object_ids)) {
+                        $objects = $orm->read($model::getType(), $object_ids, ['condo_id']);
+                        $condos_ids = array_map(function($o) { return $o['condo_id']; }, $objects);
+                        $domain = [
+                                // roles for condominiums specific to the objects (if $object_ids not empty)
+                                [
+                                    ['user_id', '=', $user_id],
+                                    ['condo_id', 'in', $condos_ids]
+                                ],
+                                // roles for any condominium
+                                [
+                                    ['user_id', '=', $user_id],
+                                    ['condo_id', 'is', null]
+                                ]
+                            ];
+                    }
+                    else {
+                        // check for roles on whole class (not specific objects)
+                        $domain = [
+                                [
+                                    ['user_id', '=', $user_id],
+                                    ['condo_id', 'is', null]
+                                ]
+                            ];
                     }
 
-                    $assignments = $orm->read(RoleAssignment::getType(), $assignments_ids, ['role_id']);
-                    $roles_ids = array_map(function($a) { return $a['role_id']; }, $assignments);
+                    // retrieve roles assignments for any of the related condominiums
+                    $assignments_ids = $orm->search(RoleAssignment::getType(), $domain);
+
+                    if(!is_array($assignments_ids) || !count($assignments_ids)) {
+                        break;
+                    }
+
+                    // retrieve common roles (assigned to all objects), if any
+                    $assignments = $orm->read(RoleAssignment::getType(), $assignments_ids, ['condo_id', 'role_id']);
+                    $map_roles_by_condo = [];
+                    foreach($assignments as $a) {
+                        $map_roles_by_condo[$a['condo_id']][] = $a['role_id'];
+                    }
+                    if(count($map_roles_by_condo) <= 1) {
+                        $roles_ids = (current($map_roles_by_condo)) ?: [];
+                    }
+                    else {
+                        $roles_ids = array_intersect(...array_values($map_roles_by_condo));
+                    }
+
+                    // retrieve all permissions from granted roles
                     $permissions_ids = $orm->search(Permission::getType(), ['role_id', 'in', $roles_ids]);
 
-                    if(!is_array($permissions_ids)) {
-                        return false;
+                    if(!is_array($permissions_ids) || !count($permissions_ids)) {
+                        break;
                     }
 
                     $permissions = $orm->read(Permission::getType(), $permissions_ids, ['class_name', 'rights']);
@@ -198,12 +216,10 @@ class AccessController extends \equal\access\AccessController {
                             }
                         }
                     }
-
-                    break;
                 }
+                break;
             }
 
-            $this->cacheRights($user_id, $operation, $object_class, $rights);
         }
 
         return ($rights & $operation) === $operation;
