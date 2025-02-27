@@ -21,7 +21,7 @@ class Tenancy extends \equal\orm\Model {
             ],
 
             'property_lot_id' => [
-                'type'              => 'one2many2one',
+                'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\PropertyLot',
                 'description'       => "The Property Lot the tenancy relates to.",
             ],

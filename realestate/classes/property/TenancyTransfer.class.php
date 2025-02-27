@@ -11,12 +11,6 @@ class TenancyTransfer extends \equal\orm\Model {
     public static function getColumns() {
 
         return [
-            'date' => [
-                'type'              => 'date',
-                'description'       => "Date at which the tenancy transfer took place.",
-                'required'          => true
-            ],
-
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
@@ -24,8 +18,14 @@ class TenancyTransfer extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'date' => [
+                'type'              => 'date',
+                'description'       => "Date at which the tenancy transfer took place.",
+                'required'          => true
+            ],
+
             'property_lot_id' => [
-                'type'              => 'one2many2one',
+                'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\PropertyLot',
                 'description'       => "The Property Lot the transfer file relates to.",
             ],
