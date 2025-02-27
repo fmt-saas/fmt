@@ -8,4 +8,15 @@
 namespace realestate\property;
 
 class CommonAreaType extends \equal\orm\Model {
+
+    public static function getColumns() {
+
+        return [
+            'name' => [
+                'type'              => 'string',
+                'description'       => "Name of the common area type.",
+                'required'          => true
+            ]
+        ];
+    }
 }

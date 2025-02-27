@@ -16,6 +16,15 @@ class Condominium extends \identity\Organisation {
     public static function getColumns() {
 
         return [
+            'condo_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'relation'          => ['id'],
+                'description'       => "Alias of the `id` field.",
+                'help'              => "This is used to comply with the Role assignments at Access Control level.",
+                'store'             => true
+            ],
+
             'managing_agent_id' => [
                 'type'              => 'many2one',
                 'description'       => "The managing agent currently managing the condominium.",
@@ -31,13 +40,54 @@ class Condominium extends \identity\Organisation {
                 'description'       => 'List of employees assigned to the management of the condominium.'
             ],
 
+            'total_shares' => [
+                'type'              => 'integer',
+                'description'       => "The total number of shares of the ownership.",
+                'default'           => 1000
+            ],
+
+            'construction_permit_date' => [
+                'type'              => 'date',
+                'description'       => 'Date at which the permit was issued.'
+            ],
+
+            'construction_start_date' => [
+                'type'              => 'date',
+                'description'       => 'Date at which the construction started.'
+            ],
+
+            'construction_compliance_date' => [
+                'type'              => 'date',
+                'description'       => 'Date at which the compliancy documentation was issued.'
+            ],
+
+            'construction_completion_date' => [
+                'type'              => 'date',
+                'description'       => 'Date at which the construction finished.'
+            ],
+
+            'condo_creation_date' => [
+                'type'              => 'date',
+                'description'       => 'Date at which the condominium was constituted.'
+            ],
+
+            'condo_regulations_date' => [
+                'type'              => 'date',
+                'description'       => 'Date of the latest update of the condominium regulations.'
+            ],
+
+            'cadastral_number' => [
+                'type'              => 'string',
+                'description'       => 'Number of the cadastral register of the property.',
+            ],
+
             'fiscal_year_start' => [
                 'type'              => 'date',
                 'description'       => 'Date at which the fiscal year starts.'
             ],
 
             'fiscal_period_frequency' => [
-                'type'              => 'one2many',
+                'type'              => 'string',
                 'selection'         => [
                     'Q' => 'Quarterly',
                     'T' => 'Tertially' ,
@@ -54,6 +104,19 @@ class Condominium extends \identity\Organisation {
                 */
             ],
 
+            'common_areas_ids' => [
+                'type'              => 'one2many',
+                'description'       => "List of common areas in the condominium.",
+                'foreign_object'    => 'realestate\property\CommonArea',
+                'foreign_field'     => 'condo_id'
+            ],
+
+            'apportionment_keys_ids' => [
+                'type'              => 'one2many',
+                'description'       => "The apportionment keys relating to the condominium.",
+                'foreign_object'    => 'realestate\property\ApportionmentKey',
+                'foreign_field'     => 'condo_id'
+            ]
 
         ];
     }

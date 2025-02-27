@@ -12,12 +12,6 @@ class OwnershipTransfer extends \equal\orm\Model {
 
         return [
 
-            'date' => [
-                'type'              => 'date',
-                'description'       => "Date at which the ownership transfer took place.",
-                'required'          => true
-            ],
-
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
@@ -25,8 +19,14 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'date' => [
+                'type'              => 'date',
+                'description'       => "Date at which the ownership transfer took place.",
+                'required'          => true
+            ],
+
             'property_lot_id' => [
-                'type'              => 'one2many2one',
+                'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\PropertyLot',
                 'description'       => "The  Property Lot the transfer file relates to.",
             ],
@@ -34,13 +34,13 @@ class OwnershipTransfer extends \equal\orm\Model {
             'ownership_from_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'realestate\property\Ownership'
+                'foreign_object'    => 'realestate\ownership\Ownership'
             ],
 
             'ownership_to_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'realestate\property\Ownership'
+                'foreign_object'    => 'realestate\ownership\Ownership'
             ]
 
         ];

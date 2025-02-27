@@ -11,6 +11,13 @@ class PropertyLot extends \equal\orm\Model {
 
     public static function getColumns() {
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the property lot belongs to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'required'          => true
+            ],
+
             'name' => [
                 'type'              => 'string',
                 'description'       => 'List of employees assigned to the management of the condominium.',
@@ -22,13 +29,6 @@ class PropertyLot extends \equal\orm\Model {
                 'description'       => 'List of employees assigned to the management of the condominium.'
             ],
 
-            'condo_id' => [
-                'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'realestate\property\Condominium',
-                'required'          => true
-            ],
-
             'cadastral_number' => [
                 'type'              => 'string',
                 'description'       => 'Number of the cadastral register of the property.',
@@ -36,7 +36,8 @@ class PropertyLot extends \equal\orm\Model {
 
             'lot_area' => [
                 'type'              => 'float',
-                'description'       => 'Area of the property lot in surface units.',
+                'usage'             => 'number/float:3.2',
+                'description'       => 'Total area of the property lot in surface units.',
             ],
 
             'is_primary' => [
@@ -60,17 +61,39 @@ class PropertyLot extends \equal\orm\Model {
                 'visible'           => ['is_primary', '=', false],
             ],
 
-            'tenant_id' => [
+            'nature_id' => [
                 'type'              => 'many2one',
                 'description'       => "Rental Unit which current unit belongs to, if any.",
-                'foreign_object'    => 'realestate\RentalUnit',
-
+                'foreign_object'    => 'realestate\property\PropertyLotNature',
+                'required'          => true,
+                'dependents'        => ['nature_id' => 'count_property_lots']
             ],
 
+            'has_tenancy' => [
+                'type'              => 'boolean',
+                'description'       => "Flag to mark the lot as being rented.",
+                'default'           => false
+            ],
+
+            'tenancy_id' => [
+                'type'              => 'many2one',
+                'description'       => "Current tenancy, if applicable.",
+                'foreign_object'    => 'realestate\property\Tenancy',
+                'visible'           => ['has_tenancy', '=', true]
+            ],
+
+            // #todo
             'building_id' => [
                 'type'              => 'many2one',
                 'description'       => "Rental Unit which current unit belongs to, if any.",
                 'foreign_object'    => 'realestate\RentalUnit',
+            ],
+
+            'active_ownership_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'description'       => "Current ownership of the property lot.",
+                'required'          => true
             ],
 
             'ownership_transfers_ids' => [
@@ -78,7 +101,47 @@ class PropertyLot extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\property\OwnershipTransfer',
                 'foreign_field'     => 'property_lot_id',
                 'description'       => "The property purchase transfer file.",
-            ]
+            ],
+
+            'ownerships_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'foreign_field'     => 'property_lots_ids',
+                'rel_table'         => 'realestate_ownership_rel_property_lot',
+                'rel_foreign_key'   => 'ownership_id',
+                'rel_local_key'     => 'lot_id',
+                'description'       => 'Ownerships to which this property lot is assigned.'
+            ],
+
+            'apportionment_keys_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'realestate\property\ApportionmentKey',
+                'foreign_field'     => 'property_lots_ids',
+                'rel_table'         => 'realestate_property_apportionment_key_rel_property_lot',
+                'rel_foreign_key'   => 'apportionment_key_id',
+                'rel_local_key'     => 'lot_id',
+                'description'       => 'Apportionment keys to which this property lot is assigned.'
+            ],
+
+            // settings
+
+            'has_grouped_statements' => [
+                'type'              => 'boolean',
+                'description'       => "Flag to mark the lot as being rented.",
+                'default'           => false
+            ],
+
         ];
     }
+
+    public static function onbeforeupdate($self, $values) {
+
+        // trigger update for count_property_lots of previously assigned nature
+        if(isset($values['nature_id'])) {
+            $natures_ids = array_map(function ($a) { return $a['nature_id'];}, $self->read(['nature_id'])->get(true));
+            PropertyLotNature::ids($natures_ids)->update(['count_property_lots' => null]);
+        }
+
+    }
+
 }
