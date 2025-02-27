@@ -95,7 +95,7 @@
                     },
                     {
                         "id": "section.assignments",
-                        "label": "Assignments",
+                        "label": "Roles Assignments",
                         "rows": [
                             {
                                 "columns": [
