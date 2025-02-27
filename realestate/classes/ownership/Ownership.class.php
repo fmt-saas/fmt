@@ -21,12 +21,21 @@ class Ownership extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'property_lots_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'realestate\property\PropertyLot',
+                'foreign_field'     => 'ownerships_ids',
+                'rel_table'         => 'realestate_ownership_ownership_rel_property_lot',
+                'rel_foreign_key'   => 'lot_id',
+                'rel_local_key'     => 'ownership_id',
+                'description'       => 'Property lots that are assigned to this ownership.'
+            ],
+
             'owners_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'hr\role\RoleAssignment',
+                'foreign_object'    => 'realestate\ownership\Owner',
                 'foreign_field'     => 'ownership_id',
-                'description'       => 'List of employees assigned to the management of the condominium.',
-                'required'          => true
+                'description'       => 'List of owners.'
             ],
 
             'ownership_type' => [
@@ -39,11 +48,12 @@ class Ownership extends \equal\orm\Model {
                 'default'          => 'unique'
             ],
 
-            'identity_id' => [
-                'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'identity\Identity',
-                'required'          => true
+            'total_shares' => [
+                'type'              => 'integer',
+                'description'       => "The total number of shares of the ownership.",
+                'default'           => 100,
+                'visible'           => ['ownership_type' => 'joint'],
+                'dependents'        => ['owners_ids' => 'ownership_percentage']
             ],
 
             'date_from' => [
