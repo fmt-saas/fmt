@@ -1,18 +1,18 @@
 {
     "name": "Analytic Charts List",
-    "description": "This view is intented for displaying the analytic charts.",
+    "description": "This view is intended for displaying the analytic charts.",
     "access": {
         "groups": ["finance.default.users"]
      },
     "layout": {
         "items": [
             {
-                "type": "field",            
+                "type": "field",
                 "value": "name",
                 "width": "20%"
-            }, 
+            },
             {
-                "type": "field",            
+                "type": "field",
                 "value": "organisation_id",
                 "width": "20%"
             }

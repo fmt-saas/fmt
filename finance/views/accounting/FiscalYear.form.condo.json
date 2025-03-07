@@ -1,0 +1,47 @@
+{
+    "name": "Fiscal Year",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {
+                    "id": "SAVE_AND_VIEW"
+                },
+                {
+                    "id": "SAVE_AND_CLOSE"
+                }
+            ]
+        }
+    },
+    "extends": {
+        "entity": "finance\\accounting\\FiscalYear",
+        "view": "form.default"
+    },
+    "actions": [
+        {
+            "id": "action.generate_periods",
+            "label": "Generate periods",
+            "controller": "finance_accounting_fiscalyear_generate-periods",
+            "confirm": true
+        },
+        {
+            "id": "action.open_fiscal_year",
+            "label": "Open fiscal Year",
+            "controller": "finance_accounting_fiscalyear_open",
+            "confirm": true
+        }
+    ],
+    "layout": {
+        "update": {
+            "item.organisation_id": {
+                "attributes": {
+                    "visible": false
+                }
+            },
+            "item.condo_id": {
+                "attributes": {
+                    "visible": false
+                }
+            }
+        }
+    }
+}

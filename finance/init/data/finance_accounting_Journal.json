@@ -1,0 +1,86 @@
+[
+    {
+        "name": "finance\\accounting\\Journal",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "code": "LEDG",
+                "mnemo": "LEDG",
+                "journal_type": "LEDG",
+                "description": "General ledger"
+            },
+            {
+                "id": 2,
+                "code": "SAL",
+                "mnemo": "SAL",
+                "journal_type": "SALE",
+                "description": "Sales"
+            },
+            {
+                "id": 3,
+                "code": "PUR",
+                "mnemo": "PUR",
+                "journal_type": "PURC",
+                "description": "Purchases"
+            },
+            {
+                "id": 4,
+                "code": "BNK",
+                "mnemo": "CASH",
+                "journal_type": "CASH",
+                "description": "Bank"
+            },
+            {
+                "id": 5,
+                "code": "MISC",
+                "mnemo": "MISC",
+                "journal_type": "MISC",
+                "description": "Miscellaneous"
+            },
+            {
+                "id": 6,
+                "code": "OPB",
+                "mnemo": "OPB",
+                "journal_type": "OPEN",
+                "description": "Opening Balances"
+            }
+        ]
+    },
+    {
+        "name": "finance\\accounting\\Journal",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "mnemo": "GEN",
+                "description": "Grand livre"
+            },
+            {
+                "id": 2,
+                "mnemo": "VEN",
+                "description": "Ventes"
+            },
+            {
+                "id": 3,
+                "mnemo": "ACH",
+                "description": "Achats"
+            },
+            {
+                "id": 4,
+                "mnemo": "FIN",
+                "description": "Banque"
+            },
+            {
+                "id": 5,
+                "mnemo": "OD",
+                "description": "Opérations diverses"
+            },
+            {
+                "id": 6,
+                "mnemo": "AN",
+                "description": "À nouveaux"
+            }
+        ]
+    }
+]

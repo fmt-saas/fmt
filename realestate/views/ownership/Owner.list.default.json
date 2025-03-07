@@ -1,0 +1,31 @@
+{
+    "name": "Property List",
+    "description": "This view is intended for displaying the list of properties.",
+    "access": {
+        "groups": ["order.default.users"]
+     },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "owner_type",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "owner_shares",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "ownership_id",
+                "width": "20%"
+            }
+        ]
+    }
+}

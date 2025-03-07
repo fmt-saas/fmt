@@ -1,0 +1,366 @@
+﻿code;control;description;libellé NL;libellé EN;code assignation;assignation;% Propriétaire;% Locataire
+1;1;DETTES À PLUS D'UN AN;SCHULDEN OP MEER DAN ÉÉN JAAR;DEBTS OVER MORE THAN ONE YEAR;;;;
+100;1;FONDS DE ROULEMENT;WERKKAPITAAL;WORKING CAPITAL;;;;
+100000;;Fonds de roulement;Werkkapitaal;Working capital;working_capital;Fonds de roulement;;
+12;1;SOLDE EN ATTENTE SUR TRAVAUX;OPENSTAAND SALDO WERKEN;OUTSTANDING BALANCE WORKS;pending_work_balance;Solde attente travaux;;
+14;1;RÉSULTAT EXERCICE;RESULTAAT BOEKINGSPERIODE;RESULT BOOKING PERIOD;;;;
+160;1;FONDS DE RÉSERVE;RESERVEFONDS;RESERVE FUND;;;;
+160000;;Fonds de réserve;Reservefonds;Reserve fund;reserve_fund;Fonds de réserve;;
+160001;;Fonds de réserve (1);Reservefonds (1);Reserve fund (1);;;;
+160002;;Fonds de réserve (2);Reservefonds (2);Reserve fund (2);;;;
+160003;;Fonds de réserve (3);Reservefonds (3);Reserve fund (3);;;;
+161;1;FONDS DE RÉSERVE PARTICULIER;BIJZONDER RESERVEFONDS;SPECIAL RESERVE FUND;;;;
+161000;;Fonds de réserve particulier;Bijzonder reservefonds;Special reserve fund;work_fund_call;Appel de fonds travaux;;
+17;1;DETTES À PLUS D'UN AN;SCHULDEN OP MEER DAN ÉÉN JAAR;DEBTS OVER MORE THAN ONE YEAR;;;;
+170;;Emprunts subordonnés;Achtergestelde leningen;Subordinated loans;;;;
+171;;Emprunts obligataires non subordonnés;Niet-achtergestelde obligatieleningen;Non-subordinated bond loans;;;;
+172;;Dettes de location-financement;Leasingschulden;Leasing debts;;;;
+173;;Etablissements de crédit;Kredietinstellingen;Credit institutions;;;;
+1730;;Dettes en compte;Schulden op rekening;Debts on account;;;;
+1731;;Promesses;Promessen;Promissory notes;;;;
+1732;;Crédits d'acceptation;Acceptkredieten;Acceptance credits;;;;
+174;;Autres emprunts;Overige leningen;Other loans;;;;
+175;;Dettes commerciales;Handelsschulden;Trade debts;;;;
+179;;Dettes diverses;Overige schulden;Other debts;;;;
+2;1;IMMOBILISATIONS ET CAUTIONNEMENTS;VASTE ACTIVA EN BORGTOCHTEN;FIXED ASSETS AND GUARANTEES;;;;
+21;1;IMMOBILISATION INCORPORELLES;IMMATERIËLE VASTE ACTIVA;INTANGIBLE FIXED ASSETS;;;;
+211;;Concessions, brevets, licences, savoir-faire, marques et droits similaires;Concessies, octrooien, licenties, know-how, merken en soortgelijke rechten;Concessions, patents, licenses, know-how, trademarks, and similar rights;;;;
+213;;Acomptes versés;Vooruitbetalingen;Advance payments;;;;
+23;1;INSTALLATIONS, MACHINES ET OUTILLAGE;INSTALLATIES, MACHINES EN UITRUSTING;INSTALLATIONS, MACHINERY AND EQUIPMENT;;;;
+24;1;MOBILIER ET MATÉRIEL ROULANT;MEUBILAIR EN ROLLEND MATERIAAL;FURNITURE AND VEHICLES;;;;
+25;1;IMMOBILISATIONS DÉTENUES EN LOCATION-FINANCEMENT;VASTE ACTIVA IN LEASING;FIXED ASSETS IN LEASING;;;;
+251;;Installations, machines et outillage;Installaties, machines en uitrusting;Installations, machinery, and equipment;;;;
+252;;Mobilier et matériel roulant;Meubilair en rollend materieel;Furniture and vehicles;;;;
+26;1;AUTRES IMMOBILISATIONS CORPORELLES;ANDERE MATERIËLE VASTE ACTIVA;OTHER TANGIBLE FIXED ASSETS;;;;
+28;1;CAUTIONNEMENTS VERSÉS;BETAALDE BORGTOCHTEN;PAID GUARANTEES;;;;
+3;1;STOCKS;VOORRAAD;INVENTORY;;;;
+3111;;Stock clés;Voorraad sleutels;Key inventory;;;;
+3112;;Stock télécommandes;Voorraad afstandsbedieningen;Remote control inventory;;;;
+3120;;Stock badges;Voorraad badges;Badge inventory;;;;
+3130;;Stock plaquettes;Voorraad naambordjes;Nameplate inventory;;;;
+4;1;CRÉANCES ET DETTES À UN AN AU PLUS;VORDERINGEN EN SCHULDEN OP TEN HOOGSTE ÉÉN JAAR;RECEIVABLES AND DEBTS DUE WITHIN ONE YEAR;;;;
+41;1;CRÉANCES;VORDERINGEN;RECEIVABLES;;;;
+410;;Copropriétaires;Mede-eigenaars;Co-owners;co_owners;Copropriétaires;;
+4100;;Copropriétaires - Fonds de réserve;Mede-eigenaars - Reservekapitaal;Co-owners - Reserve capital;co_owners_reserve_fund;Copropriétaires Fd. Réserve;;
+4101;;Copropriétaires - Fonds de roulement;Mede-eigenaars - Werkkapitaal;Co-owners - Working capital;co_owners_working_fund;Copropriétaires Fd. Roulement;;
+414;;Notes de crédit à recevoir;Te ontvangen creditnota's;Receivable credit notes;;;;
+415;;Anciens copropriétaires;Vorige mede-eigenaars;Previous co-owners;;;;
+416;;Créances diverses;Diverse vorderingen;Various receivables;;;;
+417;;Créances douteuses;Dubieuze debiteuren;Doubtful debtors;;;;
+418;;Locataires;Huurders;Tenants;;;;
+419;;Réductions de valeur actées;Geboekte waardeverminderingen;Recorded impairments;;;;
+42;1;DETTES À PLUS D'UN AN ÉCHÉANT DANS L'ANNÉE;SCHULDEN OP MEER DAN ÉÉN JAAR DIE BINNEN HET JAAR VERVALLEN;DEBTS OVER MORE THAN ONE YEAR DUE WITHIN THE YEAR;;;;
+420;;Emprunts subordonnés;Achtergestelde leningen;Subordinated loans;;;;
+421;;Emprunts obligataires non subordonnés;Niet-achtergestelde obligatieleningen;Non-subordinated bond loans;;;;
+422;;Dettes de location-financement et assimilées;Leasingschulden en soortgelijke;Leasing debts and similar;;;;
+423;;Etablissements de crédit;Kredietinstellingen;Credit institutions;;;;
+424;;Autres emprunts;Overige leningen;Other loans;;;;
+425;;Dettes commerciales;Handelsschulden;Trade debts;;;;
+429;;Dettes diverses;Overige schulden;Other debts;;;;
+43;1;DETTES FINANCIÈRES;FINANCIËLE SCHULDEN;FINANCIAL DEBTS;;;;
+430;;Etablissements de crédit - Emprunts en compte à terme fixe;Kredietinstellingen - Leningen op rekening met vaste termijn;Credit institutions - Fixed-term loans;;;;
+431;;Etablissements de crédit - Promesses;Kredietinstellingen - Promessen;Credit institutions - Promissory notes;;;;
+432;;Etablissements de crédit - Crédits d'acceptation;Kredietinstellingen - Acceptkredieten;Credit institutions - Acceptance credits;;;;
+433;;Etablissements de crédit - Dettes en compte courant;Kredietinstellingen - Schulden op rekening-courant;Credit institutions - Current account debts;;;;
+439;;Autres emprunts;Overige leningen;Other loans;;;;
+44;1;DETTES COMMERCIALES;HANDELSSCHULDEN;TRADE DEBTS;;;;
+440;;Fournisseurs;Leveranciers;Suppliers;suppliers;Fournisseurs;;
+444;;Factures à recevoir;Te ontvangen facturen;Invoices to be received;;;;
+45;1;DETTES FISCALES, SALARIALES ET SOCIALES;SCHULDEN MET BETREKKING TOT BELASTINGEN, BEZOLDIGINGEN EN SOCIALE LASTEN;DEBTS RELATED TO TAXES, SALARIES, AND SOCIAL CHARGES;;;;
+450;;Dettes fiscales estimées;Geraamd bedrag der belastingschulden;Estimated tax liabilities;;;;
+452;;Impôts et taxes à payer;Te betalen belastingen en taksen;Taxes and duties payable;;;;
+453;;Précomptes retenus;Ingehouden voorheffingen;Withholding taxes;;;;
+454;;Office national de la sécurité sociale;Rijksdienst voor sociale zekerheid;National Social Security Office;;;;
+455;;Rémunérations;Bezoldigingen;Salaries;manager_fees;Syndic_salarie;;
+456;;Pécules de vacances;Vakantiegeld;Holiday pay;;;;
+459;;Autres dettes sociales;Andere sociale schulden;Other social debts;;;;
+48;1;DETTES DIVERSES;DIVERSE SCHULDEN;VARIOUS DEBTS;;;;
+481;;Compte intermédiaire de mensualisation;Intermediaire maandelijkse rekening;Intermediate monthly account;installment_intermediate_account;Compte intermédiaire de mensualisation;;
+489;;Dettes : valeurs reportées;Schulden : Overgedragen middelen;Debts: Transferred funds;;;;
+49;1;COMPTES DE RÉGULARISATION;OVERLOPENDE REKENINGEN;ACCRUALS;;;;
+490;;Charges à reporter;Over te dragen kosten;Deferred costs;deferred_expenses;Charges à reporter;;
+491;;Produits acquis;Verkregen opbrengsten;Accrued income;;;;
+492;;Charges à imputer;Toe te rekenen kosten;Accrued costs;;;;
+492643;;Frais privatifs à imputer;Toe te rekenen privatieve kosten;Accrued private costs;;;;
+493;;Produits à reporter;Over te dragen opbrengsten;Deferred income;deferred_income;Produits_reporter;;
+494;;Compte de régularisation;Overlopende rekeningen;Accruals;adjustment_account;Compte_regularisation;;
+499;;Divers;Wachtrekeningen;Suspense accounts;;;;
+4990;;Compte d'attente;Tussenrekening;Interim account;;;;
+4991;;Arrondis débiteurs;Afgerond saldo debiteuren;Rounded debtor balance;;;;
+4992;;Arrondis créditeurs;Afgerond saldo crediteuren;Rounded creditor balance;;;;
+4993;;Comptes d'attente débiteur;Tussenrekeningen debiteuren;Interim debtor accounts;pending_debtor_import;Attente_debiteur_import;;
+4994;;Compte d'attente créditeur;Tussenrekeningen crediteuren;Interim creditor accounts;pending_creditor_import;Attente_crediteur_import;;
+4995;;Charges et produits à régulariser;Overlopende baten en lasten;Accrued income and expenses;;;;
+4996;;Sinistres;Schade;Damage;;;;
+499600;;Sinistre en attente;Schade in behandeling;Damage under review;;;;
+499601;;Sinistre ...;Schade ...;Damage ...;;;;
+5;1;PLACEMENTS DE TRÉSORERIE ET VALEURS DISPONIBLES;GELDBELEGGINGEN EN LIQUIDE MIDDELEN;INVESTMENTS AND CASH FUNDS;;;;
+53;1;DÉPÔTS À TERME;TERMIJNDEPOSITO'S;TERM DEPOSITS;;;;
+530;;Dépôts à terme de plus d'un an;Op meer dan één jaar;More than one year;;;;
+531;;Dépôts à terme de plus d'un mois et à un an au plus;Op meer dan één maand en ten hoogste één jaar;More than one month and up to one year;;;;
+532;;Dépôts à terme d'un mois au plus;Op ten hoogste één maand;Up to one month;;;;
+539;;Réductions de valeur actées;Geboekte waardeverminderingen;Recorded impairments;;;;
+55;1;ETABLISSEMENTS DE CRÉDIT;KREDIETINSTELLINGEN;CREDIT INSTITUTIONS;;;;
+550;;Compte épargne (Réserve);Spaarrekering (Reservekapitaal);Savings account (Reserve capital);bank_savings;Banque épargne;;
+551;;Compte courant (Roulement);Zichtrekening (Werkkapitaal);Current account (Working capital);bank_current;Banque courant;;
+552;;Autres comptes;Overige rekeningen;Other accounts;;;;
+57;;Caisses;Kassen;Cash registers;;;;
+58;;Virements internes;Interne overboekingen;Internal transfers;bank_transfer;Banque transfert;;
+6;1;CHARGES;KOSTEN;EXPENSES;;;;
+61;1;SERVICES ET BIENS DIVERS;DIENSTEN EN DIVERSE GOEDEREN;SERVICES AND VARIOUS GOODS;;;;
+610;1;ENTRETIEN ET PETITES RÉPARATIONS BÂTIMENT, JARDIN ET ENVIRONS;ONDERHOUD EN KLEINE HERSTELLINGEN GEBOUW, TUIN EN OMGEVING;MAINTENANCE AND MINOR REPAIRS BUILDING, GARDEN, AND SURROUNDINGS;;;;
+610000;1;PROTECTION ANTI-INCENDIE;BRANDBEVEILIGING;FIRE SAFETY;;;;
+6100000;;Prévention incendie;Brandpreventie;Fire prevention;;;0;100
+6100001;;Contrat d'entretien protection incendie;Onderhoudscontract brandbeveiliging;Fire safety maintenance contract;;;0;100
+6100002;;Entretien protection incendie hors contrat;Onderhoudscontract brandbeveiliging niet in contract inbegrepen;Fire safety maintenance contract not included;;;0;100
+6100003;;Réparation protection incendie;Herstelling brandbeveiliging;Fire safety repairs;;;100;0
+6100004;;Alerte incendie et détection incendie;Brandmelding en branddetectie;Fire alarm and fire detection;;;0;100
+6100005;;Entretien escalier secours et coupoles évacuation fumées;Onderhoud brandtrap en rookkoepels;Fire escape and smoke dome maintenance;;;0;100
+6100006;;Réparation escalier secours et coupoles évacuation fumées;Herstelling brandtrap en rookkoepels;Fire escape and smoke dome repairs;;;100;0
+6100007;;Signalisation de sécurité/éclairage de secours;Veiligheidssignalisatie/Noodverlichting;Safety signage/Emergency lighting;;;100;0
+6100008;;Protection contre la foudre;Bliksembeveiliging;Lightning protection;;;100;0
+6100009;;Autres frais protection incendie;Andere kosten brandbeveiliging;Other fire safety costs;;;0;100
+610100;1;ASCENSEURS;LIFTEN;ELEVATORS;;;;
+6101000;;Contrôle ascenseurs;Keuring liften;Elevator inspections;;;0;100
+6101001;;Contrat d'entretien ascenseurs;Onderhoudscontract liften;Elevator maintenance contract;;;0;100
+6101002;;Entretien ascenseurs hors contrat;Onderhoud en herstellingen liften niet in contract inbegrepen;Elevator maintenance and repairs not included in contract;;;0;100
+6101003;;Téléphone ascenseurs;Noodtelefoon liften;Elevator emergency phone;;;0;100
+6101004;;Electricité ascenseurs;Elektriciteit liften;Elevator electricity;;;0;100
+6101005;;Réparation ascenseur;Herstelling liften;Elevator repairs;;;100;0
+6101006;;Mise en conformité ascenseurs;Aanpassingswerken liften;Elevator modification works;;;100;0
+6101009;;Autres frais ascenseurs;Andere kosten liften;Other elevator costs;;;0;100
+610200;1;INSTALLATIONS ÉLECTRIQUES;ELEKTRISCHE INSTALLATIES;ELECTRICAL INSTALLATIONS;;;;
+6102000;;Entretien installations électriques;Onderhoud elektrische installaties;Electrical installation maintenance;;;0;100
+6102001;;Entretien installations électriques hors contrat;Onderhoud elektrische installaties niet in contract inbegrepen;Electrical installation maintenance not included in contract;;;0;100
+6102002;;Réparation installations électriques;Herstelling elektrische installaties;Electrical installation repairs;;;100;0
+6102003;;Entretien sonnettes et vidéophones;Onderhoud bel en parlofoon/videofooninstallatie;Doorbell and intercom/video intercom maintenance;;;0;100
+6102004;;Réparation sonnettes et vidéophones;Herstelling bel en parlofoon/videofooninstallatie;Doorbell and intercom/video intercom repairs;;;100;0
+6102005;;Entretien extracteurs d'air et de fumées;Lucht en rookafzuigingsinstallaties;Air and smoke extraction systems;;;0;100
+6102006;;Réparation extracteurs d'air et de fumées;Herstelling lucht en rookafzuigingsinstallaties;Air and smoke extraction system repairs;;;100;0
+6102007;;Vidéosurveillance;Camerabewaking;Camera surveillance;;;0;100
+6102008;;Réparation vidéosurveillance;Herstelling camerabewaking;Camera surveillance repairs;;;100;0
+6102009;;Autres frais installations électriques;Andere kosten elektrische installaties;Other electrical installation costs;;;0;100
+610300;1;SANITAIRES ET CHAUFFAGE;SANITAIR EN VERWARMING;PLUMBING AND HEATING;;;;
+6103000;;Contrôle installations chauffage;Keuring verwarming installaties;Heating installation inspections;;;0;100
+6103001;;Contrat entretien chauffage;Onderhoudscontract verwarming;Heating maintenance contract;;;0;100
+6103002;;Entretien chauffage hors contrat;Onderhoud verwarming niet in contract inbegrepen;Heating maintenance not included in contract;;;0;100
+6103003;;Entretien surpresseur d'eau;Onderhoud drukverhoging water;Water pressure booster maintenance;;;0;100
+6103004;;Entretien adoucisseur d'eau;Onderhoud waterverzachter;Water softener maintenance;;;0;100
+6103005;;Entretien conduites de chauffage;Overig onderhoud verwarmingsleidingen;Other heating pipe maintenance;;;0;100
+6103006;;Entretien conduites d'eau;Onderhoud waterleidingen;Water pipe maintenance;;;0;100
+6103007;;Entretien évacuations, égouts et installation de pompage;Onderhoud afvoeren, riolering en pompinstallaties;Drainage, sewer, and pump installation maintenance;;;0;100
+6103008;;Compteurs et relevé des compteurs;Meters en meteropname;Meters and meter reading;;;0;100
+6103009;;Autres frais sanitaires et chauffage;Andere kosten sanitair en verwarming;Other plumbing and heating costs;;;0;100
+610400;1;MENUISERIES;SCHRIJNWERKEN;CARPENTRY;;;;
+6104000;;Entretien menuiseries;Onderhoud schrijnwerken;Carpentry maintenance;;;0;100
+6104004;;Entretien balustrades et séparation de terrasses;Onderhoud balustrades en afscheiding terrassen;Balustrade and terrace partition maintenance;;;0;100
+6104009;;Autres frais menuiseries;Andere kosten schrijnwerken;Other carpentry costs;;;0;100
+610440;1;PORTE GARAGE;GARAGEPOORT;GARAGE DOOR;;;;
+6104400;;Contrôle porte garage;Keuring garagepoort;Garage door inspection;;;0;100
+6104401;;Contrat d'entretien porte garage;Onderhoudscontract garagepoort;Garage door maintenance contract;;;0;100
+6104402;;Entretien porte garage hors contrat;Onderhoud garagepoort niet in contract inbegrepen;Garage door maintenance not included in contract;;;0;100
+6104403;;Réparation porte garage;Herstelling garagepoort;Garage door repairs;;;100;0
+6104409;;Autres frais porte garage;Andere kosten garagepoort;Other garage door costs;;;0;100
+610500;1;NETTOYAGE ET TRAITEMENT ORDURES MÉNAGÈRES;SCHOONMAAK EN HUISVUILVERWERKING;CLEANING AND WASTE MANAGEMENT;;;;
+6105000;;Nettoyage bâtiment selon contrat;Schoonmaak gebouw volgens contract;Building cleaning as per contract;;;0;100
+6105001;;Nettoyage bâtiment hors contrat;Schoonmaak gebouw andere;Other building cleaning;;;0;100
+6105002;;Produits entretien;Onderhoudsproducten schoonmaak;Cleaning supplies;;;0;100
+6105003;;Matériel nettoyage;Materieel schoonmaak;Cleaning equipment;;;0;100
+6105004;;Traitement ordures ménagères selon contrat;Behandeling huisvuil volgens contract;Waste treatment as per contract;;;0;100
+6105005;;Traitement ordures ménagères hors contrat;Behandeling huishoudafval niet in contract inbegrepen;Household waste treatment not included in contract;;;0;100
+6105009;;Autres frais nettoyage et traitement ordures ménagères;Andere kosten schoonmaak en behandeling huishoudafval;Other cleaning and waste treatment costs;;;0;100
+6106;1;JARDINS, PARKINGS ET CHEMINS;TUINEN, PARKINGS EN WEGEN;GARDENS, PARKINGS, AND ROADS;;;;
+610600;1;JARDINS ET ABORDS;TUINEN EN DIRECTE OMGEVING;GARDENS AND DIRECT SURROUNDINGS;;;;
+6106000;;Entretien jardins et abords selon contrat;Onderhoud tuinen en directe omgeving volgens contract;Garden and surroundings maintenance as per contract;;;0;100
+6106001;;Entretien jardins et abords hors contrat;Overig onderhoud tuinen en directe omgeving;Other garden and surroundings maintenance;;;0;100
+6106002;;Aménagement jardins et abords;Aanleg tuinen en directe omgeving;Garden and surroundings landscaping;;;100;0
+610640;1;PARKINGS;PARKINGS;PARKINGS;;;;
+6106400;;Entretien parkings selon contrat;Onderhoud parkings volgens contract;Parking maintenance as per contract;;;0;100
+6106401;;Entretien parkings hors contrat;Overig onderhoud parkings;Other parking maintenance;;;0;100
+6106402;;Rénovation parkings;Renovatie parkings;Parking renovation;;;100;0
+6106403;;Réparation parkings;Herstelling parkings;Parking repairs;;;100;0
+6106404;;Electricité parkings;Elektriciteit parkings;Parking electricity;;;0;100
+6106409;;Autres frais parkings;Andere kosten parkings;Other parking costs;;;0;100
+610700;1;ENTRETIEN BÂTIMENTS;ONDERHOUD BOUWWERKEN;BUILDING MAINTENANCE;;;;
+6107000;;Entretien fondations;Onderhoud funderingen;Foundation maintenance;;;0;100
+6107001;;Entretien façades;Onderhoud gevels;Facade maintenance;;;0;100
+6107002;;Entretien terrasses;Onderhoud terrassen;Terrace maintenance;;;0;100
+6107003;;Entretien toitures;Onderhoud daken;Roof maintenance;;;0;100
+6107004;;Entretien cheminées;Onderhoud schoorstenen;Chimney maintenance;;;0;100
+6107005;;Entretien caves;Onderhoud kelders;Basement maintenance;;;0;100
+6107006;;Entretien hall, cage escaliers et couloirs;Onderhoudswerken hal, trapzalen en gangen;Hall, stairwell, and corridor maintenance;;;0;100
+6107007;;Divers entretien immeuble;Diverse onderhoud van gebouwen;Various building maintenance;;;0;100
+610800;1;PISCINE;ZWEMBAD;SWIMMING POOL;;;;
+6108000;;Contrôle piscine;Keuring en controle zwembad;Swimming pool inspection and control;;;0;100
+6108001;;Contrat d'entretien piscine;Onderhoudscontract zwembad;Swimming pool maintenance contract;;;0;100
+6108002;;Entretien piscine hors contrat;Onderhoud zwembad niet in contract inbegrepen;Swimming pool maintenance not included in contract;;;0;100
+6108003;;Fourniture produits piscine;Levering producten zwembad;Pool product supply;;;0;100
+6108004;;Surveillance piscine;Toezicht zwembad;Swimming pool supervision;;;0;100
+6108005;;Réparation piscine;Herstellingen zwembad;Swimming pool repairs;;;100;0
+6108009;;Autres frais piscine;Andere kosten zwembad;Other swimming pool costs;;;0;100
+610900;1;DIVERS;DIVERSEN;MISCELLANEOUS;;;;
+6109000;;Contrats d'entretien;Onderhoudscontracten;Maintenance contracts;;;0;100
+6109001;;Charges blanchisserie;Kosten wasserij;Laundry costs;;;0;100
+6109002;;Charges récréatives (plaines de jeux, tennis, fitness, billard,...);Kosten recreatie;Recreation costs;;;0;100
+6109003;;Contrôle et surveillance;Toezicht en bewaking;Supervision and security;;;0;100
+6109009;;Autres frais divers;Andere diversen kosten;Other miscellaneous costs;;;0;100
+611;1;TRAVAUX ET FRAIS EXCEPTIONNELS;WERKEN EN UITZONDERLIJKE KOSTEN;WORKS AND EXCEPTIONAL COSTS;;;;
+611000;1;TRAVAUX DE RÉNOVATIONS ET AUTRES TRAVAUX EXCEPTIONNELS;RENOVATIEWERKEN EN ANDERE UITZONDERLIJKE WERKEN;RENOVATION AND OTHER EXCEPTIONAL WORKS;;;;
+6110000;;Frais d'études et surveillance;Studie en toezichtkosten;Study and supervision costs;;;100;0
+6110001;;Rénovation;Renovatie;Renovation;;;100;0
+6110002;;Travaux de transformation;Verbouwingswerken;Conversion works;;;100;0
+6110003;;Travaux d'extension;Uitbreidingswerken;Expansion works;;;100;0
+6110009;;Autres travaux;Andere werken;Other works;;;100;0
+612;1;FOURNITURES À L'ASSOCIATION;LEVERINGEN AAN DE VERENIGING;SUPPLIES TO THE ASSOCIATION;;;;
+612000;1;EAU;WATER;WATER;;;;
+6120000;;Redevance fixe et consommation eau;Vast recht en verbruik water;Fixed fee and water consumption;;;0;100
+6120001;;Eau parties communes;Water algemene delen;Water for common areas;;;0;100
+6120002;;Sel adoucisseur;Zout voor waterverzachter;Salt for water softener;;;0;100
+6120003;;Autres fournitures pour adoucisseur d'eau;Andere leveringen voor waterverzachter;Other water softener supplies;;;0;100
+6120004;;Fournitures pour traitement de l'eau;Leveringen voor waterbehandeling;Water treatment supplies;;;0;100
+6120009;;Autres frais eau;Andere kosten water;Other water costs;;;0;100
+612100;1;ELECTRICITÉ;ELEKTRICITEIT;ELECTRICITY;;;;
+6121000;;Electricité parties communes;Elektriciteit algemene delen;Electricity for common areas;;;0;100
+6121001;;Electricité ascenseurs;Elektriciteit liften;Electricity for elevators;;;0;100
+6121003;;Electricité chauffage et sanitaires;Elektriciteit verwarming en sanitair;Electricity for heating and plumbing;;;0;100
+6121009;;Autres frais électricité;Andere kosten elektriciteit;Other electricity costs;;;0;100
+612200;1;GAZ;GAS;GAS;;;;
+6122000;;Redevance fixe et consommation gaz;Vast recht en verbruik gas;Fixed fee and gas consumption;;;0;100
+612300;1;MAZOUT;STOOKOLIE;FUEL OIL;;;;
+6123000;;Contrôle cuves;Keuring tanks;Tank inspections;;;0;100
+6123001;;Entretien cuves;Onderhoud tanks;Tank maintenance;;;0;100
+6123002;;Livraison mazout;Leveringen stookolie;Fuel oil supplies;;;0;100
+612400;1;AUTRES SERVICES COLLECTIFS;ANDERE NUTSVOORZIENINGEN;OTHER UTILITIES;;;;
+6124000;;Câblodistribution;Kabeldistributie;Cable distribution;;;0;100
+6124003;;Contrat d'entretien chauffage;Onderhoudscontracten verwarming;Heating maintenance contracts;;;0;100
+6124004;;Contrat d'entretien adoucisseur d'eau;Onderhoudscontract waterverzachter;Water softener maintenance contracts;;;0;100
+6124008;;Compteurs et relevé des compteurs;Meters en meteropname;Meters and meter reading;;;0;100
+612430;1;DÉCOMPTE EAU ET/OU CHAUFFAGE;VERWARMING EN/OF WATER AFREKENING;HEATING AND/OR WATER SETTLEMENT;;;;
+6124300;;Décompte eau et/ou chauffage;Verwarming en/of water afrekening;Heating and/or water settlement;;;0;100
+612500;1;AUTRES FOURNITURES;ANDERE LEVERINGEN;OTHER SUPPLIES;;;;
+6125000;;Stock clés;Voorraad sleutels;Key inventory;;;100;0
+6125001;;Stock badges;Voorraad badges;Badge inventory;;;100;0
+6125002;;Stock télécommandes;Voorraad afstandsbedieningen;Remote control inventory;;;100;0
+613;1;HONORAIRES, CHARGES MEMBRES DU CONSEIL ET COMMISSAIRE INTERNE AUX COMPTES;ERELONEN, KOSTEN RAADSLEDEN EN INTERNE COMMISSARIS VAN DE REKENINGEN;FEES, BOARD MEMBERS’ COSTS, AND INTERNAL AUDITOR COSTS;;;;
+613000;1;HONORAIRES SYNDIC;ERELONEN SYNDICUS;FEES FOR THE PROPERTY MANAGER;;;;
+6130000;;Honoraires syndic;Erelonen syndicus;Property manager fees;;;50;50
+613010;1;HONORAIRES;ERELONEN;FEES;;;;
+6130100;;Honoraires syndic;Erelonen syndicus;Property manager fees;;;100;0
+6130101;;Honoraires avocat;Erelonen advocaten;Lawyer fees;;;100;0
+6130102;;Honoraires architectes et ingénieurs;Erelonen architecten en ingenieurs;Architect and engineer fees;;;100;0
+6130103;;Honoraires experts;Erelonen deskundigen;Expert fees;;;100;0
+6130104;;Honoraires commissaire aux comptes;Erelonen commissaris van de rekeningen;Internal auditor fees;;;100;0
+6130105;;Honoraires prestations complémentaires;Erelonen aanvullende prestaties;Additional service fees;;;100;0
+6130109;;Autres honoraires;Andere erelonen;Other fees;;;100;0
+613100;1;CHARGES MEMBRES DU CONSEIL DE COPROPRIÉTÉ ET COMMISSAIRE INTERNE AUX COMPTES;KOSTEN RAADSLEDEN EN INTERNE COMMISSARIS VAN DE REKENINGEN;BOARD MEMBERS’ COSTS AND INTERNAL AUDITOR COSTS;;;;
+6131000;;Indemnités membres du conseil de copropriété et commissaire interne aux comptes;Kostenvergoeding raad van mede-eigendom en interne commissaris van de rekeningen;Compensation for the condominium board and internal auditor;;;100;0
+6131001;;Frais de déplacement membres du conseil de copropriété et commissaire interne aux comptes;Verplaatsingskosten raad van mede-eigendom en interne commissaris van de rekeningen;Travel expenses for the condominium board and internal auditor;;;100;0
+6131009;;Autres charges conseil de copropriété et commissaire interne aux comptes;Andere kosten raad van mede-eigendom en interne commissaris van de rekeningen;Other condominium board and internal auditor costs;;;100;0
+614000;1;ASSURANCES;VERZEKERINGEN;INSURANCE;;;;
+6140000;;Assurance incendie;Brandverzekering;Fire insurance;;;100;0
+6140001;;Assurance responsabilité civile;Burgerlijke aansprakelijkheid;Civil liability;;;100;0
+6140002;;Assurance accidents du travail;Arbeidsongevallenverzekering;Work accident insurance;;;0;100
+6140004;;Assurance conseil de copropriété et commissaire aux comptes;Verzekering raad van mede-eigendom en commissaris van de rekeningen;Condominium board and auditor insurance;;;100;0
+6140006;;Protection juridique;Rechtsbescherming;Legal protection;;;100;0
+6140007;;Franchise;Franchise;Deductibles;;;100;0
+6140008;;Sinistres;Schade;Damage;;;100;0
+6140009;;Autres assurances;Andere verzekeringen;Other insurance;;;100;0
+615000;1;CONCIERGERIE;CONCIËRGGEWONING;CONCIERGE HOUSING;;;;
+6150000;;Téléphone - Internet - gsm;Telefoon - internet - gsm;Phone - internet - mobile;;;0;100
+6150001;;Electricité;Elektriciteit;Electricity;;;0;100
+6150002;;Eau;Water;Water;;;0;100
+6150003;;Gaz;Gas;Gas;;;0;100
+6150004;;Chauffage;Verwarming;Heating;;;0;100
+6150005;;Télédistribution;Televisiedistributie;TV distribution;;;0;100
+6150009;;Autres frais conciergerie;Andere kosten conciërggewoning;Other concierge housing costs;;;0;100
+616000;1;FRAIS D'ADMINISTRATION ET DE GESTION;ADMINISTRATIE EN BEHEERSKOSTEN;ADMINISTRATION AND MANAGEMENT COSTS;;;;
+6160000;;Frais administratifs syndic;Administrativekosten syndicus;Administration costs of the property manager;;;100;0
+6160001;;Bureau et matériel de bureau;Kantoor en kantoorbenodigdheden;Office and office supplies;;;100;0
+6160002;;Timbres;Postzegels;Postage;;;100;0
+6160003;;Téléphone;Telefoon;Phone;;;100;0
+6160009;;Autres frais administratifs;Andere administrativekosten;Other administration costs;;;100;0
+616100;1;FRAIS RÉUNIONS;KOSTEN VERGADERINGEN;MEETING COSTS;;;;
+6161000;;Salle de réunion et consommations;Gebruik vergaderzalen en consumpties;Meeting room usage and refreshments;;;100;0
+6161001;;Frais administratifs AG;Administrativekosten AV;General Assembly administration costs;;;100;0
+6161009;;Autres frais réunions;Andere vergaderingskosten;Other meeting costs;;;100;0
+616200;1;TRADUCTIONS;VERTALINGEN;TRANSLATIONS;;;;
+6162000;;Traduction simultanée réunions;Simultaanvertaling vergaderingen;Simultaneous meeting translation;;;100;0
+6162001;;Traduction documents;Vertaling documenten;Document translation;;;100;0
+616300;1;FRAIS DE PROCÉDURE;PROCEDUREKOSTEN;LEGAL PROCEDURE COSTS;;;;
+6163000;;Frais de procédure recouvrement arriérés copropriétaires;Procedurekosten inning achterstallen mede-eigenaars;Procedure costs for co-owner arrears recovery;;;100;0
+6163009;;Autres frais de procédure;Andere procedurekosten;Other procedure costs;;;100;0
+616400;1;PUBLICATIONS ET MODIFICATIONS STATUTS;PUBLICATIES EN WIJZIGING VAN DE STATUTEN;PUBLICATIONS AND STATUTE CHANGES;;;;
+6164000;;Publications à la BCE;Publicaties bij KBO;Business registry publications;;;100;0
+6164001;;Modification statuts;Wijziging van de statuten;Statute amendments;;;100;0
+616600;1;FRAIS DIVERS GESTION;DVERSES KOSTEN BEHEER;VARIOUS MANAGEMENT COSTS;;;;
+6166000;;Communication d'informations sur Internet;Informatieverstrekking op het internet;Online information services;;;100;0
+6166001;;Frais d'accession à la propriété;Kosten eigendomsverwerving;Property acquisition costs;;;100;0
+6166002;;Frais archives;Kosten archief;Archiving costs;;;100;0
+6166009;;Autres frais gestion;Overige beheerkosten;Other management costs;;;100;0
+62;1;RÉMUNÉRATIONS, CHARGES SOCIALES ET PENSIONS;BEZOLDIGINGEN, lOONLIJST, PENSIOENEN;REMUNERATIONS, PAYROLL, PENSIONS;;;;
+620000;1;RÉMUNÉRATIONS, CHARGES SOCIALES ET PENSIONS;BEZOLDIGINGEN, lOONLIJST, PENSIOENEN;Remunerations, payroll, pensions;;;;
+6200000;;Rémunérations;Bezoldigingen;Salaries;;;0;100
+6200001;;Cotisations sociales;Werkgeversbijdragen voor sociale verzekeringen;Employer contributions to social security;;;0;100
+6200003;;Autres frais de personnel;Andere personeelskosten;Other personnel costs;;;0;100
+6200004;;Pensions de retraite et de survie;Ouderdoms en overlevingspensioenen;Old-age and survivor pensions;;;0;100
+63;1;AMORTISSEMENTS ET RÉDUCTIONS DE VALEUR;AFSCHRIJVINGEN EN WAARDEVERMINDERINGEN;DEPRECIATION AND IMPAIRMENT;;;;
+630000;1;DOTATIONS AUX AMORTISSEMENTS SUR IMMOBILISATIONS;AFSCHRIJVINGEN OP VASTE ACTIVA TOEVOEGING;DEPRECIATION ON FIXED ASSETS ADDITION;;;;
+6300001;;Dotations aux amortissements sur immobilisations incorporelles;Afschrijvingen op immateriële vaste activa;Depreciation on intangible fixed assets;;;100;0
+6300002;;Dotations aux amortissements sur immobilisations corporelles;Afschrijvingen op materiële vaste activa;Depreciation on tangible fixed assets;;;100;0
+634000;1;RÉDUCTIONS DE VALEUR SUR CRÉANCES À UN AN AU PLUS;WAARDEVERMINDERINGEN OP VORDERINGEN OP TEN HOOGSTE ÉÉN JAAR;IMPAIRMENT ON RECEIVABLES DUE WITHIN ONE YEAR;;;;
+6340000;;Dotations;Toevoeging;Addition;;;100;0
+6340001;;Reprises;Terugneming;Reversal;;;100;0
+64;1;AUTRES CHARGES;ANDEREN KOSTEN;OTHER COSTS;;;;
+640000;1;AUTRES CHARGES;ANDEREN KOSTEN;Other costs;;;;
+6400000;;Taxes et redevances;Belastingen en retributies;Taxes and fees;;;100;0
+641;1;MOINS-VALUES SUR LA RÉALISATION DES CRÉANCES;MINDERWAARDEN OP DE REALISATIE VAN SCHULDVORDERINGEN;LOSS ON REALIZATION OF RECEIVABLES;;;;
+642;1;CHARGES DIVERSES;DIVERSE KOSTEN;Various costs;;;;
+642000;1;LOYERS PAYÉS PAR LA COPROPRIÉTÉ;DOOR DE MEDE-EIGENAAR BETAALDE HUREN;RENTS PAID BY THE CO-OWNER;;;;
+6420000;;Loyers appartement concierge;Huur voor conciërgewoning;Rent for concierge housing;;;100;0
+6420001;;Loyers emplacement de parking;Huur parkeerplaatsen;Rent for parking spaces;;;100;0
+6420002;;Loyers garage;Huur garage;Rent for garage;;;100;0
+6420003;;Loyers cave;Huur kelder;Rent for cellar;;;100;0
+643;1;FRAIS PRIVATIFS;PRIVATIEVE KOSTEN;PRIVATE COSTS;;;;
+6430000;;Frais privatifs;Privatieve kosten;Private costs;private_expenses;Frais privatifs;;
+6431000;;Frais privatifs refacturés;Privatieve kosten;Private costs;reinvoiced_private_expenses;Frais privatifs refacturés;;
+65;1;CHARGES FINANCIÈRES;FINANCIËLE KOSTEN;FINANCIAL COSTS;;;;
+650000;1;FRAIS BANCAIRES ET CHARGES DE DETTES;BANKKOSTEN EN KOSTEN VAN SCHULDEN;BANK COSTS AND DEBT COSTS;;;;
+6500000;;Frais bancaires;Bankkosten;Bank costs;;;100;0
+6500009;;Autres charges financières;Andere financiële kosten;Other financial costs;;;100;0
+657000;1;EMPRUNTS;LENINGEN;LOANS;;;;
+6570000;;Remboursement emprunt;Terugbetaling lening;Loan repayment;;;100;0
+66;1;CHARGES EXCEPTIONNELLES;UITZONDERLIJKE KOSTEN;EXCEPTIONAL COSTS;;;;
+67;1;CHARGES TRAVAUX;WERKENKOSTEN;WORK COSTS;;;;
+671;1;CHARGES TRAVAUX EXTRAORDINAIRES;BUITENGEWONE WERKENKOSTEN;EXTRAORDINARY WORK COSTS;work_expenses;Charges travaux;;
+68;1;VARIATION DES FONDS;VARIATIE FONDSEN;FUND VARIATION;;;;
+680000;1;PROVISIONS;PROVISIES;PROVISIONS;;;;
+6800000;;Appel provisions pour charges;Provisieopvraging;Provision call;;;100;0
+681000;1;VARIATION FONDS DE ROULEMENT;VARIATIE WERKKAPITAAL;WORKING CAPITAL VARIATION;;;;
+6810000;;Appel fonds de roulement;Oproep werkkapitaal;Working capital call;;;100;0
+681600;1;VARIATION FONDS DE RÉSERVE;VARIATIE RESERVEFONDS;RESERVE FUND VARIATION;;;;
+6816000;;Appel fonds de réserve;Oproep reservefonds;Reserve fund call;;;100;0
+6816001;;Prélèvement fonds de réserve;Heffing reservefonds;Reserve fund levy;;;100;0
+69;1;VALEURS À REPORTER;OVER TE DRAGEN MIDDELEN;FUNDS TO BE TRANSFERRED;;;;
+693;1;VALEURS À REPORTER;OVER TE DRAGEN MIDDELEN;Funds to be transferred;;;;
+7;1;PRODUITS;OPBRENGSTEN;REVENUES;;;;
+70;1;ACOMPTES;VOORSCHOTTEN;ADVANCES;;;;
+700;;Acomptes fonds de réserve;Voorschotten reservekapitaal;Reserve capital advances;;;100;0
+701;;Provisions;Voorschotten werkkapitaal;Working capital advances;expense_provisions;Provisions sur charges;100;0
+702;;Provisions extraordinaires;Oproep buitengewone fondsen;Extraordinary fund call;work_provisions;Provisions travaux;100;0
+74;1;AUTRES PRODUITS D'EXPLOITATION;OVERIGE BEDRIJFSOPBRENGSTEN;OTHER OPERATING REVENUES;;;;
+742;1;PRODUITS DIVERS;OPBRENGSTEN;REVENUES;;;;
+742000;1;LOYERS PERCUS PAR LA COPROPRIÉTÉ;DE DOOR DE MEDE-EIGENDOM GEÏNDE HUREN;RENTS COLLECTED BY THE CO-OWNERSHIP;;;;
+7420000;;Loyers ancienne conciergerie;Huur voormalige conciërgewoning;Rent from former concierge housing;;;100;0
+7420001;;Loyers emplacement de parking;Huur parkeerplaatsen;Rent from parking spaces;;;100;0
+7420002;;Loyers garage commun;Huur garage;Rent from garage;;;100;0
+7420003;;Loyers cave commune;Huur kelder;Rent from cellar;;;100;0
+7420004;;Loyers antenne(s);Huur antenne(s);Rent from antenna(s);;;100;0
+7420005;;Loyers panneaux publicitaires;Huur reclamepanelen;Rent from advertising panels;;;100;0
+744;1;INDEMNITÉS PERCUES PAR LA COPROPRIÉTÉ;DE DOOR DE MEDE-EIGENDOM GEÏNDE VERGOEDINGEN;FEES COLLECTED BY THE CO-OWNERSHIP;;;;
+744000;1;INDEMNITÉS DE DÉMÉNAGEMENT / EMMÉNAGEMENT;VERHUIS VERGOEDINGEN;MOVING FEES;;;;
+7440000;;Indemnités de déménagement;Verhuis vergoedingen;Moving fees;;;100;0
+7440001;;Indemnités d'emménagement;Verhuis vergoedingen;Moving fees;;;100;0
+75;1;PRODUITS FINANCIERS;FINANCIËLE OPBRENGSTEN;FINANCIAL INCOME;;;;
+750000;1;INTÉRÊTS BANCAIRES;BANK INTERESTEN;BANK INTERESTS;;;;
+7500000;;Intérêts bancaires;Bank interesten;Bank interests;;;100;0
+76;1;PRODUITS EXCEPTIONNELS;UITZONDERLIJKE OPBRENGSTEN;EXCEPTIONAL REVENUES;;;;

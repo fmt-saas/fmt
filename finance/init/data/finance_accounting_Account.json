@@ -1,0 +1,5124 @@
+[
+    {
+        "name": "finance\\accounting\\Account",
+        "lang": "en",
+        "data": [
+            {
+                "id": 2,
+                "code": "1",
+                "is_control_account": true,
+                "description": "DEBTS OVER MORE THAN ONE YEAR",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 3,
+                "code": "100",
+                "is_control_account": true,
+                "description": "WORKING CAPITAL",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 4,
+                "code": "100000",
+                "is_control_account": false,
+                "description": "Working capital",
+                "account_chart_id": 1,
+                "operation_assignment": "working_capital",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 5,
+                "code": "12",
+                "is_control_account": true,
+                "description": "OUTSTANDING BALANCE WORKS",
+                "account_chart_id": 1,
+                "operation_assignment": "pending_work_balance",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 6,
+                "code": "14",
+                "is_control_account": true,
+                "description": "RESULT BOOKING PERIOD",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 7,
+                "code": "160",
+                "is_control_account": true,
+                "description": "RESERVE FUND",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 8,
+                "code": "160000",
+                "is_control_account": false,
+                "description": "Reserve fund",
+                "account_chart_id": 1,
+                "operation_assignment": "reserve_fund",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 9,
+                "code": "160001",
+                "is_control_account": false,
+                "description": "Reserve fund (1)",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 10,
+                "code": "160002",
+                "is_control_account": false,
+                "description": "Reserve fund (2)",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 11,
+                "code": "160003",
+                "is_control_account": false,
+                "description": "Reserve fund (3)",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 12,
+                "code": "161",
+                "is_control_account": true,
+                "description": "SPECIAL RESERVE FUND",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 13,
+                "code": "161000",
+                "is_control_account": false,
+                "description": "Special reserve fund",
+                "account_chart_id": 1,
+                "operation_assignment": "work_fund_call",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 14,
+                "code": "17",
+                "is_control_account": true,
+                "description": "DEBTS OVER MORE THAN ONE YEAR",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 15,
+                "code": "170",
+                "is_control_account": false,
+                "description": "Subordinated loans",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 16,
+                "code": "171",
+                "is_control_account": false,
+                "description": "Non-subordinated bond loans",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 17,
+                "code": "172",
+                "is_control_account": false,
+                "description": "Leasing debts",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 18,
+                "code": "173",
+                "is_control_account": false,
+                "description": "Credit institutions",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 19,
+                "code": "1730",
+                "is_control_account": false,
+                "description": "Debts on account",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 20,
+                "code": "1731",
+                "is_control_account": false,
+                "description": "Promissory notes",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 21,
+                "code": "1732",
+                "is_control_account": false,
+                "description": "Acceptance credits",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 22,
+                "code": "174",
+                "is_control_account": false,
+                "description": "Other loans",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 23,
+                "code": "175",
+                "is_control_account": false,
+                "description": "Trade debts",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 24,
+                "code": "179",
+                "is_control_account": false,
+                "description": "Other debts",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 25,
+                "code": "2",
+                "is_control_account": true,
+                "description": "FIXED ASSETS AND GUARANTEES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 26,
+                "code": "21",
+                "is_control_account": true,
+                "description": "INTANGIBLE FIXED ASSETS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 27,
+                "code": "211",
+                "is_control_account": false,
+                "description": "Concessions, patents, licenses, know-how, trademarks, and similar rights",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 28,
+                "code": "213",
+                "is_control_account": false,
+                "description": "Advance payments",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 29,
+                "code": "23",
+                "is_control_account": true,
+                "description": "INSTALLATIONS, MACHINERY AND EQUIPMENT",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 30,
+                "code": "24",
+                "is_control_account": true,
+                "description": "FURNITURE AND VEHICLES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 31,
+                "code": "25",
+                "is_control_account": true,
+                "description": "FIXED ASSETS IN LEASING",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 32,
+                "code": "251",
+                "is_control_account": false,
+                "description": "Installations, machinery, and equipment",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 33,
+                "code": "252",
+                "is_control_account": false,
+                "description": "Furniture and vehicles",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 34,
+                "code": "26",
+                "is_control_account": true,
+                "description": "OTHER TANGIBLE FIXED ASSETS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 35,
+                "code": "28",
+                "is_control_account": true,
+                "description": "PAID GUARANTEES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 36,
+                "code": "3",
+                "is_control_account": true,
+                "description": "INVENTORY",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 37,
+                "code": "3111",
+                "is_control_account": false,
+                "description": "Key inventory",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 38,
+                "code": "3112",
+                "is_control_account": false,
+                "description": "Remote control inventory",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 39,
+                "code": "3120",
+                "is_control_account": false,
+                "description": "Badge inventory",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 40,
+                "code": "3130",
+                "is_control_account": false,
+                "description": "Nameplate inventory",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 41,
+                "code": "4",
+                "is_control_account": true,
+                "description": "RECEIVABLES AND DEBTS DUE WITHIN ONE YEAR",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 42,
+                "code": "41",
+                "is_control_account": true,
+                "description": "RECEIVABLES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 43,
+                "code": "410",
+                "is_control_account": false,
+                "description": "Co-owners",
+                "account_chart_id": 1,
+                "operation_assignment": "co_owners",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 44,
+                "code": "4100",
+                "is_control_account": false,
+                "description": "Co-owners - Reserve capital",
+                "account_chart_id": 1,
+                "operation_assignment": "co_owners_reserve_fund",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 45,
+                "code": "4101",
+                "is_control_account": false,
+                "description": "Co-owners - Working capital",
+                "account_chart_id": 1,
+                "operation_assignment": "co_owners_working_fund",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 46,
+                "code": "414",
+                "is_control_account": false,
+                "description": "Receivable credit notes",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 47,
+                "code": "415",
+                "is_control_account": false,
+                "description": "Previous co-owners",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 48,
+                "code": "416",
+                "is_control_account": false,
+                "description": "Various receivables",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 49,
+                "code": "417",
+                "is_control_account": false,
+                "description": "Doubtful debtors",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 50,
+                "code": "418",
+                "is_control_account": false,
+                "description": "Tenants",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 51,
+                "code": "419",
+                "is_control_account": false,
+                "description": "Recorded impairments",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 52,
+                "code": "42",
+                "is_control_account": true,
+                "description": "DEBTS OVER MORE THAN ONE YEAR DUE WITHIN THE YEAR",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 53,
+                "code": "420",
+                "is_control_account": false,
+                "description": "Subordinated loans",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 54,
+                "code": "421",
+                "is_control_account": false,
+                "description": "Non-subordinated bond loans",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 55,
+                "code": "422",
+                "is_control_account": false,
+                "description": "Leasing debts and similar",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 56,
+                "code": "423",
+                "is_control_account": false,
+                "description": "Credit institutions",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 57,
+                "code": "424",
+                "is_control_account": false,
+                "description": "Other loans",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 58,
+                "code": "425",
+                "is_control_account": false,
+                "description": "Trade debts",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 59,
+                "code": "429",
+                "is_control_account": false,
+                "description": "Other debts",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 60,
+                "code": "43",
+                "is_control_account": true,
+                "description": "FINANCIAL DEBTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 61,
+                "code": "430",
+                "is_control_account": false,
+                "description": "Credit institutions - Fixed-term loans",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 62,
+                "code": "431",
+                "is_control_account": false,
+                "description": "Credit institutions - Promissory notes",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 63,
+                "code": "432",
+                "is_control_account": false,
+                "description": "Credit institutions - Acceptance credits",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 64,
+                "code": "433",
+                "is_control_account": false,
+                "description": "Credit institutions - Current account debts",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 65,
+                "code": "439",
+                "is_control_account": false,
+                "description": "Other loans",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 66,
+                "code": "44",
+                "is_control_account": true,
+                "description": "TRADE DEBTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 67,
+                "code": "440",
+                "is_control_account": false,
+                "description": "Suppliers",
+                "account_chart_id": 1,
+                "operation_assignment": "suppliers",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 68,
+                "code": "444",
+                "is_control_account": false,
+                "description": "Invoices to be received",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 69,
+                "code": "45",
+                "is_control_account": true,
+                "description": "DEBTS RELATED TO TAXES, SALARIES, AND SOCIAL CHARGES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 70,
+                "code": "450",
+                "is_control_account": false,
+                "description": "Estimated tax liabilities",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 71,
+                "code": "452",
+                "is_control_account": false,
+                "description": "Taxes and duties payable",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 72,
+                "code": "453",
+                "is_control_account": false,
+                "description": "Withholding taxes",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 73,
+                "code": "454",
+                "is_control_account": false,
+                "description": "National Social Security Office",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 74,
+                "code": "455",
+                "is_control_account": false,
+                "description": "Salaries",
+                "account_chart_id": 1,
+                "operation_assignment": "manager_fees",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 75,
+                "code": "456",
+                "is_control_account": false,
+                "description": "Holiday pay",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 76,
+                "code": "459",
+                "is_control_account": false,
+                "description": "Other social debts",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 77,
+                "code": "48",
+                "is_control_account": true,
+                "description": "VARIOUS DEBTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 78,
+                "code": "481",
+                "is_control_account": false,
+                "description": "Intermediate monthly account",
+                "account_chart_id": 1,
+                "operation_assignment": "installment_intermediate_account",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 79,
+                "code": "489",
+                "is_control_account": false,
+                "description": "Debts: Transferred funds",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 80,
+                "code": "49",
+                "is_control_account": true,
+                "description": "ACCRUALS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 81,
+                "code": "490",
+                "is_control_account": false,
+                "description": "Deferred costs",
+                "account_chart_id": 1,
+                "operation_assignment": "deferred_expenses",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 82,
+                "code": "491",
+                "is_control_account": false,
+                "description": "Accrued income",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 83,
+                "code": "492",
+                "is_control_account": false,
+                "description": "Accrued costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 84,
+                "code": "492643",
+                "is_control_account": false,
+                "description": "Accrued private costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 85,
+                "code": "493",
+                "is_control_account": false,
+                "description": "Deferred income",
+                "account_chart_id": 1,
+                "operation_assignment": "deferred_income",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 86,
+                "code": "494",
+                "is_control_account": false,
+                "description": "Accruals",
+                "account_chart_id": 1,
+                "operation_assignment": "adjustment_account",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 87,
+                "code": "499",
+                "is_control_account": false,
+                "description": "Suspense accounts",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 88,
+                "code": "4990",
+                "is_control_account": false,
+                "description": "Interim account",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 89,
+                "code": "4991",
+                "is_control_account": false,
+                "description": "Rounded debtor balance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 90,
+                "code": "4992",
+                "is_control_account": false,
+                "description": "Rounded creditor balance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 91,
+                "code": "4993",
+                "is_control_account": false,
+                "description": "Interim debtor accounts",
+                "account_chart_id": 1,
+                "operation_assignment": "pending_debtor_import",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 92,
+                "code": "4994",
+                "is_control_account": false,
+                "description": "Interim creditor accounts",
+                "account_chart_id": 1,
+                "operation_assignment": "pending_creditor_import",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 93,
+                "code": "4995",
+                "is_control_account": false,
+                "description": "Accrued income and expenses",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 94,
+                "code": "4996",
+                "is_control_account": false,
+                "description": "Damage",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 95,
+                "code": "499600",
+                "is_control_account": false,
+                "description": "Damage under review",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 96,
+                "code": "499601",
+                "is_control_account": false,
+                "description": "Damage ...",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 97,
+                "code": "5",
+                "is_control_account": true,
+                "description": "INVESTMENTS AND CASH FUNDS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 98,
+                "code": "53",
+                "is_control_account": true,
+                "description": "TERM DEPOSITS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 99,
+                "code": "530",
+                "is_control_account": false,
+                "description": "More than one year",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 100,
+                "code": "531",
+                "is_control_account": false,
+                "description": "More than one month and up to one year",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 101,
+                "code": "532",
+                "is_control_account": false,
+                "description": "Up to one month",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 102,
+                "code": "539",
+                "is_control_account": false,
+                "description": "Recorded impairments",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 103,
+                "code": "55",
+                "is_control_account": true,
+                "description": "CREDIT INSTITUTIONS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 104,
+                "code": "550",
+                "is_control_account": false,
+                "description": "Savings account (Reserve capital)",
+                "account_chart_id": 1,
+                "operation_assignment": "bank_savings",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 105,
+                "code": "551",
+                "is_control_account": false,
+                "description": "Current account (Working capital)",
+                "account_chart_id": 1,
+                "operation_assignment": "bank_current",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 106,
+                "code": "552",
+                "is_control_account": false,
+                "description": "Other accounts",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 107,
+                "code": "57",
+                "is_control_account": false,
+                "description": "Cash registers",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 108,
+                "code": "58",
+                "is_control_account": false,
+                "description": "Internal transfers",
+                "account_chart_id": 1,
+                "operation_assignment": "bank_transfer",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 109,
+                "code": "6",
+                "is_control_account": true,
+                "description": "EXPENSES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 110,
+                "code": "61",
+                "is_control_account": true,
+                "description": "SERVICES AND VARIOUS GOODS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 111,
+                "code": "610",
+                "is_control_account": true,
+                "description": "MAINTENANCE AND MINOR REPAIRS BUILDING, GARDEN, AND SURROUNDINGS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 112,
+                "code": "610000",
+                "is_control_account": true,
+                "description": "FIRE SAFETY",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 113,
+                "code": "6100000",
+                "is_control_account": false,
+                "description": "Fire prevention",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 114,
+                "code": "6100001",
+                "is_control_account": false,
+                "description": "Fire safety maintenance contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 115,
+                "code": "6100002",
+                "is_control_account": false,
+                "description": "Fire safety maintenance contract not included",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 116,
+                "code": "6100003",
+                "is_control_account": false,
+                "description": "Fire safety repairs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 117,
+                "code": "6100004",
+                "is_control_account": false,
+                "description": "Fire alarm and fire detection",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 118,
+                "code": "6100005",
+                "is_control_account": false,
+                "description": "Fire escape and smoke dome maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 119,
+                "code": "6100006",
+                "is_control_account": false,
+                "description": "Fire escape and smoke dome repairs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 120,
+                "code": "6100007",
+                "is_control_account": false,
+                "description": "Safety signage\/Emergency lighting",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 121,
+                "code": "6100008",
+                "is_control_account": false,
+                "description": "Lightning protection",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 122,
+                "code": "6100009",
+                "is_control_account": false,
+                "description": "Other fire safety costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 123,
+                "code": "610100",
+                "is_control_account": true,
+                "description": "ELEVATORS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 124,
+                "code": "6101000",
+                "is_control_account": false,
+                "description": "Elevator inspections",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 125,
+                "code": "6101001",
+                "is_control_account": false,
+                "description": "Elevator maintenance contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 126,
+                "code": "6101002",
+                "is_control_account": false,
+                "description": "Elevator maintenance and repairs not included in contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 127,
+                "code": "6101003",
+                "is_control_account": false,
+                "description": "Elevator emergency phone",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 128,
+                "code": "6101004",
+                "is_control_account": false,
+                "description": "Elevator electricity",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 129,
+                "code": "6101005",
+                "is_control_account": false,
+                "description": "Elevator repairs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 130,
+                "code": "6101006",
+                "is_control_account": false,
+                "description": "Elevator modification works",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 131,
+                "code": "6101009",
+                "is_control_account": false,
+                "description": "Other elevator costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 132,
+                "code": "610200",
+                "is_control_account": true,
+                "description": "ELECTRICAL INSTALLATIONS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 133,
+                "code": "6102000",
+                "is_control_account": false,
+                "description": "Electrical installation maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 134,
+                "code": "6102001",
+                "is_control_account": false,
+                "description": "Electrical installation maintenance not included in contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 135,
+                "code": "6102002",
+                "is_control_account": false,
+                "description": "Electrical installation repairs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 136,
+                "code": "6102003",
+                "is_control_account": false,
+                "description": "Doorbell and intercom\/video intercom maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 137,
+                "code": "6102004",
+                "is_control_account": false,
+                "description": "Doorbell and intercom\/video intercom repairs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 138,
+                "code": "6102005",
+                "is_control_account": false,
+                "description": "Air and smoke extraction systems",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 139,
+                "code": "6102006",
+                "is_control_account": false,
+                "description": "Air and smoke extraction system repairs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 140,
+                "code": "6102007",
+                "is_control_account": false,
+                "description": "Camera surveillance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 141,
+                "code": "6102008",
+                "is_control_account": false,
+                "description": "Camera surveillance repairs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 142,
+                "code": "6102009",
+                "is_control_account": false,
+                "description": "Other electrical installation costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 143,
+                "code": "610300",
+                "is_control_account": true,
+                "description": "PLUMBING AND HEATING",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 144,
+                "code": "6103000",
+                "is_control_account": false,
+                "description": "Heating installation inspections",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 145,
+                "code": "6103001",
+                "is_control_account": false,
+                "description": "Heating maintenance contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 146,
+                "code": "6103002",
+                "is_control_account": false,
+                "description": "Heating maintenance not included in contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 147,
+                "code": "6103003",
+                "is_control_account": false,
+                "description": "Water pressure booster maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 148,
+                "code": "6103004",
+                "is_control_account": false,
+                "description": "Water softener maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 149,
+                "code": "6103005",
+                "is_control_account": false,
+                "description": "Other heating pipe maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 150,
+                "code": "6103006",
+                "is_control_account": false,
+                "description": "Water pipe maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 151,
+                "code": "6103007",
+                "is_control_account": false,
+                "description": "Drainage, sewer, and pump installation maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 152,
+                "code": "6103008",
+                "is_control_account": false,
+                "description": "Meters and meter reading",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 153,
+                "code": "6103009",
+                "is_control_account": false,
+                "description": "Other plumbing and heating costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 154,
+                "code": "610400",
+                "is_control_account": true,
+                "description": "CARPENTRY",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 155,
+                "code": "6104000",
+                "is_control_account": false,
+                "description": "Carpentry maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 156,
+                "code": "6104004",
+                "is_control_account": false,
+                "description": "Balustrade and terrace partition maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 157,
+                "code": "6104009",
+                "is_control_account": false,
+                "description": "Other carpentry costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 158,
+                "code": "610440",
+                "is_control_account": true,
+                "description": "GARAGE DOOR",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 159,
+                "code": "6104400",
+                "is_control_account": false,
+                "description": "Garage door inspection",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 160,
+                "code": "6104401",
+                "is_control_account": false,
+                "description": "Garage door maintenance contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 161,
+                "code": "6104402",
+                "is_control_account": false,
+                "description": "Garage door maintenance not included in contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 162,
+                "code": "6104403",
+                "is_control_account": false,
+                "description": "Garage door repairs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 163,
+                "code": "6104409",
+                "is_control_account": false,
+                "description": "Other garage door costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 164,
+                "code": "610500",
+                "is_control_account": true,
+                "description": "CLEANING AND WASTE MANAGEMENT",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 165,
+                "code": "6105000",
+                "is_control_account": false,
+                "description": "Building cleaning as per contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 166,
+                "code": "6105001",
+                "is_control_account": false,
+                "description": "Other building cleaning",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 167,
+                "code": "6105002",
+                "is_control_account": false,
+                "description": "Cleaning supplies",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 168,
+                "code": "6105003",
+                "is_control_account": false,
+                "description": "Cleaning equipment",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 169,
+                "code": "6105004",
+                "is_control_account": false,
+                "description": "Waste treatment as per contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 170,
+                "code": "6105005",
+                "is_control_account": false,
+                "description": "Household waste treatment not included in contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 171,
+                "code": "6105009",
+                "is_control_account": false,
+                "description": "Other cleaning and waste treatment costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 172,
+                "code": "6106",
+                "is_control_account": true,
+                "description": "GARDENS, PARKINGS, AND ROADS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 173,
+                "code": "610600",
+                "is_control_account": true,
+                "description": "GARDENS AND DIRECT SURROUNDINGS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 174,
+                "code": "6106000",
+                "is_control_account": false,
+                "description": "Garden and surroundings maintenance as per contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 175,
+                "code": "6106001",
+                "is_control_account": false,
+                "description": "Other garden and surroundings maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 176,
+                "code": "6106002",
+                "is_control_account": false,
+                "description": "Garden and surroundings landscaping",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 177,
+                "code": "610640",
+                "is_control_account": true,
+                "description": "PARKINGS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 178,
+                "code": "6106400",
+                "is_control_account": false,
+                "description": "Parking maintenance as per contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 179,
+                "code": "6106401",
+                "is_control_account": false,
+                "description": "Other parking maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 180,
+                "code": "6106402",
+                "is_control_account": false,
+                "description": "Parking renovation",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 181,
+                "code": "6106403",
+                "is_control_account": false,
+                "description": "Parking repairs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 182,
+                "code": "6106404",
+                "is_control_account": false,
+                "description": "Parking electricity",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 183,
+                "code": "6106409",
+                "is_control_account": false,
+                "description": "Other parking costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 184,
+                "code": "610700",
+                "is_control_account": true,
+                "description": "BUILDING MAINTENANCE",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 185,
+                "code": "6107000",
+                "is_control_account": false,
+                "description": "Foundation maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 186,
+                "code": "6107001",
+                "is_control_account": false,
+                "description": "Facade maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 187,
+                "code": "6107002",
+                "is_control_account": false,
+                "description": "Terrace maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 188,
+                "code": "6107003",
+                "is_control_account": false,
+                "description": "Roof maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 189,
+                "code": "6107004",
+                "is_control_account": false,
+                "description": "Chimney maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 190,
+                "code": "6107005",
+                "is_control_account": false,
+                "description": "Basement maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 191,
+                "code": "6107006",
+                "is_control_account": false,
+                "description": "Hall, stairwell, and corridor maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 192,
+                "code": "6107007",
+                "is_control_account": false,
+                "description": "Various building maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 193,
+                "code": "610800",
+                "is_control_account": true,
+                "description": "SWIMMING POOL",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 194,
+                "code": "6108000",
+                "is_control_account": false,
+                "description": "Swimming pool inspection and control",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 195,
+                "code": "6108001",
+                "is_control_account": false,
+                "description": "Swimming pool maintenance contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 196,
+                "code": "6108002",
+                "is_control_account": false,
+                "description": "Swimming pool maintenance not included in contract",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 197,
+                "code": "6108003",
+                "is_control_account": false,
+                "description": "Pool product supply",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 198,
+                "code": "6108004",
+                "is_control_account": false,
+                "description": "Swimming pool supervision",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 199,
+                "code": "6108005",
+                "is_control_account": false,
+                "description": "Swimming pool repairs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 200,
+                "code": "6108009",
+                "is_control_account": false,
+                "description": "Other swimming pool costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 201,
+                "code": "610900",
+                "is_control_account": true,
+                "description": "MISCELLANEOUS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 202,
+                "code": "6109000",
+                "is_control_account": false,
+                "description": "Maintenance contracts",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 203,
+                "code": "6109001",
+                "is_control_account": false,
+                "description": "Laundry costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 204,
+                "code": "6109002",
+                "is_control_account": false,
+                "description": "Recreation costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 205,
+                "code": "6109003",
+                "is_control_account": false,
+                "description": "Supervision and security",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 206,
+                "code": "6109009",
+                "is_control_account": false,
+                "description": "Other miscellaneous costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 207,
+                "code": "611",
+                "is_control_account": true,
+                "description": "WORKS AND EXCEPTIONAL COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 208,
+                "code": "611000",
+                "is_control_account": true,
+                "description": "RENOVATION AND OTHER EXCEPTIONAL WORKS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 209,
+                "code": "6110000",
+                "is_control_account": false,
+                "description": "Study and supervision costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 210,
+                "code": "6110001",
+                "is_control_account": false,
+                "description": "Renovation",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 211,
+                "code": "6110002",
+                "is_control_account": false,
+                "description": "Conversion works",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 212,
+                "code": "6110003",
+                "is_control_account": false,
+                "description": "Expansion works",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 213,
+                "code": "6110009",
+                "is_control_account": false,
+                "description": "Other works",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 214,
+                "code": "612",
+                "is_control_account": true,
+                "description": "SUPPLIES TO THE ASSOCIATION",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 215,
+                "code": "612000",
+                "is_control_account": true,
+                "description": "WATER",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 216,
+                "code": "6120000",
+                "is_control_account": false,
+                "description": "Fixed fee and water consumption",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 217,
+                "code": "6120001",
+                "is_control_account": false,
+                "description": "Water for common areas",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 218,
+                "code": "6120002",
+                "is_control_account": false,
+                "description": "Salt for water softener",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 219,
+                "code": "6120003",
+                "is_control_account": false,
+                "description": "Other water softener supplies",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 220,
+                "code": "6120004",
+                "is_control_account": false,
+                "description": "Water treatment supplies",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 221,
+                "code": "6120009",
+                "is_control_account": false,
+                "description": "Other water costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 222,
+                "code": "612100",
+                "is_control_account": true,
+                "description": "ELECTRICITY",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 223,
+                "code": "6121000",
+                "is_control_account": false,
+                "description": "Electricity for common areas",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 224,
+                "code": "6121001",
+                "is_control_account": false,
+                "description": "Electricity for elevators",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 225,
+                "code": "6121003",
+                "is_control_account": false,
+                "description": "Electricity for heating and plumbing",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 226,
+                "code": "6121009",
+                "is_control_account": false,
+                "description": "Other electricity costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 227,
+                "code": "612200",
+                "is_control_account": true,
+                "description": "GAS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 228,
+                "code": "6122000",
+                "is_control_account": false,
+                "description": "Fixed fee and gas consumption",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 229,
+                "code": "612300",
+                "is_control_account": true,
+                "description": "FUEL OIL",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 230,
+                "code": "6123000",
+                "is_control_account": false,
+                "description": "Tank inspections",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 231,
+                "code": "6123001",
+                "is_control_account": false,
+                "description": "Tank maintenance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 232,
+                "code": "6123002",
+                "is_control_account": false,
+                "description": "Fuel oil supplies",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 233,
+                "code": "612400",
+                "is_control_account": true,
+                "description": "OTHER UTILITIES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 234,
+                "code": "6124000",
+                "is_control_account": false,
+                "description": "Cable distribution",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 235,
+                "code": "6124003",
+                "is_control_account": false,
+                "description": "Heating maintenance contracts",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 236,
+                "code": "6124004",
+                "is_control_account": false,
+                "description": "Water softener maintenance contracts",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 237,
+                "code": "6124008",
+                "is_control_account": false,
+                "description": "Meters and meter reading",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 238,
+                "code": "612430",
+                "is_control_account": true,
+                "description": "HEATING AND\/OR WATER SETTLEMENT",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 239,
+                "code": "6124300",
+                "is_control_account": false,
+                "description": "Heating and\/or water settlement",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 240,
+                "code": "612500",
+                "is_control_account": true,
+                "description": "OTHER SUPPLIES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 241,
+                "code": "6125000",
+                "is_control_account": false,
+                "description": "Key inventory",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 242,
+                "code": "6125001",
+                "is_control_account": false,
+                "description": "Badge inventory",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 243,
+                "code": "6125002",
+                "is_control_account": false,
+                "description": "Remote control inventory",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 244,
+                "code": "613",
+                "is_control_account": true,
+                "description": "FEES, BOARD MEMBERS\u2019 COSTS, AND INTERNAL AUDITOR COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 245,
+                "code": "613000",
+                "is_control_account": true,
+                "description": "FEES FOR THE PROPERTY MANAGER",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 246,
+                "code": "6130000",
+                "is_control_account": false,
+                "description": "Property manager fees",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 50,
+                "owner_share": 50
+            },
+            {
+                "id": 247,
+                "code": "613010",
+                "is_control_account": true,
+                "description": "FEES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 248,
+                "code": "6130100",
+                "is_control_account": false,
+                "description": "Property manager fees",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 249,
+                "code": "6130101",
+                "is_control_account": false,
+                "description": "Lawyer fees",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 250,
+                "code": "6130102",
+                "is_control_account": false,
+                "description": "Architect and engineer fees",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 251,
+                "code": "6130103",
+                "is_control_account": false,
+                "description": "Expert fees",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 252,
+                "code": "6130104",
+                "is_control_account": false,
+                "description": "Internal auditor fees",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 253,
+                "code": "6130105",
+                "is_control_account": false,
+                "description": "Additional service fees",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 254,
+                "code": "6130109",
+                "is_control_account": false,
+                "description": "Other fees",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 255,
+                "code": "613100",
+                "is_control_account": true,
+                "description": "BOARD MEMBERS\u2019 COSTS AND INTERNAL AUDITOR COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 256,
+                "code": "6131000",
+                "is_control_account": false,
+                "description": "Compensation for the condominium board and internal auditor",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 257,
+                "code": "6131001",
+                "is_control_account": false,
+                "description": "Travel expenses for the condominium board and internal auditor",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 258,
+                "code": "6131009",
+                "is_control_account": false,
+                "description": "Other condominium board and internal auditor costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 259,
+                "code": "614000",
+                "is_control_account": true,
+                "description": "INSURANCE",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 260,
+                "code": "6140000",
+                "is_control_account": false,
+                "description": "Fire insurance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 261,
+                "code": "6140001",
+                "is_control_account": false,
+                "description": "Civil liability",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 262,
+                "code": "6140002",
+                "is_control_account": false,
+                "description": "Work accident insurance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 263,
+                "code": "6140004",
+                "is_control_account": false,
+                "description": "Condominium board and auditor insurance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 264,
+                "code": "6140006",
+                "is_control_account": false,
+                "description": "Legal protection",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 265,
+                "code": "6140007",
+                "is_control_account": false,
+                "description": "Deductibles",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 266,
+                "code": "6140008",
+                "is_control_account": false,
+                "description": "Damage",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 267,
+                "code": "6140009",
+                "is_control_account": false,
+                "description": "Other insurance",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 268,
+                "code": "615000",
+                "is_control_account": true,
+                "description": "CONCIERGE HOUSING",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 269,
+                "code": "6150000",
+                "is_control_account": false,
+                "description": "Phone - internet - mobile",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 270,
+                "code": "6150001",
+                "is_control_account": false,
+                "description": "Electricity",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 271,
+                "code": "6150002",
+                "is_control_account": false,
+                "description": "Water",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 272,
+                "code": "6150003",
+                "is_control_account": false,
+                "description": "Gas",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 273,
+                "code": "6150004",
+                "is_control_account": false,
+                "description": "Heating",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 274,
+                "code": "6150005",
+                "is_control_account": false,
+                "description": "TV distribution",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 275,
+                "code": "6150009",
+                "is_control_account": false,
+                "description": "Other concierge housing costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 276,
+                "code": "616000",
+                "is_control_account": true,
+                "description": "ADMINISTRATION AND MANAGEMENT COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 277,
+                "code": "6160000",
+                "is_control_account": false,
+                "description": "Administration costs of the property manager",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 278,
+                "code": "6160001",
+                "is_control_account": false,
+                "description": "Office and office supplies",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 279,
+                "code": "6160002",
+                "is_control_account": false,
+                "description": "Postage",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 280,
+                "code": "6160003",
+                "is_control_account": false,
+                "description": "Phone",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 281,
+                "code": "6160009",
+                "is_control_account": false,
+                "description": "Other administration costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 282,
+                "code": "616100",
+                "is_control_account": true,
+                "description": "MEETING COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 283,
+                "code": "6161000",
+                "is_control_account": false,
+                "description": "Meeting room usage and refreshments",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 284,
+                "code": "6161001",
+                "is_control_account": false,
+                "description": "General Assembly administration costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 285,
+                "code": "6161009",
+                "is_control_account": false,
+                "description": "Other meeting costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 286,
+                "code": "616200",
+                "is_control_account": true,
+                "description": "TRANSLATIONS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 287,
+                "code": "6162000",
+                "is_control_account": false,
+                "description": "Simultaneous meeting translation",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 288,
+                "code": "6162001",
+                "is_control_account": false,
+                "description": "Document translation",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 289,
+                "code": "616300",
+                "is_control_account": true,
+                "description": "LEGAL PROCEDURE COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 290,
+                "code": "6163000",
+                "is_control_account": false,
+                "description": "Procedure costs for co-owner arrears recovery",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 291,
+                "code": "6163009",
+                "is_control_account": false,
+                "description": "Other procedure costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 292,
+                "code": "616400",
+                "is_control_account": true,
+                "description": "PUBLICATIONS AND STATUTE CHANGES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 293,
+                "code": "6164000",
+                "is_control_account": false,
+                "description": "Business registry publications",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 294,
+                "code": "6164001",
+                "is_control_account": false,
+                "description": "Statute amendments",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 295,
+                "code": "616600",
+                "is_control_account": true,
+                "description": "VARIOUS MANAGEMENT COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 296,
+                "code": "6166000",
+                "is_control_account": false,
+                "description": "Online information services",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 297,
+                "code": "6166001",
+                "is_control_account": false,
+                "description": "Property acquisition costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 298,
+                "code": "6166002",
+                "is_control_account": false,
+                "description": "Archiving costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 299,
+                "code": "6166009",
+                "is_control_account": false,
+                "description": "Other management costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 300,
+                "code": "62",
+                "is_control_account": true,
+                "description": "REMUNERATIONS, PAYROLL, PENSIONS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 301,
+                "code": "620000",
+                "is_control_account": true,
+                "description": "Remunerations, payroll, pensions",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 302,
+                "code": "6200000",
+                "is_control_account": false,
+                "description": "Salaries",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 303,
+                "code": "6200001",
+                "is_control_account": false,
+                "description": "Employer contributions to social security",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 304,
+                "code": "6200003",
+                "is_control_account": false,
+                "description": "Other personnel costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 305,
+                "code": "6200004",
+                "is_control_account": false,
+                "description": "Old-age and survivor pensions",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 100,
+                "owner_share": 0
+            },
+            {
+                "id": 306,
+                "code": "63",
+                "is_control_account": true,
+                "description": "DEPRECIATION AND IMPAIRMENT",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 307,
+                "code": "630000",
+                "is_control_account": true,
+                "description": "DEPRECIATION ON FIXED ASSETS ADDITION",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 308,
+                "code": "6300001",
+                "is_control_account": false,
+                "description": "Depreciation on intangible fixed assets",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 309,
+                "code": "6300002",
+                "is_control_account": false,
+                "description": "Depreciation on tangible fixed assets",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 310,
+                "code": "634000",
+                "is_control_account": true,
+                "description": "IMPAIRMENT ON RECEIVABLES DUE WITHIN ONE YEAR",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 311,
+                "code": "6340000",
+                "is_control_account": false,
+                "description": "Addition",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 312,
+                "code": "6340001",
+                "is_control_account": false,
+                "description": "Reversal",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 313,
+                "code": "64",
+                "is_control_account": true,
+                "description": "OTHER COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 314,
+                "code": "640000",
+                "is_control_account": true,
+                "description": "Other costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 315,
+                "code": "6400000",
+                "is_control_account": false,
+                "description": "Taxes and fees",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 316,
+                "code": "641",
+                "is_control_account": true,
+                "description": "LOSS ON REALIZATION OF RECEIVABLES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 317,
+                "code": "642",
+                "is_control_account": true,
+                "description": "Various costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 318,
+                "code": "642000",
+                "is_control_account": true,
+                "description": "RENTS PAID BY THE CO-OWNER",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 319,
+                "code": "6420000",
+                "is_control_account": false,
+                "description": "Rent for concierge housing",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 320,
+                "code": "6420001",
+                "is_control_account": false,
+                "description": "Rent for parking spaces",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 321,
+                "code": "6420002",
+                "is_control_account": false,
+                "description": "Rent for garage",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 322,
+                "code": "6420003",
+                "is_control_account": false,
+                "description": "Rent for cellar",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 323,
+                "code": "643",
+                "is_control_account": true,
+                "description": "PRIVATE COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 324,
+                "code": "6430000",
+                "is_control_account": false,
+                "description": "Private costs",
+                "account_chart_id": 1,
+                "operation_assignment": "private_expenses",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 325,
+                "code": "6431000",
+                "is_control_account": false,
+                "description": "Private costs",
+                "account_chart_id": 1,
+                "operation_assignment": "reinvoiced_private_expenses",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 326,
+                "code": "65",
+                "is_control_account": true,
+                "description": "FINANCIAL COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 327,
+                "code": "650000",
+                "is_control_account": true,
+                "description": "BANK COSTS AND DEBT COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 328,
+                "code": "6500000",
+                "is_control_account": false,
+                "description": "Bank costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 329,
+                "code": "6500009",
+                "is_control_account": false,
+                "description": "Other financial costs",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 330,
+                "code": "657000",
+                "is_control_account": true,
+                "description": "LOANS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 331,
+                "code": "6570000",
+                "is_control_account": false,
+                "description": "Loan repayment",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 332,
+                "code": "66",
+                "is_control_account": true,
+                "description": "EXCEPTIONAL COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 333,
+                "code": "67",
+                "is_control_account": true,
+                "description": "WORK COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 334,
+                "code": "671",
+                "is_control_account": true,
+                "description": "EXTRAORDINARY WORK COSTS",
+                "account_chart_id": 1,
+                "operation_assignment": "work_expenses",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 335,
+                "code": "68",
+                "is_control_account": true,
+                "description": "FUND VARIATION",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 336,
+                "code": "680000",
+                "is_control_account": true,
+                "description": "PROVISIONS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 337,
+                "code": "6800000",
+                "is_control_account": false,
+                "description": "Provision call",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 338,
+                "code": "681000",
+                "is_control_account": true,
+                "description": "WORKING CAPITAL VARIATION",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 339,
+                "code": "6810000",
+                "is_control_account": false,
+                "description": "Working capital call",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 340,
+                "code": "681600",
+                "is_control_account": true,
+                "description": "RESERVE FUND VARIATION",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 341,
+                "code": "6816000",
+                "is_control_account": false,
+                "description": "Reserve fund call",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 342,
+                "code": "6816001",
+                "is_control_account": false,
+                "description": "Reserve fund levy",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 343,
+                "code": "69",
+                "is_control_account": true,
+                "description": "FUNDS TO BE TRANSFERRED",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 344,
+                "code": "693",
+                "is_control_account": true,
+                "description": "Funds to be transferred",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 345,
+                "code": "7",
+                "is_control_account": true,
+                "description": "REVENUES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 346,
+                "code": "70",
+                "is_control_account": true,
+                "description": "ADVANCES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 347,
+                "code": "700",
+                "is_control_account": false,
+                "description": "Reserve capital advances",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 348,
+                "code": "701",
+                "is_control_account": false,
+                "description": "Working capital advances",
+                "account_chart_id": 1,
+                "operation_assignment": "expense_provisions",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 349,
+                "code": "702",
+                "is_control_account": false,
+                "description": "Extraordinary fund call",
+                "account_chart_id": 1,
+                "operation_assignment": "work_provisions",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 350,
+                "code": "74",
+                "is_control_account": true,
+                "description": "OTHER OPERATING REVENUES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 351,
+                "code": "742",
+                "is_control_account": true,
+                "description": "REVENUES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 352,
+                "code": "742000",
+                "is_control_account": true,
+                "description": "RENTS COLLECTED BY THE CO-OWNERSHIP",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 353,
+                "code": "7420000",
+                "is_control_account": false,
+                "description": "Rent from former concierge housing",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 354,
+                "code": "7420001",
+                "is_control_account": false,
+                "description": "Rent from parking spaces",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 355,
+                "code": "7420002",
+                "is_control_account": false,
+                "description": "Rent from garage",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 356,
+                "code": "7420003",
+                "is_control_account": false,
+                "description": "Rent from cellar",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 357,
+                "code": "7420004",
+                "is_control_account": false,
+                "description": "Rent from antenna(s)",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 358,
+                "code": "7420005",
+                "is_control_account": false,
+                "description": "Rent from advertising panels",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 359,
+                "code": "744",
+                "is_control_account": true,
+                "description": "FEES COLLECTED BY THE CO-OWNERSHIP",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 360,
+                "code": "744000",
+                "is_control_account": true,
+                "description": "MOVING FEES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 361,
+                "code": "7440000",
+                "is_control_account": false,
+                "description": "Moving fees",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 362,
+                "code": "7440001",
+                "is_control_account": false,
+                "description": "Moving fees",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 363,
+                "code": "75",
+                "is_control_account": true,
+                "description": "FINANCIAL INCOME",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 364,
+                "code": "750000",
+                "is_control_account": true,
+                "description": "BANK INTERESTS",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
+                "id": 365,
+                "code": "7500000",
+                "is_control_account": false,
+                "description": "Bank interests",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 100
+            },
+            {
+                "id": 366,
+                "code": "76",
+                "is_control_account": true,
+                "description": "EXCEPTIONAL REVENUES",
+                "account_chart_id": 1,
+                "operation_assignment": "",
+                "tenant_share": 0,
+                "owner_share": 0
+            }
+        ]
+    },
+    {
+        "name": "finance\\accounting\\Account",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 2,
+                "description": "DETTES À PLUS D'UN AN"
+            },
+            {
+                "id": 3,
+                "description": "FONDS DE ROULEMENT"
+            },
+            {
+                "id": 4,
+                "description": "Fonds de roulement"
+            },
+            {
+                "id": 5,
+                "description": "SOLDE EN ATTENTE SUR TRAVAUX"
+            },
+            {
+                "id": 6,
+                "description": "RÉSULTAT EXERCICE"
+            },
+            {
+                "id": 7,
+                "description": "FONDS DE RÉSERVE"
+            },
+            {
+                "id": 8,
+                "description": "Fonds de réserve"
+            },
+            {
+                "id": 9,
+                "description": "Fonds de réserve (1)"
+            },
+            {
+                "id": 10,
+                "description": "Fonds de réserve (2) "
+            },
+            {
+                "id": 11,
+                "description": "Fonds de réserve (3) "
+            },
+            {
+                "id": 12,
+                "description": "FONDS DE RÉSERVE PARTICULIER"
+            },
+            {
+                "id": 13,
+                "description": "Fonds de réserve particulier"
+            },
+            {
+                "id": 14,
+                "description": "DETTES À PLUS D'UN AN"
+            },
+            {
+                "id": 15,
+                "description": "Emprunts subordonnés"
+            },
+            {
+                "id": 16,
+                "description": "Emprunts obligataires non subordonnés"
+            },
+            {
+                "id": 17,
+                "description": "Dettes de location-financement"
+            },
+            {
+                "id": 18,
+                "description": "Etablissements de crédit"
+            },
+            {
+                "id": 19,
+                "description": "Dettes en compte"
+            },
+            {
+                "id": 20,
+                "description": "Promesses"
+            },
+            {
+                "id": 21,
+                "description": "Crédits d'acceptation"
+            },
+            {
+                "id": 22,
+                "description": "Autres emprunts"
+            },
+            {
+                "id": 23,
+                "description": "Dettes commerciales"
+            },
+            {
+                "id": 24,
+                "description": "Dettes diverses"
+            },
+            {
+                "id": 25,
+                "description": "IMMOBILISATIONS ET CAUTIONNEMENTS"
+            },
+            {
+                "id": 26,
+                "description": "IMMOBILISATION INCORPORELLES"
+            },
+            {
+                "id": 27,
+                "description": "Concessions, brevets, licences, savoir-faire, marques et droits similaires"
+            },
+            {
+                "id": 28,
+                "description": "Acomptes versés"
+            },
+            {
+                "id": 29,
+                "description": "INSTALLATIONS, MACHINES ET OUTILLAGE"
+            },
+            {
+                "id": 30,
+                "description": "MOBILIER ET MATÉRIEL ROULANT"
+            },
+            {
+                "id": 31,
+                "description": "IMMOBILISATIONS DÉTENUES EN LOCATION-FINANCEMENT"
+            },
+            {
+                "id": 32,
+                "description": "Installations, machines et outillage"
+            },
+            {
+                "id": 33,
+                "description": "Mobilier et matériel roulant"
+            },
+            {
+                "id": 34,
+                "description": "AUTRES IMMOBILISATIONS CORPORELLES"
+            },
+            {
+                "id": 35,
+                "description": "CAUTIONNEMENTS VERSÉS"
+            },
+            {
+                "id": 36,
+                "description": "STOCKS"
+            },
+            {
+                "id": 37,
+                "description": "Stock clés"
+            },
+            {
+                "id": 38,
+                "description": "Stock télécommandes"
+            },
+            {
+                "id": 39,
+                "description": "Stock badges"
+            },
+            {
+                "id": 40,
+                "description": "Stock plaquettes"
+            },
+            {
+                "id": 41,
+                "description": "CRÉANCES ET DETTES À UN AN AU PLUS"
+            },
+            {
+                "id": 42,
+                "description": "CRÉANCES"
+            },
+            {
+                "id": 43,
+                "description": "Copropriétaires"
+            },
+            {
+                "id": 44,
+                "description": "Copropriétaires - Fonds de réserve"
+            },
+            {
+                "id": 45,
+                "description": "Copropriétaires - Fonds de roulement"
+            },
+            {
+                "id": 46,
+                "description": "Notes de crédit à recevoir"
+            },
+            {
+                "id": 47,
+                "description": "Anciens copropriétaires"
+            },
+            {
+                "id": 48,
+                "description": "Créances diverses"
+            },
+            {
+                "id": 49,
+                "description": "Créances douteuses"
+            },
+            {
+                "id": 50,
+                "description": "Locataires"
+            },
+            {
+                "id": 51,
+                "description": "Réductions de valeur actées"
+            },
+            {
+                "id": 52,
+                "description": "DETTES À PLUS D'UN AN ÉCHÉANT DANS L'ANNÉE"
+            },
+            {
+                "id": 53,
+                "description": "Emprunts subordonnés"
+            },
+            {
+                "id": 54,
+                "description": "Emprunts obligataires non subordonnés"
+            },
+            {
+                "id": 55,
+                "description": "Dettes de location-financement et assimilées"
+            },
+            {
+                "id": 56,
+                "description": "Etablissements de crédit"
+            },
+            {
+                "id": 57,
+                "description": "Autres emprunts"
+            },
+            {
+                "id": 58,
+                "description": "Dettes commerciales"
+            },
+            {
+                "id": 59,
+                "description": "Dettes diverses"
+            },
+            {
+                "id": 60,
+                "description": "DETTES FINANCIÈRES"
+            },
+            {
+                "id": 61,
+                "description": "Etablissements de crédit - Emprunts en compte à terme fixe"
+            },
+            {
+                "id": 62,
+                "description": "Etablissements de crédit - Promesses"
+            },
+            {
+                "id": 63,
+                "description": "Etablissements de crédit - Crédits d'acceptation"
+            },
+            {
+                "id": 64,
+                "description": "Etablissements de crédit - Dettes en compte courant"
+            },
+            {
+                "id": 65,
+                "description": "Autres emprunts"
+            },
+            {
+                "id": 66,
+                "description": "DETTES COMMERCIALES"
+            },
+            {
+                "id": 67,
+                "description": "Fournisseurs"
+            },
+            {
+                "id": 68,
+                "description": "Factures à recevoir"
+            },
+            {
+                "id": 69,
+                "description": "DETTES FISCALES, SALARIALES ET SOCIALES"
+            },
+            {
+                "id": 70,
+                "description": "Dettes fiscales estimées"
+            },
+            {
+                "id": 71,
+                "description": "Impôts et taxes à payer"
+            },
+            {
+                "id": 72,
+                "description": "Précomptes retenus"
+            },
+            {
+                "id": 73,
+                "description": "Office national de la sécurité sociale"
+            },
+            {
+                "id": 74,
+                "description": "Rémunérations"
+            },
+            {
+                "id": 75,
+                "description": "Pécules de vacances"
+            },
+            {
+                "id": 76,
+                "description": "Autres dettes sociales"
+            },
+            {
+                "id": 77,
+                "description": "DETTES DIVERSES"
+            },
+            {
+                "id": 78,
+                "description": "Compte intermédiaire de mensualisation"
+            },
+            {
+                "id": 79,
+                "description": "Dettes : valeurs reportées"
+            },
+            {
+                "id": 80,
+                "description": "COMPTES DE RÉGULARISATION"
+            },
+            {
+                "id": 81,
+                "description": "Charges à reporter"
+            },
+            {
+                "id": 82,
+                "description": "Produits acquis"
+            },
+            {
+                "id": 83,
+                "description": "Charges à imputer"
+            },
+            {
+                "id": 84,
+                "description": "Frais privatifs à imputer"
+            },
+            {
+                "id": 85,
+                "description": "Produits à reporter"
+            },
+            {
+                "id": 86,
+                "description": "Compte de régularisation"
+            },
+            {
+                "id": 87,
+                "description": "Divers"
+            },
+            {
+                "id": 88,
+                "description": "Compte d'attente"
+            },
+            {
+                "id": 89,
+                "description": "Arrondis débiteurs"
+            },
+            {
+                "id": 90,
+                "description": "Arrondis créditeurs"
+            },
+            {
+                "id": 91,
+                "description": "Comptes d'attente débiteur"
+            },
+            {
+                "id": 92,
+                "description": "Compte d'attente créditeur"
+            },
+            {
+                "id": 93,
+                "description": "Charges et produits à régulariser"
+            },
+            {
+                "id": 94,
+                "description": "Sinistres"
+            },
+            {
+                "id": 95,
+                "description": "Sinistre en attente"
+            },
+            {
+                "id": 96,
+                "description": "Sinistre ..."
+            },
+            {
+                "id": 97,
+                "description": "PLACEMENTS DE TRÉSORERIE ET VALEURS DISPONIBLES"
+            },
+            {
+                "id": 98,
+                "description": "DÉPÔTS À TERME"
+            },
+            {
+                "id": 99,
+                "description": "Dépôts à terme de plus d'un an"
+            },
+            {
+                "id": 100,
+                "description": "Dépôts à terme de plus d'un mois et à un an au plus"
+            },
+            {
+                "id": 101,
+                "description": "Dépôts à terme d'un mois au plus"
+            },
+            {
+                "id": 102,
+                "description": "Réductions de valeur actées"
+            },
+            {
+                "id": 103,
+                "description": "ETABLISSEMENTS DE CRÉDIT"
+            },
+            {
+                "id": 104,
+                "description": "Compte épargne (Réserve)"
+            },
+            {
+                "id": 105,
+                "description": "Compte courant (Roulement)"
+            },
+            {
+                "id": 106,
+                "description": "Autres comptes"
+            },
+            {
+                "id": 107,
+                "description": "Caisses"
+            },
+            {
+                "id": 108,
+                "description": "Virements internes"
+            },
+            {
+                "id": 109,
+                "description": "CHARGES"
+            },
+            {
+                "id": 110,
+                "description": "SERVICES ET BIENS DIVERS"
+            },
+            {
+                "id": 111,
+                "description": "ENTRETIEN ET PETITES RÉPARATIONS BÂTIMENT, JARDIN ET ENVIRONS"
+            },
+            {
+                "id": 112,
+                "description": "PROTECTION ANTI-INCENDIE"
+            },
+            {
+                "id": 113,
+                "description": "Prévention incendie"
+            },
+            {
+                "id": 114,
+                "description": "Contrat d'entretien protection incendie"
+            },
+            {
+                "id": 115,
+                "description": "Entretien protection incendie hors contrat"
+            },
+            {
+                "id": 116,
+                "description": "Réparation protection incendie"
+            },
+            {
+                "id": 117,
+                "description": "Alerte incendie et détection incendie"
+            },
+            {
+                "id": 118,
+                "description": "Entretien escalier secours et coupoles évacuation fumées"
+            },
+            {
+                "id": 119,
+                "description": "Réparation escalier secours et coupoles évacuation fumées"
+            },
+            {
+                "id": 120,
+                "description": "Signalisation de sécurité\/éclairage de secours"
+            },
+            {
+                "id": 121,
+                "description": "Protection contre la foudre"
+            },
+            {
+                "id": 122,
+                "description": "Autres frais protection incendie"
+            },
+            {
+                "id": 123,
+                "description": "ASCENSEURS"
+            },
+            {
+                "id": 124,
+                "description": "Contrôle ascenseurs"
+            },
+            {
+                "id": 125,
+                "description": "Contrat d'entretien ascenseurs"
+            },
+            {
+                "id": 126,
+                "description": "Entretien ascenseurs hors contrat"
+            },
+            {
+                "id": 127,
+                "description": "Téléphone ascenseurs"
+            },
+            {
+                "id": 128,
+                "description": "Electricité ascenseurs"
+            },
+            {
+                "id": 129,
+                "description": "Réparation ascenseur"
+            },
+            {
+                "id": 130,
+                "description": "Mise en conformité ascenseurs"
+            },
+            {
+                "id": 131,
+                "description": "Autres frais ascenseurs"
+            },
+            {
+                "id": 132,
+                "description": "INSTALLATIONS ÉLECTRIQUES"
+            },
+            {
+                "id": 133,
+                "description": "Entretien installations électriques"
+            },
+            {
+                "id": 134,
+                "description": "Entretien installations électriques hors contrat"
+            },
+            {
+                "id": 135,
+                "description": "Réparation installations électriques"
+            },
+            {
+                "id": 136,
+                "description": "Entretien sonnettes et vidéophones"
+            },
+            {
+                "id": 137,
+                "description": "Réparation sonnettes et vidéophones"
+            },
+            {
+                "id": 138,
+                "description": "Entretien extracteurs d'air et de fumées"
+            },
+            {
+                "id": 139,
+                "description": "Réparation extracteurs d'air et de fumées"
+            },
+            {
+                "id": 140,
+                "description": "Vidéosurveillance"
+            },
+            {
+                "id": 141,
+                "description": "Réparation vidéosurveillance"
+            },
+            {
+                "id": 142,
+                "description": "Autresfrais installations électriques"
+            },
+            {
+                "id": 143,
+                "description": "SANITAIRES ET CHAUFFAGE"
+            },
+            {
+                "id": 144,
+                "description": "Contrôle installations chauffage"
+            },
+            {
+                "id": 145,
+                "description": "Contrat entretien chauffage"
+            },
+            {
+                "id": 146,
+                "description": "Entretien chauffage hors contrat"
+            },
+            {
+                "id": 147,
+                "description": "Entretien surpresseur d'eau"
+            },
+            {
+                "id": 148,
+                "description": "Entretien adoucisseur d'eau"
+            },
+            {
+                "id": 149,
+                "description": "Entretien conduites de chauffage"
+            },
+            {
+                "id": 150,
+                "description": "Entretien conduites d'eau"
+            },
+            {
+                "id": 151,
+                "description": "Entretien évacuations, égouts et installation de pompage"
+            },
+            {
+                "id": 152,
+                "description": "Compteurs et relevé des compteurs"
+            },
+            {
+                "id": 153,
+                "description": "Autresfrais sanitaires et chauffage"
+            },
+            {
+                "id": 154,
+                "description": "MENUISERIES"
+            },
+            {
+                "id": 155,
+                "description": "Entretien menuiseries "
+            },
+            {
+                "id": 156,
+                "description": "Entretien balustrades et séparation de terrasses"
+            },
+            {
+                "id": 157,
+                "description": "Autresfrais menuiseries"
+            },
+            {
+                "id": 158,
+                "description": "PORTE GARAGE"
+            },
+            {
+                "id": 159,
+                "description": "Contrôle porte garage"
+            },
+            {
+                "id": 160,
+                "description": "Contrat d'entretien porte garage"
+            },
+            {
+                "id": 161,
+                "description": "Entretien porte garage hors contrat"
+            },
+            {
+                "id": 162,
+                "description": "Réparation porte garage"
+            },
+            {
+                "id": 163,
+                "description": "Autresfrais porte garage"
+            },
+            {
+                "id": 164,
+                "description": "NETTOYAGE ET TRAITEMENT ORDURES MÉNAGÈRES"
+            },
+            {
+                "id": 165,
+                "description": "Nettoyage bâtiment selon contrat"
+            },
+            {
+                "id": 166,
+                "description": "Nettoyage bâtiment hors contrat"
+            },
+            {
+                "id": 167,
+                "description": "Produits entretien"
+            },
+            {
+                "id": 168,
+                "description": "Matériel nettoyage"
+            },
+            {
+                "id": 169,
+                "description": "Traitement ordures ménagères selon contrat"
+            },
+            {
+                "id": 170,
+                "description": "Traitement ordures ménagères hors contrat"
+            },
+            {
+                "id": 171,
+                "description": "Autresfrais nettoyage et traitement ordures ménagères"
+            },
+            {
+                "id": 172,
+                "description": "JARDINS, PARKINGS ET CHEMINS"
+            },
+            {
+                "id": 173,
+                "description": "JARDINS ET ABORDS"
+            },
+            {
+                "id": 174,
+                "description": "Entretien jardins et abords selon contrat"
+            },
+            {
+                "id": 175,
+                "description": "Entretien jardins et abords hors contrat"
+            },
+            {
+                "id": 176,
+                "description": "Aménagement jardins et abords"
+            },
+            {
+                "id": 177,
+                "description": "PARKINGS"
+            },
+            {
+                "id": 178,
+                "description": "Entretien parkings selon contrat"
+            },
+            {
+                "id": 179,
+                "description": "Entretien parkings hors contrat"
+            },
+            {
+                "id": 180,
+                "description": "Rénovation parkings"
+            },
+            {
+                "id": 181,
+                "description": "Réparation parkings"
+            },
+            {
+                "id": 182,
+                "description": "Electricité parkings"
+            },
+            {
+                "id": 183,
+                "description": "Autres frais parkings"
+            },
+            {
+                "id": 184,
+                "description": "ENTRETIEN BÂTIMENTS "
+            },
+            {
+                "id": 185,
+                "description": "Entretien fondations"
+            },
+            {
+                "id": 186,
+                "description": "Entretien façades"
+            },
+            {
+                "id": 187,
+                "description": "Entretien terrasses"
+            },
+            {
+                "id": 188,
+                "description": "Entretien toitures"
+            },
+            {
+                "id": 189,
+                "description": "Entretien cheminées"
+            },
+            {
+                "id": 190,
+                "description": "Entretien caves"
+            },
+            {
+                "id": 191,
+                "description": "Entretien hall, cage escaliers et couloirs"
+            },
+            {
+                "id": 192,
+                "description": "Divers entretien immeuble"
+            },
+            {
+                "id": 193,
+                "description": "PISCINE"
+            },
+            {
+                "id": 194,
+                "description": "Contrôle piscine"
+            },
+            {
+                "id": 195,
+                "description": "Contrat d'entretien piscine"
+            },
+            {
+                "id": 196,
+                "description": "Entretien piscine hors contrat"
+            },
+            {
+                "id": 197,
+                "description": "Fourniture produitspiscine"
+            },
+            {
+                "id": 198,
+                "description": "Surveillancepiscine"
+            },
+            {
+                "id": 199,
+                "description": "Réparation piscine"
+            },
+            {
+                "id": 200,
+                "description": "Autresfrais piscine"
+            },
+            {
+                "id": 201,
+                "description": "DIVERS"
+            },
+            {
+                "id": 202,
+                "description": "Contrats d'entretien"
+            },
+            {
+                "id": 203,
+                "description": "Charges blanchisserie"
+            },
+            {
+                "id": 204,
+                "description": "Charges récréatives (plaines de jeux, tennis, fitness, billard,...)"
+            },
+            {
+                "id": 205,
+                "description": "Contrôle et surveillance"
+            },
+            {
+                "id": 206,
+                "description": "Autres frais divers"
+            },
+            {
+                "id": 207,
+                "description": "TRAVAUX ET FRAIS EXCEPTIONNELS"
+            },
+            {
+                "id": 208,
+                "description": "TRAVAUX DE RÉNOVATIONS ET AUTRES TRAVAUX EXCEPTIONNELS"
+            },
+            {
+                "id": 209,
+                "description": "Frais d'études et surveillance"
+            },
+            {
+                "id": 210,
+                "description": "Rénovation"
+            },
+            {
+                "id": 211,
+                "description": "Travaux de transformation"
+            },
+            {
+                "id": 212,
+                "description": "Travaux d'extension"
+            },
+            {
+                "id": 213,
+                "description": "Autres travaux"
+            },
+            {
+                "id": 214,
+                "description": "FOURNITURES À L'ASSOCIATION"
+            },
+            {
+                "id": 215,
+                "description": "EAU"
+            },
+            {
+                "id": 216,
+                "description": "Redevance fixe et consommation eau"
+            },
+            {
+                "id": 217,
+                "description": "Eau parties communes"
+            },
+            {
+                "id": 218,
+                "description": "Sel adoucisseur"
+            },
+            {
+                "id": 219,
+                "description": "Autres fournitures pour adoucisseur d'eau"
+            },
+            {
+                "id": 220,
+                "description": "Fournitures pour traitement de l'eau"
+            },
+            {
+                "id": 221,
+                "description": "Autresfrais eau"
+            },
+            {
+                "id": 222,
+                "description": "ELECTRICITÉ"
+            },
+            {
+                "id": 223,
+                "description": "Electricité parties communes"
+            },
+            {
+                "id": 224,
+                "description": "Electricité ascenseurs"
+            },
+            {
+                "id": 225,
+                "description": "Electricité chauffageet sanitaires"
+            },
+            {
+                "id": 226,
+                "description": "Autresfrais électricité"
+            },
+            {
+                "id": 227,
+                "description": "GAZ"
+            },
+            {
+                "id": 228,
+                "description": "Redevance fixe et consommation gaz"
+            },
+            {
+                "id": 229,
+                "description": "MAZOUT"
+            },
+            {
+                "id": 230,
+                "description": "Contrôle cuves"
+            },
+            {
+                "id": 231,
+                "description": "Entretien cuves"
+            },
+            {
+                "id": 232,
+                "description": "Livraison mazout"
+            },
+            {
+                "id": 233,
+                "description": "AUTRES SERVICES COLLECTIFS"
+            },
+            {
+                "id": 234,
+                "description": "Câblodistribution"
+            },
+            {
+                "id": 235,
+                "description": "Contrat d'entretien chauffage"
+            },
+            {
+                "id": 236,
+                "description": "Contrat d'entretien adoucisseur d'eau"
+            },
+            {
+                "id": 237,
+                "description": "Compteurs et relevé des compteurs"
+            },
+            {
+                "id": 238,
+                "description": "DÉCOMPTE EAU ET\/OU CHAUFFAGE"
+            },
+            {
+                "id": 239,
+                "description": "Décompte eau et\/ou chauffage"
+            },
+            {
+                "id": 240,
+                "description": "AUTRES FOURNITURES"
+            },
+            {
+                "id": 241,
+                "description": "Stock clés"
+            },
+            {
+                "id": 242,
+                "description": "Stock badges"
+            },
+            {
+                "id": 243,
+                "description": "Stock télécommandes"
+            },
+            {
+                "id": 244,
+                "description": "HONORAIRES, CHARGES MEMBRES DU CONSEIL ET COMMISSAIRE INTERNE AUX COMPTES"
+            },
+            {
+                "id": 245,
+                "description": "HONORAIRESSYNDIC"
+            },
+            {
+                "id": 246,
+                "description": "Honoraires syndic"
+            },
+            {
+                "id": 247,
+                "description": "HONORAIRES"
+            },
+            {
+                "id": 248,
+                "description": "Honoraires syndic"
+            },
+            {
+                "id": 249,
+                "description": "Honoraires avocat"
+            },
+            {
+                "id": 250,
+                "description": "Honoraires architectes et ingénieurs"
+            },
+            {
+                "id": 251,
+                "description": "Honoraires experts"
+            },
+            {
+                "id": 252,
+                "description": "Honoraires commissaire aux comptes"
+            },
+            {
+                "id": 253,
+                "description": "Honoraires prestations complémentaires"
+            },
+            {
+                "id": 254,
+                "description": "Autres honoraires"
+            },
+            {
+                "id": 255,
+                "description": "CHARGES MEMBRES DU CONSEIL DE COPROPRIÉTÉ ET COMMISSAIRE INTERNE AUX COMPTES"
+            },
+            {
+                "id": 256,
+                "description": "Indemnités membres du conseil de copropriété et commissaire interne aux comptes"
+            },
+            {
+                "id": 257,
+                "description": "Frais de déplacement membres du conseil de copropriété et commissaire interne aux comptes"
+            },
+            {
+                "id": 258,
+                "description": "Autres charges conseil de copropriétéet commissaire interne aux comptes"
+            },
+            {
+                "id": 259,
+                "description": "ASSURANCES"
+            },
+            {
+                "id": 260,
+                "description": "Assurance incendie"
+            },
+            {
+                "id": 261,
+                "description": "Assurance responsabilité civile"
+            },
+            {
+                "id": 262,
+                "description": "Assurance accidents du travail"
+            },
+            {
+                "id": 263,
+                "description": "Assurance conseil de copropriété et commissaire aux comptes"
+            },
+            {
+                "id": 264,
+                "description": "Protection juridique"
+            },
+            {
+                "id": 265,
+                "description": "Franchise"
+            },
+            {
+                "id": 266,
+                "description": "Sinistres"
+            },
+            {
+                "id": 267,
+                "description": "Autresassurances"
+            },
+            {
+                "id": 268,
+                "description": "CONCIERGERIE"
+            },
+            {
+                "id": 269,
+                "description": "Téléphone - Internet - gsm"
+            },
+            {
+                "id": 270,
+                "description": "Electricité"
+            },
+            {
+                "id": 271,
+                "description": "Eau"
+            },
+            {
+                "id": 272,
+                "description": "Gaz"
+            },
+            {
+                "id": 273,
+                "description": "Chauffage"
+            },
+            {
+                "id": 274,
+                "description": "Télédistribution"
+            },
+            {
+                "id": 275,
+                "description": "Autresfrais conciergerie"
+            },
+            {
+                "id": 276,
+                "description": "FRAIS D'ADMINISTRATION ET DE GESTION"
+            },
+            {
+                "id": 277,
+                "description": "Frais administratifs syndic"
+            },
+            {
+                "id": 278,
+                "description": "Bureau et matériel de bureau"
+            },
+            {
+                "id": 279,
+                "description": "Timbres"
+            },
+            {
+                "id": 280,
+                "description": "Téléphone"
+            },
+            {
+                "id": 281,
+                "description": "Autres frais administratifs"
+            },
+            {
+                "id": 282,
+                "description": "FRAIS RÉUNIONS"
+            },
+            {
+                "id": 283,
+                "description": "Salle de réunion et consommations"
+            },
+            {
+                "id": 284,
+                "description": "Frais administratifs AG"
+            },
+            {
+                "id": 285,
+                "description": "Autres frais réunions"
+            },
+            {
+                "id": 286,
+                "description": "TRADUCTIONS"
+            },
+            {
+                "id": 287,
+                "description": "Traduction simultanée réunions"
+            },
+            {
+                "id": 288,
+                "description": "Traduction documents"
+            },
+            {
+                "id": 289,
+                "description": "FRAIS DE PROCÉDURE"
+            },
+            {
+                "id": 290,
+                "description": "Frais de procédure recouvrement arriérés copropriétaires"
+            },
+            {
+                "id": 291,
+                "description": "Autres frais de procédure"
+            },
+            {
+                "id": 292,
+                "description": "PUBLICATIONS ET MODIFICATIONS STATUTS"
+            },
+            {
+                "id": 293,
+                "description": "Publications à la BCE"
+            },
+            {
+                "id": 294,
+                "description": "Modification statuts"
+            },
+            {
+                "id": 295,
+                "description": "FRAIS DIVERS GESTION"
+            },
+            {
+                "id": 296,
+                "description": "Communication d'informations sur Internet"
+            },
+            {
+                "id": 297,
+                "description": "Frais d'accession à la propriété"
+            },
+            {
+                "id": 298,
+                "description": "Frais archives"
+            },
+            {
+                "id": 299,
+                "description": "Autres frais gestion"
+            },
+            {
+                "id": 300,
+                "description": "RÉMUNÉRATIONS, CHARGES SOCIALES ET PENSIONS"
+            },
+            {
+                "id": 301,
+                "description": "RÉMUNÉRATIONS, CHARGES SOCIALES ET PENSIONS"
+            },
+            {
+                "id": 302,
+                "description": "Rémunérations"
+            },
+            {
+                "id": 303,
+                "description": "Cotisations sociales"
+            },
+            {
+                "id": 304,
+                "description": "Autres frais de personnel"
+            },
+            {
+                "id": 305,
+                "description": "Pensions de retraite et de survie"
+            },
+            {
+                "id": 306,
+                "description": "AMORTISSEMENTS ET RÉDUCTIONS DE VALEUR"
+            },
+            {
+                "id": 307,
+                "description": "DOTATIONS AUX AMORTISSEMENTS SUR IMMOBILISATIONS"
+            },
+            {
+                "id": 308,
+                "description": "Dotations aux amortissements sur immobilisations incorporelles"
+            },
+            {
+                "id": 309,
+                "description": "Dotations aux amortissements sur immobilisations corporelles"
+            },
+            {
+                "id": 310,
+                "description": "RÉDUCTIONS DE VALEUR SUR CRÉANCES À UN AN AU PLUS"
+            },
+            {
+                "id": 311,
+                "description": "Dotations"
+            },
+            {
+                "id": 312,
+                "description": "Reprises"
+            },
+            {
+                "id": 313,
+                "description": "AUTRES CHARGES"
+            },
+            {
+                "id": 314,
+                "description": "AUTRES CHARGES"
+            },
+            {
+                "id": 315,
+                "description": "Taxes et redevances"
+            },
+            {
+                "id": 316,
+                "description": "MOINS-VALUES SUR LA RÉALISATION DES CRÉANCES"
+            },
+            {
+                "id": 317,
+                "description": "CHARGES DIVERSES"
+            },
+            {
+                "id": 318,
+                "description": "LOYERS PAYÉS PAR LA COPROPRIÉTÉ"
+            },
+            {
+                "id": 319,
+                "description": "Loyers appartement concierge"
+            },
+            {
+                "id": 320,
+                "description": "Loyers emplacement de parking"
+            },
+            {
+                "id": 321,
+                "description": "Loyers garage"
+            },
+            {
+                "id": 322,
+                "description": "Loyers cave"
+            },
+            {
+                "id": 323,
+                "description": "FRAIS PRIVATIFS"
+            },
+            {
+                "id": 324,
+                "description": "Frais privatifs"
+            },
+            {
+                "id": 325,
+                "description": "Frais privatifs refacturés"
+            },
+            {
+                "id": 326,
+                "description": "CHARGES FINANCIÈRES"
+            },
+            {
+                "id": 327,
+                "description": "FRAIS BANCAIRES ET CHARGES DE DETTES"
+            },
+            {
+                "id": 328,
+                "description": "Frais bancaires"
+            },
+            {
+                "id": 329,
+                "description": "Autres charges financières"
+            },
+            {
+                "id": 330,
+                "description": "EMPRUNTS"
+            },
+            {
+                "id": 331,
+                "description": "Remboursement emprunt"
+            },
+            {
+                "id": 332,
+                "description": "CHARGES EXCEPTIONNELLES"
+            },
+            {
+                "id": 333,
+                "description": "CHARGES TRAVAUX"
+            },
+            {
+                "id": 334,
+                "description": "CHARGES TRAVAUX EXTRAORDINAIRES"
+            },
+            {
+                "id": 335,
+                "description": "VARIATION DES FONDS"
+            },
+            {
+                "id": 336,
+                "description": "PROVISIONS"
+            },
+            {
+                "id": 337,
+                "description": "Appel provisions pour charges"
+            },
+            {
+                "id": 338,
+                "description": "VARIATION FONDS DE ROULEMENT"
+            },
+            {
+                "id": 339,
+                "description": "Appel fonds de roulement"
+            },
+            {
+                "id": 340,
+                "description": "VARIATION FONDS DE RÉSERVE"
+            },
+            {
+                "id": 341,
+                "description": "Appel fonds de réserve"
+            },
+            {
+                "id": 342,
+                "description": "Prélèvement fonds de réserve"
+            },
+            {
+                "id": 343,
+                "description": "VALEURS À REPORTER"
+            },
+            {
+                "id": 344,
+                "description": "VALEURS À REPORTER"
+            },
+            {
+                "id": 345,
+                "description": "PRODUITS"
+            },
+            {
+                "id": 346,
+                "description": "ACOMPTES"
+            },
+            {
+                "id": 347,
+                "description": "Acomptes fonds de réserve"
+            },
+            {
+                "id": 348,
+                "description": "Provisions"
+            },
+            {
+                "id": 349,
+                "description": "Provisions extraordinaires"
+            },
+            {
+                "id": 350,
+                "description": "AUTRES PRODUITS D'EXPLOITATION"
+            },
+            {
+                "id": 351,
+                "description": "PRODUITS DIVERS"
+            },
+            {
+                "id": 352,
+                "description": "LOYERS PERCUS PAR LA COPROPRIÉTÉ"
+            },
+            {
+                "id": 353,
+                "description": "Loyers ancienne conciergerie"
+            },
+            {
+                "id": 354,
+                "description": "Loyers emplacement de parking"
+            },
+            {
+                "id": 355,
+                "description": "Loyers garage commun"
+            },
+            {
+                "id": 356,
+                "description": "Loyers cave commune"
+            },
+            {
+                "id": 357,
+                "description": "Loyers antenne(s)"
+            },
+            {
+                "id": 358,
+                "description": "Loyers panneaux publicitaires"
+            },
+            {
+                "id": 359,
+                "description": "INDEMNITÉS PERCUES PAR LA COPROPRIÉTÉ"
+            },
+            {
+                "id": 360,
+                "description": "INDEMNITÉS DE DÉMÉNAGEMENT \/ EMMÉNAGEMENT"
+            },
+            {
+                "id": 361,
+                "description": "Indemnités de déménagement"
+            },
+            {
+                "id": 362,
+                "description": "Indemnités d'emménagement"
+            },
+            {
+                "id": 363,
+                "description": "PRODUITS FINANCIERS"
+            },
+            {
+                "id": 364,
+                "description": "INTÉRÊTS BANCAIRES"
+            },
+            {
+                "id": 365,
+                "description": "Intérêts bancaires"
+            },
+            {
+                "id": 366,
+                "description": "PRODUITS EXCEPTIONNELS"
+            }
+        ]
+    }
+]

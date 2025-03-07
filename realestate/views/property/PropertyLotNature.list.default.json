@@ -1,0 +1,23 @@
+{
+    "name": "Property Lot nature",
+    "description": "List of property lot natures.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "hierarchy",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "50%"
+            }
+        ]
+    }
+}

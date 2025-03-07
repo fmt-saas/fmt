@@ -3,6 +3,17 @@
     "description": "Form holding basic information about an Organisation.",
     "routes": [
         {
+            "id": "item.property_lots",
+            "label": "Property Lots",
+            "description": "",
+            "icon": "apartment",
+            "context": {
+                "entity": "realestate\\property\\PropertyLot",
+                "view": "list.default",
+                "domain": ["condo_id", "=", "object.id"]
+            }
+        },
+        {
             "id": "item.role_assignments",
             "label": "Roles Assignments",
             "description": "",
@@ -19,9 +30,9 @@
             "description": "",
             "icon": "pie_chart",
             "context": {
-                "entity": "realestate\\property\\PropertyLotStatutoryQuota",
+                "entity": "realestate\\property\\Apportionment",
                 "view": "list.default",
-                "domain": ["condo_id", "=", "object.id"]
+                "domain": [["condo_id", "=", "object.id"], ["is_statutory", "=", true]]
             }
         },
         {
@@ -30,10 +41,35 @@
             "description": "",
             "icon": "account_tree",
             "context": {
-                "entity": "realestate\\property\\ApportionmentKey",
+                "entity": "realestate\\property\\Apportionment",
                 "view": "list.default",
-                "domain": ["condo_id", "=", "object.id"]
+                "domain": [["condo_id", "=", "object.id"], ["is_statutory", "=", false]]
             }
+        },
+        {
+            "id": "item.fiscal_year",
+            "label": "Fiscal years",
+            "description": "",
+            "icon": "date_range",
+            "context": {
+                "entity": "finance\\accounting\\FiscalYear",
+                "view": "list.condo",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        }
+    ],
+    "actions": [
+        {
+            "id": "action.open_fiscal_year",
+            "label": "Open fiscal Year",
+            "controller": "realestate_property_condominium_fiscalyear-open",
+            "confirm": true
+        },
+        {
+            "id": "action.create_fiscal_year",
+            "label": "Create fiscal Year",
+            "controller": "realestate_property_condominium_fiscalyear-create",
+            "confirm": true
         }
     ],
     "layout": {
@@ -54,6 +90,23 @@
                                                 "widget": {
                                                     "header": false
                                                 }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "registration_number",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_vat",
+                                                "width": "33%",
+                                                "label": "Subject to VAT",
+                                                "help": "Do the company have a VAT number?"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "vat_number",
+                                                "width": "33%"
                                             }
                                         ]
                                     },
@@ -84,6 +137,12 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Language",
+                                                "value": "lang_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "type",
                                                 "visible": false
                                             },
@@ -107,57 +166,6 @@
                         "description": "signalétique",
                         "id": "section.identity_info",
                         "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "50%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "registration_number",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_vat",
-                                                "width": "33%",
-                                                "label": "Subject to VAT",
-                                                "help": "Do the company have a VAT number?"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "vat_number",
-                                                "width": "33%"
-                                            }
-
-                                        ]
-                                    },
-                                    {
-                                        "width": "25%",
-                                        "items": [
-                                        ]
-                                    },
-                                    {
-                                        "width": "16%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "label": "Language",
-                                                "value": "lang_id",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": []
-                                    }
-                                ]
-                            },
                             {
                                 "columns": [
                                     {
@@ -339,6 +347,26 @@
                                     {
                                         "width": "50%",
                                         "items": [
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Sequences",
+                        "id": "section.sequences",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "setting_sequences_ids",
+                                                "width": "100%"
+                                            }
                                         ]
                                     }
                                 ]

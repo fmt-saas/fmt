@@ -22,8 +22,16 @@ class SettingSequence extends \core\setting\SettingSequence {
             'organisation_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Organisation',
-                'description'       => 'Organisation the setting is specific to (optional).',
+                'description'       => 'Organisation the sequence is specific to (optional).',
                 'default'           => 1,
+                'ondelete'          => 'cascade'
+            ],
+
+            'condo_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\property\Condominium',
+                'description'       => 'Condominium the sequence is specific to (optional).',
+                'default'           => 0,
                 'ondelete'          => 'cascade'
             ]
 

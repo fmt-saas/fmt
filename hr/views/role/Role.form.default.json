@@ -33,7 +33,17 @@
                                         ]
                                     }
                                 ]
-                            },
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.permissions",
+                        "label": "Permissions",
+                        "rows": [
                             {
                                 "columns": [
                                     {
@@ -42,6 +52,26 @@
                                             {
                                                 "type": "field",
                                                 "value": "permissions_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.assignments",
+                        "label": "Assignments",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "role_assignments_ids",
                                                 "width": "100%"
                                             }
                                         ]

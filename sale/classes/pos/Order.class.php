@@ -7,7 +7,7 @@
 */
 namespace sale\pos;
 use equal\orm\Model;
-use finance\accounting\Invoice;
+use finance\accounting\invoice\Invoice;
 use core\setting\Setting;
 
 class Order extends Model {

@@ -1,0 +1,24 @@
+{
+    "name": "Accounting Account",
+    "description": "Detail of an accounting chart line with all fields.",
+    "extends": {
+        "entity": "finance\\accounting\\Account",
+        "view": "form.default"
+    },
+    "layout": {
+        "update": {
+            "item.tenant_share": {
+                "before": [
+                    {
+                        "type": "label",
+                        "value": "",
+                        "width": "33%"
+                    }
+                ]
+            }
+        },
+        "remove": [
+            "item.apportionment_id"
+        ]
+    }
+}

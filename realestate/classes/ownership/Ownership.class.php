@@ -14,11 +14,20 @@ class Ownership extends \equal\orm\Model {
 
         return [
 
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "Name representing the ownership (one or more persons).",
+                'function'          => 'calcName',
+                'readonly'          => true,
+                'store'             => true
+            ],
+
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'required'          => true
+                // 'required'          => true
             ],
 
             'property_lots_ids' => [
@@ -35,7 +44,8 @@ class Ownership extends \equal\orm\Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'foreign_field'     => 'ownership_id',
-                'description'       => 'List of owners.'
+                'description'       => 'List of owners.',
+                "domain"            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'ownership_type' => [
@@ -59,6 +69,7 @@ class Ownership extends \equal\orm\Model {
             'date_from' => [
                 'type'              => 'date',
                 'description'       => "The date from which the ownership is valid.",
+                'required'          => true
             ],
 
             'date_to' => [
@@ -93,4 +104,27 @@ class Ownership extends \equal\orm\Model {
 
         ];
     }
+
+    public static function calcName($self) {
+        $result = [];
+        $self->read(['has_representative', 'representative_identity_id' => ['name'], 'owners_ids' => ['name']]);
+        foreach($self as $id => $ownership) {
+            if($ownership['has_representative']) {
+                $result[$id] = $ownership['representative_identity_id'];
+            }
+            else {
+                $names = [];
+                foreach($ownership['owners_ids'] as $owner_id => $owner) {
+                    $names[] = $owner['name'];
+                }
+                $name = implode(', ', $names);
+                if(strlen($name) > 128) {
+                    $name = substr($name, 0, 128).'...';
+                }
+                $result[$id] = $name;
+            }
+        }
+        return $result;
+    }
+
 }

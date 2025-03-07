@@ -1,9 +1,6 @@
 {
     "name": "Accounting Chart",
     "description": "Default form for accounting chart with all fields.",
-    "access": {
-        "groups": ["finance.default.users"]
-     },
     "layout": {
         "groups": [
             {
@@ -47,7 +44,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "account_chart_lines_ids",
+                                                "value": "accounts_ids",
                                                 "width": "100%"
                                             }
                                         ]

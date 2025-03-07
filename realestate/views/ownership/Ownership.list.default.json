@@ -1,0 +1,35 @@
+{
+    "name": "Property List",
+    "description": "This view is intended for displaying the list of properties.",
+    "header": {
+        "actions": {
+            "ACTION.CREATE": [ {
+                "view": "form.create"
+            } ]
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "ownership_type",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "date_from",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "date_to",
+                "width": "20%"
+            }
+        ]
+    }
+}

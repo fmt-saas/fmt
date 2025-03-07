@@ -45,7 +45,7 @@ class Identity extends Model {
                 ],
                 'description'       => 'The display name of the identity.',
                 'help'              => "The display name is a computed field that returns a concatenated string containing either the firstname+lastname, or the legal name of the Identity, based on the kind of Identity.\n
-                    For instance, 'name', for a company with \"My Company\" as legal name will return \"My Company\". \n
+                    For instance, 'name', for a company with \"My Company\" as legal_name will return \"My Company\". \n
                     Whereas, for an individual having \"John\" as firstname and \"Smith\" as lastname, it will return \"John Smith\"."
             ],
 

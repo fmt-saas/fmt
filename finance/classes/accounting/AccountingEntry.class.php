@@ -8,7 +8,7 @@
 namespace finance\accounting;
 
 use equal\orm\Model;
-use fmt\setting\Setting;
+use symbiose\setting\Setting;
 
 class AccountingEntry extends Model {
 
@@ -22,10 +22,16 @@ class AccountingEntry extends Model {
 
     public static function getColumns() {
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the accounting entry refers to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'readonly'          => true
+            ],
 
             'journal_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\AccountingJournal',
+                'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => "Accounting journal the entry relates to.",
                 'required'          => true
             ],
@@ -44,10 +50,87 @@ class AccountingEntry extends Model {
 
             'origin_object_id' => [
                 'type'              => 'integer',
-                'description'       => 'Object identifier, of `origin_object_class`, he entry originates from.'
+                'description'       => 'Object identifier, of `origin_object_class`, the entry originates from.'
+            ],
+
+            'debit' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:4',
+                'description'       => 'Total debited amount from all lines.',
+                'function'          => 'calcDebit',
+                'store'             => true
+            ],
+
+            'credit' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:4',
+                'description'       => 'Total credited amount from all lines.',
+                'function'          => 'calcCredit',
+                'store'             => true
+            ],
+
+            'is_balanced' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'An entry is balanced if the total debited amount equals the total credited amount.',
+                'function'          => 'calcIsBalanced'
+            ],
+
+            'entry_lines_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\AccountingEntryLine',
+                'foreign_field'     => 'accounting_entry_id',
+                'description'       => "Lines of the accounting entry.",
+                'dependents'        => ['debit', 'credit']
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'pending',
+                    'validated',
+                    'cancelled'
+                ],
+                'default'           => 'pending',
+                'description'       => 'Status of the accounting entry.',
             ]
 
         ];
+    }
+
+    public static function calcIsBalanced($self) {
+        $result = [];
+        $self->read(['credit', 'debit']);
+        foreach($self as $id => $entry) {
+            $result[$id] = ($entry['credit'] === $entry['debit']);
+        }
+        return $result;
+    }
+
+    public static function calcDebit($self) {
+        $result = [];
+        $self->read(['entry_lines_ids' => ['debit']]);
+        foreach($self as $id => $entry) {
+            $result[$id] = 0.0;
+            foreach($entry['entry_lines_ids'] as $line) {
+                $result[$id] += $line['debit'];
+            }
+        }
+        return $result;
+    }
+
+    public static function calcCredit($self) {
+        $result = [];
+        $self->read(['entry_lines_ids' => ['credit']]);
+        foreach($self as $id => $entry) {
+            $result[$id] = 0.0;
+            foreach($entry['entry_lines_ids'] as $line) {
+                $result[$id] += $line['credit'];
+            }
+        }
+        return $result;
     }
 
     public static function calcEntryNumber($self) {
@@ -59,9 +142,28 @@ class AccountingEntry extends Model {
                 continue;
             }
 
-            $format = Setting::get_value('finance', 'accounting', 'accounting_entry.number_format', '%s{journal}/%02d{year}/%05d{sequence}', ['organisation_id' => $entry['journal_id']['organisation_id']]);
-            $year = Setting::get_value('finance', 'accounting', 'fiscal_year', date('Y'), ['organisation_id' => $entry['journal_id']['organisation_id']]);
-            $sequence = Setting::fetch_and_add('finance', 'accounting', 'accounting_entry.sequence', 1, ['organisation_id' => $entry['journal_id']['organisation_id']]);
+            $format = Setting::get_value(
+                    'finance',
+                    'accounting',
+                    'accounting_entry.number_format', '%s{journal}/%02d{year}/%05d{sequence}',
+                    ['organisation_id' => $entry['journal_id']['organisation_id']]
+                );
+
+            $year = Setting::get_value(
+                    'finance',
+                    'accounting',
+                    'fiscal_year',
+                    date('Y'),
+                    ['organisation_id' => $entry['journal_id']['organisation_id']]
+                );
+
+            $sequence = Setting::fetch_and_add(
+                    'finance',
+                    'accounting',
+                    'accounting_entry.sequence',
+                    1,
+                    ['organisation_id' => $entry['journal_id']['organisation_id']]
+                );
 
             if($sequence) {
                 $result[$id] = Setting::parse_format($format, [

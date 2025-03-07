@@ -1,0 +1,9 @@
+{
+    "name": "Accounting Chart",
+    "description": "Default form for accounting chart with all fields.",
+    "extends": {
+        "entity": "finance\\accounting\\AccountChart",
+        "view": "form.default"
+    },
+    "layout": {}
+}

@@ -1,0 +1,25 @@
+{
+    "name": "Property Lot Apportionments",
+    "description": "",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Property Lot",
+                "value": "property_lot_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Shares",
+                "value": "property_lot_shares",
+                "width": "20%"
+            }
+        ]
+    }
+}

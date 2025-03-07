@@ -1,0 +1,25 @@
+{
+	"name": "Copropriété",
+	"plural": "Copropriétés",
+	"description": "Les propriétés qui existent.",
+	"model": {
+		"name": {
+			"label": "Nom",
+			"description": "Nom de la Copropriété.",
+			"help": ""
+		}
+	},
+	"view": {
+		"form.default": {
+			"name": "Copropriété",
+			"description": "Copropriétés disponibles.",
+			"layout": {}
+		},
+		"list.default": {
+			"name": "Liste des Copropriétés",
+			"description": "Liste des copropriétés.",
+			"layout": {}
+		}
+	},
+	"error": {}
+}

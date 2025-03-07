@@ -20,13 +20,12 @@ class PropertyLot extends \equal\orm\Model {
 
             'name' => [
                 'type'              => 'string',
-                'description'       => 'List of employees assigned to the management of the condominium.',
-                'multilang'         => true
+                'description'       => 'Arbitrary name of the property lot.'
             ],
 
             'comments' => [
                 'type'              => 'string',
-                'description'       => 'List of employees assigned to the management of the condominium.'
+                'description'       => 'Comments about the property lot.'
             ],
 
             'cadastral_number' => [
@@ -50,7 +49,7 @@ class PropertyLot extends \equal\orm\Model {
                 'type'              => 'one2many',
                 'description'       => "The list of rental units the current unit can be divided into, if any (i.e. a dorm might be rent as individual beds).",
                 'foreign_object'    => 'realestate\property\PropertyLot',
-                'foreign_field'     => 'parent_id',
+                'foreign_field'     => 'primary_lot_id',
                 'visible'           => ['is_primary', '=', true],
             ],
 
@@ -107,15 +106,15 @@ class PropertyLot extends \equal\orm\Model {
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'foreign_field'     => 'property_lots_ids',
-                'rel_table'         => 'realestate_ownership_rel_property_lot',
+                'rel_table'         => 'realestate_ownership_ownership_rel_property_lot',
                 'rel_foreign_key'   => 'ownership_id',
                 'rel_local_key'     => 'lot_id',
                 'description'       => 'Ownerships to which this property lot is assigned.'
             ],
 
-            'apportionment_keys_ids' => [
+            'apportionments_ids' => [
                 'type'              => 'many2many',
-                'foreign_object'    => 'realestate\property\ApportionmentKey',
+                'foreign_object'    => 'realestate\property\Apportionment',
                 'foreign_field'     => 'property_lots_ids',
                 'rel_table'         => 'realestate_property_apportionment_key_rel_property_lot',
                 'rel_foreign_key'   => 'apportionment_key_id',

@@ -28,6 +28,11 @@ class PropertyLotNature extends \equal\orm\Model {
             'hierarchy' => [
                 'type'              => 'integer',
                 'usage'             => 'number/integer{1,3}',
+                'selection'         => [
+                    1 => 'main',
+                    2 => 'dependency',
+                    3 => 'misc'
+                ],
                 /*
                     1 | main         | Includes properties used for living or business purposes, such as apartments, offices, and commercial spaces.
                     2 | dependency   | Covers auxiliary spaces like parking spots, garages, and storage units (cellars, basements).

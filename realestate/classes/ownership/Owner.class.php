@@ -13,18 +13,28 @@ class Owner extends \equal\orm\Model {
 
         return [
 
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "The name of the Owner.",
+                'relation'          => ['identity_id' => 'name'],
+                'store'             => true,
+                'readonly'          => true
+            ],
+
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'required'          => true
+                'readonly'          => true
             ],
 
             'ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The ownership that the owner refers to.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
-                'required'          => true
+                // 'required'          => true,
+                'readonly'          => true
             ],
 
             'owner_shares' => [
@@ -61,7 +71,8 @@ class Owner extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The identity of the owner.",
                 'foreign_object'    => 'identity\Identity',
-                'required'          => true
+                // 'required'          => true,
+                'dependents'        => ['name']
             ]
 
         ];

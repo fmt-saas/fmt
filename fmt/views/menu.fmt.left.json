@@ -7,39 +7,48 @@
     "layout": {
         "items": [
             {
-
-                "id": "properties",
+                "id": "item.properties",
                 "label": "Properties",
                 "description": "",
-                "icon": "now_widgets",
+                "icon": "real_estate_agent",
                 "type": "parent",
                 "children": [
                     {
                         "id": "condominiums",
                         "type": "entry",
                         "label": "Condominiums",
-                        "icon": "how_to_reg",
+                        "icon": "apartment",
                         "description": "",
                         "context": {
                             "entity": "realestate\\property\\Condominium",
                             "view": "list.default"
                         }
+                    },
+                    {
+                        "id": "ownerships",
+                        "type": "entry",
+                        "label": "Owners",
+                        "icon": "group",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\ownership\\Ownership",
+                            "view": "list.default"
+                        }
                     }
-
                 ]
             },
             {
-                "id": "teams",
+                "id": "item.hr",
                 "label": "HR",
                 "description": "",
-                "icon": "now_widgets",
+                "icon": "group",
                 "type": "parent",
                 "children": [
                     {
                         "id": "employees",
                         "type": "entry",
                         "label": "Employees",
-                        "icon": "how_to_reg",
+                        "icon": "person",
                         "description": "",
                         "context": {
                             "entity": "hr\\employee\\Employee",
@@ -50,7 +59,7 @@
                         "id": "teams",
                         "type": "entry",
                         "label": "Teams",
-                        "icon": "how_to_reg",
+                        "icon": "groups",
                         "description": "",
                         "context": {
                             "entity": "hr\\Team",
@@ -61,7 +70,7 @@
                         "id": "assignments",
                         "type": "entry",
                         "label": "Assignments",
-                        "icon": "how_to_reg",
+                        "icon": "group_add",
                         "description": "",
                         "context": {
                             "entity": "hr\\role\\RoleAssignment",
@@ -72,7 +81,7 @@
                         "id": "roles",
                         "type": "entry",
                         "label": "Roles",
-                        "icon": "how_to_reg",
+                        "icon": "assignment_ind",
                         "description": "",
                         "context": {
                             "entity": "hr\\role\\Role",
@@ -83,7 +92,73 @@
                 ]
             },
             {
-                "id": "configuration",
+                "id": "item.accounting",
+                "label": "Accounting",
+                "description": "",
+                "icon": "account_balance",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "item.accounting.fiscal_years",
+                        "type": "entry",
+                        "label": "Fiscal Years",
+                        "icon": "date_range",
+                        "description": "",
+                        "context": {
+                            "entity": "finance\\accounting\\FiscalYear",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "item.accounting.journals",
+                        "type": "entry",
+                        "label": "Journals",
+                        "icon": "auto_stories",
+                        "description": "",
+                        "context": {
+                            "entity": "finance\\accounting\\Journal",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "item.accounting.accountchart",
+                        "type": "entry",
+                        "label": "Chart of accounts",
+                        "icon": "menu_book",
+                        "description": "",
+                        "context": {
+                            "entity": "finance\\accounting\\AccountChart",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "item.accounting.accountcharttemplate",
+                        "type": "entry",
+                        "label": "Template Chart",
+                        "icon": "import_contacts",
+                        "description": "",
+                        "context": {
+                            "entity": "finance\\accounting\\AccountChartTemplate",
+                            "view": "list.default"
+                        }
+                    },
+
+                    {
+                        "id": "item.accounting.invoices",
+                        "type": "entry",
+                        "label": "Invoices",
+                        "icon": "receipt_long",
+                        "description": "",
+                        "context": {
+                            "entity": "finance\\accounting\\invoice\\Invoice",
+                            "view": "list.default"
+                        }
+                    }
+
+                ]
+            },
+            {
+                "id": "item.configuration",
                 "label": "Config",
                 "description": "",
                 "icon": "now_widgets",
@@ -93,12 +168,22 @@
                         "id": "pricelist",
                         "type": "entry",
                         "label": "Price list",
-                        "icon": "how_to_reg",
+                        "icon": "price_check",
                         "description": "",
                         "context": {
                             "entity": "sale\\price\\PriceList",
                             "view": "list.org",
                             "domain": ["condo_id", "=", null]
+                        }
+                    },
+                    {
+                        "id": "pricelist",
+                        "type": "entry",
+                        "label": "Lot natures",
+                        "icon": "domain_add",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\property\\PropertyLotNature"
                         }
                     }
                 ]

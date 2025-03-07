@@ -9,12 +9,12 @@ namespace sale\accounting\invoice;
 use fmt\setting\Setting;
 use finance\accounting\AccountChartLine;
 use finance\accounting\AccountingEntry;
-use finance\accounting\AccountingJournal;
+use finance\accounting\Journal;
 use sale\customer\Customer;
 use sale\pay\Funding;
 use sale\receivable\Receivable;
 
-class Invoice extends \finance\accounting\Invoice {
+class Invoice extends \finance\accounting\invoice\Invoice {
 
     public static function getName() {
         return 'Sale invoice';
@@ -178,7 +178,7 @@ class Invoice extends \finance\accounting\Invoice {
 
     public static function getPolicies(): array {
         return [
-            'can-be-invoiced' => [
+            'can_be_invoiced' => [
                 'description' => 'Verifies that the proforma can be invoiced.',
                 'function'    => 'policyCanBeInvoiced'
             ]
@@ -207,7 +207,7 @@ class Invoice extends \finance\accounting\Invoice {
                         'description' => 'Update the invoice status based on the `invoice` field.',
                         'help'        => 'The `invoice` field is set by a dedicated controller that manages invoice approval requests.',
                         'policies'    => [
-                            'can-be-invoiced',
+                            'can_be_invoiced',
                         ],
                         'onbefore'  => 'onbeforeInvoice',
                         'onafter'   => 'onafterInvoice',
@@ -562,7 +562,7 @@ class Invoice extends \finance\accounting\Invoice {
                     throw new \Exception('invalid_invoice', EQ_ERROR_UNKNOWN);
                 }
 
-                $journal = AccountingJournal::search([['organisation_id', '=', $invoice['organisation_id']], ['journal_type', '=', 'SALE']])->read(['id'])->first();
+                $journal = Journal::search([['organisation_id', '=', $invoice['organisation_id']], ['journal_type', '=', 'SALE']])->read(['id'])->first();
 
                 if(!$journal) {
                     throw new \Exception('missing_mandatory_journal', EQ_ERROR_INVALID_CONFIG);

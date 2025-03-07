@@ -1,0 +1,73 @@
+{
+    "name": "Accounting Charts List",
+    "description": "This view is intended for displaying the accounting charts.",
+    "group_by": ["account_class"],
+    "limit": 1000,
+    "order": "name,level",
+    "sort": "asc",
+    "domain": ["is_visible", "=", true],
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "code",
+                "width": "10%",
+                "align": "left"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "level",
+                "width": "15%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "account_nature",
+                "width": "15%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Control",
+                "value": "is_control_account",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "account_class",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "account_type",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "account_nature",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "tenant_share",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "owner_share",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "Visible",
+                "value": "is_visible",
+                "width": "10%"
+            }
+        ]
+    }
+}

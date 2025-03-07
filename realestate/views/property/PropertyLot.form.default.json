@@ -15,10 +15,33 @@
                                             {
                                                 "type": "field",
                                                 "value": "name",
-                                                "width": "50%",
+                                                "width": "100%",
                                                 "widget": {
                                                     "heading": true
                                                 }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "nature",
+                                                "value": "nature_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Current owner",
+                                                "value": "active_ownership_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_primary",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "primary_lot_id",
+                                                "width": "50%",
+                                                "visible": ["is_primary", "=", false]
                                             }
                                         ]
                                     },
@@ -48,26 +71,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "is_primary",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "primary_lot_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "secondary_lots_ids",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "nature_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "has_tenancy",
                                                 "width": "50%"
                                             },
@@ -92,6 +95,27 @@
             {
                 "sections": [
                     {
+                        "id": "section.secondary_lots",
+                        "label": "Secondary lots",
+                        "visible": ["is_primary", "=", true],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "secondary_lots_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "id": "section.ownerships",
                         "label": "Ownerships",
                         "rows": [
@@ -112,7 +136,7 @@
                         ]
                     },
                     {
-                        "id": "section.apportionment_keys",
+                        "id": "section.apportionments",
                         "label": "Apportionment keys",
                         "rows": [
                             {
@@ -122,7 +146,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "apportionment_keys_ids",
+                                                "value": "apportionments_ids",
                                                 "width": "100%"
                                             }
                                         ]

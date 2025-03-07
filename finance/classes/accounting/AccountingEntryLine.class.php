@@ -20,13 +20,19 @@ class AccountingEntryLine extends Model {
 
     public static function getColumns() {
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the accounting entry line refers to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'readonly'          => true
+            ],
 
             'name' => [
                 'type'              => 'string',
                 'description'       => 'Label for identifying the entry.',
             ],
 
-            'account_entry_id' => [
+            'accounting_entry_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
                 'description'       => "Accounting entry the line relates to.",
@@ -36,32 +42,36 @@ class AccountingEntryLine extends Model {
 
             'account_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\AccountChartLine',
+                'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account the entry relates to.",
                 'required'          => true,
-                'ondelete'          => 'null'
+                'ondelete'          => 'null',
+                'dependents'       => ['journal_id']
             ],
 
             'journal_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
-                'foreign_object'    => 'finance\accounting\AccountingJournal',
+                'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => "Accounting journal the entry relates to.",
-                'relation'          => ['accounting_entry_id' => 'journal_id']
+                'relation'          => ['accounting_entry_id' => 'journal_id'],
+                'store'             => true
             ],
 
             'debit' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
                 'description'       => 'Amount to be debited on the account.',
-                'default'           => 0.0
+                'default'           => 0.0,
+                'dependents'        => ['accounting_entry_id' => 'debit']
             ],
 
             'credit' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
                 'description'       => 'Amount to be credited on the account.',
-                'default'           => 0.0
+                'default'           => 0.0,
+                'dependents'        => ['accounting_entry_id' => 'credit']
             ]
         ];
     }

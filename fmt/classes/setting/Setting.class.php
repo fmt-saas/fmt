@@ -6,6 +6,8 @@
 */
 namespace fmt\setting;
 
+use core\setting\SettingSection;
+
 class Setting extends \core\setting\Setting {
 
 
@@ -33,6 +35,93 @@ class Setting extends \core\setting\Setting {
         ];
     }
 
+    /**
+     * Make sure the setting exists, and create it if necessary.
+     *
+     * @return  never
+     */
+    public static function assert_sequence(string $package, string $section, string $code, $default=null, array $selector=[], string $lang=null) {
+        $lang = $lang ?? constant('DEFAULT_LANG');
+
+        $value = self::get($package, $section, $code, null, $selector, $lang);
+
+        if($value !== null) {
+            return;
+        }
+
+        // Inject ORM
+        $providers = \eQual::inject(['orm']);
+        /** @var \equal\orm\ObjectManager */
+        $om = $providers['orm'];
+
+        // attempt to retrieve the setting
+        $settings_ids = $om->search(self::getType(), [
+                ['package', '=', $package],
+                ['section', '=', $section],
+                ['code', '=', $code]
+            ]);
+
+        // create new setting
+        if(is_array($settings_ids) && count($settings_ids) == 0) {
+            $sections_ids = $om->search(SettingSection::getType(), ['code', '=', $section]);
+            if(count($sections_ids)) {
+                $section_id = current($sections_ids);
+
+                $om->create(self::getType(), [
+                        'package'       => $package,
+                        'section'       => $section,
+                        'section_id'    => $section_id,
+                        'code'          => $code,
+                        'type'          => 'integer',
+                        'is_sequence'   => true
+                    ]);
+            }
+        }
+    }
+
+
+    public static function init_sequence(string $package, string $section, string $code, array $selector=[]) {
+        // Inject ORM
+        $providers = \eQual::inject(['orm']);
+        /** @var \equal\orm\ObjectManager */
+        $om = $providers['orm'];
+
+        // attempt to retrieve the setting
+        $settings_ids = $om->search(self::getType(), [
+                ['package', '=', $package],
+                ['section', '=', $section],
+                ['code', '=', $code]
+            ]);
+
+        if(!is_array($settings_ids)) {
+            return;
+        }
+
+        $setting_id = current($settings_ids);
+
+
+        $domain = [ ['setting_id', '=', $setting_id] ];
+
+        foreach($selector as $field => $value) {
+            $domain[] = [$field, '=', $value];
+        }
+
+        $settings_sequences_ids = $om->search(SettingSequence::getType(), $domain);
+        if(!count($settings_sequences_ids)) {
+            $values = ['setting_id' => $setting_id, 'value' => 1];
+            foreach($selector as $field => $value) {
+                $values[$field] = $value;
+            }
+            // value does not exist yet: create a new value
+            $om->create(SettingSequence::getType(), $values);
+        }
+        else {
+            // update existing value
+            $om->update(SettingSequence::getType(), $settings_sequences_ids, ['value' => 1]);
+        }
+
+    }
+
     public static function fetch_and_add(string $package, string $section, string $code, $increment=null, array $selector=[], string $lang='en') {
         $result = null;
 
@@ -55,10 +144,14 @@ class Setting extends \core\setting\Setting {
                 $setting = array_pop($settings);
 
                 $setting_sequence_id = 0;
-                $setting_sequences = $orm->read(SettingSequence::getType(), $setting['setting_sequences_ids'], ['id', 'organisation_id']);
+                $setting_sequences = $orm->read(SettingSequence::getType(), $setting['setting_sequences_ids'], ['id', 'condo_id', 'organisation_id']);
                 if($setting_sequences > 0) {
                     foreach($setting_sequences as $sequence) {
-                        if(intval($sequence['organisation_id']) == intval($selector['organisation_id'] ?? 0)) {
+                        if($sequence['condo_id'] && $sequence['condo_id'] == intval($selector['condo_id'] ?? 0)) {
+                            $setting_sequence_id = $sequence['id'];
+                            break;
+                        }
+                        if($sequence['organisation_id'] && $sequence['organisation_id'] == intval($selector['organisation_id'] ?? 0)) {
                             $setting_sequence_id = $sequence['id'];
                             break;
                         }
@@ -139,12 +232,15 @@ class Setting extends \core\setting\Setting {
                     $values_lang = $lang;
                 }
 
-                $setting_values = $om->read(SettingValue::getType(), $setting['setting_values_ids'], ['user_id', 'value'], $values_lang);
+                $setting_values = $om->read(SettingValue::getType(), $setting['setting_values_ids'], ['condo_id', 'user_id', 'organisation_id', 'value'], $values_lang);
                 if($setting_values > 0) {
                     $value = null;
                     // #memo - by default settings values are sorted on user_id (which can be null), so first value is the default one
                     foreach($setting_values as $setting_value) {
                         $value = $setting_value['value'];
+                        if(isset($selector['condo_id']) && isset($setting_value['condo_id']) && $setting_value['condo_id'] == $selector['condo_id']) {
+                            break;
+                        }
                         if(isset($selector['user_id']) && isset($setting_value['user_id']) && $setting_value['user_id'] == $selector['user_id']) {
                             break;
                         }
@@ -194,46 +290,49 @@ class Setting extends \core\setting\Setting {
             // section does not exist yet
             $sections_ids = (array) $om->create(SettingSection::getType(), ['name' => $section, 'code' => $section]);
         }
-        $section_id = reset($sections_ids);
+        $section_id = current($sections_ids);
 
         $settings_ids = $om->search(self::getType(), [
-            ['package', '=', $package],
-            ['section_id', '=', $section_id],
-            ['code', '=', $code]
-        ]);
+                ['package', '=', $package],
+                ['section_id', '=', $section_id],
+                ['code', '=', $code]
+            ]);
 
-        if(!count($settings_ids)) {
-            // setting does not exist yet
-            $settings_ids = (array) $om->create(Setting::getType(), ['package' => $package, 'section_id' => $section_id, 'code' => $code]);
-        }
-        $setting_id = reset($settings_ids);
+        if(count($settings_ids)) {
+            // setting does not exist
+            // #memo - always use `assert()` before `set_value()`
+            // throw new \Exception('unknown_setting', EQ_ERROR_INVALID_CONFIG);
+            $setting_id = current($settings_ids);
 
-        $domain = [ ['setting_id', '=', $setting_id] ];
+            $domain = [ ['setting_id', '=', $setting_id] ];
 
-        foreach($selector as $field => $value) {
-            $domain[] = [$field, '=', $value];
-        }
-
-        $settings_values_ids = $om->search(SettingValue::getType(), $domain);
-        if(!count($settings_values_ids)) {
-            $values = ['setting_id' => $setting_id, 'value' => $value];
             foreach($selector as $field => $value) {
-                $values[$field] = $value;
+                $domain[] = [$field, '=', $value];
             }
-            // value does not exist yet: create a new value
-            $om->create(SettingValue::getType(), $values, $lang);
-        }
-        else {
-            // update existing value
-            $om->update(SettingValue::getType(), $settings_values_ids, ['value' => $value], $lang);
+
+            $settings_values_ids = $om->search(SettingValue::getType(), $domain);
+            if(!count($settings_values_ids)) {
+                $values = ['setting_id' => $setting_id, 'value' => $value];
+                foreach($selector as $field => $value) {
+                    $values[$field] = $value;
+                }
+                // value does not exist yet: create a new value
+                $om->create(SettingValue::getType(), $values, $lang);
+            }
+            else {
+                // update existing value
+                $om->update(SettingValue::getType(), $settings_values_ids, ['value' => $value], $lang);
+            }
+
+            // #memo - we use a dedicated cache since several o2m fields are involved and we want to prevent loading the same value multiple times in a same thread
+            $index = $package.'.'.$section.'.'.$code.'.'.implode('.', array_values($selector)).'.'.$lang;
+            if(!isset($GLOBALS['_equal_core_setting_cache'])) {
+                $GLOBALS['_equal_core_setting_cache'] = [];
+            }
+            $GLOBALS['_equal_core_setting_cache'][$index] = $value;
+
         }
 
-        // #memo - we use a dedicated cache since several o2m fields are involved and we want to prevent loading the same value multiple times in a same thread
-        $index = $package.'.'.$section.'.'.$code.'.'.implode('.', array_values($selector)).'.'.$lang;
-        if(!isset($GLOBALS['_equal_core_setting_cache'])) {
-            $GLOBALS['_equal_core_setting_cache'] = [];
-        }
-        $GLOBALS['_equal_core_setting_cache'][$index] = $value;
     }
 
 }

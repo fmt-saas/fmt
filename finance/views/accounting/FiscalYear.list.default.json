@@ -1,0 +1,44 @@
+{
+    "name": "Fiscal Year",
+    "order": "date_from",
+    "sort": "desc",
+    "header": {
+        "actions": {
+            "ACTION.CREATE" : [
+                {
+                    "view": "form.create",
+                    "description": "Overload form to use for fiscal year creation."
+                }
+            ]
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "organisation_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "date_from",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "date_to",
+                "width": "15%"
+            }
+        ]
+    }
+}

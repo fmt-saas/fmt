@@ -1,0 +1,41 @@
+{
+    "name": "Condominium Fiscal Years",
+    "order": "date_from",
+    "sort": "desc",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "organisation_id",
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "date_from",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "date_to",
+                "width": "15%"
+            }
+        ]
+    }
+}

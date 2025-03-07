@@ -1,0 +1,22 @@
+[
+    {
+        "name": "finance\\accounting\\AccountChartTemplate",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "Account Chart (template)"
+            }
+        ]
+    },
+    {
+        "name": "finance\\accounting\\AccountChartTemplate",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "name": "Plan comptable (template)"
+            }
+        ]
+    }
+]

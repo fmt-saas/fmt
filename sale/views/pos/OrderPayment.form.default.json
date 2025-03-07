@@ -12,7 +12,7 @@
             "confirm": true,
             "visible": ["status", "=", "pending"]
         }
-    ],    
+    ],
     "layout": {
         "groups": [
             {
@@ -82,7 +82,7 @@
                                 ]
                             }
                         ]
-                    },                    
+                    },
                     {
                         "id": "section.order_lines",
                         "label": "Order lines",
@@ -111,9 +111,9 @@
                                 ]
                             }
                         ]
-                    }                    
+                    }
                 ]
-            }            
+            }
         ]
     }
 }

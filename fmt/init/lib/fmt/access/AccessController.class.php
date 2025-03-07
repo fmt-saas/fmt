@@ -28,6 +28,10 @@ class AccessController extends \equal\access\AccessController {
         $this->cache_roles_map[$user_id][$condo_id][$role] = $has_role;
     }
 
+    public function userHasCondoRole($user_id, $role, $condo_id=null) {
+        return $this->hasCondoRole($role, $condo_id, $user_id);
+    }
+
     /**
      * Check if a given user is granted a specific role.
      * The behavior of this method differs from AccessController::hasRole() in that it uses hr\role\RoleAssignment.
@@ -48,33 +52,48 @@ class AccessController extends \equal\access\AccessController {
             $user_id = $auth->userId();
         }
 
-        if(!isset($this->cache_roles_map[$user_id][$condo_id][$role])) {
-            /** @var \equal\orm\ObjectManager */
-            $orm = $this->container->get('orm');
+        $roles = (array) $role;
+        foreach($roles as $role) {
+            if(!isset($this->cache_roles_map[$user_id][$condo_id][$role])) {
+                /** @var \equal\orm\ObjectManager */
+                $orm = $this->container->get('orm');
 
-            // convert role to role_id
-            $ids = $orm->search(Role::getType(), ['code', '=', $role]);
+                // convert role to role_id
+                $ids = $orm->search(Role::getType(), ['code', '=', $role]);
 
-            if(!is_array($ids)) {
-                trigger_error("APP::userHasRole(): unknown role '$role'", EQ_REPORT_WARNING);
-                return false;
+                if(!is_array($ids)) {
+                    trigger_error("APP::userHasRole(): unknown role '$role'", EQ_REPORT_WARNING);
+                    return false;
+                }
+
+                $role_id = current($ids);
+
+                // check if user has an assignment for this role on the targeted condo_id
+                // #memo - if $condo_id is null, it will fetch global entry, if any (i.e. the user has the role for any condo)
+                $assignments_ids = $orm->search(RoleAssignment::getType(), [
+                        ['user_id', '=', $user_id],
+                        ['role_id', '=', $role_id],
+                        ['condo_id', '=', $condo_id]
+                    ]);
+
+                if($condo_id && empty($assignments_ids)) {
+                    // check if user has a global role assignment
+                    $assignments_ids = $orm->search(RoleAssignment::getType(), [
+                            ['user_id', '=', $user_id],
+                            ['role_id', '=', $role_id],
+                            ['condo_id', '=', null]
+                        ]);
+                }
+
+                $has_role = !empty($assignments_ids);
+                $this->cacheRole($user_id, $condo_id, $role, $has_role);
             }
-
-            $role_id = current($ids);
-
-            // check if user has an assignment for this role
-            // #memo - if $condo_id is null, it will fetch global entry, if any (i.e. the user has the role for any condo)
-            $assignments_ids = $orm->search(RoleAssignment::getType(), [
-                    ['user_id', '=', $user_id],
-                    ['role_id', '=', $role_id],
-                    ['condo_id', '=', $condo_id]
-                ]);
-
-            $has_role = !empty($assignments_ids);
-            $this->cacheRole($user_id, $condo_id, $role, $has_role);
+            if($this->cache_roles_map[$user_id][$condo_id][$role]) {
+                return true;
+            }
         }
 
-        return $this->cache_roles_map[$user_id][$condo_id][$role];
+        return false;
     }
 
 

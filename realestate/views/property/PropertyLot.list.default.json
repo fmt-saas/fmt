@@ -10,14 +10,23 @@
             },
             {
                 "type": "field",
+                "label": "Owner",
                 "value": "active_ownership_id",
                 "width": "20%"
             },
             {
                 "type": "field",
+                "label": "Condominium",
                 "value": "condo_id",
                 "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Nature",
+                "value": "nature_id",
+                "width": "25%"
             }
+
         ]
     }
 }

@@ -1,0 +1,32 @@
+{
+    "name": "Fiscal Period",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "organisation_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "date_from",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "date_to",
+                "width": "15%"
+            }
+        ]
+    }
+}
