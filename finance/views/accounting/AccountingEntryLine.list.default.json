@@ -1,0 +1,36 @@
+{
+    "name": "Accounting entry line",
+    "operations": {
+        "total": {
+            "credit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "debit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "limit": 100,
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "label": "Account",
+                "value": "account_id",
+                "width": "35%"
+            },
+            {
+                "type": "field",
+                "value": "debit",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "credit",
+                "width": "15%"
+            }
+        ]
+    }
+}

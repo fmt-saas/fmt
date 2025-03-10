@@ -26,11 +26,34 @@ class Tenancy extends \equal\orm\Model {
                 'description'       => "The Property Lot the tenancy relates to.",
             ],
 
-            'tenant_identity_id' => [
-                'type'              => 'many2one',
+            'tenants_ids' => [
+                'type'              => 'one2many',
                 'description'       => "The identity of the person holding the tenant.",
-                'foreign_object'    => 'identity\Identity',
+                'foreign_object'    => 'realestate\property\Tenant',
+                'foreign_field'     => 'tenancy_id'
+            ],
+
+            'date_from' => [
+                'type'              => 'date',
+                'description'       => "The date from which the tenancy is valid.",
                 'required'          => true
+            ],
+
+            'date_to' => [
+                'type'              => 'date',
+                'description'       => "The date from which the tenancy is valid.",
+            ],
+
+            'transfer_from_id' => [
+                'type'              => 'many2one',
+                'description'       => "The property purchase transfer file.",
+                'foreign_object'    => 'realestate\property\TenancyTransfer'
+            ],
+
+            'transfer_to_id' => [
+                'type'              => 'many2one',
+                'description'       => "The property sale transfer file.",
+                'foreign_object'    => 'realestate\property\TenancyTransfer'
             ]
 
         ];

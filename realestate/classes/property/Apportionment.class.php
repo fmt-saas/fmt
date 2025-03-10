@@ -20,9 +20,28 @@ class Apportionment extends \equal\orm\Model {
             ],
 
             'name' => [
-                'type'              => 'string',
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcName',
                 'description'       => "Name of the apportionment.",
+                'store'             => true,
+                'readonly'          => true
+            ],
+
+            'description' => [
+                'type'              => 'string',
+                'description'       => "Short description of the apportionment.",
                 'required'          => true
+            ],
+
+            'apportionment_code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcApportionmentCode',
+                'store'             => true,
+                'description'       => "Name of the apportionment.",
+                'help'              => "Code is arbitrary and is used to match apportionment with accounting accounts.",
+                'default'           => "0001"
             ],
 
             'is_statutory' => [
@@ -91,6 +110,34 @@ class Apportionment extends \equal\orm\Model {
                 'function'      => 'doDuplicateApportionment'
             ]
         ];
+    }
+
+    public static function calcName($self) {
+        $result = [];
+        $self->read(['is_statutory', 'total_shares', 'apportionment_code', 'description']);
+        foreach($self as $id => $apportionment) {
+            $name = ($apportionment['is_statutory']) ? '' : $apportionment['apportionment_code'] . ' - ';
+            $result[$id] = $name . $apportionment['description'] .' (Q. '.$apportionment['total_shares'].')';
+        }
+        return $result;
+    }
+
+    public static function calcApportionmentCode($self) {
+        $result = [];
+        $self->read(['state', 'is_statutory', 'condo_id']);
+        foreach($self as $id => $apportionment) {
+            if($apportionment['state'] != 'instance') {
+                continue;
+            }
+            if($apportionment['is_statutory']) {
+                $result[$id] = 'stat';
+            }
+            else {
+                $count = count(self::search([['is_statutory', '=', false], ['condo_id', '=', $apportionment['condo_id']]])->ids());
+                $result[$id] = sprintf("%04d", $count);
+            }
+        }
+        return $result;
     }
 
     public static function calcAssignedShares($self) {

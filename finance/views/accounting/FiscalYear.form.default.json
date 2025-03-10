@@ -48,12 +48,14 @@
                                             {
                                                 "id": "item.organisation_id",
                                                 "type": "field",
+                                                "label": "Organisation",
                                                 "value": "organisation_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "id": "item.condo_id",
                                                 "type": "field",
+                                                "label": "Condominium",
                                                 "value": "condo_id",
                                                 "width": "50%"
                                             },

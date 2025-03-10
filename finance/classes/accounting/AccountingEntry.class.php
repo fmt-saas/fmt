@@ -8,7 +8,7 @@
 namespace finance\accounting;
 
 use equal\orm\Model;
-use symbiose\setting\Setting;
+use fmt\setting\Setting;
 
 class AccountingEntry extends Model {
 
@@ -26,13 +26,37 @@ class AccountingEntry extends Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the accounting entry refers to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'readonly'          => true
+                //'readonly'          => true
             ],
 
             'journal_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => "Accounting journal the entry relates to.",
+                'required'          => true,
+                'domain'            => ['code', '<>', 'LEDG']
+            ],
+
+            'fiscal_year_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => "Fiscal year the entry relates to.",
+                'required'          => true
+            ],
+
+            'fiscal_period_id' => [
+                'type'              => 'computed',
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'description'       => "Period of the fiscal year the entry relates to (from entry_date).",
+                'function'          => 'calcFiscalPeriodId'
+            ],
+
+            'entry_date' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => 'The date on which the transaction is recorded in the accounting system and affects the fiscal period.',
+                'help'              => 'This should always match the selection period, and is necessary in cas of period re-assignment.',
                 'required'          => true
             ],
 
@@ -59,7 +83,8 @@ class AccountingEntry extends Model {
                 'usage'             => 'amount/money:4',
                 'description'       => 'Total debited amount from all lines.',
                 'function'          => 'calcDebit',
-                'store'             => true
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'credit' => [
@@ -68,7 +93,8 @@ class AccountingEntry extends Model {
                 'usage'             => 'amount/money:4',
                 'description'       => 'Total credited amount from all lines.',
                 'function'          => 'calcCredit',
-                'store'             => true
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'is_balanced' => [
@@ -86,6 +112,13 @@ class AccountingEntry extends Model {
                 'dependents'        => ['debit', 'credit']
             ],
 
+            'reverse_entry_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'description'       => "Reverse accounting entry voiding the current one.",
+                'visible'           => ['visible', '=', 'cancelled']
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -95,16 +128,37 @@ class AccountingEntry extends Model {
                 ],
                 'default'           => 'pending',
                 'description'       => 'Status of the accounting entry.',
+                'help'              => 'Once an accounting entry has been validated, it cannot be removed. It can however, be cancelled through a reverse entry.'
             ]
 
         ];
     }
 
+    public static function calcFiscalPeriodId($self) {
+        $result = [];
+        $self->read(['entry_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
+        foreach($self as $id => $entry) {
+            foreach($entry['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
+                if($entry['entry_date'] >= $period['date_from'] && $entry['entry_date'] <= $period['date_to']) {
+                    $result[$id] = $period_id;
+                    break;
+                }
+            }
+        }
+        return $result;
+    }
+
     public static function calcIsBalanced($self) {
         $result = [];
-        $self->read(['credit', 'debit']);
+        $self->read(['entry_lines_ids' => ['credit', 'debit']]);
         foreach($self as $id => $entry) {
-            $result[$id] = ($entry['credit'] === $entry['debit']);
+            $credit = 0;
+            $debit = 0;
+            foreach($entry['entry_lines_ids'] as $line_id => $line) {
+                $credit += $line['credit'];
+                $debit += $line['debit'];
+            }
+            $result[$id] = ($credit === $debit);
         }
         return $result;
     }
@@ -135,10 +189,14 @@ class AccountingEntry extends Model {
 
     public static function calcEntryNumber($self) {
         $result = [];
-        $self->read(['journal_id' => ['code', 'organisation_id']]);
+        $self->read(['status', 'condo_id', 'journal_id' => ['code'], 'fiscal_year_id' => ['organisation_id']]);
 
         foreach($self as $id => $entry) {
-            if(!isset($entry['journal_id'], $entry['journal_id']['code'], $entry['journal_id']['organisation_id'])) {
+            if($entry['status'] != 'validated') {
+                continue;
+            }
+
+            if(!isset($entry['journal_id'], $entry['journal_id']['code'], $entry['fiscal_year_id']['organisation_id'])) {
                 continue;
             }
 
@@ -146,7 +204,10 @@ class AccountingEntry extends Model {
                     'finance',
                     'accounting',
                     'accounting_entry.number_format', '%s{journal}/%02d{year}/%05d{sequence}',
-                    ['organisation_id' => $entry['journal_id']['organisation_id']]
+                    [
+                        'organisation_id'   => $entry['fiscal_year_id']['organisation_id'],
+                        'condo_id'          => $entry['condo_id']
+                    ]
                 );
 
             $year = Setting::get_value(
@@ -154,7 +215,10 @@ class AccountingEntry extends Model {
                     'accounting',
                     'fiscal_year',
                     date('Y'),
-                    ['organisation_id' => $entry['journal_id']['organisation_id']]
+                    [
+                        'organisation_id'   => $entry['fiscal_year_id']['organisation_id'],
+                        'condo_id'          => $entry['condo_id']
+                    ]
                 );
 
             $sequence = Setting::fetch_and_add(
@@ -162,14 +226,18 @@ class AccountingEntry extends Model {
                     'accounting',
                     'accounting_entry.sequence',
                     1,
-                    ['organisation_id' => $entry['journal_id']['organisation_id']]
+                    [
+                        'organisation_id'   => $entry['fiscal_year_id']['organisation_id'],
+                        'condo_id'          => $entry['condo_id']
+                    ]
                 );
 
             if($sequence) {
                 $result[$id] = Setting::parse_format($format, [
                         'year'      => $year,
                         'journal'   => $entry['journal_id']['code'],
-                        'org'       => $entry['journal_id']['organisation_id'],
+                        'org'       => $entry['fiscal_year_id']['organisation_id'],
+                        'condo'     => $entry['condo_id'],
                         'sequence'  => $sequence
                     ]);
             }

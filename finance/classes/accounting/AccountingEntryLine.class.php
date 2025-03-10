@@ -36,7 +36,7 @@ class AccountingEntryLine extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
                 'description'       => "Accounting entry the line relates to.",
-                'required'          => true,
+                'readonly'          => true,
                 'ondelete'          => 'cascade'
             ],
 
@@ -46,7 +46,8 @@ class AccountingEntryLine extends Model {
                 'description'       => "Accounting account the entry relates to.",
                 'required'          => true,
                 'ondelete'          => 'null',
-                'dependents'       => ['journal_id']
+                'dependents'        => ['journal_id'],
+                'domain'            => [['is_control_account', '=', false], ['is_visible', '=', true]]
             ],
 
             'journal_id' => [

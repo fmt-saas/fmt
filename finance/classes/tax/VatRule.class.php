@@ -45,9 +45,15 @@ class VatRule extends Model {
                 'required'          => true
             ],
 
+            'account_code' => [
+                'type'              => 'string',
+                'description'       => "Code of the account the tax amount relates to.",
+            ],
+
+            // #deprecated - there can be several charts of accounts
             'account_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\AccountChartLine',
+                'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Account which the tax amount relates to.",
             ]
 

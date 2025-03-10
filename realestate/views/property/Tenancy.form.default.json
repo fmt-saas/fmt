@@ -1,14 +1,6 @@
 {
-    "name": "Accounting Entry",
-    "description": "Accounting Entries.",
-    "header": {
-        "actions": {
-            "ACTION.SAVE": [
-                {"id": "SAVE_AND_CONTINUE"},
-                {"id": "SAVE_AND_CLOSE"}
-            ]
-        }
-    },
+    "name": "Tenant",
+    "description": "Tenant form.",
     "layout": {
         "groups": [
             {
@@ -22,40 +14,29 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "label": "Fiscal year",
-                                                "value": "fiscal_year_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "entry_date",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "label": "condominium",
                                                 "value": "condo_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "journal",
-                                                "value": "journal_id",
+                                                "value": "date_from",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_to",
                                                 "width": "50%"
                                             }
                                         ]
                                     },
                                     {
                                         "width": "50%",
+                                        "align": "left",
                                         "items": [
                                             {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
-                                            },
-                                            {
                                                 "type": "field",
-                                                "value": "is_balanced",
+                                                "value": "property_lot_id",
                                                 "width": "50%"
                                             }
                                         ]
@@ -69,9 +50,8 @@
             {
                 "sections": [
                     {
-                        "id": "section.lines",
-                        "label": "Lines",
-                        "visible": ["state", "=", "instance"],
+                        "id": "section.tenants",
+                        "label": "Tenants",
                         "rows": [
                             {
                                 "columns": [
@@ -80,8 +60,16 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "entry_lines_ids",
-                                                "width": "100%"
+                                                "value": "tenants_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.SELECT": true,
+                                                            "ACTION.CREATE": true
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

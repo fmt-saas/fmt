@@ -5,7 +5,14 @@
         "items": [
             {
                 "type": "field",
-                "value": "name",
+                "label": "Code",
+                "value": "property_lot_code",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Ref",
+                "value": "property_lot_ref",
                 "width": "20%"
             },
             {
@@ -26,7 +33,6 @@
                 "value": "nature_id",
                 "width": "25%"
             }
-
         ]
     }
 }

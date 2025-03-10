@@ -36,7 +36,13 @@ class AccountTemplate extends Account {
                 'description'       => "The chart of accounts the line belongs to.",
                 'help'              => "The account chart is the parent chart of accounts template the account template is part of.",
                 'required'          => true
-            ]
+            ],
+
+            'apportionment_code' => [
+                'type'              => 'string',
+                'description'       => "Code of the default apportionment key to use (implied in retrieval of related apportionment_id)."
+            ],
+
         ];
     }
 }

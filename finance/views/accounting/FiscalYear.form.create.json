@@ -47,11 +47,13 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "label": "Organisation",
                                                 "value": "organisation_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Condominium",
                                                 "value": "condo_id",
                                                 "width": "50%"
                                             }

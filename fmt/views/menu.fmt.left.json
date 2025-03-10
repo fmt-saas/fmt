@@ -34,7 +34,19 @@
                             "entity": "realestate\\ownership\\Ownership",
                             "view": "list.default"
                         }
+                    },
+                    {
+                        "id": "tenancies",
+                        "type": "entry",
+                        "label": "Tenants",
+                        "icon": "supervisor_account",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\property\\Tenancy",
+                            "view": "list.default"
+                        }
                     }
+
                 ]
             },
             {
@@ -151,6 +163,27 @@
                         "description": "",
                         "context": {
                             "entity": "finance\\accounting\\invoice\\Invoice",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "item.accounting.vat_rules",
+                        "type": "entry",
+                        "label": "VAT rules",
+                        "icon": "price_check",
+                        "description": "",
+                        "context": {
+                            "entity": "finance\\tax\\VatRule",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "item.accounting_entries",
+                        "label": "Accounting entries",
+                        "description": "",
+                        "icon": "edit_note",
+                        "context": {
+                            "entity": "finance\\accounting\\AccountingEntry",
                             "view": "list.default"
                         }
                     }

@@ -10,26 +10,24 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "33%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "name",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "heading": true
-                                                }
+                                                "label": "Code",
+                                                "value": "property_lot_code",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Reference",
+                                                "value": "property_lot_ref",
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "nature",
                                                 "value": "nature_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Current owner",
-                                                "value": "active_ownership_id",
                                                 "width": "50%"
                                             },
                                             {
@@ -42,22 +40,54 @@
                                                 "value": "primary_lot_id",
                                                 "width": "50%",
                                                 "visible": ["is_primary", "=", false]
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%",
+                                                "visible": ["is_primary", "=", true]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_tenancy",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%",
+                                                "visible": ["has_tenancy", "=", false]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "tenancy_id",
+                                                "width": "50%"
                                             }
                                         ]
                                     },
                                     {
-                                        "width": "50%",
+                                        "width": "33%",
+                                        "align": "left",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "33%",
                                         "align": "left",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "condo_id",
-                                                "width": "100%"
+                                                "label": "Current owner",
+                                                "value": "active_ownership_id",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "comments",
-                                                "width": "100%"
+                                                "label": "Condominium",
+                                                "value": "condo_id",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "readonly": true
+                                                }
                                             },
                                             {
                                                 "type": "field",
@@ -67,16 +97,6 @@
                                             {
                                                 "type": "field",
                                                 "value": "lot_area",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_tenancy",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "tenancy_id",
                                                 "width": "50%"
                                             },
                                             {
@@ -147,6 +167,26 @@
                                             {
                                                 "type": "field",
                                                 "value": "apportionments_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.comments",
+                        "label": "Comments",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "comments",
                                                 "width": "100%"
                                             }
                                         ]

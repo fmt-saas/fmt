@@ -26,6 +26,11 @@
                                                 "type": "field",
                                                 "value": "organisation_id",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "50%"
                                             }
                                         ]
                                     }

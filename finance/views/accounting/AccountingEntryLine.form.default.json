@@ -1,6 +1,13 @@
 {
-    "name": "Vat Rules",
-    "description": "VAT rules allow to specify which VAT rate applies for a given kind of operation.",
+    "name": "Accounting Entry Line",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {"id": "SAVE_AND_CONTINUE"},
+                {"id": "SAVE_AND_CLOSE"}
+            ]
+        }
+    },
     "layout": {
         "groups": [
             {
@@ -14,27 +21,27 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "name",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "heading": true
-                                                }
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "rate",
+                                                "value": "accounting_entry_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Type",
-                                                "value": "vat_rule_type",
+                                                "value": "account_id",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "debit",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Account",
-                                                "value": "account_code",
+                                                "value": "credit",
                                                 "width": "50%"
                                             }
                                         ]

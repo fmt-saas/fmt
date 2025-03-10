@@ -28,6 +28,13 @@ class Journal extends Model {
                 'readonly'          => true
             ],
 
+            'organisation_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\Organisation',
+                'description'       => "The organisation the chart belongs to.",
+                'default'           => 1
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -81,6 +88,14 @@ class Journal extends Model {
                 'type'              => 'boolean',
                 'description'       => "Flag to switch visibility of the account.",
                 'default'           => true
+            ],
+
+            'accounting_entries_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'foreign_field'     => 'journal_id',
+                'description'       => "Accounting entries of the journal.",
+                'required'          => true
             ]
 
             // #todo - add 'default_account_id'

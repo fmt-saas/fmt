@@ -1,6 +1,13 @@
 {
-    "name": "Vat Rules List",
-    "description": "This view is intended for displaying the VAT rules.",
+    "name": "Tenancies List",
+    "description": "This view is intended for displaying the list of tenancies.",
+    "header": {
+        "actions": {
+            "ACTION.CREATE": [ {
+                "view": "form.create"
+            } ]
+        }
+    },
     "layout": {
         "items": [
             {
@@ -10,19 +17,17 @@
             },
             {
                 "type": "field",
-                "value": "rate",
+                "value": "property_lot_id",
                 "width": "20%"
             },
             {
                 "type": "field",
-                "label": "Type",
-                "value": "vat_rule_type",
+                "value": "date_from",
                 "width": "20%"
             },
             {
                 "type": "field",
-                "label": "Account",
-                "value": "account_code",
+                "value": "date_to",
                 "width": "20%"
             }
         ]

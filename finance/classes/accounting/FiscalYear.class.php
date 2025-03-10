@@ -354,7 +354,8 @@ class FiscalYear extends Model {
     }
 
     /**
-     * Fiscal year status just switched to 'open'.
+     * Perform tasks related to fiscal year opening.
+     * This callback is called when Fiscal year status just switched to 'open'.
      * All tasks relating to fiscal year opening are performed here.
      *
      */

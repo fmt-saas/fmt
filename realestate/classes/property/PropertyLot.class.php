@@ -19,12 +19,34 @@ class PropertyLot extends \equal\orm\Model {
             ],
 
             'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcName',
+                'description'       => "Name of the apportionment.",
+                'store'             => true,
+                'readonly'          => true,
+                'multilang'         => true
+            ],
+
+            'property_lot_ref' => [
                 'type'              => 'string',
-                'description'       => 'Arbitrary name of the property lot.'
+                'description'       => "Reference used in the notary deed to identify the lot.",
+                'required'          => true
+            ],
+
+            'property_lot_code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcPropertyLotCode',
+                'store'             => true,
+                'description'       => "Code of the apportionment.",
+                'help'              => "Code is assigned automatically and cannot be changed, and is only intended to internal use (visual).",
+                'readonly'          => true
             ],
 
             'comments' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain',
                 'description'       => 'Comments about the property lot.'
             ],
 
@@ -131,6 +153,30 @@ class PropertyLot extends \equal\orm\Model {
             ],
 
         ];
+    }
+
+    public static function calcName($self) {
+        $result = [];
+        $self->read(['property_lot_ref', 'property_lot_code', 'nature_id' => ['name']]);
+        foreach($self as $id => $propertyLot) {
+            if(isset($propertyLot['property_lot_code'], $propertyLot['property_lot_ref'], $propertyLot['nature_id'])) {
+                $result[$id] = $propertyLot['property_lot_code'] . ' - ' . $propertyLot['property_lot_ref'] .' ('.$propertyLot['nature_id']['name'].')';
+            }
+        }
+        return $result;
+    }
+
+    public static function calcPropertyLotCode($self) {
+        $result = [];
+        $self->read(['state', 'condo_id']);
+        foreach($self as $id => $propertyLot) {
+            if($propertyLot['state'] != 'instance') {
+                continue;
+            }
+            $count = count(self::search(['condo_id', '=', $propertyLot['condo_id']])->ids());
+            $result[$id] = sprintf("%04d", $count);
+        }
+        return $result;
     }
 
     public static function onbeforeupdate($self, $values) {

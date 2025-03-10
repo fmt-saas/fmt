@@ -21,11 +21,14 @@
             },
             {
                 "type": "field",
+                "label": "Organisation",
                 "value": "organisation_id",
-                "width": "25%"
+                "width": "25%",
+                "visible": false
             },
             {
                 "type": "field",
+                "label": "Condominium",
                 "value": "condo_id",
                 "width": "25%"
             },
@@ -37,6 +40,16 @@
             {
                 "type": "field",
                 "value": "date_to",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "fiscal_period_frequency",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "status",
                 "width": "15%"
             }
         ]

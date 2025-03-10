@@ -8,18 +8,18 @@
         "items": [
             {
                 "type": "field",
-                "value": "account_id",
-                "width": "20%"
-            },
-            {
-                "type": "field",
-                "value": "name",
+                "value": "entry_date",
                 "width": "35%"
             },
             {
                 "type": "field",
                 "label": "Journal",
                 "value": "journal_id",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "status",
                 "width": "15%"
             },
             {

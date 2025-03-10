@@ -237,15 +237,32 @@ class Setting extends \core\setting\Setting {
                     $value = null;
                     // #memo - by default settings values are sorted on user_id (which can be null), so first value is the default one
                     foreach($setting_values as $setting_value) {
-                        $value = $setting_value['value'];
-                        if(isset($selector['condo_id']) && isset($setting_value['condo_id']) && $setting_value['condo_id'] == $selector['condo_id']) {
-                            break;
+                        // global value
+                        if(!$setting_value['user_id'] && !$setting_value['organisation_id'] && !$setting_value['condo_id']  && !$value) {
+                            $value = $setting_value['value'];
                         }
-                        if(isset($selector['user_id']) && isset($setting_value['user_id']) && $setting_value['user_id'] == $selector['user_id']) {
-                            break;
+                        // user-specific value
+                        elseif(isset($setting_value['user_id'])) {
+                            if(isset($selector['user_id']) && $setting_value['user_id'] == $selector['user_id']) {
+                                $value = $setting_value['value'];
+                                break;
+                            }
                         }
-                        if(isset($selector['organisation_id']) && isset($setting_value['organisation_id']) && $setting_value['organisation_id'] == $selector['organisation_id']) {
-                            break;
+                        // condominium-specific value
+                        elseif(isset($setting_value['condo_id'])) {
+                            if(isset($selector['condo_id']) && $setting_value['condo_id'] == $selector['condo_id']) {
+                                $value = $setting_value['value'];
+                                break;
+                            }
+                        }
+                        // organisation-specific value
+                        else {
+                            if(isset($selector['organisation_id']) && $setting_value['organisation_id'] == $selector['organisation_id']) {
+                                if(!isset($selector['condo_id']) || $setting_value['condo_id'] == $selector['condo_id']) {
+                                    $value = $setting_value['value'];
+                                    break;
+                                }
+                            }
                         }
                     }
                     if(!is_null($value)) {

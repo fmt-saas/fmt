@@ -56,6 +56,17 @@
                 "view": "list.condo",
                 "domain": [["condo_id", "=", "object.id"]]
             }
+        },
+        {
+            "id": "item.accounting_entries",
+            "label": "Accounting entries",
+            "description": "",
+            "icon": "edit_note",
+            "context": {
+                "entity": "finance\\accounting\\AccountingEntry",
+                "view": "list.condo",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
         }
     ],
     "actions": [
@@ -365,6 +376,26 @@
                                             {
                                                 "type": "field",
                                                 "value": "setting_sequences_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Settings",
+                        "id": "section.settings",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "setting_values_ids",
                                                 "width": "100%"
                                             }
                                         ]

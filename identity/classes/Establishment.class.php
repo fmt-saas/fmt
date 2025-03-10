@@ -112,12 +112,6 @@ class Establishment extends Model {
                 'description'       => 'Identifier of the Bank related to the bank account.'
             ],
 
-            'analytic_section_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => \finance\accounting\AnalyticSection::getType(),
-                'description'       => "Related analytic section, if any."
-            ],
-
             'signature' => [
                 'type'              => 'string',
                 'usage'             => 'text/html',

@@ -129,10 +129,10 @@ class Condominium extends \identity\Organisation {
                 'foreign_field'     => 'condo_id'
             ],
 
-            'apportionment_keys_ids' => [
+            'apportionments_ids' => [
                 'type'              => 'one2many',
                 'description'       => "The apportionment keys relating to the condominium.",
-                'foreign_object'    => 'realestate\property\ApportionmentKey',
+                'foreign_object'    => 'realestate\property\Apportionment',
                 'foreign_field'     => 'condo_id'
             ],
 

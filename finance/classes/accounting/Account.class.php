@@ -35,6 +35,7 @@ class Account extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'function'          => 'calcName',
+                'multilang'         => true,
                 'description'       => "Name of the account.",
                 'store'             => true
             ],
@@ -46,6 +47,12 @@ class Account extends Model {
                 'unique'            => true,
                 'required'          => true,
                 'readonly'          => true
+            ],
+
+            'description' => [
+                'type'              => 'string',
+                'description'       => "Short description of the account.",
+                'multilang'         => true
             ],
 
             'level' => [
@@ -121,12 +128,6 @@ class Account extends Model {
                 ]
             ],
 
-            'description' => [
-                'type'              => 'string',
-                'description'       => "Short description of the account.",
-                'multilang'         => true
-            ],
-
             'parent_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
@@ -148,12 +149,6 @@ class Account extends Model {
                 'foreign_object'    => 'finance\accounting\AccountChart',
                 'description'       => "The chart of accounts the line belongs to.",
                 'required'          => true
-            ],
-
-            'analytic_section_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\AnalyticSection',
-                'description'       => "Related analytic section, if any."
             ],
 
             'is_visible' => [
@@ -284,10 +279,9 @@ class Account extends Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['code']);
-        $max_length = Setting::get('finance', 'accounting', 'account.code_length', 7);
+        $self->read(['code', 'description']);
         foreach($self as $id => $line) {
-            $result[$id] = str_pad($line['code'], $max_length, '0');
+            $result[$id] = $line['code'] . ' - ' . $line['description'];
         }
         return $result;
     }

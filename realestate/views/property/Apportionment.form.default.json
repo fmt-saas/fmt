@@ -26,11 +26,16 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "name",
+                                                "value": "description",
                                                 "width": "50%",
                                                 "widget": {
                                                     "heading": true
                                                 }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "apportionment_code",
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",

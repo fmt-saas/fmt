@@ -1,18 +1,20 @@
 {
     "name": "Accounting Charts List",
-    "description": "This view is intented for displaying the accounting charts.",
-    "access": {
-        "groups": ["finance.default.users"]
-     },
+    "description": "This view is intended for displaying the accounting charts.",
     "layout": {
         "items": [
             {
-                "type": "field",            
+                "type": "field",
                 "value": "name",
                 "width": "20%"
-            }, 
+            },
             {
-                "type": "field",            
+                "type": "field",
+                "value": "condo_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
                 "value": "organisation_id",
                 "width": "20%"
             }
