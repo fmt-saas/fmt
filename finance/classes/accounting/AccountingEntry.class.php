@@ -60,6 +60,12 @@ class AccountingEntry extends Model {
                 'required'          => true
             ],
 
+            'is_temp' => [
+                'type'              => 'boolean',
+                'description'       => 'The accounting entry is a temporary report and cannot be modified nor receive an entry number.',
+                'default'           => false
+            ],
+
             'entry_number' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -134,10 +140,117 @@ class AccountingEntry extends Model {
         ];
     }
 
+    public static function getActions() {
+        return [
+            /*
+            'generate_periods' => [
+                'description'   => 'Generate the periods according to the fiscal year definition (only for draft fiscal year).',
+                'policies'      => [],
+                'function'      => 'doGeneratePeriods'
+            ]
+            */
+        ];
+    }
+
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Draft entry, still waiting to be completed for validation.',
+                'icon'        => 'draw',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Update the accounting entry status to `validated`.',
+                        'policies'    => [
+                            'is_valid'
+                        ],
+                        'onafter'   => 'onafterValidate',
+                        'status'    => 'validated'
+                    ]
+                ]
+            ],
+            'validated' => [
+                'description' => 'Draft fiscal year, still waiting to be completed for validation.',
+                'icon'        => 'drive_file_rename_outline',
+                'transitions' => [
+                    'cancel' => [
+                        'description' => 'Delete the proforma and set receivables statuses back to pending.',
+                        'help'        => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'policies'    => [
+                            'can_be_cancelled',
+                        ],
+                        'onafter'   => 'onafterCancel',
+                        'status'    => 'cancelled'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Update the Current Balance the entry relates to.
+     *
+     */
+    public static function doUpdateBalance($self) {
+        $self->read(['fiscal_year_id' => ['current_balance_id'], 'entry_lines_ids' => ['account_id', 'debit', 'credit']]);
+        foreach($self as $id => $accountingEntry) {
+            if( !($accountingEntry['fiscal_year_id']['current_balance_id'] ?? false) ) {
+                continue;
+            }
+            foreach($accountingEntry['entry_lines_ids'] ?? [] as $entry_line_id => $entryLine) {
+                CurrentBalance::id($accountingEntry['fiscal_year_id']['current_balance_id'])
+                    ->do('update_account', [
+                        'account_id' => $entryLine['account_id'],
+                        'debit'      => $entryLine['debit'],
+                        'credit'     => $entryLine['credit']
+                    ]);
+            }
+        }
+    }
+
+    /**
+     * The entry has been validated (irreversible transition).
+     * This method triggers the update of the related current balance and the fiscal period (based on the entry date).
+     */
+    public static function onafterValidate($self) {
+        // append accounting entry to current balance
+        self::doUpdateBalance($self);
+        // force computing required fields
+        $self->read(['entry_number', 'fiscal_period_id']);
+    }
+
+    public static function onafterCancel($self) {
+        // créer et valider l'écriture inversée
+
+    }
+
+    public static function getPolicies(): array {
+        return [
+            'is_valid' => [
+                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'function'    => 'policyIsValid'
+            ]
+        ];
+    }
+
+    public static function policyIsValid($self): array {
+        $result = [];
+        $self->read(['is_balanced']);
+        foreach($self as $id => $accountingEntry) {
+            if(!$accountingEntry['is_balanced']) {
+                $result[$id] = false;
+                continue;
+            }
+        }
+        return $result;
+    }
+
     public static function calcFiscalPeriodId($self) {
         $result = [];
-        $self->read(['entry_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
+        $self->read(['status', 'entry_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
         foreach($self as $id => $entry) {
+            if($entry['status'] == 'pending') {
+                continue;
+            }
             foreach($entry['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
                 if($entry['entry_date'] >= $period['date_from'] && $entry['entry_date'] <= $period['date_to']) {
                     $result[$id] = $period_id;
@@ -189,10 +302,10 @@ class AccountingEntry extends Model {
 
     public static function calcEntryNumber($self) {
         $result = [];
-        $self->read(['status', 'condo_id', 'journal_id' => ['code'], 'fiscal_year_id' => ['organisation_id']]);
+        $self->read(['status', 'is_temp', 'condo_id', 'journal_id' => ['code'], 'fiscal_year_id' => ['code', 'organisation_id']]);
 
         foreach($self as $id => $entry) {
-            if($entry['status'] != 'validated') {
+            if($entry['status'] == 'pending' || $entry['is_temp']) {
                 continue;
             }
 
@@ -203,41 +316,30 @@ class AccountingEntry extends Model {
             $format = Setting::get_value(
                     'finance',
                     'accounting',
-                    'accounting_entry.number_format', '%s{journal}/%02d{year}/%05d{sequence}',
+                    'accounting_entry.number_format',
+                    '%s{journal}/%02d{year}/%05d{sequence}',
                     [
-                        'organisation_id'   => $entry['fiscal_year_id']['organisation_id'],
-                        'condo_id'          => $entry['condo_id']
+                        'condo_id' => $entry['condo_id']
                     ]
                 );
 
-            $year = Setting::get_value(
-                    'finance',
-                    'accounting',
-                    'fiscal_year',
-                    date('Y'),
-                    [
-                        'organisation_id'   => $entry['fiscal_year_id']['organisation_id'],
-                        'condo_id'          => $entry['condo_id']
-                    ]
-                );
+            $fiscal_year_code = $entry['fiscal_year_id']['code'];
+            $journal_code = $entry['journal_id']['code'];
 
             $sequence = Setting::fetch_and_add(
                     'finance',
                     'accounting',
-                    'accounting_entry.sequence',
+                    "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}",
                     1,
                     [
-                        'organisation_id'   => $entry['fiscal_year_id']['organisation_id'],
-                        'condo_id'          => $entry['condo_id']
+                        'condo_id' => $entry['condo_id']
                     ]
                 );
 
             if($sequence) {
                 $result[$id] = Setting::parse_format($format, [
-                        'year'      => $year,
-                        'journal'   => $entry['journal_id']['code'],
-                        'org'       => $entry['fiscal_year_id']['organisation_id'],
-                        'condo'     => $entry['condo_id'],
+                        'year'      => $fiscal_year_code,
+                        'journal'   => $journal_code,
                         'sequence'  => $sequence
                     ]);
             }

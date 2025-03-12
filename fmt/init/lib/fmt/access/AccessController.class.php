@@ -52,6 +52,10 @@ class AccessController extends \equal\access\AccessController {
             $user_id = $auth->userId();
         }
 
+        if($user_id == EQ_ROOT_USER_ID) {
+            return true;
+        }
+
         $roles = (array) $role;
         foreach($roles as $role) {
             if(!isset($this->cache_roles_map[$user_id][$condo_id][$role])) {

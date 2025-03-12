@@ -28,7 +28,15 @@ class ManagingAgent extends \identity\Organisation {
                 'description'       => "Condominiums the managing agent is in charge of.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'foreign_field'     => 'managing_agent_id'
+            ],
+
+            'management_contracts_ids' => [
+                'type'              => 'one2many',
+                'description'       => "History of management contracts with Condominiums.",
+                'foreign_object'    => 'realestate\management\ManagementContract',
+                'foreign_field'     => 'managing_agent_id'
             ]
+
         ];
     }
 

@@ -24,9 +24,67 @@
             "confirm": true
         },
         {
-            "id": "action.open_fiscal_year",
-            "label": "Open fiscal Year",
-            "controller": "finance_accounting_fiscalyear_open",
+            "id": "action.preopen",
+            "label": "Pre-open",
+            "description": "Pre-open the fiscal year. This will initialize the fiscal year and its dependencies.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "draft"],
+            "params": {
+                "entity": "finance\\accounting\\FiscalYear",
+                "transition": "preopen",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.open",
+            "label": "Open",
+            "description": "Open the fiscal year (this cannot be undone).",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "preopen"],
+            "params": {
+                "entity": "finance\\accounting\\FiscalYear",
+                "transition": "open",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.preclose",
+            "label": "Pre-close",
+            "description": "Pre-close the fiscal year.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "open"],
+            "params": {
+                "entity": "finance\\accounting\\FiscalYear",
+                "transition": "preclose",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.close",
+            "label": "Close",
+            "description": "Close the fiscal year (this cannot be undone).",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "preclose"],
+            "params": {
+                "entity": "finance\\accounting\\FiscalYear",
+                "transition": "close",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.delete",
+            "label": "Delete",
+            "description": "Delete fiscal year. This can only be done when fiscal year is still a draft.",
+            "controller": "core_model_delete",
+            "visible": ["status", "=", "draft"],
+            "params": {
+                "entity": "finance\\accounting\\FiscalYear",
+                "ids": []
+            },
             "confirm": true
         }
     ],

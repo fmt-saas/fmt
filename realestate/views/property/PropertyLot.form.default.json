@@ -102,7 +102,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "has_grouped_statements",
-                                                "width": "50%"
+                                                "width": "100%"
                                             }
                                         ]
                                     }

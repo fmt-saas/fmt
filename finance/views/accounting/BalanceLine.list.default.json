@@ -1,0 +1,54 @@
+{
+    "name": "Accounting Balance Lines",
+    "operations": {
+        "total": {
+            "debit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "credit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "debit_balance": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "credit_balance": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "limit": 250,
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "label": "Account",
+                "value": "account_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "debit",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "credit",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "debit_balance",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "credit_balance",
+                "width": "25%"
+            }
+        ]
+    }
+}

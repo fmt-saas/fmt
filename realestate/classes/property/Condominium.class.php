@@ -37,6 +37,13 @@ class Condominium extends \identity\Organisation {
                 'required'          => true
             ],
 
+            'management_contracts_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\management\ManagementContract',
+                'foreign_field'     => 'condo_id',
+                'description'       => 'List of management contracts of the condominium.'
+            ],
+
             'role_assignments_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'hr\role\RoleAssignment',
@@ -90,6 +97,12 @@ class Condominium extends \identity\Organisation {
                 'description'       => 'Date at which the fiscal year starts.'
             ],
 
+            'fiscal_year_end' => [
+                'type'              => 'date',
+                'description'       => 'Date at which the fiscal year ends.',
+                'help'              => 'This date reflects the initial notary deed but can be changed in general assembly (only day and month are considered).'
+            ],
+
             'fiscal_period_frequency' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -120,6 +133,13 @@ class Condominium extends \identity\Organisation {
                 'description'       => "List of fiscal years related to the condominium.",
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'foreign_field'     => 'condo_id'
+            ],
+
+            'current_fiscal_year_id' => [
+                'type'              => 'many2one',
+                'description'       => "Current `open` fiscal year assigned to the condominium.",
+                'help'              => "This value is assigned at fiscal year opening.",
+                'foreign_object'    => 'finance\accounting\FiscalYear'
             ],
 
             'common_areas_ids' => [
@@ -153,72 +173,158 @@ class Condominium extends \identity\Organisation {
         ];
     }
 
-    public static function getActions() {
+    public static function getPolicies(): array {
         return [
-            'open_fiscal_year' => [
-                'description'   => 'Open the fiscal year.',
-                'policies'      => [],
-                'function'      => 'doOpenFiscalYear'
+            'can_open_fiscal_year' => [
+                'description' => 'Verifies that a fiscal year can be opened according to user roles.',
+                'function'    => 'policyCanOpenFiscalYear'
             ],
-            'create_fiscal_year' => [
-                'description'   => 'Open the fiscal year.',
-                'policies'      => [],
-                'function'      => 'doCreateFiscalYear'
+            'can_create_draft_fiscal_year' => [
+                'description' => 'Verifies that a fiscal year can be opened according to user roles.',
+                'function'    => 'policyCanCreateDraftFiscalYear'
             ]
         ];
     }
 
+    public static function getActions() {
+        return [
+            'open_fiscal_year' => [
+                'description'   => 'Open the fiscal year.',
+                'policies'      => ['can_open_fiscal_year'],
+                'function'      => 'doOpenFiscalYear'
+            ],
+            'create_draft_fiscal_year' => [
+                'description'   => 'Create a new fiscal year draft, following the `preopen` one.',
+                'policies'      => ['can_create_draft_fiscal_year'],
+                'function'      => 'doCreateDraftFiscalYear'
+            ]
+        ];
+    }
+
+    public static function policyCanOpenFiscalYear($self, $user_id) {
+        $result = [];
+        /** @var \fmt\access\AccessController */
+        ['access' => $access] = \eQual::inject(['access']);
+
+        foreach($self as $id => $condominium) {
+            if(!$access->userHasCondoRole($user_id, ['manager', 'accountant'], $id)) {
+                $result[$id] = [
+                    'not_allowed' => 'User missing mandatory role.'
+                ];
+            }
+        }
+        return $result;
+    }
+
+    public static function policyCanCreateDraftFiscalYear($self, $user_id) {
+        $result = [];
+        /** @var \fmt\access\AccessController */
+        ['access' => $access] = \eQual::inject(['access']);
+
+        foreach($self as $id => $condominium) {
+            if(!$access->userHasCondoRole($user_id, ['manager', 'accountant'], $id)) {
+                $result[$id] = [
+                    'not_allowed' => 'User missing mandatory role.'
+                ];
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Attempt to open the preopen fiscal year of the Condominium.
+     */
     public static function doOpenFiscalYear($self) {
         $self->read(['fiscal_year_start']);
-        $today = time();
-        // find fiscal year based on current date
+
         foreach($self as $id => $condominium) {
-            if(!$condominium['fiscal_year_start']) {
-                throw new \Exception('undefined_fiscal_year', EQ_ERROR_INVALID_CONFIG);
-            }
             $fiscalYear = FiscalYear::search([
-                    ['date_from', '<=', $today],
-                    ['date_to', '>', $today],
+                    ['status', '=', 'preopen'],
                     ['condo_id', '=', $id]
                 ]);
 
             if($fiscalYear->count() != 1) {
-                throw new \Exception('missing_current_fiscal_year', EQ_ERROR_UNKNOWN);
+                throw new \Exception('missing_preopen_fiscal_year', EQ_ERROR_INVALID_CONFIG);
             }
 
             $fiscalYear->transition('open');
         }
     }
 
-    public static function doCreateFiscalYear($self) {
-        $self->read(['fiscal_year_start', 'fiscal_period_frequency']);
-        $today = time();
+    /**
+     * Create a new draft fiscal year that directly follows the farthest `preopen` one (there should be only one).
+     * If a fiscal year already exist, it is overwritten (re-created).
+     *
+     */
+    public static function doCreateDraftFiscalYear($self) {
+        $self->read(['fiscal_year_start', 'fiscal_year_end', 'fiscal_period_frequency', 'current_fiscal_year_id']);
+
         // find fiscal year based on current date
         foreach($self as $id => $condominium) {
-            if(!$condominium['fiscal_year_start']) {
-                throw new \Exception('undefined_fiscal_year', EQ_ERROR_INVALID_CONFIG);
+            if(!$condominium['fiscal_year_end']) {
+                throw new \Exception('undefined_fiscal_year_end', EQ_ERROR_INVALID_CONFIG);
             }
+
+            $values = [
+                'condo_id'                  => $id,
+                'fiscal_period_frequency'   => $condominium['fiscal_period_frequency']
+            ];
+
+            // remove existing draft, if any
+            FiscalYear::search([['status', '=', 'draft'], ['condo_id', '=', $id]])->delete(true);
+
+            // find farthest preopen fiscal year
             $fiscalYear = FiscalYear::search([
-                    ['date_from', '>=', $today],
-                    ['date_to', '<', $today],
+                    ['status', '=', 'preopen'],
                     ['condo_id', '=', $id]
-                ]);
+                ],
+                [
+                    'sort'  => ['created' => 'desc'],
+                    'limit' => 1
+                ])
+                ->read(['date_from', 'date_to'])
+                ->first();
 
-            if($fiscalYear->count() > 0) {
-                throw new \Exception('duplicate_fiscal_year', EQ_ERROR_UNKNOWN);
+            if($fiscalYear) {
+                // computed next fiscal year date_from and date_to
+                $fiscal_year_start = $fiscalYear['date_to'];
+                $fiscal_year_start = strtotime('+1 day', $fiscal_year_start);
+
+                $day_end   = intval(date('d', $condominium['fiscal_year_end']));
+                $month_end = intval(date('m', $condominium['fiscal_year_end']));
+                $year_end  = intval(date('Y', $fiscal_year_start));
+
+                $fiscal_year_end = strtotime(sprintf("%d-%02d-%02d", $year_end, $month_end, $day_end));
+
+                if($fiscal_year_end <= $fiscal_year_start) {
+                    ++$year_end;
+                    $fiscal_year_end = strtotime(sprintf("%d-%02d-%02d", $year_end, $month_end, $day_end));
+                }
+
+                $value['previous_fiscal_year_id'] = $fiscalYear['id'];
+                $value['date_from'] = $fiscal_year_start;
+                $value['date_to'] = $fiscal_year_end;
+            }
+            // first fiscal year
+            else {
+                $value['date_from'] = $condominium['fiscal_year_start'];
+                $value['date_to'] = $condominium['fiscal_year_end'];
             }
 
-            $fiscal_year_start = mktime(0, 0, 0, date('m', $condominium['fiscal_year_start']), date('d', $condominium['fiscal_year_start']), intval(date('Y', $today)));
-            $fiscal_year_end = strtotime('+1 year', $fiscal_year_start);
-            $fiscal_year_end = strtotime('-1 day', $fiscal_year_end);
-
-            FiscalYear::create([
-                    'condo_id'                  => $id,
-                    'fiscal_period_frequency'   => $condominium['fiscal_period_frequency'],
-                    'date_from'                 => $fiscal_year_start,
-                    'date_to'                   => $fiscal_year_end
-                ]);
+            FiscalYear::create($values);
         }
     }
+
+    public static function onchange($self, $event, $values, $lang) {
+        $result = [];
+
+        if(isset($event['fiscal_year_end'])) {
+            $date_from = strtotime('-1 year', $event['fiscal_year_end']);
+            $result['fiscal_year_start'] = strtotime('+1 day', $date_from);
+        }
+
+        return $result;
+    }
+
 
 }

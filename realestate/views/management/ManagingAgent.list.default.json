@@ -1,0 +1,12 @@
+{
+    "name": "Managing Agent",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "identity_id",
+                "width": "100%"
+            }
+        ]
+    }
+}

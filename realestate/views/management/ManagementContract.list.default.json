@@ -1,26 +1,25 @@
 {
-    "name": "Property List",
-    "description": "This view is intended for displaying the list of properties.",
+    "name": "Management contract List",
     "layout": {
         "items": [
             {
                 "type": "field",
-                "value": "name",
+                "value": "managing_agent_id",
+                "width": "30%"
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "30%"
+            },
+            {
+                "type": "field",
+                "value": "date_from",
                 "width": "20%"
             },
             {
                 "type": "field",
-                "value": "owner_type",
-                "width": "20%"
-            },
-            {
-                "type": "field",
-                "value": "owner_shares",
-                "width": "20%"
-            },
-            {
-                "type": "field",
-                "value": "ownership_id",
+                "value": "date_to",
                 "width": "20%"
             }
         ]

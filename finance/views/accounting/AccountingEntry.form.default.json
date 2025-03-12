@@ -9,6 +9,33 @@
             ]
         }
     },
+    "actions": [
+        {
+            "id": "action.validate",
+            "label": "Validate",
+            "description": "Validate the accounting entry. This action is not reversible.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "pending"],
+            "params": {
+                "entity": "finance\\accounting\\AccountingEntry",
+                "transition": "validate",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.cancel",
+            "label": "Cancel",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "validated"],
+            "params": {
+                "entity": "finance\\accounting\\AccountingEntry",
+                "transition": "cancel",
+                "ids": []
+            },
+            "confirm": true
+        }
+    ],
     "layout": {
         "groups": [
             {

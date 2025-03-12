@@ -43,27 +43,54 @@ class BalanceLine extends Model {
                 'ondelete'          => 'cascade'
             ],
 
+            'fiscal_year_id' => [
+                'type'              => 'many2one',
+                'description'       => "The fiscal year the line refers to (from balance).",
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+            ],
+
             'account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account the balance line relates to.",
-                'required'          => true,
-                'ondelete'          => 'null'
+                'unique'            => true,
+                'required'          => true
             ],
 
             'debit' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
-                'description'       => 'Amount to be debited on the account.',
-                'default'           => 0.0
+                'description'       => 'The total amount recorded on the debit side of the account during the fiscal period.',
+                'default'           => 0.0,
+                'dependents'        => ['debit_balance']
             ],
 
             'credit' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
-                'description'       => 'Amount to be credited on the account.',
-                'default'           => 0.0
+                'description'       => 'The total amount recorded on the credit side of the account during the fiscal period.',
+                'default'           => 0.0,
+                'dependents'        => ['credit_balance']
+            ],
+
+            'debit_balance' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:4',
+                'function'          => 'calcDebitBalance',
+                'description'       => 'The remaining balance on the account if the total debits exceed the total credits.',
+                'store'             => true
+            ],
+
+            'credit_balance' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:4',
+                'function'          => 'calcCreditBalance',
+                'description'       => 'The remaining balance on the account if the total credits exceed the total debits.',
+                'store'             => true
             ]
+
         ];
     }
 

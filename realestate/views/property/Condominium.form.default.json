@@ -73,13 +73,25 @@
         {
             "id": "action.open_fiscal_year",
             "label": "Open fiscal Year",
-            "controller": "realestate_property_condominium_fiscalyear-open",
+            "description": "Open the fiscal year. This action cannot be undone.",
+            "controller": "core_model_perform",
+            "params": {
+                "entity": "realestate\\property\\Condominium",
+                "action": "open_fiscal_year",
+                "ids": []
+            },
             "confirm": true
         },
         {
             "id": "action.create_fiscal_year",
-            "label": "Create fiscal Year",
-            "controller": "realestate_property_condominium_fiscalyear-create",
+            "label": "Create draft fiscal Year",
+            "description": "Create a new fiscal year draft. This will overwrite any existing fiscal year draft.",
+            "controller": "core_model_perform",
+            "params": {
+                "entity": "realestate\\property\\Condominium",
+                "action": "create_draft_fiscal_year",
+                "ids": []
+            },
             "confirm": true
         }
     ],
@@ -97,27 +109,26 @@
                                             {
                                                 "type": "field",
                                                 "value": "legal_name",
-                                                "width": "100%",
+                                                "width": "66%",
                                                 "widget": {
                                                     "header": false
                                                 }
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Language",
+                                                "value": "lang_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "registration_number",
-                                                "width": "33%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "has_vat",
-                                                "width": "33%",
-                                                "label": "Subject to VAT",
-                                                "help": "Do the company have a VAT number?"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "vat_number",
-                                                "width": "33%"
+                                                "value": "cadastral_number",
+                                                "width": "50%"
                                             }
                                         ]
                                     },
@@ -132,25 +143,26 @@
                                                 "type": "field",
                                                 "value": "type_id",
                                                 "width": "100%",
-                                                "widget": {
-                                                    "header": {
-                                                        "actions": {
-                                                            "ACTION.CREATE": false,
-                                                            "ACTION.OPEN": false
-                                                        }
-                                                    }
-                                                }
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "total_shares",
-                                                "width": "50%"
+                                                "value": "has_vat",
+                                                "width": "50%",
+                                                "label": "Subject to VAT",
+                                                "help": "Do the company have a VAT number?"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%",
+                                                "visible": ["has_vat", "=", false]
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Language",
-                                                "value": "lang_id",
-                                                "width": "50%"
+                                                "value": "vat_number",
+                                                "width": "50%",
+                                                "visible": ["has_vat", "=", true]
                                             },
                                             {
                                                 "type": "field",
@@ -225,6 +237,11 @@
                                                 "id": "label.regulations",
                                                 "type": "label",
                                                 "value": "Regulations",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "total_shares",
                                                 "width": "100%"
                                             },
                                             {
@@ -335,6 +352,26 @@
                         ]
                     },
                     {
+                        "label": "Management Contracts",
+                        "id": "section.management_contracts",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "management_contracts_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "label": "Accounting",
                         "id": "section.accounting",
                         "rows": [
@@ -346,6 +383,11 @@
                                             {
                                                 "type": "field",
                                                 "value": "fiscal_year_start",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_year_end",
                                                 "width": "50%"
                                             },
                                             {

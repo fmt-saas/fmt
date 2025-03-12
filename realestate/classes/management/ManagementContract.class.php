@@ -26,10 +26,21 @@ class ManagementContract extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'managing_agent_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\management\ManagingAgent',
+                'description'       => "Managing agent the contract relates to.",
+            ],
+
             'indexation_rate' => [
                 'type'              => 'float',
                 'description'       => "Rate for yearly indexation of the condominium's fees.",
                 'default'           => 0.0
+            ],
+
+            'date_elected' => [
+                'type'              => 'date',
+                'description'       => "Start of validity period.",
             ],
 
             'date_from' => [
@@ -38,17 +49,18 @@ class ManagementContract extends \equal\orm\Model {
                 'required'          => true
             ],
 
-            'date_renewal' => [
+            'date_to' => [
                 'type'              => 'date',
                 'description'       => "End of validity period.",
-                'help'              => "This is a theoretical date: the contract can be revoked by a general assembly.",
+                'help'              => "Duration can either be set in advance or keep running while not statuted by the general assembly. This is a theoretical date: the contract can be revoked by a general assembly.",
                 'required'          => true
             ],
 
             'max_duration' => [
                 'type'              => 'integer',
                 'description'       => "In case it applies, this is the maximum duration of the contract, in years.",
-
+                'help'              => "In Belgium, the duration of a management contract cannot exceed 3 years.",
+                'default'           => 3
             ],
 
             'is_active' => [

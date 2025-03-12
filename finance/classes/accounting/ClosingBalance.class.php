@@ -23,10 +23,19 @@ class ClosingBalance extends Balance {
 
     public static function getColumns() {
         return [
+
+            'fiscal_period_id' => [
+                'type'              => 'many2one',
+                'description'       => "The fiscal period the balance refers to.",
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'readonly'          => true
+            ],
+
             'date' => [
                 'type'              => 'string',
                 'usage'             => 'date/plain',
                 'description'       => 'Date at which the balance was generated.',
+                'help'              => 'If closing balance is validated, the date should match the `date_to` of the related fiscal period.'
             ],
 
             'balance_type' => [

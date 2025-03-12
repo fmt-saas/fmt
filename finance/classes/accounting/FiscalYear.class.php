@@ -8,6 +8,7 @@
 namespace finance\accounting;
 use equal\orm\Model;
 use fmt\setting\Setting;
+use realestate\property\Condominium;
 
 class FiscalYear extends Model {
 
@@ -56,7 +57,7 @@ class FiscalYear extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
                 'foreign_field'     => 'fiscal_year_id',
-                'description'       => "The organisation the chart belongs to.",
+                'description'       => "The fiscal periods related to the fiscal year.",
                 'order'             => 'order',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'ondetach'          => 'delete'
@@ -75,6 +76,13 @@ class FiscalYear extends Model {
                 'foreign_object'    => 'finance\accounting\ClosingBalance',
             ],
 
+            'current_balance_lines_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\CurrentBalanceLine',
+                'foreign_field'     => 'fiscal_year_id',
+                'description'       => "The balance lines that refer to the fiscal year."
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -83,7 +91,7 @@ class FiscalYear extends Model {
                 'description'       => 'Label for identifying the fiscal year.'
             ],
 
-            'name' => [
+            'code' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'function'          => 'calcCode',
@@ -104,11 +112,10 @@ class FiscalYear extends Model {
             ],
 
             'previous_fiscal_year_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'function'          => 'calcPreviousFiscalYearId',
+                'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "The directly previous fiscal year, if any.",
+                'help'              => "This field set automatically and is dedicated to checks prior to performing some operations."
             ],
 
             'status' => [
@@ -194,9 +201,7 @@ class FiscalYear extends Model {
                 'icon'        => 'draw',
                 'transitions' => [
                     'preopen' => [
-                        'description' => 'Update the invoice status based on the `invoice` field.',
-                        'help'        => 'The `invoice` field is set by a dedicated controller that manages invoice approval requests.',
-                        // #todo #memo - si on peut faire des écritures dans un exercice pré-open, comment gérer la modification de l'assignation des périodes (sont-elles figées dès ce moment?)
+                        'description' => 'Update the fiscal year status to `preopen`.',
                         'policies'    => [
                             'can_be_preopened',
                         ],
@@ -217,7 +222,7 @@ class FiscalYear extends Model {
                             'can_be_opened',
                         ],
                         'onafter'   => 'onafterOpen',
-                        'status'  => 'open'
+                        'status'    => 'open'
                     ]
                 ]
             ],
@@ -241,13 +246,13 @@ class FiscalYear extends Model {
                 'icon'        => 'lock_open',
                 'transitions' => [
                     'close' => [
-                        'description' => 'Delete the proforma and set receivables statuses back to pending.',
+                        'description' => 'Handle actions related to fiscal year closing.',
                         'help'        => 'A fiscal year can be opened before the previous one is definitely closed.',
                         'policies'    => [
                             'can_be_closed',
                         ],
                         // 'onafter'   => 'onafterClose',
-                        'status'  => 'closed'
+                        'status'     => 'closed'
                     ]
                 ]
             ],
@@ -281,18 +286,20 @@ class FiscalYear extends Model {
 
     public static function policyCanBePreOpened($self): array {
         $result = [];
-        $self->read(['date_from', 'date_to']);
-
-        $today = time();
+        $self->read(['status']);
 
         foreach($self as $id => $fiscalYear) {
-            // date_from and date_to must be in the future
-            if($today > $fiscalYear['date_from'] || $today > $fiscalYear['date_to']) {
-                $result[$id] = false;
+            // status of fiscal year must be 'draft'
+            if($fiscalYear['status'] != 'draft') {
+                $result[$id] = [
+                    'invalid_status' => 'Fiscal year status must be draft.'
+                ];
                 continue;
             }
-            if(!self::computeIsConsistent($id)) {
-                $result[$id] = false;
+
+            $inconsistency = self::computeIsConsistent($id);
+            if(count($inconsistency)) {
+                $result[$id] = $inconsistency;
             }
         }
         return $result;
@@ -300,29 +307,45 @@ class FiscalYear extends Model {
 
     public static function policyCanBeOpened($self): array {
         $result = [];
-        $self->read(['date_from', 'date_to', 'previous_fiscal_year_id']);
-
-        $today = time();
+        $self->read(['status', 'previous_fiscal_year_id', 'condo_id']);
 
         foreach($self as $id => $fiscalYear) {
 
-            // previous fiscal year status must be 'open'
+            // if there is no draft for next fiscal year, create one
+            $nextFiscalYear = self::search([['status', '=', 'draft'], ['condo_id', '=', $fiscalYear['condo_id']]]);
+            if(count($nextFiscalYear) <= 0) {
+                Condominium::id($fiscalYear['condo_id'])->do('create_draft_fiscal_year');
+                $nextFiscalYear = self::search([['status', '=', 'draft'], ['condo_id', '=', $fiscalYear['condo_id']]])->do('generate_periods');
+            }
+
+            if(!empty(self::policyCanBePreOpened($nextFiscalYear))) {
+                $result[$id] = [
+                    'invalid_next_fiscal_year' => 'Next fiscal year cannot be pre opened.'
+                ];
+                continue;
+            }
+
+            // status of fiscal year must be 'preopen'
+            if($fiscalYear['status'] != 'preopen') {
+                $result[$id] = [
+                    'invalid_fiscal_year' => 'Fiscal year is not in preopen status.'
+                ];
+                continue;
+            }
+
             if($fiscalYear['previous_fiscal_year_id']) {
-                if(count(self::policyCanBePreClosed(self::id($fiscalYear['previous_fiscal_year_id'])))) {
-                    $result[$id] = false;
+                if(!empty(self::policyCanBePreClosed(self::id($fiscalYear['previous_fiscal_year_id'])))) {
+                    $result[$id] = [
+                        'invalid_previous_fiscal_year' => 'Previous fiscal year cannot be pre closed.'
+                    ];
                     continue;
                 }
             }
 
-            // current date must be included between date_from and date_to
-            if($today < $fiscalYear['date_from'] || $today > $fiscalYear['date_to']) {
-                $result[$id] = false;
-                continue;
-            }
-
-            // fiscal year and periods must be consistent
-            if(!self::computeIsConsistent($id)) {
-                $result[$id] = false;
+            // fiscal year and periods must be consistent (each year and period must immediately follow the previous one)
+            $inconsistency = self::computeIsConsistent($id);
+            if(count($inconsistency)) {
+                $result[$id] = $inconsistency;
             }
         }
         return $result;
@@ -330,16 +353,33 @@ class FiscalYear extends Model {
 
     public static function policyCanBePreClosed($self): array {
         $result = [];
-        $self->read(['status']);
+        $self->read(['status', 'previous_fiscal_year_id' => ['status']]);
+
         foreach($self as $id => $fiscalYear) {
             if($fiscalYear['status'] != 'open') {
-                $result[$id] = false;
+                $result[$id] = [
+                    'invalid_status' => 'Fiscal year status must be open.'
+                ];
                 continue;
+            }
+            if($fiscalYear['previous_fiscal_year_id']) {
+                // status of previous fiscal year, if any, must be 'closed'
+                if($fiscalYear['previous_fiscal_year_id']['status'] != 'closed') {
+                    $result[$id] = [
+                        'invalid_status' => 'Fiscal year status must be closed.'
+                    ];
+                    continue;
+                }
             }
         }
         return $result;
     }
 
+    /**
+     * Perform tasks related to fiscal year pre-opening.
+     * This method assigns a current balance to it (which will not change, whatever the final duration of the fiscal year).
+     * A preopened fiscal year cannot be removed anymore.
+     */
     public static function onafterPreOpen($self) {
         $self->read(['condo_id']);
         foreach($self as $id => $fiscalYear) {
@@ -363,10 +403,16 @@ class FiscalYear extends Model {
         $self->read(['condo_id', 'code', 'date_from', 'date_to', 'previous_fiscal_year_id', 'fiscal_periods_ids' => ['id', 'date_from', 'date_to']]);
 
         foreach($self as $id => $fiscalYear) {
-            // 1 - transition previous fiscal year to 'preclosed'
-            self::id($fiscalYear['previous_fiscal_year_id'])->transition('preclose');
 
-            // 2 - finalize periods
+            // 1 - transition previous fiscal year to 'preclosed' (transition has been checked in `policyCanBeOpened()`)
+            if($fiscalYear['previous_fiscal_year_id']) {
+                self::id($fiscalYear['previous_fiscal_year_id'])->transition('preclose');
+            }
+
+            // 2 - transition next fiscal year to 'preopen' (existence and transition have been checked in `policyCanBeOpened()`)
+            $nextFiscalYear = self::search([['status', '=', 'draft'], ['condo_id', '=', $fiscalYear['condo_id']]])->transition('preopen')->first();
+
+            // 3 - finalize periods & create related sequences
             $periods = $fiscalYear['fiscal_periods_ids']->get(true);
             usort($periods, fn($a, $b) => $a['date_from'] <=> $b['date_from']);
             $order = 1;
@@ -381,13 +427,30 @@ class FiscalYear extends Model {
                 ++$order;
             }
 
-            // 3 - create temporary carry-forward / opening-balance accounting entries
-            $entry_lines = self::computeCarryForwardEntryLines($id);
+            // create sequences for all existing journals
+            $journals = Journal::search(['code', '<>', 'LEDG'])->read(['code']);
+            foreach($journals as $journal) {
+                $fiscal_year_code = $fiscalYear['code'];
+                $journal_code = $journal['code'];
+                Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}");
+                Setting::init_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}", ['condo_id' => $fiscalYear['condo_id']]);
+            }
+
+            // 4 - create temporary carry-forward / opening-balance accounting entries in next fiscal year OPB journal
             $carryForwardJournal = Journal::search([['code', '=', 'OPB']])->first();
+            if(!$carryForwardJournal) {
+                throw new \Exception('missing_opb_journal', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $entry_lines = self::computeCarryForwardEntryLines($id);
+
             $accountingEntry = AccountingEntry::create([
-                    'condo_id'      => $fiscalYear['condo_id'],
-                    'journal_id'    => $carryForwardJournal['id'],
-                    'status'        => 'validated'
+                    'condo_id'          => $fiscalYear['condo_id'],
+                    'journal_id'        => $carryForwardJournal['id'],
+                    'status'            => 'validated',
+                    'is_temp'           => true,
+                    'fiscal_year_id'    => $nextFiscalYear['id'],
+                    'entry_date'        => time()
                 ])
                 ->first();
 
@@ -401,6 +464,10 @@ class FiscalYear extends Model {
                     ]);
             }
 
+            AccountingEntry::id($accountingEntry['id'])->transition('validate');
+
+            // 5 - update current fiscal year for targeted Condominium
+            Condominium::id($fiscalYear['condo_id'])->update(['current_fiscal_year_id' => $id]);
         }
     }
 
@@ -409,7 +476,7 @@ class FiscalYear extends Model {
     }
 
     public static function doGeneratePeriods($self) {
-        $self->read(['condo_id', 'date_from', 'date_to', 'fiscal_period_frequency']);
+        $self->read(['condo_id', 'date_from', 'date_to', 'previous_fiscal_year_id', 'fiscal_period_frequency', 'condo_id' => ['fiscal_year_start', 'fiscal_year_end']]);
         foreach($self as $id => $fiscalYear) {
             if(!$fiscalYear['date_from']) {
                 throw new \Exception('missing_date_from', EQ_ERROR_INVALID_PARAM);
@@ -419,13 +486,32 @@ class FiscalYear extends Model {
             }
             FiscalPeriod::search(['fiscal_year_id', '=', $id])->delete(true);
             $periods = self::computeFiscalPeriods($fiscalYear['date_from'], $fiscalYear['date_to'], $fiscalYear['fiscal_period_frequency']);
+
+            $is_first = !boolval($fiscalYear['previous_fiscal_year_id']);
+
+            $i = 0;
             foreach($periods as $period) {
+                // handle special case for first fiscal year of a Condominium
+                if($fiscalYear['condo_id'] && $is_first) {
+                    if($period['date_to'] < $fiscalYear['condo_id']['fiscal_year_start']) {
+                        continue;
+                    }
+                    // adjust first period if necessary
+                    if($i == 0) {
+                        if( $fiscalYear['condo_id']['fiscal_year_start'] < $period['date_from']
+                            || $fiscalYear['condo_id']['fiscal_year_start'] > $period['date_from']
+                        ) {
+                            $period['date_from'] = $fiscalYear['condo_id']['fiscal_year_start'];
+                        }
+                    }
+                }
                 FiscalPeriod::create([
                         'condo_id'          => $fiscalYear['condo_id'],
                         'fiscal_year_id'    => $id,
                         'date_from'         => $period['date_from'],
                         'date_to'           => $period['date_to']
                     ]);
+                ++$i;
             }
         }
     }
@@ -512,7 +598,7 @@ class FiscalYear extends Model {
             $result[] = [
                     'account_id'    => $line['account_id'],
                     'debit'         => $line['debit'],
-                    'credit'        => $line['debit']
+                    'credit'        => $line['credit']
                 ];
         }
         return $result;
@@ -522,21 +608,34 @@ class FiscalYear extends Model {
      * Check fiscal year and periods dates consistency.
      *
      */
-    private static function computeIsConsistent($id): bool {
-        $fiscalYear = self::id($id)->read(['date_from', 'date_to', 'fiscal_periods_ids' => ['date_from', 'date_to']])->first();
+    private static function computeIsConsistent($id): array {
+        $fiscalYear = self::id($id)->read(['date_from', 'date_to', 'previous_fiscal_year_id' => ['date_to'], 'fiscal_periods_ids' => ['date_from', 'date_to']])->first();
 
 
         if(!$fiscalYear['date_from'] || !$fiscalYear['date_to']) {
-            return false;
+            return [
+                'missing_date' => 'Invalid or missing date_from or date_to.'
+            ];
         }
 
         if($fiscalYear['date_from'] >= $fiscalYear['date_to']) {
-            return false;
+            return [
+                'invalid_date' => 'Reverse order for date_from and date_to.'
+            ];
+        }
+
+        if($fiscalYear['previous_fiscal_year_id'] && strtotime('-1 day', $fiscalYear['date_from']) != $fiscalYear['previous_fiscal_year_id']['date_to']) {
+            return [
+                'non_contiguous_years' => 'Fiscal year does not immediately follow the previous one.'
+            ];
         }
 
         // fiscal year must have at least one period
         if(count($fiscalYear['fiscal_periods_ids']) === 0) {
-            return false;
+            return [
+                'missing_fiscal_periods' => 'Fiscal periods have not been defined.'
+            ];
+
         }
 
         // #memo - number of periods is not taken into account here, but dates must be contiguous
@@ -545,26 +644,41 @@ class FiscalYear extends Model {
         usort($periods, fn($a, $b) => $a['date_from'] <=> $b['date_from']);
         $n = count($periods);
 
-        if($periods[0]['date_from'] != $fiscalYear['date_from']) {
-            return false;
-        }
-
         if($periods[$n-1]['date_to'] != $fiscalYear['date_to']) {
-            return false;
+            return [
+                'out_of_range_date_to' => 'Last fiscal period is outside the fiscal year.'
+            ];
         }
 
         for($i = 0; $i <  $n - 1; $i++) {
             if($periods[$i]['date_from'] < $fiscalYear['date_from']) {
-                return false;
+                return [
+                    'out_of_range_date_from' => 'A fiscal period is outside the fiscal year.'
+                ];
             }
             if($periods[$i]['date_to'] > $fiscalYear['date_to']) {
-                return false;
+                return [
+                    'out_of_range_date_to' => 'A fiscal period is outside the fiscal year.'
+                ];
             }
             if(strtotime('+1 day', $periods[$i]['date_to']) !== $periods[$i + 1]['date_from']) {
-                return false;
+                return [
+                    'non_contiguous_periods' => 'A fiscal period year does not immediately follow the previous one.'
+                ];
             }
         }
 
-        return true;
+        return [];
     }
+
+    public static function candelete($self) {
+        $self->read(['status']);
+        foreach($self as $fiscalYear) {
+            if($fiscalYear['status'] != 'draft') {
+                return ['status' => ['non_removable' => 'Non-draft fiscal years cannot be deleted.']];
+            }
+        }
+        return parent::candelete($self);
+    }
+
 }

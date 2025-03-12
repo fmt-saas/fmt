@@ -61,7 +61,7 @@ class Journal extends Model {
             'code' => [
                 'type'              => 'string',
                 'description'       => 'Unique code.',
-                'help'              => 'This can also be used to match journal in an external tool.',
+                'help'              => 'This code serve as unique and absolute identifier, and can also be used to match journal in an external tool.',
                 'unique'            => true,
                 'required'          => true,
                 'dependents'        => ['name']

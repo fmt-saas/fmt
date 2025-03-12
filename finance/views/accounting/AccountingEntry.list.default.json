@@ -1,11 +1,13 @@
 {
     "name": "Accounting entries",
-    "description": "Invoice accounting entries.",
-    "access": {
-        "groups": ["finance.default.users"]
-    },
+    "description": "All accounting entries.",
     "layout": {
         "items": [
+            {
+                "type": "field",
+                "value": "entry_number",
+                "width": "35%"
+            },
             {
                 "type": "field",
                 "value": "entry_date",

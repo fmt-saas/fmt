@@ -36,7 +36,7 @@ class Setting extends \core\setting\Setting {
     }
 
     /**
-     * Make sure the setting exists, and create it if necessary.
+     * Make sure a sequence setting exists, and create it if necessary.
      *
      * @return  never
      */
@@ -79,7 +79,11 @@ class Setting extends \core\setting\Setting {
         }
     }
 
-
+    /**
+     * Initialize a sequence value exists: create it if necessary, and set or reset it to 1.
+     *
+     * @return  never
+     */
     public static function init_sequence(string $package, string $section, string $code, array $selector=[]) {
         // Inject ORM
         $providers = \eQual::inject(['orm']);
