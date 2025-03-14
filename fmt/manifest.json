@@ -13,8 +13,8 @@
         "identity",
         "purchase",
         "realestate",
-        "stats",
-        "sale"
+        "sale",
+        "stats"
     ],
     "config": {
         "ORG_NAME": "FMT SRL",
