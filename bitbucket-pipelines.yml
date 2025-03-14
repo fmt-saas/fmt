@@ -33,7 +33,7 @@ pipelines:
           - php /var/www/html/run.php --do=test_db-connectivity
           - php /var/www/html/run.php --do=init_db
           - php /var/www/html/run.php --do=init_package --package=core
-          - php /var/www/html/run.php --do=init_package --package=fmt --import=true --import_cascade=false
+          - php /var/www/html/run.php --do=init_package --package=fmt --import=true
           # Run tests without stopping in case of exit(1)
           - set +e ; php /var/www/html/run.php --do=test_package --package=fmt ; export FAILING=$? ; set -e
           # Exit according to returned code
