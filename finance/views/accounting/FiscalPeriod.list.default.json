@@ -9,11 +9,13 @@
             },
             {
                 "type": "field",
+                "label": "Organisation",
                 "value": "organisation_id",
                 "width": "25%"
             },
             {
                 "type": "field",
+                "label": "Condominium",
                 "value": "condo_id",
                 "width": "25%"
             },

@@ -1,6 +1,33 @@
 {
     "name": "Chart of Accounts",
-    "description": "Default form for accounting chart with all fields.",
+    "description": "Condominium Chart of Accounts.",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [{"id": "SAVE_AND_CONTINUE"}, {"id": "SAVE_AND_CLOSE"}]
+        }
+    },
+    "actions": [
+        {
+            "id": "action.import_template",
+            "label": "Import template",
+            "description": "Import accounts from a template.",
+            "controller": "finance_accounting_accountchart_import",
+            "visible": [["state", "<>", "draft"], ["status", "=", "draft"]]
+        },
+        {
+            "id": "action.activate",
+            "label": "Activate",
+            "description": "Validate and make the chart active. This action is not reversible.",
+            "controller": "core_model_transition",
+            "visible": [["state", "<>", "draft"], ["status", "=", "draft"]],
+            "params": {
+                "entity": "finance\\accounting\\AccountChart",
+                "transition": "activation",
+                "ids": []
+            },
+            "confirm": true
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -24,11 +51,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "organisation_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
+                                                "label": "Condominium",
                                                 "value": "condo_id",
                                                 "width": "50%"
                                             }
@@ -41,6 +64,7 @@
                     {
                         "label": "Accounts",
                         "id": "section.account_chart_lines",
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [
@@ -50,7 +74,14 @@
                                             {
                                                 "type": "field",
                                                 "value": "accounts_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

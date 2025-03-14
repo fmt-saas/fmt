@@ -9,7 +9,7 @@
                 "is_control_account": true,
                 "description": "DEBTS OVER MORE THAN ONE YEAR",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -19,7 +19,7 @@
                 "is_control_account": true,
                 "description": "WORKING CAPITAL",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -49,7 +49,7 @@
                 "is_control_account": true,
                 "description": "RESULT BOOKING PERIOD",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -59,7 +59,7 @@
                 "is_control_account": true,
                 "description": "RESERVE FUND",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -79,7 +79,7 @@
                 "is_control_account": false,
                 "description": "Reserve fund (1)",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -89,7 +89,7 @@
                 "is_control_account": false,
                 "description": "Reserve fund (2)",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -99,7 +99,7 @@
                 "is_control_account": false,
                 "description": "Reserve fund (3)",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -109,7 +109,7 @@
                 "is_control_account": true,
                 "description": "SPECIAL RESERVE FUND",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -129,7 +129,7 @@
                 "is_control_account": true,
                 "description": "DEBTS OVER MORE THAN ONE YEAR",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -139,7 +139,7 @@
                 "is_control_account": false,
                 "description": "Subordinated loans",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -149,7 +149,7 @@
                 "is_control_account": false,
                 "description": "Non-subordinated bond loans",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -159,7 +159,7 @@
                 "is_control_account": false,
                 "description": "Leasing debts",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -169,7 +169,7 @@
                 "is_control_account": false,
                 "description": "Credit institutions",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -179,7 +179,7 @@
                 "is_control_account": false,
                 "description": "Debts on account",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -189,7 +189,7 @@
                 "is_control_account": false,
                 "description": "Promissory notes",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -199,7 +199,7 @@
                 "is_control_account": false,
                 "description": "Acceptance credits",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -209,7 +209,7 @@
                 "is_control_account": false,
                 "description": "Other loans",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -219,7 +219,7 @@
                 "is_control_account": false,
                 "description": "Trade debts",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -229,7 +229,7 @@
                 "is_control_account": false,
                 "description": "Other debts",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -239,7 +239,7 @@
                 "is_control_account": true,
                 "description": "FIXED ASSETS AND GUARANTEES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -249,7 +249,7 @@
                 "is_control_account": true,
                 "description": "INTANGIBLE FIXED ASSETS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -259,7 +259,7 @@
                 "is_control_account": false,
                 "description": "Concessions, patents, licenses, know-how, trademarks, and similar rights",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -269,7 +269,7 @@
                 "is_control_account": false,
                 "description": "Advance payments",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -279,7 +279,7 @@
                 "is_control_account": true,
                 "description": "INSTALLATIONS, MACHINERY AND EQUIPMENT",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -289,7 +289,7 @@
                 "is_control_account": true,
                 "description": "FURNITURE AND VEHICLES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -299,7 +299,7 @@
                 "is_control_account": true,
                 "description": "FIXED ASSETS IN LEASING",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -309,7 +309,7 @@
                 "is_control_account": false,
                 "description": "Installations, machinery, and equipment",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -319,7 +319,7 @@
                 "is_control_account": false,
                 "description": "Furniture and vehicles",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -329,7 +329,7 @@
                 "is_control_account": true,
                 "description": "OTHER TANGIBLE FIXED ASSETS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -339,7 +339,7 @@
                 "is_control_account": true,
                 "description": "PAID GUARANTEES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -349,7 +349,7 @@
                 "is_control_account": true,
                 "description": "INVENTORY",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -359,7 +359,7 @@
                 "is_control_account": false,
                 "description": "Key inventory",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -369,7 +369,7 @@
                 "is_control_account": false,
                 "description": "Remote control inventory",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -379,7 +379,7 @@
                 "is_control_account": false,
                 "description": "Badge inventory",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -389,7 +389,7 @@
                 "is_control_account": false,
                 "description": "Nameplate inventory",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -399,7 +399,7 @@
                 "is_control_account": true,
                 "description": "RECEIVABLES AND DEBTS DUE WITHIN ONE YEAR",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -409,7 +409,7 @@
                 "is_control_account": true,
                 "description": "RECEIVABLES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -449,7 +449,7 @@
                 "is_control_account": false,
                 "description": "Receivable credit notes",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -459,7 +459,7 @@
                 "is_control_account": false,
                 "description": "Previous co-owners",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -469,7 +469,7 @@
                 "is_control_account": false,
                 "description": "Various receivables",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -479,7 +479,7 @@
                 "is_control_account": false,
                 "description": "Doubtful debtors",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -489,7 +489,7 @@
                 "is_control_account": false,
                 "description": "Tenants",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -499,7 +499,7 @@
                 "is_control_account": false,
                 "description": "Recorded impairments",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -509,7 +509,7 @@
                 "is_control_account": true,
                 "description": "DEBTS OVER MORE THAN ONE YEAR DUE WITHIN THE YEAR",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -519,7 +519,7 @@
                 "is_control_account": false,
                 "description": "Subordinated loans",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -529,7 +529,7 @@
                 "is_control_account": false,
                 "description": "Non-subordinated bond loans",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -539,7 +539,7 @@
                 "is_control_account": false,
                 "description": "Leasing debts and similar",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -549,7 +549,7 @@
                 "is_control_account": false,
                 "description": "Credit institutions",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -559,7 +559,7 @@
                 "is_control_account": false,
                 "description": "Other loans",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -569,7 +569,7 @@
                 "is_control_account": false,
                 "description": "Trade debts",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -579,7 +579,7 @@
                 "is_control_account": false,
                 "description": "Other debts",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -589,7 +589,7 @@
                 "is_control_account": true,
                 "description": "FINANCIAL DEBTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -599,7 +599,7 @@
                 "is_control_account": false,
                 "description": "Credit institutions - Fixed-term loans",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -609,7 +609,7 @@
                 "is_control_account": false,
                 "description": "Credit institutions - Promissory notes",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -619,7 +619,7 @@
                 "is_control_account": false,
                 "description": "Credit institutions - Acceptance credits",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -629,7 +629,7 @@
                 "is_control_account": false,
                 "description": "Credit institutions - Current account debts",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -639,7 +639,7 @@
                 "is_control_account": false,
                 "description": "Other loans",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -649,7 +649,7 @@
                 "is_control_account": true,
                 "description": "TRADE DEBTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -669,7 +669,7 @@
                 "is_control_account": false,
                 "description": "Invoices to be received",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -679,7 +679,7 @@
                 "is_control_account": true,
                 "description": "DEBTS RELATED TO TAXES, SALARIES, AND SOCIAL CHARGES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -689,7 +689,7 @@
                 "is_control_account": false,
                 "description": "Estimated tax liabilities",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -699,7 +699,7 @@
                 "is_control_account": false,
                 "description": "Taxes and duties payable",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -709,7 +709,7 @@
                 "is_control_account": false,
                 "description": "Withholding taxes",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -719,7 +719,7 @@
                 "is_control_account": false,
                 "description": "National Social Security Office",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -739,7 +739,7 @@
                 "is_control_account": false,
                 "description": "Holiday pay",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -749,7 +749,7 @@
                 "is_control_account": false,
                 "description": "Other social debts",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -759,7 +759,7 @@
                 "is_control_account": true,
                 "description": "VARIOUS DEBTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -779,7 +779,7 @@
                 "is_control_account": false,
                 "description": "Debts: Transferred funds",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -789,7 +789,7 @@
                 "is_control_account": true,
                 "description": "ACCRUALS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -809,7 +809,7 @@
                 "is_control_account": false,
                 "description": "Accrued income",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -819,7 +819,7 @@
                 "is_control_account": false,
                 "description": "Accrued costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -829,7 +829,7 @@
                 "is_control_account": false,
                 "description": "Accrued private costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -859,7 +859,7 @@
                 "is_control_account": false,
                 "description": "Suspense accounts",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -869,7 +869,7 @@
                 "is_control_account": false,
                 "description": "Interim account",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -879,7 +879,7 @@
                 "is_control_account": false,
                 "description": "Rounded debtor balance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -889,7 +889,7 @@
                 "is_control_account": false,
                 "description": "Rounded creditor balance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -919,7 +919,7 @@
                 "is_control_account": false,
                 "description": "Accrued income and expenses",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -929,7 +929,7 @@
                 "is_control_account": false,
                 "description": "Damage",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -939,7 +939,7 @@
                 "is_control_account": false,
                 "description": "Damage under review",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -949,7 +949,7 @@
                 "is_control_account": false,
                 "description": "Damage ...",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -959,7 +959,7 @@
                 "is_control_account": true,
                 "description": "INVESTMENTS AND CASH FUNDS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -969,7 +969,7 @@
                 "is_control_account": true,
                 "description": "TERM DEPOSITS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -979,7 +979,7 @@
                 "is_control_account": false,
                 "description": "More than one year",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -989,7 +989,7 @@
                 "is_control_account": false,
                 "description": "More than one month and up to one year",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -999,7 +999,7 @@
                 "is_control_account": false,
                 "description": "Up to one month",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1009,7 +1009,7 @@
                 "is_control_account": false,
                 "description": "Recorded impairments",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1019,7 +1019,7 @@
                 "is_control_account": true,
                 "description": "CREDIT INSTITUTIONS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1049,7 +1049,7 @@
                 "is_control_account": false,
                 "description": "Other accounts",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1059,7 +1059,7 @@
                 "is_control_account": false,
                 "description": "Cash registers",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1079,7 +1079,7 @@
                 "is_control_account": true,
                 "description": "EXPENSES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1089,7 +1089,7 @@
                 "is_control_account": true,
                 "description": "SERVICES AND VARIOUS GOODS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1099,7 +1099,7 @@
                 "is_control_account": true,
                 "description": "MAINTENANCE AND MINOR REPAIRS BUILDING, GARDEN, AND SURROUNDINGS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1109,7 +1109,7 @@
                 "is_control_account": true,
                 "description": "FIRE SAFETY",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1119,7 +1119,7 @@
                 "is_control_account": false,
                 "description": "Fire prevention",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1129,7 +1129,7 @@
                 "is_control_account": false,
                 "description": "Fire safety maintenance contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1139,7 +1139,7 @@
                 "is_control_account": false,
                 "description": "Fire safety maintenance contract not included",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1149,7 +1149,7 @@
                 "is_control_account": false,
                 "description": "Fire safety repairs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1159,7 +1159,7 @@
                 "is_control_account": false,
                 "description": "Fire alarm and fire detection",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1169,7 +1169,7 @@
                 "is_control_account": false,
                 "description": "Fire escape and smoke dome maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1179,7 +1179,7 @@
                 "is_control_account": false,
                 "description": "Fire escape and smoke dome repairs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1189,7 +1189,7 @@
                 "is_control_account": false,
                 "description": "Safety signage\/Emergency lighting",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1199,7 +1199,7 @@
                 "is_control_account": false,
                 "description": "Lightning protection",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1209,7 +1209,7 @@
                 "is_control_account": false,
                 "description": "Other fire safety costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1219,7 +1219,7 @@
                 "is_control_account": true,
                 "description": "ELEVATORS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1229,7 +1229,7 @@
                 "is_control_account": false,
                 "description": "Elevator inspections",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1239,7 +1239,7 @@
                 "is_control_account": false,
                 "description": "Elevator maintenance contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1249,7 +1249,7 @@
                 "is_control_account": false,
                 "description": "Elevator maintenance and repairs not included in contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1259,7 +1259,7 @@
                 "is_control_account": false,
                 "description": "Elevator emergency phone",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1269,7 +1269,7 @@
                 "is_control_account": false,
                 "description": "Elevator electricity",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1279,7 +1279,7 @@
                 "is_control_account": false,
                 "description": "Elevator repairs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1289,7 +1289,7 @@
                 "is_control_account": false,
                 "description": "Elevator modification works",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1299,7 +1299,7 @@
                 "is_control_account": false,
                 "description": "Other elevator costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1309,7 +1309,7 @@
                 "is_control_account": true,
                 "description": "ELECTRICAL INSTALLATIONS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1319,7 +1319,7 @@
                 "is_control_account": false,
                 "description": "Electrical installation maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1329,7 +1329,7 @@
                 "is_control_account": false,
                 "description": "Electrical installation maintenance not included in contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1339,7 +1339,7 @@
                 "is_control_account": false,
                 "description": "Electrical installation repairs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1349,7 +1349,7 @@
                 "is_control_account": false,
                 "description": "Doorbell and intercom\/video intercom maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1359,7 +1359,7 @@
                 "is_control_account": false,
                 "description": "Doorbell and intercom\/video intercom repairs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1369,7 +1369,7 @@
                 "is_control_account": false,
                 "description": "Air and smoke extraction systems",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1379,7 +1379,7 @@
                 "is_control_account": false,
                 "description": "Air and smoke extraction system repairs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1389,7 +1389,7 @@
                 "is_control_account": false,
                 "description": "Camera surveillance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1399,7 +1399,7 @@
                 "is_control_account": false,
                 "description": "Camera surveillance repairs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1409,7 +1409,7 @@
                 "is_control_account": false,
                 "description": "Other electrical installation costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1419,7 +1419,7 @@
                 "is_control_account": true,
                 "description": "PLUMBING AND HEATING",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1429,7 +1429,7 @@
                 "is_control_account": false,
                 "description": "Heating installation inspections",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1439,7 +1439,7 @@
                 "is_control_account": false,
                 "description": "Heating maintenance contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1449,7 +1449,7 @@
                 "is_control_account": false,
                 "description": "Heating maintenance not included in contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1459,7 +1459,7 @@
                 "is_control_account": false,
                 "description": "Water pressure booster maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1469,7 +1469,7 @@
                 "is_control_account": false,
                 "description": "Water softener maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1479,7 +1479,7 @@
                 "is_control_account": false,
                 "description": "Other heating pipe maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1489,7 +1489,7 @@
                 "is_control_account": false,
                 "description": "Water pipe maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1499,7 +1499,7 @@
                 "is_control_account": false,
                 "description": "Drainage, sewer, and pump installation maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1509,7 +1509,7 @@
                 "is_control_account": false,
                 "description": "Meters and meter reading",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1519,7 +1519,7 @@
                 "is_control_account": false,
                 "description": "Other plumbing and heating costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1529,7 +1529,7 @@
                 "is_control_account": true,
                 "description": "CARPENTRY",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1539,7 +1539,7 @@
                 "is_control_account": false,
                 "description": "Carpentry maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1549,7 +1549,7 @@
                 "is_control_account": false,
                 "description": "Balustrade and terrace partition maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1559,7 +1559,7 @@
                 "is_control_account": false,
                 "description": "Other carpentry costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1569,7 +1569,7 @@
                 "is_control_account": true,
                 "description": "GARAGE DOOR",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1579,7 +1579,7 @@
                 "is_control_account": false,
                 "description": "Garage door inspection",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1589,7 +1589,7 @@
                 "is_control_account": false,
                 "description": "Garage door maintenance contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1599,7 +1599,7 @@
                 "is_control_account": false,
                 "description": "Garage door maintenance not included in contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1609,7 +1609,7 @@
                 "is_control_account": false,
                 "description": "Garage door repairs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1619,7 +1619,7 @@
                 "is_control_account": false,
                 "description": "Other garage door costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1629,7 +1629,7 @@
                 "is_control_account": true,
                 "description": "CLEANING AND WASTE MANAGEMENT",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1639,7 +1639,7 @@
                 "is_control_account": false,
                 "description": "Building cleaning as per contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1649,7 +1649,7 @@
                 "is_control_account": false,
                 "description": "Other building cleaning",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1659,7 +1659,7 @@
                 "is_control_account": false,
                 "description": "Cleaning supplies",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1669,7 +1669,7 @@
                 "is_control_account": false,
                 "description": "Cleaning equipment",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1679,7 +1679,7 @@
                 "is_control_account": false,
                 "description": "Waste treatment as per contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1689,7 +1689,7 @@
                 "is_control_account": false,
                 "description": "Household waste treatment not included in contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1699,7 +1699,7 @@
                 "is_control_account": false,
                 "description": "Other cleaning and waste treatment costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1709,7 +1709,7 @@
                 "is_control_account": true,
                 "description": "GARDENS, PARKINGS, AND ROADS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1719,7 +1719,7 @@
                 "is_control_account": true,
                 "description": "GARDENS AND DIRECT SURROUNDINGS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1729,7 +1729,7 @@
                 "is_control_account": false,
                 "description": "Garden and surroundings maintenance as per contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1739,7 +1739,7 @@
                 "is_control_account": false,
                 "description": "Other garden and surroundings maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1749,7 +1749,7 @@
                 "is_control_account": false,
                 "description": "Garden and surroundings landscaping",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1759,7 +1759,7 @@
                 "is_control_account": true,
                 "description": "PARKINGS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1769,7 +1769,7 @@
                 "is_control_account": false,
                 "description": "Parking maintenance as per contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1779,7 +1779,7 @@
                 "is_control_account": false,
                 "description": "Other parking maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1789,7 +1789,7 @@
                 "is_control_account": false,
                 "description": "Parking renovation",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1799,7 +1799,7 @@
                 "is_control_account": false,
                 "description": "Parking repairs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1809,7 +1809,7 @@
                 "is_control_account": false,
                 "description": "Parking electricity",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1819,7 +1819,7 @@
                 "is_control_account": false,
                 "description": "Other parking costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1829,7 +1829,7 @@
                 "is_control_account": true,
                 "description": "BUILDING MAINTENANCE",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1839,7 +1839,7 @@
                 "is_control_account": false,
                 "description": "Foundation maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1849,7 +1849,7 @@
                 "is_control_account": false,
                 "description": "Facade maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1859,7 +1859,7 @@
                 "is_control_account": false,
                 "description": "Terrace maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1869,7 +1869,7 @@
                 "is_control_account": false,
                 "description": "Roof maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1879,7 +1879,7 @@
                 "is_control_account": false,
                 "description": "Chimney maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1889,7 +1889,7 @@
                 "is_control_account": false,
                 "description": "Basement maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1899,7 +1899,7 @@
                 "is_control_account": false,
                 "description": "Hall, stairwell, and corridor maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1909,7 +1909,7 @@
                 "is_control_account": false,
                 "description": "Various building maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1919,7 +1919,7 @@
                 "is_control_account": true,
                 "description": "SWIMMING POOL",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -1929,7 +1929,7 @@
                 "is_control_account": false,
                 "description": "Swimming pool inspection and control",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1939,7 +1939,7 @@
                 "is_control_account": false,
                 "description": "Swimming pool maintenance contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1949,7 +1949,7 @@
                 "is_control_account": false,
                 "description": "Swimming pool maintenance not included in contract",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1959,7 +1959,7 @@
                 "is_control_account": false,
                 "description": "Pool product supply",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1969,7 +1969,7 @@
                 "is_control_account": false,
                 "description": "Swimming pool supervision",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1979,7 +1979,7 @@
                 "is_control_account": false,
                 "description": "Swimming pool repairs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1989,7 +1989,7 @@
                 "is_control_account": false,
                 "description": "Other swimming pool costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1999,7 +1999,7 @@
                 "is_control_account": true,
                 "description": "MISCELLANEOUS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2009,7 +2009,7 @@
                 "is_control_account": false,
                 "description": "Maintenance contracts",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2019,7 +2019,7 @@
                 "is_control_account": false,
                 "description": "Laundry costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2029,7 +2029,7 @@
                 "is_control_account": false,
                 "description": "Recreation costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2039,7 +2039,7 @@
                 "is_control_account": false,
                 "description": "Supervision and security",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2049,7 +2049,7 @@
                 "is_control_account": false,
                 "description": "Other miscellaneous costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2059,7 +2059,7 @@
                 "is_control_account": true,
                 "description": "WORKS AND EXCEPTIONAL COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2069,7 +2069,7 @@
                 "is_control_account": true,
                 "description": "RENOVATION AND OTHER EXCEPTIONAL WORKS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2079,7 +2079,7 @@
                 "is_control_account": false,
                 "description": "Study and supervision costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2089,7 +2089,7 @@
                 "is_control_account": false,
                 "description": "Renovation",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2099,7 +2099,7 @@
                 "is_control_account": false,
                 "description": "Conversion works",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2109,7 +2109,7 @@
                 "is_control_account": false,
                 "description": "Expansion works",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2119,7 +2119,7 @@
                 "is_control_account": false,
                 "description": "Other works",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2129,7 +2129,7 @@
                 "is_control_account": true,
                 "description": "SUPPLIES TO THE ASSOCIATION",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2139,7 +2139,7 @@
                 "is_control_account": true,
                 "description": "WATER",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2149,7 +2149,7 @@
                 "is_control_account": false,
                 "description": "Fixed fee and water consumption",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2159,7 +2159,7 @@
                 "is_control_account": false,
                 "description": "Water for common areas",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2169,7 +2169,7 @@
                 "is_control_account": false,
                 "description": "Salt for water softener",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2179,7 +2179,7 @@
                 "is_control_account": false,
                 "description": "Other water softener supplies",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2189,7 +2189,7 @@
                 "is_control_account": false,
                 "description": "Water treatment supplies",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2199,7 +2199,7 @@
                 "is_control_account": false,
                 "description": "Other water costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2209,7 +2209,7 @@
                 "is_control_account": true,
                 "description": "ELECTRICITY",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2219,7 +2219,7 @@
                 "is_control_account": false,
                 "description": "Electricity for common areas",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2229,7 +2229,7 @@
                 "is_control_account": false,
                 "description": "Electricity for elevators",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2239,7 +2239,7 @@
                 "is_control_account": false,
                 "description": "Electricity for heating and plumbing",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2249,7 +2249,7 @@
                 "is_control_account": false,
                 "description": "Other electricity costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2259,7 +2259,7 @@
                 "is_control_account": true,
                 "description": "GAS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2269,7 +2269,7 @@
                 "is_control_account": false,
                 "description": "Fixed fee and gas consumption",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2279,7 +2279,7 @@
                 "is_control_account": true,
                 "description": "FUEL OIL",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2289,7 +2289,7 @@
                 "is_control_account": false,
                 "description": "Tank inspections",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2299,7 +2299,7 @@
                 "is_control_account": false,
                 "description": "Tank maintenance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2309,7 +2309,7 @@
                 "is_control_account": false,
                 "description": "Fuel oil supplies",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2319,7 +2319,7 @@
                 "is_control_account": true,
                 "description": "OTHER UTILITIES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2329,7 +2329,7 @@
                 "is_control_account": false,
                 "description": "Cable distribution",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2339,7 +2339,7 @@
                 "is_control_account": false,
                 "description": "Heating maintenance contracts",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2349,7 +2349,7 @@
                 "is_control_account": false,
                 "description": "Water softener maintenance contracts",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2359,7 +2359,7 @@
                 "is_control_account": false,
                 "description": "Meters and meter reading",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2369,7 +2369,7 @@
                 "is_control_account": true,
                 "description": "HEATING AND\/OR WATER SETTLEMENT",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2379,7 +2379,7 @@
                 "is_control_account": false,
                 "description": "Heating and\/or water settlement",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2389,7 +2389,7 @@
                 "is_control_account": true,
                 "description": "OTHER SUPPLIES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2399,7 +2399,7 @@
                 "is_control_account": false,
                 "description": "Key inventory",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2409,7 +2409,7 @@
                 "is_control_account": false,
                 "description": "Badge inventory",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2419,7 +2419,7 @@
                 "is_control_account": false,
                 "description": "Remote control inventory",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2429,7 +2429,7 @@
                 "is_control_account": true,
                 "description": "FEES, BOARD MEMBERS\u2019 COSTS, AND INTERNAL AUDITOR COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2439,7 +2439,7 @@
                 "is_control_account": true,
                 "description": "FEES FOR THE PROPERTY MANAGER",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2449,7 +2449,7 @@
                 "is_control_account": false,
                 "description": "Property manager fees",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 50,
                 "owner_share": 50
             },
@@ -2459,7 +2459,7 @@
                 "is_control_account": true,
                 "description": "FEES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2469,7 +2469,7 @@
                 "is_control_account": false,
                 "description": "Property manager fees",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2479,7 +2479,7 @@
                 "is_control_account": false,
                 "description": "Lawyer fees",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2489,7 +2489,7 @@
                 "is_control_account": false,
                 "description": "Architect and engineer fees",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2499,7 +2499,7 @@
                 "is_control_account": false,
                 "description": "Expert fees",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2509,7 +2509,7 @@
                 "is_control_account": false,
                 "description": "Internal auditor fees",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2519,7 +2519,7 @@
                 "is_control_account": false,
                 "description": "Additional service fees",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2529,7 +2529,7 @@
                 "is_control_account": false,
                 "description": "Other fees",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2539,7 +2539,7 @@
                 "is_control_account": true,
                 "description": "BOARD MEMBERS\u2019 COSTS AND INTERNAL AUDITOR COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2549,7 +2549,7 @@
                 "is_control_account": false,
                 "description": "Compensation for the condominium board and internal auditor",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2559,7 +2559,7 @@
                 "is_control_account": false,
                 "description": "Travel expenses for the condominium board and internal auditor",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2569,7 +2569,7 @@
                 "is_control_account": false,
                 "description": "Other condominium board and internal auditor costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2579,7 +2579,7 @@
                 "is_control_account": true,
                 "description": "INSURANCE",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2589,7 +2589,7 @@
                 "is_control_account": false,
                 "description": "Fire insurance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2599,7 +2599,7 @@
                 "is_control_account": false,
                 "description": "Civil liability",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2609,7 +2609,7 @@
                 "is_control_account": false,
                 "description": "Work accident insurance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2619,7 +2619,7 @@
                 "is_control_account": false,
                 "description": "Condominium board and auditor insurance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2629,7 +2629,7 @@
                 "is_control_account": false,
                 "description": "Legal protection",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2639,7 +2639,7 @@
                 "is_control_account": false,
                 "description": "Deductibles",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2649,7 +2649,7 @@
                 "is_control_account": false,
                 "description": "Damage",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2659,7 +2659,7 @@
                 "is_control_account": false,
                 "description": "Other insurance",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2669,7 +2669,7 @@
                 "is_control_account": true,
                 "description": "CONCIERGE HOUSING",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2679,7 +2679,7 @@
                 "is_control_account": false,
                 "description": "Phone - internet - mobile",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2689,7 +2689,7 @@
                 "is_control_account": false,
                 "description": "Electricity",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2699,7 +2699,7 @@
                 "is_control_account": false,
                 "description": "Water",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2709,7 +2709,7 @@
                 "is_control_account": false,
                 "description": "Gas",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2719,7 +2719,7 @@
                 "is_control_account": false,
                 "description": "Heating",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2729,7 +2729,7 @@
                 "is_control_account": false,
                 "description": "TV distribution",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2739,7 +2739,7 @@
                 "is_control_account": false,
                 "description": "Other concierge housing costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2749,7 +2749,7 @@
                 "is_control_account": true,
                 "description": "ADMINISTRATION AND MANAGEMENT COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2759,7 +2759,7 @@
                 "is_control_account": false,
                 "description": "Administration costs of the property manager",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2769,7 +2769,7 @@
                 "is_control_account": false,
                 "description": "Office and office supplies",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2779,7 +2779,7 @@
                 "is_control_account": false,
                 "description": "Postage",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2789,7 +2789,7 @@
                 "is_control_account": false,
                 "description": "Phone",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2799,7 +2799,7 @@
                 "is_control_account": false,
                 "description": "Other administration costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2809,7 +2809,7 @@
                 "is_control_account": true,
                 "description": "MEETING COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2819,7 +2819,7 @@
                 "is_control_account": false,
                 "description": "Meeting room usage and refreshments",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2829,7 +2829,7 @@
                 "is_control_account": false,
                 "description": "General Assembly administration costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2839,7 +2839,7 @@
                 "is_control_account": false,
                 "description": "Other meeting costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2849,7 +2849,7 @@
                 "is_control_account": true,
                 "description": "TRANSLATIONS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2859,7 +2859,7 @@
                 "is_control_account": false,
                 "description": "Simultaneous meeting translation",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2869,7 +2869,7 @@
                 "is_control_account": false,
                 "description": "Document translation",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2879,7 +2879,7 @@
                 "is_control_account": true,
                 "description": "LEGAL PROCEDURE COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2889,7 +2889,7 @@
                 "is_control_account": false,
                 "description": "Procedure costs for co-owner arrears recovery",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2899,7 +2899,7 @@
                 "is_control_account": false,
                 "description": "Other procedure costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2909,7 +2909,7 @@
                 "is_control_account": true,
                 "description": "PUBLICATIONS AND STATUTE CHANGES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2919,7 +2919,7 @@
                 "is_control_account": false,
                 "description": "Business registry publications",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2929,7 +2929,7 @@
                 "is_control_account": false,
                 "description": "Statute amendments",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2939,7 +2939,7 @@
                 "is_control_account": true,
                 "description": "VARIOUS MANAGEMENT COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2949,7 +2949,7 @@
                 "is_control_account": false,
                 "description": "Online information services",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2959,7 +2959,7 @@
                 "is_control_account": false,
                 "description": "Property acquisition costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2969,7 +2969,7 @@
                 "is_control_account": false,
                 "description": "Archiving costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2979,7 +2979,7 @@
                 "is_control_account": false,
                 "description": "Other management costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2989,7 +2989,7 @@
                 "is_control_account": true,
                 "description": "REMUNERATIONS, PAYROLL, PENSIONS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -2999,7 +2999,7 @@
                 "is_control_account": true,
                 "description": "Remunerations, payroll, pensions",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3009,7 +3009,7 @@
                 "is_control_account": false,
                 "description": "Salaries",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3019,7 +3019,7 @@
                 "is_control_account": false,
                 "description": "Employer contributions to social security",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3029,7 +3029,7 @@
                 "is_control_account": false,
                 "description": "Other personnel costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3039,7 +3039,7 @@
                 "is_control_account": false,
                 "description": "Old-age and survivor pensions",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3049,7 +3049,7 @@
                 "is_control_account": true,
                 "description": "DEPRECIATION AND IMPAIRMENT",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3059,7 +3059,7 @@
                 "is_control_account": true,
                 "description": "DEPRECIATION ON FIXED ASSETS ADDITION",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3069,7 +3069,7 @@
                 "is_control_account": false,
                 "description": "Depreciation on intangible fixed assets",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3079,7 +3079,7 @@
                 "is_control_account": false,
                 "description": "Depreciation on tangible fixed assets",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3089,7 +3089,7 @@
                 "is_control_account": true,
                 "description": "IMPAIRMENT ON RECEIVABLES DUE WITHIN ONE YEAR",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3099,7 +3099,7 @@
                 "is_control_account": false,
                 "description": "Addition",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3109,7 +3109,7 @@
                 "is_control_account": false,
                 "description": "Reversal",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3119,7 +3119,7 @@
                 "is_control_account": true,
                 "description": "OTHER COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3129,7 +3129,7 @@
                 "is_control_account": true,
                 "description": "Other costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3139,7 +3139,7 @@
                 "is_control_account": false,
                 "description": "Taxes and fees",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3149,7 +3149,7 @@
                 "is_control_account": true,
                 "description": "LOSS ON REALIZATION OF RECEIVABLES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3159,7 +3159,7 @@
                 "is_control_account": true,
                 "description": "Various costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3169,7 +3169,7 @@
                 "is_control_account": true,
                 "description": "RENTS PAID BY THE CO-OWNER",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3179,7 +3179,7 @@
                 "is_control_account": false,
                 "description": "Rent for concierge housing",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3189,7 +3189,7 @@
                 "is_control_account": false,
                 "description": "Rent for parking spaces",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3199,7 +3199,7 @@
                 "is_control_account": false,
                 "description": "Rent for garage",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3209,7 +3209,7 @@
                 "is_control_account": false,
                 "description": "Rent for cellar",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3219,7 +3219,7 @@
                 "is_control_account": true,
                 "description": "PRIVATE COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3249,7 +3249,7 @@
                 "is_control_account": true,
                 "description": "FINANCIAL COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3259,7 +3259,7 @@
                 "is_control_account": true,
                 "description": "BANK COSTS AND DEBT COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3269,7 +3269,7 @@
                 "is_control_account": false,
                 "description": "Bank costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3279,7 +3279,7 @@
                 "is_control_account": false,
                 "description": "Other financial costs",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3289,7 +3289,7 @@
                 "is_control_account": true,
                 "description": "LOANS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3299,7 +3299,7 @@
                 "is_control_account": false,
                 "description": "Loan repayment",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3309,7 +3309,7 @@
                 "is_control_account": true,
                 "description": "EXCEPTIONAL COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3319,7 +3319,7 @@
                 "is_control_account": true,
                 "description": "WORK COSTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3339,7 +3339,7 @@
                 "is_control_account": true,
                 "description": "FUND VARIATION",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3349,7 +3349,7 @@
                 "is_control_account": true,
                 "description": "PROVISIONS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3359,7 +3359,7 @@
                 "is_control_account": false,
                 "description": "Provision call",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3369,7 +3369,7 @@
                 "is_control_account": true,
                 "description": "WORKING CAPITAL VARIATION",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3379,7 +3379,7 @@
                 "is_control_account": false,
                 "description": "Working capital call",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3389,7 +3389,7 @@
                 "is_control_account": true,
                 "description": "RESERVE FUND VARIATION",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3399,7 +3399,7 @@
                 "is_control_account": false,
                 "description": "Reserve fund call",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3409,7 +3409,7 @@
                 "is_control_account": false,
                 "description": "Reserve fund levy",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3419,7 +3419,7 @@
                 "is_control_account": true,
                 "description": "FUNDS TO BE TRANSFERRED",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3429,7 +3429,7 @@
                 "is_control_account": true,
                 "description": "Funds to be transferred",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3439,7 +3439,7 @@
                 "is_control_account": true,
                 "description": "REVENUES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3449,7 +3449,7 @@
                 "is_control_account": true,
                 "description": "ADVANCES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3459,7 +3459,7 @@
                 "is_control_account": false,
                 "description": "Reserve capital advances",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3489,7 +3489,7 @@
                 "is_control_account": true,
                 "description": "OTHER OPERATING REVENUES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3499,7 +3499,7 @@
                 "is_control_account": true,
                 "description": "REVENUES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3509,7 +3509,7 @@
                 "is_control_account": true,
                 "description": "RENTS COLLECTED BY THE CO-OWNERSHIP",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3519,7 +3519,7 @@
                 "is_control_account": false,
                 "description": "Rent from former concierge housing",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3529,7 +3529,7 @@
                 "is_control_account": false,
                 "description": "Rent from parking spaces",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3539,7 +3539,7 @@
                 "is_control_account": false,
                 "description": "Rent from garage",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3549,7 +3549,7 @@
                 "is_control_account": false,
                 "description": "Rent from cellar",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3559,7 +3559,7 @@
                 "is_control_account": false,
                 "description": "Rent from antenna(s)",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3569,7 +3569,7 @@
                 "is_control_account": false,
                 "description": "Rent from advertising panels",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3579,7 +3579,7 @@
                 "is_control_account": true,
                 "description": "FEES COLLECTED BY THE CO-OWNERSHIP",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3589,7 +3589,7 @@
                 "is_control_account": true,
                 "description": "MOVING FEES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3599,7 +3599,7 @@
                 "is_control_account": false,
                 "description": "Moving fees",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3609,7 +3609,7 @@
                 "is_control_account": false,
                 "description": "Moving fees",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3619,7 +3619,7 @@
                 "is_control_account": true,
                 "description": "FINANCIAL INCOME",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3629,7 +3629,7 @@
                 "is_control_account": true,
                 "description": "BANK INTERESTS",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3639,7 +3639,7 @@
                 "is_control_account": false,
                 "description": "Bank interests",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3649,7 +3649,7 @@
                 "is_control_account": true,
                 "description": "EXCEPTIONAL REVENUES",
                 "account_chart_id": 1,
-                "operation_assignment": "",
+                "operation_assignment": null,
                 "tenant_share": 0,
                 "owner_share": 0
             }

@@ -27,27 +27,27 @@
                 "type": "field",
                 "label": "Account",
                 "value": "account_id",
-                "width": "25%"
+                "width": "40%"
             },
             {
                 "type": "field",
                 "value": "debit",
-                "width": "25%"
+                "width": "15%"
             },
             {
                 "type": "field",
                 "value": "credit",
-                "width": "25%"
+                "width": "15%"
             },
             {
                 "type": "field",
                 "value": "debit_balance",
-                "width": "25%"
+                "width": "15%"
             },
             {
                 "type": "field",
                 "value": "credit_balance",
-                "width": "25%"
+                "width": "15%"
             }
         ]
     }

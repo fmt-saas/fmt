@@ -44,7 +44,6 @@ class Account extends Model {
                 'type'              => 'string',
                 'description'       => "A variable length string representing the number of the account.",
                 'dependents'        => ['name', 'level'],
-                'unique'            => true,
                 'required'          => true,
                 'readonly'          => true
             ],
@@ -218,6 +217,12 @@ class Account extends Model {
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account."
             ]
 
+        ];
+    }
+
+    public function getUnique() {
+        return [
+            ['condo_id', 'code']
         ];
     }
 

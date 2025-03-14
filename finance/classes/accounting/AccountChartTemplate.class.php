@@ -21,7 +21,13 @@ class AccountChartTemplate extends AccountChart {
                 'foreign_field'     => 'account_chart_id',
                 'description'       => 'Account lines that belong to the chart.',
                 'ondetach'          => 'delete'
-            ]
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'default'           => 'active'
+            ],
+
         ];
     }
 }

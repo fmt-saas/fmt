@@ -32,4 +32,19 @@ class ClosingBalanceLine extends BalanceLine {
         ];
     }
 
+    /**
+     * A line can only be deleted if its parent balance status is pending.
+     */
+    public static function candelete($self) {
+        $self->read(['balance_id' => ['status']]);
+        foreach($self as $id => $line) {
+            if($line['balance_id']['status'] != 'pending') {
+                return [
+                    'status' => 'Lines from a validated balance cannot be deleted.'
+                ];
+            }
+        }
+        return parent::candelete($self);
+    }
+
 }

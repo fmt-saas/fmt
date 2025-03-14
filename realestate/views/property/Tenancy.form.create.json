@@ -10,34 +10,38 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "25%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "label": "condominium",
-                                                "value": "condo_id",
-                                                "width": "50%"
+                                                "label": "Property Lot",
+                                                "value": "property_lot_id",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "date_from",
-                                                "width": "50%"
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "date_to",
-                                                "width": "50%"
+                                                "width": "100%"
                                             }
                                         ]
                                     },
                                     {
                                         "width": "50%",
-                                        "align": "left",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "property_lot_id",
-                                                "width": "50%"
+                                                "label": "Condominium",
+                                                "value": "condo_id",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

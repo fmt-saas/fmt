@@ -71,12 +71,12 @@ class FiscalPeriod extends Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['date_from', 'date_to']);
-        foreach($self as $id => $year) {
-            if(!$year['date_from'] || !$year['date_to']) {
+        $self->read(['order', 'date_from', 'date_to', 'condo_id' => ['name']]);
+        foreach($self as $id => $period) {
+            if(!$period['date_from'] || !$period['date_to']) {
                 continue;
             }
-            $result[$id] = date('Y-m-d', $year['date_from']).' - '.date('Y-m-d', $year['date_to']);
+            $result[$id] = $period['order'] . ' - ' . date('Y-m-d', $period['date_from']) . ' - ' . date('Y-m-d', $period['date_to']) . " ({$period['condo_id']['name']})";
         }
         return $result;
     }

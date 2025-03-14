@@ -39,9 +39,8 @@ class Apportionment extends \equal\orm\Model {
                 'result_type'       => 'string',
                 'function'          => 'calcApportionmentCode',
                 'store'             => true,
-                'description'       => "Name of the apportionment.",
-                'help'              => "Code is arbitrary and is used to match apportionment with accounting accounts.",
-                'default'           => "0001"
+                'description'       => "Code for the apportionment.",
+                'help'              => "Code is arbitrary and is used to match apportionment with accounting accounts."
             ],
 
             'is_statutory' => [
@@ -163,13 +162,13 @@ class Apportionment extends \equal\orm\Model {
     }
 
     public static function doDuplicateApportionment($self) {
-        $self->read(['condo_id', 'name', 'is_statutory', 'common_area_id', 'total_shares', 'apportionment_shares_ids']);
+        $self->read(['condo_id', 'description', 'is_statutory', 'common_area_id', 'total_shares', 'apportionment_shares_ids']);
 
         foreach($self as $id => $apportionment) {
             // 1) create a new Apportionment with (copy) as prefix
             $new_apportionment = self::create([
                     'condo_id'         => $apportionment['condo_id'],
-                    'name'             => '(copy) ' . $apportionment['name'],
+                    'description'      => '(copy) ' . $apportionment['description'],
                     'is_statutory'     => $apportionment['is_statutory'],
                     'common_area_id'   => $apportionment['common_area_id'],
                     'total_shares'     => $apportionment['total_shares']

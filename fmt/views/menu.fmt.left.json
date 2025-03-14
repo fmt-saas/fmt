@@ -122,17 +122,6 @@
                         }
                     },
                     {
-                        "id": "item.accounting.journals",
-                        "type": "entry",
-                        "label": "Journals",
-                        "icon": "auto_stories",
-                        "description": "",
-                        "context": {
-                            "entity": "finance\\accounting\\Journal",
-                            "view": "list.default"
-                        }
-                    },
-                    {
                         "id": "item.accounting.accountchart",
                         "type": "entry",
                         "label": "Chart of accounts",
@@ -143,18 +132,6 @@
                             "view": "list.default"
                         }
                     },
-                    {
-                        "id": "item.accounting.accountcharttemplate",
-                        "type": "entry",
-                        "label": "Template Chart",
-                        "icon": "import_contacts",
-                        "description": "",
-                        "context": {
-                            "entity": "finance\\accounting\\AccountChartTemplate",
-                            "view": "list.default"
-                        }
-                    },
-
                     {
                         "id": "item.accounting.invoices",
                         "type": "entry",
@@ -167,27 +144,88 @@
                         }
                     },
                     {
-                        "id": "item.accounting.vat_rules",
-                        "type": "entry",
-                        "label": "VAT rules",
-                        "icon": "price_check",
-                        "description": "",
-                        "context": {
-                            "entity": "finance\\tax\\VatRule",
-                            "view": "list.default"
-                        }
-                    },
-                    {
                         "id": "item.accounting_entries",
-                        "label": "Accounting entries",
+                        "label": "Acct. entries",
                         "description": "",
                         "icon": "edit_note",
                         "context": {
                             "entity": "finance\\accounting\\AccountingEntry",
                             "view": "list.default"
                         }
+                    },
+                    {
+                        "id": "item.accounting.settings",
+                        "label": "Settings",
+                        "description": "",
+                        "icon": "settings",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "item.accounting.journals",
+                                "type": "entry",
+                                "label": "Journals",
+                                "icon": "auto_stories",
+                                "description": "",
+                                "context": {
+                                    "entity": "finance\\accounting\\Journal",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "item.accounting.accountcharttemplate",
+                                "type": "entry",
+                                "label": "Template Chart",
+                                "icon": "import_contacts",
+                                "description": "",
+                                "context": {
+                                    "entity": "finance\\accounting\\AccountChartTemplate",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "item.accounting.vat_rules",
+                                "type": "entry",
+                                "label": "VAT rules",
+                                "icon": "price_check",
+                                "description": "",
+                                "context": {
+                                    "entity": "finance\\tax\\VatRule",
+                                    "view": "list.default"
+                                }
+                            }
+                        ]
                     }
-
+                ]
+            },
+            {
+                "id": "item.contacts",
+                "label": "Contacts",
+                "description": "",
+                "icon": "contact_page",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "Suppliers",
+                        "type": "entry",
+                        "label": "Suppliers",
+                        "icon": "local_shipping",
+                        "description": "",
+                        "context": {
+                            "entity": "purchase\\supplier\\Supplier",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "identities",
+                        "type": "entry",
+                        "label": "Identities",
+                        "icon": "person",
+                        "description": "",
+                        "context": {
+                            "entity": "identity\\Identity",
+                            "view": "list.default"
+                        }
+                    }
                 ]
             },
             {

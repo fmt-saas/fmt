@@ -1,6 +1,6 @@
 {
     "name": "Accounting Charts List",
-    "description": "This view is intended for displaying the accounting charts.",
+    "description": "All accounting charts.",
     "layout": {
         "items": [
             {
@@ -10,11 +10,13 @@
             },
             {
                 "type": "field",
+                "label": "Condominium",
                 "value": "condo_id",
                 "width": "20%"
             },
             {
                 "type": "field",
+                "label": "Organisation",
                 "value": "organisation_id",
                 "width": "20%"
             }

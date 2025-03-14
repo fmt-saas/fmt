@@ -35,7 +35,7 @@
                                                 "type": "field",
                                                 "label": "Account",
                                                 "value": "account_code",
-                                                "width": "50%"
+                                                "width": "25%"
                                             }
                                         ]
                                     }

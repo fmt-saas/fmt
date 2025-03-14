@@ -63,12 +63,9 @@ class PropertyLotApportionmentShare extends \equal\orm\Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['property_lot_id' => ['name'], 'property_lot_shares']);
+        $self->read(['property_lot_id' => ['property_lot_code', 'property_lot_ref'], 'property_lot_shares']);
         foreach($self as $id => $apportionment) {
-            if(!($apportionment['property_lot_id']['name'] ?? false)) {
-                continue;
-            }
-            $result[$id] = $apportionment['property_lot_id']['name'].' (Q. '.$apportionment['property_lot_shares'].')';
+            $result[$id] = $apportionment['property_lot_id']['property_lot_code']. ' - '. $apportionment['property_lot_id']['property_lot_ref'] .' (Q. '.$apportionment['property_lot_shares'].')';
         }
         return $result;
     }
