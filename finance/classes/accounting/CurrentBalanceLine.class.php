@@ -32,24 +32,4 @@ class CurrentBalanceLine extends BalanceLine {
         ];
     }
 
-    public static function calcCreditBalance($self) {
-        $result = [];
-        $self->read(['debit', 'credit']);
-        foreach($self as $id => $balance) {
-            $delta = round($balance['debit'] - $balance['credit'], 4);
-            $result[$id] = ($delta < 0.0) ? abs($delta) : 0.0;
-        }
-        return $result;
-    }
-
-    public static function calcDebitBalance($self) {
-        $result = [];
-        $self->read(['debit', 'credit']);
-        foreach($self as $id => $balance) {
-            $delta = round($balance['debit'] - $balance['credit'], 4);
-            $result[$id] = ($delta > 0.0) ? abs($delta) : 0.0;
-        }
-        return $result;
-    }
-
 }

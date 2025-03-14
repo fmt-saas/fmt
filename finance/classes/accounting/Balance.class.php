@@ -35,6 +35,20 @@ class Balance extends Model {
                 'readonly'          => true
             ],
 
+            'is_period_balance' => [
+                'type'              => 'boolean',
+                'description'       => "Does the balance relate to a specific fiscal period.",
+                'default'           => false
+            ],
+
+            'fiscal_period_id' => [
+                'type'              => 'many2one',
+                'description'       => "The fiscal period the balance refers to.",
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'readonly'          => true,
+                'visible'           => ['is_period_balance', '=', true]
+            ],
+
             'balance_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\BalanceLine',
@@ -53,17 +67,6 @@ class Balance extends Model {
                 'description'       => 'Status of the balance.',
             ]
 
-        ];
-    }
-
-    public static function getActions() {
-        return [
-            'update_account' => [
-                'description'   => 'Update line matching a given account, or create it if line does not exist yet.',
-                'help'          => 'Targeted method depend on the kind of balance and are defined in respective classes.',
-                'policies'      => [],
-                'function'      => 'doUpdateAccount'
-            ]
         ];
     }
 

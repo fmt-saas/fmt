@@ -29,6 +29,12 @@ class AccountingEntry extends Model {
                 //'readonly'          => true
             ],
 
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcName'
+            ],
+
             'journal_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Journal',
@@ -41,15 +47,18 @@ class AccountingEntry extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "Fiscal year the entry relates to.",
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['fiscal_period_id']
             ],
 
             'fiscal_period_id' => [
                 'type'              => 'computed',
-                'type'              => 'many2one',
+                'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
                 'description'       => "Period of the fiscal year the entry relates to (from entry_date).",
-                'function'          => 'calcFiscalPeriodId'
+                'help'              => "Period is automatically assigned when entry is validated.",
+                'function'          => 'calcFiscalPeriodId',
+                'store'             => true
             ],
 
             'entry_date' => [
@@ -57,7 +66,8 @@ class AccountingEntry extends Model {
                 'usage'             => 'date/plain',
                 'description'       => 'The date on which the transaction is recorded in the accounting system and affects the fiscal period.',
                 'help'              => 'This should always match the selection period, and is necessary in cas of period re-assignment.',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['fiscal_period_id']
             ],
 
             'is_temp' => [
@@ -142,13 +152,6 @@ class AccountingEntry extends Model {
 
     public static function getActions() {
         return [
-            /*
-            'generate_periods' => [
-                'description'   => 'Generate the periods according to the fiscal year definition (only for draft fiscal year).',
-                'policies'      => [],
-                'function'      => 'doGeneratePeriods'
-            ]
-            */
         ];
     }
 
@@ -178,7 +181,7 @@ class AccountingEntry extends Model {
                         'policies'    => [
                             'can_be_cancelled',
                         ],
-                        'onafter'   => 'onafterCancel',
+                        'onbefore'  => 'onbeforeCancel',
                         'status'    => 'cancelled'
                     ]
                 ]
@@ -187,15 +190,24 @@ class AccountingEntry extends Model {
     }
 
     /**
-     * Update the Current Balance the entry relates to.
-     *
+     * The entry has been validated (irreversible transition).
+     * This method triggers the update of the related current balance and the fiscal period (based on the entry date).
      */
-    public static function doUpdateBalance($self) {
-        $self->read(['fiscal_year_id' => ['current_balance_id'], 'entry_lines_ids' => ['account_id', 'debit', 'credit']]);
+    public static function onafterValidate($self) {
+        // append accounting entry to current balance
+        $self->read(['condo_id', 'fiscal_year_id' => ['current_balance_id'], 'entry_lines_ids' => ['account_id', 'debit', 'credit']]);
         foreach($self as $id => $accountingEntry) {
             if( !($accountingEntry['fiscal_year_id']['current_balance_id'] ?? false) ) {
-                continue;
+                throw new \Exception('missing_balance', EQ_ERROR_INVALID_PARAM);
             }
+            // #memo - we cannot update the Balance directly to avoid concurrent changes: always use BalanceUpdateRequest
+            BalanceUpdateRequest::create([
+                    'condo_id'              => $accountingEntry['condo_id'],
+                    'balance_id'            => $accountingEntry['fiscal_year_id']['current_balance_id'],
+                    'accounting_entry_id'   => $id
+                ]);
+
+            // #todo - temporary for testing - to remove
             foreach($accountingEntry['entry_lines_ids'] ?? [] as $entry_line_id => $entryLine) {
                 CurrentBalance::id($accountingEntry['fiscal_year_id']['current_balance_id'])
                     ->do('update_account', [
@@ -205,40 +217,98 @@ class AccountingEntry extends Model {
                     ]);
             }
         }
-    }
 
-    /**
-     * The entry has been validated (irreversible transition).
-     * This method triggers the update of the related current balance and the fiscal period (based on the entry date).
-     */
-    public static function onafterValidate($self) {
-        // append accounting entry to current balance
-        self::doUpdateBalance($self);
-        // force computing required fields
+        // force computing fields impacted by status
         $self->read(['entry_number', 'fiscal_period_id']);
     }
 
-    public static function onafterCancel($self) {
-        // créer et valider l'écriture inversée
+    public static function onbeforeCancel($self) {
+        // create and validate reverse entry
+        $self->read(['condo_id', 'fiscal_year_id', 'journal_id', 'entry_date', 'entry_lines_ids' => ['account_id', 'debit', 'credit']]);
+        foreach($self as $id => $accountingEntry) {
+            // #memo - we cannot update the Balance directly to avoid concurrent changes: always use BalanceUpdateRequest
+            $reverseAccountingEntry = self::create([
+                    'condo_id'              => $accountingEntry['condo_id'],
+                    'journal_id'            => $accountingEntry['journal_id'],
+                    'fiscal_year_id'        => $accountingEntry['fiscal_year_id'],
+                    'entry_date'            => $accountingEntry['entry_date'],
+                    'reverse_entry_id'      => $id
+                ])
+                ->first();
 
+            foreach($accountingEntry['entry_lines_ids'] ?? [] as $entry_line_id => $entryLine) {
+                AccountingEntryLine::create([
+                    'condo_id'              => $accountingEntry['condo_id'],
+                    'accounting_entry_id'   => $reverseAccountingEntry['id'],
+                    'account_id'            => $entryLine['account_id'],
+                    'debit'                 => $entryLine['credit'],
+                    'credit'                => $entryLine['debit']
+                ]);
+            }
+            self::id($id)->update(['reverse_entry_id' => $reverseAccountingEntry['id']]);
+            self::id($reverseAccountingEntry['id'])->transition('validate');
+        }
     }
 
     public static function getPolicies(): array {
         return [
             'is_valid' => [
-                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'description' => 'Verifies that an accounting entry is balanced.',
                 'function'    => 'policyIsValid'
+            ],
+            'can_be_cancelled' => [
+                'description' => 'Verifies that an accounting entry can be cancelled (validated and not already cancelled).',
+                'function'    => 'policyCanBeCancelled'
             ]
         ];
     }
 
     public static function policyIsValid($self): array {
         $result = [];
-        $self->read(['is_balanced']);
+        $self->read(['is_balanced', 'entry_lines_ids']);
         foreach($self as $id => $accountingEntry) {
             if(!$accountingEntry['is_balanced']) {
-                $result[$id] = false;
+                $result[$id] = [
+                        'invalid_entry' => 'Accounting entry must be balanced.'
+                    ];
                 continue;
+            }
+            if(empty($accountingEntry['entry_lines_ids'])) {
+                $result[$id] = [
+                        'invalid_entry' => 'Accounting entry cannot be empty.'
+                    ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    public static function policyCanBeCancelled($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $accountingEntry) {
+            if($accountingEntry['status'] != 'validated') {
+                $result[$id] = [
+                        'invalid_status' => 'Accounting entry must be validated.'
+                    ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    public static function calcName($self) {
+        $result = [];
+        $self->read(['status', 'is_temp', 'entry_number']);
+        foreach($self as $id => $accountingEntry) {
+            if($accountingEntry['status'] == 'pending') {
+                $result[$id] = '(draft)';
+            }
+            elseif($accountingEntry['is_temp']) {
+                $result[$id] = '(temp)';
+            }
+            else {
+                $result[$id] = $accountingEntry['entry_number'];
             }
         }
         return $result;
@@ -278,8 +348,11 @@ class AccountingEntry extends Model {
 
     public static function calcDebit($self) {
         $result = [];
-        $self->read(['entry_lines_ids' => ['debit']]);
+        $self->read(['status', 'entry_lines_ids' => ['debit']]);
         foreach($self as $id => $entry) {
+            if($entry['status'] != 'validated') {
+                continue;
+            }
             $result[$id] = 0.0;
             foreach($entry['entry_lines_ids'] as $line) {
                 $result[$id] += $line['debit'];
@@ -290,8 +363,11 @@ class AccountingEntry extends Model {
 
     public static function calcCredit($self) {
         $result = [];
-        $self->read(['entry_lines_ids' => ['credit']]);
+        $self->read(['status', 'entry_lines_ids' => ['credit']]);
         foreach($self as $id => $entry) {
+            if($entry['status'] != 'validated') {
+                continue;
+            }
             $result[$id] = 0.0;
             foreach($entry['entry_lines_ids'] as $line) {
                 $result[$id] += $line['credit'];
@@ -346,5 +422,15 @@ class AccountingEntry extends Model {
 
         }
         return $result;
+    }
+
+    public static function candelete($self) {
+        $self->read(['status', 'is_temp']);
+        foreach($self as $entry) {
+            if(!$entry['is_temp'] && $entry['status'] != 'pending') {
+                return ['status' => ['non_removable' => 'Non-draft accounting entries cannot be deleted.']];
+            }
+        }
+        return parent::candelete($self);
     }
 }

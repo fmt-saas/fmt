@@ -76,6 +76,13 @@ class FiscalYear extends Model {
                 'foreign_object'    => 'finance\accounting\ClosingBalance',
             ],
 
+            'closing_balances_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\ClosingBalance',
+                'foreign_field'     => 'fiscal_year_id',
+                'description'       => "The closing balance that refer to the fiscal year."
+            ],
+
             'current_balance_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\CurrentBalanceLine',
@@ -140,18 +147,21 @@ class FiscalYear extends Model {
      */
     public static function calcName($self) {
         $result = [];
-        $self->read(['date_from', 'date_to']);
+        $self->read(['condo_id' => ['name'], 'date_from', 'date_to']);
         foreach($self as $id => $year) {
-            $name = '';
+            if(!$year['date_from'] || !$year['date_to']) {
+                continue;
+            }
 
-            if($year['date_from']) {
-                $name .= date('Y-m-d', $year['date_from']);
+            $year_from = date('Y', $year['date_from']);
+            $year_to = date('Y', $year['date_to']);
+
+            $name = $year_from;
+
+            if(strcmp($year_from, $year_to) !== 0) {
+                $name .= '-'.$year_to;
             }
-            $name .= ' - ';
-            if($year['date_to']) {
-                $name .= date('Y-m-d', $year['date_to']);
-            }
-            $result[$id] = $name;
+            $result[$id] = $name . " ({$year['condo_id']['name']})";
         }
         return $result;
     }
@@ -236,7 +246,6 @@ class FiscalYear extends Model {
                         'policies'    => [
                             'can_be_preclosed',
                         ],
-                        // 'onafter'   => 'onafterPreClose',
                         'status'  => 'preclosed'
                     ]
                 ]
@@ -251,7 +260,7 @@ class FiscalYear extends Model {
                         'policies'    => [
                             'can_be_closed',
                         ],
-                        // 'onafter'   => 'onafterClose',
+                        'onafter'    => 'onafterClose',
                         'status'     => 'closed'
                     ]
                 ]
@@ -471,8 +480,45 @@ class FiscalYear extends Model {
         }
     }
 
+    /**
+     * Generate final report of accounting entries
+     */
     public static function onafterClose($self) {
+        $self->read(['condo_id']);
 
+        // create temporary carry-forward / opening-balance accounting entries in next fiscal year OPB journal
+        $carryForwardJournal = Journal::search([['code', '=', 'OPB']])->first();
+        if(!$carryForwardJournal) {
+            throw new \Exception('missing_opb_journal', EQ_ERROR_INVALID_CONFIG);
+        }
+
+        foreach($self as $id => $fiscalYear) {
+            $entry_lines = self::computeCarryForwardEntryLines($id);
+
+            $nextFiscalYear = self::search([['status', '=', 'open'], ['condo_id', '=', $fiscalYear['condo_id']]])->first();
+
+            $accountingEntry = AccountingEntry::create([
+                    'condo_id'          => $fiscalYear['condo_id'],
+                    'journal_id'        => $carryForwardJournal['id'],
+                    'status'            => 'validated',
+                    'is_temp'           => true,
+                    'fiscal_year_id'    => $nextFiscalYear['id'],
+                    'entry_date'        => time()
+                ])
+                ->first();
+
+            foreach($entry_lines as $line) {
+                AccountingEntryLine::create([
+                        'condo_id'              => $fiscalYear['condo_id'],
+                        'accounting_entry_id'   => $accountingEntry['id'],
+                        'account_id'            => $line['account_id'],
+                        'debit'                 => $line['debit'],
+                        'credit'                => $line['credit']
+                    ]);
+            }
+
+            AccountingEntry::id($accountingEntry['id'])->transition('validate');
+        }
     }
 
     public static function doGeneratePeriods($self) {
@@ -679,6 +725,16 @@ class FiscalYear extends Model {
             }
         }
         return parent::candelete($self);
+    }
+
+    public static function canupdate($self) {
+        $self->read(['status']);
+        foreach($self as $fiscalYear) {
+            if(in_array($fiscalYear['status'], ['closed', 'archived'])) {
+                return ['status' => ['not_allowed' => 'Closed fiscal year cannot be modified.']];
+            }
+        }
+        return parent::canupdate($self);
     }
 
 }

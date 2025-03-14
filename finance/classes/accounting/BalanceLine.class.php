@@ -53,7 +53,6 @@ class BalanceLine extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account the balance line relates to.",
-                'unique'            => true,
                 'required'          => true
             ],
 
@@ -94,4 +93,29 @@ class BalanceLine extends Model {
         ];
     }
 
+    public function getUnique() {
+        return [
+            ['balance_id', 'account_id']
+        ];
+    }
+
+    public static function calcCreditBalance($self) {
+        $result = [];
+        $self->read(['debit', 'credit']);
+        foreach($self as $id => $balance) {
+            $delta = round($balance['debit'] - $balance['credit'], 4);
+            $result[$id] = ($delta < 0.0) ? abs($delta) : 0.0;
+        }
+        return $result;
+    }
+
+    public static function calcDebitBalance($self) {
+        $result = [];
+        $self->read(['debit', 'credit']);
+        foreach($self as $id => $balance) {
+            $delta = round($balance['debit'] - $balance['credit'], 4);
+            $result[$id] = ($delta > 0.0) ? abs($delta) : 0.0;
+        }
+        return $result;
+    }
 }

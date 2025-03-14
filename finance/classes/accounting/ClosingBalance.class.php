@@ -24,13 +24,6 @@ class ClosingBalance extends Balance {
     public static function getColumns() {
         return [
 
-            'fiscal_period_id' => [
-                'type'              => 'many2one',
-                'description'       => "The fiscal period the balance refers to.",
-                'foreign_object'    => 'finance\accounting\FiscalPeriod',
-                'readonly'          => true
-            ],
-
             'date' => [
                 'type'              => 'string',
                 'usage'             => 'date/plain',
@@ -54,6 +47,80 @@ class ClosingBalance extends Balance {
                 'description'       => "Lines of the balance."
             ]
         ];
+    }
+
+    public static function getActions() {
+        return [
+            'init' => [
+                'description'   => 'Generate the balance lines according to the accounting entries related to the balance fiscal year.',
+                'policies'      => [],
+                'function'      => 'doInit'
+            ]
+        ];
+    }
+
+    /**
+     * Generate all balance lines according to accounting entries related to the fiscal period of the closing balance.
+     * A closing balance is generated once and is directly set to 'closed'
+     */
+    public function doInit($self) {
+        $self->read(['condo_id', 'status', 'fiscal_year_id', 'is_period_balance', 'fiscal_period_id', 'accounting_entry_id' => ['entry_lines_ids' => ['account_id', 'debit', 'credit']]]);
+        foreach($self as $id => $balance) {
+            // ignore non-draft
+            if($balance['status'] != 'pending') {
+                continue;
+            }
+            // if some lines already exist, remove them
+            ClosingBalanceLine::search(['balance_id', '=', $id])->delete(true);
+
+            // fetch all accounting entries for considered period
+            if($balance['is_period_balance']) {
+                $accounting_entries_ids = AccountingEntry::search([['fiscal_period_id', '=', $balance['fiscal_period_id']]])->ids();
+            }
+            else {
+                $accounting_entries_ids = AccountingEntry::search([['fiscal_year_id', '=', $balance['fiscal_year_id']]])->ids();
+            }
+
+            $map_accounts_values = [];
+
+            $values = [
+                    'condo_id'          => $balance['condo_id'],
+                    'balance_id'        => $id,
+                    'fiscal_year_id'    => $balance['fiscal_year_id']
+                ];
+
+            // pass-1 - read all accounting entry lines
+            foreach($accounting_entries_ids ?? [] as $entry_id) {
+                $accountingEntry = AccountingEntry::id($entry_id)
+                    ->read(['entry_lines_ids' => ['account_id', 'debit', 'credit']])
+                    ->first();
+
+                foreach($accountingEntry['entry_lines_ids'] as $entry_line_id => $entryLine) {
+                    if(!isset($map_accounts_values[$entryLine['account_id']])) {
+                        $map_accounts_values[$entryLine['account_id']] = [
+                                'debit'     => 0.0,
+                                'credit'    => 0.0
+                            ];
+                    }
+                    $map_accounts_values[$entryLine['account_id']]['debit']  += round($entryLine['debit'], 4);
+                    $map_accounts_values[$entryLine['account_id']]['credit'] += round($entryLine['credit'], 4);
+                }
+            }
+
+            // pass-2 - create resulting balance lines
+            foreach($map_accounts_values as $account_id => $debit_credit) {
+                if(!$account_id) {
+                    continue;
+                }
+                ClosingBalanceLine::create(array_merge([
+                        'account_id'    => $account_id,
+                        'debit'         => $debit_credit['debit'],
+                        'credit'        => $debit_credit['credit']
+                    ], $values));
+            }
+
+            self::id($id)->update(['status' => 'closed']);
+        }
     }
 
 }

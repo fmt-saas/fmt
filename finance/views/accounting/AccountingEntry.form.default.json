@@ -84,6 +84,18 @@
                                                 "type": "field",
                                                 "value": "is_balanced",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Reverse accounting entry",
+                                                "value": "reverse_entry_id",
+                                                "width": "50%",
+                                                "visible": ["status", "=", "cancelled"]
                                             }
                                         ]
                                     }

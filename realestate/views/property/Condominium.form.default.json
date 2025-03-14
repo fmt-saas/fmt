@@ -67,6 +67,28 @@
                 "view": "list.condo",
                 "domain": [["condo_id", "=", "object.id"]]
             }
+        },
+        {
+            "id": "item.current_balance",
+            "label": "Current Balance",
+            "description": "",
+            "icon": "balance",
+            "context": {
+                "entity": "finance\\accounting\\CurrentBalanceLine",
+                "view": "list.condo",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "item.accounts_chart",
+            "label": "Chart of Accounts",
+            "description": "",
+            "icon": "menu_book",
+            "context": {
+                "entity": "finance\\accounting\\AccountChart",
+                "view": "list.condo",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
         }
     ],
     "actions": [

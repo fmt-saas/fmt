@@ -12,15 +12,12 @@
             ]
         }
     },
-    "extends": {
-        "entity": "finance\\accounting\\FiscalYear",
-        "view": "form.default"
-    },
     "actions": [
         {
             "id": "action.generate_periods",
             "label": "Generate periods",
             "controller": "finance_accounting_fiscalyear_generate-periods",
+            "visible": ["status", "=", "draft"],
             "confirm": true
         },
         {
@@ -63,6 +60,13 @@
             "confirm": true
         },
         {
+            "id": "action.generate_closing_balance",
+            "label": "Generate a closing balance",
+            "controller": "finance_accounting_fiscalyear_generate-closing-balance",
+            "visible": ["status", "=", "open"],
+            "confirm": true
+        },
+        {
             "id": "action.close",
             "label": "Close",
             "description": "Close the fiscal year (this cannot be undone).",
@@ -88,6 +92,10 @@
             "confirm": true
         }
     ],
+    "extends": {
+        "entity": "finance\\accounting\\FiscalYear",
+        "view": "form.default"
+    },
     "layout": {
         "update": {
             "item.organisation_id": {
