@@ -16,6 +16,9 @@ use realestate\property\PropertyLot;
 
 $providers = eQual::inject(['context', 'orm', 'auth', 'access']);
 
+/**
+ * #memo - in general config.json, DEFAULT_RIGHTS is expected to be set to 0.
+ */
 $tests = [
     '0101' => [
             'description'       =>  "Retrieve Access Controller.",
@@ -248,7 +251,7 @@ $tests = [
                 },
             'assert'            => function($params) use($providers) {
                     [$user, $role, $condo] = $params;
-                    $lot = PropertyLot::create(['condo_id' => $condo['id'], 'name' => 'test lot', 'nature_id' => 1])->first();
+                    $lot = PropertyLot::create(['condo_id' => $condo['id'], 'name' => 'test lot', 'property_lot_ref' => '001', 'nature_id' => 1])->first();
                     return $providers['access']->userIsAllowed($user['id'], EQ_R_UPDATE, 'realestate\property\PropertyLot', [], $lot['id']);
                 },
             'rollback'          => function() use($providers) {
@@ -279,7 +282,7 @@ $tests = [
                 },
             'assert'            => function($params) use($providers) {
                     [$user, $role, $condo] = $params;
-                    $lot = PropertyLot::create(['condo_id' => $condo['id'], 'name' => 'test lot', 'nature_id' => 1])->first();
+                    $lot = PropertyLot::create(['condo_id' => $condo['id'], 'name' => 'test lot', 'property_lot_ref' => '001', 'nature_id' => 1])->first();
                     return $providers['access']->userIsAllowed($user['id'], EQ_R_UPDATE, 'realestate\property\PropertyLot', [], $lot['id']);
                 },
             'rollback'          => function() use($providers) {
