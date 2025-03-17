@@ -231,6 +231,7 @@ class FiscalYear extends Model {
                         'policies'    => [
                             'can_be_opened',
                         ],
+                        'onbefore'  => 'onbeforeOpen',
                         'onafter'   => 'onafterOpen',
                         'status'    => 'open'
                     ]
@@ -285,12 +286,11 @@ class FiscalYear extends Model {
                 'function'    => 'policyCanBeOpened'
             ],
             'can_be_preclosed' => [
-                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'description' => 'Verifies that a fiscal year can be set (or set back) to preclosed status.',
                 'function'    => 'policyCanBePreClosed'
             ]
         ];
     }
-
 
 
     public static function policyCanBePreOpened($self): array {
@@ -320,11 +320,13 @@ class FiscalYear extends Model {
 
         foreach($self as $id => $fiscalYear) {
 
-            // if there is no draft for next fiscal year, create one
             $nextFiscalYear = self::search([['status', '=', 'draft'], ['condo_id', '=', $fiscalYear['condo_id']]]);
+
             if(count($nextFiscalYear) <= 0) {
-                Condominium::id($fiscalYear['condo_id'])->do('create_draft_fiscal_year');
-                $nextFiscalYear = self::search([['status', '=', 'draft'], ['condo_id', '=', $fiscalYear['condo_id']]])->do('generate_periods');
+                $result[$id] = [
+                    'missing_next_fiscal_year' => 'Next fiscal year must exist.'
+                ];
+                continue;
             }
 
             if(!empty(self::policyCanBePreOpened($nextFiscalYear))) {
@@ -362,20 +364,30 @@ class FiscalYear extends Model {
 
     public static function policyCanBePreClosed($self): array {
         $result = [];
-        $self->read(['status', 'previous_fiscal_year_id' => ['status']]);
+        $self->read(['status', 'condo_id', 'date_to', 'previous_fiscal_year_id' => ['status']]);
 
         foreach($self as $id => $fiscalYear) {
-            if($fiscalYear['status'] != 'open') {
+            // if we go back from 'closed' to 'preclosed', the fiscal year must be the latest closed one
+            if($fiscalYear['status'] == 'closed') {
+                $closedFiscalYears = self::search([['status', '=', 'closed'], ['date_from', '>', $fiscalYear['date_to']], ['condo_id', '=', $fiscalYear['condo_id']]]);
+                if(count($closedFiscalYears) > 0) {
+                    $result[$id] = [
+                        'cannot_be_unclosed' => 'Fiscal year cannot be unclosed while a more recent fiscal year is still closed.'
+                    ];
+                    continue;
+                }
+            }
+            if(!in_array($fiscalYear['status'], ['open', 'closed'])) {
                 $result[$id] = [
-                    'invalid_status' => 'Fiscal year status must be open.'
+                    'invalid_status' => 'Fiscal year status must be open or closed.'
                 ];
                 continue;
             }
             if($fiscalYear['previous_fiscal_year_id']) {
-                // status of previous fiscal year, if any, must be 'closed'
-                if($fiscalYear['previous_fiscal_year_id']['status'] != 'closed') {
+                // status of previous fiscal year, if any, must be 'closed' or 'preclosed'
+                if(!in_array($fiscalYear['previous_fiscal_year_id']['status'], ['preclosed', 'closed'])) {
                     $result[$id] = [
-                        'invalid_status' => 'Fiscal year status must be closed.'
+                        'invalid_previous_year_status' => 'Fiscal year status must be closed or preclosed.'
                     ];
                     continue;
                 }
@@ -400,6 +412,20 @@ class FiscalYear extends Model {
                 ->first();
             self::id($id)->update(['current_balance_id' => $currentBalance['id']]);
         }
+    }
+
+    public static function onbeforeOpen($self) {
+        $self->read(['status', 'condo_id']);
+
+        foreach($self as $id => $fiscalYear) {
+            // if there is no draft for next fiscal year, create one
+            $nextFiscalYear = self::search([['status', '=', 'draft'], ['condo_id', '=', $fiscalYear['condo_id']]]);
+            if(count($nextFiscalYear) <= 0) {
+                Condominium::id($fiscalYear['condo_id'])->do('create_draft_fiscal_year');
+                $nextFiscalYear = self::search([['status', '=', 'draft'], ['condo_id', '=', $fiscalYear['condo_id']]])->do('generate_periods');
+            }
+        }
+
     }
 
     /**
