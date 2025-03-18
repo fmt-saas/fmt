@@ -34,7 +34,7 @@ class Condominium extends \identity\Organisation {
                 'description'       => "The managing agent currently managing the condominium.",
                 'help'              => "The managing agent or 'Syndic', is in charge of the condominium, and can be a single person or an agency.",
                 'foreign_object'    => 'realestate\management\ManagingAgent',
-                'required'          => true
+                // 'required'          => true
             ],
 
             'management_contracts_ids' => [
