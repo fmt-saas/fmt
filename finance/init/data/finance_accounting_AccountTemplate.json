@@ -3656,7 +3656,7 @@
         ]
     },
     {
-        "name": "finance\\accounting\\Account",
+        "name": "finance\\accounting\\AccountTemplate",
         "lang": "fr",
         "data": [
             {
