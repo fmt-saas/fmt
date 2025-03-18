@@ -49,7 +49,7 @@
             "description": "Manage and configure Condominiums.",
             "extends": "app",
             "icon": "settings",
-            "color": "#FF5FA0",
+            "color": "#dd2424",
             "access": {
                 "groups": [
                     "users"
