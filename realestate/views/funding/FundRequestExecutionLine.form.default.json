@@ -1,6 +1,6 @@
 {
-    "name": "Property Lot Apportionment",
-    "description": "",
+    "name": "Fund Request Execution",
+    "description": "A Fund Request Execution Line represents an individual allocation within a Fund Request Execution, detailing the called amount for a specific owner and period.",
     "layout": {
         "groups": [
             {
@@ -10,29 +10,27 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "label": "Property Lot",
-                                                "value": "property_lot_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "condo_id",
-                                                "width": "50%"
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Shares",
-                                                "value": "property_lot_shares",
-                                                "width": "50%"
+                                                "value": "request_execution_id",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "apportionment_id",
-                                                "width": "50%"
+                                                "value": "ownership_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "called_amount",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

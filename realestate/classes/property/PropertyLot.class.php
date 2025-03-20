@@ -7,6 +7,8 @@
 */
 namespace realestate\property;
 
+use fmt\setting\Setting;
+
 class PropertyLot extends \equal\orm\Model {
 
     public static function getColumns() {
@@ -31,7 +33,8 @@ class PropertyLot extends \equal\orm\Model {
             'property_lot_ref' => [
                 'type'              => 'string',
                 'description'       => "Reference used in the notary deed to identify the lot.",
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['name']
             ],
 
             'property_lot_code' => [
@@ -39,8 +42,8 @@ class PropertyLot extends \equal\orm\Model {
                 'result_type'       => 'string',
                 'function'          => 'calcPropertyLotCode',
                 'store'             => true,
-                'description'       => "Code of the apportionment.",
-                'help'              => "Code is assigned automatically and cannot be changed, and is only intended to internal use (visual).",
+                'description'       => "Code of the property lot.",
+                'help'              => "Code is assigned automatically and cannot be changed, and is intended to internal use.",
                 'readonly'          => true
             ],
 
@@ -87,7 +90,7 @@ class PropertyLot extends \equal\orm\Model {
                 'description'       => "Rental Unit which current unit belongs to, if any.",
                 'foreign_object'    => 'realestate\property\PropertyLotNature',
                 'required'          => true,
-                'dependents'        => ['nature_id' => 'count_property_lots']
+                'dependents'        => ['name', 'nature_id' => 'count_property_lots']
             ],
 
             'has_tenancy' => [
@@ -96,7 +99,7 @@ class PropertyLot extends \equal\orm\Model {
                 'default'           => false
             ],
 
-            'tenancy_id' => [
+            'active_tenancy_id' => [
                 'type'              => 'many2one',
                 'description'       => "Current tenancy, if applicable.",
                 'foreign_object'    => 'realestate\property\Tenancy',
@@ -134,14 +137,12 @@ class PropertyLot extends \equal\orm\Model {
                 'description'       => 'Ownerships to which this property lot is assigned.'
             ],
 
-            'apportionments_ids' => [
-                'type'              => 'many2many',
-                'foreign_object'    => 'realestate\property\Apportionment',
-                'foreign_field'     => 'property_lots_ids',
-                'rel_table'         => 'realestate_property_apportionment_key_rel_property_lot',
-                'rel_foreign_key'   => 'apportionment_key_id',
-                'rel_local_key'     => 'lot_id',
-                'description'       => 'Apportionment keys to which this property lot is assigned.'
+            'apportionment_shares_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\PropertyLotApportionmentShare',
+                'foreign_field'     => 'property_lot_id',
+                'description'       => 'Apportionment keys to which this property lot is assigned.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             // settings
@@ -160,7 +161,7 @@ class PropertyLot extends \equal\orm\Model {
         $self->read(['property_lot_ref', 'property_lot_code', 'nature_id' => ['name']]);
         foreach($self as $id => $propertyLot) {
             if(isset($propertyLot['property_lot_code'], $propertyLot['property_lot_ref'], $propertyLot['nature_id'])) {
-                $result[$id] = $propertyLot['property_lot_code'] . ' - ' . $propertyLot['property_lot_ref'] .' ('.$propertyLot['nature_id']['name'].')';
+                $result[$id] = $propertyLot['property_lot_code'] . ' - ' . $propertyLot['property_lot_ref'] . ' (' . $propertyLot['nature_id']['name'] . ')';
             }
         }
         return $result;
@@ -173,8 +174,16 @@ class PropertyLot extends \equal\orm\Model {
             if($propertyLot['state'] != 'instance') {
                 continue;
             }
-            $count = count(self::search(['condo_id', '=', $propertyLot['condo_id']])->ids());
-            $result[$id] = sprintf("%04d", $count);
+            $sequence = Setting::fetch_and_add(
+                    'realestate',
+                    'main',
+                    "property_lot.sequence",
+                    1,
+                    [
+                        'condo_id' => $propertyLot['condo_id']
+                    ]
+                );
+            $result[$id] = sprintf("%05d", $sequence);
         }
         return $result;
     }

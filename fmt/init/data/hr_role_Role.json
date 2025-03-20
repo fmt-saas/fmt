@@ -1,0 +1,36 @@
+[
+    {
+        "name": "realestate\\property\\Role",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "Manager",
+                "code": "manager",
+                "description": "Agency manager."
+            },
+            {
+                "id": 2,
+                "name": "Accountant",
+                "code": "accountant",
+                "description": "Accounting management."
+            }
+        ]
+    },
+    {
+        "name": "realestate\\property\\Role",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "name": "Manager",
+                "description": "Manager d'agence."
+            },
+            {
+                "id": 2,
+                "name": "Comptable",
+                "description": "Gestion comptable."
+            }
+        ]
+    }
+]

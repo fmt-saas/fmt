@@ -10,7 +10,7 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "33%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
@@ -60,13 +60,13 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "tenancy_id",
+                                                "value": "active_tenancy_id",
                                                 "width": "50%"
                                             }
                                         ]
                                     },
                                     {
-                                        "width": "33%",
+                                        "width": "16",
                                         "align": "left",
                                         "items": []
                                     },
@@ -137,7 +137,7 @@
                     },
                     {
                         "id": "section.ownerships",
-                        "label": "Ownerships",
+                        "label": "Ownerships history",
                         "rows": [
                             {
                                 "columns": [
@@ -166,7 +166,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "apportionments_ids",
+                                                "value": "apportionment_shares_ids",
                                                 "width": "100%"
                                             }
                                         ]

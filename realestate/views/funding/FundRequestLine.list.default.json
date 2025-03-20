@@ -1,0 +1,50 @@
+{
+    "name": "Fund Request Lines",
+    "description": "Fund request lines with amount and apportionment.",
+    "operations": {
+        "total": {
+            "request_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "allocated_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "label": "condominium",
+                "value": "condo_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Fund request",
+                "value": "fund_request_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "apportionment",
+                "value": "apportionment_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Requested amount",
+                "value": "request_amount",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "label": "Allocated amount",
+                "value": "allocated_amount",
+                "width": "15%"
+            }
+        ]
+    }
+}

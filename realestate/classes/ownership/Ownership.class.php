@@ -7,6 +7,9 @@
 */
 namespace realestate\ownership;
 
+use finance\accounting\Account;
+use fmt\setting\Setting;
+
 class Ownership extends \equal\orm\Model {
 
 
@@ -30,6 +33,16 @@ class Ownership extends \equal\orm\Model {
                 // 'required'          => true
             ],
 
+            'ownership_code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcOwnershipCode',
+                'store'             => true,
+                'description'       => "Code of the ownership.",
+                'help'              => "Code is assigned automatically and cannot be changed, and is intended to internal use.",
+                'readonly'          => true
+            ],
+
             'property_lots_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\property\PropertyLot',
@@ -37,7 +50,8 @@ class Ownership extends \equal\orm\Model {
                 'rel_table'         => 'realestate_ownership_ownership_rel_property_lot',
                 'rel_foreign_key'   => 'lot_id',
                 'rel_local_key'     => 'ownership_id',
-                'description'       => 'Property lots that are assigned to this ownership.'
+                'description'       => 'Property lots that are assigned to this ownership.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'owners_ids' => [
@@ -45,7 +59,8 @@ class Ownership extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'foreign_field'     => 'ownership_id',
                 'description'       => 'List of owners.',
-                "domain"            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'dependents'        => ['name']
             ],
 
             'ownership_type' => [
@@ -105,11 +120,21 @@ class Ownership extends \equal\orm\Model {
         ];
     }
 
+    public static function getActions() {
+        return [
+            'generate_accounts' => [
+                'description'   => 'Generate mandatory accounting Accounts for Ownership.',
+                'policies'      => [],
+                'function'      => 'doGenerateAccounts'
+            ]
+        ];
+    }
+
     public static function calcName($self) {
         $result = [];
         $self->read(['has_representative', 'representative_identity_id' => ['name'], 'owners_ids' => ['name']]);
         foreach($self as $id => $ownership) {
-            if($ownership['has_representative']) {
+            if($ownership['has_representative'] && $ownership['representative_identity_id']) {
                 $result[$id] = $ownership['representative_identity_id'];
             }
             else {
@@ -121,10 +146,75 @@ class Ownership extends \equal\orm\Model {
                 if(strlen($name) > 128) {
                     $name = substr($name, 0, 128).'...';
                 }
-                $result[$id] = $name;
+                if(strlen($name) > 0) {
+                    $result[$id] = $name;
+                }
             }
         }
         return $result;
+    }
+
+    public static function calcOwnershipCode($self) {
+        $result = [];
+        $self->read(['state', 'condo_id']);
+        foreach($self as $id => $ownership) {
+            if($ownership['state'] != 'instance') {
+                continue;
+            }
+            $sequence = Setting::fetch_and_add(
+                    'realestate',
+                    'main',
+                    "ownership.sequence",
+                    1,
+                    [
+                        'condo_id' => $ownership['condo_id']
+                    ]
+                );
+            $result[$id] = sprintf("%05d", $sequence);
+        }
+        return $result;
+    }
+
+    /**
+     * Upon creation of an ownership, it is necessary to create accounts for:
+     * - 4100xxxxx:        co_owners_reserve_fund
+     * - 4101xxxxx:        co_owners_working_fund
+     */
+    public static function doGenerateAccounts($self) {
+        $self->read(['condo_id', 'name', 'ownership_code']);
+        foreach($self as $id => $ownership) {
+
+            $operation_assignments = [
+                    'co_owners_reserve_fund',
+                    'co_owners_working_fund'
+                ];
+
+            foreach($operation_assignments as $operation_assignment) {
+                // find the account based on operation_assignment to use it as "template"
+                $account = Account::search([
+                        ['condo_id', '=', $ownership['condo_id']],
+                        ['operation_assignment', '=', $operation_assignment]
+                    ])
+                    ->read(['code', 'account_category', 'account_chart_id'])
+                    ->first();
+
+                Account::create([
+                        'code'                  => $account['code'] . $ownership['ownership_code'],
+                        'condo_id'              => $ownership['condo_id'],
+                        'parent_account_id'     => $account['id'],
+                        'account_chart_id'      => $account['account_chart_id'],
+                        'account_category'      => $account['account_category'],
+                        'description'           => $ownership['name'],
+                        // make sure the account will not be used as template
+                        'operation_assignment'  => ''
+                    ]);
+            }
+
+        }
+    }
+
+    public function oncreate($self) {
+        $self->do('generate_accounts');
     }
 
 }

@@ -7,8 +7,12 @@
 */
 namespace realestate\property;
 
+use finance\accounting\AccountChart;
+use finance\accounting\AccountChartTemplate;
 use finance\accounting\FiscalYear;
 use finance\accounting\FiscalPeriod;
+use finance\accounting\Journal;
+use fmt\setting\Setting;
 
 class Condominium extends \identity\Organisation {
 
@@ -168,7 +172,21 @@ class Condominium extends \identity\Organisation {
                 'description'       => "The apportionment keys relating to the condominium.",
                 'foreign_object'    => 'fmt\setting\SettingSequence',
                 'foreign_field'     => 'condo_id'
-            ]
+            ],
+
+            'ownerships_ids' => [
+                'type'              => 'one2many',
+                'description'       => "The ownerships of the condominium.",
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'foreign_field'     => 'condo_id'
+            ],
+
+            'property_lots_ids' => [
+                'type'              => 'one2many',
+                'description'       => "The property lots of the condominium.",
+                'foreign_object'    => 'realestate\property\PropertyLot',
+                'foreign_field'     => 'condo_id'
+            ],
 
         ];
     }
@@ -197,6 +215,11 @@ class Condominium extends \identity\Organisation {
                 'description'   => 'Create a new fiscal year draft, following the `preopen` one.',
                 'policies'      => ['can_create_draft_fiscal_year'],
                 'function'      => 'doCreateDraftFiscalYear'
+            ],
+            'generate_sequences' => [
+                'description'   => 'Generate mandatory sequences for Condominium (for related entities codes).',
+                'policies'      => [],
+                'function'      => 'doGenerateSequences'
             ]
         ];
     }
@@ -324,6 +347,61 @@ class Condominium extends \identity\Organisation {
         }
 
         return $result;
+    }
+
+    /**
+     * Upon creation of a condominium, it is necessary to create sequences for:
+     * - the owners:        realestate.main.ownership.sequence [condo_id]
+     * - the lots:          realestate.main.property_lot.sequence [condo_id]
+     */
+    public static function doGenerateSequences($self) {
+        foreach($self as $id => $condominium) {
+            Setting::assert_sequence('realestate', 'main', "ownership.sequence");
+            Setting::assert_sequence('realestate', 'main', "property_lot.sequence");
+            Setting::init_sequence('realestate', 'main', "ownership.sequence", ['condo_id' => $id]);
+            Setting::init_sequence('realestate', 'main', "property_lot.sequence", ['condo_id' => $id]);
+        }
+    }
+
+    /**
+     * Create mandatory dependencies for new Condominium
+     */
+    public function oncreate($self) {
+        // 1 - create specific sequences for accounting entries, invoices, lots, owners, ...
+        $self->do('generate_sequences');
+
+        foreach($self as $id => $condominium) {
+            // 2 - create (empty) account chart
+            $accountChart = AccountChart::create([
+                    'condo_id'  => $id,
+                    'name'      => 'Plan comptable'
+                ])
+                ->first();
+            self::id($id)->update(['account_chart_id' => $accountChart['id']]);
+
+            // 3 - create journals
+            $journals = Journal::search(['condo_id', '=', null])
+                ->read([
+                    'name',
+                    'description',
+                    'mnemo',
+                    'code',
+                    'journal_type',
+                    'is_visible'
+                ]);
+
+            foreach($journals as $journal_id => $journal) {
+                Journal::create([
+                        'condo_id'      => $id,
+                        'name'          => $journal['name'],
+                        'description'   => $journal['description'],
+                        'mnemo'         => $journal['mnemo'],
+                        'code'          => $journal['code'],
+                        'journal_type'  => $journal['journal_type'],
+                        'is_visible'    => $journal['is_visible']
+                    ]);
+            }
+        }
     }
 
 

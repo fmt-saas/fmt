@@ -1,0 +1,39 @@
+{
+    "name": "Fund Request Execution Line",
+    "description": "A Fund Request Execution Line represents an individual allocation within a Fund Request Execution, detailing the called amount for a specific owner and period.",
+    "operations": {
+        "total": {
+            "called_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "label": "Request Execution",
+                "value": "request_execution_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Condominium",
+                "value": "condo_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Owner",
+                "value": "ownership_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "called_amount",
+                "width": "15%"
+            }
+        ]
+    }
+}

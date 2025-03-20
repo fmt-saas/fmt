@@ -1,0 +1,198 @@
+{
+    "name": "Fund Request",
+    "description": "",
+    "actions": [
+        {
+            "id": "action.generate_lines",
+            "label": "Generate allocation",
+            "description": "Generate the lines of the fund request.",
+            "controller": "core_model_perform",
+            "params": {
+                "entity": "realestate\\funding\\FundRequest",
+                "action": "generate_allocation"
+            },
+            "visible": ["status", "=", "draft"]
+        },
+        {
+            "id": "action.generate_executions",
+            "label": "Generate executions",
+            "description": "Schedule the executions of the fund request.",
+            "controller": "core_model_perform",
+            "params": {
+                "entity": "realestate\\funding\\FundRequest",
+                "action": "generate_executions"
+            },
+            "visible": ["status", "=", "draft"]
+        },
+        {
+            "id": "action.activate",
+            "label": "Activate",
+            "description": "Generate the lines of the fund request.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\funding\\FundRequest",
+                "transition": "activate",
+                "ids": []
+            },
+            "confirm": true,
+            "visible": ["status", "=", "draft"]
+        }
+    ],
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "name",
+                                                "width": "33%",
+                                                "widget": {
+                                                    "heading": true
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Condominium",
+                                                "value": "condo_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "request_type",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_date_range",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "request_date",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_from",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_to",
+                                                "width": "33%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "66%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Requested Amount",
+                                                "value": "request_amount",
+                                                "width": "33%",
+                                                "widget": {
+                                                    "heading": true
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_range_frequency",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "33%",
+                                                "visible": ["has_date_range", "=", false]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Fiscal year",
+                                                "value": "fiscal_year_id",
+                                                "width": "33%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.parts",
+                        "label": "Parts",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "request_lines_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "domain": ["condo_id", "=", "object.condo_id"]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.executions",
+                        "label": "Executions",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "request_executions_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "actions": false,
+                                                    "domain": ["condo_id", "=", "object.condo_id"]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

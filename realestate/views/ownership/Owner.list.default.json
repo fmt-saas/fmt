@@ -1,6 +1,6 @@
 {
-    "name": "Property List",
-    "description": "This view is intended for displaying the list of properties.",
+    "name": "Owners",
+    "description": "List of owners.",
     "layout": {
         "items": [
             {

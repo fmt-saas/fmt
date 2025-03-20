@@ -1,7 +1,7 @@
 ﻿code;control;description;libellé NL;libellé EN;code assignation;assignation;% Propriétaire;% Locataire
 1;1;DETTES À PLUS D'UN AN;SCHULDEN OP MEER DAN ÉÉN JAAR;DEBTS OVER MORE THAN ONE YEAR;;;;
 100;1;FONDS DE ROULEMENT;WERKKAPITAAL;WORKING CAPITAL;;;;
-100000;;Fonds de roulement;Werkkapitaal;Working capital;working_capital;Fonds de roulement;;
+100000;;Fonds de roulement;Werkkapitaal;Working capital;working_fund;Fonds de roulement;;
 12;1;SOLDE EN ATTENTE SUR TRAVAUX;OPENSTAAND SALDO WERKEN;OUTSTANDING BALANCE WORKS;pending_work_balance;Solde attente travaux;;
 14;1;RÉSULTAT EXERCICE;RESULTAAT BOEKINGSPERIODE;RESULT BOOKING PERIOD;;;;
 160;1;FONDS DE RÉSERVE;RESERVEFONDS;RESERVE FUND;;;;

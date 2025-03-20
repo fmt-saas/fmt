@@ -31,7 +31,8 @@ class Apportionment extends \equal\orm\Model {
             'description' => [
                 'type'              => 'string',
                 'description'       => "Short description of the apportionment.",
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['name']
             ],
 
             'apportionment_code' => [
@@ -40,14 +41,16 @@ class Apportionment extends \equal\orm\Model {
                 'function'          => 'calcApportionmentCode',
                 'store'             => true,
                 'description'       => "Code for the apportionment.",
-                'help'              => "Code is arbitrary and is used to match apportionment with accounting accounts."
+                'help'              => "Code is arbitrary and is used to match apportionment with accounting accounts.",
+                'dependents'        => ['name']
             ],
 
             'is_statutory' => [
                 'type'              => 'boolean',
                 'description'       => "The apportionment holds the statutory quotas.",
                 'help'              => "Apportionment describes the rights on the condominium's common areas as defined in the notary deed.",
-                'default'           => false
+                'default'           => false,
+                'dependents'        => ['name']
             ],
 
             'common_area_id' => [
@@ -86,7 +89,8 @@ class Apportionment extends \equal\orm\Model {
             'total_shares' => [
                 'type'              => 'integer',
                 'description'       => "The total number of shares considered for this apportionment.",
-                'default'           => 1000
+                'default'           => 1000,
+                'dependents'        => ['name']
             ],
 
             'assigned_shares' => [

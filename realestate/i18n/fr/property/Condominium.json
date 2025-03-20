@@ -1,25 +1,45 @@
 {
-	"name": "Copropriété",
-	"plural": "Copropriétés",
-	"description": "Les propriétés qui existent.",
-	"model": {
-		"name": {
-			"label": "Nom",
-			"description": "Nom de la Copropriété.",
-			"help": ""
-		}
-	},
-	"view": {
-		"form.default": {
-			"name": "Copropriété",
-			"description": "Copropriétés disponibles.",
-			"layout": {}
-		},
-		"list.default": {
-			"name": "Liste des Copropriétés",
-			"description": "Liste des copropriétés.",
-			"layout": {}
-		}
-	},
-	"error": {}
+    "name": "Copropriété",
+    "plural": "Copropriétés",
+    "description": "Les propriétés qui existent.",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Nom de la Copropriété.",
+            "help": ""
+        },
+        "address_street": {
+            "label": "Rue",
+            "description": "",
+            "help": ""
+        },
+        "address_city": {
+            "label": "Ville",
+            "description": "",
+            "help": ""
+        },
+        "address_zip": {
+            "label": "CP",
+            "description": "",
+            "help": ""
+        },
+        "account_chart_id": {
+            "label": "Plan comptable",
+            "description": "",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Copropriété",
+            "description": "Copropriétés disponibles.",
+            "layout": [],
+            "actions": [],
+            "routes": []
+        },
+        "list.default": {
+            "name": "Liste des Copropriétés",
+            "description": "Liste des copropriétés."
+        }
+    }
 }

@@ -35,13 +35,6 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'description'       => 'Label of the invoice, depending on its status'
             ],
 
-            'organisation_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'identity\Organisation',
-                'description'       => 'The organization that emitted the invoice.',
-                'default'           => 1
-            ],
-
             'status' => [
                 'type'              => 'string',
                 'description'       => 'Current status of the invoice.',
@@ -51,6 +44,15 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                     'cancelled'             // the invoice has been cancelled (through reversing entries)
                 ],
                 'default'           => 'proforma'
+            ],
+
+            'fiscal_year_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => "Fiscal year the entry relates to.",
+                'required'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+                // 'dependents'        => ['fiscal_period_id']
             ],
 
             'reversed_invoice_id' => [
@@ -324,13 +326,34 @@ class Invoice extends \finance\accounting\invoice\Invoice {
     }
 
     public static function onbeforeInvoice($self) {
-        $self->read(['organisation_id']);
+        $self->read(['organisation_id', 'condo_id']);
         // generate the accounting entries according to the invoices lines.
         $self->do('generate_accounting_entries');
         foreach($self as $id => $invoice) {
-            $format = Setting::get_value('sale', 'accounting', 'invoice.sequence_format', '%2d{year}-%05d{sequence}', ['organisation_id' => $invoice['organisation_id']]);
+            $format = Setting::get_value(
+                    'sale',
+                    'accounting',
+                    'invoice.sequence_format',
+                    '%2d{year}-%05d{sequence}',
+                    [
+                        'organisation_id'   => $invoice['organisation_id'],
+                        'condo_id'          => $invoice['condo_id']
+                    ]
+                );
             $year = Setting::get_value('finance', 'accounting', 'fiscal_year', date('Y'), ['organisation_id' => $invoice['organisation_id']]);
-            $sequence = Setting::fetch_and_add('sale', 'accounting', 'invoice.sequence', 1, ['organisation_id' => $invoice['organisation_id']]);
+
+            $sequence = Setting::fetch_and_add(
+                    'sale',
+                    'accounting',
+                    'invoice.sequence',
+                    1,
+                    [
+                        'organisation_id'   => $invoice['organisation_id'],
+                        'condo_id'          => $invoice['condo_id']
+                    ]
+                );
+
+
             if($sequence) {
                 $invoice_number = Setting::parse_format($format, [
                         'year'      => $year,

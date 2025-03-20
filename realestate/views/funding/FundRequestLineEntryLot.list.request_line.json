@@ -1,0 +1,46 @@
+{
+    "name": "Fund Request Line Entry Lot",
+    "description": "Interface for model definition classes.",
+    "group_by": [
+        {
+            "open": true,
+            "field": "ownership_id",
+            "operation": ["SUM", "object.allocated_amount"],
+            "operations": {
+                "allocated_amount": {
+                    "operation": "SUM",
+                    "usage": "amount/money:2"
+                }
+            }
+        }
+    ],
+    "operations": {
+        "total": {
+            "allocated_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "label": "Ownership",
+                "value": "ownership_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Property lot",
+                "value": "property_lot_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "allocated_amount",
+                "width": "15%"
+            }
+        ]
+    }
+}

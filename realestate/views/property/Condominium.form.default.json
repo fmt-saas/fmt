@@ -3,6 +3,17 @@
     "description": "Form holding basic information about an Organisation.",
     "routes": [
         {
+            "id": "item.ownerships",
+            "label": "Owners",
+            "description": "",
+            "icon": "group",
+            "context": {
+                "entity": "realestate\\ownership\\Ownership",
+                "view": "list.default",
+                "domain": ["condo_id", "=", "object.id"]
+            }
+        },
+        {
             "id": "item.property_lots",
             "label": "Property Lots",
             "description": "",
@@ -86,12 +97,24 @@
             "icon": "menu_book",
             "context": {
                 "entity": "finance\\accounting\\AccountChart",
-                "view": "list.condo",
-                "domain": [["condo_id", "=", "object.id"]]
+                "view": "form.condo",
+                "domain": [["id", "=", "object.account_chart_id"], ["condo_id", "=", "object.id"]]
             }
         }
     ],
     "actions": [
+        {
+            "id": "action.generate_sequences",
+            "label": "Generate sequences",
+            "description": "Generate mandatory sequences.",
+            "controller": "core_model_perform",
+            "params": {
+                "entity": "realestate\\property\\Condominium",
+                "action": "generate_sequences",
+                "ids": []
+            },
+            "confirm": false
+        },
         {
             "id": "action.open_fiscal_year",
             "label": "Open fiscal Year",

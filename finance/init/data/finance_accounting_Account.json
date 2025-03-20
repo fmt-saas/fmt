@@ -29,7 +29,7 @@
                 "is_control_account": false,
                 "description": "Working capital",
                 "account_chart_id": 1,
-                "operation_assignment": "working_capital",
+                "operation_assignment": "working_fund",
                 "tenant_share": 0,
                 "owner_share": 0
             },

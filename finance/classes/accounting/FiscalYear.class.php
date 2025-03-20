@@ -186,7 +186,7 @@ class FiscalYear extends Model {
         foreach($self as $id => $fiscalYear) {
             $result[$id] = self::search([
                     ['condo_id', '=', $fiscalYear['condo_id']],
-                    ['date_to', '=', strtotime("-1 day", $fiscalYear['date_from'])]
+                    ['date_to', '=', strtotime('-1 day', $fiscalYear['date_from'])]
                 ])
                 ->read(['id'])
                 ->first();

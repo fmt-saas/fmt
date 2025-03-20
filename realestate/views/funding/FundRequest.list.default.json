@@ -1,0 +1,39 @@
+{
+    "name": "Fund Requests",
+    "description": "",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "10%",
+                "label": "Condominium"
+            },
+            {
+                "type": "field",
+                "value": "request_type",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "request_date",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "request_amount",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "allocated_amount",
+                "width": "15%"
+            }
+        ]
+    }
+}

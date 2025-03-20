@@ -7,6 +7,7 @@
 */
 namespace finance\accounting;
 use equal\orm\Model;
+use realestate\property\Apportionment;
 
 class AccountChart extends Model {
 
@@ -61,6 +62,38 @@ class AccountChart extends Model {
         ];
     }
 
+    public static function getPolicies(): array {
+        return [
+            'is_draft' => [
+                'description' => 'Verifies that a chart of account is a draft.',
+                'function'    => 'policyIsDraft'
+            ]
+        ];
+    }
+    public static function getActions() {
+        return [
+            'import_accounts' => [
+                'description'   => 'Import accounts from a given template chart of accounts.',
+                'policies'      => ['is_draft'],
+                'function'      => 'doImportAccounts'
+            ]
+        ];
+    }
+
+    public static function policyIsDraft($self) {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $accountChart) {
+            if($accountChart['status'] != 'draft') {
+                $result[$id] = [
+                    'invalid_status' => 'Chart of accounts is currently active.'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
     public static function getWorkflow() {
         return [
             'draft' => [
@@ -77,7 +110,6 @@ class AccountChart extends Model {
         ];
     }
 
-
     public static function canupdate($self) {
         $self->read(['status']);
         foreach($self as $id => $chart) {
@@ -86,6 +118,78 @@ class AccountChart extends Model {
             }
         }
         return parent::canupdate($self);
+    }
+
+
+    public static function doImportAccounts($self, $values) {
+        $self->read(['condo_id']);
+
+        foreach($self as $id => $accountChart) {
+            $template = AccountChartTemplate::id($values['chart_template_id'])
+                ->read([
+                    'accounts_ids' => [
+                        'name',
+                        'code',
+                        'description',
+                        'level',
+                        'account_class',
+                        'account_type',
+                        'account_nature',
+                        'account_category',
+                        'parent_account_id',
+                        'is_visible',
+                        'is_control_account',
+                        'is_tier_balance',
+                        'operation_assignment',
+                        'tenant_share',
+                        'owner_share',
+                        'apportionment_code'
+                    ]
+                ])
+                ->first();
+
+            if(!$template) {
+                throw new \Exception('unknown_template', EQ_ERROR_INVALID_PARAM);
+            }
+
+            // remove any previously existing accounts attached to the chart
+            Account::search([['account_chart_id', '=', $id]])->delete(true);
+
+            // create apportionment map
+            $map_apportionments = [];
+            $apportionments = Apportionment::search(['condo_id', '=', $accountChart['condo_id']])->read(['apportionment_code']);
+
+            foreach($apportionments as $id => $apportionment) {
+                $map_apportionments[$apportionment['apportionment_code']] = $id;
+            }
+
+            foreach($template['accounts_ids'] as $account_id => $account) {
+                $values = [
+                        'condo_id'              => $accountChart['condo_id'],
+                        'account_chart_id'      => $id,
+                        'name'                  => $account['name'],
+                        'code'                  => $account['code'],
+                        'description'           => $account['description'],
+                        'level'                 => $account['level'],
+                        'account_class'         => $account['account_class'],
+                        'account_type'          => $account['account_type'],
+                        'account_nature'        => $account['account_nature'],
+                        'account_category'      => $account['account_category'],
+                        'is_visible'            => $account['is_visible'],
+                        'is_control_account'    => $account['is_control_account'],
+                        'is_tier_balance'       => $account['is_tier_balance'],
+                        'operation_assignment'  => $account['operation_assignment'],
+                        'tenant_share'          => $account['tenant_share'],
+                        'owner_share'           => $account['owner_share']
+                    ];
+
+                if(isset($map_apportionments[$account['apportionment_code']])) {
+                    $values['apportionment_id'] = $map_apportionments[$account['apportionment_code']];
+                }
+                Account::create($values);
+            }
+
+        }
     }
 
 }

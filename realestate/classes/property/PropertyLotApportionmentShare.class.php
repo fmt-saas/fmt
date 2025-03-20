@@ -31,6 +31,7 @@ class PropertyLotApportionmentShare extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The key that the apportionment refers to.",
                 'foreign_object'    => 'realestate\property\Apportionment',
+                'ondelete'          => 'cascade',
                 'required'          => true
             ],
 
@@ -46,6 +47,7 @@ class PropertyLotApportionmentShare extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The Property Lot that the owner refers to.",
                 'foreign_object'    => 'realestate\property\PropertyLot',
+                'ondelete'          => 'cascade',
                 'required'          => true
             ],
 

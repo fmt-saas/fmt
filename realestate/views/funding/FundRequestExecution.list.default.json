@@ -1,0 +1,48 @@
+{
+    "name": "Fund Request Execution",
+    "description": "A Fund Request Execution represents the actual execution of a fund request, generating accounting entries based on the predefined allocation plan.",
+    "operations": {
+        "total": {
+            "called_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Fiscal Year",
+                "value": "fiscal_year_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "execution_date",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "label": "Accounting Entry",
+                "value": "accounting_entry_id",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "called_amount",
+                "width": "20%"
+            }
+        ]
+    }
+}

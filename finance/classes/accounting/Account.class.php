@@ -175,6 +175,7 @@ class Account extends Model {
                 'description'       => "Operation the account is dedicated to.",
                 'help'              => "Specific identifier to associate the account with a configuration parameter or a specific operation.",
                 'selection'         => [
+                    '',
                     'adjustment_account',
                     'bank_current',
                     'bank_savings',
@@ -197,7 +198,7 @@ class Account extends Model {
                     'work_expenses',
                     'work_fund_call',
                     'work_provisions',
-                    'working_capital'
+                    'working_fund'
                 ]
             ],
 

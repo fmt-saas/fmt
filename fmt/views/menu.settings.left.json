@@ -141,7 +141,7 @@
                                 "label": "Available Settings",
                                 "description": "",
                                 "context": {
-                                    "entity": "symbiose\\setting\\Setting",
+                                    "entity": "fmt\\setting\\Setting",
                                     "view": "list.default"
                                 }
                             },
@@ -151,7 +151,7 @@
                                 "label": "Settings values",
                                 "description": "",
                                 "context": {
-                                    "entity": "symbiose\\setting\\SettingValue",
+                                    "entity": "fmt\\setting\\SettingValue",
                                     "view": "list.default"
                                 }
                             },
@@ -161,7 +161,7 @@
                                 "label": "Settings sequences",
                                 "description": "",
                                 "context": {
-                                    "entity": "symbiose\\setting\\SettingSequence",
+                                    "entity": "fmt\\setting\\SettingSequence",
                                     "view": "list.default"
                                 }
                             }

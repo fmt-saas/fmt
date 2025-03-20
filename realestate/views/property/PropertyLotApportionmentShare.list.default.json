@@ -1,6 +1,14 @@
 {
     "name": "Property Lot Apportionments",
     "description": "",
+    "operations": {
+        "total": {
+            "property_lot_shares": {
+                "operation": "SUM",
+                "usage": "number/integer"
+            }
+        }
+    },
     "layout": {
         "items": [
             {
@@ -12,6 +20,12 @@
                 "type": "field",
                 "label": "Property Lot",
                 "value": "property_lot_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Apportionment key",
+                "value": "apportionment_id",
                 "width": "20%"
             },
             {

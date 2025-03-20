@@ -45,8 +45,18 @@
                             "entity": "realestate\\property\\Tenancy",
                             "view": "list.default"
                         }
+                    },
+                    {
+                        "id": "fund_requests",
+                        "type": "entry",
+                        "label": "Fund requests",
+                        "icon": "supervisor_account",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\funding\\FundRequest",
+                            "view": "list.default"
+                        }
                     }
-
                 ]
             },
             {

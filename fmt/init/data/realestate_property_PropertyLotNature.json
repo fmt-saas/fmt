@@ -64,5 +64,61 @@
                 "description": "Apartment with both a terrace and a balcony."
             }
         ]
+    },
+    {
+        "name": "realestate\\property\\PropertyLotNature",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "name": "APPARTEMENT",
+                "description": "Unité résidentielle dans un immeuble."
+            },
+            {
+                "id": 2,
+                "name": "MAGASIN",
+                "description": "Espace de vente au détail pour la commercialisation de biens."
+            },
+            {
+                "id": 3,
+                "name": "BUREAU",
+                "description": "Espace de travail pour des activités professionnelles ou commerciales."
+            },
+            {
+                "id": 4,
+                "name": "ATELIER",
+                "description": "Atelier utilisé pour des activités professionnelles ou artisanales."
+            },
+            {
+                "id": 5,
+                "name": "BÂTIMENT",
+                "description": "Structure avec un toit et des murs."
+            },
+            {
+                "id": 6,
+                "name": "GARAGE",
+                "description": "Espace de stationnement pour véhicules."
+            },
+            {
+                "id": 7,
+                "name": "PARKING",
+                "description": "Zone de stationnement pour véhicules."
+            },
+            {
+                "id": 8,
+                "name": "SOUS-SOL",
+                "description": "Espace de stockage pour des documents ou des archives."
+            },
+            {
+                "id": 9,
+                "name": "TERRASSE",
+                "description": "Appartement avec une terrasse."
+            },
+            {
+                "id": 10,
+                "name": "BALCON",
+                "description": "Appartement avec une terrasse et un balcon."
+            }
+        ]
     }
 ]
