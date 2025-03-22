@@ -10,7 +10,6 @@ use fmt\setting\Setting;
 use finance\accounting\AccountChartLine;
 use finance\accounting\AccountingEntry;
 use finance\accounting\Journal;
-use sale\customer\Customer;
 use sale\pay\Funding;
 use sale\receivable\Receivable;
 
@@ -18,6 +17,10 @@ class Invoice extends \finance\accounting\invoice\Invoice {
 
     public static function getName() {
         return 'Sale invoice';
+    }
+
+    public function getTable() {
+        return 'sale_accounting_invoice_invoice';
     }
 
     public static function getDescription() {
@@ -33,26 +36,6 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'store'             => true,
                 'function'          => 'calcName',
                 'description'       => 'Label of the invoice, depending on its status'
-            ],
-
-            'status' => [
-                'type'              => 'string',
-                'description'       => 'Current status of the invoice.',
-                'selection'         => [
-                    'proforma',             // draft invoice (no number yet)
-                    'invoice',              // final invoice (with unique number and accounting entries)
-                    'cancelled'             // the invoice has been cancelled (through reversing entries)
-                ],
-                'default'           => 'proforma'
-            ],
-
-            'fiscal_year_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\FiscalYear',
-                'description'       => "Fiscal year the entry relates to.",
-                'required'          => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id']
-                // 'dependents'        => ['fiscal_period_id']
             ],
 
             'reversed_invoice_id' => [
@@ -76,7 +59,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
 
             'invoice_purpose' => [
                 'type'              => 'string',
-                'description'       => 'Is the invoice concerning a sale to a customer or a buy from a supplier.',
+                'description'       => 'Is the invoice concerning a sale to a customer or a purchase from a supplier.',
                 'default'           => 'sell',
                 'visible'           => false
             ],
@@ -368,7 +351,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
 
     /**
      * Generate the fundings for a collection of invoices that just transitioned to "invoiced".
-     * Fundings must be created here because due_date is set at invoice emission
+     * Fundings must be created here because due_date is set at invoice emission.
     */
     public static function onafterInvoice($self) {
         try {

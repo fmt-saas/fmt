@@ -37,19 +37,20 @@ class FiscalYear extends Model {
             'fiscal_period_frequency' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'Q' => 'Quarterly',
-                    'T' => 'Tertially' ,
+                    'A' => 'Annually',
                     'S' => 'Semi-Annually',
-                    'A' => 'Annually'
+                    'T' => 'Tertially' ,
+                    'Q' => 'Quarterly'
                 ],
                 'description'       => 'List of employees assigned to the management of the condominium.',
                 'help'              => 'This value is provided at creation and can originate either from condominium settings or entered manually.',
                 'default'           => 'Q'
                 /*
-                Quarterly (3 months)	4	Q (Q1, Q2, Q3, Q4)
-                Tertially (4 months)	3	T (T1, T2, T3)
-                Semi-Annually (6 months)2	S (S1, S2)
-                Annually (12 months)	1	A (A1)
+                1 Annually (12 months)	    A (A1)
+                2 Semi-Annually (6 months)  S (S1, S2)
+                3 Tertially (4 months)	    T (T1, T2, T3)
+                4 Quarterly (3 months)	    Q (Q1, Q2, Q3, Q4)
+                ['A' => 1, 'S' => 2, 'T' => 3, 'Q' => 4]
                 */
             ],
 
@@ -200,6 +201,11 @@ class FiscalYear extends Model {
                 'description'   => 'Generate the periods according to the fiscal year definition (only for draft fiscal year).',
                 'policies'      => [],
                 'function'      => 'doGeneratePeriods'
+            ],
+            'generate_sequences' => [
+                'description'   => 'Generate the mandatory sequences for the fiscal year.',
+                'policies'      => [],
+                'function'      => 'doGenerateSequences'
             ]
         ];
     }
@@ -435,43 +441,33 @@ class FiscalYear extends Model {
      *
      */
     public static function onafterOpen($self) {
-        $self->read(['condo_id', 'code', 'date_from', 'date_to', 'previous_fiscal_year_id', 'fiscal_periods_ids' => ['id', 'date_from', 'date_to']]);
+        $self->read(['condo_id', 'previous_fiscal_year_id', 'fiscal_periods_ids' => ['id', 'date_from', 'date_to']]);
 
         foreach($self as $id => $fiscalYear) {
 
             // 1 - transition previous fiscal year to 'preclosed' (transition has been checked in `policyCanBeOpened()`)
+
             if($fiscalYear['previous_fiscal_year_id']) {
                 self::id($fiscalYear['previous_fiscal_year_id'])->transition('preclose');
             }
 
             // 2 - transition next fiscal year to 'preopen' (existence and transition have been checked in `policyCanBeOpened()`)
+
             $nextFiscalYear = self::search([['status', '=', 'draft'], ['condo_id', '=', $fiscalYear['condo_id']]])->transition('preopen')->first();
 
-            // 3 - finalize periods & create related sequences
+            // 3 - finalize periods order
+
             $periods = $fiscalYear['fiscal_periods_ids']->get(true);
             usort($periods, fn($a, $b) => $a['date_from'] <=> $b['date_from']);
             $order = 1;
             foreach($periods as $period) {
                 // assign final order for fiscal periods
                 FiscalPeriod::id($period['id'])->update(['order' => $order]);
-                // init mandatory sequence for purchase invoices
-                $fiscal_year_code = $fiscalYear['code'];
-                $fiscal_period_code = $order;
-                Setting::assert_sequence('finance', 'accounting', "invoice.period_sequence.{$fiscal_year_code}.{$fiscal_period_code}");
-                Setting::init_sequence('finance', 'accounting', "invoice.period_sequence.{$fiscal_year_code}.{$fiscal_period_code}", ['condo_id' => $fiscalYear['condo_id']]);
                 ++$order;
             }
 
-            // create sequences for all existing journals
-            $journals = Journal::search(['code', '<>', 'LEDG'])->read(['code']);
-            foreach($journals as $journal) {
-                $fiscal_year_code = $fiscalYear['code'];
-                $journal_code = $journal['code'];
-                Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}");
-                Setting::init_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}", ['condo_id' => $fiscalYear['condo_id']]);
-            }
-
             // 4 - create temporary carry-forward / opening-balance accounting entries in next fiscal year OPB journal
+
             $carryForwardJournal = Journal::search([['code', '=', 'OPB']])->first();
             if(!$carryForwardJournal) {
                 throw new \Exception('missing_opb_journal', EQ_ERROR_INVALID_CONFIG);
@@ -503,6 +499,41 @@ class FiscalYear extends Model {
 
             // 5 - update current fiscal year for targeted Condominium
             Condominium::id($fiscalYear['condo_id'])->update(['current_fiscal_year_id' => $id]);
+        }
+
+        $self->do('generate_sequences');
+    }
+
+    /**
+     * Upon creation of a fiscal year, it is necessary to create sequences for:
+     * - the sale invoices:             sale.accounting.invoice.sequence.{fiscal_year_code} [condo_id]
+     * - the purchase invoices:         purchase.accounting.invoice.period_sequence.{fiscal_year_code} [condo_id]
+     * - the accounting entries:        finance.accounting.accounting_entry.sequence.{fiscal_year_code}.{journal_code} [condo_id]
+     */
+    public static function doGenerateSequences($self) {
+        $self->read(['condo_id', 'fiscal_periods_ids' => ['order']]);
+        foreach($self as $id => $fiscalYear) {
+            $fiscal_year_code = $fiscalYear['code'];
+
+            // init mandatory sequence for sale invoices
+            Setting::assert_sequence('sale', 'accounting', "invoice.sequence.{$fiscal_year_code}");
+            Setting::init_sequence('sale', 'accounting', "invoice.sequence.{$fiscal_year_code}", ['condo_id' => $fiscalYear['condo_id']]);
+
+            // init mandatory sequence for purchase invoices
+            foreach($fiscalYear['fiscal_periods_ids'] as $period_id => $fiscalPeriod) {
+                $fiscal_period_code = $fiscalPeriod['order'];
+                Setting::assert_sequence('purchase', 'accounting', "invoice.period_sequence.{$fiscal_year_code}.{$fiscal_period_code}");
+                Setting::init_sequence('purchase', 'accounting', "invoice.period_sequence.{$fiscal_year_code}.{$fiscal_period_code}", ['condo_id' => $fiscalYear['condo_id']]);
+            }
+
+            // create accounting entries sequences for all existing journals
+            $journals = Journal::search([['code', '<>', 'LEDG'], ['condo_id', '=', $fiscalYear['condo_id']]])->read(['code']);
+            foreach($journals as $journal) {
+                $fiscal_year_code = $fiscalYear['code'];
+                $journal_code = $journal['code'];
+                Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}");
+                Setting::init_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}", ['condo_id' => $fiscalYear['condo_id']]);
+            }
         }
     }
 

@@ -9,11 +9,8 @@ namespace realestate\funding;
 
 use realestate\ownership\Ownership;
 use realestate\property\PropertyLotApportionmentShare;
-use finance\accounting\Account;
-use finance\accounting\AccountingEntry;
-use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalPeriod;
-use finance\accounting\Journal;
+use finance\accounting\FiscalYear;
 
 class FundRequest extends \equal\orm\Model {
 
@@ -51,19 +48,38 @@ class FundRequest extends \equal\orm\Model {
             'request_type' => [
                 'type'              => 'string',
                 'description'       => 'Type of fund request.',
-                'selection'         => [
-                    'working'           => 'Working Fund call',         // fond de roulement
-                    'reserve'           => 'Reserve Fund call',         // fond de réserve
-                    'expense'           => 'Expense provision call',    // provisions pour charge
-                    'unique_expense'    => 'Unique expense provision'   // provision pour charge exceptionelle
+                'selection'          => [
+                    'working_fund'        => 'Working Fund call',                       // fonds de roulement
+                    'reserve_fund'        => 'Reserve Fund call',                       // fonds de réserve
+                    'expense_provisions'  => 'Expense provision call',                  // provisions pour charge
+                    'work_provisions'     => 'Provision call for exceptional expense'   // provision pour charge exceptionelle
                 ],
-                'required'           => true
+                'default'           => 'expense_provisions',
+                'required'          => true
+            ],
+
+            'request_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Accounting account the entry relates to.",
+                'required'          => true,
+                'ondelete'          => 'null',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['operation_assignment', '=', 'object.request_type']]
             ],
 
             'request_date' => [
                 'type'              => 'date',
                 'description'       => 'Date at which the request was emitted.',
-                'visible'           => [['has_date_range', '=', false], ['request_type', '<>', 'expense']]
+                'visible'           => [['has_date_range', '=', false]]
+            ],
+
+            'request_bank_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankAccount',
+                'foreign_field'     => 'organisation_id',
+                'description'       => 'List of the bank account of the organisation',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'required'          => true
             ],
 
             'has_date_range' => [
@@ -74,20 +90,20 @@ class FundRequest extends \equal\orm\Model {
 
             'date_range_frequency' => [
                 'type'              => 'integer',
-                'description'       => 'Interval, in months, between each execution of the request.',
+                'description'       => 'Interval, in months, between each execution.',
                 'default'           => 1,
                 'visible'           => ['has_date_range', '=', true]
             ],
 
             'date_from' => [
                 'type'              => 'date',
-                'description'       => 'First day (included) of the date range.',
+                'description'       => 'First day (included) of the range.',
                 'visible'           => ['has_date_range', '=', true]
             ],
 
             'date_to' => [
                 'type'              => 'date',
-                'description'       => 'Last day (included) of the date range.',
+                'description'       => 'Last day (included) of the range.',
                 'visible'           => ['has_date_range', '=', true]
             ],
 
@@ -221,9 +237,15 @@ class FundRequest extends \equal\orm\Model {
 
     public static function policyCanGenerateExecutions($self): array {
         $result = [];
-        $self->read(['status']);
+        $self->read(['status', 'request_amount', 'allocated_amount']);
 
         foreach($self as $id => $fundRequest) {
+            if($fundRequest['request_amount'] != $fundRequest['allocated_amount']) {
+                $result[$id] = [
+                    'non_balanced' => 'Allocated amount the request amount must match.'
+                ];
+                continue;
+            }
         }
         return $result;
     }
@@ -312,13 +334,14 @@ class FundRequest extends \equal\orm\Model {
                             $sum_delta += ($precise_amount - $rounded_amount);
 
                             FundRequestLineEntryLot::create([
-                                    'condo_id'          => $fundRequest['condo_id']['id'],
-                                    'fund_request_id'   => $id,
-                                    'request_line_id'   => $request_line_id,
-                                    'ownership_id'      => $ownership_id,
-                                    'line_entry_id'     => $lineEntry['id'],
-                                    'property_lot_id'   => $property_lot_id,
-                                    'allocated_amount'     => $rounded_amount
+                                    'condo_id'              => $fundRequest['condo_id']['id'],
+                                    'fund_request_id'       => $id,
+                                    'request_line_id'       => $request_line_id,
+                                    'ownership_id'          => $ownership_id,
+                                    'line_entry_id'         => $lineEntry['id'],
+                                    'property_lot_id'       => $property_lot_id,
+                                    'apportionment_shares'  => $apportionmentShare['property_lot_shares'],
+                                    'allocated_amount'      => $rounded_amount
                                 ]);
                         }
                     }
@@ -326,7 +349,7 @@ class FundRequest extends \equal\orm\Model {
                 $sum_delta = round($sum_delta, 2);
                 if($sum_delta != 0.0) {
                     $remaining = $sum_delta;
-                    // #todo - soit répartir sur les lots disposant du plus grand nombre de parts
+                    // #todo - répartir sur les lots disposant du plus grand nombre de parts
                     /*
                     krsort($map_property_lot_shares);
                     $ordered_lots_ids = array_merge(...array_values($map_property_lot_shares));
@@ -336,7 +359,12 @@ class FundRequest extends \equal\orm\Model {
                         }
                     }
                     */
-                    // soit créer une écriture de reliquats d'arrondi
+
+                    /*
+                    #todo #francois - notes du 2025-03-21
+                    C’est le cas dans la plupart des programmes qui tiennent simplement compte des arrondis et on retrouvera par exemple des montants appelés de 10.000,03 € alors que l’assemblée avait voté 10.000,- €.
+                    OptiPro a par contre réussi à ce qu’il n’y ait jamais d’arrondis sur le montant appelé, en réalité il déplace l’arrondi en rectifiant les appels des copropriétaires (ou plutôt des lots) pour que le montant appelé corresponde strictement à ce qui a été voté (pour l’exemple ci-dessus, il enlève 0,01 € sur 3 copropriétaires différents de manière aléatoire). Ils font la même chose pour les décomptes de charges et je dois bien admettre que c’est bien foutu.
+                    */
                 }
 
             }
@@ -347,10 +375,7 @@ class FundRequest extends \equal\orm\Model {
     }
 
     /**
-     * - appel pour working fund est imputé en une seule fois : choisir une date
-     * - appel pour reserve fund est arbitraire (une seule ou plusieurs fois): pouvoir choisir une plage de dates
-     * - appel des provisions pour charge se font selon les périodes de l'exercice (pas de choix)
-     * - une provision pour charge exceptionnelle est imputée en une seule fois: choisir date
+     *
      */
     public static function doGenerateExecutions($self) {
 
@@ -368,8 +393,8 @@ class FundRequest extends \equal\orm\Model {
             ]);
 
         foreach($self as $id => $fundRequest) {
-            // #todo - do not delete called executions
-            FundRequestExecution::search(['fund_request_id', '=', $id])->delete(true);
+            // delete non-called executions
+            FundRequestExecution::search([['status', '=', 'proforma'], ['fund_request_id', '=', $id]])->delete(true);
 
             // create a request execution
             $execution_values = [
@@ -402,11 +427,38 @@ class FundRequest extends \equal\orm\Model {
 
             // map of called amounts by ownership
             $map_ownership_amounts = [];
-            foreach($fundRequest['line_entries_ids'] as $lineEntry) {
+
+            // pass-1 - remove dates for which a called execution remains
+
+            foreach($execution_dates as $index => $execution_date) {
+                // search for existing execution at the date (there should be 0 or 1)
+                $existing_executions_ids = FundRequestExecution::search([['status', '=', 'called'], ['fund_request_id', '=', $id], ['emission_date', '=', $execution_date]])->ids();
+                if(count($existing_executions_ids)) {
+                    unset($execution_dates[$index]);
+                    $executionLines = FundRequestExecutionLine::search(['request_execution_id', 'in', $existing_executions_ids])->read(['ownership_id', 'called_amount']);
+                    foreach($executionLines as $executionLine) {
+                        if(!isset($map_ownership_amounts[$executionLine['ownership_id']])) {
+                            $map_ownership_amounts[$executionLine['ownership_id']] = 0.0;
+                        }
+                        $map_ownership_amounts[$executionLine['ownership_id']] -= $executionLine['called_amount'];
+                    }
+                }
+            }
+            // reset indexes
+            $execution_dates = array_values($execution_dates);
+
+            // pass-2 - create missing executions
+
+            $num_intervals = count($execution_dates);
+
+            // keep track of the link between ownerships and request line entries
+            $map_ownership_line_entries = [];
+            foreach($fundRequest['line_entries_ids'] as $line_entry_id => $lineEntry) {
                 if(!isset($map_ownership_amounts[$lineEntry['ownership_id']])) {
                     $map_ownership_amounts[$lineEntry['ownership_id']] = 0.0;
                 }
                 $map_ownership_amounts[$lineEntry['ownership_id']] += $lineEntry['allocated_amount'];
+                $map_ownership_line_entries[$lineEntry['ownership_id']][] = $line_entry_id;
             }
 
             // retrieve called amount for each ownership, at each date
@@ -414,7 +466,6 @@ class FundRequest extends \equal\orm\Model {
 
             foreach($map_ownership_amounts as $ownership_id => $allocated_amount) {
                 $remaining_amount = $allocated_amount;
-                $num_intervals = count($execution_dates);
                 $base_amount = floor($allocated_amount / $num_intervals);
 
                 foreach($execution_dates as $index => $execution_date) {
@@ -425,16 +476,21 @@ class FundRequest extends \equal\orm\Model {
             }
 
             foreach($execution_dates as $execution_date) {
-                $execution_values['execution_date'] = $execution_date;
+                $execution_values['emission_date'] = $execution_date;
                 $requestExecution = FundRequestExecution::create($execution_values)->first();
 
                 foreach($map_ownership_execution_amounts as $ownership_id => $map_amounts) {
-                    FundRequestExecutionLine::create([
+                    $executionLine = FundRequestExecutionLine::create([
                             'condo_id'              => $fundRequest['condo_id'],
-                            'request_execution_id'  => $requestExecution['id'],
+                            // 'request_execution_id'  => $requestExecution['id'],
+                            'invoice_id'            => $requestExecution['id'],
                             'ownership_id'          => $ownership_id,
-                            'called_amount'         => $map_amounts[$execution_date]
-                        ]);
+                            // 'called_amount'         => $map_amounts[$execution_date]
+                            'total'                 => $map_amounts[$execution_date]
+                        ])
+                        ->first();
+                    // link execution line and related line entries
+                    FundRequestLineEntry::ids($map_ownership_line_entries[$ownership_id])->update(['execution_lines_ids' => [$executionLine['id']]]);
                 }
             }
         }
@@ -478,12 +534,30 @@ class FundRequest extends \equal\orm\Model {
     /**
      * Create accounting entries related to fund request.
      * - **debit** on the accounts **4101cccc** of the co-owners (identified by each co-owner)
-     * - **credit** on the account **100000** (identified by the assignment code "working_fund")
+     * - **credit** on the account **100000** (identified by the assignment code "working")
      */
     public static function onafterActivate($self) {
 
+// non : on fait cela dans le FundRequestExecution
 
 
+    }
 
+    private static function compute() {
+
+    }
+
+    public static function onchange($event, $values) {
+        $result = [];
+        if(isset($event['request_type']) && $values['fiscal_year_id']) {
+            if($event['request_type'] == 'expense_provisions') {
+                $fiscalYear = FiscalYear::id($values['fiscal_year_id'])->read(['fiscal_period_frequency', 'date_from', 'date_to'])->first();
+                $result['has_date_range'] = true;
+                $result['date_range_frequency'] = ['A' => 12, 'S' => 6, 'T' => 4, 'Q' => 3][$fiscalYear['fiscal_period_frequency']];
+                $result['date_from'] = $fiscalYear['date_from'];
+                $result['date_to'] = $fiscalYear['date_to'];
+            }
+        }
+        return $result;
     }
 }

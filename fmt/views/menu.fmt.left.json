@@ -50,7 +50,7 @@
                         "id": "fund_requests",
                         "type": "entry",
                         "label": "Fund requests",
-                        "icon": "supervisor_account",
+                        "icon": "savings",
                         "description": "",
                         "context": {
                             "entity": "realestate\\funding\\FundRequest",

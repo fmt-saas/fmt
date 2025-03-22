@@ -64,6 +64,16 @@ class FundRequestLineEntry extends \equal\orm\Model {
                 'description'       => "Lines of the Fund request."
             ],
 
+            'execution_lines_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'realestate\funding\FundRequestExecutionLine',
+                'foreign_field'     => 'line_entries_ids',
+                'rel_table'         => 'funding_lineentry_rel_funding_executionline',
+                'rel_foreign_key'   => 'execution_line_id',
+                'rel_local_key'     => 'line_entry_id',
+                'description'       => "Request fund execution lines the entry relates to, if any."
+            ]
+
         ];
     }
 

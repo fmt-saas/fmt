@@ -23,36 +23,34 @@ class FundRequestLineEntryLot extends \equal\orm\Model {
             ],
 
             'fund_request_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
+                'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\FundRequest',
-                'description'       => "Fund request the entry relates to.",
-                'relation'          => ['line_entry_id' => ['request_line_id' => 'fund_request_id']],
-                'store'             => true
+                'description'       => "Fund request the entry relates to."
             ],
 
             'request_line_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
+                'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\FundRequestLine',
-                'description'       => "Fund request line the entry lot relates to.",
-                'relation'          => ['line_entry_id' => 'request_line_id'],
-                'store'             => true
+                'description'       => "Fund request line the entry lot relates to."
             ],
 
             'ownership_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
+                'type'              => 'many2one',
                 'description'       => "The ownership that the owner refers to.",
-                'foreign_object'    => 'realestate\ownership\Ownership',
-                'relation'          => ['line_entry_id' => 'ownership_id'],
-                'store'             => true
+                'foreign_object'    => 'realestate\ownership\Ownership'
             ],
 
             'property_lot_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\PropertyLot',
                 'description'       => "The property lot the entry lot relates to.",
+            ],
+
+            'apportionment_shares' => [
+                'type'              => 'integer',
+                'usage'             => 'amount/natural',
+                'description'       => "Amount of shares the owner has on the ownership",
+                'help'              => "The amount of shares the targeted property lot has for the apportionment."
             ],
 
             'line_entry_id' => [

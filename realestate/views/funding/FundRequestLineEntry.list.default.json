@@ -5,21 +5,19 @@
         "items": [
             {
                 "type": "field",
+                "label": "Condominium",
                 "value": "condo_id",
                 "width": "100%"
             },
             {
                 "type": "field",
+                "label": "Fund Request",
                 "value": "fund_request_id",
                 "width": "100%"
             },
             {
                 "type": "field",
-                "value": "request_line_id",
-                "width": "100%"
-            },
-            {
-                "type": "field",
+                "label": "Owner",
                 "value": "ownership_id",
                 "width": "100%"
             },

@@ -1,5 +1,13 @@
 {
     "name": "Fund Request",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {"id": "SAVE_AND_CONTINUE"},
+                {"id": "SAVE_AND_CLOSE"}
+            ]
+        }
+    },
     "description": "",
     "actions": [
         {
@@ -47,7 +55,7 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "66%",
                                         "items": [
                                             {
                                                 "type": "field",
@@ -59,43 +67,65 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Condominium",
-                                                "value": "condo_id",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "request_type",
                                                 "width": "33%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "has_date_range",
+                                                "label": "Account",
+                                                "value": "request_account_id",
                                                 "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_date_range",
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "request_date",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "date_from",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "date_to",
-                                                "width": "33%"
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_range_frequency",
+                                                "width": "25%"
                                             }
                                         ]
                                     },
                                     {
-                                        "width": "50%",
+                                        "width": "33%",
                                         "items": [
                                             {
                                                 "type": "label",
                                                 "value": "",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Condominium",
+                                                "value": "condo_id",
+                                                "width": "66%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Fiscal year",
+                                                "value": "fiscal_year_id",
                                                 "width": "66%"
                                             },
                                             {
@@ -103,30 +133,23 @@
                                                 "label": "Requested Amount",
                                                 "value": "request_amount",
                                                 "width": "33%",
+                                                "visible": false,
                                                 "widget": {
                                                     "heading": true
                                                 }
-                                            },
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "66%",
+                                        "items": [
                                             {
                                                 "type": "field",
-                                                "value": "date_range_frequency",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "33%",
-                                                "visible": ["has_date_range", "=", false]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Fiscal year",
-                                                "value": "fiscal_year_id",
+                                                "value": "request_bank_account_id",
                                                 "width": "33%"
                                             }
                                         ]
@@ -164,7 +187,7 @@
                     },
                     {
                         "id": "section.executions",
-                        "label": "Executions",
+                        "label": "Scheduled executions",
                         "rows": [
                             {
                                 "columns": [

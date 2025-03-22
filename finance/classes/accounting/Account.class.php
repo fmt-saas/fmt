@@ -169,7 +169,6 @@ class Account extends Model {
                 'default'           => false
             ],
 
-            // #todo - to be confirmed
             'operation_assignment'  => [
                 'type'              => 'string',
                 'description'       => "Operation the account is dedicated to.",
@@ -181,11 +180,11 @@ class Account extends Model {
                     'bank_savings',
                     'bank_transfer',
                     'co_owners',
-                    'co_owners_reserve_fund',
-                    'co_owners_working_fund',
+                    'co_owners_reserve_fund',           // used for FundRequestExecution
+                    'co_owners_working_fund',           // used for FundRequestExecution
                     'deferred_expenses',
                     'deferred_income',
-                    'expense_provisions',
+                    'expense_provisions',               // used for FundRequest
                     'installment_intermediate_account',
                     'manager_fees',
                     'pending_creditor_import',
@@ -193,12 +192,12 @@ class Account extends Model {
                     'pending_work_balance',
                     'private_expenses',
                     'reinvoiced_private_expenses',
-                    'reserve_fund',
+                    'reserve_fund',                     // used for FundRequest
                     'suppliers',
                     'work_expenses',
                     'work_fund_call',
-                    'work_provisions',
-                    'working_fund'
+                    'work_provisions',                  // used for FundRequest
+                    'working_fund'                      // used for FundRequest
                 ]
             ],
 

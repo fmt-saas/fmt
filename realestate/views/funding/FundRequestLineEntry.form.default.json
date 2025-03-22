@@ -10,36 +10,38 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "label": "Condominium",
                                                 "value": "condo_id",
-                                                "width": "100%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Fund Request",
                                                 "value": "fund_request_id",
-                                                "width": "100%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "request_line_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
+                                                "label": "Owner",
                                                 "value": "ownership_id",
-                                                "width": "100%"
-                                            },
+                                                "width": "33%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
                                             {
                                                 "type": "field",
                                                 "value": "allocated_amount",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "name",
                                                 "width": "100%"
                                             }
                                         ]

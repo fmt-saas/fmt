@@ -51,14 +51,23 @@ class Invoice extends Model {
                 'default'           => 1
             ],
 
+            'fiscal_year_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => "Fiscal year the fund request relates to.",
+                'required'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'description'       => 'Current status of the invoice.',
                 'selection'         => [
-                    'invoice',
-                    'cancelled'
+                    'proforma',             // draft invoice (no number yet)
+                    'invoice',              // final invoice (with unique number and accounting entries)
+                    'cancelled'             // the invoice has been cancelled (through reversing entries)
                 ],
-                'default'           => 'invoice',
+                'default'           => 'proforma',
                 'help'              => "Status set to 'invoice' means the invoice has been emitted with a unique number and accounting entries. `cancelled` means that the invoice has been cancelled through a credit note (and related reversing entries)."
             ],
 
@@ -67,14 +76,15 @@ class Invoice extends Model {
                 'description'       => 'Document type: invoice or a credit note.',
                 'selection'         => [
                     'invoice',
-                    'credit_note'
+                    'credit_note',
+                    'fund_request'
                 ],
                 'default'           => 'invoice'
             ],
 
             'invoice_purpose' => [
                 'type'              => 'string',
-                'description'       => 'Is the invoice concerning a sale to a customer or a buy from a supplier.',
+                'description'       => 'Is the invoice concerning a sale to a customer or a purchase from a supplier.',
                 'selection'         => [
                     'sell',
                     'buy'
@@ -162,14 +172,23 @@ class Invoice extends Model {
                 'dependents'        => ['total', 'price']
             ],
 
-            'accounting_entries_ids' => [
+            'accounting_entry_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'description'       => "Accounting entry of the invoice."
+            ],
+
+            /*
+            // #todo
+            'accounting_entry_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
                 'foreign_field'     => 'origin_object_id',
-                'domain'            => ['origin_object_class', '=', 'finance\accounting\invoice\Invoice'],
+                'domain'            => [['origin_object_class', '=', 'finance\accounting\invoice\Invoice'], ['accounting_entry_id', '=', 'object.accounting_entry_id']],
                 'description'       => 'Accounting entries relating to the lines of the invoice.',
                 'ondetach'          => 'delete'
             ]
+            */
 
         ];
     }

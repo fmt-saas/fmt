@@ -49,26 +49,38 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "label": "Code",
+                                                "value": "entry_number",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "label": "Fiscal year",
                                                 "value": "fiscal_year_id",
-                                                "width": "50%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "entry_date",
-                                                "width": "50%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "condominium",
                                                 "value": "condo_id",
-                                                "width": "50%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "journal",
                                                 "value": "journal_id",
-                                                "width": "50%"
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "invoice",
+                                                "value": "invoice_id",
+                                                "width": "33%"
                                             }
                                         ]
                                     },

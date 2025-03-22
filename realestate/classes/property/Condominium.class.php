@@ -220,6 +220,16 @@ class Condominium extends \identity\Organisation {
                 'description'   => 'Generate mandatory sequences for Condominium (for related entities codes).',
                 'policies'      => [],
                 'function'      => 'doGenerateSequences'
+            ],
+            'generate_account_chart' => [
+                'description'   => 'Generate mandatory default Chart of accounts for Condominium.',
+                'policies'      => [],
+                'function'      => 'doGenerateAccountChart'
+            ],
+            'generate_journals' => [
+                'description'   => 'Generate mandatory default Chart of accounts for Condominium.',
+                'policies'      => [],
+                'function'      => 'doGenerateJournals'
             ]
         ];
     }
@@ -363,23 +373,20 @@ class Condominium extends \identity\Organisation {
         }
     }
 
-    /**
-     * Create mandatory dependencies for new Condominium
-     */
-    public function oncreate($self) {
-        // 1 - create specific sequences for accounting entries, invoices, lots, owners, ...
-        $self->do('generate_sequences');
-
+    public static function doGenerateAccountChart($self) {
         foreach($self as $id => $condominium) {
-            // 2 - create (empty) account chart
             $accountChart = AccountChart::create([
                     'condo_id'  => $id,
                     'name'      => 'Plan comptable'
                 ])
                 ->first();
             self::id($id)->update(['account_chart_id' => $accountChart['id']]);
+        }
+    }
 
-            // 3 - create journals
+    public static function doGenerateJournals($self) {
+        foreach($self as $id => $condominium) {
+            // read 'default' journals (not assigned to any condominium)
             $journals = Journal::search(['condo_id', '=', null])
                 ->read([
                     'name',
@@ -390,6 +397,7 @@ class Condominium extends \identity\Organisation {
                     'is_visible'
                 ]);
 
+            // duplicate each journal
             foreach($journals as $journal_id => $journal) {
                 Journal::create([
                         'condo_id'      => $id,
@@ -402,6 +410,19 @@ class Condominium extends \identity\Organisation {
                     ]);
             }
         }
+    }
+
+    /**
+     * Create mandatory dependencies for new Condominium
+     */
+    public function oncreate($self) {
+        $self
+            // 1 - create specific sequences for accounting entries, invoices, lots, owners, ...
+            ->do('generate_sequences')
+            // 2 - create (empty) account chart
+            ->do('generate_account_chart')
+            // 3 - create journals
+            ->do('generate_journals');
     }
 
 

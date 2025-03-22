@@ -12,15 +12,16 @@ use finance\accounting\Account;
 use finance\accounting\AccountingEntry;
 use finance\accounting\AccountingEntryLine;
 use realestate\ownership\Ownership;
+use fmt\setting\Setting;
 
-class FundRequestExecution extends \equal\orm\Model {
+class FundRequestExecution extends \sale\accounting\invoice\Invoice {
 
     public static function getName() {
         return 'Fund Request Execution';
     }
 
     public static function getDescription() {
-        return "A Fund Request Execution represents the actual execution of a fund request, generating accounting entries based on the predefined allocation plan.";
+        return "A Fund Request Execution represents the actual execution of a fund request. It is handled as a sale invoice, generating accounting entries based on the predefined allocation plan.";
     }
 
     public static function getColumns() {
@@ -33,12 +34,35 @@ class FundRequestExecution extends \equal\orm\Model {
                 'store'             => true
             ],
 
-            'condo_id' => [
-                'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'realestate\property\Condominium',
-                'required'          => true
+            /* from finance\accounting\invoice\Invoice: */
+            // 'condo_id'
+            // 'fiscal_year_id'
+            // 'accounting_entry_id'
+            // 'emission_date'
+
+            'emission_date' => [
+                'type'              => 'datetime',
+                'usage'             => 'date/plain',
+                'description'       => 'Date at which the execution is planned.',
+                'required'          => true,
+                'dependents'        => ['name']
             ],
+
+            'invoice_type' => [
+                'type'              => 'string',
+                'description'       => 'Document type: invoice or a credit note.',
+                'default'           => 'fund_request'
+            ],
+
+            /* from sale\accounting\invoice\Invoice: */
+            // 'funding_id'
+            'customer_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'sale\customer\Customer',
+                'description'       => 'There is no customer for fund requests.',
+            ],
+
+            /* additional fields*/
 
             'fund_request_id' => [
                 'type'              => 'many2one',
@@ -48,40 +72,16 @@ class FundRequestExecution extends \equal\orm\Model {
                 'required'          => true
             ],
 
-            'fiscal_year_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\FiscalYear',
-                'description'       => "Fiscal year the fund request relates to.",
-                'required'          => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id']
-            ],
-
-            'execution_date' => [
-                'type'              => 'date',
-                'description'       => 'Date at which the execution is planned.',
-                'required'          => true,
-                'dependents'        => ['name']
-            ],
-
-            'accounting_entry_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\AccountingEntry',
-                'description'       => "Accounting entry the line relates to."
-            ],
-
             'called_amount' => [
-                'type'              => 'computed',
-                'result_type'       => 'float',
-                'usage'             => 'amount/money:4',
-                'function'          => 'calcCalledAmount',
-                'store'             => true,
-                'description'       => 'Total amount requested to co-owners.'
+                'type'              => 'alias',
+                'alias'             => 'price',
+                'usage'             => 'amount/money:2'
             ],
 
             'execution_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\funding\FundRequestExecutionLine',
-                'foreign_field'     => 'request_execution_id',
+                'foreign_field'     => 'invoice_id',
                 'description'       => "Lines of the Fund request execution."
             ],
 
@@ -91,74 +91,136 @@ class FundRequestExecution extends \equal\orm\Model {
                 'description'       => 'Logs of the accounting entry generation'
             ],
 
-            'status' => [
-                'type'              => 'string',
-                'description'       => 'Current status of the request execution.',
-                'selection'         => [
-                    'waiting',
-                    'called',
-                    'cancelled'
-                ],
-                'default'           => 'waiting'
-            ],
-
-
         ];
     }
 
     public static function getWorkflow() {
         return [
-            'waiting' => [
+            'proforma' => [
                 'description' => 'Draft fund request execution, waiting to reach execution date.',
                 'icon'        => 'draw',
                 'transitions' => [
                     'call' => [
-                        'description' => 'Update the fund request execution to `called`.',
+                        'description' => 'Update the fund request execution to `invoice`.',
                         'policies'    => [],
+                        'onbefore'    => 'onbeforeCall',
                         'onafter'     => 'onafterCall',
-                        'status'      => 'called'
+                        'status'      => 'invoice'
                     ]
                 ]
             ],
+            'invoice' => [
+                'description' => 'Draft fund request execution, waiting to reach execution date.',
+                'icon'        => 'done',
+                'transitions' => [
+                    'cancel' => [
+                        'description' => 'Update the fund request execution to `cancelled`.',
+                        'policies'    => [],
+                        'onafter'     => 'onafterCancelled',
+                        'status'      => 'cancelled'
+                    ]
+                ]
+            ]
         ];
     }
 
     public static function getActions() {
         return [
-            'generate_accounting_entries' => [
-                'description'   => 'Generate the request lines according to the property lots of the condominium and their respective shares.',
+            'generate_accounting_entry' => [
+                'description'   => 'Generate a draft of the resulting accounting entry and entry lines.',
                 'policies'      => [],
                 'function'      => 'doGenerateAccountingEntries'
+            ],
+            'perform_execution' => [
+                'description'   => 'Perform the fund request execution by creating and validating resulting Accounting entries and Fundings.',
+                'policies'      => [],
+                'function'      => 'doPerformExecution'
+            ],
+            'cancel_execution' => [
+                'description'   => 'Void the execution, and cancel subsequent accounting entry.',
+                'policies'      => [],
+                'function'      => 'doCancelExecution'
             ]
         ];
     }
 
+
+    public static function onbeforeCall($self) {
+        $self->read(['organisation_id', 'condo_id', 'fiscal_year_id' => ['code']]);
+        foreach($self as $id => $requestExecution) {
+            $format = Setting::get_value(
+                    'sale',
+                    'accounting',
+                    'invoice.sequence_format',
+                    '%2d{year}_%05d{sequence}',
+                    [
+                        'condo_id'          => $requestExecution['condo_id']
+                    ]
+                );
+
+            $fiscal_year_code = $requestExecution['fiscal_year_id']['code'];
+
+            $sequence = Setting::fetch_and_add(
+                    'sale',
+                    'accounting',
+                    'invoice.sequence.' . $fiscal_year_code,
+                    1,
+                    [
+                        'condo_id'          => $requestExecution['condo_id']
+                    ]
+                );
+
+            if($sequence) {
+                throw new \Exception('missing_mandatory_sequence', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $invoice_number = Setting::parse_format($format, [
+                    'year'      => $fiscal_year_code,
+                    'org'       => $requestExecution['organisation_id'],
+                    'condo'     => $requestExecution['condo_id'],
+                    'sequence'  => $sequence
+                ]);
+
+            self::id($id)->update(['invoice_number' => $invoice_number]);
+        }
+    }
+
     public static function onafterCall($self) {
-        $self->do('generate_accounting_entries');
+        $self->do('perform_execution');
     }
 
-    public static function calcName($self) {
+    public static function onafterCancelled($self) {
+        $self->do('cancel_execution');
+    }
+
+    public static function calcName($self): array {
         $result = [];
-        $self->read(['fund_request_id' => ['name'], 'execution_date']);
+        $self->read(['fund_request_id' => ['name'], 'emission_date']);
         foreach($self as $id => $requestExecution) {
-            $result[$id] = $requestExecution['fund_request_id']['name'] . ' ('. date('d/m/Y', $requestExecution['execution_date']) . ')';
+            $result[$id] = $requestExecution['fund_request_id']['name'] . ' ('. date('d/m/Y', $requestExecution['emission_date']) . ')';
         }
         return $result;
     }
 
-    public static function calcCalledAmount($self) {
-        $result = [];
-        $self->read(['execution_lines_ids' => ['called_amount']]);
+    public static function doPerformExecution($self) {
+        $self
+            ->do('generate_accounting_entry')
+            ->read(['accounting_entry_id']);
+
         foreach($self as $id => $requestExecution) {
-            if(empty($requestExecution['execution_lines_ids'])) {
-                continue;
-            }
-            $result[$id] = 0.0;
-            foreach($requestExecution['execution_lines_ids'] as $executionLine) {
-                $result[$id] += $executionLine['called_amount'];
-            }
+            // retrieve accounting entry and validate it
+            AccountingEntry::id($requestExecution['accounting_entry_id'])->transition('validate');
         }
-        return $result;
+
+    }
+
+    public static function doCancelExecution($self) {
+        $self->update(['price' => 0.0])->read(['accounting_entry_id']);
+        foreach($self as $id => $requestExecution) {
+            // retrieve accounting entry and cancel it
+            AccountingEntry::id($requestExecution['accounting_entry_id'])->transition('cancel');
+        }
+
     }
 
     /**
@@ -167,28 +229,22 @@ class FundRequestExecution extends \equal\orm\Model {
      * However, it is possible to cancel it by passing a cancellation entry (reversal).
      */
     public static function doGenerateAccountingEntries($self) {
-        static $map_credit_operation_assignments = [
-                'reserve'           => 'reserve_fund',
-                'working'           => 'working_fund',
-                'expense'           => 'expense_provisions',
-                'unique_expense'    => 'work_provisions'
-            ];
 
         static $map_debit_operation_assignments = [
-                'reserve'           => 'co_owners_reserve_fund',
-                'working'           => 'co_owners_working_fund',
-                'expense'           => 'co_owners_working_fund',
-                'unique_expense'    => 'co_owners_working_fund'
+                'reserve_fund'           => 'co_owners_reserve_fund',
+                'working_fund'           => 'co_owners_working_fund',
+                'expense_provisions'     => 'co_owners_working_fund',
+                'work_provisions'        => 'co_owners_working_fund'
             ];
 
         $self->read([
                 'name',
                 'fiscal_year_id',
                 'accounting_entry_id',
-                'execution_date',
+                'emission_date',
                 'called_amount',
                 'condo_id',
-                'fund_request_id' => ['request_type'],
+                'fund_request_id' => ['request_type', 'request_account_id'],
                 'execution_lines_ids' => ['ownership_id', 'called_amount']
             ]);
 
@@ -205,8 +261,9 @@ class FundRequestExecution extends \equal\orm\Model {
             $accountingEntry = AccountingEntry::create([
                 'condo_id'              => $requestExecution['condo_id'],
                 'journal_id'            => $journal['id'],
+                'invoice_id'            => $id,
                 'fiscal_year_id'        => $requestExecution['fiscal_year_id'],
-                'entry_date'            => $requestExecution['execution_date'],
+                'entry_date'            => $requestExecution['emission_date'],
                 'origin_object_class'   => self::getType(),
                 'origin_object_id'      => $id
             ])
@@ -215,27 +272,11 @@ class FundRequestExecution extends \equal\orm\Model {
             $logs[] = "Created accounting entry id {$accountingEntry['id']}";
 
             // create the credit line
-            $credit_operation_assignment = $map_credit_operation_assignments[$requestExecution['fund_request_id']['request_type']];
-            $logs[] = "Retrieved credit operation assignment {$credit_operation_assignment}";
-
-            // find the account based on operation_assignment
-            $account = Account::search([
-                    ['condo_id', '=', $requestExecution['condo_id']],
-                    ['operation_assignment', '=', $credit_operation_assignment]
-                ])
-                ->first();
-
-            if(!$account) {
-                throw new \Exception('missing_mandatory_credit_account', EQ_ERROR_INVALID_CONFIG);
-            }
-
-            $logs[] = "Retrieved credit account id {$account['id']}";
-
             AccountingEntryLine::create([
                     'condo_id'              => $requestExecution['condo_id'],
                     'accounting_entry_id'   => $accountingEntry['id'],
                     'name'                  => $requestExecution['name'],
-                    'account_id'            => $account['id'],
+                    'account_id'            => $requestExecution['fund_request_id']['request_account_id'],
                     'debit'                 => 0.0,
                     'credit'                => $requestExecution['called_amount']
                 ]);

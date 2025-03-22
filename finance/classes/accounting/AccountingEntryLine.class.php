@@ -47,7 +47,7 @@ class AccountingEntryLine extends Model {
                 'required'          => true,
                 'ondelete'          => 'null',
                 'dependents'        => ['journal_id'],
-                'domain'            => [['is_control_account', '=', false], ['is_visible', '=', true]]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]]
             ],
 
             'journal_id' => [

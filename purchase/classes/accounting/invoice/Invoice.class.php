@@ -7,12 +7,14 @@
 
 namespace purchase\accounting\invoice;
 
-use finance\accounting\invoice\Invoice as FinanceInvoice;
-
-class Invoice extends FinanceInvoice {
+class Invoice extends \finance\accounting\invoice\Invoice {
 
     public static function getName() {
         return 'Purchase invoice';
+    }
+
+    public function getTable() {
+        return 'purchase_accounting_invoice_invoice';
     }
 
     public static function getDescription() {

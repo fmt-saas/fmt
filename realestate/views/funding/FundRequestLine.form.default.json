@@ -26,6 +26,7 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Apportionment",
                                                 "value": "apportionment_id",
                                                 "width": "33%"
                                             }

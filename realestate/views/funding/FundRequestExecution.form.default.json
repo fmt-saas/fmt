@@ -1,17 +1,37 @@
 {
     "name": "Fund Request Execution",
     "description": "A Fund Request Execution represents the actual execution of a fund request, generating accounting entries based on the predefined allocation plan.",
+    "header": {
+        "actions": {
+            "ACTION.EDIT": false
+        }
+    },
     "actions": [
         {
-            "id": "action.generate_accounting_entries",
-            "label": "Generate Entries",
-            "description": "Generate the accounting entries of the fund request execution.",
-            "controller": "core_model_perform",
+            "id": "action.perform_execution",
+            "label": "Perform execution",
+            "description": "Perform the fund request execution by creating and validating resulting Accounting entries and Fundings. Execution will no longer be modifiable after this operation.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "proforma"],
             "params": {
                 "entity": "realestate\\funding\\FundRequestExecution",
-                "action": "generate_accounting_entries"
+                "transition": "call",
+                "ids": []
             },
-            "visible": ["status", "=", "waiting"]
+            "confirm": true
+        },
+        {
+            "id": "action.cancel_execution",
+            "label": "Cancel execution",
+            "description": "Perform the fund request execution by creating and validating resulting Accounting entries and Fundings. Execution will no longer be modifiable after this operation.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "invoice"],
+            "params": {
+                "entity": "realestate\\funding\\FundRequestExecution",
+                "transition": "cancel",
+                "ids": []
+            },
+            "confirm": true
         }
     ],
     "layout": {
@@ -27,7 +47,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "execution_date",
+                                                "value": "emission_date",
                                                 "width": "33%"
                                             },
                                             {
@@ -40,6 +60,12 @@
                                                 "type": "field",
                                                 "label": "Fiscal Year",
                                                 "value": "fiscal_year_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Invoice number",
+                                                "value": "invoice_number",
                                                 "width": "33%"
                                             },
                                             {
@@ -59,14 +85,16 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "label": "Accounting Entry",
-                                                "value": "accounting_entry_id",
+                                                "label": "Called Amount",
+                                                "value": "price",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "called_amount",
-                                                "width": "100%"
+                                                "label": "Accounting Entry",
+                                                "value": "accounting_entry_id",
+                                                "width": "100%",
+                                                "visible": ["status", "<>", "proforma"]
                                             }
                                         ]
                                     }

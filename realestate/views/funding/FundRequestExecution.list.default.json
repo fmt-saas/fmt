@@ -3,7 +3,7 @@
     "description": "A Fund Request Execution represents the actual execution of a fund request, generating accounting entries based on the predefined allocation plan.",
     "operations": {
         "total": {
-            "called_amount": {
+            "price": {
                 "operation": "SUM",
                 "usage": "amount/money:2"
             }
@@ -24,7 +24,7 @@
             },
             {
                 "type": "field",
-                "value": "execution_date",
+                "value": "emission_date",
                 "width": "20%"
             },
             {
@@ -40,7 +40,8 @@
             },
             {
                 "type": "field",
-                "value": "called_amount",
+                "label": "Called amount",
+                "value": "price",
                 "width": "20%"
             }
         ]

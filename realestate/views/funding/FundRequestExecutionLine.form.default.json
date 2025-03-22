@@ -1,5 +1,5 @@
 {
-    "name": "Fund Request Execution",
+    "name": "Fund Request Execution Line",
     "description": "A Fund Request Execution Line represents an individual allocation within a Fund Request Execution, detailing the called amount for a specific owner and period.",
     "layout": {
         "groups": [
@@ -10,26 +10,36 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "100%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "request_execution_id",
-                                                "width": "100%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "ownership_id",
-                                                "width": "100%"
-                                            },
+                                                "width": "33%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
                                             {
                                                 "type": "field",
-                                                "value": "called_amount",
+                                                "label": "Called Amount",
+                                                "value": "price",
                                                 "width": "100%"
                                             }
                                         ]

@@ -17,7 +17,7 @@ class AccountingEntry extends Model {
     }
 
     public static function getDescription() {
-        return "Accounting entries convert invoice lines into records of financial transactions in the accounting books.";
+        return "Accounting entries correspond to invoice lines mapped as records of financial transactions in the accounting books.";
     }
 
     public static function getColumns() {
@@ -32,7 +32,8 @@ class AccountingEntry extends Model {
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'function'          => 'calcName'
+                'function'          => 'calcName',
+                'store'             => true
             ],
 
             'journal_id' => [
@@ -40,7 +41,7 @@ class AccountingEntry extends Model {
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => "Accounting journal the entry relates to.",
                 'required'          => true,
-                'domain'            => ['code', '<>', 'LEDG']
+                'domain'            => [['code', '<>', 'LEDG'], ['condo_id', '=', 'object.condo_id']]
             ],
 
             'fiscal_year_id' => [
@@ -73,14 +74,14 @@ class AccountingEntry extends Model {
             'is_temp' => [
                 'type'              => 'boolean',
                 'description'       => 'The accounting entry is a temporary report and cannot be modified nor receive an entry number.',
-                'default'           => false
+                'default'           => false,
+                'dependents'        => ['name']
             ],
 
             'entry_number' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'function'          => 'calcEntryNumber',
-                'store'             => true
+                'type'              => 'string',
+                'description'       => 'Unique code for entry identification.',
+                'dependents'        => ['name']
             ],
 
             'origin_object_class' => [
@@ -135,6 +136,13 @@ class AccountingEntry extends Model {
                 'visible'           => ['visible', '=', 'cancelled']
             ],
 
+            'invoice_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\invoice\Invoice',
+                'description'       => 'Invoice the line is related to.',
+                'ondelete'          => 'null'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -144,7 +152,8 @@ class AccountingEntry extends Model {
                 ],
                 'default'           => 'pending',
                 'description'       => 'Status of the accounting entry.',
-                'help'              => 'Once an accounting entry has been validated, it cannot be removed. It can however, be cancelled through a reverse entry.'
+                'help'              => 'Once an accounting entry has been validated, it cannot be removed. It can however, be cancelled through a reverse entry.',
+                'dependents'        => ['name']
             ]
 
         ];
@@ -216,10 +225,8 @@ class AccountingEntry extends Model {
                         'credit'     => $entryLine['credit']
                     ]);
             }
+            self::id($id)->update(['entry_number' => self::computeEntryNumber($id)]);
         }
-
-        // force computing fields impacted by status
-        $self->read(['entry_number', 'fiscal_period_id']);
     }
 
     public static function onbeforeCancel($self) {
@@ -231,7 +238,7 @@ class AccountingEntry extends Model {
                     'condo_id'              => $accountingEntry['condo_id'],
                     'journal_id'            => $accountingEntry['journal_id'],
                     'fiscal_year_id'        => $accountingEntry['fiscal_year_id'],
-                    'entry_date'            => $accountingEntry['entry_date'],
+                    'entry_date'            => time(),
                     'reverse_entry_id'      => $id
                 ])
                 ->first();
@@ -376,51 +383,55 @@ class AccountingEntry extends Model {
         return $result;
     }
 
-    public static function calcEntryNumber($self) {
-        $result = [];
-        $self->read(['status', 'is_temp', 'condo_id', 'journal_id' => ['code'], 'fiscal_year_id' => ['code', 'organisation_id']]);
+    private static function computeEntryNumber($id) {
+        $result = '';
+        $entry = self::id($id)
+            ->read(['status', 'is_temp', 'condo_id', 'journal_id' => ['code'], 'fiscal_year_id' => ['code', 'organisation_id']])
+            ->first();
 
-        foreach($self as $id => $entry) {
-            if($entry['status'] == 'pending' || $entry['is_temp']) {
-                continue;
-            }
-
-            if(!isset($entry['journal_id'], $entry['journal_id']['code'], $entry['fiscal_year_id']['organisation_id'])) {
-                continue;
-            }
-
-            $format = Setting::get_value(
-                    'finance',
-                    'accounting',
-                    'accounting_entry.number_format',
-                    '%s{journal}/%02d{year}/%05d{sequence}',
-                    [
-                        'condo_id' => $entry['condo_id']
-                    ]
-                );
-
-            $fiscal_year_code = $entry['fiscal_year_id']['code'];
-            $journal_code = $entry['journal_id']['code'];
-
-            $sequence = Setting::fetch_and_add(
-                    'finance',
-                    'accounting',
-                    "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}",
-                    1,
-                    [
-                        'condo_id' => $entry['condo_id']
-                    ]
-                );
-
-            if($sequence) {
-                $result[$id] = Setting::parse_format($format, [
-                        'year'      => $fiscal_year_code,
-                        'journal'   => $journal_code,
-                        'sequence'  => $sequence
-                    ]);
-            }
-
+        if($entry['status'] == 'pending' || $entry['is_temp']) {
+            return $result;
         }
+
+        if(!isset($entry['journal_id'], $entry['journal_id']['code'], $entry['fiscal_year_id']['organisation_id'])) {
+            return $result;
+        }
+
+        $format = Setting::get_value(
+                'finance',
+                'accounting',
+                'accounting_entry.number_format',
+                '%s{journal}/%02d{year}/%05d{sequence}',
+                [
+                    'condo_id' => $entry['condo_id']
+                ]
+            );
+
+        $fiscal_year_code = $entry['fiscal_year_id']['code'];
+        $journal_code = $entry['journal_id']['code'];
+
+        $sequence = Setting::fetch_and_add(
+                'finance',
+                'accounting',
+                "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}",
+                1,
+                [
+                    'condo_id' => $entry['condo_id']
+                ]
+            );
+
+        if($sequence) {
+            $result = Setting::parse_format($format, [
+                    'year'      => $fiscal_year_code,
+                    'journal'   => $journal_code,
+                    'sequence'  => $sequence
+                ]);
+        }
+        else {
+            trigger_error("APP::missing mandatory finance.accounting.accounting_entry.sequence.{$fiscal_year_code}.{$journal_code} for condominium {$entry['condo_id']}.", EQ_REPORT_ERROR);
+            throw new \Exception('missing_mandatory_sequence', EQ_ERROR_INVALID_CONFIG);
+        }
+
         return $result;
     }
 

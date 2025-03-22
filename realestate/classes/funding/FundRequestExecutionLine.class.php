@@ -7,7 +7,7 @@
 
 namespace realestate\funding;
 
-class FundRequestExecutionLine extends \equal\orm\Model {
+class FundRequestExecutionLine extends \sale\accounting\invoice\InvoiceLine {
 
     public static function getName() {
         return 'Fund Request Execution';
@@ -28,25 +28,44 @@ class FundRequestExecutionLine extends \equal\orm\Model {
             ],
 
             'request_execution_id' => [
-                'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'realestate\funding\FundRequestExecution',
-                'ondelete'          => 'cascade',
-                'required'          => true
+                'type'              => 'alias',
+                'alias'             => 'invoice_id'
             ],
 
             'ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The ownership that the owner refers to.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
-                // 'required'          => true,
+                'required'          => true,
                 'readonly'          => true
             ],
 
-            'called_amount' => [
+            'price' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
-                'description'       => 'Amount requested for the related lo to co-owner.'
+                'description'       => 'Total tax-excluded price of the line.',
+            ],
+
+            'called_amount' => [
+                'type'              => 'alias',
+                'alias'             => 'price',
+                'usage'             => 'amount/money:2'
+            ],
+
+            'product_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'sale\catalog\Product',
+                'description'       => 'There is no customer for fund requests.',
+            ],
+
+            'line_entries_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'realestate\funding\FundRequestLineEntry',
+                'foreign_field'     => 'execution_lines_ids',
+                'rel_table'         => 'funding_lineentry_rel_funding_executionline',
+                'rel_foreign_key'   => 'line_entry_id',
+                'rel_local_key'     => 'execution_line_id',
+                'description'       => "Request fund execution line the entry relates to, if any."
             ]
 
         ];
