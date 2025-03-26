@@ -8,6 +8,7 @@
 namespace realestate\property;
 
 use fmt\setting\Setting;
+use realestate\ownership\Ownership;
 
 class PropertyLot extends \equal\orm\Model {
 
@@ -190,13 +191,23 @@ class PropertyLot extends \equal\orm\Model {
     }
 
     public static function onbeforeupdate($self, $values) {
-
         // trigger update for count_property_lots of previously assigned nature
         if(isset($values['nature_id'])) {
             $natures_ids = array_map(function ($a) { return $a['nature_id'];}, $self->read(['nature_id'])->get(true));
             PropertyLotNature::ids($natures_ids)->update(['count_property_lots' => null]);
         }
+    }
 
+    public static function onchange($event, $values) {
+        $result = [];
+
+        if(isset($event['active_ownership_id'])) {
+            $ownership = Ownership::id($event['active_ownership_id'])->read(['condo_id'])->first();
+            if($ownership) {
+                $result['condo_id'] = $ownership['condo_id'];
+            }
+        }
+        return $result;
     }
 
 }
