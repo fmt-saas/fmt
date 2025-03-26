@@ -354,23 +354,6 @@
                                                 "width": "50%"
                                             }
                                         ]
-                                    },
-                                    {
-                                        "width": "50%",
-                                        "items": [
-                                            {
-                                                "id": "label.other_addresses",
-                                                "type": "label",
-                                                "value": "Other addresses",
-                                                "width": "100%",
-                                                "align": "left"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "addresses_ids",
-                                                "width": "100%"
-                                            }
-                                        ]
                                     }
                                 ]
                             }
