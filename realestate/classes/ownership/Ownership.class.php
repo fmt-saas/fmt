@@ -147,8 +147,11 @@ class Ownership extends \equal\orm\Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['has_representative', 'representative_identity_id' => ['name'], 'owners_ids' => ['name']]);
+        $self->read(['ownership_code', 'has_representative', 'representative_identity_id' => ['name'], 'owners_ids' => ['name']]);
         foreach($self as $id => $ownership) {
+            if(!$ownership['ownership_code']) {
+                continue;
+            }
             if($ownership['has_representative'] && $ownership['representative_identity_id']) {
                 $result[$id] = $ownership['representative_identity_id'];
             }
@@ -162,7 +165,7 @@ class Ownership extends \equal\orm\Model {
                     $name = substr($name, 0, 128).'...';
                 }
                 if(strlen($name) > 0) {
-                    $result[$id] = $name;
+                    $result[$id] = $ownership['ownership_code'] . ' - ' . $name;
                 }
             }
         }
