@@ -41,6 +41,24 @@ class BankAccount extends Model {
                 'visible'           => ['condo_id', '=', null]
             ],
 
+            'bank_account_iban' => [
+                'type'              => 'string',
+                'usage'             => 'uri/urn:iban',
+                'description'       => 'The IBAN number of the organization\'s bank account.',
+                'dependents'        => ['name', 'bank_country', 'bank_account_bic', 'bank_name'],
+                'required'          => true,
+                'onupdate'          => 'onupdateBankAccountIban'
+            ],
+
+            'bank_account_bic' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'The BIC code of the bank related to the organization\'s bank account.',
+                'onupdate'          => 'onupdateBankAccountBic',
+                'function'          => 'calcBankAccountBic',
+                'store'             => true
+            ],
+
             'bank_country' => [
                 'type'              => 'computed',
                 'function'          => 'calcBankCountry',
@@ -53,24 +71,13 @@ class BankAccount extends Model {
             ],
 
             'bank_name' => [
-                'type'              => 'string',
-                'description'       => 'The name of the bank where the organization holds its account.'
-            ],
-
-            'bank_account_iban' => [
-                'type'              => 'string',
-                'usage'             => 'uri/urn:iban',
-                'description'       => 'The IBAN number of the organization’s bank account.',
-                'dependents'        => ['name','bank_country'],
-                'required'          => true,
-                'onupdate'          => 'onupdateBankAccountIban'
-            ],
-
-            'bank_account_bic' => [
-                'type'              => 'string',
-                'description'       => 'The BIC code of the bank related to the organization’s bank account.',
-                'onupdate'          => 'onupdateBankAccountBic'
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'The name of the bank where the organization holds its account.',
+                'function'          => 'calcBankName',
+                'store'             => true
             ]
+
 
         ];
     }
@@ -81,18 +88,21 @@ class BankAccount extends Model {
         foreach($self as $id => $bankAccount) {
             // ignore condominiums accounts
             if($bankAccount['condo_id']) {
+                // #todo
                 continue;
             }
-            $organisation = Organisation::id($bankAccount['organisation_id'])->read(['id', 'bank_account_ids'])->first();
-            if($organisation) {
-                // by convention, if current bank account is the first of the organisation, sync back with iban from organisation
-                $first_bank_account_id = min($organisation['bank_account_ids']);
-                if($id == $first_bank_account_id) {
-                    Organisation::id($bankAccount['organisation_id'])
-                       ->update([
-                           'bank_account_iban' => $bankAccount['bank_account_iban']
-                       ]);
-               }
+            else {
+                $organisation = Organisation::id($bankAccount['organisation_id'])->read(['id', 'bank_account_ids'])->first();
+                if($organisation) {
+                    // by convention, if current bank account is the first of the organisation, sync back with iban from organisation
+                    $first_bank_account_id = min($organisation['bank_account_ids']);
+                    if($id == $first_bank_account_id) {
+                        Organisation::id($bankAccount['organisation_id'])
+                        ->update([
+                            'bank_account_iban' => $bankAccount['bank_account_iban']
+                        ]);
+                    }
+                }
             }
         }
     }
@@ -130,6 +140,30 @@ class BankAccount extends Model {
             }
         }
 
+        return $result;
+    }
+
+    public static function calcBankName($self, $lang) {
+        $result = [];
+        $self->read(['bank_account_iban']);
+        foreach($self as $id => $bankAccount) {
+            $bank_info = self::computeBankFromIban($bankAccount['bank_account_iban'], $lang);
+            if($bank_info) {
+                $result[$id] = $bank_info['name'];
+            }
+        }
+        return $result;
+    }
+
+    public static function calcBankAccountBic($self, $lang) {
+        $result = [];
+        $self->read(['bank_account_iban']);
+        foreach($self as $id => $bankAccount) {
+            $bank_info = self::computeBankFromIban($bankAccount['bank_account_iban'], $lang);
+            if($bank_info) {
+                $result[$id] = $bank_info['bic'];
+            }
+        }
         return $result;
     }
 
