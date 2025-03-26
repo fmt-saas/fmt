@@ -17,10 +17,21 @@
                         "id": "condominiums",
                         "type": "entry",
                         "label": "Condominiums",
-                        "icon": "apartment",
+                        "icon": "location_city",
                         "description": "",
                         "context": {
                             "entity": "realestate\\property\\Condominium",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "property_lots",
+                        "type": "entry",
+                        "label": "Property Lots",
+                        "icon": "apartment",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\property\\PropertyLot",
                             "view": "list.default"
                         }
                     },
