@@ -33,6 +33,15 @@ class Condominium extends \identity\Organisation {
                 'store'             => true
             ],
 
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcName',
+                'store'             => true,
+                'instant'           => true,
+                'description'       => 'The display name of the Condominium.',
+            ],
+
             'managing_agent_id' => [
                 'type'              => 'many2one',
                 'description'       => "The managing agent currently managing the condominium.",
@@ -269,6 +278,21 @@ class Condominium extends \identity\Organisation {
                 $result[$id] = [
                     'not_allowed' => 'User missing mandatory role.'
                 ];
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * #memo - Condominium is a PRIVATE entity : only MASTER instance can provide an ID. By convention, PRIVATE ID start at 1.000.001.
+     */
+    public static function calcName($self) {
+        $result = [];
+        $self->read(['legal_name']);
+        foreach($self as $id => $condominium) {
+            if($condominium['legal_name'] && strlen($condominium['legal_name'])) {
+                $code = str_pad((string) $id, 5, '0', STR_PAD_LEFT);
+                $result[$id] = $code . ' - ' . $condominium['legal_name'];
             }
         }
         return $result;
