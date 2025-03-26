@@ -1,6 +1,6 @@
 {
-    "name": "Tenant",
-    "description": "Tenant form.",
+    "name": "Tenancy",
+    "description": "Tenancy form.",
     "layout": {
         "groups": [
             {
@@ -20,12 +20,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "date_from",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "date_to",
+                                                "value": "property_lot_id",
                                                 "width": "50%"
                                             }
                                         ]
@@ -36,7 +31,12 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "property_lot_id",
+                                                "value": "date_from",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_to",
                                                 "width": "50%"
                                             }
                                         ]
