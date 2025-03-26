@@ -161,6 +161,35 @@
                         ]
                     },
                     {
+                        "id": "section.tenancies",
+                        "label": "Tenancies History",
+                        "visible": ["has_tenancy", "=", true],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "tenancies_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.SELECT": true,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "id": "section.apportionments",
                         "label": "Apportionment keys",
                         "rows": [
