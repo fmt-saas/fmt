@@ -425,7 +425,7 @@ class Condominium extends \identity\Organisation {
     /**
      * Create mandatory dependencies for new Condominium
      */
-    public function oncreate($self) {
+    public static function oncreate($self) {
         $self
             // 1 - create specific sequences for accounting entries, invoices, lots, owners, ...
             ->do('generate_sequences')
