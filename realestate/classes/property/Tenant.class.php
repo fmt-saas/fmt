@@ -17,6 +17,15 @@ class Tenant extends \equal\orm\Model {
 
         return [
 
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "Name of the tenant.",
+                'relation'          => ['tenant_identity_id' => ['name']],
+                'readonly'          => true,
+                'store'             => true
+            ],
+
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the tenancy relates to.",
