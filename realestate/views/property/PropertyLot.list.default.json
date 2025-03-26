@@ -1,6 +1,16 @@
 {
     "name": "Property Lot",
     "description": "List of property lots.",
+    "header": {
+        "actions": {
+            "ACTION.CREATE" : [
+                {
+                    "view": "form.create",
+                    "description": "Simplified form to ease creation."
+                }
+            ]
+        }
+    },
     "layout": {
         "items": [
             {
