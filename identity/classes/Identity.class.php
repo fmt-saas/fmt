@@ -669,6 +669,34 @@ class Identity extends Model {
             }
         }
 
+        if(isset($event['bank_account_iban']) && isset($values['bank_account_bic'])) {
+            $bic = self::getBicFromIban($event['bank_account_iban'], $lang);
+            if($list) {
+                $result['bank_account_bic'] = $bic;
+            }
+        }
+
+        return $result;
+    }
+
+
+    private static function getBicFromIban($iban, $lang) {
+        $result = '';
+
+        $normalized_iban = str_replace(' ', '', trim($iban));
+
+        if(preg_match('/^[A-Z]{2}\d{2}\d{12}$/', $normalized_iban)) {
+            $country = substr($normalized_iban, 0, 2);
+            $bank_code = substr($normalized_iban, 4, 3);
+
+            $file = EQ_BASEDIR."/packages/identity/i18n/{$lang}/bic/{$country}.json";
+            if(file_exists($file)) {
+                $data = file_get_contents($file);
+                $map_bic = json_decode($data, true);
+                $result = $map_bic[$bank_code]['BIC'] ?? '';
+            }
+        }
+
         return $result;
     }
 
@@ -682,9 +710,7 @@ class Identity extends Model {
         if(file_exists($file)) {
             $data = file_get_contents($file);
             $map_zip = json_decode($data, true);
-            if(isset($map_zip[$zip])) {
-                $result = $map_zip[$zip];
-            }
+            $result = $map_zip[$zip] ?? null;
         }
         // fallback to english value, if defined
         if(!$result) {
