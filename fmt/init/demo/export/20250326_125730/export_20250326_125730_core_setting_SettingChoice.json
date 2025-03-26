@@ -1,0 +1,1486 @@
+[
+    {
+        "name": "core\\setting\\SettingChoice",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 101,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "virgule",
+                "setting_id": 1,
+                "value": ","
+            },
+            {
+                "id": 102,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "point",
+                "setting_id": 1,
+                "value": "."
+            },
+            {
+                "id": 201,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "avant",
+                "setting_id": 2,
+                "value": "before"
+            },
+            {
+                "id": 202,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "après",
+                "setting_id": 2,
+                "value": "after"
+            },
+            {
+                "id": 301,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "1",
+                "setting_id": 3,
+                "value": "1"
+            },
+            {
+                "id": 302,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "1",
+                "setting_id": 3,
+                "value": "2"
+            },
+            {
+                "id": 303,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "3",
+                "setting_id": 3,
+                "value": "3"
+            },
+            {
+                "id": 401,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "virgule",
+                "setting_id": 4,
+                "value": ","
+            },
+            {
+                "id": 402,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "point",
+                "setting_id": 4,
+                "value": "."
+            },
+            {
+                "id": 501,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "1",
+                "setting_id": 5,
+                "value": "1"
+            },
+            {
+                "id": 502,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "2",
+                "setting_id": 5,
+                "value": "2"
+            },
+            {
+                "id": 503,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "3",
+                "setting_id": 5,
+                "value": "3"
+            },
+            {
+                "id": 601,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "d/m/Y",
+                "setting_id": 6,
+                "value": "d/m/Y"
+            },
+            {
+                "id": 602,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Y-m-d",
+                "setting_id": 6,
+                "value": "Y-m-d"
+            },
+            {
+                "id": 603,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "m/d/Y",
+                "setting_id": 6,
+                "value": "m/d/Y"
+            },
+            {
+                "id": 701,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "H:i",
+                "setting_id": 7,
+                "value": "H:i"
+            },
+            {
+                "id": 801,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "1",
+                "setting_id": 8,
+                "value": "1"
+            },
+            {
+                "id": 901,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "21,59 x 27,74",
+                "setting_id": 9,
+                "value": "US"
+            },
+            {
+                "id": 902,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "21 x 29,7",
+                "setting_id": 9,
+                "value": "A4"
+            },
+            {
+                "id": 903,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "29,7 x 41,99",
+                "setting_id": 9,
+                "value": "A3"
+            },
+            {
+                "id": 904,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "14,8 x 21",
+                "setting_id": 9,
+                "value": "A5"
+            },
+            {
+                "id": 1301,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "USD",
+                "setting_id": 13,
+                "value": "$"
+            },
+            {
+                "id": 1302,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "EUR",
+                "setting_id": 13,
+                "value": "€"
+            },
+            {
+                "id": 1401,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "mètre",
+                "setting_id": 14,
+                "value": "m"
+            },
+            {
+                "id": 1501,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "kilogramme",
+                "setting_id": 15,
+                "value": "kg"
+            },
+            {
+                "id": 1601,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "mètre cube",
+                "setting_id": 16,
+                "value": "m3"
+            },
+            {
+                "id": 1701,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "mètre carré",
+                "setting_id": 17,
+                "value": "m2"
+            },
+            {
+                "id": 1801,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Amsterdam"
+            },
+            {
+                "id": 1802,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Andorra"
+            },
+            {
+                "id": 1803,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Athens"
+            },
+            {
+                "id": 1804,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Belfast"
+            },
+            {
+                "id": 1805,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Belgrade"
+            },
+            {
+                "id": 1806,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Berlin"
+            },
+            {
+                "id": 1807,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Bratislava"
+            },
+            {
+                "id": 1808,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Brussels"
+            },
+            {
+                "id": 1809,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Bucharest"
+            },
+            {
+                "id": 1810,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Budapest"
+            },
+            {
+                "id": 1811,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Busingen"
+            },
+            {
+                "id": 1812,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Chisinau"
+            },
+            {
+                "id": 1813,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Copenhagen"
+            },
+            {
+                "id": 1814,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Dublin"
+            },
+            {
+                "id": 1815,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Gibraltar"
+            },
+            {
+                "id": 1816,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Guernsey"
+            },
+            {
+                "id": 1817,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Helsinki"
+            },
+            {
+                "id": 1818,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Isle_of_Man"
+            },
+            {
+                "id": 1819,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Istanbul"
+            },
+            {
+                "id": 1820,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Jersey"
+            },
+            {
+                "id": 1821,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Kaliningrad"
+            },
+            {
+                "id": 1822,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Kiev"
+            },
+            {
+                "id": 1823,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Lisbon"
+            },
+            {
+                "id": 1824,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Ljubljana"
+            },
+            {
+                "id": 1825,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/London"
+            },
+            {
+                "id": 1826,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Luxembourg"
+            },
+            {
+                "id": 1827,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Madrid"
+            },
+            {
+                "id": 1828,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Malta"
+            },
+            {
+                "id": 1829,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Mariehamn"
+            },
+            {
+                "id": 1830,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Minsk"
+            },
+            {
+                "id": 1831,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Monaco"
+            },
+            {
+                "id": 1832,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Moscow"
+            },
+            {
+                "id": 1833,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Nicosia"
+            },
+            {
+                "id": 1834,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Oslo"
+            },
+            {
+                "id": 1835,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Paris"
+            },
+            {
+                "id": 1836,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Podgorica"
+            },
+            {
+                "id": 1837,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Prague"
+            },
+            {
+                "id": 1838,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Riga"
+            },
+            {
+                "id": 1839,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Rome"
+            },
+            {
+                "id": 1840,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Samara"
+            },
+            {
+                "id": 1841,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/San_Marino"
+            },
+            {
+                "id": 1842,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Sarajevo"
+            },
+            {
+                "id": 1843,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Simferopol"
+            },
+            {
+                "id": 1844,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Skopje"
+            },
+            {
+                "id": 1845,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Sofia"
+            },
+            {
+                "id": 1846,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Stockholm"
+            },
+            {
+                "id": 1847,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Tallinn"
+            },
+            {
+                "id": 1848,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Tirane"
+            },
+            {
+                "id": 1849,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Tiraspol"
+            },
+            {
+                "id": 1850,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Uzhgorod"
+            },
+            {
+                "id": 1851,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Vaduz"
+            },
+            {
+                "id": 1852,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Vatican"
+            },
+            {
+                "id": 1853,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Vienna"
+            },
+            {
+                "id": 1854,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Vilnius"
+            },
+            {
+                "id": 1855,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Volgograd"
+            },
+            {
+                "id": 1856,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Warsaw"
+            },
+            {
+                "id": 1857,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Zagreb"
+            },
+            {
+                "id": 1858,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Zaporozhye"
+            },
+            {
+                "id": 1859,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": null,
+                "setting_id": 18,
+                "value": "Europe/Zurich"
+            },
+            {
+                "id": 1860,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "requise",
+                "setting_id": 29,
+                "value": "required"
+            },
+            {
+                "id": 1861,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "préférée",
+                "setting_id": 29,
+                "value": "preferred"
+            },
+            {
+                "id": 1862,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "découragée",
+                "setting_id": 29,
+                "value": "discouraged"
+            },
+            {
+                "id": 1863,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "all",
+                "setting_id": 30,
+                "value": "all"
+            },
+            {
+                "id": 1864,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "seulement cross platform",
+                "setting_id": 30,
+                "value": "cross-platform"
+            },
+            {
+                "id": 1865,
+                "creator": 1,
+                "created": "2025-03-26T09:18:20+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:20+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "seulement platform",
+                "setting_id": 30,
+                "value": "platform"
+            }
+        ]
+    },
+    {
+        "name": "core\\setting\\SettingChoice",
+        "lang": "en",
+        "data": [
+            {
+                "id": 101,
+                "name": "virgule"
+            },
+            {
+                "id": 102,
+                "name": "point"
+            },
+            {
+                "id": 201,
+                "name": "before"
+            },
+            {
+                "id": 202,
+                "name": "after"
+            },
+            {
+                "id": 301,
+                "name": "1"
+            },
+            {
+                "id": 302,
+                "name": "2"
+            },
+            {
+                "id": 303,
+                "name": "3"
+            },
+            {
+                "id": 401,
+                "name": "comma"
+            },
+            {
+                "id": 402,
+                "name": "point"
+            },
+            {
+                "id": 501,
+                "name": "1"
+            },
+            {
+                "id": 502,
+                "name": "2"
+            },
+            {
+                "id": 503,
+                "name": "3"
+            },
+            {
+                "id": 601,
+                "name": "d/m/Y"
+            },
+            {
+                "id": 602,
+                "name": "Y-m-d"
+            },
+            {
+                "id": 603,
+                "name": "m/d/Y"
+            },
+            {
+                "id": 701,
+                "name": "H:i"
+            },
+            {
+                "id": 801,
+                "name": "1"
+            },
+            {
+                "id": 901,
+                "name": "21.59 x 27.74"
+            },
+            {
+                "id": 902,
+                "name": "21 x 29.7"
+            },
+            {
+                "id": 903,
+                "name": "29.7 x 41.99"
+            },
+            {
+                "id": 904,
+                "name": "14,8 x 21"
+            },
+            {
+                "id": 1301,
+                "name": "USD"
+            },
+            {
+                "id": 1302,
+                "name": "EUR"
+            },
+            {
+                "id": 1401,
+                "name": "meter"
+            },
+            {
+                "id": 1501,
+                "name": "kilograms"
+            },
+            {
+                "id": 1601,
+                "name": "cubic meter"
+            },
+            {
+                "id": 1701,
+                "name": "square meter"
+            },
+            {
+                "id": 1801,
+                "name": "Europe/Amsterdam"
+            },
+            {
+                "id": 1802,
+                "name": "Europe/Andorra"
+            },
+            {
+                "id": 1803,
+                "name": "Europe/Athens"
+            },
+            {
+                "id": 1804,
+                "name": "Europe/Belfast"
+            },
+            {
+                "id": 1805,
+                "name": "Europe/Belgrade"
+            },
+            {
+                "id": 1806,
+                "name": "Europe/Berlin"
+            },
+            {
+                "id": 1807,
+                "name": "Europe/Bratislava"
+            },
+            {
+                "id": 1808,
+                "name": "Europe/Brussels"
+            },
+            {
+                "id": 1809,
+                "name": "Europe/Bucharest"
+            },
+            {
+                "id": 1810,
+                "name": "Europe/Budapest"
+            },
+            {
+                "id": 1811,
+                "name": "Europe/Busingen"
+            },
+            {
+                "id": 1812,
+                "name": "Europe/Chisinau"
+            },
+            {
+                "id": 1813,
+                "name": "Europe/Copenhagen"
+            },
+            {
+                "id": 1814,
+                "name": "Europe/Dublin"
+            },
+            {
+                "id": 1815,
+                "name": "Europe/Gibraltar"
+            },
+            {
+                "id": 1816,
+                "name": "Europe/Guernsey"
+            },
+            {
+                "id": 1817,
+                "name": "Europe/Helsinki"
+            },
+            {
+                "id": 1818,
+                "name": "Europe/Isle of Man"
+            },
+            {
+                "id": 1819,
+                "name": "Europe/Istanbul"
+            },
+            {
+                "id": 1820,
+                "name": "Europe/Jersey"
+            },
+            {
+                "id": 1821,
+                "name": "Europe/Kaliningrad"
+            },
+            {
+                "id": 1822,
+                "name": "Europe/Kiev"
+            },
+            {
+                "id": 1823,
+                "name": "Europe/Lisbon"
+            },
+            {
+                "id": 1824,
+                "name": "Europe/Ljubljana"
+            },
+            {
+                "id": 1825,
+                "name": "Europe/London"
+            },
+            {
+                "id": 1826,
+                "name": "Europe/Luxembourg"
+            },
+            {
+                "id": 1827,
+                "name": "Europe/Madrid"
+            },
+            {
+                "id": 1828,
+                "name": "Europe/Malta"
+            },
+            {
+                "id": 1829,
+                "name": "Europe/Mariehamn"
+            },
+            {
+                "id": 1830,
+                "name": "Europe/Minsk"
+            },
+            {
+                "id": 1831,
+                "name": "Europe/Monaco"
+            },
+            {
+                "id": 1832,
+                "name": "Europe/Moscow"
+            },
+            {
+                "id": 1833,
+                "name": "Europe/Nicosia"
+            },
+            {
+                "id": 1834,
+                "name": "Europe/Oslo"
+            },
+            {
+                "id": 1835,
+                "name": "Europe/Paris"
+            },
+            {
+                "id": 1836,
+                "name": "Europe/Podgorica"
+            },
+            {
+                "id": 1837,
+                "name": "Europe/Prague"
+            },
+            {
+                "id": 1838,
+                "name": "Europe/Riga"
+            },
+            {
+                "id": 1839,
+                "name": "Europe/Rome"
+            },
+            {
+                "id": 1840,
+                "name": "Europe/Samara"
+            },
+            {
+                "id": 1841,
+                "name": "Europe/San Marino"
+            },
+            {
+                "id": 1842,
+                "name": "Europe/Sarajevo"
+            },
+            {
+                "id": 1843,
+                "name": "Europe/Simferopol"
+            },
+            {
+                "id": 1844,
+                "name": "Europe/Skopje"
+            },
+            {
+                "id": 1845,
+                "name": "Europe/Sofia"
+            },
+            {
+                "id": 1846,
+                "name": "Europe/Stockholm"
+            },
+            {
+                "id": 1847,
+                "name": "Europe/Tallinn"
+            },
+            {
+                "id": 1848,
+                "name": "Europe/Tirane"
+            },
+            {
+                "id": 1849,
+                "name": "Europe/Tiraspol"
+            },
+            {
+                "id": 1850,
+                "name": "Europe/Uzhgorod"
+            },
+            {
+                "id": 1851,
+                "name": "Europe/Vaduz"
+            },
+            {
+                "id": 1852,
+                "name": "Europe/Vatican"
+            },
+            {
+                "id": 1853,
+                "name": "Europe/Vienna"
+            },
+            {
+                "id": 1854,
+                "name": "Europe/Vilnius"
+            },
+            {
+                "id": 1855,
+                "name": "Europe/Volgograd"
+            },
+            {
+                "id": 1856,
+                "name": "Europe/Warsaw"
+            },
+            {
+                "id": 1857,
+                "name": "Europe/Zagreb"
+            },
+            {
+                "id": 1858,
+                "name": "Europe/Zaporozhye"
+            },
+            {
+                "id": 1859,
+                "name": "Europe/Zurich"
+            },
+            {
+                "id": 1860,
+                "name": "required"
+            },
+            {
+                "id": 1861,
+                "name": "preferred"
+            },
+            {
+                "id": 1862,
+                "name": "discouraged"
+            },
+            {
+                "id": 1863,
+                "name": "all"
+            },
+            {
+                "id": 1864,
+                "name": "only cross platform"
+            },
+            {
+                "id": 1865,
+                "name": "only platform"
+            }
+        ]
+    }
+]

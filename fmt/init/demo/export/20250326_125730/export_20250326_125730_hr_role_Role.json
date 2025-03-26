@@ -1,0 +1,57 @@
+[
+    {
+        "name": "hr\\role\\Role",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:19:26+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:26+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Manager",
+                "display_name": null,
+                "description": "Manager d'agence.",
+                "users_ids": [
+                    "1"
+                ],
+                "code": "manager"
+            },
+            {
+                "id": 2,
+                "creator": 1,
+                "created": "2025-03-26T09:19:26+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:26+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Comptable",
+                "display_name": null,
+                "description": "Gestion comptable.",
+                "users_ids": [
+                    "1",
+                    "2"
+                ],
+                "code": "accountant"
+            }
+        ]
+    },
+    {
+        "name": "hr\\role\\Role",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "Manager",
+                "description": "Agency manager."
+            },
+            {
+                "id": 2,
+                "name": "Accountant",
+                "description": "Accounting management."
+            }
+        ]
+    }
+]

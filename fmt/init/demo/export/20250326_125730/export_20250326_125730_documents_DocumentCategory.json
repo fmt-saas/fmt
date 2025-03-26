@@ -1,0 +1,29 @@
+[
+    {
+        "name": "documents\\DocumentCategory",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:18:21+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:21+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Categorie principale",
+                "parent_id": null
+            }
+        ]
+    },
+    {
+        "name": "documents\\DocumentCategory",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "Main Category"
+            }
+        ]
+    }
+]

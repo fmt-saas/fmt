@@ -1,0 +1,35 @@
+[
+    {
+        "name": "sale\\pay\\PaymentDeadline",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:19:25+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:25+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Date limite de paiement par défaut",
+                "code": "000",
+                "delay_from_event": "order",
+                "delay_from_event_offset": 0,
+                "delay_count": 15,
+                "payment_deadline_type": "invoice",
+                "amount_share": 1,
+                "payment_plan_id": 1
+            }
+        ]
+    },
+    {
+        "name": "sale\\pay\\PaymentDeadline",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "Default payment deadline"
+            }
+        ]
+    }
+]

@@ -1,0 +1,21 @@
+[
+    {
+        "name": "finance\\accounting\\AccountingRuleLine",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:18:48+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:48+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "default",
+                "account_id": 1,
+                "share": 1,
+                "accounting_rule_id": 1
+            }
+        ]
+    }
+]

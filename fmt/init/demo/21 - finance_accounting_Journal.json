@@ -1,0 +1,134 @@
+[
+    {
+        "name": "finance\\accounting\\Journal",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 7,
+                "condo_id": 1,
+                "organisation_id": 1,
+                "description": "Grand livre",
+                "mnemo": "GEN",
+                "code": "LEDG",
+                "journal_type": "LEDG",
+                "is_visible": true
+            },
+            {
+                "id": 8,
+                "condo_id": 1,
+                "organisation_id": 1,
+                "description": "Ventes",
+                "mnemo": "VEN",
+                "code": "SAL",
+                "journal_type": "SALE",
+                "is_visible": true
+            },
+            {
+                "id": 9,
+                "condo_id": 1,
+                "organisation_id": 1,
+                "description": "Achats",
+                "mnemo": "ACH",
+                "code": "PUR",
+                "journal_type": "PURC",
+                "is_visible": true
+            },
+            {
+                "id": 10,
+                "state": "instance",
+                "condo_id": 1,
+                "organisation_id": 1,
+                "description": "Banque",
+                "mnemo": "FIN",
+                "code": "BNK",
+                "journal_type": "CASH",
+                "is_visible": true
+            },
+            {
+                "id": 11,
+                "state": "instance",
+                "condo_id": 1,
+                "organisation_id": 1,
+                "description": "Opérations diverses",
+                "mnemo": "OD",
+                "code": "MISC",
+                "journal_type": "MISC",
+                "is_visible": true
+            },
+            {
+                "id": 12,
+                "state": "instance",
+                "condo_id": 1,
+                "organisation_id": 1,
+                "description": "À nouveaux",
+                "mnemo": "AN",
+                "code": "OPB",
+                "journal_type": "OPEN",
+                "is_visible": true
+            },
+            {
+                "id": 13,
+                "state": "instance",
+                "condo_id": 2,
+                "organisation_id": 1,
+                "description": "Grand livre",
+                "mnemo": "GEN",
+                "code": "LEDG",
+                "journal_type": "LEDG",
+                "is_visible": true
+            },
+            {
+                "id": 14,
+                "state": "instance",
+                "condo_id": 2,
+                "organisation_id": 1,
+                "description": "Ventes",
+                "mnemo": "VEN",
+                "code": "SAL",
+                "journal_type": "SALE",
+                "is_visible": true
+            },
+            {
+                "id": 15,
+                "state": "instance",
+                "condo_id": 2,
+                "organisation_id": 1,
+                "description": "Achats",
+                "mnemo": "ACH",
+                "code": "PUR",
+                "journal_type": "PURC",
+                "is_visible": true
+            },
+            {
+                "id": 16,
+                "condo_id": 2,
+                "organisation_id": 1,
+                "description": "Banque",
+                "mnemo": "FIN",
+                "code": "BNK",
+                "journal_type": "CASH",
+                "is_visible": true
+            },
+            {
+                "id": 17,
+                "condo_id": 2,
+                "organisation_id": 1,
+                "description": "Opérations diverses",
+                "mnemo": "OD",
+                "code": "MISC",
+                "journal_type": "MISC",
+                "is_visible": true
+            },
+            {
+                "id": 18,
+                "condo_id": 2,
+                "organisation_id": 1,
+                "description": "À nouveaux",
+                "mnemo": "AN",
+                "code": "OPB",
+                "journal_type": "OPEN",
+                "is_visible": true
+            }
+        ]
+    }
+]

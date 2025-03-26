@@ -1,0 +1,77 @@
+[
+    {
+        "name": "core\\Lang",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:18:18+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:18+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Anglais",
+                "code": "en"
+            },
+            {
+                "id": 2,
+                "creator": 1,
+                "created": "2025-03-26T09:18:18+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:18+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Français",
+                "code": "fr"
+            },
+            {
+                "id": 3,
+                "creator": 1,
+                "created": "2025-03-26T09:18:18+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:18+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Néérlandais",
+                "code": "nl"
+            }
+        ]
+    },
+    {
+        "name": "core\\Lang",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "English"
+            },
+            {
+                "id": 2,
+                "name": "French"
+            },
+            {
+                "id": 3,
+                "name": "Nederlands"
+            }
+        ]
+    },
+    {
+        "name": "core\\Lang",
+        "lang": "nl",
+        "data": [
+            {
+                "id": 1,
+                "name": "Engels"
+            },
+            {
+                "id": 2,
+                "name": "Frans"
+            },
+            {
+                "id": 3,
+                "name": "Nederlands"
+            }
+        ]
+    }
+]

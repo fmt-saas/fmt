@@ -1,0 +1,37 @@
+[
+    {
+        "name": "sale\\catalog\\ProductModel",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:19:25+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:25+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Deposit",
+                "family_id": 1,
+                "selling_accounting_rule_id": null,
+                "buying_accounting_rule_id": 1,
+                "stat_section_id": null,
+                "can_buy": false,
+                "can_sell": true,
+                "is_pack": false,
+                "has_own_price": false,
+                "type": "service",
+                "consumable_type": null,
+                "service_type": "simple",
+                "schedule_type": "time",
+                "schedule_default_value": null,
+                "schedule_offset": 0,
+                "tracking_type": "sku",
+                "description_delivery": null,
+                "description_receipt": null,
+                "groups_ids": [],
+                "categories_ids": []
+            }
+        ]
+    }
+]

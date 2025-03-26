@@ -1,0 +1,94 @@
+[
+    {
+        "name": "identity\\IdentityType",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:18:53+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:53+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Particulier - personne physique.",
+                "code": "IN",
+                "description": "Particulier - personne physique."
+            },
+            {
+                "id": 2,
+                "creator": 1,
+                "created": "2025-03-26T09:18:53+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:53+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Travailleur Indépendant.",
+                "code": "SE",
+                "description": "Travailleur Indépendant."
+            },
+            {
+                "id": 3,
+                "creator": 1,
+                "created": "2025-03-26T09:18:53+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:53+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Entreprise privée (personne morale).",
+                "code": "CO",
+                "description": "Entreprise privée (personne morale)."
+            },
+            {
+                "id": 4,
+                "creator": 1,
+                "created": "2025-03-26T09:18:53+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:53+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Association (ASBL) / école (personne morale).",
+                "code": "NP",
+                "description": "Association (ASBL) / école (personne morale)."
+            },
+            {
+                "id": 5,
+                "creator": 1,
+                "created": "2025-03-26T09:18:53+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:53+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Administration publique.",
+                "code": "PA",
+                "description": "Administration publique."
+            }
+        ]
+    },
+    {
+        "name": "identity\\IdentityType",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "description": "Individual - Natural person."
+            },
+            {
+                "id": 2,
+                "description": "Self-Employed / Entrepreneur."
+            },
+            {
+                "id": 3,
+                "description": "Company - Privately help company (legal person)."
+            },
+            {
+                "id": 4,
+                "description": "Non-Profit organization / Public School (legal person)."
+            },
+            {
+                "id": 5,
+                "description": "Public Administration."
+            }
+        ]
+    }
+]

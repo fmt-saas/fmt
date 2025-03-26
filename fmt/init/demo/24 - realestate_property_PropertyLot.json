@@ -1,0 +1,197 @@
+[
+    {
+        "name": "realestate\\property\\PropertyLot",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "condo_id": 1,
+                "property_lot_ref": "1A",
+                "comments": null,
+                "cadastral_number": "12345A0567/00D001",
+                "lot_area": 70,
+                "is_primary": true,
+                "primary_lot_id": null,
+                "nature_id": 1,
+                "has_tenancy": true,
+                "active_tenancy_id": 1,
+                "building_id": null,
+                "active_ownership_id": 3,
+                "ownerships_ids": [
+                    "3"
+                ],
+                "has_grouped_statements": false
+            },
+            {
+                "id": 2,
+                "condo_id": 1,
+                "property_lot_ref": "1B",
+                "comments": null,
+                "cadastral_number": "12345A0567/00D002",
+                "lot_area": 80,
+                "is_primary": true,
+                "primary_lot_id": null,
+                "nature_id": 1,
+                "has_tenancy": false,
+                "active_tenancy_id": null,
+                "building_id": null,
+                "active_ownership_id": 4,
+                "ownerships_ids": [
+                    "4"
+                ],
+                "has_grouped_statements": false
+            },
+            {
+                "id": 3,
+                "condo_id": 1,
+                "property_lot_ref": "1C",
+                "comments": null,
+                "cadastral_number": "12345A0567/00D003",
+                "lot_area": 70,
+                "is_primary": true,
+                "primary_lot_id": null,
+                "nature_id": 1,
+                "has_tenancy": false,
+                "active_tenancy_id": null,
+                "building_id": null,
+                "active_ownership_id": 2,
+                "ownerships_ids": [
+                    "2"
+                ],
+                "has_grouped_statements": false
+            },
+            {
+                "id": 4,
+                "condo_id": 2,
+                "property_lot_ref": "REZ",
+                "comments": null,
+                "cadastral_number": "67890B0123/02F001",
+                "lot_area": 80,
+                "is_primary": true,
+                "primary_lot_id": null,
+                "nature_id": 1,
+                "has_tenancy": false,
+                "active_tenancy_id": null,
+                "building_id": null,
+                "active_ownership_id": 5,
+                "ownerships_ids": [
+                    "5"
+                ],
+                "has_grouped_statements": false
+            },
+            {
+                "id": 5,
+                "condo_id": 2,
+                "property_lot_ref": "1ET",
+                "comments": null,
+                "cadastral_number": "67890B0123/02F002",
+                "lot_area": 80,
+                "is_primary": true,
+                "primary_lot_id": null,
+                "nature_id": 1,
+                "has_tenancy": false,
+                "active_tenancy_id": null,
+                "building_id": null,
+                "active_ownership_id": 6,
+                "ownerships_ids": [
+                    "6"
+                ],
+                "has_grouped_statements": false
+            },
+            {
+                "id": 6,
+                "condo_id": 2,
+                "property_lot_ref": "2ET",
+                "comments": null,
+                "cadastral_number": "67890B0123/02F003",
+                "lot_area": 80,
+                "is_primary": true,
+                "primary_lot_id": null,
+                "nature_id": 1,
+                "has_tenancy": false,
+                "active_tenancy_id": null,
+                "building_id": null,
+                "active_ownership_id": 7,
+                "ownerships_ids": [
+                    "7"
+                ],
+                "has_grouped_statements": false
+            },
+            {
+                "id": 7,
+                "condo_id": 1,
+                "property_lot_ref": "GREZ",
+                "comments": null,
+                "cadastral_number": null,
+                "lot_area": 20,
+                "is_primary": true,
+                "primary_lot_id": null,
+                "nature_id": 6,
+                "has_tenancy": false,
+                "active_tenancy_id": null,
+                "building_id": null,
+                "active_ownership_id": 2,
+                "ownerships_ids": [
+                    "2"
+                ],
+                "has_grouped_statements": false
+            },
+            {
+                "id": 8,
+                "condo_id": 1,
+                "property_lot_ref": "1B-C",
+                "comments": null,
+                "cadastral_number": "12345A0567/00D004",
+                "lot_area": 10,
+                "is_primary": true,
+                "primary_lot_id": 2,
+                "nature_id": 8,
+                "has_tenancy": false,
+                "active_tenancy_id": null,
+                "building_id": null,
+                "active_ownership_id": 4,
+                "ownerships_ids": [
+                    "4"
+                ],
+                "has_grouped_statements": false
+            }
+        ]
+    }
+        "name": "realestate\\property\\PropertyLot",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "00001 - 1A (APARTMENT)"
+            },
+            {
+                "id": 2,
+                "name": "00002 - 1B (APARTMENT)"
+            },
+            {
+                "id": 3,
+                "name": "00003 - 1C (APARTMENT)"
+            },
+            {
+                "id": 4,
+                "name": "00001 - REZ (APARTMENT)"
+            },
+            {
+                "id": 5,
+                "name": "00002 - 1ET (APARTMENT)"
+            },
+            {
+                "id": 6,
+                "name": "00003 - 2ET (APARTMENT)"
+            },
+            {
+                "id": 7,
+                "name": "00004 - GREZ (GARAGE)"
+            },
+            {
+                "id": 8,
+                "name": "00005 - 1B-C (BASEMENT)"
+            }
+        ]
+    }
+]

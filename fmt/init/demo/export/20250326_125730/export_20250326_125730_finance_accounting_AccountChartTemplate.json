@@ -1,0 +1,21 @@
+[
+    {
+        "name": "finance\\accounting\\AccountChartTemplate",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:18:39+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:39+00:00",
+                "deleted": false,
+                "state": "instance",
+                "condo_id": null,
+                "name": "Plan comptable (template)",
+                "organisation_id": null,
+                "status": "active"
+            }
+        ]
+    }
+]

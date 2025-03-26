@@ -1,0 +1,116 @@
+[
+    {
+        "name": "core\\setting\\SettingSection",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:18:18+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:18+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Locale",
+                "description": "Paramètres régioniaux",
+                "code": "locale"
+            },
+            {
+                "id": 2,
+                "creator": 1,
+                "created": "2025-03-26T09:18:18+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:18+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Général",
+                "description": "Paramètres généraux et de formats",
+                "code": "main"
+            },
+            {
+                "id": 3,
+                "creator": 1,
+                "created": "2025-03-26T09:18:18+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:18+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Sécurité",
+                "description": "Paramètres de sécurité",
+                "code": "security"
+            },
+            {
+                "id": 4,
+                "creator": 1,
+                "created": "2025-03-26T09:18:18+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:18+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Unités",
+                "description": "Unités de mesures et systèmes d'unités",
+                "code": "units"
+            },
+            {
+                "id": 6,
+                "creator": 1,
+                "created": "2025-03-26T09:19:23+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:23+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Comptabilité",
+                "description": "Paramètres pour la comptabilité et la facturation.",
+                "code": "accounting"
+            },
+            {
+                "id": 7,
+                "creator": 1,
+                "created": "2025-03-26T09:19:23+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:23+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Commandes",
+                "description": "Paramètres pour les commandes.",
+                "code": "order"
+            }
+        ]
+    },
+    {
+        "name": "core\\setting\\SettingSection",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "Locale",
+                "description": "Regional settings"
+            },
+            {
+                "id": 2,
+                "name": "Main",
+                "description": "General settings & Formats"
+            },
+            {
+                "id": 3,
+                "name": "Security",
+                "description": "Security settings"
+            },
+            {
+                "id": 4,
+                "name": "Units",
+                "description": "Measures and system units"
+            },
+            {
+                "id": 6,
+                "name": "Accounting",
+                "description": "Settings related to accounting & invoicing."
+            },
+            {
+                "id": 7,
+                "name": "Order",
+                "description": "Settings related to order."
+            }
+        ]
+    }
+]

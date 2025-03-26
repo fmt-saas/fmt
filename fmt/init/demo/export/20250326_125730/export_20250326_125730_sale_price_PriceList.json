@@ -1,0 +1,25 @@
+[
+    {
+        "name": "sale\\price\\PriceList",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:19:25+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:25+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Price 2024",
+                "description": null,
+                "condo_id": null,
+                "date_from": "2024-01-01T00:00:00+00:00",
+                "date_to": "2024-12-31T00:00:00+00:00",
+                "status": "published",
+                "prices_count": 1,
+                "price_list_category_id": null
+            }
+        ]
+    }
+]

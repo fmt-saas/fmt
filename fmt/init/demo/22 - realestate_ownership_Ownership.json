@@ -1,0 +1,86 @@
+[
+    {
+        "name": "realestate\\ownership\\Ownership",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 2,
+                "condo_id": 1,
+                "ownership_type": "unique",
+                "total_shares": 100,
+                "date_from": "2010-03-26T00:00:00+00:00",
+                "date_to": null,
+                "transfer_from_id": null,
+                "transfer_to_id": null,
+                "creation_identity_id": null,
+                "representative_identity_id": null,
+                "has_representative": false
+            },
+            {
+                "id": 3,
+                "condo_id": 1,
+                "ownership_type": "unique",
+                "total_shares": 100,
+                "date_from": null,
+                "date_to": null,
+                "transfer_from_id": null,
+                "transfer_to_id": null,
+                "creation_identity_id": 6,
+                "representative_identity_id": null,
+                "has_representative": false
+            },
+            {
+                "id": 4,
+                "condo_id": 1,
+                "ownership_type": "unique",
+                "total_shares": 100,
+                "date_from": null,
+                "date_to": null,
+                "transfer_from_id": null,
+                "transfer_to_id": null,
+                "creation_identity_id": 4,
+                "representative_identity_id": null,
+                "has_representative": false
+            },
+            {
+                "id": 5,
+                "condo_id": 2,
+                "ownership_type": "unique",
+                "total_shares": 100,
+                "date_from": null,
+                "date_to": null,
+                "transfer_from_id": null,
+                "transfer_to_id": null,
+                "creation_identity_id": 7,
+                "representative_identity_id": null,
+                "has_representative": false
+            },
+            {
+                "id": 6,
+                "condo_id": 2,
+                "ownership_type": "unique",
+                "total_shares": 100,
+                "date_from": null,
+                "date_to": null,
+                "transfer_from_id": null,
+                "transfer_to_id": null,
+                "creation_identity_id": 5,
+                "representative_identity_id": null,
+                "has_representative": false
+            },
+            {
+                "id": 7,
+                "condo_id": 2,
+                "ownership_type": "unique",
+                "total_shares": 100,
+                "date_from": null,
+                "date_to": null,
+                "transfer_from_id": null,
+                "transfer_to_id": null,
+                "creation_identity_id": 3,
+                "representative_identity_id": null,
+                "has_representative": false
+            }
+        ]
+    }
+]

@@ -1,0 +1,29 @@
+[
+    {
+        "name": "sale\\customer\\RateClass",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:19:25+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:25+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Default class",
+                "description": "Classe tarifaire par défaut."
+            }
+        ]
+    },
+    {
+        "name": "sale\\customer\\RateClass",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "description": "Default fare class."
+            }
+        ]
+    }
+]

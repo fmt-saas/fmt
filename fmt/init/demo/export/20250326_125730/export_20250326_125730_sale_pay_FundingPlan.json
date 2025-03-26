@@ -1,0 +1,30 @@
+[
+    {
+        "name": "sale\\pay\\FundingPlan",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:19:25+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:25+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "Plan de financement par défaut",
+                "description": null,
+                "rate_class_id": 1
+            }
+        ]
+    },
+    {
+        "name": "sale\\pay\\FundingPlan",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "Default funding plan"
+            }
+        ]
+    }
+]

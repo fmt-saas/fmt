@@ -1,0 +1,22 @@
+[
+    {
+        "name": "finance\\bank\\BankAccount",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:18:53+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:54+00:00",
+                "deleted": false,
+                "state": "instance",
+                "condo_id": null,
+                "organisation_id": 1,
+                "bank_name": null,
+                "bank_account_iban": "BE11222233335555",
+                "bank_account_bic": "BBRUBEBB"
+            }
+        ]
+    }
+]

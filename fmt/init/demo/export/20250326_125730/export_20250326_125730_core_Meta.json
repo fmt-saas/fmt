@@ -1,0 +1,20 @@
+[
+    {
+        "name": "core\\Meta",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:18:09+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:18+00:00",
+                "deleted": false,
+                "state": "instance",
+                "code": "workflow",
+                "reference": "core.User",
+                "value": "{\"created\":{\"position\":{\"x\":192,\"y\":193},\"transitions\":{\"validation\":{\"anchorFrom\":4,\"anchorTo\":3}}},\"validated\":{\"position\":{\"x\":368,\"y\":193},\"transitions\":{\"suspension\":{\"anchorFrom\":4,\"anchorTo\":3},\"confirmation\":{\"anchorFrom\":4,\"anchorTo\":3}}},\"confirmed\":{\"position\":{\"x\":633,\"y\":106},\"transitions\":{\"suspension\":{\"anchorFrom\":1,\"anchorTo\":6}}},\"suspended\":{\"position\":{\"x\":630,\"y\":302},\"transitions\":{\"confirmation\":{\"anchorFrom\":1,\"anchorTo\":6}}}}"
+            }
+        ]
+    }
+]

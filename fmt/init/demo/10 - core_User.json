@@ -1,0 +1,18 @@
+[
+    {
+        "name": "core\\User",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 3,
+                "login": "admin@fmt.yb.run",
+                "password": "safe_pass",
+                "firstname": "Test",
+                "lastname": "USER",
+                "language": "fr",
+                "validated": true,
+                "groups_ids": [2]
+            }
+        ]
+    }
+]

@@ -1,0 +1,22 @@
+[
+    {
+        "name": "realestate\\property\\Tenant",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "condo_id": 1,
+                "property_lot_id": 1,
+                "tenancy_id": 1,
+                "tenant_identity_id": 11
+            },
+            {
+                "id": 2,
+                "condo_id": 1,
+                "property_lot_id": 1,
+                "tenancy_id": 1,
+                "tenant_identity_id": 12
+            }
+        ]
+    }
+]

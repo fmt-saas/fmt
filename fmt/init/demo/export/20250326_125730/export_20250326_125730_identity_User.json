@@ -1,0 +1,59 @@
+[
+    {
+        "name": "identity\\User",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:18:18+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:18+00:00",
+                "deleted": false,
+                "state": "instance",
+                "login": "root@equal.local",
+                "username": null,
+                "password": "$2y$10$h2M456jO92mQe5QJJknUtuwtpLYf1Smsa3f9Icr/5WlQurAZhicju",
+                "nickname": null,
+                "firstname": "Root",
+                "lastname": "USER",
+                "fullname": "Root USER",
+                "language": "en",
+                "validated": true,
+                "groups_ids": [
+                    "1",
+                    "2"
+                ],
+                "status": "validated",
+                "identity_id": null,
+                "owner_identity_id": 1,
+                "organisation_id": 1
+            },
+            {
+                "id": 2,
+                "creator": 1,
+                "created": "2025-03-26T09:18:18+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:18:18+00:00",
+                "deleted": false,
+                "state": "instance",
+                "login": "user@equal.local",
+                "username": null,
+                "password": "$2y$10$amerX.Xqpffi3ex.ixHtRuaBY2toyZukDKwEw1RJ8QozAZIMnpaTW",
+                "nickname": null,
+                "firstname": "First",
+                "lastname": "USER",
+                "fullname": "First USER",
+                "language": "en",
+                "validated": true,
+                "groups_ids": [
+                    "2"
+                ],
+                "status": "validated",
+                "identity_id": null,
+                "owner_identity_id": 1,
+                "organisation_id": 1
+            }
+        ]
+    }
+]

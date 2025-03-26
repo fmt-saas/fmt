@@ -1,0 +1,36 @@
+[
+    {
+        "name": "finance\\bank\\BankAccount",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 2,
+                "condo_id": 1,
+                "description": "Compte à vue ",
+                "organisation_id": null,
+                "bank_account_iban": "BE04233241973931"
+            },
+            {
+                "id": 3,
+                "condo_id": 1,
+                "description": "Compte épargne",
+                "organisation_id": null,
+                "bank_account_iban": "BE04456595434922"
+            },
+            {
+                "id": 4,
+                "condo_id": 2,
+                "description": "Compte à vue",
+                "organisation_id": null,
+                "bank_account_iban": "BE05173234451275"
+            },
+            {
+                "id": 5,
+                "condo_id": 2,
+                "description": "Compte épargne",
+                "organisation_id": null,
+                "bank_account_iban": "BE05373234451279"
+            }
+        ]
+    }
+]

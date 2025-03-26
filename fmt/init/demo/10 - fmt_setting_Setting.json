@@ -1,0 +1,36 @@
+[
+    {
+        "name": "fmt\\setting\\Setting",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1083,
+                "code": "ownership.sequence",
+                "package": "realestate",
+                "section_id": 2,
+                "title": null,
+                "description": null,
+                "help": null,
+                "is_sequence": true,
+                "type": "integer",
+                "object_class": null,
+                "is_multilang": false,
+                "form_control": "input"
+            },
+            {
+                "id": 1084,
+                "code": "property_lot.sequence",
+                "package": "realestate",
+                "section_id": 2,
+                "title": null,
+                "description": null,
+                "help": null,
+                "is_sequence": true,
+                "type": "integer",
+                "object_class": null,
+                "is_multilang": false,
+                "form_control": "input"
+            }
+        ]
+    }
+]

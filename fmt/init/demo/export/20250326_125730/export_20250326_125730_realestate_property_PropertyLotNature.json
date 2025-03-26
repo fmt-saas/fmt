@@ -1,0 +1,184 @@
+[
+    {
+        "name": "realestate\\property\\PropertyLotNature",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "creator": 1,
+                "created": "2025-03-26T09:19:26+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:26+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "APPARTEMENT",
+                "description": "Unité résidentielle dans un immeuble.",
+                "hierarchy": 1
+            },
+            {
+                "id": 2,
+                "creator": 1,
+                "created": "2025-03-26T09:19:26+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:26+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "MAGASIN",
+                "description": "Espace de vente au détail pour la commercialisation de biens.",
+                "hierarchy": 1
+            },
+            {
+                "id": 3,
+                "creator": 1,
+                "created": "2025-03-26T09:19:26+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:26+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "BUREAU",
+                "description": "Espace de travail pour des activités professionnelles ou commerciales.",
+                "hierarchy": 1
+            },
+            {
+                "id": 4,
+                "creator": 1,
+                "created": "2025-03-26T09:19:26+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:26+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "ATELIER",
+                "description": "Atelier utilisé pour des activités professionnelles ou artisanales.",
+                "hierarchy": 1
+            },
+            {
+                "id": 5,
+                "creator": 1,
+                "created": "2025-03-26T09:19:26+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:26+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "BÂTIMENT",
+                "description": "Structure avec un toit et des murs.",
+                "hierarchy": 1
+            },
+            {
+                "id": 6,
+                "creator": 1,
+                "created": "2025-03-26T09:19:26+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:26+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "GARAGE",
+                "description": "Espace de stationnement pour véhicules.",
+                "hierarchy": 2
+            },
+            {
+                "id": 7,
+                "creator": 1,
+                "created": "2025-03-26T09:19:26+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:26+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "PARKING",
+                "description": "Zone de stationnement pour véhicules.",
+                "hierarchy": 2
+            },
+            {
+                "id": 8,
+                "creator": 1,
+                "created": "2025-03-26T09:19:26+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:26+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "SOUS-SOL",
+                "description": "Espace de stockage pour des documents ou des archives.",
+                "hierarchy": 2
+            },
+            {
+                "id": 9,
+                "creator": 1,
+                "created": "2025-03-26T09:19:26+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:26+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "TERRASSE",
+                "description": "Appartement avec une terrasse.",
+                "hierarchy": 3
+            },
+            {
+                "id": 10,
+                "creator": 1,
+                "created": "2025-03-26T09:19:26+00:00",
+                "modifier": 1,
+                "modified": "2025-03-26T09:19:26+00:00",
+                "deleted": false,
+                "state": "instance",
+                "name": "BALCON",
+                "description": "Appartement avec une terrasse et un balcon.",
+                "hierarchy": 3
+            }
+        ]
+    },
+    {
+        "name": "realestate\\property\\PropertyLotNature",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "APARTMENT",
+                "description": "Residential unit in a building."
+            },
+            {
+                "id": 2,
+                "name": "SHOP",
+                "description": "Retail space for selling goods."
+            },
+            {
+                "id": 3,
+                "name": "OFFICE",
+                "description": "Workspace for business or professional activities."
+            },
+            {
+                "id": 4,
+                "name": "WORKSHOP",
+                "description": "Workspace for business or professional activities."
+            },
+            {
+                "id": 5,
+                "name": "BUILDING",
+                "description": "Structure with a roof and walls."
+            },
+            {
+                "id": 6,
+                "name": "GARAGE",
+                "description": "Parking lot for vehicles."
+            },
+            {
+                "id": 7,
+                "name": "PARKING",
+                "description": "Parking lot for vehicles."
+            },
+            {
+                "id": 8,
+                "name": "BASEMENT",
+                "description": "Storage space for documents or records."
+            },
+            {
+                "id": 9,
+                "name": "TERRACE",
+                "description": "Apartment with a terrace."
+            },
+            {
+                "id": 10,
+                "name": "BALCONY",
+                "description": "Apartment with both a terrace and a balcony."
+            }
+        ]
+    }
+]
