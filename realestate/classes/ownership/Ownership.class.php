@@ -103,6 +103,15 @@ class Ownership extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\property\OwnershipTransfer'
             ],
 
+            'creation_identity_id' => [
+                'type'              => 'many2one',
+                'description'       => "Identity of the owner.",
+                'foreign_object'    => 'identity\Identity',
+                'visible'           => ['state', '=', 'draft'],
+                'help'              => 'This is a temporary field, which value is only used at creation to ease encoding and create a first owner.',
+                'onupdate'          => 'onupdateCreationIdentityId'
+            ],
+
             'representative_identity_id' => [
                 'type'              => 'many2one',
                 'description'       => "Person that represents the ownership.",
@@ -218,6 +227,17 @@ class Ownership extends \equal\orm\Model {
                     ]);
             }
 
+        }
+    }
+
+    public static function onupdateCreationIdentityId($self) {
+        $self->read('creation_identity_id', 'condo_id');
+        foreach($self as $id => $ownership) {
+            Owner::create([
+                    'condo_id'      => $ownership['condo_id'],
+                    'ownership_id'  => $id,
+                    'identity_id'   => $ownership['creation_identity_id']
+                ]);
         }
     }
 
