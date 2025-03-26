@@ -187,7 +187,7 @@ class BankAccount extends Model {
         $self->read(['description', 'organisation_id', 'condo_id', 'bank_account_iban']);
         foreach($self as $id => $bankAccount) {
             if($bankAccount['bank_account_iban'] && strlen($bankAccount['bank_account_iban']) > 0) {
-                $result[$id] = DataFormatter::format($bankAccount['bank_account_iban'], 'iban');
+                $result[$id] = $bankAccount['description'] . ' - ' . DataFormatter::format($bankAccount['bank_account_iban'], 'iban');
             }
         }
         return $result;
