@@ -190,7 +190,9 @@ class Ownership extends \equal\orm\Model {
     public static function doGenerateAccounts($self) {
         $self->read(['condo_id', 'name', 'ownership_code']);
         foreach($self as $id => $ownership) {
-
+            if(!$ownership['condo_id']) {
+                continue;
+            }
             $operation_assignments = [
                     'co_owners_reserve_fund',
                     'co_owners_working_fund'
@@ -220,7 +222,7 @@ class Ownership extends \equal\orm\Model {
         }
     }
 
-    public function oncreate($self) {
+    public static function oncreate($self) {
         $self->do('generate_accounts');
     }
 
