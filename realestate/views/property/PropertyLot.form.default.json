@@ -84,10 +84,7 @@
                                                 "type": "field",
                                                 "label": "Condominium",
                                                 "value": "condo_id",
-                                                "width": "50%",
-                                                "widget": {
-                                                    "readonly": true
-                                                }
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
@@ -147,7 +144,15 @@
                                             {
                                                 "type": "field",
                                                 "value": "ownerships_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.SELECT": true,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }
