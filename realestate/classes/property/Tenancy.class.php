@@ -13,6 +13,15 @@ class Tenancy extends \equal\orm\Model {
 
         return [
 
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "Name representing the tenancy (one or more persons).",
+                'function'          => 'calcName',
+                'readonly'          => true,
+                'store'             => true
+            ],
+
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the tenancy relates to.",
@@ -57,5 +66,24 @@ class Tenancy extends \equal\orm\Model {
             ]
 
         ];
+    }
+
+    public static function calcName($self) {
+        $result = [];
+        $self->read(['tenants_ids' => ['name']]);
+        foreach($self as $id => $tenancy) {
+            $names = [];
+            foreach($tenancy['tenants_ids'] as $tenant_id => $tenant) {
+                $names[] = $tenant['name'];
+            }
+            $name = implode(', ', $names);
+            if(strlen($name) > 128) {
+                $name = substr($name, 0, 128).'...';
+            }
+            if(strlen($name) > 0) {
+                $result[$id] = $name;
+            }
+        }
+        return $result;
     }
 }
