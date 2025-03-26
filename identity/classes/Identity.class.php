@@ -299,7 +299,8 @@ class Identity extends Model {
             'address_state' => [
                 'type'              => 'string',
                 'description'       => 'State or region.',
-                'onupdate'          => 'onupdateAddressState'
+                'onupdate'          => 'onupdateAddressState',
+                'visible'           => ['country', '<>', 'BE']
             ],
 
             'address_country' => [
