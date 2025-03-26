@@ -25,8 +25,7 @@ class InvoiceLineGroup extends \finance\accounting\invoice\InvoiceLineGroup {
                 'foreign_object'    => 'sale\accounting\invoice\InvoiceLine',
                 'foreign_field'     => 'invoice_line_group_id',
                 'description'       => 'Detailed lines of the group.',
-                'ondetach'          => 'delete',
-                'onupdate'          => 'onupdateInvoiceLinesIds'
+                'ondetach'          => 'delete'
             ]
 
         ];

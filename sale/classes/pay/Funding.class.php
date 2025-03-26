@@ -9,6 +9,7 @@ namespace sale\pay;
 
 use equal\orm\Model;
 use core\setting\Setting;
+use equal\data\DataFormatter;
 
 class Funding extends Model {
 
@@ -19,6 +20,13 @@ class Funding extends Model {
     public static function getColumns() {
 
         return [
+
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the funding refers to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'readonly'          => true
+            ],
 
             'name' => [
                 'type'              => 'computed',
@@ -35,7 +43,7 @@ class Funding extends Model {
 
             'payments_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => Payment::getType(),
+                'foreign_object'    => 'sale\pay\Payment',
                 'foreign_field'     => 'funding_id',
                 'description'       => 'Customer payments of the funding.',
                 'dependents'        => ['paid_amount', 'is_paid']
@@ -45,10 +53,11 @@ class Funding extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'installment',
-                    'invoice'
+                    'invoice',
+                    'fund_request'
                 ],
-                'default'           => 'invoice',
-                'description'       => "Type of funding, is it a simple installment or is it linked to an specific invoice."
+                'required'          => true,
+                'description'       => "Type of funding. Either an installment, a specific invoice, or a fund request."
             ],
 
             'due_amount' => [
@@ -89,36 +98,70 @@ class Funding extends Model {
                 'instant'           => true
             ],
 
-            'amount_share' => [
-                'type'              => 'float',
-                'usage'             => 'amount/percent',
-                'description'       => "Share of the payment over the total due amount."
+            'request_bank_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankAccount',
+                'description'       => 'The Bank account the funding relates to.',
+                'help'              => 'This is the bank account to which payments are expected to be received or from which payment is expected to be made.',
+                'readonly'          => true
+            ],
+
+            'fund_request_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\FundRequest',
+                'description'       => 'The fund request targeted by the funding, if any.',
+                'readonly'          => true
+            ],
+
+            'fund_request_execution_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\FundRequestExecution',
+                'description'       => 'The fund request execution targeted by the funding, if any.',
+                'help'              => 'As a convention, this field is set when a funding relates to a fund request. Fund request executions are sale invoices (with invoice_type set to fund_request).',
+                'readonly'          => true
             ],
 
             'invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\accounting\invoice\Invoice',
                 'description'       => 'The invoice targeted by the funding, if any.',
-                'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).'
+                'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).',
+                'readonly'          => true
             ],
 
             'payment_reference' => [
                 'type'              => 'string',
                 'description'       => 'Message for identifying the purpose of the transaction.',
                 'default'           => ''
-            ]
+            ],
+
+            'ownership_id' => [
+                'type'              => 'many2one',
+                'description'       => "The ownership that the funding refers to.",
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'ondelete'          => 'cascade',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'readonly'          => true
+            ],
 
         ];
     }
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['due_amount', 'invoice_id' => ['name']]);
+        $self->read(['due_amount', 'payment_reference', 'fund_request_execution_id' => ['name'],  'invoice_id' => ['name']]);
         foreach($self as $id => $funding) {
             $result[$id] = Setting::format_number_currency($funding['due_amount']);
 
-            if($funding['invoice_id']['name']) {
-                $result[$id] .= '    '.$funding['invoice_id']['name'];
+            if($funding['invoice_id']) {
+                $result[$id] .= '  ' . $funding['invoice_id']['name'];
+            }
+            if($funding['fund_request_execution_id']) {
+                $result[$id] .= '  ' . $funding['fund_request_execution_id']['name'];
+            }
+
+            if($funding['payment_reference']) {
+                $result[$id] .= '  ' . DataFormatter::format($funding['payment_reference'], 'scor');
             }
         }
 
@@ -131,7 +174,7 @@ class Funding extends Model {
         foreach($self as $id => $funding) {
             $result[$id] = array_reduce($funding['payments_ids']->get(true), function ($c, $a) {
                 return $c + $a['amount'];
-            }, 0);
+            }, 0.0);
         }
 
         return $result;
@@ -184,6 +227,7 @@ class Funding extends Model {
     }
 
     public static function ondelete($om, $oids) {
+        /*
         $cron = $om->getContainer()->get('cron');
 
         foreach($oids as $fid) {
@@ -191,6 +235,7 @@ class Funding extends Model {
             $cron->cancel("booking.funding.overdue.{$fid}");
         }
         parent::ondelete($om, $oids);
+        */
     }
 
     public static function onchange($event, $values) {

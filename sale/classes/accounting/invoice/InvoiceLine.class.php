@@ -46,7 +46,6 @@ class InvoiceLine extends \finance\accounting\invoice\InvoiceLine {
                 'foreign_object'    => 'sale\accounting\invoice\Invoice',
                 'description'       => 'Invoice the line is related to.',
                 'required'          => true,
-                'onupdate'          => 'onupdateInvoiceId',
                 'ondelete'          => 'cascade'
             ],
 
@@ -66,8 +65,7 @@ class InvoiceLine extends \finance\accounting\invoice\InvoiceLine {
                 'description'       => 'VAT rate to be applied.',
                 'function'          => 'calcVatRate',
                 'store'             => true,
-                'default'           => 0.0,
-                'onupdate'          => 'onupdateVatRate'
+                'default'           => 0.0
             ],
 
             /**

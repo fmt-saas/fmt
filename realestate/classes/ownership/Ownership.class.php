@@ -115,6 +115,13 @@ class Ownership extends \equal\orm\Model {
                 'type'              => 'boolean',
                 'description'       => "Flag indicating if the ownership has a representative.",
                 'default'           => false
+            ],
+
+            'fundings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'sale\pay\Funding',
+                'foreign_field'     => 'ownership_id',
+                'description'       => 'The fundings that relate to the ownership.'
             ]
 
         ];

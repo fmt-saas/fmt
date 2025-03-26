@@ -60,34 +60,28 @@ class BalanceLine extends Model {
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
                 'description'       => 'The total amount recorded on the debit side of the account during the fiscal period.',
-                'default'           => 0.0,
-                'dependents'        => ['debit_balance']
+                'default'           => 0.0
             ],
 
             'credit' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
                 'description'       => 'The total amount recorded on the credit side of the account during the fiscal period.',
-                'default'           => 0.0,
-                'dependents'        => ['credit_balance']
+                'default'           => 0.0
             ],
 
             'debit_balance' => [
-                'type'              => 'computed',
-                'result_type'       => 'float',
+                'type'              => 'float',
                 'usage'             => 'amount/money:4',
-                'function'          => 'calcDebitBalance',
                 'description'       => 'The remaining balance on the account if the total debits exceed the total credits.',
-                'store'             => true
+                'default'           => 0.0
             ],
 
             'credit_balance' => [
-                'type'              => 'computed',
-                'result_type'       => 'float',
+                'type'              => 'float',
                 'usage'             => 'amount/money:4',
-                'function'          => 'calcCreditBalance',
                 'description'       => 'The remaining balance on the account if the total credits exceed the total debits.',
-                'store'             => true
+                'default'           => 0.0
             ]
 
         ];
@@ -99,23 +93,4 @@ class BalanceLine extends Model {
         ];
     }
 
-    public static function calcCreditBalance($self) {
-        $result = [];
-        $self->read(['debit', 'credit']);
-        foreach($self as $id => $balance) {
-            $delta = round($balance['debit'] - $balance['credit'], 4);
-            $result[$id] = ($delta < 0.0) ? abs($delta) : 0.0;
-        }
-        return $result;
-    }
-
-    public static function calcDebitBalance($self) {
-        $result = [];
-        $self->read(['debit', 'credit']);
-        foreach($self as $id => $balance) {
-            $delta = round($balance['debit'] - $balance['credit'], 4);
-            $result[$id] = ($delta > 0.0) ? abs($delta) : 0.0;
-        }
-        return $result;
-    }
 }

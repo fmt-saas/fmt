@@ -69,13 +69,20 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "funding_type",
+                                                "label": "owner",
+                                                "value": "ownership_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Invoice",
-                                                "value": "invoice_id",
+                                                "label": "Fund Request",
+                                                "value": "fund_request_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Fund Request Execution",
+                                                "value": "fund_request_execution_id",
                                                 "width": "50%"
                                             }
                                         ]

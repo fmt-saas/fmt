@@ -30,7 +30,7 @@
                 "entity": "realestate\\funding\\FundRequest",
                 "action": "generate_executions"
             },
-            "visible": ["status", "=", "draft"]
+            "visible": ["status", "=", "active"]
         },
         {
             "id": "action.activate",
@@ -149,7 +149,14 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "label": "Bank Account",
                                                 "value": "request_bank_account_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Payment Terms",
+                                                "value": "payment_terms_id",
                                                 "width": "33%"
                                             }
                                         ]
@@ -188,6 +195,7 @@
                     {
                         "id": "section.executions",
                         "label": "Scheduled executions",
+                        "visible": ["status", "=", "active"],
                         "rows": [
                             {
                                 "columns": [
@@ -199,6 +207,37 @@
                                                 "value": "request_executions_ids",
                                                 "width": "100%",
                                                 "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "actions": false,
+                                                    "domain": ["condo_id", "=", "object.condo_id"]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.fundings_ids",
+                        "label": "Payments followups",
+                        "visible": ["status", "=", "active"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "fundings_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.fund_request",
                                                     "header": {
                                                         "actions": {
                                                             "ACTION.CREATE": false

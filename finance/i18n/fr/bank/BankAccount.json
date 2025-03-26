@@ -14,7 +14,7 @@
             "help": ""
         },
         "bank_name": {
-            "label": "Nom de la banque",
+            "label": "Banque",
             "description" : "Le nom de la banque où l'organisation détient son compte."
         },
         "bank_country": {

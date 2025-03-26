@@ -24,11 +24,25 @@ class Organisation extends Identity {
 
     public static function getColumns() {
         return [
+
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcName',
+                'store'             => true,
+                'instant'           => true,
+                'description'       => 'The display name of the identity.',
+                'help'              => "The display name is a computed field that returns a concatenated string containing either the firstname+lastname, or the legal name of the Identity, based on the kind of Identity.\n
+                    For instance, 'name', for a company with \"My Company\" as legal_name will return \"My Company\". \n
+                    Whereas, for an individual having \"John\" as firstname and \"Smith\" as lastname, it will return \"John Smith\"."
+            ],
+
             'identity_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Identity',
                 'description'       => 'Identity the organisation relates to.',
-                'onupdate'          => 'onupdateIdentityId'
+                'onupdate'          => 'onupdateIdentityId',
+                'dependents'        => ['name']
             ],
 
             'managing_agent_id' => [
@@ -77,6 +91,33 @@ class Organisation extends Identity {
             ],
 
         ];
+    }
+
+    public static function calcName($self) {
+        $result = [];
+        $self->read(['identity_id' => ['type', 'firstname', 'lastname', 'legal_name', 'short_name']]);
+        foreach($self as $id => $organisation) {
+            $identity = $organisation['identity_id'];
+            $parts = [];
+            if($identity['type'] == 'IN') {
+                if(isset($identity['firstname']) && strlen($identity['firstname'])) {
+                    $parts[] = ucfirst($identity['firstname']);
+                }
+                if(isset($identity['lastname']) && strlen($identity['lastname']) ) {
+                    $parts[] = mb_strtoupper($identity['lastname']);
+                }
+            }
+            if(empty($parts) ) {
+                if(isset($identity['legal_name']) && strlen($identity['legal_name'])) {
+                    $parts[] = $identity['legal_name'];
+                }
+                elseif(isset($identity['short_name']) && strlen($identity['short_name'])) {
+                    $parts[] = $identity['short_name'];
+                }
+            }
+            $result[$id] = implode(' ', $parts);
+        }
+        return $result;
     }
 
     public static function onupdateBankAccountIban($self) {

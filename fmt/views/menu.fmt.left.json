@@ -239,14 +239,14 @@
                 ]
             },
             {
-                "id": "item.configuration",
+                "id": "item.config",
                 "label": "Config",
                 "description": "",
                 "icon": "now_widgets",
                 "type": "parent",
                 "children": [
                     {
-                        "id": "pricelist",
+                        "id": "item.config.pricelist",
                         "type": "entry",
                         "label": "Price list",
                         "icon": "price_check",
@@ -258,13 +258,23 @@
                         }
                     },
                     {
-                        "id": "pricelist",
+                        "id": "item.config.lot_natures",
                         "type": "entry",
                         "label": "Lot natures",
                         "icon": "domain_add",
                         "description": "",
                         "context": {
                             "entity": "realestate\\property\\PropertyLotNature"
+                        }
+                    },
+                    {
+                        "id": "item.config.payment_terms",
+                        "type": "entry",
+                        "label": "Payment terms",
+                        "icon": "payments",
+                        "description": "",
+                        "context": {
+                            "entity": "sale\\pay\\PaymentTerms"
                         }
                     }
                 ]

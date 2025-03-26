@@ -23,18 +23,13 @@
             "help": ""
         },
         "due_amount": {
-            "label": "Montant",
+            "label": "Montant dû",
             "description": "Montant total à recevoir.",
             "help": ""
         },
         "paid_amount": {
-            "label": "Reçu",
+            "label": "Montant reçu",
             "description": "Montant payé par le client.",
-            "help": ""
-        },
-        "amount_share": {
-            "label": "Part",
-            "description": "Part du financement sur le prix total.",
             "help": ""
         },
         "due_date": {

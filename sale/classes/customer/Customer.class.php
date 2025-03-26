@@ -84,13 +84,6 @@ class Customer extends \identity\Partner {
                 'description'       => 'List sales entries of the customer.'
             ],
 
-            'bookings_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'sale\booking\Booking',
-                'foreign_field'     => 'booking_id',
-                'description'       => 'List bookings of the customer.'
-            ],
-
             'subscriptions_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'sale\subscription\Subscription',

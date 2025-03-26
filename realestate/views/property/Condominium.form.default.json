@@ -403,6 +403,26 @@
                             {
                                 "columns": [
                                     {
+                                        "width": "500%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "Current Managing Agent",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Managing Agent",
+                                                "value": "managing_agent_id",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
                                         "width": "100%",
                                         "items": [
                                             {

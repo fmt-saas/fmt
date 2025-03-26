@@ -6,6 +6,7 @@
 */
 namespace finance\bank;
 
+use equal\data\DataFormatter;
 use equal\orm\Model;
 use identity\Organisation;
 
@@ -14,14 +15,21 @@ class BankAccount extends Model {
     public static function getColumns() {
 
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the accounting entry refers to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                //'readonly'          => true
+                'visible'           => ['organisation_id', '=', null]
+            ],
+
             'name' => [
                 'type'              => 'computed',
-                'function'          => 'calcName',
                 'result_type'       => 'string',
-                'description'       => 'The display name of the organization and IBAN.',
+                'function'          => 'calcName',
+                'description'       => 'The display name of the account (IBAN).',
                 'store'             => true,
-                'instant'           => true,
-                'readonly'          => true
+                'instant'           => true
             ],
 
             'organisation_id' => [
@@ -30,8 +38,7 @@ class BankAccount extends Model {
                 'description'       => 'The organization that owns the bank account.',
                 'dependents'        => ['name'],
                 'ondelete'          => 'cascade',
-                'visible'           => ['organisation_id', '<>', null],
-                'required'          => true
+                'visible'           => ['condo_id', '=', null]
             ],
 
             'bank_country' => [
@@ -70,8 +77,12 @@ class BankAccount extends Model {
 
 
     public static function onupdateBankAccountIban($self) {
-        $self->read(['organisation_id', 'bank_account_iban']);
+        $self->read(['organisation_id', 'bank_account_iban', 'condo_id']);
         foreach($self as $id => $bankAccount) {
+            // ignore condominiums accounts
+            if($bankAccount['condo_id']) {
+                continue;
+            }
             $organisation = Organisation::id($bankAccount['organisation_id'])->read(['id', 'bank_account_ids'])->first();
             if($organisation) {
                 // by convention, if current bank account is the first of the organisation, sync back with iban from organisation
@@ -87,8 +98,12 @@ class BankAccount extends Model {
     }
 
     public static function onupdateBankAccountBic($self) {
-        $self->read(['organisation_id', 'bank_account_bic']);
+        $self->read(['organisation_id', 'bank_account_bic', 'condo_id']);
         foreach($self as $id => $bankAccount) {
+            // ignore condominiums accounts
+            if($bankAccount['condo_id']) {
+                continue;
+            }
             $organisation = Organisation::id($bankAccount['organisation_id'])->read(['id', 'bank_account_ids'])->first();
             if($organisation) {
                 // by convention, if current bank account is the first of the organisation, sync back with iban from organisation
@@ -110,10 +125,6 @@ class BankAccount extends Model {
             $result['bank_country'] = self::computeCountryFromIban($event['bank_account_iban']);
         }
 
-        if(isset($event['organisation_id']) || isset($event['bank_account_iban'])) {
-            $result['name'] = self::computeName($event['organisation_id'] ?? $values['organisation_id'], $event['bank_account_iban'] ?? $values['bank_account_iban']);
-        }
-
         return $result;
     }
 
@@ -128,9 +139,11 @@ class BankAccount extends Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['organisation_id', 'bank_account_iban']);
+        $self->read(['organisation_id', 'condo_id', 'bank_account_iban']);
         foreach($self as $id => $bankAccount) {
-            $result[$id] = self::computeName($bankAccount['organisation_id'], $bankAccount['bank_account_iban']);
+            if($bankAccount['bank_account_iban'] && strlen($bankAccount['bank_account_iban']) > 0) {
+                $result[$id] = DataFormatter::format($bankAccount['bank_account_iban'], 'iban');
+            }
         }
         return $result;
     }
@@ -143,7 +156,6 @@ class BankAccount extends Model {
                 return ['id' => ['non_removable' => 'The bank account cannot be removed. Organizations must have at least one bank account.']];
             }
         }
-
         return parent::candelete($self);
     }
 
@@ -153,15 +165,6 @@ class BankAccount extends Model {
             $country = substr($iban, 0, 2);
         }
         return $country;
-    }
-
-    private static function computeName($organisation_id, $iban) {
-        $name = '';
-        $organisation = Organisation::id($organisation_id)->read(['name'])->first();
-        if($organisation && $iban && strlen($iban) > 0){
-            $name = $organisation['name'] . ' - ' . $iban;
-        }
-        return $name;
     }
 
 }

@@ -107,6 +107,8 @@
             {
                 "sections": [
                     {
+                        "id": "section.execution_lines_ids",
+                        "label": "Allocations",
                         "rows": [
                             {
                                 "columns": [
@@ -116,6 +118,35 @@
                                             {
                                                 "type": "field",
                                                 "value": "execution_lines_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "actions": false
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.fundings_ids",
+                        "label": "Fundings",
+                        "visible": ["status", "=", "invoice"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "fundings_ids",
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {

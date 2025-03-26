@@ -112,10 +112,20 @@ class ClosingBalance extends Balance {
                 if(!$account_id) {
                     continue;
                 }
+                $debit = $debit_credit['debit'];
+                $credit = $debit_credit['credit'];
+
+                $delta = round($debit - $credit, 4);
+
+                $debit_balance = ($delta > 0.0) ? $delta : 0.0;
+                $credit_balance = ($delta < 0.0) ? abs($delta) : 0.0;
+
                 ClosingBalanceLine::create(array_merge([
-                        'account_id'    => $account_id,
-                        'debit'         => $debit_credit['debit'],
-                        'credit'        => $debit_credit['credit']
+                        'account_id'     => $account_id,
+                        'debit'          => $debit,
+                        'credit'         => $credit,
+                        'debit_balance'  => $debit_balance,
+                        'credit_balance' => $credit_balance
                     ], $values));
             }
 

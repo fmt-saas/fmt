@@ -61,11 +61,16 @@ class CurrentBalance extends Balance {
         $self->read(['condo_id', 'fiscal_year_id']);
         foreach($self as $id => $balance) {
             $balanceLine = CurrentBalanceLine::search([['balance_id', '=', $id], ['account_id', '=', $values['account_id']]])
-                ->read(['debit', 'credit'])
+                ->read(['debit', 'credit', 'debit_balance', 'credit_balance'])
                 ->first();
 
             if($balanceLine) {
-                ['debit' => $debit, 'credit' => $credit] = $balanceLine->toArray();
+                [
+                    'debit'             => $debit,
+                    'credit'            => $credit,
+                    'debit_balance'     => $debit_balance,
+                    'credit_balance'    => $credit_balance
+                ] = $balanceLine->toArray();
             }
             else {
                 $balanceLine = CurrentBalanceLine::create([
@@ -78,17 +83,25 @@ class CurrentBalance extends Balance {
 
                 $debit = 0.0;
                 $credit = 0.0;
+                $debit_balance = 0.0;
+                $credit_balance = 0.0;
             }
 
             $debit  += round($values['debit'], 4);
             $credit += round($values['credit'], 4);
 
+            $delta = round($debit - $credit, 4);
+
+            $debit_balance += ($delta > 0.0) ? $delta : 0.0;
+            $credit_balance += ($delta < 0.0) ? abs($delta) : 0.0;
+
             CurrentBalanceLine::id($balanceLine['id'])
                 ->update([
-                        'debit'  => $debit,
-                        'credit' => $credit
-                    ])
-                ->read(['debit_balance', 'credit_balance']);
+                        'debit'             => $debit,
+                        'credit'            => $credit,
+                        'debit_balance'     => $debit_balance,
+                        'credit_balance'    => $credit_balance
+                    ]);
         }
     }
 

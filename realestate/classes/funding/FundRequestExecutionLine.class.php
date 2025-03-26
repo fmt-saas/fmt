@@ -27,6 +27,14 @@ class FundRequestExecutionLine extends \sale\accounting\invoice\InvoiceLine {
                 'required'          => true
             ],
 
+            'fund_request_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\FundRequest',
+                'description'       => "Fund request the line relates to.",
+                'ondelete'          => 'cascade',
+                'required'          => true
+            ],
+
             'request_execution_id' => [
                 'type'              => 'alias',
                 'alias'             => 'invoice_id'
@@ -66,7 +74,15 @@ class FundRequestExecutionLine extends \sale\accounting\invoice\InvoiceLine {
                 'rel_foreign_key'   => 'line_entry_id',
                 'rel_local_key'     => 'execution_line_id',
                 'description'       => "Request fund execution line the entry relates to, if any."
-            ]
+            ],
+
+            'funding_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'sale\pay\Funding',
+                'description'       => 'The funding relating to the execution line, if any.',
+                'help'              => 'Fundings are created when execution is validated. In case of cancellation, only paid or partially paid fundings remain.'
+            ],
+
 
         ];
     }

@@ -188,6 +188,16 @@ class Condominium extends \identity\Organisation {
                 'foreign_field'     => 'condo_id'
             ],
 
+            'bank_account_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\bank\BankAccount',
+                'foreign_field'     => 'condo_id',
+                'description'       => 'List of the bank account of the organisation',
+                'ondetach'          => 'delete',
+                'order'             => 'id',
+                'sort'              => 'asc'
+            ]
+
         ];
     }
 

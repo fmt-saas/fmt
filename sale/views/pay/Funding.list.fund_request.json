@@ -1,11 +1,12 @@
 {
     "name": "Fundings",
     "description": "This view is intended for displaying the list of fundings.",
-    "access": {
-        "groups": ["order.default.users"]
-    },
     "operations": {
         "total": {
+            "due_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
             "paid_amount": {
                 "operation": "SUM",
                 "usage": "amount/money:2"
@@ -21,7 +22,7 @@
             },
             {
                 "type": "field",
-                "value": "funding_type",
+                "value": "issue_date",
                 "width": "15%"
             },
             {
@@ -31,8 +32,15 @@
             },
             {
                 "type": "field",
-                "value": "is_paid",
-                "width": "10%"
+                "label": "Owner",
+                "value": "ownership_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Fund request",
+                "value": "fund_request_id",
+                "width": "20%"
             },
             {
                 "type": "field",
@@ -41,13 +49,21 @@
             },
             {
                 "type": "field",
-                "value": "due_amount",
-                "width": "10%"
+                "label": "Paid",
+                "value": "is_paid",
+                "width": "15%"
             },
             {
                 "type": "field",
+                "label": "Amount Paid",
                 "value": "paid_amount",
-                "width": "10%"
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "label": "Amount Due",
+                "value": "due_amount",
+                "width": "15%"
             }
         ]
     }

@@ -49,7 +49,7 @@ class FundRequestLineEntryLot extends \equal\orm\Model {
             'apportionment_shares' => [
                 'type'              => 'integer',
                 'usage'             => 'amount/natural',
-                'description'       => "Amount of shares the owner has on the ownership",
+                'description'       => "Amount of shares the owner has for related apportionment, based on property lot.",
                 'help'              => "The amount of shares the targeted property lot has for the apportionment."
             ],
 
@@ -65,7 +65,7 @@ class FundRequestLineEntryLot extends \equal\orm\Model {
             'allocated_amount' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
-                'description'       => 'Amount requested for the related lo to co-owner.',
+                'description'       => 'Amount requested for the related property lot to the co-owner.',
                 // #memo - this is done in parent FundRequest
                 // 'dependents'        => ['line_entry_id' => ['allocated_amount', 'request_line_id' => ['allocated_amount', 'fund_request_id' => ['allocated_amount']]]]
             ]

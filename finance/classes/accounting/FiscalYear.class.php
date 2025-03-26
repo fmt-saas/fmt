@@ -126,6 +126,20 @@ class FiscalYear extends Model {
                 'help'              => "This field set automatically and is dedicated to checks prior to performing some operations."
             ],
 
+            'fund_requests_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\funding\FundRequest',
+                'foreign_field'     => 'fiscal_year_id',
+                'description'       => "Fund requests relating to the fiscal year."
+            ],
+
+            'fund_request_executions_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\funding\FundRequestExecution',
+                'foreign_field'     => 'fiscal_year_id',
+                'description'       => "Fund requests relating to the fiscal year."
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -214,70 +228,83 @@ class FiscalYear extends Model {
         return [
             'draft' => [
                 'description' => 'Draft fiscal year, still waiting to be completed for validation.',
-                'icon'        => 'draw',
+                'icon' => 'draw',
                 'transitions' => [
                     'preopen' => [
                         'description' => 'Update the fiscal year status to `preopen`.',
-                        'policies'    => [
+                        'onafter' => 'onafterPreOpen',
+                        'policies' => [
                             'can_be_preopened',
                         ],
-                        // 'onbefore'  => '',
-                        'onafter'   => 'onafterPreOpen',
-                        'status'    => 'preopen'
-                    ]
-                ]
+                        'status' => 'preopen',
+                    ],
+                    'open' => [
+                        'description' => 'Delete the proforma and set receivables statuses back to pending.',
+                        'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'onafter' => 'onafterOpen',
+                        'policies' => [
+                            'can_be_opened',
+                        ],
+                        'status' => 'open',
+                    ],
+                ],
             ],
             'preopen' => [
                 'description' => 'Draft fiscal year, still waiting to be completed for validation.',
-                'icon'        => 'drive_file_rename_outline',
+                'icon' => 'drive_file_rename_outline',
                 'transitions' => [
                     'open' => [
                         'description' => 'Delete the proforma and set receivables statuses back to pending.',
-                        'help'        => 'A fiscal year can be opened before the previous one is definitely closed.',
-                        'policies'    => [
+                        'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'onafter' => 'onafterOpen',
+                        'policies' => [
                             'can_be_opened',
                         ],
-                        'onbefore'  => 'onbeforeOpen',
-                        'onafter'   => 'onafterOpen',
-                        'status'    => 'open'
-                    ]
-                ]
+                        'status' => 'open',
+                    ],
+                ],
             ],
             'open' => [
                 'description' => 'Draft fiscal year, still waiting to be completed for validation.',
-                'icon'        => 'pending',
+                'icon' => 'pending',
                 'transitions' => [
                     'preclose' => [
                         'description' => 'Delete the proforma and set receivables statuses back to pending.',
-                        'help'        => 'A fiscal year can be opened before the previous one is definitely closed.',
-                        'policies'    => [
+                        'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'policies' => [
                             'can_be_preclosed',
                         ],
-                        'status'  => 'preclosed'
-                    ]
-                ]
+                        'status' => 'preclosed',
+                    ],
+                ],
             ],
             'preclosed' => [
                 'description' => 'Draft fiscal year, still waiting to be completed for validation.',
-                'icon'        => 'lock_open',
+                'icon' => 'lock_open',
                 'transitions' => [
                     'close' => [
                         'description' => 'Handle actions related to fiscal year closing.',
-                        'help'        => 'A fiscal year can be opened before the previous one is definitely closed.',
-                        'policies'    => [
+                        'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'onafter' => 'onafterClose',
+                        'policies' => [
                             'can_be_closed',
                         ],
-                        'onafter'    => 'onafterClose',
-                        'status'     => 'closed'
-                    ]
-                ]
+                        'status' => 'closed',
+                    ],
+                ],
             ],
             'closed' => [
                 'description' => 'Draft fiscal year, still waiting to be completed for validation.',
-                'icon'        => 'lock',
+                'icon' => 'lock',
                 'transitions' => [
-                ]
-            ]
+                    'unclose' => [
+                        'description' => 'Handle actions related to fiscal year closing.',
+                        'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'onafter' => 'onafterUnClose',
+                        'status' => 'preclosed',
+                    ],
+                ],
+            ],
         ];
     }
 

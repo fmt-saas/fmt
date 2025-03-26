@@ -19,6 +19,12 @@ class Payment extends Model {
     public static function getColumns() {
 
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the payment refers to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'readonly'          => true
+            ],
 
             'customer_id' => [
                 'type'              => 'many2one',
@@ -163,31 +169,35 @@ class Payment extends Model {
      * Force recomputing of target funding computed fields (is_paid and paid_amount).
      */
     public static function onupdateFundingId($self, $values) {
-        trigger_error("ORM::calling sale\pay\Payment::onupdateFundingId", QN_REPORT_DEBUG);
+        $self->read([
+                'customer_id', 'amount', 'statement_line_id',
+                'funding_id' => [
+                    'id',
+                    'funding_type',
+                    'due_amount',
+                    'invoice_id' => ['id', 'customer_id']
+                ]
+            ]);
 
-        $funding_fields = [
-            'funding_type',
-            'due_amount',
-            'invoice_id' => ['customer_id'],
-        ];
-
-        $self->read(['funding_id', 'customer_id', 'funding_id' => $funding_fields, 'amount', 'statement_line_id']);
         foreach($self as $id => $payment) {
             if($payment['funding_id']) {
+                $values = [];
                 // make sure a customer_id is assigned to the payment
-                if(is_null($payment['customer_id']) && isset($payment['funding_id']['invoice_id'])) {
-                    self::id($id)->update([
-                        'customer_id' => $payment['funding_id']['invoice_id']['customer_id'],
-                        'invoice_id'  => $payment['funding_id']['invoice_id']['id'],
-                    ]);
+                if(isset($payment['funding_id']['invoice_id'])) {
+                    if(!$payment['customer_id']) {
+                        $values['customer_id'] = $payment['funding_id']['invoice_id']['customer_id'];
+                    }
+                    if(!$payment['invoice_id']) {
+                        $values['invoice_id'] = $payment['funding_id']['invoice_id']['id'];
+                    }
                 }
-
-                self::id($id)->update(['is_paid' => null, 'paid_amount' => null]);
-                $fundings_ids[] = $payment['funding_id'];
+                if(count($values)) {
+                    self::id($id)->update($values);
+                }
+                $fundings_ids[] = $payment['funding_id']['id'];
             }
         }
-
-        Funding::ids($fundings_ids)->read(['is_paid', 'paid_amount']);
+        Funding::ids($fundings_ids)->update(['is_paid' => null, 'paid_amount' => null]);
     }
 
     public static function canupdate($self, $values) {
@@ -198,7 +208,7 @@ class Payment extends Model {
             }
 
             $payment_origin = $values['payment_origin'] ?? $payment['payment_origin'];
-            if($payment_origin == 'bank' && isset($values['amount'])) {
+            if($payment_origin == 'bank' && isset($values['amount']) && (isset($values['statement_line_id']) || isset($payment['statement_line_id']))) {
                 $statement_line = $payment['statement_line_id'];
                 if(isset($values['statement_line_id'])) {
                     $statement_line = BankStatementLine::id($values['statement_line_id'])

@@ -62,7 +62,6 @@ class FundRequest extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account the entry relates to.",
-                'required'          => true,
                 'ondelete'          => 'null',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['operation_assignment', '=', 'object.request_type']]
             ],
@@ -76,10 +75,15 @@ class FundRequest extends \equal\orm\Model {
             'request_bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
-                'foreign_field'     => 'organisation_id',
-                'description'       => 'List of the bank account of the organisation',
-                'domain'            => ['condo_id', '=', 'object.condo_id'],
-                'required'          => true
+                'description'       => 'Bank account to use for the request.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'payment_terms_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'sale\pay\PaymentTerms',
+                'description'       => 'Payment terms to use for the request.',
+                'domain'            => ['is_active', '=', true]
             ],
 
             'has_date_range' => [
@@ -152,6 +156,13 @@ class FundRequest extends \equal\orm\Model {
                 'description'       => "Scheduled executions of the Fund request."
             ],
 
+            'execution_lines_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\funding\FundRequestExecutionLine',
+                'foreign_field'     => 'fund_request_id',
+                'description'       => "Scheduled executions of the Fund request."
+            ],
+
             'line_entries_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\funding\FundRequestLineEntry',
@@ -166,6 +177,13 @@ class FundRequest extends \equal\orm\Model {
                 'description'       => "Line entries by lots of the Fund request."
             ],
 
+            'fundings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'sale\pay\Funding',
+                'foreign_field'     => 'fund_request_id',
+                'description'       => 'The fundings that relate to the fund request.'
+            ]
+
         ];
     }
 
@@ -178,6 +196,7 @@ class FundRequest extends \equal\orm\Model {
                     'activate' => [
                         'description' => 'Update the fund request to `active`.',
                         'policies'    => [
+                            'has_mandatory_data',
                             'is_balanced',
                         ],
                         'onafter'   => 'onafterActivate',
@@ -193,7 +212,7 @@ class FundRequest extends \equal\orm\Model {
             'generate_allocation' => [
                 'description'   => 'Generate the request lines according to the property lots of the condominium and their respective shares.',
                 'policies'      => ['can_generate_lines'],
-                'function'      => 'doGenerateLines'
+                'function'      => 'doGenerateAllocation'
             ],
             'generate_executions' => [
                 'description'   => 'Generate the request lines according to the property lots of the condominium and their respective shares.',
@@ -205,6 +224,10 @@ class FundRequest extends \equal\orm\Model {
 
     public static function getPolicies(): array {
         return [
+            'has_mandatory_data' => [
+                'description' => 'Checks & validate values required for activation.',
+                'function'    => 'policyHasMandatoryData'
+            ],
             'can_generate_lines' => [
                 'description' => 'Verifies that a fund request is still a draft.',
                 'function'    => 'policyCanGenerateLines'
@@ -243,6 +266,54 @@ class FundRequest extends \equal\orm\Model {
             if($fundRequest['request_amount'] != $fundRequest['allocated_amount']) {
                 $result[$id] = [
                     'non_balanced' => 'Allocated amount the request amount must match.'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    public static function policyHasMandatoryData($self): array {
+        $result = [];
+        $self->read(['request_date', 'has_date_range', 'date_from', 'date_to', 'request_account_id', 'request_bank_account_id', 'payment_terms_id']);
+        foreach($self as $id => $fundRequest) {
+            if($fundRequest['has_date_range']) {
+                if(!$fundRequest['date_from']) {
+                    $result[$id] = [
+                        'missing_date_from' => 'The start date of the time range is mandatory.'
+                    ];
+                }
+                if(!$fundRequest['date_to']) {
+                    $result[$id] = [
+                        'missing_date_to' => 'The end date of the time range is mandatory.'
+                    ];
+                }
+                if($fundRequest['date_from'] > $fundRequest['date_from']) {
+                    $result[$id] = [
+                        'invalid_date_interval' => 'The end date cannot be before start date.'
+                    ];
+                }
+            }
+            elseif(!$fundRequest['request_date']) {
+                $result[$id] = [
+                    'missing_date' => 'The date of the request is mandatory.'
+                ];
+            }
+
+            if(!$fundRequest['request_account_id']) {
+                $result[$id] = [
+                    'missing_accounting_account' => 'The accounting account is mandatory.'
+                ];
+            }
+            if(!$fundRequest['request_bank_account_id']) {
+                $result[$id] = [
+                    'missing_bank_account' => 'The bank account is mandatory.'
+                ];
+                continue;
+            }
+            if(!$fundRequest['payment_terms_id']) {
+                $result[$id] = [
+                    'missing_payment_terms' => 'The payment terms are mandatory.'
                 ];
                 continue;
             }
@@ -294,19 +365,53 @@ class FundRequest extends \equal\orm\Model {
         return $result;
     }
 
-    public static function doGenerateLines($self) {
-        $self->read(['condo_id' => ['id', 'ownerships_ids'], 'request_lines_ids' => ['request_amount', 'apportionment_id' => ['id', 'total_shares']]]);
+    public static function doGenerateAllocation($self) {
+        $self->read([
+                'request_date', 'has_date_range', 'date_from', 'date_to', 'request_type',
+                'condo_id' => ['id', 'ownerships_ids'],
+                'request_lines_ids' => ['request_amount', 'apportionment_id' => ['id', 'total_shares']]
+            ]);
 
         foreach($self as $id => $fundRequest) {
-            if (empty($fundRequest['request_lines_ids' ])) {
+            if(empty($fundRequest['request_lines_ids' ])) {
                 continue;
             }
+
+            $date_from = $fundRequest['has_date_range'] ? $fundRequest['date_from'] : $fundRequest['request_date'];
+
             // remove any previously created entry & entry lot
             FundRequestLineEntry::search(['fund_request_id', '=', $id])->delete(true);
             foreach($fundRequest['request_lines_ids'] as $request_line_id => $requestLine) {
                 $map_property_lot_shares = [];
                 $sum_delta = 0.0;
                 foreach($fundRequest['condo_id']['ownerships_ids'] as $ownership_id) {
+
+                    $ownership = Ownership::id($ownership_id)->read(['date_from', 'date_to', 'property_lots_ids'])->first();
+
+                    // ignore ownerships outside of the fund request
+                    if($ownership['date_to'] && $ownership['date_to'] < $date_from) {
+                        continue;
+                    }
+                    if($fundRequest['has_date_range']) {
+                        if($ownership['date_from'] && $ownership['date_from'] > $fundRequest['date_to'] ) {
+                            continue;
+                        }
+                    }
+
+                    $ratio = 1.0;
+
+                    // In the case where the request is a time range and the ownership is partially within it, we need to allocate the called amount pro-rata based on the duration of the ownership.
+                    // #memo - We assume that a property lot always belongs to someone and that the dates are contiguous in the event of a property transfer.
+                    if($fundRequest['has_date_range'] && $fundRequest['request_type'] == 'expense_provisions') {
+                        if($ownership['date_from'] < $fundRequest['date_from'] || $ownership['date_to'] > $fundRequest['date_to']) {
+                            $intersect_from = max($ownership['date_from'], $fundRequest['date_from']);
+                            $intersect_to = min($ownership['date_to'], $fundRequest['date_to']);
+                            $total_days = ( ($fundRequest['date_to'] - $fundRequest['date_from']) / 86400 ) + 1;
+                            $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
+                            $ratio = round($intersect_days / $total_days, 4);
+                        }
+                    }
+
                     $lineEntry = FundRequestLineEntry::create([
                             'condo_id'          => $fundRequest['condo_id']['id'],
                             'fund_request_id'   => $id,
@@ -315,7 +420,6 @@ class FundRequest extends \equal\orm\Model {
                         ])
                         ->first();
 
-                    $ownership = Ownership::id($ownership_id)->read(['property_lots_ids'])->first();
                     foreach($ownership['property_lots_ids'] as $property_lot_id) {
 
                         // if the lot has a share for this apportionment key, we add it
@@ -328,7 +432,7 @@ class FundRequest extends \equal\orm\Model {
 
                         if($apportionmentShare) {
                             $map_property_lot_shares[$apportionmentShare['property_lot_shares']][] = $property_lot_id;
-                            $amount = $requestLine['request_amount'] * ($apportionmentShare['property_lot_shares'] / $requestLine['apportionment_id']['total_shares']);
+                            $amount = $ratio * $requestLine['request_amount'] * ($apportionmentShare['property_lot_shares'] / $requestLine['apportionment_id']['total_shares']);
                             $precise_amount = round($amount, 4);
                             $rounded_amount = round($amount, 2);
                             $sum_delta += ($precise_amount - $rounded_amount);
@@ -405,16 +509,7 @@ class FundRequest extends \equal\orm\Model {
 
             // retrieve execution dates
             $execution_dates = [];
-            if($fundRequest['request_type'] == 'expense') {
-                // fetch all periods from fiscal year, and use each first date
-                $fiscal_periods = FiscalPeriod::search(['fiscal_year_id', '=', $fundRequest['fiscal_year_id']])
-                    ->read(['date_from'])
-                    ->get();
-                foreach($fiscal_periods as $fiscal_period_id => $fiscal_period) {
-                    $execution_dates[] = $fiscal_period['date_from'];
-                }
-            }
-            elseif(!$fundRequest['has_date_range']) {
+            if(!$fundRequest['has_date_range']) {
                 $execution_dates[] = $fundRequest['request_date'];
             }
             else {
@@ -432,7 +527,7 @@ class FundRequest extends \equal\orm\Model {
 
             foreach($execution_dates as $index => $execution_date) {
                 // search for existing execution at the date (there should be 0 or 1)
-                $existing_executions_ids = FundRequestExecution::search([['status', '=', 'called'], ['fund_request_id', '=', $id], ['emission_date', '=', $execution_date]])->ids();
+                $existing_executions_ids = FundRequestExecution::search([['status', '=', 'invoice'], ['fund_request_id', '=', $id], ['emission_date', '=', $execution_date]])->ids();
                 if(count($existing_executions_ids)) {
                     unset($execution_dates[$index]);
                     $executionLines = FundRequestExecutionLine::search(['request_execution_id', 'in', $existing_executions_ids])->read(['ownership_id', 'called_amount']);
@@ -482,6 +577,8 @@ class FundRequest extends \equal\orm\Model {
                 foreach($map_ownership_execution_amounts as $ownership_id => $map_amounts) {
                     $executionLine = FundRequestExecutionLine::create([
                             'condo_id'              => $fundRequest['condo_id'],
+                            'fund_request_id'       => $id,
+                            // #memo - request_execution_id is an alias of invoice_id
                             // 'request_execution_id'  => $requestExecution['id'],
                             'invoice_id'            => $requestExecution['id'],
                             'ownership_id'          => $ownership_id,
@@ -498,34 +595,29 @@ class FundRequest extends \equal\orm\Model {
     }
 
     public static function canupdate($self, $values) {
-        if(isset($values['has_date_range'])) {
-            if($values['has_date_range']) {
-                $self->read(['date_from', 'date_to']);
-                if(!isset($values['date_from'], $values['date_to'])) {
-                    foreach($self as $id => $fundRequest) {
-                        if(!isset($fundRequest['date_from'])) {
-                            return ['date_from' => ['invalid' => 'Date from cannot be empty.']];
-                        }
-                        if(!isset($fundRequest['date_to'])) {
-                            return ['date_to' => ['invalid' => 'Date from cannot be empty.']];
-                        }
-                    }
+
+        $self->read(['status', 'has_date_range', 'date_from', 'date_to', 'request_date']);
+
+        foreach($self as $id => $fundRequest) {
+            $state = array_merge($fundRequest->toArray(), $values);
+
+            if($state['status'] == 'active') {
+                if(isset($values['has_date_range']) || isset($values['date_from']) || isset($values['date_to']) || isset($values['request_date'])) {
+                    return ['status' => ['forbidden' => 'Dates and time range can no longer be changed.']];
+                }
+            }
+            if($state['has_date_range']) {
+                if(!isset($state['date_from'])) {
+                    return ['date_from' => ['invalid' => 'Date from cannot be empty.']];
+                }
+                if(!isset($state['date_to'])) {
+                    return ['date_to' => ['invalid' => 'Date from cannot be empty.']];
                 }
             }
             else {
-                if(!isset($values['request_date'])) {
-                    if(isset($values['request_type']) && $values['request_type'] != 'expense') {
-                        return ['request_date' => ['missing' => 'Request date is mandatory.']];
-                    }
+                if(!isset($state['request_date'])) {
+                    return ['request_date' => ['missing' => 'Request date is mandatory.']];
                 }
-            }
-        }
-        if(isset($values['date_from']) || isset($values['date_to'])) {
-            if(is_null($values['date_from'])) {
-                return ['date_from' => ['invalid' => 'Date from cannot be empty.']];
-            }
-            if(is_null($values['date_to'])) {
-                return ['date_to' => ['invalid' => 'Date to cannot be empty.']];
             }
         }
         return parent::canupdate($self, $values);

@@ -1,6 +1,6 @@
 [
     {
-        "name": "realestate\\property\\Role",
+        "name": "hr\\role\\Role",
         "lang": "en",
         "data": [
             {
@@ -18,7 +18,7 @@
         ]
     },
     {
-        "name": "realestate\\property\\Role",
+        "name": "hr\\role\\Role",
         "lang": "fr",
         "data": [
             {

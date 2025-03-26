@@ -13,6 +13,8 @@ use finance\accounting\AccountingEntry;
 use finance\accounting\AccountingEntryLine;
 use realestate\ownership\Ownership;
 use fmt\setting\Setting;
+use sale\pay\Funding;
+use sale\pay\Payment;
 
 class FundRequestExecution extends \sale\accounting\invoice\Invoice {
 
@@ -50,8 +52,9 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
 
             'invoice_type' => [
                 'type'              => 'string',
-                'description'       => 'Document type: invoice or a credit note.',
-                'default'           => 'fund_request'
+                'description'       => 'Document type (fund requests are handled as sale invoices).',
+                'default'           => 'fund_request',
+                'readonly'          => true
             ],
 
             /* from sale\accounting\invoice\Invoice: */
@@ -90,6 +93,13 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                 'usage'             => 'text/plain',
                 'description'       => 'Logs of the accounting entry generation'
             ],
+
+            'fundings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'sale\pay\Funding',
+                'foreign_field'     => 'fund_request_execution_id',
+                'description'       => 'The fundings that relate to the execution (sale invoice).'
+            ]
 
         ];
     }
@@ -130,6 +140,11 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                 'description'   => 'Generate a draft of the resulting accounting entry and entry lines.',
                 'policies'      => [],
                 'function'      => 'doGenerateAccountingEntries'
+            ],
+            'generate_fundings' => [
+                'description'   => 'Generate fundings for each involved ownership.',
+                'policies'      => [],
+                'function'      => 'doGenerateFundings'
             ],
             'perform_execution' => [
                 'description'   => 'Perform the fund request execution by creating and validating resulting Accounting entries and Fundings.',
@@ -205,20 +220,42 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
     public static function doPerformExecution($self) {
         $self
             ->do('generate_accounting_entry')
+            ->do('generate_fundings')
             ->read(['accounting_entry_id']);
 
+        // automatically validate accounting entry
         foreach($self as $id => $requestExecution) {
-            // retrieve accounting entry and validate it
             AccountingEntry::id($requestExecution['accounting_entry_id'])->transition('validate');
         }
 
     }
 
     public static function doCancelExecution($self) {
-        $self->update(['price' => 0.0])->read(['accounting_entry_id']);
+        $self->update(['price' => 0.0])
+            ->read(['execution_lines_ids' => ['ownership_id'], 'fund_request_id', 'accounting_entry_id']);
         foreach($self as $id => $requestExecution) {
             // retrieve accounting entry and cancel it
             AccountingEntry::id($requestExecution['accounting_entry_id'])->transition('cancel');
+
+            foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
+                // remove related fundings with no payments
+                $fundings = Funding::search([
+                        ['ownership_id', '=', $executionLine['ownership_id']],
+                        ['fund_request_id', '=', $requestExecution['fund_request_id']]
+                    ])
+                    ->read(['payments_ids']);
+
+                foreach($fundings as $funding_id => $funding) {
+                    // remove empty fundings
+                    if(empty($funding['payments_ids'])) {
+                        Funding::id($funding_id)->delete(true);
+                    }
+                    // detach non-empty ones from current execution
+                    else {
+                        Funding::id($funding_id)->update(['fund_request_execution_id' => null]);
+                    }
+                }
+            }
         }
 
     }
@@ -259,15 +296,15 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
 
             // create an accounting entry
             $accountingEntry = AccountingEntry::create([
-                'condo_id'              => $requestExecution['condo_id'],
-                'journal_id'            => $journal['id'],
-                'invoice_id'            => $id,
-                'fiscal_year_id'        => $requestExecution['fiscal_year_id'],
-                'entry_date'            => $requestExecution['emission_date'],
-                'origin_object_class'   => self::getType(),
-                'origin_object_id'      => $id
-            ])
-            ->first();
+                    'condo_id'              => $requestExecution['condo_id'],
+                    'journal_id'            => $journal['id'],
+                    'invoice_id'            => $id,
+                    'fiscal_year_id'        => $requestExecution['fiscal_year_id'],
+                    'entry_date'            => $requestExecution['emission_date'],
+                    'origin_object_class'   => self::getType(),
+                    'origin_object_id'      => $id
+                ])
+                ->first();
 
             $logs[] = "Created accounting entry id {$accountingEntry['id']}";
 
@@ -328,4 +365,82 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
         }
 
     }
+
+    public static function doGenerateFundings($self) {
+        $self->read([
+                'emission_date',
+                'fiscal_year_id' => ['date_from'],
+                'condo_id',
+                'fund_request_id' => [
+                    'id', 'name', 'request_type', 'request_account_id', 'request_bank_account_id',
+                    'payment_terms_id' => ['delay_from', 'delay_count']
+                ],
+                'execution_lines_ids' => ['ownership_id', 'called_amount', 'funding_id']
+            ]);
+
+        foreach($self as $id => $requestExecution) {
+
+            foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
+                $ownership_id = $executionLine['ownership_id'];
+                // retrieve detached-non-empty fundings relating to the targeted ownership and fund request, if any
+                $fund_request_id = $requestExecution['fund_request_id']['id'];
+                $fundings = Funding::search([
+                        ['ownership_id', '=', $ownership_id],
+                        ['fund_request_id', '=', $fund_request_id],
+                        ['fund_request_execution_id', '=', null]
+                    ])
+                    ->read(['payments_ids']);
+                foreach($fundings as $funding_id => $funding) {
+                    // #memo - empty fundings have been removed at cancellation of previous execution(s)
+                    // compute already paid/reimbursed amounts
+                    $payments = Payment::ids($funding['payments_ids'])->read(['amount'])->get(true);
+                    $paid_amount = round(array_sum(array_column($payments, 'amount')), 2);
+                    // attached funding to current execution
+                    Funding::id($funding_id)->update(['fund_request_execution_id' => $id]);
+                }
+
+                $issue_date = max(strtotime('today'), $requestExecution['emission_date']);
+
+                $delay_count = $requestExecution['fund_request_id']['payment_terms_id']['delay_count'];
+                if($requestExecution['fund_request_id']['payment_terms_id']['delay_from'] === 'next_month') {
+                    $next_month = strtotime(date('Y-m-01', $issue_date) . ' +1 month');
+                    $due_date = strtotime("+{$delay_count} days", $next_month);
+                }
+                else{
+                    $due_date = strtotime("+{$delay_count} days", $issue_date);
+                }
+
+                $due_date = max(strtotime('today'), $requestExecution['emission_date']);
+
+                // acc-ccxxxx-yy
+                // #todo - à confirmer
+                $reference =
+                    // #memo - by convention to make sure using the same year for all request executions relating to a same fund request
+                    substr(date('Y', $requestExecution['fiscal_year_id']['date_from']), -2) .
+                    substr(str_pad($ownership_id, 4, '0', STR_PAD_LEFT), 0, 4) .
+                    substr(str_pad($fund_request_id, 4, '0', STR_PAD_LEFT), 0, 4);
+
+                $prefix = substr($reference, 0, 3);
+                $suffix = substr($reference, 3);
+
+                Funding::create([
+                        'condo_id'                  => $requestExecution['condo_id'],
+                        'description'               => $requestExecution['fund_request_id']['name'],
+                        'fund_request_id'           => $requestExecution['fund_request_id']['id'],
+                        'fund_request_execution_id' => $id,
+                        'ownership_id'              => $ownership_id,
+                        'request_bank_account_id'   => $requestExecution['fund_request_id']['request_bank_account_id'],
+                        'issue_date'                => $issue_date,
+                        'due_date'                  => $due_date,
+                        'due_amount'                => $executionLine['called_amount'] - $paid_amount,
+                        'funding_type'              => 'fund_request',
+                        'payment_reference'         => self::computePaymentReference($prefix, $suffix)
+                    ]);
+
+            }
+        }
+    }
+
+
+
 }
