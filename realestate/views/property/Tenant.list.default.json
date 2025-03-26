@@ -1,0 +1,33 @@
+{
+    "name": "Tenant",
+    "description": "A tenant is a renter of a property lot. There can be multiple cohabitants for the same rental. The cohabitants (adults) are jointly responsible for the rental and the associated charges.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "100%"
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "100%"
+            },
+            {
+                "type": "field",
+                "value": "property_lot_id",
+                "width": "100%"
+            },
+            {
+                "type": "field",
+                "value": "tenancy_id",
+                "width": "100%"
+            },
+            {
+                "type": "field",
+                "value": "tenant_identity_id",
+                "width": "100%"
+            }
+        ]
+    }
+}
