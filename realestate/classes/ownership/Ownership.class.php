@@ -231,7 +231,7 @@ class Ownership extends \equal\orm\Model {
     }
 
     public static function onupdateCreationIdentityId($self) {
-        $self->read('creation_identity_id', 'condo_id');
+        $self->read(['creation_identity_id', 'condo_id']);
         foreach($self as $id => $ownership) {
             Owner::create([
                     'condo_id'      => $ownership['condo_id'],
