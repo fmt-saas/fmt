@@ -202,9 +202,12 @@ class PropertyLot extends \equal\orm\Model {
         $result = [];
 
         if(isset($event['active_ownership_id'])) {
-            $ownership = Ownership::id($event['active_ownership_id'])->read(['condo_id'])->first();
+            $ownership = Ownership::id($event['active_ownership_id'])->read(['condo_id' => ['id', 'name']])->first();
             if($ownership) {
-                $result['condo_id'] = $ownership['condo_id'];
+                $result['condo_id'] = [
+                        'id'   => $ownership['condo_id']['id'],
+                        'name' => $ownership['condo_id']['name']
+                    ];
             }
         }
         return $result;
