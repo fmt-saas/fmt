@@ -32,6 +32,12 @@ class BankAccount extends Model {
                 'instant'           => true
             ],
 
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Short description of the account (purpose).',
+                'dependents'        => ['name']
+            ],
+
             'organisation_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Organisation',
@@ -178,7 +184,7 @@ class BankAccount extends Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['organisation_id', 'condo_id', 'bank_account_iban']);
+        $self->read(['description', 'organisation_id', 'condo_id', 'bank_account_iban']);
         foreach($self as $id => $bankAccount) {
             if($bankAccount['bank_account_iban'] && strlen($bankAccount['bank_account_iban']) > 0) {
                 $result[$id] = DataFormatter::format($bankAccount['bank_account_iban'], 'iban');
