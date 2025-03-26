@@ -107,12 +107,13 @@ class Condominium extends \identity\Organisation {
 
             'fiscal_year_start' => [
                 'type'              => 'date',
-                'description'       => 'Date at which the fiscal year starts.'
+                'description'       => 'Date at which the first regular fiscal year started or is planned.',
+                'help'              => 'In some cases, the first year might start earlier or after that date.'
             ],
 
             'fiscal_year_end' => [
                 'type'              => 'date',
-                'description'       => 'Date at which the fiscal year ends.',
+                'description'       => 'Date at which the first fiscal year ends.',
                 'help'              => 'This date reflects the initial notary deed but can be changed in general assembly (only day and month are considered).'
             ],
 
@@ -324,7 +325,11 @@ class Condominium extends \identity\Organisation {
      *
      */
     public static function doCreateDraftFiscalYear($self) {
-        $self->read(['fiscal_year_start', 'fiscal_year_end', 'fiscal_period_frequency', 'current_fiscal_year_id']);
+        $self->read([
+                'fiscal_year_start', 'fiscal_year_end', 'fiscal_period_frequency',
+                'construction_compliance_date',
+                'condo_creation_date'
+            ]);
 
         // find fiscal year based on current date
         foreach($self as $id => $condominium) {
@@ -374,7 +379,32 @@ class Condominium extends \identity\Organisation {
             }
             // first fiscal year
             else {
-                $value['date_from'] = $condominium['fiscal_year_start'];
+                /*
+                    // Priority 1: If a start date has been chosen in the General Assembly, we take it
+                    IF start_date_chosen IS DEFINED
+                        RETURN start_date_chosen
+
+                    // Priority 2: If the General Assembly has already taken place, we take that date
+                    ELSE IF first_AG_date IS DEFINED
+                        RETURN first_AG_date
+
+                    // Priority 3: If a compliance certificate has been issued, we take that date
+                    ELSE IF compliance_certificate_date IS DEFINED
+                        RETURN compliance_certificate_date
+
+                */
+                if($condominium['fiscal_year_start']) {
+                    $value['date_from'] = $condominium['fiscal_year_start'];
+                }
+                elseif($condominium['condo_creation_date']) {
+                    $value['date_from'] = $condominium['condo_creation_date'];
+                }
+                elseif($condominium['construction_compliance_date']) {
+                    $value['date_from'] = $condominium['construction_compliance_date'];
+                }
+                else {
+                    $value['date_from'] = time();
+                }
                 $value['date_to'] = $condominium['fiscal_year_end'];
             }
 
