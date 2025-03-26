@@ -17,11 +17,16 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "bank_account_iban",
-                                                "width": "66%",
+                                                "value": "description",
+                                                "width": "50%",
                                                 "widget": {
                                                     "heading": true
                                                 }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "bank_account_iban",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
