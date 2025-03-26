@@ -151,7 +151,7 @@ class PropertyLot extends \equal\orm\Model {
 
             'has_grouped_statements' => [
                 'type'              => 'boolean',
-                'description'       => "Flag to mark the lot as being rented.",
+                'description'       => "Flag for grouping secondary-lots in the owner's statement.",
                 'default'           => false
             ],
 
