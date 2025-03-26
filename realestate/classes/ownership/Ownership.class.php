@@ -83,8 +83,7 @@ class Ownership extends \equal\orm\Model {
 
             'date_from' => [
                 'type'              => 'date',
-                'description'       => "The date from which the ownership is valid.",
-                'required'          => true
+                'description'       => "The date from which the ownership is valid."
             ],
 
             'date_to' => [
