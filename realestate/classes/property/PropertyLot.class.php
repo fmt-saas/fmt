@@ -17,7 +17,8 @@ class PropertyLot extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'required'          => true
+                'required'          => true,
+                'readonly'          => true
             ],
 
             'name' => [
