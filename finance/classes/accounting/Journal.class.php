@@ -94,8 +94,7 @@ class Journal extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
                 'foreign_field'     => 'journal_id',
-                'description'       => "Accounting entries of the journal.",
-                'required'          => true
+                'description'       => "Accounting entries of the journal."
             ]
 
             // #todo - add 'default_account_id'
