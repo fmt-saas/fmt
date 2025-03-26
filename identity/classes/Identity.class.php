@@ -661,7 +661,7 @@ class Identity extends Model {
         }
 
         if(isset($event['address_zip']) && isset($values['address_country'])) {
-            $list = self::getCitiesByZip($event['address_zip'], $values['address_country'], $lang);
+            $list = self::computeCitiesByZip($event['address_zip'], $values['address_country'], $lang);
             if($list) {
                 $result['address_city'] = [
                     'value' => '',
@@ -671,7 +671,7 @@ class Identity extends Model {
         }
 
         if(isset($event['bank_account_iban']) && isset($values['bank_account_bic'])) {
-            $bic = self::getBicFromIban($event['bank_account_iban'], $lang);
+            $bic = self::computeBicFromIban($event['bank_account_iban'], $lang);
             if($list) {
                 $result['bank_account_bic'] = $bic;
             }
@@ -681,7 +681,7 @@ class Identity extends Model {
     }
 
 
-    private static function getBicFromIban($iban, $lang) {
+    private static function computeBicFromIban($iban, $lang) {
         $result = '';
 
         $normalized_iban = str_replace(' ', '', trim($iban));
@@ -694,7 +694,7 @@ class Identity extends Model {
             if(file_exists($file)) {
                 $data = file_get_contents($file);
                 $map_bic = json_decode($data, true);
-                $result = $map_bic[$bank_code]['BIC'] ?? '';
+                $result = $map_bic[$bank_code]['bic'] ?? '';
             }
         }
 
@@ -704,7 +704,7 @@ class Identity extends Model {
     /**
      * Returns cities' names based on a zip code and a country.
      */
-    private static function getCitiesByZip($zip, $country, $lang) {
+    private static function computeCitiesByZip($zip, $country, $lang) {
         $result = null;
 
         $file = EQ_BASEDIR."/packages/identity/i18n/{$lang}/zipcodes/{$country}.json";
