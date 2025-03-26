@@ -118,11 +118,16 @@ class BankAccount extends Model {
         }
     }
 
-    public static function onchange($event, $values) {
+    public static function onchange($event, $values, $lang) {
         $result = [];
 
         if(isset($event['bank_account_iban'])) {
             $result['bank_country'] = self::computeCountryFromIban($event['bank_account_iban']);
+            $bank_info = self::computeBankFromIban($event['bank_account_iban'], $lang);
+            if($bank_info) {
+                $result['bank_name'] = $bank_info['name'];
+                $result['bank_account_bic'] = $bank_info['bic'];
+            }
         }
 
         return $result;
@@ -166,5 +171,26 @@ class BankAccount extends Model {
         }
         return $country;
     }
+
+    private static function computeBankFromIban($iban, $lang) {
+        $result = null;
+
+        $normalized_iban = str_replace(' ', '', trim($iban));
+
+        if(preg_match('/^[A-Z]{2}\d{2}\d{12}$/', $normalized_iban)) {
+            $country = substr($normalized_iban, 0, 2);
+            $bank_code = substr($normalized_iban, 4, 3);
+
+            $file = EQ_BASEDIR."/packages/identity/i18n/{$lang}/bic/{$country}.json";
+            if(file_exists($file)) {
+                $data = file_get_contents($file);
+                $map_bank = json_decode($data, true);
+                $result = $map_bank[$bank_code] ?? null;
+            }
+        }
+
+        return $result;
+    }
+
 
 }
