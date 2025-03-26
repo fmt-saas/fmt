@@ -62,7 +62,6 @@ class Journal extends Model {
                 'type'              => 'string',
                 'description'       => 'Unique code.',
                 'help'              => 'This code serve as unique and absolute identifier, and can also be used to match journal in an external tool.',
-                'unique'            => true,
                 'required'          => true,
                 'dependents'        => ['name']
             ],
@@ -116,4 +115,9 @@ class Journal extends Model {
         return $result;
     }
 
+    public function getUnique(): array {
+        return [
+            ['code', 'organisation_id', 'condo_id']
+        ];
+    }
 }
