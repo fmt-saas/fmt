@@ -133,7 +133,7 @@ class Apportionment extends \equal\orm\Model {
                 continue;
             }
             if($apportionment['is_statutory']) {
-                $result[$id] = 'stat';
+                $result[$id] = 'STAT';
             }
             else {
                 $count = count(self::search([['is_statutory', '=', false], ['condo_id', '=', $apportionment['condo_id']]])->ids());

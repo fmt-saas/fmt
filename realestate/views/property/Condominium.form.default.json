@@ -42,7 +42,7 @@
             "icon": "pie_chart",
             "context": {
                 "entity": "realestate\\property\\Apportionment",
-                "view": "list.default",
+                "view": "list.statutory",
                 "domain": [["condo_id", "=", "object.id"], ["is_statutory", "=", true]]
             }
         },

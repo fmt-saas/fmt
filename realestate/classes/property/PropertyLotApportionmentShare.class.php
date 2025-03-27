@@ -48,7 +48,8 @@ class PropertyLotApportionmentShare extends \equal\orm\Model {
                 'description'       => "The Property Lot that the owner refers to.",
                 'foreign_object'    => 'realestate\property\PropertyLot',
                 'ondelete'          => 'cascade',
-                'required'          => true
+                'required'          => true,
+                'domain'            => ['condo_id', '=', 'condo_id']
             ],
 
             'property_lot_shares' => [
