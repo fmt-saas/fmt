@@ -4,12 +4,7 @@
     "sort": "desc",
     "header": {
         "actions": {
-            "ACTION.CREATE" : [
-                {
-                    "view": "form.create",
-                    "description": "Overload form to use for fiscal year creation."
-                }
-            ]
+            "ACTION.CREATE" : false
         }
     },
     "layout": {

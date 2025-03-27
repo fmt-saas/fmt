@@ -1,9 +1,6 @@
 {
     "name": "Fundings",
     "description": "This view is intended for displaying the list of fundings.",
-    "access": {
-        "groups": ["sale.default.users"]
-    },
     "controller": "sale_pay_funding-collect",
     "layout": {
         "items": [

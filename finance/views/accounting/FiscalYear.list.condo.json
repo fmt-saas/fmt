@@ -2,6 +2,11 @@
     "name": "Condominium Fiscal Years",
     "order": "date_from",
     "sort": "desc",
+    "header": {
+        "actions": {
+            "ACTION.CREATE" : false
+        }
+    },
     "layout": {
         "items": [
             {
