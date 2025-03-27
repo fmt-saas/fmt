@@ -545,7 +545,7 @@ class FiscalYear extends Model {
      * - the accounting entries:        finance.accounting.accounting_entry.sequence.{fiscal_year_code}.{journal_code} [condo_id]
      */
     public static function doGenerateSequences($self) {
-        $self->read(['condo_id', 'fiscal_periods_ids' => ['order']]);
+        $self->read(['condo_id', 'code', 'fiscal_periods_ids' => ['order']]);
         foreach($self as $id => $fiscalYear) {
             $fiscal_year_code = $fiscalYear['code'];
 
@@ -563,7 +563,6 @@ class FiscalYear extends Model {
             // create accounting entries sequences for all existing journals
             $journals = Journal::search([['code', '<>', 'LEDG'], ['condo_id', '=', $fiscalYear['condo_id']]])->read(['code']);
             foreach($journals as $journal) {
-                $fiscal_year_code = $fiscalYear['code'];
                 $journal_code = $journal['code'];
                 Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}");
                 Setting::init_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}", ['condo_id' => $fiscalYear['condo_id']]);
