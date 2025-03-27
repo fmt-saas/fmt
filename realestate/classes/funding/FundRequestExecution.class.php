@@ -400,6 +400,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                     Funding::id($funding_id)->update(['fund_request_execution_id' => $id]);
                 }
 
+                // a funding cannot be issued in the past
                 $issue_date = max(strtotime('today'), $requestExecution['emission_date']);
 
                 $delay_count = $requestExecution['fund_request_id']['payment_terms_id']['delay_count'];
@@ -411,7 +412,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                     $due_date = strtotime("+{$delay_count} days", $issue_date);
                 }
 
-                $due_date = max(strtotime('today'), $requestExecution['emission_date']);
+                $due_date = max(strtotime('today'), $due_date);
 
                 // acc-ccxxxx-yy
                 // #todo - à confirmer

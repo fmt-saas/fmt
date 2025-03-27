@@ -462,6 +462,8 @@ class FundRequest extends \equal\orm\Model {
                     }
                 }
                 $sum_delta = round($sum_delta, 2);
+
+                // handle residual amount, if any
                 if($sum_delta != 0.0) {
                     $remaining = $sum_delta;
                     $step = $sum_delta > 0 ? 0.01 : -0.01;
@@ -478,19 +480,12 @@ class FundRequest extends \equal\orm\Model {
                             break;
                         }
                     }
-                    if(abs($remaining) > 0.0) {
+                    if(abs($remaining) >= 0.01) {
                         $line_entry_lot_id = reset($ordered_lots_ids);
                         $entryLot = FundRequestLineEntryLot::id($line_entry_lot_id)->read(['allocated_amount'])->first();
                         FundRequestLineEntryLot::id($line_entry_lot_id)->update(['allocated_amount' => $entryLot['allocated_amount'] + $remaining]);
                         $remaining = 0.0;
                     }
-
-
-                    /*
-                    #todo #francois - notes du 2025-03-21
-                    C’est le cas dans la plupart des programmes qui tiennent simplement compte des arrondis et on retrouvera par exemple des montants appelés de 10.000,03 € alors que l’assemblée avait voté 10.000,- €.
-                    OptiPro a par contre réussi à ce qu’il n’y ait jamais d’arrondis sur le montant appelé, en réalité il déplace l’arrondi en rectifiant les appels des copropriétaires (ou plutôt des lots) pour que le montant appelé corresponde strictement à ce qui a été voté (pour l’exemple ci-dessus, il enlève 0,01 € sur 3 copropriétaires différents de manière aléatoire). Ils font la même chose pour les décomptes de charges et je dois bien admettre que c’est bien foutu.
-                    */
                 }
 
             }

@@ -28,6 +28,11 @@
             },
             {
                 "type": "field",
+                "value": "condo_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
                 "value": "description",
                 "width": "25%"
             }

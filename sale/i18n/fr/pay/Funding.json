@@ -18,7 +18,8 @@
             "description": "Les délais sont échelonnés sauf le dernier : facture définitive.",
             "selection": {
                 "installment": "versement",
-                "invoice": "facture"
+                "invoice": "facture",
+                "fund_request": "appel de fonds"
             },
             "help": ""
         },

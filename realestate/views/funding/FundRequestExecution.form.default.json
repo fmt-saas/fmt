@@ -149,12 +149,14 @@
                                                 "value": "fundings_ids",
                                                 "width": "100%",
                                                 "widget": {
+                                                    "view": "list.fund_request",
                                                     "header": {
                                                         "actions": {
                                                             "ACTION.CREATE": false
                                                         }
                                                     },
-                                                    "actions": false
+                                                    "actions": false,
+                                                    "domain": ["condo_id", "=", "object.condo_id"]
                                                 }
                                             }
                                         ]
