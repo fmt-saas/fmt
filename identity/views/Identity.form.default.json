@@ -112,6 +112,17 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "has_parent",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Parent",
+                                                "value": "parent_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "has_vat",
                                                 "width": "50%",
                                                 "label": "Subject to VAT",
@@ -191,17 +202,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "has_parent",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Parent",
-                                                "value": "parent_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "label": "Employee",
                                                 "value": "employee_id",
                                                 "width": "100%",
@@ -234,6 +234,15 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "domain": [ ["partner_identity_id", "=", "object.id"] ]
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Managing Agent",
+                                                "value": "managing_agent_id",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "domain": [ ["identity_id", "=", "object.id"] ]
                                                 }
                                             }
                                         ]
