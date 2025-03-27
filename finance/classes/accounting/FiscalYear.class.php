@@ -606,7 +606,7 @@ class FiscalYear extends Model {
     }
 
     public static function doGeneratePeriods($self) {
-        $self->read(['condo_id', 'date_from', 'date_to', 'previous_fiscal_year_id', 'fiscal_period_frequency', 'condo_id' => ['fiscal_year_start', 'fiscal_year_end']]);
+        $self->read(['condo_id', 'date_from', 'date_to', 'previous_fiscal_year_id', 'fiscal_period_frequency', 'condo_id' => ['id', 'fiscal_year_start', 'fiscal_year_end']]);
         foreach($self as $id => $fiscalYear) {
             if(!$fiscalYear['date_from']) {
                 throw new \Exception('missing_date_from', EQ_ERROR_INVALID_PARAM);
@@ -636,7 +636,7 @@ class FiscalYear extends Model {
                     }
                 }
                 FiscalPeriod::create([
-                        'condo_id'          => $fiscalYear['condo_id'],
+                        'condo_id'          => $fiscalYear['condo_id']['id'],
                         'fiscal_year_id'    => $id,
                         'date_from'         => $period['date_from'],
                         'date_to'           => $period['date_to']
