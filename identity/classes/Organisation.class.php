@@ -97,7 +97,7 @@ class Organisation extends Identity {
         $result = [];
         $self->read(['identity_id' => ['type', 'firstname', 'lastname', 'legal_name', 'short_name']]);
         foreach($self as $id => $organisation) {
-            if($organisation['identity_id']) {
+            if(!$organisation['identity_id']) {
                 continue;
             }
             $identity = $organisation['identity_id'];
