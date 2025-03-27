@@ -433,11 +433,25 @@ class FiscalYear extends Model {
      * Perform tasks related to fiscal year pre-opening.
      * This method assigns a current balance to it (which will not change, whatever the final duration of the fiscal year).
      * A preopened fiscal year cannot be removed anymore.
+     *
      */
     public static function onafterPreOpen($self) {
-        $self->read(['condo_id']);
+        $self->read(['condo_id', 'fiscal_periods_ids' => ['date_from']]);
         foreach($self as $id => $fiscalYear) {
-            // create a dedicated balance for the fiscal year
+
+            // 1 - finalize periods order
+
+            $periods = $fiscalYear['fiscal_periods_ids']->get(true);
+            usort($periods, fn($a, $b) => $a['date_from'] <=> $b['date_from']);
+            $order = 1;
+            foreach($periods as $period) {
+                // assign final order for fiscal periods
+                FiscalPeriod::id($period['id'])->update(['order' => $order]);
+                ++$order;
+            }
+
+            // 2 - create a dedicated balance for the fiscal year
+
             $currentBalance = CurrentBalance::create([
                     'condo_id'          => $fiscalYear['condo_id'],
                     'fiscal_year_id'    => $id
@@ -483,15 +497,7 @@ class FiscalYear extends Model {
             $nextFiscalYear = self::search([['status', '=', 'draft'], ['condo_id', '=', $fiscalYear['condo_id']]])->transition('preopen')->first();
 
             // 3 - finalize periods order
-
-            $periods = $fiscalYear['fiscal_periods_ids']->get(true);
-            usort($periods, fn($a, $b) => $a['date_from'] <=> $b['date_from']);
-            $order = 1;
-            foreach($periods as $period) {
-                // assign final order for fiscal periods
-                FiscalPeriod::id($period['id'])->update(['order' => $order]);
-                ++$order;
-            }
+            // #memo - moved to preopen
 
             // 4 - create temporary carry-forward / opening-balance accounting entries in next fiscal year OPB journal
 
