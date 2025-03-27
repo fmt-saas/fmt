@@ -7,6 +7,7 @@
 */
 namespace identity;
 
+use equal\services\Container;
 use equal\orm\Model;
 use hr\employee\Employee;
 use sale\customer\Customer;
@@ -504,7 +505,8 @@ class Identity extends Model {
         $self->read(['identity_id', 'user_id', 'contact_id', 'customer_contact_id', 'employee_id', 'customer_id', 'supplier_id', 'organisation_id', 'managing_agent_id', $field]);
         foreach($self as $id => $identity) {
             if($identity['identity_id']) {
-                Identity::id($identity['identity_id'])->update([$field => $identity[$field]]);
+                $orm = Container::getInstance()->get(['orm']);
+                $orm->update(Identity::getType(), $identity['identity_id'], [$field => $identity[$field]]);
             }
             if($identity['user_id']) {
                 User::id($identity['user_id'])->update([$field => $identity[$field]]);
