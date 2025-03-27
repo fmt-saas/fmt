@@ -459,6 +459,8 @@ class FiscalYear extends Model {
                 ->first();
             self::id($id)->update(['current_balance_id' => $currentBalance['id']]);
         }
+
+        $self->do('generate_sequences');
     }
 
     public static function onbeforeOpen($self) {
@@ -534,7 +536,6 @@ class FiscalYear extends Model {
             Condominium::id($fiscalYear['condo_id'])->update(['current_fiscal_year_id' => $id]);
         }
 
-        $self->do('generate_sequences');
     }
 
     /**
