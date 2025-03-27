@@ -440,13 +440,13 @@ class FundRequest extends \equal\orm\Model {
                             ->first();
 
                         if($apportionmentShare) {
-                            $map_property_lot_shares[$apportionmentShare['property_lot_shares']][] = $property_lot_id;
+
                             $amount = $ratio * $requestLine['request_amount'] * ($apportionmentShare['property_lot_shares'] / $requestLine['apportionment_id']['total_shares']);
                             $precise_amount = round($amount, 4);
                             $rounded_amount = round($amount, 2);
                             $sum_delta += ($precise_amount - $rounded_amount);
 
-                            FundRequestLineEntryLot::create([
+                            $entryLot = FundRequestLineEntryLot::create([
                                     'condo_id'              => $fundRequest['condo_id']['id'],
                                     'fund_request_id'       => $id,
                                     'request_line_id'       => $request_line_id,
@@ -455,24 +455,36 @@ class FundRequest extends \equal\orm\Model {
                                     'property_lot_id'       => $property_lot_id,
                                     'apportionment_shares'  => $apportionmentShare['property_lot_shares'],
                                     'allocated_amount'      => $rounded_amount
-                                ]);
+                                ])
+                                ->first();
+                            $map_property_lot_shares[$apportionmentShare['property_lot_shares']][] = $entryLot['id'];
                         }
                     }
                 }
                 $sum_delta = round($sum_delta, 2);
                 if($sum_delta != 0.0) {
                     $remaining = $sum_delta;
+                    $step = $sum_delta > 0 ? 0.01 : -0.01;
                     trigger_error("APP::allocation generated a delta: $sum_delta", EQ_REPORT_DEBUG);
-                    // #todo - répartir sur les lots disposant du plus grand nombre de parts
-                    /*
+
+                    // distribute over the lots starting with those having the largest number of shares
                     krsort($map_property_lot_shares);
                     $ordered_lots_ids = array_merge(...array_values($map_property_lot_shares));
-                    foreach($ordered_lots_ids as $property_lot_id) {
+                    foreach($ordered_lots_ids as $line_entry_lot_id) {
+                        $entryLot = FundRequestLineEntryLot::id($line_entry_lot_id)->read(['allocated_amount']);
+                        FundRequestLineEntryLot::id($line_entry_lot_id)->update(['allocated_amount' => $entryLot['allocated_amount'] + $step]);
+                        $remaining -= $step;
                         if($remaining <= 0.0) {
                             break;
                         }
                     }
-                    */
+                    if(abs($remaining) > 0.0) {
+                        $line_entry_lot_id = reset($ordered_lots_ids);
+                        $entryLot = FundRequestLineEntryLot::id($line_entry_lot_id)->read(['allocated_amount']);
+                        FundRequestLineEntryLot::id($line_entry_lot_id)->update(['allocated_amount' => $entryLot['allocated_amount'] + $remaining]);
+                        $remaining = 0.0;
+                    }
+
 
                     /*
                     #todo #francois - notes du 2025-03-21
