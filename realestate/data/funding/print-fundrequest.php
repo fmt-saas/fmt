@@ -223,15 +223,15 @@ foreach($fiscalYear['fund_requests_ids'] as $fund_request_id) {
                 'ownership_id',
                 'apportionment_shares',
                 'allocated_amount',
-                'property_lot_id' => ['name', 'property_lot_code'],
-                'request_line_id' => ['apportionment_id' => ['name', 'total_shares'], 'request_amount'],
-                'line_entry_id' => ['allocated_amount']
+                'property_lot_id'   => ['name', 'property_lot_code'],
+                'request_line_id'   => ['apportionment_id' => ['name', 'total_shares'], 'request_amount'],
+                'line_entry_id'     => ['allocated_amount']
             ],
             'execution_lines_ids' => [
                 '@domain' => ['ownership_id', '=', $ownership['id']],
                 'ownership_id',
                 'price',
-                'invoice_id' => ['emission_date', 'status']
+                'invoice_id' => ['emission_date', 'due_date', 'status']
             ]
         ])
         ->first(true);
@@ -275,11 +275,12 @@ foreach($fiscalYear['fund_requests_ids'] as $fund_request_id) {
         if($execution_line['ownership_id'] != $ownership['id']) {
             continue;
         }
-        if($execution_line['invoice_id']['emission_date'] === 'cancelled') {
+        if($execution_line['invoice_id']['status'] === 'cancelled') {
             continue;
         }
         $line = [
-            'date'          => $execution_line['invoice_id']['emission_date'],
+            'issue_date'    => $execution_line['invoice_id']['emission_date'],
+            'due_date'      => $execution_line['invoice_id']['due_date'],
             'fund_request'  => $request_name,
             'amount'        => $execution_line['price']
         ];

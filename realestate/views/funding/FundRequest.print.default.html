@@ -444,10 +444,13 @@
                 <table class="inner" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: auto;">
                     <thead>
                         <tr>
-                            <th style="text-align: center; padding-left: 7px; width: 20%;">
+                            <th style="text-align: center; padding-left: 7px; width: 15%;">
                                 Date
                             </th>
-                            <th style="text-align: center; padding-right: 7px; width: 30%;">
+                            <th style="text-align: center; padding-left: 7px; width: 15%;">
+                                Échéance
+                            </th>
+                            <th style="text-align: center; padding-right: 7px; width: 55%;">
                                 Appel
                             </th>
                             <th style="text-align: center; padding-right: 7px; width: 15%;">
@@ -459,7 +462,10 @@
                     {% for execution in executions %}
                         <tr>
                             <td>
-                                {{ execution.date | date(date_format, timezone) }}<br />
+                                {{ execution.issue_date | date(date_format, timezone) }}<br />
+                            </td>
+                            <td>
+                                {{ execution.due_date | date(date_format, timezone) }}<br />
                             </td>
                             <td>
                                 {{ execution.fund_request }}

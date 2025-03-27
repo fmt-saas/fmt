@@ -41,6 +41,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
             // 'fiscal_year_id'
             // 'accounting_entry_id'
             // 'emission_date'
+            // 'due_date'
 
             'emission_date' => [
                 'type'              => 'datetime',
@@ -370,11 +371,11 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
     public static function doGenerateFundings($self) {
         $self->read([
                 'emission_date',
+                'due_date',
                 'fiscal_year_id' => ['date_from'],
                 'condo_id',
                 'fund_request_id' => [
-                    'id', 'name', 'request_type', 'request_account_id', 'request_bank_account_id',
-                    'payment_terms_id' => ['delay_from', 'delay_count']
+                    'id', 'name', 'request_type', 'request_account_id', 'request_bank_account_id'
                 ],
                 'execution_lines_ids' => ['ownership_id', 'called_amount', 'funding_id']
             ]);
@@ -400,27 +401,14 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                     Funding::id($funding_id)->update(['fund_request_execution_id' => $id]);
                 }
 
-                // a funding cannot be issued in the past
+                // a funding cannot be issued nor due in the past
                 $issue_date = max(strtotime('today'), $requestExecution['emission_date']);
+                $due_date = max(strtotime('today'), $requestExecution['issue_date']);
 
-                $delay_count = $requestExecution['fund_request_id']['payment_terms_id']['delay_count'];
-                if($requestExecution['fund_request_id']['payment_terms_id']['delay_from'] === 'next_month') {
-                    $next_month = strtotime(date('Y-m-01', $issue_date) . ' +1 month');
-                    $due_date = strtotime("+{$delay_count} days", $next_month);
-                }
-                else{
-                    $due_date = strtotime("+{$delay_count} days", $issue_date);
-                }
-
-                $due_date = max(strtotime('today'), $due_date);
-
-                // acc-ccxxxx-yy
-                // #todo - à confirmer
+                // CCC/CCCO/OOOXX
                 $reference =
-                    // #memo - by convention to make sure using the same year for all request executions relating to a same fund request
-                    substr(date('Y', $requestExecution['fiscal_year_id']['date_from']), -2) .
-                    substr(str_pad($ownership_id, 4, '0', STR_PAD_LEFT), 0, 4) .
-                    substr(str_pad($fund_request_id, 4, '0', STR_PAD_LEFT), 0, 4);
+                    substr(str_pad($requestExecution['condo_id'], 6, '0', STR_PAD_LEFT), 0, 6) .
+                    substr(str_pad($ownership_id, 4, '0', STR_PAD_LEFT), 0, 4);
 
                 $prefix = substr($reference, 0, 3);
                 $suffix = substr($reference, 3);
