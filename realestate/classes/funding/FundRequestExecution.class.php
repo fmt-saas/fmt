@@ -185,7 +185,8 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                     ]
                 );
 
-            if($sequence) {
+            if(!$sequence) {
+                trigger_error("APP::missing mandatory sale.accounting.invoice.sequence.{$fiscal_year_code} for condominium {$requestExecution['condo_id']}.", EQ_REPORT_ERROR);
                 throw new \Exception('missing_mandatory_sequence', EQ_ERROR_INVALID_CONFIG);
             }
 
