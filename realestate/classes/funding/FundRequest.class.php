@@ -563,6 +563,10 @@ class FundRequest extends \equal\orm\Model {
 
             $num_intervals = count($execution_dates);
 
+            if($num_intervals <= 0) {
+                continue;
+            }
+
             // keep track of the link between ownerships and request line entries
             $map_ownership_line_entries = [];
             foreach($fundRequest['line_entries_ids'] as $line_entry_id => $lineEntry) {
