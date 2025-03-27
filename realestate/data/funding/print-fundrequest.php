@@ -25,7 +25,7 @@ list($params, $providers) = eQual::announce([
     'description'   => 'Generate an html view of given fund request.',
     'params'        => [
         'id' => [
-            'description' => 'Identifier of the targeted Owner.',
+            'description'       => 'Identifier of the targeted Owner.',
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\ownership\Ownership',
             'required'          => true
@@ -55,8 +55,7 @@ list($params, $providers) = eQual::announce([
         ]
     ],
     'access'        => [
-        'visibility' => 'protected',
-        'groups'     => ['sale.default.users'],
+        'visibility' => 'protected'
     ],
     'response'      => [
         'content-type'      => 'application/pdf',
