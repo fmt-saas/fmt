@@ -148,7 +148,7 @@ class Partner extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'core\Lang',
                 'description'       => "Preferred language of the identity.",
-                'default'           => 1,
+                'default'           => 2,
                 'onupdate'          => 'onupdateLangId'
             ],
 
