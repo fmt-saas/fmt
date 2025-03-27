@@ -19,7 +19,6 @@ use realestate\property\Apportionment;
             'required'       => true
         ],
         'chart_template_id' => [
-            'label'          => 'Chart template',
             'type'           => 'many2one',
             'foreign_object' => 'finance\accounting\AccountChartTemplate',
             'description'    => 'Template to use to populate Chart of Accounts.',
