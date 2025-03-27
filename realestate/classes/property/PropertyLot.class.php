@@ -126,7 +126,8 @@ class PropertyLot extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'description'       => "Current ownership of the property lot.",
-                'onupdate'          => 'onupdateActiveOwnershipId'
+                'onupdate'          => 'onupdateActiveOwnershipId',
+                'dependents'        => ['name']
             ],
 
             'ownership_transfers_ids' => [
@@ -167,10 +168,12 @@ class PropertyLot extends \equal\orm\Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['property_lot_ref', 'property_lot_code', 'nature_id' => ['name']]);
+        $self->read(['property_lot_ref', 'property_lot_code', 'nature_id' => ['name'], 'active_ownership_id' => ['name']]);
         foreach($self as $id => $propertyLot) {
             if(isset($propertyLot['property_lot_code'], $propertyLot['property_lot_ref'], $propertyLot['nature_id'])) {
-                $result[$id] = $propertyLot['property_lot_code'] . ' - ' . $propertyLot['property_lot_ref'] . ' (' . $propertyLot['nature_id']['name'] . ')';
+                $result[$id] = $propertyLot['property_lot_code'] . ' - ' .
+                    $propertyLot['property_lot_ref'] . ' (' . $propertyLot['nature_id']['name'] . ')' . ' - ' .
+                    $propertyLot['active_ownership_id']['name'];
             }
         }
         return $result;

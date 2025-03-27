@@ -42,8 +42,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "is_statutory",
-                                                "width": "25%",
-                                                "readonly": true
+                                                "width": "25%"
                                             }
                                         ]
                                     },

@@ -432,8 +432,10 @@ class Condominium extends \identity\Organisation {
         foreach($self as $id => $condominium) {
             Setting::assert_sequence('realestate', 'main', "ownership.sequence");
             Setting::assert_sequence('realestate', 'main', "property_lot.sequence");
+            Setting::assert_sequence('realestate', 'main', "apportionment.sequence");
             Setting::init_sequence('realestate', 'main', "ownership.sequence", ['condo_id' => $id]);
             Setting::init_sequence('realestate', 'main', "property_lot.sequence", ['condo_id' => $id]);
+            Setting::init_sequence('realestate', 'main', "apportionment.sequence", ['condo_id' => $id]);
         }
     }
 

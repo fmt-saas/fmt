@@ -100,6 +100,18 @@
                 "view": "form.condo",
                 "domain": [["id", "=", "object.account_chart_id"], ["condo_id", "=", "object.id"]]
             }
+        },
+        {
+            "id": "fund_requests",
+            "type": "entry",
+            "label": "Fund requests",
+            "icon": "savings",
+            "description": "",
+            "context": {
+                "entity": "realestate\\funding\\FundRequest",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
         }
     ],
     "actions": [

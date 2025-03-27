@@ -5,12 +5,6 @@
         "data": [
             {
                 "id": 1025,
-                "creator": 1,
-                "created": "2025-03-26T11:17:05+00:00",
-                "modifier": 1,
-                "modified": "2025-03-26T11:17:05+00:00",
-                "deleted": false,
-                "state": "instance",
                 "setting_id": 1083,
                 "value": 4,
                 "organisation_id": 1,
@@ -18,12 +12,6 @@
             },
             {
                 "id": 1026,
-                "creator": 1,
-                "created": "2025-03-26T11:17:05+00:00",
-                "modifier": 1,
-                "modified": "2025-03-26T11:17:05+00:00",
-                "deleted": false,
-                "state": "instance",
                 "setting_id": 1084,
                 "value": 1,
                 "organisation_id": 1,
@@ -31,12 +19,6 @@
             },
             {
                 "id": 1027,
-                "creator": 1,
-                "created": "2025-03-26T11:58:26+00:00",
-                "modifier": 1,
-                "modified": "2025-03-26T11:58:26+00:00",
-                "deleted": false,
-                "state": "instance",
                 "setting_id": 1083,
                 "value": 4,
                 "organisation_id": 1,
@@ -44,14 +26,22 @@
             },
             {
                 "id": 1028,
-                "creator": 1,
-                "created": "2025-03-26T11:58:26+00:00",
-                "modifier": 1,
-                "modified": "2025-03-26T11:58:26+00:00",
-                "deleted": false,
-                "state": "instance",
                 "setting_id": 1084,
                 "value": 1,
+                "organisation_id": 1,
+                "condo_id": 2
+            },
+            {
+                "id": 1029,
+                "setting_id": 1085,
+                "value": 2,
+                "organisation_id": 1,
+                "condo_id": 1
+            },
+            {
+                "id": 1030,
+                "setting_id": 1085,
+                "value": 3,
                 "organisation_id": 1,
                 "condo_id": 2
             }

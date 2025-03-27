@@ -30,7 +30,22 @@
                 "object_class": null,
                 "is_multilang": false,
                 "form_control": "input"
+            },
+            {
+                "id": 1085,
+                "code": "apportionment.sequence",
+                "package": "realestate",
+                "section_id": 2,
+                "title": null,
+                "description": null,
+                "help": null,
+                "is_sequence": true,
+                "type": "integer",
+                "object_class": null,
+                "is_multilang": false,
+                "form_control": "input"
             }
+
         ]
     }
 ]
