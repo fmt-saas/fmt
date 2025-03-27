@@ -373,9 +373,9 @@ class Condominium extends \identity\Organisation {
                     $fiscal_year_end = strtotime(sprintf("%d-%02d-%02d", $year_end, $month_end, $day_end));
                 }
 
-                $value['previous_fiscal_year_id'] = $fiscalYear['id'];
-                $value['date_from'] = $fiscal_year_start;
-                $value['date_to'] = $fiscal_year_end;
+                $values['previous_fiscal_year_id'] = $fiscalYear['id'];
+                $values['date_from'] = $fiscal_year_start;
+                $values['date_to'] = $fiscal_year_end;
             }
             // first fiscal year
             else {
@@ -394,18 +394,18 @@ class Condominium extends \identity\Organisation {
 
                 */
                 if($condominium['fiscal_year_start']) {
-                    $value['date_from'] = $condominium['fiscal_year_start'];
+                    $values['date_from'] = $condominium['fiscal_year_start'];
                 }
                 elseif($condominium['condo_creation_date']) {
-                    $value['date_from'] = $condominium['condo_creation_date'];
+                    $values['date_from'] = $condominium['condo_creation_date'];
                 }
                 elseif($condominium['construction_compliance_date']) {
-                    $value['date_from'] = $condominium['construction_compliance_date'];
+                    $values['date_from'] = $condominium['construction_compliance_date'];
                 }
                 else {
-                    $value['date_from'] = time();
+                    $values['date_from'] = time();
                 }
-                $value['date_to'] = $condominium['fiscal_year_end'];
+                $values['date_to'] = $condominium['fiscal_year_end'];
             }
 
             FiscalYear::create($values);
