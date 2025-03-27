@@ -227,7 +227,8 @@ class Ownership extends \equal\orm\Model {
                         'description'           => $ownership['name'],
                         // make sure the account will not be used as template
                         'operation_assignment'  => ''
-                    ]);
+                    ])
+                    ->read(['name']);
             }
 
         }

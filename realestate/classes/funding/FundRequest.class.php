@@ -11,6 +11,7 @@ use realestate\ownership\Ownership;
 use realestate\property\PropertyLotApportionmentShare;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
+use realestate\property\Condominium;
 
 class FundRequest extends \equal\orm\Model {
 
@@ -41,7 +42,7 @@ class FundRequest extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "Fiscal year the fund request relates to.",
-                'required'          => true,
+                'default'           => 'defaultFiscalYearId',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
@@ -333,6 +334,16 @@ class FundRequest extends \equal\orm\Model {
             }
         }
         return $result;
+    }
+
+    public static function defaultFiscalYearId($values) {
+        if(isset($values['condo_id'])) {
+            $condominium = Condominium::id($values['condo_id'])->read(['current_fiscal_year_id'])->first();
+            if($condominium) {
+                return $condominium['current_fiscal_year_id'];
+            }
+        }
+        return null;
     }
 
     public static function calcAllocatedAmount($self) {
@@ -632,10 +643,6 @@ class FundRequest extends \equal\orm\Model {
 
 // non : on fait cela dans le FundRequestExecution
 
-
-    }
-
-    private static function compute() {
 
     }
 
