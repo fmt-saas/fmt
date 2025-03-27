@@ -136,7 +136,7 @@ $getLabels = function($lang) {
             'iban'                       => Setting::get_value('sale', 'locale', 'label_footer-iban', 'IBAN', [], $lang),
             'email'                      => Setting::get_value('sale', 'locale', 'label_footer-email', 'Email', [], $lang),
             'web'                        => Setting::get_value('sale', 'locale', 'label_footer-web', 'Web', [], $lang),
-            'tel'                        => Setting::get_value('sale', 'locale', 'label_footer-tel', 'Tel', [], $lang),
+            'tel'                        => Setting::get_value('sale', 'locale', 'label_footer-tel', 'Tel', [], $lang)
         ]
     ];
 };
@@ -328,7 +328,6 @@ $invoice['organisation_id']['fax'] = DataFormatter::format($invoice['organisatio
 */
 
 $values = [
-    'fiscal_year'         => $fiscalYear,
     'fund_requests'       => $fund_requests,
     'executions'          => $executions,
     'organisation'        => $fiscalYear['condo_id']['managing_agent_id'],
