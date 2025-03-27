@@ -510,7 +510,7 @@ class FundRequest extends \equal\orm\Model {
                 'date_from',
                 'date_to',
                 'request_amount',
-                'payment_terms_id' => ['delay_count', 'delay_from'],
+                'payment_terms_id',
                 'line_entries_ids' => ['ownership_id', 'allocated_amount']
             ]);
 
@@ -522,6 +522,7 @@ class FundRequest extends \equal\orm\Model {
             $execution_values = [
                     'condo_id'              => $fundRequest['condo_id'],
                     'fiscal_year_id'        => $fundRequest['fiscal_year_id'],
+                    'payment_terms_id'      => $fundRequest['payment_terms_id'],
                     'fund_request_id'       => $id
                 ];
 
@@ -594,20 +595,6 @@ class FundRequest extends \equal\orm\Model {
 
             foreach($execution_dates as $execution_date) {
                 $execution_values['emission_date'] = $execution_date;
-
-                // an execution cannot be issued in the past
-                $issue_date = max(strtotime('today'), $execution_date);
-
-                $delay_count = $fundRequest['payment_terms_id']['delay_count'];
-                if($fundRequest['payment_terms_id']['delay_from'] === 'next_month') {
-                    $next_month = strtotime(date('Y-m-01', $issue_date) . ' +1 month');
-                    $due_date = strtotime("+{$delay_count} days", $next_month);
-                }
-                else{
-                    $due_date = strtotime("+{$delay_count} days", $issue_date);
-                }
-
-                $execution_values['due_date'] = max(strtotime('today'), $due_date);
 
                 $requestExecution = FundRequestExecution::create($execution_values)->first();
 

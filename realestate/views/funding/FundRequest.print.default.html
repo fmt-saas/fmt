@@ -461,10 +461,10 @@
                     <tbody>
                     {% for execution in executions %}
                         <tr>
-                            <td>
+                            <td style="text-align: center;">
                                 {{ execution.issue_date | date(date_format, timezone) }}<br />
                             </td>
-                            <td>
+                            <td style="text-align: center;">
                                 {{ execution.due_date | date(date_format, timezone) }}<br />
                             </td>
                             <td>

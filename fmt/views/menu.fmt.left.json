@@ -246,6 +246,17 @@
                             "entity": "identity\\Identity",
                             "view": "list.default"
                         }
+                    },
+                    {
+                        "id": "managing_agents",
+                        "type": "entry",
+                        "label": "Managing Agents",
+                        "icon": "badge",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\management\\ManagingAgent",
+                            "view": "list.default"
+                        }
                     }
                 ]
             },
