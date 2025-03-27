@@ -421,17 +421,16 @@ class AccountingEntry extends Model {
                 ]
             );
 
-        if($sequence) {
-            $result = Setting::parse_format($format, [
-                    'year'      => $fiscal_year_code,
-                    'journal'   => $journal_code,
-                    'sequence'  => $sequence
-                ]);
-        }
-        else {
+        if(!$sequence) {
             trigger_error("APP::missing mandatory finance.accounting.accounting_entry.sequence.{$fiscal_year_code}.{$journal_code} for condominium {$entry['condo_id']}.", EQ_REPORT_ERROR);
             throw new \Exception('missing_mandatory_sequence', EQ_ERROR_INVALID_CONFIG);
         }
+
+        $result = Setting::parse_format($format, [
+                'year'      => $fiscal_year_code,
+                'journal'   => $journal_code,
+                'sequence'  => $sequence
+            ]);
 
         return $result;
     }
