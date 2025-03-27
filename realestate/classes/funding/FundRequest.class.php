@@ -462,6 +462,7 @@ class FundRequest extends \equal\orm\Model {
                 $sum_delta = round($sum_delta, 2);
                 if($sum_delta != 0.0) {
                     $remaining = $sum_delta;
+                    trigger_error("APP::allocation generated a delta: $sum_delta", EQ_REPORT_DEBUG);
                     // #todo - répartir sur les lots disposant du plus grand nombre de parts
                     /*
                     krsort($map_property_lot_shares);

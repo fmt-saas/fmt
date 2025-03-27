@@ -64,7 +64,8 @@ class FiscalPeriod extends Model {
             'order' => [
                 'type'              => 'integer',
                 'description'       => 'Order of the period, based on its date within the fiscal year.',
-                'help'              => 'This value is assigned by parent Fiscal Year, and is needed for purchase invoice sequence number.'
+                'help'              => 'This value is assigned by parent Fiscal Year, and is needed for purchase invoice sequence number.',
+                'dependents'        => ['name']
             ]
         ];
     }

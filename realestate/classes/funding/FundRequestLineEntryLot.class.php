@@ -66,11 +66,26 @@ class FundRequestLineEntryLot extends \equal\orm\Model {
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
                 'description'       => 'Amount requested for the related property lot to the co-owner.',
-                // #memo - this is done in parent FundRequest
-                // 'dependents'        => ['line_entry_id' => ['allocated_amount', 'request_line_id' => ['allocated_amount', 'fund_request_id' => ['allocated_amount']]]]
+                'onupdate'          => 'onupdateAllocatedAmount'
             ]
 
         ];
     }
+
+
+    /**
+     * Reset parent objects allocated_amount
+     */
+    public static function onupdateAllocatedAmount($self) {
+        $result = [];
+        $self->read(['line_entry_id', 'request_line_id', 'fund_request_id']);
+        foreach($self as $id => $entryLot) {
+            FundRequestLineEntry::id($entryLot['line_entry_id'])->update(['allocated_amount' => null]);
+            FundRequestLine::id($entryLot['request_line_id'])->update(['allocated_amount' => null]);
+            FundRequest::id($entryLot['fund_request_id'])->update(['allocated_amount' => null]);
+        }
+        return $result;
+    }
+
 
 }
