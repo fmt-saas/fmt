@@ -49,7 +49,7 @@ class PropertyLotApportionmentShare extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\property\PropertyLot',
                 'ondelete'          => 'cascade',
                 'required'          => true,
-                'domain'            => ['condo_id', '=', 'condo_id']
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'property_lot_shares' => [
