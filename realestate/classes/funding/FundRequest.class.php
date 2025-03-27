@@ -471,7 +471,7 @@ class FundRequest extends \equal\orm\Model {
                     krsort($map_property_lot_shares);
                     $ordered_lots_ids = array_merge(...array_values($map_property_lot_shares));
                     foreach($ordered_lots_ids as $line_entry_lot_id) {
-                        $entryLot = FundRequestLineEntryLot::id($line_entry_lot_id)->read(['allocated_amount']);
+                        $entryLot = FundRequestLineEntryLot::id($line_entry_lot_id)->read(['allocated_amount'])->first();
                         FundRequestLineEntryLot::id($line_entry_lot_id)->update(['allocated_amount' => $entryLot['allocated_amount'] + $step]);
                         $remaining -= $step;
                         if($remaining <= 0.0) {
@@ -480,7 +480,7 @@ class FundRequest extends \equal\orm\Model {
                     }
                     if(abs($remaining) > 0.0) {
                         $line_entry_lot_id = reset($ordered_lots_ids);
-                        $entryLot = FundRequestLineEntryLot::id($line_entry_lot_id)->read(['allocated_amount']);
+                        $entryLot = FundRequestLineEntryLot::id($line_entry_lot_id)->read(['allocated_amount'])->first();
                         FundRequestLineEntryLot::id($line_entry_lot_id)->update(['allocated_amount' => $entryLot['allocated_amount'] + $remaining]);
                         $remaining = 0.0;
                     }
