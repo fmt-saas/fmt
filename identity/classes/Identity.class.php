@@ -12,6 +12,7 @@ use hr\employee\Employee;
 use sale\customer\Customer;
 use sale\customer\Contact as CustomerContact;
 use purchase\supplier\Supplier;
+use realestate\management\ManagingAgent;
 
 /**
  * This class is meant to be used as an interface for other entities (organisation and partner).
@@ -47,6 +48,13 @@ class Identity extends Model {
                 'help'              => "The display name is a computed field that returns a concatenated string containing either the firstname+lastname, or the legal name of the Identity, based on the kind of Identity.\n
                     For instance, 'name', for a company with \"My Company\" as legal_name will return \"My Company\". \n
                     Whereas, for an individual having \"John\" as firstname and \"Smith\" as lastname, it will return \"John Smith\"."
+            ],
+
+            'identity_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\Identity',
+                'description'       => 'Identity the organisation relates to.',
+                'help'              => 'Meant for entities that inherit from identity\Identity and must be synced with parent Identity.'
             ],
 
             'type_id' => [
@@ -443,18 +451,25 @@ class Identity extends Model {
                 'help'           => 'Company logo for organizations or profile image for natural person.'
             ],
 
-            'is_organisation' => [
-                'type'           => 'boolean',
-                'default'        => false,
-                'description'    => 'The identity is an organisation.',
-                'onupdate'       => 'onupdateIsOrganisation'
-            ],
-
             'organisation_id' => [
                 'type'           => 'many2one',
                 'foreign_object' => 'identity\Organisation',
                 'description'    => 'The organisation the identity refers to.',
-                'visible'        => ['is_organisation', '=', true]
+                'onupdate'       => 'onupdateOrganisationId'
+            ],
+
+            'managing_agent_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'realestate\management\ManagingAgent',
+                'description'    => 'The managing agent the identity refers to.',
+                'onupdate'       => 'onupdateManagingAgentId'
+            ],
+
+            'is_active' => [
+                'type'              => 'boolean',
+                'description'       => "Is the identity active?",
+                'help'              => "When an identity is not marked as active, it is no longer displayed amongst the selection choices. However, it is still visible in the list of identities, and its related informations and documents remain available.",
+                'default'           => true
             ]
 
         ];
@@ -490,9 +505,12 @@ class Identity extends Model {
         return $result;
     }
 
-    private static function updateField($self, $field) {
-        $self->read(['user_id', 'contact_id', 'customer_contact_id', 'employee_id', 'customer_id', 'supplier_id', $field]);
+    protected static function updateField($self, $field) {
+        $self->read(['identity_id', 'user_id', 'contact_id', 'customer_contact_id', 'employee_id', 'customer_id', 'supplier_id', 'organisation_id', 'managing_agent_id', $field]);
         foreach($self as $id => $identity) {
+            if($identity['identity_id']) {
+                Identity::id($identity['identity_id'])->update([$field => $identity[$field]]);
+            }
             if($identity['user_id']) {
                 User::id($identity['user_id'])->update([$field => $identity[$field]]);
             }
@@ -510,6 +528,12 @@ class Identity extends Model {
             }
             if($identity['supplier_id']) {
                 Supplier::id($identity['supplier_id'])->update([$field => $identity[$field]]);
+            }
+            if($identity['organisation_id']) {
+                Organisation::id($identity['organisation_id'])->update([$field => $identity[$field]]);
+            }
+            if($identity['managing_agent_id']) {
+                ManagingAgent::id($identity['managing_agent_id'])->update([$field => $identity[$field]]);
             }
         }
     }
@@ -617,6 +641,20 @@ class Identity extends Model {
         $self->read(['customer_id']);
         foreach($self as $id => $identity) {
             Customer::id($identity['customer_id'])->update(['partner_identity_id' => $id]);
+        }
+    }
+
+    public static function onupdateOrganisationId($self) {
+        $self->read(['organisation_id']);
+        foreach($self as $id => $identity) {
+            Organisation::id($identity['organisation_id'])->update(['identity_id' => $id]);
+        }
+    }
+
+    public static function onupdateManagingAgentId($self) {
+        $self->read(['managing_agent_id']);
+        foreach($self as $id => $identity) {
+            ManagingAgent::id($identity['managing_agent_id'])->update(['identity_id' => $id]);
         }
     }
 
@@ -845,26 +883,4 @@ class Identity extends Model {
         ];
     }
 
-    public static function onupdateIsOrganisation($self) {
-        $self->read(['is_organisation']);
-        foreach($self as $id => $organisation) {
-            if(!$organisation['is_organisation']) {
-                self::id($id)->update(['organisation_id' => null]);
-            }
-        }
-    }
-
-    /**
-     * Upon update, if an Identity relates to an Organisation, synchronize common fields with related Organisation
-     */
-    public static function onafterupdate($self, $values, $orm) {
-        $organisation_fields = $orm->getModel(Organisation::getType())->getSchema();
-        $self->read(['is_organisation', 'organisation_id']);
-        $organisation_values = array_intersect_key($values, $organisation_fields);
-        foreach($self as $id => $identity) {
-            if($identity['is_organisation']) {
-                Organisation::id($identity['organisation_id'])->update($organisation_values);
-            }
-        }
-    }
 }

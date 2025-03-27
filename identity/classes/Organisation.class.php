@@ -37,22 +37,6 @@ class Organisation extends Identity {
                     Whereas, for an individual having \"John\" as firstname and \"Smith\" as lastname, it will return \"John Smith\"."
             ],
 
-            'identity_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'identity\Identity',
-                'description'       => 'Identity the organisation relates to.',
-                'onupdate'          => 'onupdateIdentityId',
-                'dependents'        => ['name']
-            ],
-
-            'managing_agent_id' => [
-                'type'              => 'many2one',
-                'description'       => "The managing agent (global) that relates to the organisation.",
-                'help'              => "The managing agent or 'Syndic', is in charge of the condominium, and can be a single person or an agency.",
-                'foreign_object'    => 'realestate\management\ManagingAgent',
-                'visible'           => ['id', '=', 1]
-            ],
-
             'type_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\IdentityType',
@@ -158,7 +142,7 @@ class Organisation extends Identity {
     public static function onupdateIdentityId($self) {
         $self->read(['identity_id']);
         foreach($self as $id => $organisation) {
-            Identity::id($organisation['identity_id'])->update(['is_organisation' => true, 'organisation_id' => $id]);
+            Identity::id($organisation['identity_id'])->update(['organisation_id' => $id]);
         }
     }
 
