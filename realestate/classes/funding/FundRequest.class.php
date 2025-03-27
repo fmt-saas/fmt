@@ -55,7 +55,7 @@ class FundRequest extends \equal\orm\Model {
                     'expense_provisions'  => 'Expense provision call',                  // provisions pour charge
                     'work_provisions'     => 'Provision call for exceptional expense'   // provision pour charge exceptionelle
                 ],
-                'default'           => 'expense_provisions',
+                'default'           => 'working_fund',
                 'required'          => true
             ],
 
@@ -414,13 +414,11 @@ class FundRequest extends \equal\orm\Model {
                     // In the case where the request is a time range and the ownership is partially within it, we need to allocate the called amount pro-rata based on the duration of the ownership.
                     // #memo - We assume that a property lot always belongs to someone and that the dates are contiguous in the event of a property transfer.
                     if($fundRequest['has_date_range'] && $fundRequest['request_type'] == 'expense_provisions') {
-                        if($ownership['date_from'] < $fundRequest['date_from'] || $ownership['date_to'] > $fundRequest['date_to']) {
-                            $intersect_from = max($ownership['date_from'], $fundRequest['date_from']);
-                            $intersect_to = min($ownership['date_to'], $fundRequest['date_to']);
-                            $total_days = ( ($fundRequest['date_to'] - $fundRequest['date_from']) / 86400 ) + 1;
-                            $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
-                            $ratio = round($intersect_days / $total_days, 4);
-                        }
+                        $intersect_from = $ownership['date_from'] ? max($ownership['date_from'], $fundRequest['date_from']) : $fundRequest['date_from'];
+                        $intersect_to = $ownership['date_to'] ? min($ownership['date_to'], $fundRequest['date_to']) : $fundRequest['date_to'];
+                        $total_days = ( ($fundRequest['date_to'] - $fundRequest['date_from']) / 86400 ) + 1;
+                        $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
+                        $ratio = round($intersect_days / $total_days, 4);
                     }
 
                     $lineEntry = FundRequestLineEntry::create([
