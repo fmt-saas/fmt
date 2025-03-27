@@ -618,6 +618,10 @@ class Identity extends Model {
         self::updateField($self, 'short_name');
     }
 
+    public static function onupdateBankAccountIban($self) {
+        self::updateField($self, 'bank_account_iban');
+    }
+
     public static function onupdateBankAccountBic($self) {
         self::updateField($self, 'bank_account_bic');
     }

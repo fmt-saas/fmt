@@ -137,7 +137,6 @@ $getLabels = function($lang) {
             'email'                      => Setting::get_value('sale', 'locale', 'label_footer-email', 'Email', [], $lang),
             'web'                        => Setting::get_value('sale', 'locale', 'label_footer-web', 'Web', [], $lang),
             'tel'                        => Setting::get_value('sale', 'locale', 'label_footer-tel', 'Tel', [], $lang),
-            'fax'                        => Setting::get_value('sale', 'locale', 'label_footer-fax', 'Fax', [], $lang),
         ]
     ];
 };
@@ -192,7 +191,7 @@ $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
                 'name', 'address_street', 'address_dispatch', 'address_zip',
                 'address_city', 'address_country', 'has_vat', 'vat_number',
                 'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
-                'website', 'email', 'phone', 'fax', 'has_vat', 'vat_number',
+                'website', 'email', 'phone', 'has_vat', 'vat_number',
                 'image_document_id' => [
                     'type', 'data'
                 ]
