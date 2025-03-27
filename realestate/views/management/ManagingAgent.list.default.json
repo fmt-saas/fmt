@@ -4,8 +4,13 @@
         "items": [
             {
                 "type": "field",
+                "value": "name",
+                "width": "25%"
+            },
+            {
+                "type": "field",
                 "value": "identity_id",
-                "width": "100%"
+                "width": "25%"
             }
         ]
     }
