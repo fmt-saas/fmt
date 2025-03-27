@@ -88,13 +88,15 @@ class Identity extends Model {
                 'type'              => 'string',
                 'usage'             => 'uri/urn:iban',
                 'description'       => "Number of the bank account of the Identity, if any.",
-                'visible'           => [ ['has_parent', '=', false] ]
+                'visible'           => [ ['has_parent', '=', false] ],
+                'onupdate'          => 'onupdateBankAccountIban'
             ],
 
             'bank_account_bic' => [
                 'type'              => 'string',
                 'description'       => "Identifier of the Bank related to the Identity's bank account, when set.",
-                'visible'           => [ ['has_parent', '=', false] ]
+                'visible'           => [ ['has_parent', '=', false] ],
+                'onupdate'          => 'onupdateBankAccountBic'
             ],
 
             'signature' => [
@@ -119,7 +121,8 @@ class Identity extends Model {
                 'type'              => 'string',
                 'description'       => 'Usual name to be used as a memo for identifying the organization (acronym or short name).',
                 'visible'           => [ ['type', '<>', 'IN'] ],
-                'dependents'        => ['name']
+                'dependents'        => ['name'],
+                'onupdate'          => 'onupdateShortName'
             ],
 
             'has_vat' => [
@@ -140,7 +143,8 @@ class Identity extends Model {
             'registration_number' => [
                 'type'              => 'string',
                 'description'       => 'Organization registration number (company number).',
-                'visible'           => [ ['type', '<>', 'IN'] ]
+                'visible'           => [ ['type', '<>', 'IN'] ],
+                'onupdate'          => 'onupdateRegistrationNumber'
             ],
 
             /*
@@ -149,14 +153,16 @@ class Identity extends Model {
             'citizen_identification' => [
                 'type'              => 'string',
                 'description'       => 'Citizen registration number, if any.',
-                'visible'           => [ ['type', '=', 'IN'] ]
+                'visible'           => [ ['type', '=', 'IN'] ],
+                'onupdate'          => 'onupdateCitizenIdentification'
             ],
 
             'nationality' => [
                 'type'              => 'string',
                 'usage'             => 'country/iso-3166:2',
                 'description'       => 'The country the person is citizen of.',
-                'default'           => 'BE'
+                'default'           => 'BE',
+                'onupdate'          => 'onupdateNationality'
             ],
 
             /*
@@ -253,20 +259,23 @@ class Identity extends Model {
                 'type'              => 'string',
                 'selection'         => ['M' => 'Male', 'F' => 'Female', 'X' => 'Non-binary'],
                 'description'       => 'Reference contact gender.',
-                'visible'           => ['type', '=', 'IN']
+                'visible'           => ['type', '=', 'IN'],
+                'onupdate'          => 'onupdateGender'
             ],
 
             'title' => [
                 'type'              => 'string',
                 'selection'         => ['Dr' => 'Doctor', 'Ms' => 'Miss', 'Mrs' => 'Misses', 'Mr' => 'Mister', 'Pr' => 'Professor'],
                 'description'       => 'Reference contact title.',
-                'visible'           => ['type', '=', 'IN']
+                'visible'           => ['type', '=', 'IN'],
+                'onupdate'          => 'onupdateTitle'
             ],
 
             'date_of_birth' => [
                 'type'              => 'date',
                 'description'       => 'Date of birth.',
-                'visible'           => ['type', '=', 'IN']
+                'visible'           => ['type', '=', 'IN'],
+                'onupdate'          => 'onupdateDateOfBirth'
             ],
 
             'lang_id' => [
@@ -334,7 +343,8 @@ class Identity extends Model {
             'email_alt' => [
                 'type'              => 'string',
                 'usage'             => 'email',
-                'description'       => "Identity secondary email address."
+                'description'       => "Identity secondary email address.",
+                'onupdate'          => 'onupdateEmailAlt',
             ],
 
             'phone' => [
@@ -347,6 +357,7 @@ class Identity extends Model {
             'phone_alt' => [
                 'type'              => 'string',
                 'usage'             => 'phone',
+                'onupdate'          => 'onupdatePhoneAlt',
                 'description'       => "Identity main phone number (mobile or landline)."
             ],
 
@@ -357,18 +368,28 @@ class Identity extends Model {
                 'description'       => "Identity mobile phone number."
             ],
 
-            'fax' => [
-                'type'              => 'string',
-                'usage'             => 'phone',
-                'description'       => "Identity main fax number."
-            ],
-
             // Companies can also have an official website.
             'website' => [
                 'type'              => 'string',
                 'usage'             => 'uri/url',
                 'description'       => 'Organization main official website URL, if any.',
-                'visible'           => ['type', '<>', 'IN']
+                'visible'           => ['type', '<>', 'IN'],
+                'onupdate'          => 'onupdateWebsite'
+            ],
+
+            'image_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Logo or picture of the identity.',
+                'help'              => 'Company logo for organizations or profile image for natural person.',
+                'onupdate'          => 'onupdateImageDocumentId'
+            ],
+
+            'is_active' => [
+                'type'              => 'boolean',
+                'description'       => "Is the identity active?",
+                'help'              => "When an identity is not marked as active, it is no longer displayed amongst the selection choices. However, it is still visible in the list of identities, and its related informations and documents remain available.",
+                'default'           => true
             ],
 
             // an identity can have additional addresses
@@ -440,13 +461,6 @@ class Identity extends Model {
                 'onupdate'          => 'onupdateEmployeeId'
             ],
 
-            'image_document_id' => [
-                'type'           => 'many2one',
-                'foreign_object' => 'documents\Document',
-                'description'    => 'Logo or picture of the identity.',
-                'help'           => 'Company logo for organizations or profile image for natural person.'
-            ],
-
             'organisation_id' => [
                 'type'           => 'many2one',
                 'foreign_object' => 'identity\Organisation',
@@ -459,13 +473,6 @@ class Identity extends Model {
                 'foreign_object' => 'realestate\management\ManagingAgent',
                 'description'    => 'The managing agent the identity refers to.',
                 'onupdate'       => 'onupdateManagingAgentId'
-            ],
-
-            'is_active' => [
-                'type'              => 'boolean',
-                'description'       => "Is the identity active?",
-                'help'              => "When an identity is not marked as active, it is no longer displayed amongst the selection choices. However, it is still visible in the list of identities, and its related informations and documents remain available.",
-                'default'           => true
             ]
 
         ];
@@ -597,6 +604,54 @@ class Identity extends Model {
 
     public static function onupdateAddressCountry($self) {
         self::updateField($self, 'address_country');
+    }
+
+    public static function onupdateNationality($self) {
+        self::updateField($self, 'nationality');
+    }
+
+    public static function onupdateRegistrationNumber($self) {
+        self::updateField($self, 'registration_number');
+    }
+
+    public static function onupdateShortName($self) {
+        self::updateField($self, 'short_name');
+    }
+
+    public static function onupdateBankAccountBic($self) {
+        self::updateField($self, 'bank_account_bic');
+    }
+
+    public static function onupdateCitizenIdentification($self) {
+        self::updateField($self, 'citizen_identification');
+    }
+
+    public static function onupdateGender($self) {
+        self::updateField($self, 'gender');
+    }
+
+    public static function onupdateTitle($self) {
+        self::updateField($self, 'title');
+    }
+
+    public static function onupdateDateOfBirth($self) {
+        self::updateField($self, 'date_of_birth');
+    }
+
+    public static function onupdateEmailAlt($self) {
+        self::updateField($self, 'email_alt');
+    }
+
+    public static function onupdatePhoneAlt($self) {
+        self::updateField($self, 'phone_alt');
+    }
+
+    public static function onupdateWebsite($self) {
+        self::updateField($self, 'website');
+    }
+
+    public static function onupdateImageDocumentId($self) {
+        self::updateField($self, 'image_document_id');
     }
 
     public static function onupdateUserId($self) {

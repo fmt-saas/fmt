@@ -13,7 +13,9 @@
                 "has_parent": false,
                 "registration_number": "0123231324",
                 "bank_account_iban": "BE11222233335555",
-                "bank_account_bic": "BBRUBEBB"
+                "bank_account_bic": "BBRUBEBB",
+                "has_vat": true,
+                "vat_number": "BE0123231324"
             }
         ]
     }

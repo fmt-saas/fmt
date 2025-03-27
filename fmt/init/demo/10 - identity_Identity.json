@@ -9,16 +9,38 @@
                 "legal_name": "Perfect Syndic SRL",
                 "short_name": "Perfect Syndic",
                 "has_parent": false,
-                "is_organisation": true,
-                "organisation_id": 1,
 				"address_street": "Rue des Éloges, 27",
 				"address_city": "Watermael-Boitsfort",
 				"address_zip": "1170",
-				"address_city": "BE"
+				"address_city": "BE",
+                "registration_number": "0123231324",
+                "bank_account_iban": "BE11222233335555",
+                "bank_account_bic": "BBRUBEBB",
+                "has_vat": true,
+                "vat_number": "BE0123231324",
+                "organisation_id": 1,
+                "is_active": true
+            },
+            {
+                "id": 2,
+                "type_id": 3,
+                "legal_name": "Perfect Syndic SRL",
+                "short_name": "Perfect Syndic",
+                "has_parent": false,
+				"address_street": "Rue des Éloges, 27",
+				"address_city": "Watermael-Boitsfort",
+				"address_zip": "1170",
+				"address_city": "BE",
+                "registration_number": "0123231324",
+                "bank_account_iban": "BE11222233335555",
+                "bank_account_bic": "BBRUBEBB",
+                "has_vat": true,
+                "vat_number": "BE0123231324",
+				"managing_agent_id": 1,
+                "is_active": true
             },
 			{
                 "id": 3,
-                "state": "instance",
                 "type_id": 1,
                 "description": null,
                 "bank_account_iban": "BE57429174466535",
@@ -60,8 +82,8 @@
                 "customer_contact_id": null,
                 "employee_id": null,
                 "image_document_id": null,
-                "is_organisation": false,
-                "organisation_id": null
+                "organisation_id": null,
+                "is_active": true
             },
             {
                 "id": 4,
@@ -106,8 +128,8 @@
                 "customer_contact_id": null,
                 "employee_id": null,
                 "image_document_id": null,
-                "is_organisation": false,
-                "organisation_id": null
+                "organisation_id": null,
+                "is_active": true
             },
             {
                 "id": 5,
@@ -152,8 +174,8 @@
                 "customer_contact_id": null,
                 "employee_id": null,
                 "image_document_id": null,
-                "is_organisation": false,
-                "organisation_id": null
+                "organisation_id": null,
+                "is_active": true
             },
             {
                 "id": 6,
@@ -198,8 +220,8 @@
                 "customer_contact_id": null,
                 "employee_id": null,
                 "image_document_id": null,
-                "is_organisation": false,
-                "organisation_id": null
+                "organisation_id": null,
+                "is_active": true
             },
             {
                 "id": 7,
@@ -244,8 +266,8 @@
                 "customer_contact_id": null,
                 "employee_id": null,
                 "image_document_id": null,
-                "is_organisation": false,
-                "organisation_id": null
+                "organisation_id": null,
+                "is_active": true
             },
             {
                 "id": 8,
@@ -290,8 +312,8 @@
                 "customer_contact_id": null,
                 "employee_id": null,
                 "image_document_id": null,
-                "is_organisation": false,
-                "organisation_id": null
+                "organisation_id": null,
+                "is_active": true
             },
             {
                 "id": 9,
@@ -336,8 +358,8 @@
                 "customer_contact_id": null,
                 "employee_id": null,
                 "image_document_id": null,
-                "is_organisation": false,
-                "organisation_id": null
+                "organisation_id": null,
+                "is_active": true
             },
             {
                 "id": 10,
@@ -382,8 +404,8 @@
                 "customer_contact_id": null,
                 "employee_id": null,
                 "image_document_id": null,
-                "is_organisation": false,
-                "organisation_id": null
+                "organisation_id": null,
+                "is_active": true
             },
             {
                 "id": 11,
@@ -428,8 +450,8 @@
                 "customer_contact_id": null,
                 "employee_id": null,
                 "image_document_id": null,
-                "is_organisation": false,
-                "organisation_id": null
+                "organisation_id": null,
+                "is_active": true
             },
             {
                 "id": 12,
@@ -474,8 +496,8 @@
                 "customer_contact_id": null,
                 "employee_id": null,
                 "image_document_id": null,
-                "is_organisation": false,
-                "organisation_id": null
+                "organisation_id": null,
+                "is_active": true
             }
         ]
     }
