@@ -1,6 +1,19 @@
 {
     "name": "Fund Request Line",
     "description": "Interface for model definition classes.",
+    "actions": [
+        {
+            "id": "action.generate_allocation",
+            "label": "Generate allocation",
+            "description": "Generate the lines of the fund request.",
+            "controller": "core_model_perform",
+            "params": {
+                "entity": "realestate\\funding\\FundRequestLine",
+                "action": "generate_allocation"
+            },
+            "visible": ["status", "=", "draft"]
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -72,7 +85,13 @@
                                                 "value": "entry_lots_ids",
                                                 "width": "100%",
                                                 "widget": {
-                                                    "view": "list.request_line"
+                                                    "view": "list.request_line",
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "actions": false
                                                 }
                                             }
                                         ]

@@ -71,7 +71,6 @@ class FundRequestLine extends \equal\orm\Model {
         ];
     }
 
-
     public static function calcCalledAmount($self) {
         $result = [];
         $self->read(['line_entries_ids' => ['allocated_amount']]);
@@ -86,4 +85,5 @@ class FundRequestLine extends \equal\orm\Model {
         }
         return $result;
     }
+
 }

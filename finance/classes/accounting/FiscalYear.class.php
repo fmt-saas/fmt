@@ -147,7 +147,6 @@ class FiscalYear extends Model {
                     'preopen',
                     'open',
                     'closed',
-                    'reopened',
                     'archived'
                 ],
                 'default'           => 'draft',

@@ -1,6 +1,11 @@
 {
     "name": "Fund Request Line Entry Lot",
     "description": "Interface for model definition classes.",
+    "header": {
+        "actions": {
+            "ACTION.CREATE": false
+        }
+    },
     "group_by": [
         {
             "open": false,

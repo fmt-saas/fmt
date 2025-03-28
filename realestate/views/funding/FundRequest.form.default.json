@@ -19,7 +19,7 @@
                 "entity": "realestate\\funding\\FundRequest",
                 "action": "generate_allocation"
             },
-            "visible": ["status", "=", "draft"]
+            "visible": ["status", "<>", "cancelled"]
         },
         {
             "id": "action.generate_executions",

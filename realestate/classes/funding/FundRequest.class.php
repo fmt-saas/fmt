@@ -43,7 +43,8 @@ class FundRequest extends \equal\orm\Model {
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "Fiscal year the fund request relates to.",
                 'default'           => 'defaultFiscalYearId',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'required'          => true
             ],
 
             'request_type' => [
@@ -212,7 +213,7 @@ class FundRequest extends \equal\orm\Model {
         return [
             'generate_allocation' => [
                 'description'   => 'Generate the request lines according to the property lots of the condominium and their respective shares.',
-                'policies'      => ['can_generate_lines'],
+                'policies'      => ['can_generate_allocation'],
                 'function'      => 'doGenerateAllocation'
             ],
             'generate_executions' => [
@@ -229,9 +230,9 @@ class FundRequest extends \equal\orm\Model {
                 'description' => 'Checks & validate values required for activation.',
                 'function'    => 'policyHasMandatoryData'
             ],
-            'can_generate_lines' => [
-                'description' => 'Verifies that a fund request is still a draft.',
-                'function'    => 'policyCanGenerateLines'
+            'can_generate_allocation' => [
+                'description' => 'Verifies that the allocation of a fund request can still be updated.',
+                'function'    => 'policyCanGenerateAllocation'
             ],
             'can_generate_executions' => [
                 'description' => 'Verifies that a fund request is still a draft.',
@@ -244,14 +245,20 @@ class FundRequest extends \equal\orm\Model {
         ];
     }
 
-    public static function policyCanGenerateLines($self): array {
+    public static function policyCanGenerateAllocation($self): array {
         $result = [];
-        $self->read(['status']);
+        $self->read(['status', 'fiscal_year_id' => ['status']]);
 
         foreach($self as $id => $fundRequest) {
-            if($fundRequest['status'] != 'draft') {
+            if($fundRequest['status'] == 'cancelled') {
                 $result[$id] = [
-                    'invalid_status' => 'Fund request status must be draft.'
+                    'invalid_status' => 'Cancelled fund requests cannot be updated.'
+                ];
+                continue;
+            }
+            if(!in_array($fundRequest['fiscal_year_id']['status'], ['open', 'preopen'])) {
+                $result[$id] = [
+                    'invalid_status' => 'Fiscal year must be open or pre-open.'
                 ];
                 continue;
             }
