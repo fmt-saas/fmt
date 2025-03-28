@@ -1,0 +1,160 @@
+[
+    {
+        "name": "realestate\\property\\PropertyLotApportionmentShare",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 2,
+                "condo_id": 1,
+                "apportionment_id": 1,
+                "is_statutory": true,
+                "property_lot_id": 1,
+                "property_lot_shares": 225
+            },
+            {
+                "id": 3,
+                "condo_id": 1,
+                "apportionment_id": 1,
+                "is_statutory": true,
+                "property_lot_id": 2,
+                "property_lot_shares": 250
+            },
+            {
+                "id": 4,
+                "condo_id": 1,
+                "apportionment_id": 1,
+                "is_statutory": true,
+                "property_lot_id": 3,
+                "property_lot_shares": 275
+            },
+            {
+                "id": 5,
+                "condo_id": 1,
+                "apportionment_id": 1,
+                "is_statutory": true,
+                "property_lot_id": 8,
+                "property_lot_shares": 175
+            },
+            {
+                "id": 6,
+                "condo_id": 1,
+                "apportionment_id": 1,
+                "is_statutory": true,
+                "property_lot_id": 7,
+                "property_lot_shares": 75
+            },
+            {
+                "id": 7,
+                "condo_id": 1,
+                "apportionment_id": 2,
+                "is_statutory": false,
+                "property_lot_id": 1,
+                "property_lot_shares": 225
+            },
+            {
+                "id": 8,
+                "condo_id": 1,
+                "apportionment_id": 2,
+                "is_statutory": false,
+                "property_lot_id": 2,
+                "property_lot_shares": 250
+            },
+            {
+                "id": 9,
+                "condo_id": 1,
+                "apportionment_id": 2,
+                "is_statutory": false,
+                "property_lot_id": 3,
+                "property_lot_shares": 275
+            },
+            {
+                "id": 10,
+                "condo_id": 1,
+                "apportionment_id": 2,
+                "is_statutory": false,
+                "property_lot_id": 8,
+                "property_lot_shares": 175
+            },
+            {
+                "id": 11,
+                "condo_id": 1,
+                "apportionment_id": 2,
+                "is_statutory": false,
+                "property_lot_id": 7,
+                "property_lot_shares": 75
+            },
+            {
+                "id": 12,
+                "condo_id": 2,
+                "apportionment_id": 3,
+                "is_statutory": true,
+                "property_lot_id": 4,
+                "property_lot_shares": 333
+            },
+            {
+                "id": 13,
+                "condo_id": 2,
+                "apportionment_id": 3,
+                "is_statutory": true,
+                "property_lot_id": 5,
+                "property_lot_shares": 333
+            },
+            {
+                "id": 14,
+                "condo_id": 2,
+                "apportionment_id": 3,
+                "is_statutory": true,
+                "property_lot_id": 6,
+                "property_lot_shares": 333
+            },
+            {
+                "id": 15,
+                "condo_id": 2,
+                "apportionment_id": 4,
+                "is_statutory": false,
+                "property_lot_id": 4,
+                "property_lot_shares": 333
+            },
+            {
+                "id": 16,
+                "condo_id": 2,
+                "apportionment_id": 4,
+                "is_statutory": false,
+                "property_lot_id": 5,
+                "property_lot_shares": 333
+            },
+            {
+                "id": 17,
+                "condo_id": 2,
+                "apportionment_id": 4,
+                "is_statutory": false,
+                "property_lot_id": 6,
+                "property_lot_shares": 333
+            },
+            {
+                "id": 18,
+                "condo_id": 2,
+                "apportionment_id": null,
+                "is_statutory": null,
+                "property_lot_id": 4,
+                "property_lot_shares": 333
+            },
+            {
+                "id": 19,
+                "condo_id": 2,
+                "apportionment_id": 5,
+                "is_statutory": false,
+                "property_lot_id": 5,
+                "property_lot_shares": 100
+            },
+            {
+                "id": 20,
+                "condo_id": 2,
+                "apportionment_id": 5,
+                "is_statutory": false,
+                "property_lot_id": 6,
+                "property_lot_shares": 200
+            }
+        ]
+    }
+]

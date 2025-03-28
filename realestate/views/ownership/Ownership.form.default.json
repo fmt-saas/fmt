@@ -12,6 +12,18 @@
                 "ids": []
             },
             "confirm": false
+        },
+        {
+            "id": "action.print_funds_request",
+            "label": "Print Funds Request",
+            "icon": "savings",
+            "description": "Generate the funds request document for a given fiscal year.",
+            "controller": "realestate_funding_print-fundrequest",
+            "params": {
+                "entity": "realestate\\ownership\\Ownership",
+                "view_id": "print.default",
+                "debug": false
+            }
         }
     ],
     "layout": {

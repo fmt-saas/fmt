@@ -1,0 +1,81 @@
+[
+    {
+        "name": "realestate\\property\\Apportionment",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "condo_id": 1,
+                "description": "Clé statutaire",
+                "is_statutory": true,
+                "common_area_id": null,
+                "property_lots_ids": [
+                    "1",
+                    "2",
+                    "3",
+                    "7",
+                    "8"
+                ],
+                "total_shares": 1000,
+                "assigned_shares": 1000
+            },
+            {
+                "id": 2,
+                "condo_id": 1,
+                "description": "Charges communes",
+                "is_statutory": false,
+                "common_area_id": null,
+                "property_lots_ids": [
+                    "1",
+                    "2",
+                    "3",
+                    "7",
+                    "8"
+                ],
+                "total_shares": 1000,
+                "assigned_shares": 1000
+            },
+            {
+                "id": 3,
+                "condo_id": 2,
+                "description": "Quotités statutaires",
+                "is_statutory": true,
+                "common_area_id": null,
+                "property_lots_ids": [
+                    "4",
+                    "5",
+                    "6"
+                ],
+                "total_shares": 999,
+                "assigned_shares": 999
+            },
+            {
+                "id": 4,
+                "condo_id": 2,
+                "description": "Charges communes",
+                "is_statutory": false,
+                "common_area_id": null,
+                "property_lots_ids": [
+                    "4",
+                    "5",
+                    "6"
+                ],
+                "total_shares": 999,
+                "assigned_shares": 999
+            },
+            {
+                "id": 5,
+                "condo_id": 2,
+                "description": "Charges ascenseurs",
+                "is_statutory": false,
+                "common_area_id": null,
+                "property_lots_ids": [
+                    "5",
+                    "6"
+                ],
+                "total_shares": 300,
+                "assigned_shares": 300
+            }
+        ]
+    }
+]

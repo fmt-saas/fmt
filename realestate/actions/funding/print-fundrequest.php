@@ -35,7 +35,8 @@ list($params, $providers) = eQual::announce([
             'type'              => 'many2one',
             'foreign_object'    => 'finance\accounting\FiscalYear',
             'description'       => "Fiscal year the fund request relates to.",
-            'required'          => true
+            'required'          => true,
+            'domain'            => ['condo_id', '=', 'object.condo_id']
         ],
 
         'debug' => [
@@ -51,14 +52,15 @@ list($params, $providers) = eQual::announce([
 
         'lang' =>  [
             'description' => 'Language in which labels and multilang field have to be returned (2 letters ISO 639-1).',
-            'type'        => 'string'
+            'type'        => 'string',
+            'default'     => constant('DEFAULT_LANG')
         ]
     ],
     'access'        => [
         'visibility' => 'protected'
     ],
     'response'      => [
-        'content-type'      => 'application/pdf',
+        'content-type'  => 'application/pdf',
         'accept-origin' => '*'
     ],
     'providers'     => ['context'],
