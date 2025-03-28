@@ -198,14 +198,24 @@ class FundRequest extends \equal\orm\Model {
                     'activate' => [
                         'description' => 'Update the fund request to `active`.',
                         'policies'    => [
-                            'has_mandatory_data',
-                            'is_balanced',
+                            'has_mandatory_data'
                         ],
-                        'onafter'   => 'onafterActivate',
-                        'status'    => 'active'
+                        'onafter'     => 'onafterActivate',
+                        'status'      => 'active'
                     ]
                 ]
             ],
+            'active' => [
+                'description' => 'Active fund request, consistent but with or without lines.',
+                'icon'        => 'cancel',
+                'transitions' => [
+                    'cancel' => [
+                        'description' => 'Cancel the fund request.',
+                        'policies'    => ['can_cancel'],
+                        'status'      => 'cancel'
+                    ]
+                ]
+            ]
         ];
     }
 
@@ -218,7 +228,7 @@ class FundRequest extends \equal\orm\Model {
             ],
             'generate_executions' => [
                 'description'   => 'Generate the request lines according to the property lots of the condominium and their respective shares.',
-                'policies'      => ['can_generate_executions'],
+                'policies'      => ['is_balanced', 'can_generate_executions'],
                 'function'      => 'doGenerateExecutions'
             ]
         ];
@@ -229,6 +239,10 @@ class FundRequest extends \equal\orm\Model {
             'has_mandatory_data' => [
                 'description' => 'Checks & validate values required for activation.',
                 'function'    => 'policyHasMandatoryData'
+            ],
+            'can_cancel' => [
+                'description' => 'Verifies that there are no invoiced executions.',
+                'function'    => 'policyCanCancel'
             ],
             'can_generate_allocation' => [
                 'description' => 'Verifies that the allocation of a fund request can still be updated.',
@@ -243,6 +257,28 @@ class FundRequest extends \equal\orm\Model {
                 'function'    => 'policyIsBalanced'
             ]
         ];
+    }
+
+    public static function policyCanCancel($self): array {
+        $result = [];
+        $self->read(['status', 'request_executions_ids' => ['status']]);
+        foreach($self as $id => $fundRequest) {
+            if($fundRequest['status'] == 'cancelled') {
+                $result[$id] = [
+                    'invalid_status' => 'Already cancelled.'
+                ];
+                continue;
+            }
+            foreach($fundRequest['request_executions_ids'] as $execution_id => $requestExecution) {
+                if($requestExecution['status'] == 'invoice') {
+                    $result[$id] = [
+                        'invalid_execution_status' => 'At least one execution has been invoiced.'
+                    ];
+                    continue;
+                }
+            }
+        }
+        return $result;
     }
 
     public static function policyCanGenerateAllocation($self): array {
@@ -283,7 +319,7 @@ class FundRequest extends \equal\orm\Model {
 
     public static function policyHasMandatoryData($self): array {
         $result = [];
-        $self->read(['request_date', 'has_date_range', 'date_from', 'date_to', 'request_account_id', 'request_bank_account_id', 'payment_terms_id']);
+        $self->read(['condo_id', 'request_date', 'has_date_range', 'date_from', 'date_to', 'request_account_id', 'request_bank_account_id', 'payment_terms_id']);
         foreach($self as $id => $fundRequest) {
             if($fundRequest['has_date_range']) {
                 if(!$fundRequest['date_from']) {
@@ -308,6 +344,11 @@ class FundRequest extends \equal\orm\Model {
                 ];
             }
 
+            if(!$fundRequest['condo_id']) {
+                $result[$id] = [
+                    'missing_condominium' => 'The condominium is mandatory.'
+                ];
+            }
             if(!$fundRequest['request_account_id']) {
                 $result[$id] = [
                     'missing_accounting_account' => 'The accounting account is mandatory.'
@@ -317,13 +358,11 @@ class FundRequest extends \equal\orm\Model {
                 $result[$id] = [
                     'missing_bank_account' => 'The bank account is mandatory.'
                 ];
-                continue;
             }
             if(!$fundRequest['payment_terms_id']) {
                 $result[$id] = [
                     'missing_payment_terms' => 'The payment terms are mandatory.'
                 ];
-                continue;
             }
         }
         return $result;

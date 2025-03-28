@@ -11,7 +11,7 @@
     "description": "",
     "actions": [
         {
-            "id": "action.generate_lines",
+            "id": "action.generate_allocation",
             "label": "Generate allocation",
             "description": "Generate the lines of the fund request.",
             "controller": "core_model_perform",
@@ -19,7 +19,7 @@
                 "entity": "realestate\\funding\\FundRequest",
                 "action": "generate_allocation"
             },
-            "visible": ["status", "<>", "cancelled"]
+            "visible": ["status", "=", "active"]
         },
         {
             "id": "action.generate_executions",
@@ -44,6 +44,19 @@
             },
             "confirm": true,
             "visible": ["status", "=", "draft"]
+        },
+        {
+            "id": "action.cancel",
+            "label": "Cancel",
+            "description": "Cancel the fund request. This action is not reversible.",
+            "controller": "core_model_transition",
+            "visible": [["status", "=", "active"]],
+            "params": {
+                "entity": "realestate\\funding\\FundRequest",
+                "transition": "cancel",
+                "ids": []
+            },
+            "confirm": true
         }
     ],
     "layout": {
