@@ -330,6 +330,10 @@ $invoice['organisation_id']['fax'] = DataFormatter::format($invoice['organisatio
 */
 
 $values = [
+    'fiscal_year'         => [
+            'date_from'     => $fiscalYear['date_from'],
+            'date_to'       => $fiscalYear['date_to'],
+        ],
     'fund_requests'       => $fund_requests,
     'executions'          => $executions,
     'organisation'        => $fiscalYear['condo_id']['managing_agent_id'],
