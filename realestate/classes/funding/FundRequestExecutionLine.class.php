@@ -63,7 +63,7 @@ class FundRequestExecutionLine extends \sale\accounting\invoice\InvoiceLine {
             'product_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\catalog\Product',
-                'description'       => 'There is no customer for fund requests.',
+                'description'       => 'There is no product for fund requests.',
             ],
 
             'line_entries_ids' => [

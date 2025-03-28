@@ -425,8 +425,9 @@ class Condominium extends \identity\Organisation {
 
     /**
      * Upon creation of a condominium, it is necessary to create sequences for:
-     * - the owners:        realestate.main.ownership.sequence [condo_id]
-     * - the lots:          realestate.main.property_lot.sequence [condo_id]
+     * - owners:            realestate.main.ownership.sequence [condo_id]
+     * - lots:              realestate.main.property_lot.sequence [condo_id]
+     * - apportionments:    realestate.main.apportionment.sequence [condo_id]
      */
     public static function doGenerateSequences($self) {
         foreach($self as $id => $condominium) {
