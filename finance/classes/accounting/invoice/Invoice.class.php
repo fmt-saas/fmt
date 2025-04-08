@@ -55,8 +55,7 @@ class Invoice extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "Fiscal year the fund request relates to.",
-                'required'          => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'required'          => true
             ],
 
             'status' => [
@@ -82,20 +81,9 @@ class Invoice extends Model {
                 'default'           => 'invoice'
             ],
 
-            'invoice_purpose' => [
-                'type'              => 'string',
-                'description'       => 'Is the invoice concerning a sale to a customer or a purchase from a supplier.',
-                'selection'         => [
-                    'sell',
-                    'buy'
-                ],
-                'default'          => 'buy'
-            ],
-
             'invoice_number' => [
                 'type'              => 'string',
                 'description'       => 'Number of the invoice, according to organization logic.',
-                'required'          => true,
                 'dependents'        => ['name']
             ],
 
@@ -109,10 +97,8 @@ class Invoice extends Model {
             'payment_status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'pending',          // non-paid, payment terms delay running
-                    'overdue',          // non-paid, and payment terms delay is over
-                    'debit_balance',    // partially paid: buyer still has to pay something
-                    'credit_balance',   // over paid: reimbursement to buyer is required
+                    'debit_balance',    // buyer still has to pay something
+                    'credit_balance',   // reimbursement to buyer is required
                     'balanced'          // fully paid and balanced
                 ],
                 'visible'           => ['status', '=', 'invoice'],
@@ -121,18 +107,36 @@ class Invoice extends Model {
 
             'payment_reference' => [
                 'type'              => 'string',
-                'description'       => 'Message for identifying payments related to the invoice.'
+                'description'       => 'Message for identifying payments related to the invoice.',
+                'help'              => 'Reference can hold various formatted information : VCS (+++123/4567/89101+++), ISO 11649 (RFnn...), free text (max. 140 chars).'
             ],
 
             'emission_date' => [
-                'type'              => 'datetime',
+                'type'              => 'date',
                 'description'       => 'Date at which the invoice was emitted.'
             ],
 
             'due_date' => [
                 'type'              => 'date',
-                'description'       => 'Deadline for the payment is expected.',
-                'default'           => strtotime('+1 month')
+                'description'       => 'Deadline for the payment is expected.'
+            ],
+
+            'has_date_range' => [
+                'type'              => 'boolean',
+                'description'       => 'Is the invoice about a service delivered over a period of time.',
+                'default'           => false
+            ],
+
+            'date_from' => [
+                'type'              => 'date',
+                'description'       => 'First date of the date range.',
+                'visible'           => ['has_date_range', '=', true]
+            ],
+
+            'date_to' => [
+                'type'              => 'date',
+                'description'       => 'Last date of the date range.',
+                'visible'           => ['has_date_range', '=', true]
             ],
 
             'total' => [

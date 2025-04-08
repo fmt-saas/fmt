@@ -113,6 +113,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                 'transitions' => [
                     'call' => [
                         'description' => 'Update the fund request execution to `invoice`.',
+                        'help'        => 'This is a substitute to the parent sale invoice workflow (there is a single accounting entry for a fund request execution).',
                         'policies'    => [],
                         'onbefore'    => 'onbeforeCall',
                         'onafter'     => 'onafterCall',

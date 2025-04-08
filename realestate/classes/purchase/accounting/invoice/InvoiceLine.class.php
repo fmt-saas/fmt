@@ -1,0 +1,163 @@
+<?php
+/*
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
+
+namespace realestate\purchase\accounting\invoice;
+
+use finance\accounting\Account;
+use realestate\ownership\Ownership;
+use realestate\property\PropertyLot;
+
+class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
+
+    public function getTable() {
+        return 'purchase_accounting_invoice_invoiceline';
+    }
+
+    public static function getColumns() {
+        return [
+
+            /*
+                from finance\accounting\invoice\InvoiceLine
+                'condo_id'
+            */
+
+            'invoice_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\purchase\accounting\invoice\Invoice',
+                'description'       => 'Invoice the line is related to.',
+                'required'          => true,
+                'ondelete'          => 'cascade'
+            ],
+
+            'is_private_expense' => [
+                'type'              => 'boolean',
+                'description'       => 'Enable to apply charge to a single owner.',
+                'default'           => false,
+                'onupdate'          => 'onupdateIsPrivateExpense'
+            ],
+
+            'expense_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Accounting account the entry relates to.",
+                'required'          => true,
+                'ondelete'          => 'null',
+                // #todo - limit to supplier assigned accounts
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['account_class', '=', '06']]
+            ],
+
+            'apportionment_id' => [
+                'type'              => 'many2one',
+                'description'       => "The key that the apportionment refers to.",
+                'foreign_object'    => 'realestate\property\Apportionment',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_statutory', '=', false]],
+                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
+                'visible'           => ['is_private_expense', '=', false]
+            ],
+
+            'owner_share'           => [
+                'type'              => 'integer',
+                'default'           => 100,
+                'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
+                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed."
+            ],
+
+            'tenant_share'          => [
+                'type'              => 'integer',
+                'default'           => 0,
+                'description'       => "Default value, in percent, of the amount to be imputed to the tenant when using the account.",
+                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed."
+            ],
+
+            'ownership_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'description'       => "Ownership to apply the charge to.",
+                'visible'           => ['is_private_expense', '=', true],
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'property_lot_id' => [
+                'type'              => 'many2one',
+                'description'       => "Property Lot to apply the charge to.",
+                'foreign_object'    => 'realestate\property\PropertyLot',
+                'visible'           => ['is_private_expense', '=', true],
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+        ];
+    }
+
+    public static function onupdateIsPrivateExpense($self) {
+        // mettre expense_account_id à 643
+    }
+
+    public static function onchange($event, $values) {
+        $result = [];
+        // update price
+        if(array_key_exists('vat_rate', $event) && $values['total']) {
+            $result['price'] = round($values['total'] * (1 + $event['vat_rate']), 2);
+        }
+        if(array_key_exists('total', $event)) {
+            if($values['vat_rate']) {
+                $result['price'] = round($event['total'] * (1 + $values['vat_rate']), 2);
+            }
+            else {
+                $result['price'] = round($event['total'], 2);
+            }
+        }
+        // update expense account
+        if(isset($event['is_private_expense']) && $event['is_private_expense']) {
+            $account = Account::search([['condo_id', '=', $values['condo_id']], ['operation_assignment', '=', 'private_expenses']])
+                ->read(['id', 'name'])
+                ->first();
+            $result['expense_account_id'] = [
+                    'id'    => $account['id'],
+                    'name'  => $account['name']
+                ];
+        }
+        if(array_key_exists('ownership_id', $event)) {
+            if($event['ownership_id']) {
+                $ownership = Ownership::id($event['ownership_id'])->read(['property_lots_ids'])->first();
+                if(!$values['property_lot_id'] || !in_array($values['property_lot_id'], $ownership['property_lots_ids']) ) {
+                    $result['property_lot_id'] = [
+                        'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $ownership['property_lots_ids']]]
+                    ];
+                }
+            }
+            else {
+                $result['property_lot_id'] = [
+                    'domain' => ['condo_id', '=', $values['condo_id']]
+                ];
+            }
+        }
+        if(array_key_exists('property_lot_id', $event)) {
+            if($event['property_lot_id']) {
+                $propertyLot = PropertyLot::id($event['property_lot_id'])->read(['ownerships_ids'])->first();
+                if(!$values['ownership_id'] || !in_array($values['ownership_id'], $propertyLot['ownerships_ids']) ) {
+                    $result['ownership_id'] = [
+                        'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $propertyLot['ownerships_ids']]]
+                    ];
+                }
+            }
+            else {
+                $result['ownership_id'] = [
+                    'domain' => ['condo_id', '=', $values['condo_id']]
+                ];
+            }
+        }
+        if(isset($event['expense_account_id'])) {
+            $expenseAccount = Account::id($event['expense_account_id'])->read(['id', 'apportionment_id', 'tenant_share', 'owner_share'])->first();
+            if($expenseAccount) {
+                $result['apportionment_id'] = $expenseAccount['apportionment_id'];
+                $result['tenant_share'] = $expenseAccount['tenant_share'];
+                $result['owner_share'] = $expenseAccount['owner_share'];
+            }
+        }
+        return $result;
+    }
+}

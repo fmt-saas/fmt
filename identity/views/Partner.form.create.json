@@ -20,7 +20,7 @@
                                             {
                                                 "type": "field",
                                                 "label": "Partner identity",
-                                                "value": "partner_identity_id",
+                                                "value": "identity_id",
                                                 "width": "80%"
                                             }
                                         ]

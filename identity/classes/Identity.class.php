@@ -14,6 +14,7 @@ use sale\customer\Customer;
 use sale\customer\Contact as CustomerContact;
 use purchase\supplier\Supplier;
 use realestate\management\ManagingAgent;
+use realestate\ownership\Owner;
 
 /**
  * This class is meant to be used as an interface for other entities (organisation and partner).
@@ -54,8 +55,16 @@ class Identity extends Model {
             'identity_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Identity',
-                'description'       => 'Identity the organisation relates to.',
-                'help'              => 'Meant for entities that inherit from identity\Identity and must be synced with parent Identity.'
+                'description'       => 'Identity the object relates to.',
+                'help'              => 'Meant for entities that inherit from `identity\Identity` and must be synced with parent Identity. Classes that inherit from Identity must implement `onupdateIdentityId()` method.',
+                'onupdate'          => 'onupdateIdentityId'
+            ],
+
+            'owner_identity_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\Identity',
+                'description'       => 'Hierarchical Identity the identity depends on.',
+                'help'              => 'An object linked to an identity can have a logical link to a parent (for instance the subsidiary of an Organisation or the contact of a Customer).'
             ],
 
             'type_id' => [
@@ -196,7 +205,7 @@ class Identity extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'identity\Contact',
                 'foreign_field'     => 'owner_identity_id',
-                'domain'            => ['partner_identity_id', '<>', 'object.id'],
+                'domain'            => ['identity_id', '<>', 'object.id'],
                 'description'       => 'List of contacts related to the organization, if any.',
                 'help'              => 'A contact is an arbitrary relation between two identities. Any Identity can have several contacts.'
             ],
@@ -329,6 +338,13 @@ class Identity extends Model {
                 'onupdate'          => 'onupdateAddressCountry'
             ],
 
+            'address' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcAddress',
+                'description'       => 'Main address from related Identity.'
+            ],
+
             /*
                 Additional official contact details.
                 For individuals these are personal contact details, whereas for companies these are official (registered) details.
@@ -404,12 +420,11 @@ class Identity extends Model {
                 For organizations, there might be a reference person: a person who is entitled to legally represent the organization (typically the director, the manager, the CEO, ...).
                 These contact details are commonly requested by service providers for validating the identity of an organization.
             */
-            'reference_partner_id' => [
+            'reference_identity_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'identity\Partner',
-                'domain'            => ['relationship', '=', 'contact'],
-                'description'       => 'Contact (natural person) that can legally represent the organization.',
-                'onupdate'          => 'onupdateReferencePartnerId',
+                'foreign_object'    => 'identity\Identity',
+                'description'       => 'Contact (natural person) that can legally represent the identity.',
+                'help'              => 'This field can be the symmetrical value of owner_identity_id.',
                 'visible'           => [ ['type', '<>', 'IN'], ['type', '<>', 'SE'] ]
             ],
 
@@ -424,7 +439,7 @@ class Identity extends Model {
             'customer_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\customer\Customer',
-                'foreign_field'     => 'partner_identity_id',
+                'foreign_field'     => 'identity_id',
                 'description'       => 'Customer associated to this identity, if any.',
                 'onupdate'          => 'onupdateCustomerId'
             ],
@@ -432,7 +447,7 @@ class Identity extends Model {
             'supplier_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\supplier\Supplier',
-                'foreign_field'     => 'partner_identity_id',
+                'foreign_field'     => 'identity_id',
                 'description'       => 'Supplier associated to this identity, if any.',
                 'onupdate'          => 'onupdateSupplierId'
             ],
@@ -440,7 +455,7 @@ class Identity extends Model {
             'contact_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Contact',
-                'foreign_field'     => 'partner_identity_id',
+                'foreign_field'     => 'identity_id',
                 'description'       => 'Contact associated to this identity, if any.',
                 'onupdate'          => 'onupdateContactId'
             ],
@@ -448,7 +463,7 @@ class Identity extends Model {
             'customer_contact_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\customer\Contact',
-                'foreign_field'     => 'partner_identity_id',
+                'foreign_field'     => 'identity_id',
                 'description'       => 'Customer contact associated to this identity, if any.',
                 'onupdate'          => 'onupdateCustomerContactId'
             ],
@@ -456,7 +471,7 @@ class Identity extends Model {
             'employee_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'hr\employee\Employee',
-                'foreign_field'     => 'partner_identity_id',
+                'foreign_field'     => 'identity_id',
                 'description'       => 'Employee associated to this identity, if any.',
                 'onupdate'          => 'onupdateEmployeeId'
             ],
@@ -473,9 +488,22 @@ class Identity extends Model {
                 'foreign_object' => 'realestate\management\ManagingAgent',
                 'description'    => 'The managing agent the identity refers to.',
                 'onupdate'       => 'onupdateManagingAgentId'
+            ],
+
+            'owner_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'realestate\ownership\Owner',
+                'description'    => 'The managing agent the identity refers to.',
+                'onupdate'       => 'onupdateOwnerId'
             ]
 
         ];
+    }
+
+    /**
+     * #memo - classes inheriting from Identity must implement this method
+     */
+    public static function onupdateIdentityId($self) {
     }
 
     /**
@@ -484,8 +512,11 @@ class Identity extends Model {
      */
     public static function calcName($self) {
         $result = [];
-        $self->read(['type', 'firstname', 'lastname', 'legal_name', 'short_name']);
+        $self->read(['state', 'type', 'firstname', 'lastname', 'legal_name', 'short_name']);
         foreach($self as $id => $identity) {
+            if($identity['state'] == 'draft') {
+                continue;
+            }
             $parts = [];
             if($identity['type'] == 'IN') {
                 if(isset($identity['firstname']) && strlen($identity['firstname'])) {
@@ -503,41 +534,58 @@ class Identity extends Model {
                     $parts[] = $identity['short_name'];
                 }
             }
-            $result[$id] = implode(' ', $parts);
+            if(count($parts)) {
+                $result[$id] = implode(' ', $parts);
+            }
+        }
+        return $result;
+    }
+
+    public static function calcAddress($self) {
+        $result = [];
+        $self->read(['address_street', 'address_city']);
+        foreach($self as $id => $identity) {
+            $result[$id] = "{$identity['address_street']} {$identity['address_city']}";
         }
         return $result;
     }
 
     protected static function updateField($self, $field) {
-        $self->read(['identity_id', 'user_id', 'contact_id', 'customer_contact_id', 'employee_id', 'customer_id', 'supplier_id', 'organisation_id', 'managing_agent_id', $field]);
+        $self->read(['identity_id', 'user_id', 'contact_id', 'customer_contact_id', 'employee_id', 'customer_id', 'supplier_id', 'organisation_id', 'managing_agent_id', 'owner_id', $field]);
         foreach($self as $id => $identity) {
+            /* update from derived class to Identity */
             if($identity['identity_id']) {
                 $orm = Container::getInstance()->get(['orm']);
                 $orm->update(Identity::getType(), $identity['identity_id'], [$field => $identity[$field]]);
+                continue;
             }
+            /* update from Identity to derived class */
             if($identity['user_id']) {
                 User::id($identity['user_id'])->update([$field => $identity[$field]]);
             }
-            if($identity['contact_id']) {
+            elseif($identity['contact_id']) {
                 Contact::id($identity['contact_id'])->update([$field => $identity[$field]]);
             }
-            if($identity['customer_contact_id']) {
+            elseif($identity['customer_contact_id']) {
                 CustomerContact::id($identity['customer_contact_id'])->update([$field => $identity[$field]]);
             }
-            if($identity['employee_id']) {
+            elseif($identity['employee_id']) {
                 Employee::id($identity['employee_id'])->update([$field => $identity[$field]]);
             }
-            if($identity['customer_id']) {
+            elseif($identity['customer_id']) {
                 Customer::id($identity['customer_id'])->update([$field => $identity[$field]]);
             }
-            if($identity['supplier_id']) {
+            elseif($identity['supplier_id']) {
                 Supplier::id($identity['supplier_id'])->update([$field => $identity[$field]]);
             }
-            if($identity['organisation_id']) {
+            elseif($identity['organisation_id']) {
                 Organisation::id($identity['organisation_id'])->update([$field => $identity[$field]]);
             }
-            if($identity['managing_agent_id']) {
+            elseif($identity['managing_agent_id']) {
                 ManagingAgent::id($identity['managing_agent_id'])->update([$field => $identity[$field]]);
+            }
+            elseif($identity['owner_id']) {
+                Owner::id($identity['owner_id'])->update([$field => $identity[$field]]);
             }
         }
     }
@@ -668,35 +716,35 @@ class Identity extends Model {
     public static function onupdateContactId($self) {
         $self->read(['contact_id']);
         foreach($self as $id => $identity) {
-            Contact::id($identity['contact_id'])->update(['partner_identity_id' => $id]);
+            Contact::id($identity['contact_id'])->update(['identity_id' => $id]);
         }
     }
 
     public static function onupdateCustomerContactId($self) {
         $self->read(['customer_contact_id']);
         foreach($self as $id => $identity) {
-            CustomerContact::id($identity['customer_contact_id'])->update(['partner_identity_id' => $id]);
+            CustomerContact::id($identity['customer_contact_id'])->update(['identity_id' => $id]);
         }
     }
 
     public static function onupdateEmployeeId($self) {
         $self->read(['employee_id']);
         foreach($self as $id => $identity) {
-            Employee::id($identity['employee_id'])->update(['partner_identity_id' => $id]);
+            Employee::id($identity['employee_id'])->update(['identity_id' => $id]);
         }
     }
 
     public static function onupdateSupplierId($self) {
         $self->read(['supplier_id']);
         foreach($self as $id => $identity) {
-            Supplier::id($identity['supplier_id'])->update(['partner_identity_id' => $id]);
+            Supplier::id($identity['supplier_id'])->update(['identity_id' => $id]);
         }
     }
 
     public static function onupdateCustomerId($self) {
         $self->read(['customer_id']);
         foreach($self as $id => $identity) {
-            Customer::id($identity['customer_id'])->update(['partner_identity_id' => $id]);
+            Customer::id($identity['customer_id'])->update(['identity_id' => $id]);
         }
     }
 
@@ -714,23 +762,10 @@ class Identity extends Model {
         }
     }
 
-    /**
-     * When a reference partner is given, add it to the identity's contacts, if not already present
-     */
-    public static function onupdateReferencePartnerId($self) {
-        $self->read(['reference_partner_id', 'reference_partner_id' => 'partner_identity_id', 'contacts_ids' => 'partner_identity_id']);
+    public static function onupdateOwnerId($self) {
+        $self->read(['owner_id']);
         foreach($self as $id => $identity) {
-            $contacts_ids = [];
-            if($identity['contacts_ids'] && count($identity['contacts_ids'])) {
-                $contacts_ids = $identity['contacts_ids']->get(true);
-            }
-            if(!in_array($identity['reference_partner_id']['partner_identity_id'], array_map( function($a) { return $a['partner_identity_id']; }, $contacts_ids))) {
-                // create a contact with the customer as 'booking' contact
-                Contact::create([
-                        'owner_identity_id'     => $id,
-                        'partner_identity_id'   => $identity['reference_partner_id']['partner_identity_id']
-                    ]);
-            }
+            ManagingAgent::id($identity['owner_id'])->update(['identity_id' => $id]);
         }
     }
 
@@ -773,7 +808,6 @@ class Identity extends Model {
 
         return $result;
     }
-
 
     private static function computeBicFromIban($iban, $lang) {
         $result = '';
@@ -820,6 +854,43 @@ class Identity extends Model {
         }
 
         return $result;
+    }
+
+    public static function onafterupdate($self, $values, $orm) {
+
+        /**
+         * Handle creation of related identity for objects that inherit from Identity
+         */
+        if(self::class != static::class) {
+
+            $common_fields = [
+                    'type_id','has_vat','vat_number','legal_name','firstname','lastname','lang_id',
+                    'email','phone','mobile','fax',
+                    'address_street','address_dispatch','address_zip',
+                    'address_city','address_state','address_country'
+                ];
+
+            $self->read(array_merge($common_fields, ['identity_id', 'state']));
+
+            foreach($self as $id => $identity) {
+
+                if($identity['state'] == 'draft') {
+                    continue;
+                }
+                // create a new Identity for objects that are meant to relate to an identity
+                if(is_null($identity['identity_id'])) {
+                    $values = [];
+                    foreach($common_fields as $field) {
+                        $values[$field] = $identity[$field];
+                    }
+
+                    $identity_id = $orm->create(Identity::getType(), $values);
+
+                    // #memo - classes that inherit from Identity should have a callback onupdateIdentityId (in order to assign back the right field: 'user_id', 'customer_id', 'supplier_id', 'employee_id', ...)
+                    $orm->update(self::getType(), $id, ['identity_id' => $identity_id]);
+                }
+            }
+        }
     }
 
     /**

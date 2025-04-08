@@ -7,9 +7,7 @@
 
 namespace purchase\accounting\invoice;
 
-use finance\accounting\invoice\InvoiceLine as FinanceInvoiceLine;
-
-class InvoiceLine extends FinanceInvoiceLine {
+class InvoiceLine extends \finance\accounting\invoice\InvoiceLine {
 
     public function getTable() {
         return 'purchase_accounting_invoice_invoiceline';
@@ -17,13 +15,6 @@ class InvoiceLine extends FinanceInvoiceLine {
 
     public static function getColumns() {
         return [
-            'invoice_line_group_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'purchase\accounting\invoice\InvoiceLineGroup',
-                'description'       => 'Group the line relates to (in turn, groups relate to their invoice).',
-                'ondelete'          => 'cascade',
-                'domain'            => ['invoice_id', '=', 'object.invoice_id']
-            ],
 
             'invoice_id' => [
                 'type'              => 'many2one',
@@ -31,7 +22,34 @@ class InvoiceLine extends FinanceInvoiceLine {
                 'description'       => 'Invoice the line is related to.',
                 'required'          => true,
                 'ondelete'          => 'cascade'
-            ]
+            ],
+
+            'expense_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Accounting account the entry relates to.",
+                'required'          => true,
+                'ondelete'          => 'null',
+                'domain'            => [['is_control_account', '=', false]],
+                'dependent'         => ['name']
+            ],
+
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['expense_account_id' => ['name']],
+                'description'       => 'Default label of the line.',
+                'store'             => true
+            ],
+
+            'total' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:4',
+                'description'       => 'Total tax-excluded price of the line.',
+                'help'              => "For purchase invoice, total is arbitrary, so there is no strict constraint for user to encode the details about the computation (unit price and quantity).",
+                'dependents'        => ['invoice_id' => ['total', 'price']]
+            ],
+
         ];
     }
 }

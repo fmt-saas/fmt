@@ -77,11 +77,6 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "is_internal",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "label": "Owner Identity",
                                                 "value": "owner_identity_id",
                                                 "width": "100%"
@@ -94,7 +89,7 @@
                                             {
                                                 "type": "field",
                                                 "label": "Identity of Customer",
-                                                "value": "partner_identity_id",
+                                                "value": "identity_id",
                                                 "width": "50%"
                                             },
                                             {

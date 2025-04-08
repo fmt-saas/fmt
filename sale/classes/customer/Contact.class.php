@@ -52,14 +52,4 @@ class Contact extends \identity\Contact {
         ];
     }
 
-    public static function onafterupdate($self, $values) {
-        parent::onafterupdate($self, $values);
-
-        $self->read(['partner_identity_id' => ['id', 'customer_contact_id']]);
-        foreach($self as $id => $contact) {
-            if(is_null($contact['partner_identity_id']['customer_contact_id'])) {
-                Identity::id($contact['partner_identity_id']['id'])->update(['customer_contact_id' => $id]);
-            }
-        }
-    }
 }

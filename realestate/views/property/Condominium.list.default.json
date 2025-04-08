@@ -1,0 +1,61 @@
+{
+    "name": "Condominium",
+    "description": "This view is intended for displaying the list of properties.",
+    "actions": [
+        {
+            "id": "action.generate_sequences",
+            "label": "Generate sequences",
+            "icon": "play_arrow",
+            "description": "Generate mandatory sequences.",
+            "controller": "core_model_perform",
+            "params": {
+                "entity": "realestate\\property\\Condominium",
+                "action": "generate_sequences",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.open_fiscal_year",
+            "label": "Open fiscal Year",
+            "icon": "event_available",
+            "description": "Open the fiscal year. This action cannot be undone.",
+            "controller": "core_model_perform",
+            "params": {
+                "entity": "realestate\\property\\Condominium",
+                "action": "open_fiscal_year",
+                "ids": []
+            },
+            "confirm": true
+        }
+    ],
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "code",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "address_street",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "address_city",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "registration_number",
+                "width": "20%"
+            }
+        ]
+    }
+}

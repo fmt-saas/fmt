@@ -39,7 +39,7 @@
             {
                 "type": "field",
                 "label": "Identity",
-                "value": "partner_identity_id",
+                "value": "identity_id",
                 "width": "20%",
                 "sortable": true
             },

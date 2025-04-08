@@ -37,6 +37,16 @@
             },
             {
                 "type": "field",
+                "value": "status",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "is_balanced",
+                "width": "15%"
+            },
+            {
+                "type": "field",
                 "value": "debit",
                 "width": "15%"
             },

@@ -1,9 +1,6 @@
 {
     "name": "Property List",
     "description": "This view is intended for displaying the list of properties.",
-    "access": {
-        "groups": ["order.default.users"]
-     },
     "layout": {
         "items": [
             {

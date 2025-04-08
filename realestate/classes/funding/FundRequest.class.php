@@ -9,7 +9,6 @@ namespace realestate\funding;
 
 use realestate\ownership\Ownership;
 use realestate\property\PropertyLotApportionmentShare;
-use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use realestate\property\Condominium;
 

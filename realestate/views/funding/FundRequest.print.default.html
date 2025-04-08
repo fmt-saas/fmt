@@ -17,13 +17,7 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 
     <title>
-        <!--
-        {% if item.invoice_type == 'invoice' %}
-            {{ labels.invoice }}
-        {% else %}
-            {{ labels.credit_note }}
-        {% endif %}
-        -->
+        Document d'appels de fonds
     </title>
 
     <style type="text/css">
@@ -156,9 +150,12 @@
             border: solid 2px black;
         }
 
+        /*
         main .fiscalYear-lines table {
-            /* border-collapse: collapse; */
+            // #memo - if collapsed then horizontal lines strike through vertical ones
+            // border-collapse: collapse;
         }
+        */
 
         main .fiscalYear-lines table.inner thead tr th {
             border-top: 1px solid black;

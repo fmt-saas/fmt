@@ -193,8 +193,8 @@ class Order extends Model {
         $result = [];
 
         if(isset($event['customer_id'])) {
-            $customer = Customer::id($event['customer_id'])->read(['partner_identity_id' => ['id', 'name']])->first(true);
-            $result['customer_identity_id'] = $customer['partner_identity_id'];
+            $customer = Customer::id($event['customer_id'])->read(['identity_id' => ['id', 'name']])->first(true);
+            $result['customer_identity_id'] = $customer['identity_id'];
         }
 
         if(isset($event['status']) && ($event['status'] == 'confirmed')) {
@@ -208,13 +208,13 @@ class Order extends Model {
         $result = [];
         $self->read(['id','modified', 'customer_id', 'customer_identity_id']);
         foreach($self as $id => $order) {
-            $customer = Customer::id($order['customer_id'])->read(['partner_identity_id' => ['id', 'name']])->first(true);
+            $customer = Customer::id($order['customer_id'])->read(['identity_id' => ['id', 'name']])->first(true);
             $increment = 1 ;
             $orders = Order::search([['customer_id','=', $order['customer_id']]])->ids();
             if($orders){
                 $increment = count($orders);
             }
-            $result[$id] = sprintf("%s-%08d-%02d", date("ymd", $order['modified']), $customer['partner_identity_id']['id'], $increment);
+            $result[$id] = sprintf("%s-%08d-%02d", date("ymd", $order['modified']), $customer['identity_id']['id'], $increment);
 
         }
         return $result;

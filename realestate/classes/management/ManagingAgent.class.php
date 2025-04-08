@@ -42,4 +42,11 @@ class ManagingAgent extends \identity\Organisation {
         ];
     }
 
+    public static function onupdateIdentityId($self) {
+        $self->read(['identity_id']);
+        foreach($self as $id => $managingAgent) {
+            Identity::id($managingAgent['identity_id'])->update(['managing_agent_id' => $id]);
+        }
+    }
+
 }

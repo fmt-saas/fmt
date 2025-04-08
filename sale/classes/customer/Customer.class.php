@@ -8,7 +8,7 @@ namespace sale\customer;
 
 use identity\Identity;
 
-class Customer extends \identity\Partner {
+class Customer extends \identity\Identity {
 
     public function getTable() {
         return 'sale_customer_customer';
@@ -25,6 +25,14 @@ class Customer extends \identity\Partner {
     public static function getColumns() {
 
         return [
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "The name of the Owner.",
+                'relation'          => ['identity_id' => 'name'],
+                'store'             => true,
+                'readonly'          => true
+            ],
 
             'rate_class_id' => [
                 'type'              => 'many2one',
@@ -131,6 +139,14 @@ class Customer extends \identity\Partner {
         ];
     }
 
+
+    public static function onupdateIdentityId($self) {
+        $self->read(['identity_id']);
+        foreach($self as $id => $customer) {
+            Identity::id($customer['identity_id'])->update(['contact_id' => $id]);
+        }
+    }
+
     public static function onupdateCustomerNatureId($self) {
         $self->read(['customer_nature_id' => ['rate_class_id', 'customer_type_id']]);
         foreach($self as $id => $customer) {
@@ -161,20 +177,8 @@ class Customer extends \identity\Partner {
         }
     }
 
-    public static function onafterupdate($self, $values) {
-        // this must be done after general sync (which creates an Identity if necessary, and prevents updating the `customer_id` of the target Identity)
-        parent::onafterupdate($self, $values);
-
-        $self->read(['partner_identity_id' => ['id', 'customer_id']]);
-        foreach($self as $id => $customer) {
-            if($customer['partner_identity_id']['customer_id'] != $id) {
-                Identity::id($customer['partner_identity_id']['id'])->update(['customer_id' => $id]);
-            }
-        }
-    }
-
-    public static function onchange($self, $event, $values) {
-        $result = parent::onchange($self, $event, $values);
+    public static function onchange($self, $event, $values, $lang) {
+        $result = parent::onchange($self, $event, $values, $lang);
         if(isset($event['type_id'])) {
             $result['customer_type_id'] = CustomerType::id($event['type_id'])->read(['id', 'name'])->first(true);
         }

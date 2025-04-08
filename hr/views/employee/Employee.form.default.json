@@ -21,7 +21,7 @@
                     {
                         "type": "field",
                         "label": "Identity of Employee",
-                        "value": "partner_identity_id",
+                        "value": "identity_id",
                         "width": "100%"
                     }
                 ]

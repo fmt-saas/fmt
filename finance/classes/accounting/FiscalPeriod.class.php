@@ -36,7 +36,8 @@ class FiscalPeriod extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "The organisation the chart belongs to.",
-                'required'          => true
+                'required'          => true,
+                'ondelete'          => 'cascade'
             ],
 
             'name' => [

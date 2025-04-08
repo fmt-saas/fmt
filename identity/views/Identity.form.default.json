@@ -73,6 +73,11 @@
                                                 "type": "field",
                                                 "value": "organisation_id",
                                                 "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "identity_id",
+                                                "visible": false
                                             }
                                         ]
                                     }
@@ -198,15 +203,17 @@
                                                 "type": "field",
                                                 "label": "User",
                                                 "value": "user_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": ["identity_id", "=", null]
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Employee",
                                                 "value": "employee_id",
                                                 "width": "100%",
+                                                "visible": ["identity_id", "=", null],
                                                 "widget": {
-                                                    "domain": [ ["partner_identity_id", "=", "object.id"] ]
+                                                    "domain": [ ["identity_id", "=", "object.id"] ]
                                                 }
                                             },
                                             {
@@ -214,8 +221,9 @@
                                                 "label": "Customer",
                                                 "value": "customer_id",
                                                 "width": "100%",
+                                                "visible": ["identity_id", "=", null],
                                                 "widget": {
-                                                    "domain": [ ["partner_identity_id", "=", "object.id"] ]
+                                                    "domain": [ ["identity_id", "=", "object.id"] ]
                                                 }
                                             },
                                             {
@@ -223,8 +231,9 @@
                                                 "label": "Supplier",
                                                 "value": "supplier_id",
                                                 "width": "100%",
+                                                "visible": ["identity_id", "=", null],
                                                 "widget": {
-                                                    "domain": [ ["partner_identity_id", "=", "object.id"] ]
+                                                    "domain": [ ["identity_id", "=", "object.id"] ]
                                                 }
                                             },
                                             {
@@ -232,8 +241,9 @@
                                                 "label": "Contact",
                                                 "value": "contact_id",
                                                 "width": "100%",
+                                                "visible": ["identity_id", "=", null],
                                                 "widget": {
-                                                    "domain": [ ["partner_identity_id", "=", "object.id"] ]
+                                                    "domain": [ ["identity_id", "=", "object.id"] ]
                                                 }
                                             },
                                             {
@@ -241,6 +251,7 @@
                                                 "label": "Managing Agent",
                                                 "value": "managing_agent_id",
                                                 "width": "100%",
+                                                "visible": ["identity_id", "=", null],
                                                 "widget": {
                                                     "domain": [ ["identity_id", "=", "object.id"] ]
                                                 }

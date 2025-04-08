@@ -30,7 +30,7 @@
                         "icon": "list",
                         "description": "Show all purchase invoices.",
                         "context": {
-                            "entity": "finance\\accounting\\Invoice",
+                            "entity": "finance\\accounting\\invoice\\Invoice",
                             "view": "list.default"
                         }
                     }

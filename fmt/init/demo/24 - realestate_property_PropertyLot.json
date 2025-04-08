@@ -156,7 +156,8 @@
                 "has_grouped_statements": false
             }
         ]
-    }
+    },
+    {
         "name": "realestate\\property\\PropertyLot",
         "lang": "en",
         "data": [

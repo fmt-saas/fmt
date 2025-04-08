@@ -29,7 +29,7 @@
                                                 "label": "Facture",
                                                 "description": "",
                                                 "width": "50%",
-                                                "entity": "finance\\accounting\\Invoice",
+                                                "entity": "finance\\accounting\\invoice\\Invoice",
                                                 "view": "list.dashboard",
                                                 "domain": ["status", "=", "reconciled"]
                                             }
@@ -49,7 +49,7 @@
                                                 "label": "Total facturé",
                                                 "description": "",
                                                 "width": "50%",
-                                                "entity":"finance\\accounting\\Invoice",
+                                                "entity":"finance\\accounting\\invoice\\Invoice",
                                                 "view": "chart.invoicedTotal"
                                             },
                                             {
@@ -57,7 +57,7 @@
                                                 "label": "Total notes de crédit",
                                                 "description": "",
                                                 "width": "50%",
-                                                "entity": "finance\\accounting\\Invoice",
+                                                "entity": "finance\\accounting\\invoice\\Invoice",
                                                 "view": "chart.creditNote"
                                             }
                                         ]

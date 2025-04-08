@@ -539,33 +539,38 @@ class FiscalYear extends Model {
 
     /**
      * Upon creation of a fiscal year, it is necessary to create sequences for:
-     * - the sale invoices:             sale.accounting.invoice.sequence.{fiscal_year_code} [condo_id]
-     * - the purchase invoices:         purchase.accounting.invoice.period_sequence.{fiscal_year_code} [condo_id]
-     * - the accounting entries:        finance.accounting.accounting_entry.sequence.{fiscal_year_code}.{journal_code} [condo_id]
+     * - the sale invoices:             sale.accounting.invoice.sequence.{fiscal_year_code}                             [condo_id]
+     * - the purchase invoices:         purchase.accounting.invoice.period_sequence.{fiscal_year_code}                  [condo_id]
+     * - the accounting entries:        finance.accounting.accounting_entry.sequence.{fiscal_year_code}.{journal_code}  [condo_id]
      */
     public static function doGenerateSequences($self) {
         $self->read(['condo_id', 'code', 'fiscal_periods_ids' => ['order']]);
         foreach($self as $id => $fiscalYear) {
             $fiscal_year_code = $fiscalYear['code'];
 
-            // init mandatory sequence for sale invoices
-            Setting::assert_sequence('sale', 'accounting', "invoice.sequence.{$fiscal_year_code}");
-            Setting::init_sequence('sale', 'accounting', "invoice.sequence.{$fiscal_year_code}", ['condo_id' => $fiscalYear['condo_id']]);
+            $journals = Journal::search([['code', '<>', 'LEDG'], ['condo_id', '=', $fiscalYear['condo_id']]])->read(['code']);
 
-            // init mandatory sequence for purchase invoices
+            // init mandatory sequences
             foreach($fiscalYear['fiscal_periods_ids'] as $period_id => $fiscalPeriod) {
                 $fiscal_period_code = $fiscalPeriod['order'];
+
+                // sale invoices
+                Setting::assert_sequence('sale', 'accounting', "invoice.sequence.{$fiscal_year_code}.{$fiscal_period_code}");
+                Setting::init_sequence('sale', 'accounting', "invoice.sequence.{$fiscal_year_code}.{$fiscal_period_code}", ['condo_id' => $fiscalYear['condo_id']]);
+
+                // purchase invoices
                 Setting::assert_sequence('purchase', 'accounting', "invoice.period_sequence.{$fiscal_year_code}.{$fiscal_period_code}");
                 Setting::init_sequence('purchase', 'accounting', "invoice.period_sequence.{$fiscal_year_code}.{$fiscal_period_code}", ['condo_id' => $fiscalYear['condo_id']]);
+
+                // create accounting entries sequences for all existing journals
+                foreach($journals as $journal) {
+                    $journal_code = $journal['code'];
+                    Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}");
+                    Setting::init_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}", ['condo_id' => $fiscalYear['condo_id']]);
+                }
+
             }
 
-            // create accounting entries sequences for all existing journals
-            $journals = Journal::search([['code', '<>', 'LEDG'], ['condo_id', '=', $fiscalYear['condo_id']]])->read(['code']);
-            foreach($journals as $journal) {
-                $journal_code = $journal['code'];
-                Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}");
-                Setting::init_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}", ['condo_id' => $fiscalYear['condo_id']]);
-            }
         }
     }
 

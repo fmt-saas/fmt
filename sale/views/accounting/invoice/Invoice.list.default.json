@@ -17,7 +17,7 @@
         }
     },
     "extends": {
-        "entity": "finance\\accounting\\Invoice",
+        "entity": "finance\\accounting\\invoice\\Invoice",
         "view": "list.default"
     },
     "operations": {
@@ -34,9 +34,6 @@
     },
     "limit": 100,
     "layout": {
-        "remove": [
-            "item.invoice_purpose"
-        ],
         "update": {
             "item.name": {
                 "after": [

@@ -30,7 +30,8 @@ class Ownership extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                // 'required'          => true
+                // 'required'          => true,
+                'dependents'        => ['name']
             ],
 
             'ownership_code' => [
@@ -116,13 +117,15 @@ class Ownership extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "Person that represents the ownership.",
                 'foreign_object'    => 'identity\Identity',
-                'visible'           => ['has_representative', '=', true]
+                'visible'           => ['has_representative', '=', true],
+                'dependents'        => ['name']
             ],
 
             'has_representative' => [
                 'type'              => 'boolean',
                 'description'       => "Flag indicating if the ownership has a representative.",
-                'default'           => false
+                'default'           => false,
+                'dependents'        => ['name']
             ],
 
             'fundings_ids' => [
@@ -152,13 +155,15 @@ class Ownership extends \equal\orm\Model {
             if(!$ownership['ownership_code']) {
                 continue;
             }
-            if($ownership['has_representative'] && $ownership['representative_identity_id']) {
-                $result[$id] = $ownership['representative_identity_id'];
+            if($ownership['has_representative'] && $ownership['representative_identity_id'] && $ownership['representative_identity_id']['name']) {
+                $result[$id] = $ownership['representative_identity_id']['name'];
             }
             else {
                 $names = [];
                 foreach($ownership['owners_ids'] as $owner_id => $owner) {
-                    $names[] = $owner['name'];
+                    if($owner['name'] && strlen($owner['name'])) {
+                        $names[] = $owner['name'];
+                    }
                 }
                 $name = implode(', ', $names);
                 if(strlen($name) > 128) {
@@ -211,24 +216,32 @@ class Ownership extends \equal\orm\Model {
 
             foreach($operation_assignments as $operation_assignment) {
                 // find the account based on operation_assignment to use it as "template"
-                $account = Account::search([
+                $assignmentAccount = Account::search([
                         ['condo_id', '=', $ownership['condo_id']],
                         ['operation_assignment', '=', $operation_assignment]
                     ])
                     ->read(['code', 'account_category', 'account_chart_id'])
                     ->first();
 
-                Account::create([
-                        'code'                  => $account['code'] . $ownership['ownership_code'],
-                        'condo_id'              => $ownership['condo_id'],
-                        'parent_account_id'     => $account['id'],
-                        'account_chart_id'      => $account['account_chart_id'],
-                        'account_category'      => $account['account_category'],
-                        'description'           => $ownership['name'],
-                        // make sure the account will not be used as template
-                        'operation_assignment'  => ''
-                    ])
-                    ->read(['name']);
+                if(!$assignmentAccount) {
+                    throw new \Exception("missing_mandatory_account", EQ_ERROR_INVALID_CONFIG);
+                }
+
+                $account_exists = (bool) count(Account::search([['condo_id', '=', $ownership['condo_id']], ['code', '=', $assignmentAccount['code'] . $ownership['ownership_code']]])->ids());
+
+                if(!$account_exists) {
+                    Account::create([
+                            'code'                  => $assignmentAccount['code'] . $ownership['ownership_code'],
+                            'condo_id'              => $ownership['condo_id'],
+                            'parent_account_id'     => $assignmentAccount['id'],
+                            'account_chart_id'      => $assignmentAccount['account_chart_id'],
+                            'account_category'      => $assignmentAccount['account_category'],
+                            'description'           => $ownership['name'],
+                            // make sure the account will not be used as template
+                            'operation_assignment'  => ''
+                        ])
+                        ->read(['name']);
+                }
             }
 
         }

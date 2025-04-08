@@ -112,12 +112,37 @@
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
+        },
+        {
+            "id": "suppliers",
+            "type": "entry",
+            "label": "Suppliers",
+            "icon": "storefront",
+            "description": "",
+            "context": {
+                "entity": "purchase\\supplier\\Suppliership",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "purchase_invoices",
+            "type": "entry",
+            "label": "Purchase Invoices",
+            "icon": "receipt_long",
+            "description": "",
+            "context": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
         }
     ],
     "actions": [
         {
             "id": "action.generate_sequences",
             "label": "Generate sequences",
+            "icon": "play_arrow",
             "description": "Generate mandatory sequences.",
             "controller": "core_model_perform",
             "params": {
@@ -130,6 +155,7 @@
         {
             "id": "action.open_fiscal_year",
             "label": "Open fiscal Year",
+            "icon": "event_available",
             "description": "Open the fiscal year. This action cannot be undone.",
             "controller": "core_model_perform",
             "params": {
@@ -142,6 +168,7 @@
         {
             "id": "action.create_fiscal_year",
             "label": "Create draft fiscal Year",
+            "icon": "edit_calendar",
             "description": "Create a new fiscal year draft. This will overwrite any existing fiscal year draft.",
             "controller": "core_model_perform",
             "params": {

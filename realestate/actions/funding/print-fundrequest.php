@@ -380,12 +380,26 @@ try {
     $options = new DompdfOptions();
     $options->set('isRemoteEnabled', true);
     $dompdf = new Dompdf($options);
-
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->loadHtml((string) $html);
     $dompdf->render();
-
     $canvas = $dompdf->getCanvas();
+
+    /*
+    // Pour forcer un nombre de pages pair
+    $page_count = $canvas()->get_page_count();
+
+    // Si impair, on ajoute une page blanche
+    if ($page_count % 2 !== 0) {
+        $blank_page_html = '<div style="page-break-before: always;"></div>';
+        $html .= $blank_page_html;
+
+        $dompdf->loadHtml($html);
+        $dompdf->render();
+        $canvas = $dompdf->getCanvas();
+    }
+    */
+
     $font = $dompdf->getFontMetrics()->getFont("helvetica", "regular");
     $canvas->page_text(530, $canvas->get_height() - 35, "p. {PAGE_NUM} / {PAGE_COUNT}", $font, 9, array(0,0,0));
     // $canvas->page_text(40, $canvas->get_height() - 35, "Export", $font, 9, array(0,0,0));

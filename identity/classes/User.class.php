@@ -16,11 +16,21 @@ class User extends \core\User {
     public static function getColumns() {
         return [
 
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "The name of the User.",
+                'relation'          => ['identity_id' => 'name'],
+                'store'             => true,
+                'readonly'          => true
+            ],
+
             'identity_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Identity',
                 'domain'            => ['type', '=', 'IN'],
-                'description'       => 'The contact related to the user.',
+                'description'       => 'The identity related to the user.',
+                'onupdate'          => 'onupdateIdentityId',
                 'dependencies'      => ['name']
             ],
 
@@ -55,13 +65,11 @@ class User extends \core\User {
         ];
     }
 
-    public static function onafterupdate($self, $values) {
-        parent::onafterupdate($self, $values);
-
-        $self->read(['identity_id' => ['id', 'user_id']]);
+    public static function onupdateIdentityId($self) {
+        $self->read(['identity_id']);
         foreach($self as $id => $user) {
             if(isset($user['identity_id']['id']) && is_null($user['identity_id']['user_id'])) {
-                Identity::id($user['identity_id']['id'])->update(['user_id' => $id]);
+                Identity::id($user['identity_id'])->update(['user_id' => $id]);
             }
         }
     }

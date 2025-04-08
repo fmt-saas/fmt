@@ -7,9 +7,8 @@
 namespace purchase\supplier;
 
 use identity\Identity;
-use identity\Partner;
 
-class Supplier extends Partner {
+class Supplier extends Identity {
 
     public function getTable() {
         return 'purchase_supplier_supplier';
@@ -26,30 +25,13 @@ class Supplier extends Partner {
     public static function getColumns() {
 
         return [
-
-            /**
-             * Override Partner columns
-             */
-
-            'relationship' => [
-                'type'              => 'string',
-                'default'           => 'supplier',
-                'description'       => 'Force relationship to Supplier.'
-            ],
-
-            'type_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'identity\IdentityType',
-                'default'           => 3,
-                'dependencies'      => ['type', 'name'],
-                'description'       => 'Type of identity.',
-                'help'              => 'Default value is Company.'
-            ],
-
-            'has_vat' => [
-                'type'              => 'boolean',
-                'description'       => 'Does the organization have a VAT number?',
-                'default'           => true
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "The name of the Owner.",
+                'relation'          => ['identity_id' => 'name'],
+                'store'             => true,
+                'readonly'          => true
             ],
 
             /**
@@ -63,33 +45,25 @@ class Supplier extends Partner {
                 'description'       => 'Purchase invoices from the supplier.'
             ],
 
-            'address' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'function'          => 'calcAddress',
-                'description'       => 'Main address from related Identity.'
-            ]
+            'condominiums_ids' => [
+                'type'              => 'many2many',
+                'description'       => "Condominiums that have (or had) the supplier amongst their service providers.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'foreign_field'     => 'suppliers_ids',
+                'rel_table'         => 'purchase_supplier_suppliership',
+                'rel_foreign_key'   => 'condo_id',
+                'rel_local_key'     => 'supplier_id'
+            ],
 
         ];
     }
 
-    public static function onafterupdate($self, $values) {
-        parent::onafterupdate($self, $values);
-
-        $self->read(['partner_identity_id' => ['id', 'supplier_id']]);
+    public static function onupdateIdentityId($self) {
+        $self->read(['identity_id']);
         foreach($self as $id => $supplier) {
-            if(is_null($supplier['partner_identity_id']['supplier_id'])) {
-                Identity::id($supplier['partner_identity_id']['id'])->update(['supplier_id' => $id]);
-            }
+            Identity::id($supplier['identity_id'])->update(['supplier_id' => $id]);
         }
     }
 
-    public static function calcAddress($self) {
-        $result = [];
-        $self->read(['address_street', 'address_city']);
-        foreach($self as $id => $supplier) {
-            $result[$id] = "{$supplier['address_street']} {$supplier['address_city']}";
-        }
-        return $result;
-    }
+
 }

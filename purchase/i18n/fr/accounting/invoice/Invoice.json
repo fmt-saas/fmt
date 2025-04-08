@@ -12,15 +12,6 @@
             "label": "Fournisseur",
             "description": "Fournisseur émetteur de la facture.",
             "help": ""
-        },
-        "invoice_purpose": {
-            "label": "Objet",
-            "description": "Objet de la facture (achat).",
-            "selection": {
-                "sell": "vente",
-                "buy": "achat"
-            },
-            "help": ""
         }
     },
     "view": {

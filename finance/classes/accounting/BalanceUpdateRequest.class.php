@@ -11,7 +11,7 @@ use equal\orm\Model;
 class BalanceUpdateRequest extends Model {
 
     public static function getDescription() {
-        return "Balance update requests are used to handle balances updates in a way that guarantees atomicity for concurrent changes.";
+        return "Balance update requests are used to handle current balance updates in a way that guarantees atomicity for concurrent changes.";
     }
 
     public static function getColumns() {

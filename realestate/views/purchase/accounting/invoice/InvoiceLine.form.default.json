@@ -1,0 +1,120 @@
+{
+    "name": "Invoice Line",
+    "description": "Invoice lines describe the products and quantities that are part of an invoice.",
+    "header": {
+        "actions": {
+            "ACTION.EDIT": true
+        }
+    },
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "is_private_expense",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "expense_account_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "owner_share",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "tenant_share",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "apportionment_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ownership_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "property_lot_id",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "total",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "vat_rate",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "price",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Invoice",
+                                                "value": "invoice_id",
+                                                "width": "25%",
+                                                "readonly": true,
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Condominium",
+                                                "value": "condo_id",
+                                                "width": "25%",
+                                                "readonly": true,
+                                                "visible": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

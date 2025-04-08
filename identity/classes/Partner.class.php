@@ -24,7 +24,7 @@ class Partner extends Model {
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'relation'          => ['partner_identity_id' => 'name'],
+                'relation'          => ['identity_id' => 'name'],
                 'store'             => true,
                 'instant'           => true,
                 'description'       => 'The display name of the partner (related organisation name).',
@@ -52,7 +52,7 @@ class Partner extends Model {
                 'default'           => 1
             ],
 
-            'partner_identity_id' => [
+            'identity_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Identity',
                 'dependents'        => ['name'],
@@ -247,14 +247,14 @@ class Partner extends Model {
      * Upon creation of the Partner, copy fields values from the identity.
      */
     public static function oncreate($self, $values) {
-        if(isset($values['partner_identity_id'])) {
+        if(isset($values['identity_id'])) {
             $fields = [
                     'type_id','has_vat','vat_number','legal_name','firstname','lastname','lang_id',
                     'email','phone','mobile','fax',
                     'address_street','address_dispatch','address_zip',
                     'address_city','address_state','address_country'
                 ];
-            $identity = Identity::id($values['partner_identity_id'])
+            $identity = Identity::id($values['identity_id'])
                 ->read($fields)
                 ->first();
             $map_fields = [];
@@ -268,7 +268,7 @@ class Partner extends Model {
     }
 
     /**
-     * Upon update of the Partner, update related identity or create one if partner_identity_id is not set.
+     * Upon update of the Partner, update related identity or create one if identity_id is not set.
      */
     public static function onafterupdate($self, $values) {
         $common_fields = [
@@ -278,13 +278,13 @@ class Partner extends Model {
                 'address_city','address_state','address_country'
             ];
 
-        $self->read(array_merge($common_fields, ['partner_identity_id', 'state']));
+        $self->read(array_merge($common_fields, ['identity_id', 'state']));
 
         foreach($self as $id => $partner) {
             if($partner['state'] == 'draft') {
                 continue;
             }
-            if(is_null($partner['partner_identity_id'])) {
+            if(is_null($partner['identity_id'])) {
                 $map_fields = [];
                 foreach($common_fields as $field) {
                     $map_fields[$field] = $partner[$field];
@@ -294,13 +294,13 @@ class Partner extends Model {
                     ->read(['id'])
                     ->first();
 
-                self::id($id)->update(['partner_identity_id' => $identity['id']]);
+                self::id($id)->update(['identity_id' => $identity['id']]);
             }
             else {
-                $identity = Identity::id($partner['partner_identity_id'])->read($common_fields)->first();
+                $identity = Identity::id($partner['identity_id'])->read($common_fields)->first();
                 foreach($common_fields as $field) {
                     if(isset($values[$field]) && $values[$field] !== $identity[$field]) {
-                        Identity::id($partner['partner_identity_id'])->update([$field => $values[$field]]);
+                        Identity::id($partner['identity_id'])->update([$field => $values[$field]]);
                     }
                 }
             }

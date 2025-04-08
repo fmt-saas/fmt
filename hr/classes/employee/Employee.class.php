@@ -10,7 +10,7 @@ namespace hr\employee;
 use identity\Identity;
 use identity\Partner;
 
-class Employee extends Partner {
+class Employee extends Identity {
 
     public function getTable() {
         return 'hr_employee_employee';
@@ -27,6 +27,15 @@ class Employee extends Partner {
     public static function getColumns() {
 
         return [
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "The name of the Owner.",
+                'relation'          => ['identity_id' => 'name'],
+                'store'             => true,
+                'readonly'          => true
+            ],
+
             'code' => [
                 'type'              => 'string',
                 'description'       => 'Mnemo code assigned to the employee.',
@@ -87,10 +96,11 @@ class Employee extends Partner {
         ];
     }
 
-    public function getUnique() {
-        return [
-            ['owner_identity_id', 'partner_identity_id', 'role_id']
-        ];
+    public static function onupdateIdentityId($self) {
+        $self->read(['identity_id']);
+        foreach($self as $id => $employee) {
+            Identity::id($employee['identity_id'])->update(['contact_id' => $id]);
+        }
     }
 
     public static function calcRoleId($self) {
@@ -104,17 +114,6 @@ class Employee extends Partner {
             }
         }
         return $result;
-    }
-
-    public static function onafterupdate($self, $values) {
-        parent::onafterupdate($self, $values);
-
-        $self->read(['partner_identity_id' => ['id', 'employee_id']]);
-        foreach($self as $id => $employee) {
-            if(isset($employee['partner_identity_id']['id']) && is_null($employee['partner_identity_id']['employee_id'])) {
-                Identity::id($employee['partner_identity_id']['id'])->update(['employee_id' => $id]);
-            }
-        }
     }
 
 }

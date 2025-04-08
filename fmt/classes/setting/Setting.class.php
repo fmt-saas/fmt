@@ -35,6 +35,57 @@ class Setting extends \core\setting\Setting {
         ];
     }
 
+    public static function assert(string $package, string $section, string $code, $default=null, array $selector=[], string $lang=null) {
+        $lang = $lang ?? constant('DEFAULT_LANG');
+
+        $value = self::get($package, $section, $code, null, $selector, $lang);
+
+        if($value !== null) {
+            return;
+        }
+
+        // Inject ORM
+        $providers = \eQual::inject(['orm']);
+        /** @var \equal\orm\ObjectManager */
+        $om = $providers['orm'];
+
+        // attempt to retrieve the setting
+        $settings_ids = $om->search(self::getType(), [
+                ['package', '=', $package],
+                ['section', '=', $section],
+                ['code', '=', $code]
+            ]);
+
+        if(!is_array($settings_ids)) {
+            return;
+        }
+
+        // create new setting
+        if(!is_null($default) && count($settings_ids) == 0 ) {
+            $setting_id = $om->create(self::getType(), [
+                    'package'       => $package,
+                    'section'       => $section,
+                    'code'          => $code,
+                    'type'          => gettype($default),
+                    'is_multilang'  => ($lang != constant('DEFAULT_LANG')),
+                ]);
+
+            if($setting_id) {
+                $values = ['setting_id' => $setting_id, 'value' => $default];
+                foreach($selector as $field => $value) {
+                    $values[$field] = $value;
+                }
+
+                // create new setting value
+                $om->create(SettingValue::getType(), $values);
+
+                // store in cache
+                $index = $package.'.'.$section.'.'.$code.'.'.implode('.', array_values($selector)).'.'.($lang ?? constant('DEFAULT_LANG'));
+                $GLOBALS['_equal_core_setting_cache'][$index] = $default;
+            }
+        }
+    }
+
     /**
      * Make sure a sequence setting exists, and create it if necessary.
      *

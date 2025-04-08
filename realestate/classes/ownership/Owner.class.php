@@ -7,7 +7,14 @@
 */
 namespace realestate\ownership;
 
-class Owner extends \equal\orm\Model {
+use identity\Identity;
+
+class Owner extends Identity {
+
+    public function getTable() {
+        // force table name to use distinct tables and ID columns
+        return 'realestate_ownership_owner';
+    }
 
     public static function getColumns() {
 
@@ -65,14 +72,6 @@ class Owner extends \equal\orm\Model {
                 ],
                 'description'       => "Type of ownership that applies to the owner.",
                 'default'           => 'full'
-            ],
-
-            'identity_id' => [
-                'type'              => 'many2one',
-                'description'       => "The identity of the owner.",
-                'foreign_object'    => 'identity\Identity',
-                // 'required'          => true,
-                'dependents'        => ['name']
             ]
 
         ];
@@ -85,6 +84,13 @@ class Owner extends \equal\orm\Model {
             $result[$id] = round($owner['ownership_id']['total_shares'] / $owner['owner_shares'], 2);
         }
         return $result;
+    }
+
+    public static function onupdateIdentityId($self) {
+        $self->read(['identity_id']);
+        foreach($self as $id => $owner) {
+            Identity::id($owner['identity_id'])->update(['owner_id' => $id]);
+        }
     }
 
 }

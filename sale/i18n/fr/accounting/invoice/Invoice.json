@@ -13,15 +13,6 @@
             "description": "Organisation responsable de payer la facture.",
             "help": "Client ou organisation responsable de payer les biens et services liés à la vente."
         },
-        "invoice_purpose": {
-            "label": "Objet",
-            "description": "Objet de la facture (vente).",
-            "selection": {
-                "sell": "vente",
-                "buy": "achat"
-            },
-            "help": ""
-        },
         "funding_id": {
             "label": "Financement",
             "description": "Financement associé à la facture.",
@@ -52,7 +43,7 @@
                 "action.cancel": {
                     "label": "Annuler"
                 },
-                "action.cancel-proforma": {
+                "action.remove": {
                     "label": "Supprimer"
                 }
             },

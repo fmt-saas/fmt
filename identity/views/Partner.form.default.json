@@ -223,7 +223,7 @@
                                             {
                                                 "type": "field",
                                                 "label": "Identity of Customer",
-                                                "value": "partner_identity_id",
+                                                "value": "identity_id",
                                                 "width": "50%"
                                             },
                                             {

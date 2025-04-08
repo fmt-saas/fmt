@@ -1,0 +1,28 @@
+{
+    "name": "Supplier",
+    "description": "A suppliership describes a relation between a supplier and a condominium.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "suppliership_code",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "supplier_id",
+                "width": "20%"
+            }
+        ]
+    }
+}

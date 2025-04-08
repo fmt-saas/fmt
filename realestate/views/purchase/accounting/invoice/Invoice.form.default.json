@@ -1,0 +1,265 @@
+{
+    "name": "Invoice",
+    "description": "An invoice is a legal document issued by a seller to a buyer that relates to a sale, and is part of the accounting system.",
+    "actions": [
+        {
+            "id": "action.invoice",
+            "label": "Validate",
+            "description": "To Invoice.",
+            "controller": "core_model_transition",
+            "visible": [["state", "=", "instance"], ["status", "=", "proforma"]],
+            "params": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
+                "transition": "validate",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.cancel",
+            "label": "Cancel",
+            "description": "Cancel invoice.",
+            "controller": "core_model_transition",
+            "confirm": true,
+            "visible": ["status", "=", "invoice"],
+            "params": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
+                "transition": "cancel",
+                "ids": []
+            }
+        }
+    ],
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "status",
+                                                "visible": false
+                                            },
+                                            {
+                                                "id": "item.invoice_number",
+                                                "type": "field",
+                                                "value": "supplier_invoice_number",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "heading": true
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Supplier",
+                                                "value": "suppliership_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "id": "item.invoice_type",
+                                                "type": "field",
+                                                "value": "invoice_type",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "id": "item.emission_date",
+                                                "type": "field",
+                                                "value": "emission_date",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "id": "item.due_date",
+                                                "type": "field",
+                                                "value": "due_date",
+                                                "width": "33%",
+                                                "visible": ["status", "<>", "cancelled"]
+                                            },
+                                            {
+                                                "id": "item.reversed_invoice_id",
+                                                "type": "field",
+                                                "value": "reversed_invoice_id",
+                                                "width": "33%",
+                                                "visible": ["status", "=", "cancelled"]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Organisation",
+                                                "value": "organisation_id",
+                                                "width": "50%",
+                                                "visible": ["condo_id", "=", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Condominium",
+                                                "value": "condo_id",
+                                                "width": "50%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%",
+                                                "visible": ["condo_id", "=", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "payment_reference",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.invoice_lines",
+                        "label": "Invoice Lines",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Posting over a date range",
+                                                "value": "has_date_range",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "posting_date",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Posting from",
+                                                "value": "date_from",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Posting to",
+                                                "value": "date_to",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Fiscal Year",
+                                                "value": "fiscal_year_id",
+                                                "width": "25%",
+                                                "widget": {
+                                                    "readonly": true
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "id": "item.invoice_lines_ids",
+                                                "type": "field",
+                                                "value": "invoice_lines_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.default",
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.SELECT": true,
+                                                            "ACTION.CREATE": true
+                                                        }
+                                                    },
+                                                    "domain": ["condo_id", "=", "object.condo_id"]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.fund_usage_lines",
+                        "label": "Fund usages",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "has_fund_usage",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "visible": ["has_fund_usage", "=", true],
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "fund_usage_lines_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.accounting_entries",
+                        "label": "Accounting Entries",
+                        "visible": ["status", "=", "invoice"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "accounting_entries_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

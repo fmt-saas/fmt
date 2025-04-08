@@ -99,7 +99,6 @@ class Funding extends \sale\pay\Funding {
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\pay\PaymentDeadline',
                 'description'       => "The deadline model used for creating the funding, if any.",
-                'onupdate'          => 'onupdatePaymentDeadlineId',
                 'default'           => 1
             ],
 

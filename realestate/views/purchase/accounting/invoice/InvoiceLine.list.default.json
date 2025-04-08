@@ -1,0 +1,39 @@
+{
+    "name": "Invoice Lines",
+    "description": "This view is intended for displaying the invoice lines.",
+    "operations": {
+        "total": {
+            "price": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "sort": "asc",
+    "limit": 100,
+    "layout": {
+        "items": [
+            {
+                "id": "item.name",
+                "type": "field",
+                "value": "name",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "vat_rate",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "total",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "price",
+                "width": "15%"
+            }
+        ]
+    }
+}

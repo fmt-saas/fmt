@@ -40,17 +40,17 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "condo_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "code",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "journal_type",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "condo_id",
                                                 "width": "50%"
                                             }
                                         ]

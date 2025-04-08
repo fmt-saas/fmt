@@ -1,0 +1,33 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "100%"
+            },
+            {
+                "type": "field",
+                "value": "fund_account_id",
+                "width": "100%"
+            },
+            {
+                "type": "field",
+                "value": "expense_account_id",
+                "width": "100%"
+            },
+            {
+                "type": "field",
+                "value": "apportionment_id",
+                "width": "100%"
+            },
+            {
+                "type": "field",
+                "value": "amount",
+                "width": "100%"
+            }
+        ]
+    }
+}

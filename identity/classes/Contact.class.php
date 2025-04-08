@@ -7,7 +7,7 @@
 */
 namespace identity;
 
-class Contact extends Partner {
+class Contact extends Identity {
 
     public function getTable() {
         // force table name to use distinct tables and ID columns
@@ -26,32 +26,28 @@ class Contact extends Partner {
 
         return [
 
-            'relationship' => [
-                'type'              => 'string',
-                'default'           => 'contact',
-                'help'              => "The partnership should remain 'contact'."
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "The name of the Owner.",
+                'relation'          => ['identity_id' => 'name'],
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'position' => [
                 'type'              => 'string',
-                'description'       => 'Position of the contact (natural person) within the target organisation (legal person), e.g. \'director\', \'CEO\', \'Regional manager\'.',
-                'visible'           => [ ['relationship', '=', 'contact'] ]
+                'description'       => 'Position of the contact (natural person) within the target organisation (legal person), e.g. \'director\', \'CEO\', \'Regional manager\'.'
             ]
 
         ];
     }
 
-    public static function onafterupdate($self, $values) {
-        parent::onafterupdate($self, $values);
-
-        // If to make sale\customer\Contact work
-        if(get_called_class() === self::class) {
-            $self->read(['partner_identity_id' => ['id', 'contact_id']]);
-            foreach($self as $id => $contact) {
-                if(is_null($contact['partner_identity_id']['contact_id'])) {
-                    Identity::id($contact['partner_identity_id']['id'])->update(['contact_id' => $id]);
-                }
-            }
+    public static function onupdateIdentityId($self) {
+        $self->read(['identity_id']);
+        foreach($self as $id => $contact) {
+            Identity::id($contact['identity_id'])->update(['contact_id' => $id]);
         }
     }
+
 }

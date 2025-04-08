@@ -42,6 +42,14 @@ class Condominium extends \identity\Organisation {
                 'description'       => 'The display name of the Condominium.',
             ],
 
+            'code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcCode',
+                'store'             => true,
+                'description'       => 'The unique code of the Condominium, for global identification.',
+            ],
+
             'managing_agent_id' => [
                 'type'              => 'many2one',
                 'description'       => "The managing agent currently managing the condominium.",
@@ -206,8 +214,17 @@ class Condominium extends \identity\Organisation {
                 'ondetach'          => 'delete',
                 'order'             => 'id',
                 'sort'              => 'asc'
-            ]
+            ],
 
+            'suppliers_ids' => [
+                'type'              => 'many2many',
+                'description'       => "Suppliers with which Condominium has (or had) one or more contracted services.",
+                'foreign_object'    => 'purchase\supplier\Supplier',
+                'foreign_field'     => 'condominiums_ids',
+                'rel_table'         => 'purchase_supplier_suppliership',
+                'rel_foreign_key'   => 'supplier_id',
+                'rel_local_key'     => 'condo_id'
+            ],
         ];
     }
 
@@ -284,16 +301,24 @@ class Condominium extends \identity\Organisation {
         return $result;
     }
 
+    public static function calcCode($self) {
+        $result = [];
+        $self->read(['id']);
+        foreach($self as $id => $condominium) {
+            $result[$id] = str_pad((string) $id, 6, '0', STR_PAD_LEFT);
+        }
+        return $result;
+    }
+
     /**
      * #memo - Condominium is a PRIVATE entity : only MASTER instance can provide an ID. By convention, PRIVATE ID start at 1.000.001.
      */
     public static function calcName($self) {
         $result = [];
-        $self->read(['legal_name']);
+        $self->read(['legal_name', 'code']);
         foreach($self as $id => $condominium) {
             if($condominium['legal_name'] && strlen($condominium['legal_name'])) {
-                $code = str_pad((string) $id, 5, '0', STR_PAD_LEFT);
-                $result[$id] = $code . ' - ' . $condominium['legal_name'];
+                $result[$id] = $condominium['code'] . ' - ' . $condominium['legal_name'];
             }
         }
         return $result;
@@ -425,18 +450,29 @@ class Condominium extends \identity\Organisation {
 
     /**
      * Upon creation of a condominium, it is necessary to create sequences for:
-     * - owners:            realestate.main.ownership.sequence [condo_id]
-     * - lots:              realestate.main.property_lot.sequence [condo_id]
-     * - apportionments:    realestate.main.apportionment.sequence [condo_id]
+     * - owners:            realestate.main.ownership.sequence      [condo_id]
+     * - lots:              realestate.main.property_lot.sequence   [condo_id]
+     * - apportionments:    realestate.main.apportionment.sequence  [condo_id]
+     * - suppliers:         realestate.main.suppliership.sequence   [condo_id]
+     * - purchase invoice:  purchase.accounting.invoice.sequence    [condo_id]
      */
     public static function doGenerateSequences($self) {
+        Setting::assert_sequence('realestate', 'main', 'ownership.sequence');
+        Setting::assert_sequence('realestate', 'main', 'property_lot.sequence');
+        Setting::assert_sequence('realestate', 'main', 'apportionment.sequence');
+        Setting::assert_sequence('realestate', 'main', 'suppliership.sequence');
+        Setting::assert_sequence('purchase', 'accounting', 'invoice.sequence');
+
         foreach($self as $id => $condominium) {
-            Setting::assert_sequence('realestate', 'main', "ownership.sequence");
-            Setting::assert_sequence('realestate', 'main', "property_lot.sequence");
-            Setting::assert_sequence('realestate', 'main', "apportionment.sequence");
-            Setting::init_sequence('realestate', 'main', "ownership.sequence", ['condo_id' => $id]);
-            Setting::init_sequence('realestate', 'main', "property_lot.sequence", ['condo_id' => $id]);
-            Setting::init_sequence('realestate', 'main', "apportionment.sequence", ['condo_id' => $id]);
+            Setting::init_sequence('realestate', 'main', 'ownership.sequence', ['condo_id' => $id]);
+            Setting::init_sequence('realestate', 'main', 'property_lot.sequence', ['condo_id' => $id]);
+            Setting::init_sequence('realestate', 'main', 'apportionment.sequence', ['condo_id' => $id]);
+            Setting::init_sequence('realestate', 'main', 'suppliership.sequence', ['condo_id' => $id]);
+            Setting::init_sequence('sale', 'accounting', 'invoice.sequence', ['condo_id' => $id]);
+            Setting::init_sequence('purchase', 'accounting', 'invoice.sequence', ['condo_id' => $id]);
+            Setting::assert('finance', 'accounting', 'fiscal_year', date('Y'), ['condo_id' => $id]);
+            Setting::assert('sale', 'accounting', 'invoice.sequence_format', '%2d{year}-%05d{sequence}', ['condo_id' => $id]);
+            Setting::assert('purchase', 'accounting', 'invoice.sequence_format', '%2d{year}-%05d{sequence}', ['condo_id' => $id]);
         }
     }
 

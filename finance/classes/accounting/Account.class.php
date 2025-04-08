@@ -85,8 +85,8 @@ class Account extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'selection' => [
-                    'B' => 'Balance Sheet',
-                    'I' => 'Income Statement'
+                    'B' => 'Balance Sheet',         // bilan
+                    'I' => 'Income Statement'       // compte de résultat
                 ],
                 'function'          => 'calcAccountType',
                 'store'             => true
@@ -147,6 +147,7 @@ class Account extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountChart',
                 'description'       => "The chart of accounts the line belongs to.",
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'required'          => true
             ],
 
@@ -204,7 +205,8 @@ class Account extends Model {
             'apportionment_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\Apportionment',
-                'description'       => "Default apportionment to use when creating accounting entries on this account."
+                'description'       => "Default apportionment to use when creating accounting entries on this account.",
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'tenant_share'          => [

@@ -13,7 +13,7 @@
             "description": "L'organisation dont l'identité ciblée est partenaire.",
             "help": ""
         },
-        "partner_identity_id": {
+        "identity_id": {
             "label": "Identité",
             "description": "L'identité associée au fournisseur.",
             "help": ""

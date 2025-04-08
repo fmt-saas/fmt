@@ -31,15 +31,8 @@
                                                 "value": "invoice_number",
                                                 "width": "50%",
                                                 "widget": {
-                                                    "heading": true,
-                                                    "readonly": true
+                                                    "heading": true
                                                 }
-                                            },
-                                            {
-                                                "id": "item.invoice_purpose",
-                                                "type": "field",
-                                                "value": "invoice_purpose",
-                                                "width": "50%"
                                             },
                                             {
                                                 "id": "item.invoice_type",
@@ -75,7 +68,15 @@
                                                 "type": "field",
                                                 "label": "Organisation",
                                                 "value": "organisation_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "visible": ["condo_id", "=", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Condominium",
+                                                "value": "condo_id",
+                                                "width": "50%",
+                                                "visible": ["condo_id", "<>", null]
                                             },
                                             {
                                                 "type": "label",

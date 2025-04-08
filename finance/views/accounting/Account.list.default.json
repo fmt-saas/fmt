@@ -45,12 +45,17 @@
             {
                 "type": "field",
                 "value": "account_type",
-                "width": "20%"
+                "width": "10%"
             },
             {
                 "type": "field",
                 "value": "account_nature",
-                "width": "20%"
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "apportionment_id",
+                "width": "15%"
             },
             {
                 "type": "field",

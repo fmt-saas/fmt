@@ -31,14 +31,12 @@ list($params, $providers) = eQual::announce([
 
         'date_from' => [
             'type'               => 'date',
-            'description'        => "First date of the time interval.",
-            'default'            => strtotime("-20 Years")
+            'description'        => "First date of the time interval."
         ],
 
         'date_to' => [
             'type'              => 'date',
             'description'       => "Last date of the time interval.",
-            'default'           => strtotime("+10 Years")
         ],
 
         'status' => [

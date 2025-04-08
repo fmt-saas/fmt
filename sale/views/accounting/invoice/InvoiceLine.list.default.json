@@ -26,7 +26,7 @@
     "sort": "asc",
     "limit": 500,
     "extends": {
-        "entity": "finance\\accounting\\InvoiceLine",
+        "entity": "finance\\accounting\\invoice\\InvoiceLine",
         "view": "list.default"
     },
     "layout": {

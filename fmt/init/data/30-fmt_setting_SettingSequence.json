@@ -1,0 +1,15 @@
+[
+    {
+        "name": "fmt\\setting\\SettingSequence",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1016,
+                "setting_id": 1016,
+                "name": "sale.accounting.invoice_sequence",
+                "organisation_id": 1,
+                "value": 1
+            }
+        ]
+    }
+]

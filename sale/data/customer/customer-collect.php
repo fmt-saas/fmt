@@ -108,7 +108,7 @@ foreach($columns as $column) {
     }
 
     $identities_ids = Identity::search([$column, 'ilike', '%' . $params[$column] . '%'])->ids();
-    $customers_ids = Customer::search(['partner_identity_id', 'in', $identities_ids])->ids();
+    $customers_ids = Customer::search(['identity_id', 'in', $identities_ids])->ids();
 
     $params['domain'] = Domain::conditionAdd(
         $params['domain'],

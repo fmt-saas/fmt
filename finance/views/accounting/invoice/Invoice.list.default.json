@@ -43,12 +43,6 @@
                 "width": "20%"
             },
             {
-                "id": "item.invoice_purpose",
-                "type": "field",
-                "value": "invoice_purpose",
-                "width": "20%"
-            },
-            {
                 "type": "field",
                 "value": "total",
                 "width": "15%"

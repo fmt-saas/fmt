@@ -30,8 +30,7 @@ class InvoiceLine extends Model {
 
             'name' => [
                 'type'              => 'string',
-                'description'       => 'Default label of the line.',
-                'required'          => true
+                'description'       => 'Default label of the line.'
             ],
 
             'description' => [

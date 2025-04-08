@@ -5,7 +5,7 @@
         "groups": ["purchase.default.users"]
     },
     "extends": {
-        "entity": "finance\\accounting\\InvoiceLine",
+        "entity": "finance\\accounting\\invoice\\InvoiceLine",
         "view": "form.default"
     },
     "layout": {

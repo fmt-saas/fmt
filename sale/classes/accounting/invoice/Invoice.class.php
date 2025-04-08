@@ -7,7 +7,7 @@
 namespace sale\accounting\invoice;
 
 use fmt\setting\Setting;
-use finance\accounting\AccountChartLine;
+use finance\accounting\Account;
 use finance\accounting\AccountingEntry;
 use finance\accounting\Journal;
 use sale\pay\Funding;
@@ -55,13 +55,6 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\pay\Funding',
                 'description'       => 'The funding related to the invoice.'
-            ],
-
-            'invoice_purpose' => [
-                'type'              => 'string',
-                'description'       => 'Is the invoice concerning a sale to a customer or a purchase from a supplier.',
-                'default'           => 'sell',
-                'visible'           => false
             ],
 
             'invoice_number' => [
@@ -145,6 +138,14 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'usage'             => 'amount/money:2',
                 'store'             => true,
                 'description'       => "Final tax-included amount used for display (inverted for credit notes)."
+            ],
+
+            'fiscal_year_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => "Fiscal year the fund request relates to.",
+                'required'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ]
 
         ];
@@ -189,8 +190,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'icon' => 'edit',
                 'transitions' => [
                     'invoice' => [
-                        'description' => 'Update the invoice status based on the `invoice` field.',
-                        'help'        => 'The `invoice` field is set by a dedicated controller that manages invoice approval requests.',
+                        'description' => 'Update the invoice status to `invoice`.',
                         'policies'    => [
                             'can_be_invoiced',
                         ],
@@ -309,45 +309,10 @@ class Invoice extends \finance\accounting\invoice\Invoice {
     }
 
     public static function onbeforeInvoice($self) {
-        $self->read(['organisation_id', 'condo_id']);
-        // generate the accounting entries according to the invoices lines.
-        $self->do('generate_accounting_entries');
-        foreach($self as $id => $invoice) {
-            $format = Setting::get_value(
-                    'sale',
-                    'accounting',
-                    'invoice.sequence_format',
-                    '%2d{year}-%05d{sequence}',
-                    [
-                        'organisation_id'   => $invoice['organisation_id'],
-                        'condo_id'          => $invoice['condo_id']
-                    ]
-                );
-            $year = Setting::get_value('finance', 'accounting', 'fiscal_year', date('Y'), ['organisation_id' => $invoice['organisation_id']]);
-
-            $sequence = Setting::fetch_and_add(
-                    'sale',
-                    'accounting',
-                    'invoice.sequence',
-                    1,
-                    [
-                        'organisation_id'   => $invoice['organisation_id'],
-                        'condo_id'          => $invoice['condo_id']
-                    ]
-                );
-
-
-            if($sequence) {
-                $invoice_number = Setting::parse_format($format, [
-                        'year'      => $year,
-                        'org'       => $invoice['organisation_id'],
-                        'sequence'  => $sequence
-                    ]);
-                self::id($id)->update(['invoice_number' => $invoice_number, 'due_date' => null]);
-            }
-        }
+        $self
+            ->do('generate_accounting_entries')
+            ->do('assign_invoice_number');
     }
-
 
     /**
      * Generate the fundings for a collection of invoices that just transitioned to "invoiced".
@@ -432,6 +397,11 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'description'   => 'Create the funding according to the invoice.',
                 'policies'      => [],
                 'function'      => 'doCreateFunding'
+            ],
+            'assign_invoice_number' => [
+                'description'   => 'Creates accounting entries according to  invoice lines.',
+                'policies'      => [],
+                'function'      => 'doAssignInvoiceNumber'
             ],
             'generate_accounting_entries' => [
                 'description'   => 'Creates accounting entries according to  invoice lines.',
@@ -537,9 +507,9 @@ class Invoice extends \finance\accounting\invoice\Invoice {
 
         foreach($self as $invoice) {
             $funding = Funding::create([
-                    'description'         => 'Sold Invoice',
+                    'description'         => 'Invoice balance',
                     'invoice_id'          => $invoice['id'],
-                    'due_amount'          => round($invoice['price'], 2),
+                    'due_amount'          => $invoice['price'],
                     'is_paid'             => false,
                     'funding_type'        => 'invoice',
                     'payment_reference'   => $invoice['payment_reference'],
@@ -547,7 +517,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 ])
                 ->first();
 
-            Invoice::id($invoice['id'])
+            self::id($invoice['id'])
                 ->update(['funding_id' => $funding['id']]);
         }
     }
@@ -586,6 +556,45 @@ class Invoice extends \finance\accounting\invoice\Invoice {
         }
     }
 
+    public static function doAssignInvoiceNumber($self) {
+        $self->read(['organisation_id', 'condo_id']);
+        foreach($self as $id => $invoice) {
+            $format = Setting::get_value(
+                    'sale',
+                    'accounting',
+                    'invoice.sequence_format',
+                    '%2d{year}-%05d{sequence}',
+                    [
+                        'organisation_id'   => $invoice['organisation_id'],
+                        'condo_id'          => $invoice['condo_id']
+                    ]
+                );
+            $year = Setting::get_value('finance', 'accounting', 'fiscal_year', date('Y'), ['organisation_id' => $invoice['organisation_id']]);
+
+            $sequence = Setting::fetch_and_add(
+                    'sale',
+                    'accounting',
+                    'invoice.sequence',
+                    1,
+                    [
+                        'organisation_id'   => $invoice['organisation_id'],
+                        'condo_id'          => $invoice['condo_id']
+                    ]
+                );
+
+
+            if($sequence) {
+                $invoice_number = Setting::parse_format($format, [
+                        'year'      => $year,
+                        'org'       => $invoice['organisation_id'],
+                        'sequence'  => $sequence
+                    ]);
+                // #memo - due_date is computed based on payment_terms_id
+                self::id($id)->update(['invoice_number' => $invoice_number, 'due_date' => null]);
+            }
+        }
+    }
+
     private static function computeAccountingEntries($invoice_id) {
         $result = [];
 
@@ -595,10 +604,10 @@ class Invoice extends \finance\accounting\invoice\Invoice {
         $account_trade_debtors = Setting::get_value('sale', 'accounting', 'account_trade-debtors', 'not_found');
         // $account_downpayments = Setting::get_value('sale', 'accounting', 'account_downpayment', 'not_found');
 
-        $accountSales = AccountChartLine::search(['code', '=', $account_sales])->read(['id', 'description'])->first();
-        $accountSalesTaxes = AccountChartLine::search(['code', '=', $account_sales_taxes])->read(['id', 'description'])->first();
-        $accountTradeDebtors = AccountChartLine::search(['code', '=', $account_trade_debtors])->read(['id', 'description'])->first();
-        // $accountDownpayments = AccountChartLine::search(['code', '=', $account_downpayments])->first();
+        $accountSales = Account::search(['code', '=', $account_sales])->read(['id', 'description'])->first();
+        $accountSalesTaxes = Account::search(['code', '=', $account_sales_taxes])->read(['id', 'description'])->first();
+        $accountTradeDebtors = Account::search(['code', '=', $account_trade_debtors])->read(['id', 'description'])->first();
+        // $accountDownpayments = Account::search(['code', '=', $account_downpayments])->first();
 
         try {
             if(!$accountSales) {
@@ -693,7 +702,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
 
             // create credit lines on sales & taxes accounts
             foreach($map_accounting_entries as $account_id => $amount) {
-                $account = AccountChartLine::id($account_id)->read(['description'])->first();
+                $account = Account::id($account_id)->read(['description'])->first();
                 $result[] = [
                         'name'          => $account['description'],
                         'has_invoice'   => true,

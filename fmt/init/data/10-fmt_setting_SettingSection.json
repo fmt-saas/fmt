@@ -1,0 +1,25 @@
+[
+	{
+        "name": "core\\setting\\SettingSection",
+        "lang": "en",
+        "data": [
+            {
+                "id": 6,
+                "code": "accounting",
+                "name": "Accounting",
+                "description": "Settings related to accounting & invoicing."
+            }
+       ]
+    },
+    {
+        "name": "core\\setting\\SettingSection",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 6,
+                "name": "Comptabilité",
+                "description": "Paramètres pour la comptabilité et la facturation."
+            }
+       ]
+    }
+]

@@ -36,6 +36,11 @@ class AccountingEntry extends Model {
                 'store'             => true
             ],
 
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Short optional description of the entry.'
+            ],
+
             'journal_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Journal',
@@ -66,7 +71,7 @@ class AccountingEntry extends Model {
                 'type'              => 'date',
                 'usage'             => 'date/plain',
                 'description'       => 'The date on which the transaction is recorded in the accounting system and affects the fiscal period.',
-                'help'              => 'This should always match the selection period, and is necessary in cas of period re-assignment.',
+                'help'              => 'This should always match the selected period, and is necessary in case of period re-assignment.',
                 'required'          => true,
                 'dependents'        => ['fiscal_period_id']
             ],
@@ -81,7 +86,7 @@ class AccountingEntry extends Model {
             'entry_number' => [
                 'type'              => 'string',
                 'description'       => 'Unique code for entry identification.',
-                'dependents'        => ['name']
+                'dependents'        => ['name', 'debit', 'credit']
             ],
 
             'origin_object_class' => [
@@ -98,7 +103,7 @@ class AccountingEntry extends Model {
             'debit' => [
                 'type'              => 'computed',
                 'result_type'       => 'float',
-                'usage'             => 'amount/money:4',
+                'usage'             => 'amount/money:2',
                 'description'       => 'Total debited amount from all lines.',
                 'function'          => 'calcDebit',
                 'store'             => true,
@@ -108,7 +113,7 @@ class AccountingEntry extends Model {
             'credit' => [
                 'type'              => 'computed',
                 'result_type'       => 'float',
-                'usage'             => 'amount/money:4',
+                'usage'             => 'amount/money:2',
                 'description'       => 'Total credited amount from all lines.',
                 'function'          => 'calcCredit',
                 'store'             => true,
@@ -205,7 +210,15 @@ class AccountingEntry extends Model {
      */
     public static function onafterValidate($self) {
         // append accounting entry to current balance
-        $self->read(['condo_id', 'fiscal_year_id' => ['current_balance_id'], 'entry_lines_ids' => ['account_id', 'debit', 'credit']]);
+        $self->read([
+                'condo_id',
+                'entry_date',
+                'fiscal_period_id' => ['id', 'date_from'],
+                'journal_id',
+                'fiscal_year_id'   => ['current_balance_id'],
+                'entry_lines_ids'  => ['account_id', 'debit', 'credit']
+            ]);
+
         foreach($self as $id => $accountingEntry) {
             if( !($accountingEntry['fiscal_year_id']['current_balance_id'] ?? false) ) {
                 throw new \Exception('missing_balance', EQ_ERROR_INVALID_PARAM);
@@ -217,7 +230,8 @@ class AccountingEntry extends Model {
                     'accounting_entry_id'   => $id
                 ]);
 
-            // #todo - temporary for testing - to remove
+
+            // #todo - temporary for testing - to remove once cron handling balanceupdate request will be running
             foreach($accountingEntry['entry_lines_ids'] ?? [] as $entry_line_id => $entryLine) {
                 CurrentBalance::id($accountingEntry['fiscal_year_id']['current_balance_id'])
                     ->do('update_account', [
@@ -226,7 +240,15 @@ class AccountingEntry extends Model {
                         'credit'     => $entryLine['credit']
                     ]);
             }
-            self::id($id)->update(['entry_number' => self::computeEntryNumber($id)]);
+
+
+            // search for all entries in the period for the concerned journal and, if more recent, take the date of the most recent one
+            $mostRecentEntry = self::search([['id', '<>', $id], ['journal_id', '=', $accountingEntry['journal_id']], ['fiscal_period_id', '=', $accountingEntry['fiscal_period_id']['id']]], ['sort' => ['entry_date' => 'desc'], 'limit' => 1])->read(['entry_date'])->first();
+            $entry_date = $accountingEntry['entry_date'];
+            if($mostRecentEntry && $mostRecentEntry['entry_date'] > $accountingEntry['entry_date']) {
+                $entry_date = $mostRecentEntry['entry_date'];
+            }
+            self::id($id)->update(['entry_number' => self::computeEntryNumber($id), 'entry_date' => $entry_date]);
         }
     }
 
@@ -358,9 +380,6 @@ class AccountingEntry extends Model {
         $result = [];
         $self->read(['status', 'entry_lines_ids' => ['debit']]);
         foreach($self as $id => $entry) {
-            if($entry['status'] != 'validated') {
-                continue;
-            }
             $result[$id] = 0.0;
             foreach($entry['entry_lines_ids'] as $line) {
                 $result[$id] += $line['debit'];
@@ -373,9 +392,6 @@ class AccountingEntry extends Model {
         $result = [];
         $self->read(['status', 'entry_lines_ids' => ['credit']]);
         foreach($self as $id => $entry) {
-            if($entry['status'] != 'validated') {
-                continue;
-            }
             $result[$id] = 0.0;
             foreach($entry['entry_lines_ids'] as $line) {
                 $result[$id] += $line['credit'];
@@ -387,14 +403,18 @@ class AccountingEntry extends Model {
     private static function computeEntryNumber($id) {
         $result = '';
         $entry = self::id($id)
-            ->read(['status', 'is_temp', 'condo_id', 'journal_id' => ['code'], 'fiscal_year_id' => ['code', 'organisation_id']])
+            ->read(['status', 'is_temp', 'condo_id',
+                'journal_id'        => ['code'],
+                'fiscal_year_id'    => ['code'],
+                'fiscal_period_id'  => ['code']
+            ])
             ->first();
 
         if($entry['status'] == 'pending' || $entry['is_temp']) {
             return $result;
         }
 
-        if(!isset($entry['journal_id'], $entry['journal_id']['code'], $entry['fiscal_year_id']['organisation_id'])) {
+        if(!isset($entry['fiscal_year_id'], $entry['fiscal_period_id'], $entry['journal_id'])) {
             return $result;
         }
 
@@ -402,19 +422,20 @@ class AccountingEntry extends Model {
                 'finance',
                 'accounting',
                 'accounting_entry.number_format',
-                '%s{journal}/%02d{year}/%05d{sequence}',
+                '%s{journal}/%02d{year}/%02d{period}/%05d{sequence}',
                 [
                     'condo_id' => $entry['condo_id']
                 ]
             );
 
         $fiscal_year_code = $entry['fiscal_year_id']['code'];
+        $fiscal_period_code = $entry['fiscal_period_id']['code'];
         $journal_code = $entry['journal_id']['code'];
 
         $sequence = Setting::fetch_and_add(
                 'finance',
                 'accounting',
-                "accounting_entry.sequence.{$fiscal_year_code}.{$journal_code}",
+                "accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}",
                 1,
                 [
                     'condo_id' => $entry['condo_id']
@@ -422,12 +443,13 @@ class AccountingEntry extends Model {
             );
 
         if(!$sequence) {
-            trigger_error("APP::missing mandatory finance.accounting.accounting_entry.sequence.{$fiscal_year_code}.{$journal_code} for condominium {$entry['condo_id']}.", EQ_REPORT_ERROR);
+            trigger_error("APP::missing mandatory finance.accounting.accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code} for condominium {$entry['condo_id']}.", EQ_REPORT_ERROR);
             throw new \Exception('missing_mandatory_sequence', EQ_ERROR_INVALID_CONFIG);
         }
 
         $result = Setting::parse_format($format, [
                 'year'      => $fiscal_year_code,
+                'period'    => $fiscal_period_code,
                 'journal'   => $journal_code,
                 'sequence'  => $sequence
             ]);
