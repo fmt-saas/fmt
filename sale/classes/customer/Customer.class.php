@@ -139,11 +139,12 @@ class Customer extends \identity\Identity {
         ];
     }
 
-
     public static function onupdateIdentityId($self) {
         $self->read(['identity_id']);
         foreach($self as $id => $customer) {
-            Identity::id($customer['identity_id'])->update(['contact_id' => $id]);
+            if($customer['identity_id']) {
+                Identity::id($customer['identity_id'])->update(['customer_id' => $id]);
+            }
         }
     }
 

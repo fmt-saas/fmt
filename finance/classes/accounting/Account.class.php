@@ -44,8 +44,7 @@ class Account extends Model {
                 'type'              => 'string',
                 'description'       => "A variable length string representing the number of the account.",
                 'dependents'        => ['name', 'level'],
-                'required'          => true,
-                'readonly'          => true
+                'required'          => true
             ],
 
             'description' => [
@@ -183,7 +182,7 @@ class Account extends Model {
                     'co_owners',
                     'co_owners_reserve_fund',           // used for FundRequestExecution
                     'co_owners_working_fund',           // used for FundRequestExecution
-                    'deferred_expenses',
+                    'deferred_expenses',                // used for purchase invoice over a date range
                     'deferred_income',
                     'expense_provisions',               // used for FundRequest
                     'installment_intermediate_account',
@@ -191,8 +190,8 @@ class Account extends Model {
                     'pending_creditor_import',
                     'pending_debtor_import',
                     'pending_work_balance',
-                    'private_expenses',
-                    'reinvoiced_private_expenses',
+                    'private_expenses',                 // used for purchase invoice
+                    'reinvoiced_private_expenses',      // used for purchase invoice
                     'reserve_fund',                     // used for FundRequest
                     'suppliers',
                     'work_expenses',

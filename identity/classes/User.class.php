@@ -68,7 +68,7 @@ class User extends \core\User {
     public static function onupdateIdentityId($self) {
         $self->read(['identity_id']);
         foreach($self as $id => $user) {
-            if(isset($user['identity_id']['id']) && is_null($user['identity_id']['user_id'])) {
+            if($user['identity_id']) {
                 Identity::id($user['identity_id'])->update(['user_id' => $id]);
             }
         }

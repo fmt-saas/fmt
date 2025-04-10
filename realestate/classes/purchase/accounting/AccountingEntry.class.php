@@ -24,6 +24,14 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\Invoice',
                 'description'       => 'Invoice the entry relates to.',
                 'ondelete'          => 'null'
+            ],
+
+            'entry_lines_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\purchase\accounting\AccountingEntryLine',
+                'foreign_field'     => 'accounting_entry_id',
+                'description'       => "Lines of the accounting entry.",
+                'dependents'        => ['debit', 'credit']
             ]
 
         ];

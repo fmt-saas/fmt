@@ -142,7 +142,9 @@ class Organisation extends Identity {
     public static function onupdateIdentityId($self) {
         $self->read(['identity_id']);
         foreach($self as $id => $organisation) {
-            Identity::id($organisation['identity_id'])->update(['organisation_id' => $id]);
+            if($organisation['identity_id']) {
+                Identity::id($organisation['identity_id'])->update(['organisation_id' => $id]);
+            }
         }
     }
 

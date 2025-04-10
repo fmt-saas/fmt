@@ -861,8 +861,7 @@ class Identity extends Model {
         /**
          * Handle creation of related identity for objects that inherit from Identity
          */
-        if(self::class != static::class) {
-
+        if(substr(self::getType(), strrpos(self::getType(), '\\') + 1) !== 'Identity') {
             $common_fields = [
                     'type_id','has_vat','vat_number','legal_name','firstname','lastname','lang_id',
                     'email','phone','mobile','fax',
@@ -877,7 +876,7 @@ class Identity extends Model {
                 if($identity['state'] == 'draft') {
                     continue;
                 }
-                // create a new Identity for objects that are meant to relate to an identity
+                // create a new Identity for objects that are meant to relate to an identity but are not linked yet
                 if(is_null($identity['identity_id'])) {
                     $values = [];
                     foreach($common_fields as $field) {

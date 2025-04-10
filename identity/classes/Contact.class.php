@@ -46,7 +46,9 @@ class Contact extends Identity {
     public static function onupdateIdentityId($self) {
         $self->read(['identity_id']);
         foreach($self as $id => $contact) {
-            Identity::id($contact['identity_id'])->update(['contact_id' => $id]);
+            if($contact['identity_id']) {
+                Identity::id($contact['identity_id'])->update(['contact_id' => $id]);
+            }
         }
     }
 

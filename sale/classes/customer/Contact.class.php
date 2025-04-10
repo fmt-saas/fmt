@@ -52,4 +52,13 @@ class Contact extends \identity\Contact {
         ];
     }
 
+    public static function onupdateIdentityId($self) {
+        $self->read(['identity_id']);
+        foreach($self as $id => $contact) {
+            if($contact['identity_id']) {
+                Identity::id($contact['identity_id'])->update(['customer_contact_id' => $id]);
+            }
+        }
+    }
+
 }

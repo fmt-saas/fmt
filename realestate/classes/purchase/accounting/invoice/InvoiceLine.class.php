@@ -93,7 +93,19 @@ class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
     }
 
     public static function onupdateIsPrivateExpense($self) {
-        // mettre expense_account_id à 643
+        $self->read(['is_private_expense', 'condo_id']);
+        foreach($self as $id => $invoiceLine) {
+            if(!$invoiceLine['is_private_expense']) {
+                continue;
+            }
+            // set expense_account_id to 643xxx
+            $account = Account::search([['condo_id', '=', $invoiceLine['condo_id']], ['operation_assignment', '=', 'private_expenses']])
+                ->read(['id', 'name'])
+                ->first();
+            if($account) {
+                self::id($id)->update(['expense_account_id' => $account['id']]);
+            }
+        }
     }
 
     public static function onchange($event, $values) {
@@ -115,10 +127,12 @@ class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
             $account = Account::search([['condo_id', '=', $values['condo_id']], ['operation_assignment', '=', 'private_expenses']])
                 ->read(['id', 'name'])
                 ->first();
-            $result['expense_account_id'] = [
-                    'id'    => $account['id'],
-                    'name'  => $account['name']
-                ];
+            if($account) {
+                $result['expense_account_id'] = [
+                        'id'    => $account['id'],
+                        'name'  => $account['name']
+                    ];
+            }
         }
         if(array_key_exists('ownership_id', $event)) {
             if($event['ownership_id']) {

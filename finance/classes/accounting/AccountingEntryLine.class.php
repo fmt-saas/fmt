@@ -47,7 +47,16 @@ class AccountingEntryLine extends Model {
                 'required'          => true,
                 'ondelete'          => 'null',
                 'dependents'        => ['journal_id'],
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]],
+                'dependents'        => ['account_code']
+            ],
+
+            'account_code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "Code of the related accounting account.",
+                'relation'          => ['account_id' => 'code'],
+                'store'             => true
             ],
 
             'journal_id' => [

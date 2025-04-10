@@ -62,10 +62,10 @@ class FiscalPeriod extends Model {
                 'dependents'        => ['name']
             ],
 
-            'order' => [
+            'code' => [
                 'type'              => 'integer',
                 'description'       => 'Order of the period, based on its date within the fiscal year.',
-                'help'              => 'This value is assigned by parent Fiscal Year, and is needed for purchase invoice sequence number.',
+                'help'              => 'This value is assigned by parent Fiscal Year, and is needed for purchase invoice sequence numbering.',
                 'dependents'        => ['name']
             ]
         ];
@@ -73,12 +73,12 @@ class FiscalPeriod extends Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['order', 'date_from', 'date_to', 'condo_id' => ['name']]);
+        $self->read(['code', 'date_from', 'date_to', 'condo_id' => ['name']]);
         foreach($self as $id => $period) {
             if(!$period['date_from'] || !$period['date_to']) {
                 continue;
             }
-            $result[$id] = $period['order'] . ' - ' . date('Y-m-d', $period['date_from']) . ' - ' . date('Y-m-d', $period['date_to']) . " ({$period['condo_id']['name']})";
+            $result[$id] = $period['code'] . ' - ' . date('Y-m-d', $period['date_from']) . ' - ' . date('Y-m-d', $period['date_to']) . " ({$period['condo_id']['name']})";
         }
         return $result;
     }

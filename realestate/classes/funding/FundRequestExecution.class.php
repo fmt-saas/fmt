@@ -338,25 +338,20 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
             }
 
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
-                $ownership = Ownership::id($executionLine['ownership_id'])->read(['ownership_code'])->first();
-                $logs[] = "Searching account {$account['code']}{$ownership['ownership_code']}";
-                $ownerAccount = Account::search([
-                        ['condo_id', '=', $requestExecution['condo_id']],
-                        ['code', '=', $account['code'] . $ownership['ownership_code']]
-                    ])
-                    ->first();
+                $ownership = Ownership::id($executionLine['ownership_id'])->read(['ownership_account_id'])->first();
+                $logs[] = "Fetching account for ownership {$executionLine['ownership_id']}";
 
-                if(!$ownerAccount) {
+                if(!$ownership || !$ownership['ownership_account_id']) {
                     throw new \Exception('missing_mandatory_owner_account', EQ_ERROR_INVALID_CONFIG);
                 }
 
-                $logs[] = "Retrieved owner account {$ownerAccount['id']}";
+                $logs[] = "Retrieved owner account {$ownership['ownership_account_id']}";
 
                 AccountingEntryLine::create([
                         'condo_id'              => $requestExecution['condo_id'],
                         'accounting_entry_id'   => $accountingEntry['id'],
                         'name'                  => $requestExecution['name'],
-                        'account_id'            => $ownerAccount['id'],
+                        'account_id'            => $ownership['ownership_account_id'],
                         'debit'                 => $executionLine['called_amount'],
                         'credit'                => 0.0
                     ]);

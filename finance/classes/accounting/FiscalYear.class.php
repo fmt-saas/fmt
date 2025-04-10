@@ -59,7 +59,7 @@ class FiscalYear extends Model {
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
                 'foreign_field'     => 'fiscal_year_id',
                 'description'       => "The fiscal periods related to the fiscal year.",
-                'order'             => 'order',
+                'order'             => 'code',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'ondetach'          => 'delete'
             ],
@@ -445,7 +445,7 @@ class FiscalYear extends Model {
             $order = 1;
             foreach($periods as $period) {
                 // assign final order for fiscal periods
-                FiscalPeriod::id($period['id'])->update(['order' => $order]);
+                FiscalPeriod::id($period['id'])->update(['code' => $order]);
                 ++$order;
             }
 
@@ -509,27 +509,30 @@ class FiscalYear extends Model {
 
             $entry_lines = self::computeCarryForwardEntryLines($id);
 
-            $accountingEntry = AccountingEntry::create([
-                    'condo_id'          => $fiscalYear['condo_id'],
-                    'journal_id'        => $carryForwardJournal['id'],
-                    'status'            => 'validated',
-                    'is_temp'           => true,
-                    'fiscal_year_id'    => $nextFiscalYear['id'],
-                    'entry_date'        => time()
-                ])
-                ->first();
+            if(count($entry_lines)) {
 
-            foreach($entry_lines as $line) {
-                AccountingEntryLine::create([
-                        'condo_id'              => $fiscalYear['condo_id'],
-                        'accounting_entry_id'   => $accountingEntry['id'],
-                        'account_id'            => $line['account_id'],
-                        'debit'                 => $line['debit'],
-                        'credit'                => $line['credit']
-                    ]);
+                $accountingEntry = AccountingEntry::create([
+                        'condo_id'          => $fiscalYear['condo_id'],
+                        'journal_id'        => $carryForwardJournal['id'],
+                        'is_temp'           => true,
+                        'fiscal_year_id'    => $nextFiscalYear['id'],
+                        'entry_date'        => time()
+                    ])
+                    ->first();
+
+                foreach($entry_lines as $line) {
+                    AccountingEntryLine::create([
+                            'condo_id'              => $fiscalYear['condo_id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
+                            'account_id'            => $line['account_id'],
+                            'debit'                 => $line['debit'],
+                            'credit'                => $line['credit']
+                        ]);
+                }
+
+                AccountingEntry::id($accountingEntry['id'])->transition('validate');
+
             }
-
-            AccountingEntry::id($accountingEntry['id'])->transition('validate');
 
             // 5 - update current fiscal year for targeted Condominium
             Condominium::id($fiscalYear['condo_id'])->update(['current_fiscal_year_id' => $id]);
@@ -544,7 +547,7 @@ class FiscalYear extends Model {
      * - the accounting entries:        finance.accounting.accounting_entry.sequence.{fiscal_year_code}.{journal_code}  [condo_id]
      */
     public static function doGenerateSequences($self) {
-        $self->read(['condo_id', 'code', 'fiscal_periods_ids' => ['order']]);
+        $self->read(['condo_id', 'code', 'fiscal_periods_ids' => ['code']]);
         foreach($self as $id => $fiscalYear) {
             $fiscal_year_code = $fiscalYear['code'];
 
@@ -552,7 +555,7 @@ class FiscalYear extends Model {
 
             // init mandatory sequences
             foreach($fiscalYear['fiscal_periods_ids'] as $period_id => $fiscalPeriod) {
-                $fiscal_period_code = $fiscalPeriod['order'];
+                $fiscal_period_code = $fiscalPeriod['code'];
 
                 // sale invoices
                 Setting::assert_sequence('sale', 'accounting', "invoice.sequence.{$fiscal_year_code}.{$fiscal_period_code}");
@@ -780,7 +783,7 @@ class FiscalYear extends Model {
 
         // #memo - number of periods is not taken into account here, but dates must be contiguous
         $periods = $fiscalYear['fiscal_periods_ids']->get(true);
-        // #memo - at this stage 'order' might not have been set
+        // #memo - at this stage 'code' might not have been set
         usort($periods, fn($a, $b) => $a['date_from'] <=> $b['date_from']);
         $n = count($periods);
 

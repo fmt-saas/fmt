@@ -32,7 +32,8 @@ class PropertyLotApportionmentShare extends \equal\orm\Model {
                 'description'       => "The key that the apportionment refers to.",
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'ondelete'          => 'cascade',
-                'required'          => true
+                'required'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'is_statutory' => [

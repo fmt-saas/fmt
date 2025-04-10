@@ -46,7 +46,8 @@ class AccountChart extends Model {
                 'foreign_object'    => 'finance\accounting\Account',
                 'foreign_field'     => 'account_chart_id',
                 'description'       => 'Account lines that belong to the chart.',
-                'ondetach'          => 'delete'
+                'ondetach'          => 'delete',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'status' => [

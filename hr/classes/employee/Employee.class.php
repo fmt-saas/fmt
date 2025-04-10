@@ -99,7 +99,9 @@ class Employee extends Identity {
     public static function onupdateIdentityId($self) {
         $self->read(['identity_id']);
         foreach($self as $id => $employee) {
-            Identity::id($employee['identity_id'])->update(['contact_id' => $id]);
+            if($employee['identity_id']) {
+                Identity::id($employee['identity_id'])->update(['employee_id' => $id]);
+            }
         }
     }
 

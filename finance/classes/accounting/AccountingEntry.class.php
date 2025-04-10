@@ -64,7 +64,8 @@ class AccountingEntry extends Model {
                 'description'       => "Period of the fiscal year the entry relates to (from entry_date).",
                 'help'              => "Period is automatically assigned when entry is validated.",
                 'function'          => 'calcFiscalPeriodId',
-                'store'             => true
+                'store'             => true,
+                'instant'           => true
             ],
 
             'entry_date' => [
@@ -145,7 +146,8 @@ class AccountingEntry extends Model {
             'invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\invoice\Invoice',
-                'description'       => 'Invoice the line is related to.',
+                'description'       => 'Invoice the accounting entry is related to.',
+                'help'              => 'This field is expected to be overloaded in purchase and sale invoice classes.',
                 'ondelete'          => 'null'
             ],
 
@@ -344,13 +346,13 @@ class AccountingEntry extends Model {
         return $result;
     }
 
+    /**
+     * #memo - we need this value even if it can still change (i.e. accounting entry is not yet validated)
+     */
     public static function calcFiscalPeriodId($self) {
         $result = [];
         $self->read(['status', 'entry_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
         foreach($self as $id => $entry) {
-            if($entry['status'] == 'pending') {
-                continue;
-            }
             foreach($entry['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
                 if($entry['entry_date'] >= $period['date_from'] && $entry['entry_date'] <= $period['date_to']) {
                     $result[$id] = $period_id;
@@ -371,7 +373,7 @@ class AccountingEntry extends Model {
                 $credit += $line['credit'];
                 $debit += $line['debit'];
             }
-            $result[$id] = ($credit === $debit);
+            $result[$id] = ($credit === $debit && round($credit, 2) != 0.00);
         }
         return $result;
     }

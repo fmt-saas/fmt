@@ -89,7 +89,9 @@ class Owner extends Identity {
     public static function onupdateIdentityId($self) {
         $self->read(['identity_id']);
         foreach($self as $id => $owner) {
-            Identity::id($owner['identity_id'])->update(['owner_id' => $id]);
+            if($owner['identity_id']) {
+                Identity::id($owner['identity_id'])->update(['owner_id' => $id]);
+            }
         }
     }
 

@@ -57,6 +57,12 @@
                                                 "width": "50%"
                                             },
                                             {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
                                                 "type": "label",
                                                 "value": "",
                                                 "width": "50%"

@@ -61,7 +61,9 @@ class Supplier extends Identity {
     public static function onupdateIdentityId($self) {
         $self->read(['identity_id']);
         foreach($self as $id => $supplier) {
-            Identity::id($supplier['identity_id'])->update(['supplier_id' => $id]);
+            if($supplier['identity_id']) {
+                Identity::id($supplier['identity_id'])->update(['supplier_id' => $id]);
+            }
         }
     }
 

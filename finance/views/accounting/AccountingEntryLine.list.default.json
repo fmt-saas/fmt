@@ -19,7 +19,18 @@
                 "type": "field",
                 "label": "Account",
                 "value": "account_id",
-                "width": "35%"
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Journal",
+                "value": "journal_id",
+                "width": "15%"
             },
             {
                 "type": "field",

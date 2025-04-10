@@ -4,7 +4,7 @@
         "items": [
             {
                 "type": "field",
-                "value": "order",
+                "value": "code",
                 "width": "10%",
                 "widget": {
                     "align": "left",

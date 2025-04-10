@@ -1,9 +1,6 @@
 {
     "name": "User",
     "description": "Basic form for displaying a User",
-    "access": {
-        "groups": ["*"]
-     },
     "layout": {
         "groups": [
             {
@@ -42,6 +39,12 @@
                                                 "type": "field",
                                                 "value": "lastname",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "status",
+                                                "width": "0%",
+                                                "visible": false
                                             }
                                         ]
                                     },

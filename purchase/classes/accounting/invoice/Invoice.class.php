@@ -61,6 +61,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
             'description' => [
                 'type'              => 'string',
                 'description'       => 'Short description of the invoice.',
+                'help'              => 'This is meant to be used as a reminder for easing invoice identification.',
                 'multilang'         => true
             ],
 

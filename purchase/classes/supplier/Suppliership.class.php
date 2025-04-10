@@ -75,7 +75,9 @@ class Suppliership extends \equal\orm\Model {
             if($suppliership['state'] != 'instance') {
                 continue;
             }
-            $result[$id] = sprintf("%s - %s", $suppliership['suppliership_code'], $suppliership['supplier_id']['name']);
+            if($suppliership['supplier_id'] && strlen($suppliership['supplier_id']['name'])) {
+                $result[$id] = sprintf("%s - %s", $suppliership['suppliership_code'], $suppliership['supplier_id']['name']);
+            }
         }
         return $result;
     }

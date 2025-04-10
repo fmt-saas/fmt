@@ -10,10 +10,11 @@ namespace realestate\purchase\accounting\invoice;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Account;
-use finance\accounting\AccountingEntryLine;
 use finance\accounting\Journal;
 use fmt\setting\Setting;
+use realestate\ownership\Ownership;
 use realestate\purchase\accounting\AccountingEntry;
+use realestate\purchase\accounting\AccountingEntryLine;
 
 class Invoice extends \purchase\accounting\invoice\Invoice {
 
@@ -171,7 +172,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 $lines_total += $invoiceLine['price'];
             }
             if($invoice['price'] != $lines_total) {
-                // error
+                // error : non matching invoice price with sum of invoice lines prices
                 $result[$id] = [
                     'non_matching_lines_total' => 'Invoice total and lines total do not match.'
                 ];
@@ -205,7 +206,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 }
             }
             if($usage_total > $invoice['price']) {
-                // error
+                // error: overflowing reserve funds allocation
                 $result[$id] = [
                     'exceeding_fund_allocation' => 'Fund usage cannot exceed invoice total.'
                 ];
@@ -217,7 +218,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
 #todo
 FundUsageLines
 * il faut que le montant du compte de réserve choisi soit suffisant pa rapport au montant assigné
-pour le trouver il faut prendre la dernière balance périodique, et ajouter tous les mouvements
+pour le trouver il faut prendre la dernière balance périodique, et ajouter tous les mouvements jusqu'à la date de facture
 
 */
         return $result;
@@ -328,9 +329,12 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
      *
      * The accounting entry created is meant to be instantly validated (with invoice validation action).
      *
-     * It may be necessary to complete the entries for a new period of the fiscal year
-     * with each call, we will look at the status of the invoice and determine what needs to be done
+     * #todo - It may be necessary to complete the entries for a new period of the fiscal year:
+     *  with each call, we will look at the status of the invoice and determine what needs to be done.
+     *
      */
+    public static function doUpdateAccountingEntries($self) {
+    }
     public static function doGenerateAccountingEntries($self) {
         $self->read([
                 'id', 'condo_id', 'price', 'description',
@@ -340,9 +344,12 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     'suppliership_code'
                 ],
                 'invoice_lines_ids' => [
-                    'is_private_expense',
+                    'expense_account_id',
                     'price',
-                    'expense_account_id'
+                    'is_private_expense',
+                    'owner_share',
+                    'tenant_share',
+                    'ownership_id'
                 ],
                 'fund_usage_lines_ids' => [
                     'amount',
@@ -353,6 +360,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
 
         foreach($self as $id => $invoice) {
             $date_from = $date_to = $invoice['posting_date'];
+
             if($invoice['has_date_range']) {
                 $date_from = $invoice['date_from'];
                 $date_to = $invoice['date_to'];
@@ -360,8 +368,49 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
 
             // retrieve journal dedicated to purchases
             $journal = Journal::search([['condo_id', '=', $invoice['condo_id']], ['code', '=', 'PUR']])->first();
+            if(!$journal) {
+                trigger_error("APP::unable to find a match for journal PUR for condominium {$invoice['condo_id']}", EQ_REPORT_ERROR);
+                throw new \Exception("missing_mandatory_journal", EQ_ERROR_INVALID_CONFIG);
+            }
 
-            // create an accounting entry
+            // retrieve accounts for private expenses
+            $privateExpenseAccount = Account::search([['condo_id', '=', $invoice['condo_id']], ['operation_assignment', '=', 'private_expenses']])
+                ->read(['id', 'name'])
+                ->first();
+            if(!$privateExpenseAccount) {
+                trigger_error("APP::unable to find a match for private_exepense account for condominium {$invoice['condo_id']}", EQ_REPORT_ERROR);
+                throw new \Exception("missing_mandatory_journal", EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $reinvoicedPrivateExpenseAccount = Account::search([['condo_id', '=', $invoice['condo_id']], ['operation_assignment', '=', 'reinvoiced_private_expenses']])
+                ->read(['id', 'name'])
+                ->first();
+            if(!$reinvoicedPrivateExpenseAccount) {
+                trigger_error("APP::unable to find a match for reinvoiced_private_account for condominium {$invoice['condo_id']}", EQ_REPORT_ERROR);
+                throw new \Exception("missing_mandatory_journal", EQ_ERROR_INVALID_CONFIG);
+            }
+
+            // retrieve the accounting account relating to the supplier
+            $assignmentAccount = Account::search([
+                    ['condo_id', '=', $invoice['condo_id']],
+                    ['operation_assignment', '=', 'suppliers']
+                ])
+                ->read(['code'])
+                ->first();
+
+            if(!$assignmentAccount) {
+                trigger_error("APP::unable to find a match for journal PUR for condominium {$invoice['condo_id']}", EQ_REPORT_ERROR);
+                throw new \Exception("missing_mandatory_supplier_assignment_account", EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $supplier_account_code = $assignmentAccount['code'] . $invoice['suppliership_id']['suppliership_code'];
+            $supplierAccount = Account::search([['code', '=', $supplier_account_code], ['condo_id', '=', $invoice['condo_id']]])->first();
+            if(!$supplierAccount) {
+                trigger_error("APP::unable to find a match for supplier code {$supplier_account_code}", EQ_REPORT_ERROR);
+                throw new \Exception("missing_mandatory_supplier_account", EQ_ERROR_INVALID_CONFIG);
+            }
+
+            // create the accounting entry for the purchase invoice
             $accountingEntry = AccountingEntry::create([
                     'condo_id'              => $invoice['condo_id'],
                     'journal_id'            => $journal['id'],
@@ -374,11 +423,30 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 ])
                 ->first();
 
-            // 1) determine what should be taken into account by the working capital and by the reserve funds
-            $working_fund_amount = $invoice['price'];
 
+            $description = $invoice['description'];
+
+            if($date_from == $date_to) {
+                $description .= ' (' . date('Y-m-d', $date_from) . ')';
+            }
+            else {
+                $description .= ' (' . date('Y-m-d', $date_from) . ' - ' . date('Y-m-d', $date_to) . ')';
+            }
+
+            // 1) create the credit line on the supplier account
+            AccountingEntryLine::create([
+                    'condo_id'              => $invoice['condo_id'],
+                    'accounting_entry_id'   => $accountingEntry['id'],
+                    'name'                  => $description,
+                    'account_id'            => $supplierAccount['id'],
+                    'debit'                 => 0.0,
+                    'credit'                => $invoice['price']
+                ]);
+
+
+            // 2) create entry lines for reserve funds use, if any
+            // #memo - reserve fund use is always considered for a single date
             foreach($invoice['fund_usage_lines_ids'] as $usage_line_id => $fundUsageLine) {
-                $working_fund_amount -= $fundUsageLine['amount'];
 
                 // create the credit line on the reserve fund
                 AccountingEntryLine::create([
@@ -399,133 +467,168 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                         'debit'                 => $fundUsageLine['amount'],
                         'credit'                => 0.0
                     ]);
-
             }
 
-            if($working_fund_amount <= 0) {
-                continue;
+            // 3) create entry lines for private expenses, if any, and keep track of what should be taken into account by the working capital
+
+            // #memo - in case of a private expense, only first date is used for accounting
+            foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
+                if($invoiceLine['is_private_expense']) {
+
+                    $ownership = Ownership::id($invoiceLine['ownership_id'])->read(['ownership_account_id'])->first();
+
+                    // create the debit line on the expense account (use of reserve fund)
+                    AccountingEntryLine::create([
+                            'condo_id'              => $invoice['condo_id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
+                            'name'                  => $invoice['description'],
+                            'account_id'            => $privateExpenseAccount['id'],
+                            'invoice_line_id'       => $invoice_line_id,
+                            'debit'                 => $invoiceLine['price'],
+                            'credit'                => 0.0
+                        ]);
+
+                    // create the debit line on the ownership account (working fund)
+                   AccountingEntryLine::create([
+                            'condo_id'              => $invoice['condo_id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
+                            'name'                  => $invoice['description'],
+                            'account_id'            => $ownership['ownership_account_id'],
+                            'invoice_line_id'       => $invoice_line_id,
+                            'debit'                 => $invoiceLine['price'],
+                            'credit'                => 0.0
+                        ]);
+
+                    // create the credit line on the reserve fund
+                    AccountingEntryLine::create([
+                            'condo_id'              => $invoice['condo_id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
+                            'name'                  => $invoice['description'],
+                            'account_id'            => $reinvoicedPrivateExpenseAccount['id'],
+                            'invoice_line_id'       => $invoice_line_id,
+                            'debit'                 => 0.0,
+                            'credit'                => $invoiceLine['price']
+                        ]);
+                }
             }
 
-            $total_days = ( ($date_to - $date_from) / 86400 ) + 1;
-            $total_amount = $remaining_amount = $working_fund_amount;
-
-            // retrieve dates for allocating amounts to accounting entries
-            $allocation_dates = self::computeAllocationDates($date_from, $date_to, $invoice['condo_id']);
-
-            // retrieve the account for deferred expenses
-            $deferredExpensesAccount = Account::search([
-                    ['condo_id', '=', $invoice['condo_id']],
-                    ['operation_assignment', '=', 'deferred_expenses']
-                ])
-                ->first();
-
-            if(!$deferredExpensesAccount) {
-                throw new \Exception("missing_mandatory_deferred_expenses_account", EQ_ERROR_INVALID_CONFIG);
+            // 4) single date: create lines relating to the common expenses
+            if($date_from === $date_to) {
+                foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
+                    if($invoiceLine['is_private_expense']) {
+                        continue;
+                    }
+                    // create the debit line on the expense account (use of reserve fund)
+                    AccountingEntryLine::create([
+                            'condo_id'              => $invoice['condo_id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
+                            'name'                  => $invoice['description'],
+                            'account_id'            => $invoiceLine['expense_account_id'],
+                            'invoice_line_id'       => $invoice_line_id,
+                            'debit'                 => $invoiceLine['price'],
+                            'credit'                => 0.0
+                        ]);
+                }
             }
+            // 5) date range: split common expenses
+            else {
+                $total_days = ( ($date_to - $date_from) / 86400 ) + 1;
 
-            foreach($invoice['invoice_lines_ids'] as $line_id => $line) {
+                // retrieve dates for allocating amounts to accounting entries
+                $allocation_dates = self::computeAllocationDates($date_from, $date_to, $invoice['condo_id']);
 
-                for($i = 0, $n = count($allocation_dates); $i < $n; ++$i) {
+                // retrieve the account for deferred expenses
+                $deferredExpensesAccount = Account::search([
+                        ['condo_id', '=', $invoice['condo_id']],
+                        ['operation_assignment', '=', 'deferred_expenses']
+                    ])
+                    ->first();
 
-                    if($line['is_private_expense']) {
-                        // #todo - there should be a single date
+                if(!$deferredExpensesAccount) {
+                    throw new \Exception("missing_mandatory_deferred_expenses_account", EQ_ERROR_INVALID_CONFIG);
+                }
+
+                foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
+                    if($invoiceLine['is_private_expense']) {
                         continue;
                     }
 
-                    // first date of the date range
-                    if($i == 0) {
-                        // retrieve the accounting account relating to the supplier
-                        $assignmentAccount = Account::search([
-                                ['condo_id', '=', $invoice['condo_id']],
-                                ['operation_assignment', '=', 'suppliers']
-                            ])
-                            ->read(['code'])
-                            ->first();
+                    $total_amount = $remaining_amount = $invoiceLine['price'];
 
-                        if(!$assignmentAccount) {
-                            throw new \Exception("missing_mandatory_account", EQ_ERROR_INVALID_CONFIG);
-                        }
+                    for($i = 0, $n = count($allocation_dates); $i < $n; ++$i) {
 
-                        $supplier_account_code = $assignmentAccount['code'] . $invoice['suppliership_id']['suppliership_code'];
-                        $supplierAccount = Account::search([['code', '=', $supplier_account_code], ['condo_id', '=', $invoice['condo_id']]])->first();
-                        if(!$supplierAccount) {
-                            throw new \Exception("missing_mandatory_supplier_account", EQ_ERROR_INVALID_CONFIG);
-                        }
-
-                        $description = $invoice['description'];
-
-                        if($date_from == $date_to) {
-                            $description .= ' (' . date('Y-m-d', $date_from) . ')';
-                        }
-                        else {
-                            $description .= ' (' . date('Y-m-d', $date_from) . ' - ' . date('Y-m-d', $date_to) . ')';
-                        }
-
-                        // create the credit line for the supplier
-                        AccountingEntryLine::create([
-                                'condo_id'              => $invoice['condo_id'],
-                                'accounting_entry_id'   => $accountingEntry['id'],
-                                'name'                  => $description,
-                                'account_id'            => $supplierAccount['id'],
-                                'debit'                 => 0.0,
-                                'credit'                => $line['price']
-                            ]);
-
-                        // create the debit line for the expense
-                        AccountingEntryLine::create([
-                                'condo_id'              => $invoice['condo_id'],
-                                'accounting_entry_id'   => $accountingEntry['id'],
-                                'name'                  => $description,
-                                'account_id'            => $line['expense_account_id'],
-                                'debit'                 => $line['price'],
-                                'credit'                => 0.0
-                            ]);
-
-                    }
-                    else {
                         $period_date_from = $allocation_dates[$i];
                         $period_date_to = ($i+1 < $n) ? $allocation_dates[$i+1] : $date_to;
 
-                        $description = $invoice['description'];
-                        $description .= ' (' . date('Y-m-d', $period_date_from) . ' - ' . date('Y-m-d', $period_date_to) . ')';
+                        // first date of the date range
+                        if($i == 0) {
+                            // create the debit line for the whole common expense
+                            AccountingEntryLine::create([
+                                    'condo_id'              => $invoice['condo_id'],
+                                    'accounting_entry_id'   => $accountingEntry['id'],
+                                    'name'                  => $description,
+                                    'account_id'            => $invoiceLine['expense_account_id'],
+                                    'invoice_line_id'       => $invoice_line_id,
+                                    'debit'                 => $invoiceLine['price'],
+                                    'credit'                => 0.0
+                                ]);
 
-
-                        if($i == $n-1) {
-                            $amount = $remaining_amount;
-                        }
-                        else {
-                            //  we need to allocate the paid amount pro-rata based on the duration of the date range.
+                            // compute paid amount pro-rata based on the duration of the date range.
                             $intersect_from = max($date_from, $period_date_from);
                             $intersect_to = min($date_to, $period_date_to);
-
                             $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
                             $ratio = round($intersect_days / $total_days, 4);
                             $amount = round($total_amount * $ratio, 2);
+                            // #memo - no entry line with $amount here: resulting allocated amount for first period will be the delta with following deferred lines
                             $remaining_amount -= $amount;
                         }
+                        else {
+                            $description = $invoice['description'];
+                            $description .= ' (' . date('Y-m-d', $period_date_from) . ' - ' . date('Y-m-d', $period_date_to) . ')';
 
-                        // create the debit line for the deferred expense
-                        AccountingEntryLine::create([
-                                'condo_id'              => $invoice['condo_id'],
-                                'accounting_entry_id'   => $accountingEntry['id'],
-                                'name'                  => $description,
-                                'account_id'            => $deferredExpensesAccount['id'],
-                                'debit'                 => $amount,
-                                'credit'                => 0.0
-                            ]);
+                            if($i == $n-1) {
+                                $amount = $remaining_amount;
+                            }
+                            else {
+                                //  we allocate the paid amount pro-rata based on the duration of the date range.
+                                $intersect_from = max($date_from, $period_date_from);
+                                $intersect_to = min($date_to, $period_date_to);
 
-                        // create the credit line for the expense
-                        AccountingEntryLine::create([
-                                'condo_id'              => $invoice['condo_id'],
-                                'accounting_entry_id'   => $accountingEntry['id'],
-                                'name'                  => $description,
-                                'account_id'            => $line['expense_account_id'],
-                                'debit'                 => 0.0,
-                                'credit'                => $amount
-                            ]);
+                                $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
+                                $ratio = round($intersect_days / $total_days, 4);
+                                $amount = round($total_amount * $ratio, 2);
+                                $remaining_amount -= $amount;
+                            }
+
+                            // create the debit line for the deferred expense
+                            AccountingEntryLine::create([
+                                    'condo_id'              => $invoice['condo_id'],
+                                    'accounting_entry_id'   => $accountingEntry['id'],
+                                    'name'                  => $description,
+                                    'account_id'            => $deferredExpensesAccount['id'],
+                                    'invoice_line_id'       => $invoice_line_id,
+                                    'debit'                 => $amount,
+                                    'credit'                => 0.0
+                                ]);
+
+                            // create the credit line for the expense
+                            AccountingEntryLine::create([
+                                    'condo_id'              => $invoice['condo_id'],
+                                    'accounting_entry_id'   => $accountingEntry['id'],
+                                    'name'                  => $description,
+                                    'account_id'            => $invoiceLine['expense_account_id'],
+                                    'invoice_line_id'       => $invoice_line_id,
+                                    'debit'                 => 0.0,
+                                    'credit'                => $amount
+                                ]);
+                        }
+
                     }
                 }
+
             }
+
+
         }
     }
 

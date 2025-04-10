@@ -133,6 +133,13 @@ class Ownership extends \equal\orm\Model {
                 'foreign_object'    => 'sale\pay\Funding',
                 'foreign_field'     => 'ownership_id',
                 'description'       => 'The fundings that relate to the ownership.'
+            ],
+
+            'ownership_account_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'function'          => 'calcOwnershipAccountId'
             ]
 
         ];
@@ -146,6 +153,33 @@ class Ownership extends \equal\orm\Model {
                 'function'      => 'doGenerateAccounts'
             ]
         ];
+    }
+
+
+    /**
+     * Retrieve the accounting account dedicated to owner (working fund)
+     */
+    public static function calcOwnershipAccountId($self) {
+        $result = [];
+        $self->read(['condo_id', 'ownership_code']);
+        foreach($self as $id => $ownership) {
+            // find the account based on operation_assignment
+            $account = Account::search([
+                    ['condo_id', '=', $ownership['condo_id']],
+                    ['operation_assignment', '=', 'co_owners_working_fund']
+                ])
+                ->read(['code'])
+                ->first();
+            if($account) {
+                $ownerAccount = Account::search([
+                        ['condo_id', '=', $ownership['condo_id']],
+                        ['code', '=', $account['code'] . $ownership['ownership_code']]
+                    ])
+                    ->first();
+                $result[$id] = $ownerAccount['id'] ?? null;
+            }
+        }
+        return $result;
     }
 
     public static function calcName($self) {
