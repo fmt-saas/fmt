@@ -7,8 +7,8 @@
                 "id": 3,
                 "login": "admin@fmt.yb.run",
                 "password": "safe_pass",
-                "firstname": "Test",
-                "lastname": "USER",
+                "firstname": "Léon",
+                "lastname": "Jacques",
                 "language": "fr",
                 "validated": true,
                 "groups_ids": [2]

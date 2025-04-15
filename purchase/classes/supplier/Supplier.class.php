@@ -31,7 +31,8 @@ class Supplier extends Identity {
                 'description'       => "The name of the Owner.",
                 'relation'          => ['identity_id' => 'name'],
                 'store'             => true,
-                'readonly'          => true
+                'readonly'          => true,
+                'onrevert'          => 'onrevertName'
             ],
 
             /**
@@ -55,7 +56,21 @@ class Supplier extends Identity {
                 'rel_local_key'     => 'supplier_id'
             ],
 
+            'supplierships_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'purchase\supplier\Suppliership',
+                'foreign_field'     => 'supplier_id',
+                'description'       => "Suppliership items relating to the Supplier."
+            ]
+
         ];
+    }
+
+    public static function onrevertName($self) {
+        $self->read(['supplierships_ids']);
+        foreach($self as $id => $supplier) {
+            Suppliership::ids($supplier['supplierships_ids'])->update(['name' => null]);
+        }
     }
 
     public static function onupdateIdentityId($self) {
@@ -66,6 +81,5 @@ class Supplier extends Identity {
             }
         }
     }
-
 
 }

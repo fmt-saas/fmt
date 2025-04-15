@@ -74,4 +74,11 @@ class PropertyLotApportionmentShare extends \equal\orm\Model {
         return $result;
     }
 
+    public function getUnique() {
+        return [
+            ['property_lot_id'],
+            ['apportionment_id'],
+            ['condo_id']
+        ];
+    }
 }

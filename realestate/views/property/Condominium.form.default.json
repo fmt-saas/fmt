@@ -140,14 +140,14 @@
     ],
     "actions": [
         {
-            "id": "action.generate_sequences",
-            "label": "Generate sequences",
+            "id": "action.init",
+            "label": "Init",
             "icon": "play_arrow",
-            "description": "Generate mandatory sequences.",
+            "description": "Generate mandatory configuration.",
             "controller": "core_model_perform",
             "params": {
                 "entity": "realestate\\property\\Condominium",
-                "action": "generate_sequences",
+                "action": "init",
                 "ids": []
             },
             "confirm": false

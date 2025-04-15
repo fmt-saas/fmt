@@ -78,7 +78,7 @@ class Tenancy extends \equal\orm\Model {
             }
             $name = implode(', ', $names);
             if(strlen($name) > 128) {
-                $name = substr($name, 0, 128).'...';
+                $name = substr($name, 0, 128) . '...';
             }
             if(strlen($name) > 0) {
                 $result[$id] = $name;

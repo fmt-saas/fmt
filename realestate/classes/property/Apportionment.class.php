@@ -68,6 +68,8 @@ class Apportionment extends \equal\orm\Model {
                 "domain"            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            /*
+            // #memo - this creates a unique constraint on [property_lot_id, apportionment_id], while condo_id is also part of the key
             'property_lots_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\property\PropertyLot',
@@ -77,6 +79,7 @@ class Apportionment extends \equal\orm\Model {
                 'rel_local_key'     => 'apportionment_id',
                 'description'       => 'Property lots that are assigned to this key.'
             ],
+            */
 
             'count_property_lots' => [
                 'type'              => 'computed',
@@ -158,9 +161,9 @@ class Apportionment extends \equal\orm\Model {
 
     public static function calcCountPropertyLots($self) {
         $result = [];
-        $self->read(['property_lots_ids']);
+        $self->read(['apportionment_shares_ids']);
         foreach($self as $id => $key) {
-            $result[$id] = count($key['property_lots_ids'] ?? []);
+            $result[$id] = count($key['apportionment_shares_ids'] ?? []);
         }
         return $result;
     }

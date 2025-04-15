@@ -582,7 +582,6 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                     ]
                 );
 
-
             if($sequence) {
                 $invoice_number = Setting::parse_format($format, [
                         'year'      => $year,

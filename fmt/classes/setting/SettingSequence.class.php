@@ -8,6 +8,7 @@ namespace fmt\setting;
 
 class SettingSequence extends \core\setting\SettingSequence {
 
+
     public static function getColumns() {
         return [
 
@@ -19,18 +20,26 @@ class SettingSequence extends \core\setting\SettingSequence {
                 'required'          => true
             ],
 
+            'user_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\User',
+                'description'       => 'User the setting is specific to (optional).',
+                'default'           => 0,
+                'ondelete'          => 'cascade'
+            ],
+
             'organisation_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Organisation',
-                'description'       => 'Organisation the sequence is specific to (optional).',
-                'default'           => 1,
+                'description'       => 'Organisation the setting is specific to (optional).',
+                'default'           => 0,
                 'ondelete'          => 'cascade'
             ],
 
             'condo_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\Condominium',
-                'description'       => 'Condominium the sequence is specific to (optional).',
+                'description'       => 'Condominium the setting is specific to (optional).',
                 'default'           => 0,
                 'ondelete'          => 'cascade'
             ]
@@ -38,4 +47,9 @@ class SettingSequence extends \core\setting\SettingSequence {
         ];
     }
 
+    public function getUnique() {
+        return [
+            ['setting_id', 'user_id', 'organisation_id', 'condo_id']
+        ];
+    }
 }

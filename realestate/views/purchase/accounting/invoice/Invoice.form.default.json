@@ -138,7 +138,7 @@
                 "sections": [
                     {
                         "id": "section.invoice_lines",
-                        "label": "Invoice Lines",
+                        "label": "Lines",
                         "rows": [
                             {
                                 "columns": [
@@ -209,8 +209,8 @@
                         ]
                     },
                     {
-                        "id": "section.fund_usage_lines",
-                        "label": "Fund usages",
+                        "id": "section.options",
+                        "label": "Options",
                         "rows": [
                             {
                                 "columns": [
@@ -219,15 +219,28 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "label": "Use reserve fund(s)",
                                                 "value": "has_fund_usage",
-                                                "width": "100%"
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Immediate reinvoicing",
+                                                "value": "has_instant_reinvoice",
+                                                "width": "25%"
                                             }
                                         ]
                                     }
                                 ]
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.fund_usage_lines",
+                        "label": "Fund usages",
+                        "visible": ["has_fund_usage", "=", true],
+                        "rows": [
                             {
-                                "visible": ["has_fund_usage", "=", true],
                                 "columns": [
                                     {
                                         "width": "100%",

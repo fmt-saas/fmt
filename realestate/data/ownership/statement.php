@@ -50,6 +50,9 @@ if(!$fiscalPeriod) {
 $nb_days = round(($fiscalPeriod['date_to'] - $fiscalPeriod['date_from']) / 86400, 0) + 1;
 
 
+// #todo - il faut calculer le nombre de jours pour lesquels chaque propriétaire était effectivement propriétaire de chaque lot concerné à cette période
+// il y a la notion de lots groupés - à faire une map, par propriétaire, par lot : on peut le faire par groupe de lots (si un lot est marqué avec primary_lot_id, il peut être ignoré pour les calculs)
+
 // fetch relevant accounting entries that apply to the chosen period
 $accountingEntries = AccountingEntry::search([
         ['fiscal_period_id', '=', $fiscalPeriod['id']],

@@ -92,16 +92,20 @@ class Suppliership extends \equal\orm\Model {
             if($suppliership['state'] != 'instance') {
                 continue;
             }
+
             $sequence = Setting::fetch_and_add(
                     'realestate',
-                    'main',
+                    'organization',
                     "suppliership.sequence",
                     1,
                     [
                         'condo_id' => $suppliership['condo_id']
                     ]
                 );
-            $result[$id] = sprintf("%05d", $sequence);
+
+            if($sequence) {
+                $result[$id] = sprintf("%05d", $sequence);
+            }
         }
         return $result;
     }

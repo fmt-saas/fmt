@@ -864,7 +864,7 @@ class Identity extends Model {
         if(substr(self::getType(), strrpos(self::getType(), '\\') + 1) !== 'Identity') {
             $common_fields = [
                     'type_id','has_vat','vat_number','legal_name','firstname','lastname','lang_id',
-                    'email','phone','mobile','fax',
+                    'email','phone','mobile',
                     'address_street','address_dispatch','address_zip',
                     'address_city','address_state','address_country'
                 ];

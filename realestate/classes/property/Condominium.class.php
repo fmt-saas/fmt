@@ -243,6 +243,11 @@ class Condominium extends \identity\Organisation {
 
     public static function getActions() {
         return [
+            'init' => [
+                'description'   => 'Initializes a newly created Condominium.',
+                'policies'      => [],
+                'function'      => 'doInit'
+            ],
             'open_fiscal_year' => [
                 'description'   => 'Open the fiscal year.',
                 'policies'      => ['can_open_fiscal_year'],
@@ -293,8 +298,9 @@ class Condominium extends \identity\Organisation {
 
         foreach($self as $id => $condominium) {
             if(!$access->userHasCondoRole($user_id, ['manager', 'accountant'], $id)) {
+                trigger_error("APP::user {$user_id} has no role not amongst requested condo role for condo {$id}.", EQ_REPORT_WARNING);
                 $result[$id] = [
-                    'not_allowed' => 'User missing mandatory role.'
+                    'not_allowed' => "User missing mandatory role."
                 ];
             }
         }
@@ -358,8 +364,14 @@ class Condominium extends \identity\Organisation {
 
         // find fiscal year based on current date
         foreach($self as $id => $condominium) {
-            if(!$condominium['fiscal_year_end']) {
-                throw new \Exception('undefined_fiscal_year_end', EQ_ERROR_INVALID_CONFIG);
+            if($condominium['fiscal_year_end']) {
+                $fiscal_year_end = $condominium['fiscal_year_end'];
+            }
+            else {
+                if(!$condominium['fiscal_year_start']) {
+                    throw new \Exception('undefined_fiscal_year_end', EQ_ERROR_INVALID_CONFIG);
+                }
+                $fiscal_year_end = strtotime('-1 day', strtotime('+1 year', $condominium['fiscal_year_start']));
             }
 
             $values = [
@@ -387,8 +399,8 @@ class Condominium extends \identity\Organisation {
                 $fiscal_year_start = $fiscalYear['date_to'];
                 $fiscal_year_start = strtotime('+1 day', $fiscal_year_start);
 
-                $day_end   = intval(date('d', $condominium['fiscal_year_end']));
-                $month_end = intval(date('m', $condominium['fiscal_year_end']));
+                $day_end   = intval(date('d', $fiscal_year_end));
+                $month_end = intval(date('m', $fiscal_year_end));
                 $year_end  = intval(date('Y', $fiscal_year_start));
 
                 $fiscal_year_end = strtotime(sprintf("%d-%02d-%02d", $year_end, $month_end, $day_end));
@@ -430,7 +442,7 @@ class Condominium extends \identity\Organisation {
                 else {
                     $values['date_from'] = time();
                 }
-                $values['date_to'] = $condominium['fiscal_year_end'];
+                $values['date_to'] = $fiscal_year_end;
             }
 
             FiscalYear::create($values);
@@ -450,29 +462,23 @@ class Condominium extends \identity\Organisation {
 
     /**
      * Upon creation of a condominium, it is necessary to create sequences for:
-     * - owners:            realestate.main.ownership.sequence      [condo_id]
-     * - lots:              realestate.main.property_lot.sequence   [condo_id]
-     * - apportionments:    realestate.main.apportionment.sequence  [condo_id]
-     * - suppliers:         realestate.main.suppliership.sequence   [condo_id]
+     * - owners:            realestate.organization.ownership.sequence      [condo_id]
+     * - lots:              realestate.organization.property_lot.sequence   [condo_id]
+     * - apportionments:    realestate.organization.apportionment.sequence  [condo_id]
+     * - suppliers:         realestate.organization.suppliership.sequence   [condo_id]
      * - purchase invoice:  purchase.accounting.invoice.sequence    [condo_id]
      */
     public static function doGenerateSequences($self) {
-        Setting::assert_sequence('realestate', 'main', 'ownership.sequence');
-        Setting::assert_sequence('realestate', 'main', 'property_lot.sequence');
-        Setting::assert_sequence('realestate', 'main', 'apportionment.sequence');
-        Setting::assert_sequence('realestate', 'main', 'suppliership.sequence');
-        Setting::assert_sequence('purchase', 'accounting', 'invoice.sequence');
-
         foreach($self as $id => $condominium) {
-            Setting::init_sequence('realestate', 'main', 'ownership.sequence', ['condo_id' => $id]);
-            Setting::init_sequence('realestate', 'main', 'property_lot.sequence', ['condo_id' => $id]);
-            Setting::init_sequence('realestate', 'main', 'apportionment.sequence', ['condo_id' => $id]);
-            Setting::init_sequence('realestate', 'main', 'suppliership.sequence', ['condo_id' => $id]);
-            Setting::init_sequence('sale', 'accounting', 'invoice.sequence', ['condo_id' => $id]);
-            Setting::init_sequence('purchase', 'accounting', 'invoice.sequence', ['condo_id' => $id]);
-            Setting::assert('finance', 'accounting', 'fiscal_year', date('Y'), ['condo_id' => $id]);
-            Setting::assert('sale', 'accounting', 'invoice.sequence_format', '%2d{year}-%05d{sequence}', ['condo_id' => $id]);
-            Setting::assert('purchase', 'accounting', 'invoice.sequence_format', '%2d{year}-%05d{sequence}', ['condo_id' => $id]);
+            Setting::assert_sequence('realestate', 'organization', 'ownership.sequence', 1, ['condo_id' => $id]);
+            Setting::assert_sequence('realestate', 'organization', 'property_lot.sequence', 1, ['condo_id' => $id]);
+            Setting::assert_sequence('realestate', 'organization', 'apportionment.sequence', 1, ['condo_id' => $id]);
+            Setting::assert_sequence('realestate', 'organization', 'suppliership.sequence', 1, ['condo_id' => $id]);
+            Setting::assert_sequence('sale', 'accounting', 'invoice.sequence', 1, ['condo_id' => $id]);
+            Setting::assert_sequence('purchase', 'accounting', 'invoice.sequence', 1, ['condo_id' => $id]);
+            Setting::assert_value('finance', 'accounting', 'fiscal_year', date('Y'), ['condo_id' => $id]);
+            Setting::assert_value('sale', 'accounting', 'invoice.sequence_format', '%2d{year}-%05d{sequence}', ['condo_id' => $id]);
+            Setting::assert_value('purchase', 'accounting', 'invoice.sequence_format', '%2d{year}-%05d{sequence}', ['condo_id' => $id]);
         }
     }
 
@@ -518,7 +524,7 @@ class Condominium extends \identity\Organisation {
     /**
      * Create mandatory dependencies for new Condominium
      */
-    public static function oncreate($self) {
+    public static function doInit($self) {
         $self
             // 1 - create specific sequences for accounting entries, invoices, lots, owners, ...
             ->do('generate_sequences')

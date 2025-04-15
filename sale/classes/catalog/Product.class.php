@@ -236,7 +236,7 @@ class Product extends Model {
                     'has_own_price' => null,
                     'can_sell'      => null,
                     'can_buy'       => null,
-                    'groups_ids'    => $product['product_model_id']['groups_ids'],
+                    'groups_ids'    => $product['product_model_id']['groups_ids'] ?? [],
                     'family_id'     => null
                 ]);
         }

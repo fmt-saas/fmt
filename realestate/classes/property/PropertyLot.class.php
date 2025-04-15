@@ -186,16 +186,20 @@ class PropertyLot extends \equal\orm\Model {
             if($propertyLot['state'] != 'instance') {
                 continue;
             }
+
             $sequence = Setting::fetch_and_add(
                     'realestate',
-                    'main',
+                    'organization',
                     "property_lot.sequence",
                     1,
                     [
                         'condo_id' => $propertyLot['condo_id']
                     ]
                 );
-            $result[$id] = sprintf("%05d", $sequence);
+
+            if($sequence) {
+                $result[$id] = sprintf("%05d", $sequence);
+            }
         }
         return $result;
     }

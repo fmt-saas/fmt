@@ -218,16 +218,20 @@ class Ownership extends \equal\orm\Model {
             if($ownership['state'] != 'instance') {
                 continue;
             }
+
             $sequence = Setting::fetch_and_add(
                     'realestate',
-                    'main',
-                    "ownership.sequence",
+                    'organization',
+                    'ownership.sequence',
                     1,
                     [
                         'condo_id' => $ownership['condo_id']
                     ]
                 );
-            $result[$id] = sprintf("%05d", $sequence);
+
+            if($sequence) {
+                $result[$id] = sprintf("%05d", $sequence);
+            }
         }
         return $result;
     }

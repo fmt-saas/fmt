@@ -111,18 +111,24 @@ class Organisation extends Identity {
         $self->read(['bank_account_ids', 'bank_account_iban', 'bank_account_bic']);
         foreach($self as $id => $organisation) {
             if(!isset($organisation['bank_account_ids']) || empty($organisation['bank_account_ids'])) {
-                BankAccount::create([
-                    'organisation_id'   => $organisation['id'],
-                    'bank_account_iban' => $organisation['bank_account_iban'],
-                    'bank_account_bic'  => $organisation['bank_account_bic']
-                ]);
+                if(isset($organisation['bank_account_iban'], $organisation['bank_account_bic'])) {
+                    BankAccount::create([
+                        'organisation_id'   => $id,
+                        'bank_account_iban' => $organisation['bank_account_iban'],
+                        'bank_account_bic'  => $organisation['bank_account_bic']
+                    ]);
+                }
             }
-            else {
+            /*
+            // #memo - this leads to multiple identical accounts
+            elseif(isset($organisation['bank_account_iban'])) {
                 $bank_account_id = reset($organisation['bank_account_ids']);
+                // #memo - BIC is computed
                 BankAccount::id($bank_account_id)->update([
                     'bank_account_iban' => $organisation['bank_account_iban']
                 ]);
             }
+            */
         }
     }
 

@@ -54,6 +54,14 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'default'           => false
             ],
 
+            'has_instant_reinvoice' => [
+                'type'              => 'boolean',
+                'description'       => 'Immediate reinvoicing of private charges.',
+                'help'              => 'When enabled, private charges are automatically reinvoiced as soon as they are recorded, without waiting for the end of the period or manual grouping.',
+                'default'           => false
+            ],
+
+
             'fund_usage_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\purchase\accounting\FundUsageLine',
@@ -339,6 +347,8 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         $self->read([
                 'id', 'condo_id', 'price', 'description',
                 'posting_date', 'has_date_range', 'date_from', 'date_to',
+                'has_instant_reinvoice',
+                'has_fund_usage',
                 'fiscal_year_id',
                 'suppliership_id' => [
                     'suppliership_code'
@@ -382,6 +392,8 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 throw new \Exception("missing_mandatory_journal", EQ_ERROR_INVALID_CONFIG);
             }
 
+            /*
+            // #memo - use of this account has been deprecated
             $reinvoicedPrivateExpenseAccount = Account::search([['condo_id', '=', $invoice['condo_id']], ['operation_assignment', '=', 'reinvoiced_private_expenses']])
                 ->read(['id', 'name'])
                 ->first();
@@ -389,6 +401,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 trigger_error("APP::unable to find a match for reinvoiced_private_account for condominium {$invoice['condo_id']}", EQ_REPORT_ERROR);
                 throw new \Exception("missing_mandatory_journal", EQ_ERROR_INVALID_CONFIG);
             }
+            */
 
             // retrieve the accounting account relating to the supplier
             $assignmentAccount = Account::search([
@@ -446,27 +459,29 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
 
             // 2) create entry lines for reserve funds use, if any
             // #memo - reserve fund use is always considered for a single date
-            foreach($invoice['fund_usage_lines_ids'] as $usage_line_id => $fundUsageLine) {
+            if($invoice['has_fund_usage']) {
+                foreach($invoice['fund_usage_lines_ids'] as $usage_line_id => $fundUsageLine) {
 
-                // create the credit line on the reserve fund
-                AccountingEntryLine::create([
-                        'condo_id'              => $invoice['condo_id'],
-                        'accounting_entry_id'   => $accountingEntry['id'],
-                        'name'                  => $invoice['description'],
-                        'account_id'            => $fundUsageLine['fund_account_id'],
-                        'debit'                 => 0.0,
-                        'credit'                => $fundUsageLine['amount']
-                    ]);
+                    // create the credit line on the reserve fund
+                    AccountingEntryLine::create([
+                            'condo_id'              => $invoice['condo_id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
+                            'name'                  => $invoice['description'],
+                            'account_id'            => $fundUsageLine['fund_account_id'],
+                            'debit'                 => 0.0,
+                            'credit'                => $fundUsageLine['amount']
+                        ]);
 
-                // create the debit line on the expense account (use of reserve fund)
-                AccountingEntryLine::create([
-                        'condo_id'              => $invoice['condo_id'],
-                        'accounting_entry_id'   => $accountingEntry['id'],
-                        'name'                  => $invoice['description'],
-                        'account_id'            => $fundUsageLine['expense_account_id'],
-                        'debit'                 => $fundUsageLine['amount'],
-                        'credit'                => 0.0
-                    ]);
+                    // create the debit line on the expense account (use of reserve fund)
+                    AccountingEntryLine::create([
+                            'condo_id'              => $invoice['condo_id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
+                            'name'                  => $invoice['description'],
+                            'account_id'            => $fundUsageLine['expense_account_id'],
+                            'debit'                 => $fundUsageLine['amount'],
+                            'credit'                => 0.0
+                        ]);
+                }
             }
 
             // 3) create entry lines for private expenses, if any, and keep track of what should be taken into account by the working capital
@@ -488,27 +503,30 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                             'credit'                => 0.0
                         ]);
 
-                    // create the debit line on the ownership account (working fund)
-                   AccountingEntryLine::create([
-                            'condo_id'              => $invoice['condo_id'],
-                            'accounting_entry_id'   => $accountingEntry['id'],
-                            'name'                  => $invoice['description'],
-                            'account_id'            => $ownership['ownership_account_id'],
-                            'invoice_line_id'       => $invoice_line_id,
-                            'debit'                 => $invoiceLine['price'],
-                            'credit'                => 0.0
-                        ]);
+                    if($invoice['has_instant_reinvoice']){
+                        // create the debit line on the ownership account (working fund)
+                        AccountingEntryLine::create([
+                                'condo_id'              => $invoice['condo_id'],
+                                'accounting_entry_id'   => $accountingEntry['id'],
+                                'name'                  => $invoice['description'],
+                                'account_id'            => $ownership['ownership_account_id'],
+                                'invoice_line_id'       => $invoice_line_id,
+                                'debit'                 => 0.0,
+                                'credit'                => $invoiceLine['price']
+                            ]);
 
-                    // create the credit line on the reserve fund
-                    AccountingEntryLine::create([
-                            'condo_id'              => $invoice['condo_id'],
-                            'accounting_entry_id'   => $accountingEntry['id'],
-                            'name'                  => $invoice['description'],
-                            'account_id'            => $reinvoicedPrivateExpenseAccount['id'],
-                            'invoice_line_id'       => $invoice_line_id,
-                            'debit'                 => 0.0,
-                            'credit'                => $invoiceLine['price']
-                        ]);
+                        // create the credit line on the reserve fund
+                        AccountingEntryLine::create([
+                                'condo_id'              => $invoice['condo_id'],
+                                'accounting_entry_id'   => $accountingEntry['id'],
+                                'name'                  => $invoice['description'],
+                                'account_id'            => $privateExpenseAccount['id'],
+                                'invoice_line_id'       => $invoice_line_id,
+                                'debit'                 => 0.0,
+                                'credit'                => $invoiceLine['price']
+                            ]);
+                    }
+
                 }
             }
 

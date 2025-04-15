@@ -145,11 +145,6 @@
             "description": "Liste des adresses liées à l'identité.",
             "help": ""
         },
-        "reference_partner_id": {
-            "label": "Personne de référence",
-            "description": "Contact pouvant représenter légalement l'organisation.",
-            "help": "Contact (personne physique) pouvant représenter légalement l'organisation."
-        },
         "user_id": {
             "label": "Utilisateur",
             "description": "Utilisateur associé à cette identité.",

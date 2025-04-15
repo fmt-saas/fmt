@@ -9,7 +9,7 @@ namespace realestate\management;
 
 use identity\Identity;
 
-class ManagingAgent extends \identity\Organisation {
+class ManagingAgent extends \identity\Identity {
 
     public static function getName() {
         return 'Managing Agent';

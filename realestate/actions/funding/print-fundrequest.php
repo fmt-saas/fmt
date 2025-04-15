@@ -326,7 +326,6 @@ if(!$owner) {
 $invoice['payment_reference'] = DataFormatter::format($invoice['payment_reference'], 'scor');
 $invoice['organisation_id']['bank_account_iban'] = DataFormatter::format($invoice['organisation_id']['bank_account_iban'], 'iban');
 $invoice['organisation_id']['phone'] = DataFormatter::format($invoice['organisation_id']['phone'], 'phone');
-$invoice['organisation_id']['fax'] = DataFormatter::format($invoice['organisation_id']['fax'], 'phone');
 */
 
 $values = [

@@ -250,7 +250,7 @@ class Partner extends Model {
         if(isset($values['identity_id'])) {
             $fields = [
                     'type_id','has_vat','vat_number','legal_name','firstname','lastname','lang_id',
-                    'email','phone','mobile','fax',
+                    'email','phone','mobile',
                     'address_street','address_dispatch','address_zip',
                     'address_city','address_state','address_country'
                 ];
@@ -273,7 +273,7 @@ class Partner extends Model {
     public static function onafterupdate($self, $values) {
         $common_fields = [
                 'type_id','has_vat','vat_number','legal_name','firstname','lastname','lang_id',
-                'email','phone','mobile','fax',
+                'email','phone','mobile',
                 'address_street','address_dispatch','address_zip',
                 'address_city','address_state','address_country'
             ];

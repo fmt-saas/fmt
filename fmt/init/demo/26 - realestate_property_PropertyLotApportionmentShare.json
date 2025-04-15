@@ -134,7 +134,7 @@
             {
                 "id": 18,
                 "condo_id": 2,
-                "apportionment_id": null,
+                "apportionment_id": 5,
                 "is_statutory": null,
                 "property_lot_id": 4,
                 "property_lot_shares": 333

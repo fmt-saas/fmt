@@ -438,7 +438,7 @@ class FiscalYear extends Model {
         $self->read(['condo_id', 'fiscal_periods_ids' => ['date_from']]);
         foreach($self as $id => $fiscalYear) {
 
-            // 1 - finalize periods order
+            // 1) finalize periods order
 
             $periods = $fiscalYear['fiscal_periods_ids']->get(true);
             usort($periods, fn($a, $b) => $a['date_from'] <=> $b['date_from']);
@@ -449,7 +449,7 @@ class FiscalYear extends Model {
                 ++$order;
             }
 
-            // 2 - create a dedicated balance for the fiscal year
+            // 2) create a dedicated balance for the fiscal year
 
             $currentBalance = CurrentBalance::create([
                     'condo_id'          => $fiscalYear['condo_id'],
@@ -462,6 +462,7 @@ class FiscalYear extends Model {
         $self->do('generate_sequences');
     }
 
+    /*
     public static function onbeforeOpen($self) {
         $self->read(['status', 'condo_id']);
 
@@ -475,6 +476,7 @@ class FiscalYear extends Model {
         }
 
     }
+    */
 
     /**
      * Perform tasks related to fiscal year opening.
@@ -558,18 +560,15 @@ class FiscalYear extends Model {
                 $fiscal_period_code = $fiscalPeriod['code'];
 
                 // sale invoices
-                Setting::assert_sequence('sale', 'accounting', "invoice.sequence.{$fiscal_year_code}.{$fiscal_period_code}");
-                Setting::init_sequence('sale', 'accounting', "invoice.sequence.{$fiscal_year_code}.{$fiscal_period_code}", ['condo_id' => $fiscalYear['condo_id']]);
+                Setting::assert_sequence('sale', 'accounting', "invoice.sequence.{$fiscal_year_code}.{$fiscal_period_code}", 1, ['condo_id' => $fiscalYear['condo_id']]);
 
                 // purchase invoices
-                Setting::assert_sequence('purchase', 'accounting', "invoice.period_sequence.{$fiscal_year_code}.{$fiscal_period_code}");
-                Setting::init_sequence('purchase', 'accounting', "invoice.period_sequence.{$fiscal_year_code}.{$fiscal_period_code}", ['condo_id' => $fiscalYear['condo_id']]);
+                Setting::assert_sequence('purchase', 'accounting', "invoice.period_sequence.{$fiscal_year_code}.{$fiscal_period_code}", 1, ['condo_id' => $fiscalYear['condo_id']]);
 
                 // create accounting entries sequences for all existing journals
                 foreach($journals as $journal) {
                     $journal_code = $journal['code'];
-                    Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}");
-                    Setting::init_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}", ['condo_id' => $fiscalYear['condo_id']]);
+                    Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}", 1, ['condo_id' => $fiscalYear['condo_id']]);
                 }
 
             }
