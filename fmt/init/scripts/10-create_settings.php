@@ -17,3 +17,9 @@ Setting::assert_value('finance', 'accounting', 'accounting_entry.sequence_format
 
 Setting::assert_sequence('sale', 'accounting', 'invoice.sequence', 1, ['organisation_id' => 1]);
 Setting::assert_sequence('finance', 'accounting', 'accounting_entry.sequence', 1, ['organisation_id' => 1]);
+
+
+// override core settings
+Setting::assert_value('core', 'locale', 'currency', '€');
+Setting::assert_value('core', 'locale', 'numbers.decimal_separator', ',');
+Setting::assert_value('core', 'locale', 'numbers.thousands_separator', '.');

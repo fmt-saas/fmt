@@ -73,13 +73,6 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'instant'           => true
             ],
 
-            'emission_date' => [
-                'type'              => 'datetime',
-                'description'       => 'Reference date for computing the due date.',
-                'help'              => 'This value can be changed while the invoice is `proforma`, but cannot be changed afterward (once emitted).',
-                'default'           => function() { return time(); },
-            ],
-
             'due_date' => [
                 'type'              => 'computed',
                 'result_type'       => 'date',
@@ -146,7 +139,23 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'description'       => "Fiscal year the fund request relates to.",
                 'required'          => true,
                 'domain'            => ['condo_id', '=', 'object.condo_id']
-            ]
+            ],
+
+            'posting_date' => [
+                'type'              => 'date',
+                'description'       => 'The date on which the invoice is recorded in the accounting system.',
+                'default'           => function () { return time(); },
+                'dependents'        => ['emission_date', 'fiscal_period_id']
+            ],
+
+            'emission_date' => [
+                'type'              => 'computed',
+                'result_type'       => 'date',
+                'relation'          => ['posting_date'],
+                'description'       => 'Date at which the invoice was emitted (by the system of origin).',
+                'help'              => 'For sale invoices, this value is the same as posting_date.',
+                'store'             => true
+            ],
 
         ];
     }
@@ -160,7 +169,6 @@ class Invoice extends \finance\accounting\invoice\Invoice {
 
         return $result;
     }
-
 
     public static function getPolicies(): array {
         return [

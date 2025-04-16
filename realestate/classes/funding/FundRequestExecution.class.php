@@ -43,14 +43,6 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
             // 'emission_date'
             // 'due_date'
 
-            'emission_date' => [
-                'type'              => 'datetime',
-                'usage'             => 'date/plain',
-                'description'       => 'Date at which the execution is planned.',
-                'required'          => true,
-                'dependents'        => ['name']
-            ],
-
             'invoice_type' => [
                 'type'              => 'string',
                 'description'       => 'Document type (fund requests are handled as sale invoices).',
@@ -114,7 +106,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                     'call' => [
                         'description' => 'Update the fund request execution to `invoice`.',
                         'help'        => 'This is a substitute to the parent sale invoice workflow (there is a single accounting entry for a fund request execution).',
-                        'policies'    => [],
+                        'policies'    => ['can_perform_execution'],
                         'onbefore'    => 'onbeforeCall',
                         'onafter'     => 'onafterCall',
                         'status'      => 'invoice'
@@ -150,6 +142,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
             ],
             'perform_execution' => [
                 'description'   => 'Perform the fund request execution by creating and validating resulting Accounting entries and Fundings.',
+                'help'          => 'This action is called by `onafterCall`, after emitting the invoice.',
                 'policies'      => [],
                 'function'      => 'doPerformExecution'
             ],
@@ -162,8 +155,45 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
     }
 
 
+    public static function getPolicies(): array {
+        return [
+            'can_perform_execution' => [
+                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'function'    => 'policyCanPerformExecution'
+            ]
+        ];
+    }
+
+    public static function policyCanPerformExecution($self): array {
+        $result = [];
+        $self->read(['status', 'fiscal_period_id', 'emission_date', 'posting_date']);
+
+        foreach($self as $id => $requestExecution) {
+
+            if($requestExecution['status'] != 'proforma') {
+                $result[$id] = [
+                    'invalid_status' => 'Request Execution status must be proforma.'
+                ];
+                continue;
+            }
+            if($requestExecution['emission_date'] != $requestExecution['posting_date']) {
+                $result[$id] = [
+                    'dates_mismatch' => 'Posting and Emission dates must be the same.'
+                ];
+                continue;
+            }
+            if(!$requestExecution['fiscal_period_id']) {
+                $result[$id] = [
+                    'missing_fiscal_period' => 'Fiscal period is mandatory (could not resolve).'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
     public static function onbeforeCall($self) {
-        $self->read(['organisation_id', 'condo_id', 'fiscal_year_id' => ['code']]);
+        $self->read(['organisation_id', 'condo_id', 'fiscal_year_id' => ['code'], 'fiscal_period_id' => ['code']]);
         foreach($self as $id => $requestExecution) {
             $format = Setting::get_value(
                     'sale',
@@ -171,19 +201,20 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                     'invoice.sequence_format',
                     '%2d{year}_%05d{sequence}',
                     [
-                        'condo_id'          => $requestExecution['condo_id']
+                        'condo_id' => $requestExecution['condo_id']
                     ]
                 );
 
             $fiscal_year_code = $requestExecution['fiscal_year_id']['code'];
+            $fiscal_period_code = $requestExecution['fiscal_period_id']['code'];
 
             $sequence = Setting::fetch_and_add(
                     'sale',
                     'accounting',
-                    'invoice.sequence.' . $fiscal_year_code,
+                    "invoice.sequence.{$fiscal_year_code}.{$fiscal_period_code}",
                     1,
                     [
-                        'condo_id'          => $requestExecution['condo_id']
+                        'condo_id' => $requestExecution['condo_id']
                     ]
                 );
 
@@ -213,9 +244,9 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
 
     public static function calcName($self): array {
         $result = [];
-        $self->read(['fund_request_id' => ['name'], 'emission_date']);
+        $self->read(['fund_request_id' => ['name'], 'posting_date']);
         foreach($self as $id => $requestExecution) {
-            $result[$id] = $requestExecution['fund_request_id']['name'] . ' ('. date('d/m/Y', $requestExecution['emission_date']) . ')';
+            $result[$id] = $requestExecution['fund_request_id']['name'] . ' ('. date('d/m/Y', $requestExecution['posting_date']) . ')';
         }
         return $result;
     }
@@ -366,7 +397,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
 
     public static function doGenerateFundings($self) {
         $self->read([
-                'emission_date',
+                'posting_date',
                 'due_date',
                 'fiscal_year_id' => ['date_from'],
                 'condo_id',
@@ -398,7 +429,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                 }
 
                 // a funding cannot be issued nor due in the past
-                $issue_date = max(strtotime('today'), $requestExecution['emission_date']);
+                $issue_date = max(strtotime('today'), $requestExecution['posting_date']);
                 $due_date = max(strtotime('today'), $requestExecution['issue_date']);
 
                 // CCC/CCCO/OOOXX

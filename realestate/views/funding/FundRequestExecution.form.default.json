@@ -47,7 +47,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "emission_date",
+                                                "value": "posting_date",
                                                 "width": "33%"
                                             },
                                             {

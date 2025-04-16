@@ -65,6 +65,16 @@ class PropertyLotApportionmentShare extends \equal\orm\Model {
         ];
     }
 
+    public static function canupdate($self) {
+        $self->read(['apportionment_id' => ['status']]);
+        foreach($self as $id => $apportionmentShare) {
+            if($apportionmentShare['apportionment_id']['status'] != 'draft') {
+                return ['status' => ['invalid' => 'Published apportionment cannot be updated.']];
+            }
+        }
+        return parent::canupdate($self);
+    }
+
     public static function calcName($self) {
         $result = [];
         $self->read(['property_lot_id' => ['property_lot_code', 'property_lot_ref'], 'property_lot_shares']);

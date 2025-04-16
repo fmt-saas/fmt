@@ -61,7 +61,6 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'default'           => false
             ],
 
-
             'fund_usage_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\purchase\accounting\FundUsageLine',
@@ -83,6 +82,14 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'type'              => 'date',
                 'description'       => 'Date at which the invoice was emitted.',
                 'required'          => true
+            ],
+
+            'posting_date' => [
+                'type'              => 'date',
+                'description'       => 'The date on which the invoice is recorded in the accounting system.',
+                'default'           => function () { return time(); },
+                'visible'           => ['has_date_range', '=', false],
+                'dependents'        => ['fiscal_period_id']
             ],
 
             'due_date' => [

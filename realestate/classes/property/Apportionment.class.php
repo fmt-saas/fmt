@@ -102,8 +102,41 @@ class Apportionment extends \equal\orm\Model {
                 'function'          => 'calcAssignedShares',
                 'description'       => "The total number of assigned shares (for control).",
                 'store'             => false
+            ],
+
+            'is_active' => [
+                'type'              => 'boolean',
+                'description'       => "Flag marking the apportionment as active.",
+                'help'              => "Apportionments cannot be removed, but marking them as non-active hide them in the selection lists.",
+                'default'           => true
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'draft',
+                    'published'
+                ],
+                'default'           => 'draft',
+                'description'       => 'Status of the Apportionment.'
             ]
 
+        ];
+    }
+
+    public static function getWorkflow() {
+        return [
+            'draft' => [
+                'description' => 'Draft apportionment, still waiting to be completed for validation.',
+                'icon' => 'draw',
+                'transitions' => [
+                    'publish' => [
+                        'description' => 'Publish the Apportionment (this cannot be undone).',
+                        'policies' => [],
+                        'status' => 'published',
+                    ]
+                ]
+            ]
         ];
     }
 

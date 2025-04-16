@@ -83,18 +83,6 @@
                                         "width": "50%",
                                         "items": [
                                             {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Organisation",
-                                                "value": "organisation_id",
-                                                "width": "50%",
-                                                "visible": ["condo_id", "=", null]
-                                            },
-                                            {
                                                 "type": "field",
                                                 "label": "Condominium",
                                                 "value": "condo_id",
@@ -104,12 +92,21 @@
                                             {
                                                 "type": "label",
                                                 "value": "",
-                                                "width": "50%",
-                                                "visible": ["condo_id", "=", null]
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "payment_reference",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "price",
                                                 "width": "50%"
                                             }
                                         ]

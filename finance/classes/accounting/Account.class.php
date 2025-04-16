@@ -193,6 +193,7 @@ class Account extends Model {
                     'private_expenses',                 // used for purchase invoice
                     'reinvoiced_private_expenses',      // used for purchase invoice
                     'reserve_fund',                     // used for FundRequest
+                    'rounding_adjustment',
                     'suppliers',
                     'work_expenses',
                     'work_fund_call',

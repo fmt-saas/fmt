@@ -65,13 +65,6 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'multilang'         => true
             ],
 
-            'posting_date' => [
-                'type'              => 'date',
-                'description'       => 'The date on which the invoice is recorded in the accounting system.',
-                'default'           => fn () => time(),
-                'visible'           => ['has_date_range', '=', false]
-            ],
-
             'supplier_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\supplier\Supplier',
@@ -106,7 +99,28 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'emission_date' => [
+                'type'              => 'date',
+                'description'       => 'The date on which the invoice is recorded in the accounting system.',
+                'onupdate'          => 'onupdateEmissionDate',
+
+            ],
+
+            'posting_date' => [
+                'type'              => 'date',
+                'description'       => 'Date at which the invoice was emitted (by the system of origin).',
+                'help'              => 'For sale invoices, this value is the same as posting_date.',
+                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
+            ],
+
         ];
+    }
+
+    public static function onupdateEmissionDate($self) {
+        $self->read(['emission_date']);
+        foreach($self as $id => $invoice) {
+            self::id($id)->update(['posting_date' => $invoice['emission_date']]);
+        }
     }
 
     /**
@@ -129,6 +143,11 @@ class Invoice extends \finance\accounting\invoice\Invoice {
     public static function onchange($event, $values) {
         $result = [];
         if(isset($values['condo_id'])) {
+            if(isset($event['emission_date'])) {
+                $result['posting_date'] = $event['emission_date'];
+                // force updating fiscal_year accordingly
+                $event['posting_date'] = $event['emission_date'];
+            }
             if(isset($event['posting_date']) || isset($event['date_from'])) {
                 if(isset($event['posting_date'])) {
                     $fiscalYear = FiscalYear::search([['condo_id', '=', $values['condo_id']], ['date_from', '<=', $event['posting_date']], ['date_to', '>=', $event['posting_date']]])

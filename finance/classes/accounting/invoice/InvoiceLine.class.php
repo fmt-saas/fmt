@@ -64,7 +64,8 @@ class InvoiceLine extends Model {
                 'type'              => 'float',
                 'usage'             => 'amount/rate',
                 'description'       => 'VAT rate to be applied.',
-                'default'           => 0.0
+                'default'           => 0.0,
+                'dependents'        => ['vat', 'price']
             ],
 
             'qty' => [
@@ -84,6 +85,15 @@ class InvoiceLine extends Model {
                 'usage'             => 'amount/rate',
                 'description'       => 'Total amount of discount to apply, if any.',
                 'default'           => 0.0
+            ],
+
+            'vat' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:4',
+                'function'          => 'calcVat',
+                'description'       => 'VAT amount to be applied.',
+                'store'             => true
             ],
 
             'total' => [
@@ -115,16 +125,27 @@ class InvoiceLine extends Model {
 
     public static function calcTotal($self) {
         $result = [];
-        $self->read(['qty','unit_price','free_qty','discount']);
+        $self->read(['qty', 'unit_price', 'free_qty', 'discount']);
         foreach($self as $id => $line) {
             $result[$id] = $line['unit_price'] * (1.0 - $line['discount']) * ($line['qty'] - $line['free_qty']);
         }
         return $result;
     }
 
+    public static function calcVat($self) {
+        $result = [];
+        $self->read(['total', 'vat_rate']);
+        foreach($self as $id => $line) {
+            $total = (float) $line['total'];
+            $vat_rate = (float) $line['vat_rate'];
+            $result[$id] = round($total * $vat_rate, 2);
+        }
+        return $result;
+    }
+
     public static function calcPrice($self) {
         $result = [];
-        $self->read(['total','vat_rate']);
+        $self->read(['total', 'vat_rate']);
         foreach($self as $id => $line) {
             $total = (float) $line['total'];
             $vat = (float) $line['vat_rate'];

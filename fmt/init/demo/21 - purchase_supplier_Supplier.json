@@ -1,0 +1,76 @@
+[
+    {
+        "name": "purchase\\supplier\\Supplier",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "name": "Immo Services",
+                "identity_id": 17,
+                "owner_identity_id": null,
+                "type_id": 3,
+                "type": "CO",
+                "description": null,
+                "bank_account_iban": "BE08457219881558",
+                "bank_account_bic": "GKCCBEBB",
+                "signature": null,
+                "legal_name": "Immo Services",
+                "short_name": null,
+                "has_vat": false,
+                "vat_number": null,
+                "registration_number": "0404.221.962",
+                "citizen_identification": null,
+                "nationality": "BE",
+                "has_parent": false,
+                "parent_id": null,
+                "firstname": null,
+                "lastname": null,
+                "gender": null,
+                "title": null,
+                "date_of_birth": null,
+                "lang_id": 2,
+                "address_street": null,
+                "address_dispatch": null,
+                "address_city": null,
+                "address_zip": null,
+                "address_state": null,
+                "address_country": "BE",
+                "address": " ",
+                "email": "immo.services@example.com",
+                "email_alt": null,
+                "phone": null,
+                "phone_alt": null,
+                "mobile": null,
+                "website": null,
+                "image_document_id": null,
+                "is_active": true,
+                "reference_identity_id": null,
+                "user_id": null,
+                "customer_id": null,
+                "supplier_id": null,
+                "contact_id": null,
+                "customer_contact_id": null,
+                "employee_id": null,
+                "organisation_id": null,
+                "managing_agent_id": null,
+                "owner_id": null
+            }
+        ]
+    },
+    {
+        "name": "purchase\\supplier\\SupplierShip",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "condo_id": 1,
+                "supplier_id": 1
+            },
+            {
+                "id": 2,
+                "condo_id": 2,
+                "supplier_id": 1
+            }
+        ]
+    }
+]

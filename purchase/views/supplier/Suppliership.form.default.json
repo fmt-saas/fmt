@@ -1,6 +1,20 @@
 {
     "name": "Supplier",
     "description": "A suppliership describes a relation between a supplier and a condominium.",
+    "actions": [
+        {
+            "id": "action.generate_accounts",
+            "label": "Generate accounts",
+            "description": "Generate accounting accounts.",
+            "controller": "core_model_perform",
+            "params": {
+                "entity": "purchase\\supplier\\Suppliership",
+                "action": "generate_accounts",
+                "ids": []
+            },
+            "confirm": false
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -20,6 +34,16 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "",
                                                 "width": "50%"
                                             },
                                             {

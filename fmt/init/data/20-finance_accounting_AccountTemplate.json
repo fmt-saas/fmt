@@ -65,7 +65,7 @@
             },
             {
                 "id": 8,
-                "code": "160000",
+                "code": "16001",
                 "is_control_account": false,
                 "description": "Reserve fund",
                 "account_chart_id": 1,
@@ -75,31 +75,31 @@
             },
             {
                 "id": 9,
-                "code": "160001",
+                "code": "16002",
                 "is_control_account": false,
                 "description": "Reserve fund (1)",
                 "account_chart_id": 1,
-                "operation_assignment": null,
+                "operation_assignment": "reserve_fund",
                 "tenant_share": 0,
                 "owner_share": 0
             },
             {
                 "id": 10,
-                "code": "160002",
+                "code": "16003",
                 "is_control_account": false,
                 "description": "Reserve fund (2)",
                 "account_chart_id": 1,
-                "operation_assignment": null,
+                "operation_assignment": "reserve_fund",
                 "tenant_share": 0,
                 "owner_share": 0
             },
             {
                 "id": 11,
-                "code": "160003",
+                "code": "16004",
                 "is_control_account": false,
                 "description": "Reserve fund (3)",
                 "account_chart_id": 1,
-                "operation_assignment": null,
+                "operation_assignment": "reserve_fund",
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3395,7 +3395,7 @@
             },
             {
                 "id": 341,
-                "code": "6816000",
+                "code": "68160010",
                 "is_control_account": false,
                 "description": "Reserve fund call",
                 "account_chart_id": 1,
@@ -3405,7 +3405,7 @@
             },
             {
                 "id": 342,
-                "code": "6816001",
+                "code": "68160011",
                 "is_control_account": false,
                 "description": "Reserve fund levy",
                 "account_chart_id": 1,

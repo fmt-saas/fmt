@@ -799,18 +799,16 @@ class Identity extends Model {
             }
         }
 
-        if(isset($event['bank_account_iban']) && isset($values['bank_account_bic'])) {
+        if(isset($event['bank_account_iban'])) {
             $bic = self::computeBicFromIban($event['bank_account_iban'], $lang);
-            if($list) {
-                $result['bank_account_bic'] = $bic;
-            }
+            $result['bank_account_bic'] = $bic;
         }
 
         return $result;
     }
 
     private static function computeBicFromIban($iban, $lang) {
-        $result = '';
+        $result = null;
 
         $normalized_iban = str_replace(' ', '', trim($iban));
 

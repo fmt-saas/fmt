@@ -55,7 +55,19 @@ class Invoice extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "Fiscal year the fund request relates to.",
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['fiscal_period_id']
+            ],
+
+            'fiscal_period_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'description'       => "Period of the fiscal year the invoice relates to (from posting_date).",
+                'help'              => "Period is automatically assigned when invoice is validated.",
+                'function'          => 'calcFiscalPeriodId',
+                'store'             => true,
+                'instant'           => true
             ],
 
             'status' => [
@@ -111,9 +123,17 @@ class Invoice extends Model {
                 'help'              => 'Reference can hold various formatted information : VCS (+++123/4567/89101+++), ISO 11649 (RFnn...), free text (max. 140 chars).'
             ],
 
+            'posting_date' => [
+                'type'              => 'date',
+                'description'       => 'The date on which the invoice is recorded in the accounting system.',
+                'default'           => function () { return time(); },
+                'dependents'        => ['fiscal_period_id']
+            ],
+
             'emission_date' => [
                 'type'              => 'date',
-                'description'       => 'Date at which the invoice was emitted.'
+                'description'       => 'Date at which the invoice was emitted (by the system of origin).',
+                'help'              => 'For sale invoices, this value is the same as posting_date.',
             ],
 
             'due_date' => [
@@ -195,6 +215,23 @@ class Invoice extends Model {
             */
 
         ];
+    }
+
+    /**
+     * #memo - we need this value even if it can still change (i.e. accounting entry is not yet validated)
+     */
+    public static function calcFiscalPeriodId($self) {
+        $result = [];
+        $self->read(['status', 'posting_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
+        foreach($self as $id => $invoice) {
+            foreach($invoice['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
+                if($invoice['posting_date'] >= $period['date_from'] && $invoice['posting_date'] <= $period['date_to']) {
+                    $result[$id] = $period_id;
+                    break;
+                }
+            }
+        }
+        return $result;
     }
 
     public static function calcTotal($self): array {

@@ -4,6 +4,7 @@
         "actions": {
             "ACTION.SAVE": [
                 {"id": "SAVE_AND_CONTINUE"},
+                {"id": "SAVE_AND_VIEW"},
                 {"id": "SAVE_AND_CLOSE"}
             ]
         }
@@ -35,7 +36,7 @@
         {
             "id": "action.activate",
             "label": "Activate",
-            "description": "Generate the lines of the fund request.",
+            "description": "Validate Fund request and mark it as active (this cannot be undone).",
             "controller": "core_model_transition",
             "params": {
                 "entity": "realestate\\funding\\FundRequest",
@@ -185,6 +186,7 @@
                     {
                         "id": "section.parts",
                         "label": "Parts",
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [

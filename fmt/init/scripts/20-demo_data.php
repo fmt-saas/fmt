@@ -19,6 +19,7 @@ use identity\Identity;
 use identity\User;
 use purchase\supplier\Suppliership;
 use realestate\ownership\Ownership;
+use realestate\property\Apportionment;
 use realestate\property\Condominium;
 use realestate\property\PropertyLot;
 
@@ -26,24 +27,28 @@ $condominiums = Condominium::search()->read(['id', 'account_chart_id']);
 
 $condominiums
     // init condominiums (generate sequences, chart of account & journals)
-    ->do('init')
-    // import & activate account chart
-    ->do('import_accounts', ['chart_template_id' => 1]);
+    ->do('init');
 
-foreach($condominiums as $id => $condominium) {
-    AccountChart::id($condominium['account_chart_id'])->transition('activation');
-}
+
+// import & activate account chart
+AccountChart::search(['condo_id', '<>', null])
+    ->do('import_accounts', ['chart_template_id' => 1])
+    ->transition('activation');
+
+Apportionment::search(['condo_id', '<>', null])
+    ->transition('publish');
 
 // assign codes to entities depending on Condominium
-PropertyLot::search()->read(['code']);
+PropertyLot::search()
+    ->read(['property_lot_code']);
 
 Ownership::search()
     ->read(['ownership_code'])
-    ->do('generate_account');
+    ->do('generate_accounts');
 
 Suppliership::search()
     ->read(['suppliership_code'])
-    ->do('generate_account');
+    ->do('generate_accounts');
 
 $user = User::id(3)
     ->read(['id'])

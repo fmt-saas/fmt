@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Décompte - Charges communes</title>
+    <style type="text/css">
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 20px;
+        }
+
+        h2 {
+            margin: 20px 0 5px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            page-break-inside: avoid;
+            border: 1px solid black;
+        }
+
+        th, td {
+            border-right: 1px solid black;
+            padding: 4px;
+            text-align: right;
+        }
+
+        th {
+            border: solid 1px black;
+        }
+
+        th:first-child, td:first-child {
+            text-align: left;
+        }
+
+        .total-lot {
+            font-weight: bold;
+        }
+
+        .total-lot td {
+            border-bottom: solid 1px black;
+        }
+
+        .page-break {
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+
+{% for owner in owners %}
+    <h1>{{ owner.name }}</h1>
+    <h2>Charges communes</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 35%;">Désignation</th>
+                <th style="width: 15%;">Quotités</th>
+                <th style="width: 12%;">Montant à répartir</th>
+                <th style="width: 13%;">Part propriétaire</th>
+                <th style="width: 12%;">Dont TVA</th>
+                <th style="width: 13%;">Part locataire</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        {% for lot in owner.property_lots %}
+                {% set total_apport = 0 %}
+                {% set total_owner = 0 %}
+                {% set total_vat = 0 %}
+                <tr>
+                    <td colspan="6" style="border-bottom: 0 !important;"><strong>{{ lot.name }}</strong></td>
+                </tr>
+
+                {% for expense in lot.expenses %}
+                    {% if expense.name == 'common_expense' %}
+                        {% for apport in expense.apportionments %}
+                            {% set quotites = apport.shares ~ ' / ' ~ apport.total_shares %}
+                            {% set apport_total = 0 %}
+                            {% set apport_owner = 0 %}
+                            {% set apport_tenant = 0 %}
+                            {% set apport_vat = 0 %}
+
+                            <tr>
+                                <td colspan="6" style="border-bottom: solid 1px black;"><div style="padding-left: 10px;"><strong>{{ apport.name }}</strong></div></td>
+                            </tr>
+
+                            {% for account in apport.accounts %}
+                                {% set apport_total = apport_total + account.total_amount %}
+                                {% set apport_owner = apport_owner + account.owner %}
+                                {% set apport_tenant = apport_tenant + account.tenant %}
+                                {% set apport_vat = apport_vat + account.vat %}
+
+                                <tr>
+                                    <td><div style="padding-left: 20px;">{{ account.code ~ ' - ' ~ account.name }}</div></td>
+                                    <td>{{ quotites }}</td>
+                                    <td>{{ account.total_amount | format_money() }}</td>
+                                    <td>{{ account.owner | format_money() }}</td>
+                                    <td>{{ account.vat | format_money() }}</td>
+                                    <td>{{ account.tenant | format_money() }}</td>
+                                </tr>
+                            {% endfor %}
+
+                            {% set total_apport = total_apport + apport_total %}
+                            {% set total_owner = total_owner + apport_owner %}
+                            {% set total_tenant = total_tenant + apport_tenant %}
+                            {% set total_vat = total_vat + apport_vat %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+
+                <tr class="total-lot">
+                    <td style="text-align: right;">Total {{ lot.ref }}</td>
+                    <td style="border-top: solid 1px black;"></td>
+                    <td style="border-top: solid 1px black;">{{ total_apport | format_money() }}</td>
+                    <td style="border-top: solid 1px black;">{{ total_owner | format_money() }}</td>
+                    <td style="border-top: solid 1px black;">{{ total_vat | format_money() }}</td>
+                    <td style="border-top: solid 1px black;">{{ total_tenant | format_money() }}</td>
+                </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="page-break"></div>
+{% endfor %}
+
+</body>
+</html>

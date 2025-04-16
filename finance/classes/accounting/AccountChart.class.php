@@ -165,7 +165,7 @@ class AccountChart extends Model {
             }
 
             foreach($template['accounts_ids'] as $account_id => $account) {
-                $values = [
+                $item = [
                         'condo_id'              => $accountChart['condo_id'],
                         'account_chart_id'      => $id,
                         'name'                  => $account['name'],
@@ -185,9 +185,9 @@ class AccountChart extends Model {
                     ];
 
                 if(isset($map_apportionments[$account['apportionment_code']])) {
-                    $values['apportionment_id'] = $map_apportionments[$account['apportionment_code']];
+                    $item['apportionment_id'] = $map_apportionments[$account['apportionment_code']];
                 }
-                Account::create($values);
+                Account::create($item);
             }
 
         }

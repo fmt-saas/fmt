@@ -591,7 +591,7 @@ class FundRequest extends \equal\orm\Model {
 
             foreach($execution_dates as $index => $execution_date) {
                 // search for existing execution at the date (there should be 0 or 1)
-                $existing_executions_ids = FundRequestExecution::search([['status', '=', 'invoice'], ['fund_request_id', '=', $id], ['emission_date', '=', $execution_date]])->ids();
+                $existing_executions_ids = FundRequestExecution::search([['status', '=', 'invoice'], ['fund_request_id', '=', $id], ['posting_date', '=', $execution_date]])->ids();
                 if(count($existing_executions_ids)) {
                     unset($execution_dates[$index]);
                     $executionLines = FundRequestExecutionLine::search(['request_execution_id', 'in', $existing_executions_ids])->read(['ownership_id', 'called_amount']);
@@ -639,7 +639,7 @@ class FundRequest extends \equal\orm\Model {
             }
 
             foreach($execution_dates as $execution_date) {
-                $execution_values['emission_date'] = $execution_date;
+                $execution_values['posting_date'] = $execution_date;
 
                 $requestExecution = FundRequestExecution::create($execution_values)->first();
 

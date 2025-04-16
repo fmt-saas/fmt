@@ -26,7 +26,8 @@ class Owner extends Identity {
                 'description'       => "The name of the Owner.",
                 'relation'          => ['identity_id' => 'name'],
                 'store'             => true,
-                'readonly'          => true
+                'readonly'          => true,
+                'onrevert'          => 'onrevertName'
             ],
 
             'condo_id' => [
@@ -75,6 +76,13 @@ class Owner extends Identity {
             ]
 
         ];
+    }
+
+    public static function onrevertName($self) {
+        $self->read(['ownership_id']);
+        foreach($self as $id => $owner) {
+            Ownership::id($owner['ownership_id'])->update(['name' => null]);
+        }
     }
 
     public static function calcOwnershipPercentage($self) {

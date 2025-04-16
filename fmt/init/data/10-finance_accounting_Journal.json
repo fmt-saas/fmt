@@ -8,6 +8,8 @@
                 "code": "LEDG",
                 "mnemo": "LEDG",
                 "journal_type": "LEDG",
+                "organisation_id": 1,
+                "condo_id": null,
                 "description": "General ledger"
             },
             {
@@ -15,6 +17,8 @@
                 "code": "SAL",
                 "mnemo": "SAL",
                 "journal_type": "SALE",
+                "organisation_id": 1,
+                "condo_id": null,
                 "description": "Sales"
             },
             {
@@ -22,6 +26,8 @@
                 "code": "PUR",
                 "mnemo": "PUR",
                 "journal_type": "PURC",
+                "organisation_id": 1,
+                "condo_id": null,
                 "description": "Purchases"
             },
             {
@@ -29,6 +35,8 @@
                 "code": "BNK",
                 "mnemo": "CASH",
                 "journal_type": "CASH",
+                "organisation_id": 1,
+                "condo_id": null,
                 "description": "Bank"
             },
             {
@@ -36,6 +44,8 @@
                 "code": "MISC",
                 "mnemo": "MISC",
                 "journal_type": "MISC",
+                "organisation_id": 1,
+                "condo_id": null,
                 "description": "Miscellaneous"
             },
             {
@@ -43,6 +53,8 @@
                 "code": "OPB",
                 "mnemo": "OPB",
                 "journal_type": "OPEN",
+                "organisation_id": 1,
+                "condo_id": null,
                 "description": "Opening Balances"
             }
         ]
