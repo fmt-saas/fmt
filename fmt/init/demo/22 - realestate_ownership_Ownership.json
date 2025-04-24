@@ -8,7 +8,7 @@
                 "condo_id": 1,
                 "ownership_type": "unique",
                 "total_shares": 100,
-                "date_from": "2010-03-26T00:00:00+00:00",
+                "date_from": null,
                 "date_to": null,
                 "transfer_from_id": null,
                 "transfer_to_id": null,

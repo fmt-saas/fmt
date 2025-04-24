@@ -1,0 +1,56 @@
+{
+    "name": "Expense Statement Owner Line",
+    "description": "Invoice lines describe the products and quantities that are part of an invoice.",
+    "operations": {
+        "total": {
+            "owner_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "tenant_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "vat_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Account",
+                "value": "account_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Property Lot",
+                "value": "property_lot_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "owner_amount",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "tenant_amount",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "vat_amount",
+                "width": "10%"
+            }
+        ]
+    }
+}

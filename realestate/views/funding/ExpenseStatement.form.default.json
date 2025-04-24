@@ -1,0 +1,196 @@
+{
+    "name": "Expense Statement",
+    "description": "An Expense Statement is issued at the end of the fiscal period and allows the co-owners to cover common expenses, as well as to reimburse any private charges they may have.",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {"id": "SAVE_AND_CONTINUE"},
+                {"id": "SAVE_AND_VIEW"},
+                {"id": "SAVE_AND_CLOSE"}
+            ]
+        }
+    },
+    "actions": [
+        {
+            "id": "action.generate_statement",
+            "label": "Generate statement",
+            "description": "Generate the lines of the statement.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\funding\\ExpenseStatement",
+                "action": "generate_statement"
+            },
+            "visible": ["status", "=", "proforma"]
+        },
+        {
+            "id": "action.invoice",
+            "label": "Validate",
+            "description": "To Invoice.",
+            "controller": "core_model_transition",
+            "visible": [["state", "=", "instance"], ["status", "=", "proforma"]],
+            "params": {
+                "entity": "realestate\\funding\\ExpenseStatement",
+                "transition": "validate",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.print_pdf",
+            "label": "Download Statement",
+            "help": "Current view domain is relayed to called controller.",
+            "description": "Generate a document for all owners for current statement.",
+            "controller": "realestate_funding_expensestatement_print-pdf"
+        }
+    ],
+    "routes": [
+        {
+            "id": "route.print_pdf",
+            "type": "entry",
+            "label": "Print Statement",
+            "icon": "print",
+            "description": "",
+            "route": "/?get=realestate_funding_ExpenseStatement_render-pdf&id=object.id",
+            "target": "_blank",
+            "absolute": true
+        }
+    ],
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_year_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_period_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "name",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "organisation_id",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "status",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "invoice_type",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "invoice_number",
+                                                "width": "100%",
+                                                "visible": false
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "posting_date",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "payment_terms_id",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "visible": ["state", "<>", "draft"],
+                "sections": [
+                    {
+                        "id": "section.statement_owners",
+                        "label": "Owners list",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "statement_owners_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.accounting_entry",
+                        "label": "Accounting entry",
+                        "visible": ["status", "=", "invoice"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "accounting_entry_id",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

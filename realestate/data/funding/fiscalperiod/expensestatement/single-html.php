@@ -5,31 +5,33 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 use core\setting\Setting;
-use equal\data\DataFormatter;
-use finance\accounting\FiscalYear;
-use identity\Organisation;
-use realestate\funding\FundRequest;
-use realestate\ownership\Owner;
-use realestate\ownership\Ownership;
-use sale\accounting\invoice\Invoice;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
-use Dompdf\Dompdf;
-use Dompdf\Options as DompdfOptions;
-
+use finance\accounting\FiscalPeriod;
+use realestate\funding\ExpenseStatement;
+use realestate\ownership\Owner;
 
 list($params, $providers) = eQual::announce([
     'description'   => 'Generate an html view of given fund request.',
+    'help'          => "variation de la génération d'un expense statement en fournissant un statement_id et un ownership_id",
     'params'        => [
 
         'fiscal_period_id' => [
+            'label'             => 'Fiscal Period',
+            'description'       => 'Identifier of the targeted Fiscal Period.',
             'type'              => 'many2one',
             'foreign_object'    => 'finance\accounting\FiscalPeriod',
-            'description'       => "Fiscal year the fund request relates to.",
-            'domain'            => ['condo_id', '=', 'object.condo_id']
+            'required'          => true
+        ],
+
+        'ownership_id' => [
+            'description'       => 'Identifier of the targeted Ownership (from which Owner is deduced).',
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\ownership\Ownership',
+            'required'          => true
         ],
 
         'debug' => [
@@ -53,7 +55,7 @@ list($params, $providers) = eQual::announce([
         'visibility' => 'protected'
     ],
     'response'      => [
-        'content-type'  => 'application/pdf',
+        'content-type'  => 'text/html',
         'accept-origin' => '*'
     ],
     'providers'     => ['context'],
@@ -82,10 +84,10 @@ $getTwigCurrency = function($equal_currency) {
     return $equal_twig_currency_map[$equal_currency] ?? $equal_currency;
 };
 
-$getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
+$getOrganisationLogo = function($object_id, $object_class='identity\Organisation') {
     $result = '';
 
-    $organisation = $object_class::id($organisation_id)->read(['image_document_id' => ['type', 'data']])->first();
+    $organisation = $object_class::id($object_id)->read(['image_document_id' => ['type', 'data']])->first();
 
     if($organisation && $organisation['image_document_id']) {
         $result = sprintf('data:%s;base64,%s',
@@ -137,16 +139,126 @@ $getLabels = function($lang) {
 };
 
 
-$lang = $params['lang'] ?? 'fr';
+$fiscalPeriod = FiscalPeriod::id($params['fiscal_period_id'])
+    ->read([
+        'date_from',
+        'date_to',
+        'condo_id' => [
+            'name', 'address_street', 'address_zip', 'address_city',
+            'managing_agent_id' => [
+                'name', 'address_street', 'address_dispatch', 'address_zip',
+                'address_city', 'address_country', 'has_vat', 'vat_number',
+                'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
+                'website', 'email', 'phone', 'has_vat', 'vat_number',
+                'image_document_id' => [
+                    'type', 'data'
+                ]
+            ]
+        ]
+    ])
+    ->first();
+
+if(!$fiscalPeriod) {
+    throw new Exception('unknown_fiscal_period', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+$statement = ExpenseStatement::search([
+        ['fiscal_period_id', '=', $fiscalPeriod['id']],
+        ['status', '<>', 'cancelled'],
+        ['invoice_type', '=', 'expense_statement']
+    ])
+    ->read([
+        'invoice_number',
+        'common_total',
+        'private_total',
+        'statement_owners_ids' => [
+            '@domain' => ['ownership_id', '=', $params['ownership_id']],
+            'schema'
+        ]
+    ])
+    ->first();
+
+if(!$statement) {
+    throw new Exception('no_matching_statement', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+$values = [
+        'date_from'         => $fiscalPeriod['date_from'],
+        'date_to'           => $fiscalPeriod['date_to'],
+        'nb_days'           => round(($fiscalPeriod['date_to'] - $fiscalPeriod['date_from']) / 86400, 0) + 1,
+        'common_total'      => $statement['common_total'],
+        'private_total'     => $statement['private_total'],
+        'owners'            => []
+    ];
+
+foreach($statement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
+    $values['owners'][] = $statementOwner['schema'];
+}
+
+if(!count($values['owners'])) {
+    throw new Exception('no_matching_owner', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+/*
+    #todo
+    copropriétaire
+
+        déterminer le bloc adresse en fonction du ownership_type et has_representant
+        pour le moment, on prend l'identity du premier owner associé au ownership_id
+
+    si has_representative use representative_identity_id
+    sinon soit on prendre le premier owner de la liste, soit on prend le owner_id renseigné dans les params (pour courrier personnalisé, même s'il s'agit du même ownership)
+*/
+
+$owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
+    ->read([
+        'identity_id' => [
+            'name', 'address_street', 'address_dispatch', 'address_zip',
+            'address_city', 'address_country', 'has_vat', 'vat_number',
+            'lang_id' => ['code']
+        ]
+    ])
+    ->first();
+
+if(!$owner) {
+    throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
+}
+
+$lang = $owner['identity_id']['lang_id']['code'];
 
 
-$values = eQual::run('get', 'realestate_funding_expense-statement', ['fiscal_period_id' => 2]);
+$values = array_merge($values, [
+    'title'               => 'Décompte Propriétaire',
 
+    'organisation'        => $fiscalPeriod['condo_id']['managing_agent_id'],
+    'organisation_logo'   => $getOrganisationLogo($fiscalPeriod['condo_id']['managing_agent_id'], 'realestate\management\ManagingAgent'),
+    'document_number'     => $statement['invoice_number'],
+    'condominium'         => $fiscalPeriod['condo_id'],
+
+    'owner'               => $owner['identity_id'],
+
+//    'payment_qr_code_uri' => $getPaymentQrCodeUri($invoice),
+    'date'                => time(),
+    'timezone'            => constant('L10N_TIMEZONE'),
+    'locale'              => constant('L10N_LOCALE'),
+    'date_format'         => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
+    'currency'            => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
+    'labels'              => $getLabels($lang),
+    'debug'               => $params['debug'],
+    'fiscal_period'       => [
+        'date_from' => $fiscalPeriod['date_from'],
+        'date_to'   => $fiscalPeriod['date_to']
+    ]
+]);
 
 
 try {
     // generate HTML
-    $loader = new TwigFilesystemLoader(EQ_BASEDIR.'/packages/realestate/views/funding');
+    $loader = new TwigFilesystemLoader([
+            EQ_BASEDIR.'/packages/realestate/views/_parts',
+            EQ_BASEDIR.'/packages/realestate/views/funding'
+        ]);
+
     $twig = new TwigEnvironment($loader);
 
     /** @var ExtensionInterface $extension **/
@@ -162,43 +274,6 @@ try {
 
     $template = $twig->load('ExpenseStatement.'.$params['view_id'].'.html');
     $html = $template->render($values);
-
-
-    /*
-        Convert HTML to PDF
-    */
-
-    // instantiate and use the dompdf class
-    $options = new DompdfOptions();
-    $options->set('isRemoteEnabled', true);
-    $dompdf = new Dompdf($options);
-    $dompdf->setPaper('A4', 'portrait');
-    $dompdf->loadHtml((string) $html);
-    $dompdf->render();
-    $canvas = $dompdf->getCanvas();
-
-    /*
-    // Pour forcer un nombre de pages pair
-    $page_count = $canvas()->get_page_count();
-
-    // Si impair, on ajoute une page blanche
-    if ($page_count % 2 !== 0) {
-        $blank_page_html = '<div style="page-break-before: always;"></div>';
-        $html .= $blank_page_html;
-
-        $dompdf->loadHtml($html);
-        $dompdf->render();
-        $canvas = $dompdf->getCanvas();
-    }
-    */
-
-    $font = $dompdf->getFontMetrics()->getFont("helvetica", "regular");
-    $canvas->page_text(530, $canvas->get_height() - 35, "p. {PAGE_NUM} / {PAGE_COUNT}", $font, 9, array(0,0,0));
-    // $canvas->page_text(40, $canvas->get_height() - 35, "Export", $font, 9, array(0,0,0));
-
-    // get generated PDF raw binary
-    $output = $dompdf->output();
-
 }
 catch(Exception $e) {
     trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_ERROR_INVALID_CONFIG);
@@ -206,7 +281,5 @@ catch(Exception $e) {
 }
 
 $context->httpResponse()
-        // ->header('Content-Disposition', 'attachment; filename="document.pdf"')
-        ->header('Content-Disposition', 'inline; filename="document.pdf"')
-        ->body($output)
+        ->body($html)
         ->send();

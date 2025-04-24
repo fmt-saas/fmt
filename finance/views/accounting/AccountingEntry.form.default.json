@@ -26,11 +26,11 @@
         {
             "id": "action.cancel",
             "label": "Cancel",
-            "controller": "core_model_transition",
-            "visible": ["status", "=", "validated"],
+            "controller": "core_model_do",
+            "visible": [["status", "=", "validated"], ["is_cancelled", "=", false]],
             "params": {
                 "entity": "finance\\accounting\\AccountingEntry",
-                "transition": "cancel",
+                "action": "cancel",
                 "ids": []
             },
             "confirm": true
@@ -74,12 +74,6 @@
                                                 "type": "field",
                                                 "label": "journal",
                                                 "value": "journal_id",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "invoice",
-                                                "value": "invoice_id",
                                                 "width": "33%"
                                             }
                                         ]

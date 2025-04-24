@@ -102,8 +102,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
             'emission_date' => [
                 'type'              => 'date',
                 'description'       => 'The date on which the invoice is recorded in the accounting system.',
-                'onupdate'          => 'onupdateEmissionDate',
-
+                'onupdate'          => 'onupdateEmissionDate'
             ],
 
             'posting_date' => [
@@ -213,44 +212,55 @@ class Invoice extends \finance\accounting\invoice\Invoice {
     }
 
     public static function getPolicies(): array {
-        return [
+        return array_merge(parent::getPolicies(), [
             'can_be_invoiced' => [
                 'description' => 'Verifies that the proforma can be invoiced.',
                 'function'    => 'policyCanBeInvoiced'
             ]
-        ];
+        ]);
     }
 
     public static function getActions() {
-        return [
+        return array_merge(parent::getActions(), [
             'create_funding' => [
                 'description'   => 'Create the funding according to the invoice.',
                 'policies'      => [],
                 'function'      => 'doCreateFunding'
             ],
             'assign_invoice_number' => [
-                'description'   => 'Creates accounting entries according to  invoice lines.',
+                'description'   => 'Creates accounting entries according to invoice lines.',
                 'policies'      => [],
                 'function'      => 'doAssignInvoiceNumber'
             ],
             'generate_accounting_entries' => [
-                'description'   => 'Creates accounting entries according to  invoice lines.',
+                'description'   => 'Creates accounting entries according to invoice lines.',
                 'policies'      => [],
                 'function'      => 'doGenerateAccountingEntries'
             ]
-        ];
+        ]);
     }
 
     public static function policyCanBeInvoiced($self): array {
         $result = [];
-        // #todo
+        $self->read(['invoice_lines_ids' => ['vat_rate']]);
+        foreach($self as $id => $invoice) {
+            foreach($invoice['invoice_lines_ids'] as $line_id => $line) {
+                if($line['vat_rate'] >= 1) {
+                    $result[$id] = [
+                        'invalid_vat_rate' => 'Vat rate must be a fraction of the price.'
+                    ];
+                    continue;
+                }
+            }
+        }
         return $result;
     }
 
     public static function onbeforeInvoice($self) {
         $self
             ->do('generate_accounting_entries')
-            ->do('assign_invoice_number');
+            ->do('assign_invoice_number')
+            ->do('validate_accounting_entries');
     }
 
     public static function doAssignInvoiceNumber($self) {

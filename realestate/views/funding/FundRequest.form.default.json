@@ -15,7 +15,7 @@
             "id": "action.generate_allocation",
             "label": "Generate allocation",
             "description": "Generate the lines of the fund request.",
-            "controller": "core_model_perform",
+            "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\funding\\FundRequest",
                 "action": "generate_allocation"
@@ -26,7 +26,7 @@
             "id": "action.generate_executions",
             "label": "Generate executions",
             "description": "Schedule the executions of the fund request.",
-            "controller": "core_model_perform",
+            "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\funding\\FundRequest",
                 "action": "generate_executions"
@@ -140,6 +140,17 @@
                                                 "type": "field",
                                                 "label": "Fiscal year",
                                                 "value": "fiscal_year_id",
+                                                "width": "66%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Fiscal period",
+                                                "value": "fiscal_period_id",
                                                 "width": "66%"
                                             },
                                             {

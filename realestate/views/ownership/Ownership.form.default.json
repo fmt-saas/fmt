@@ -5,7 +5,7 @@
             "id": "action.generate_accounts",
             "label": "Generate accounts",
             "description": "Generate accounting accounts.",
-            "controller": "core_model_perform",
+            "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\ownership\\Ownership",
                 "action": "generate_accounts",
@@ -18,9 +18,8 @@
             "label": "Print Funds Request",
             "icon": "savings",
             "description": "Generate the funds request document for a given fiscal year.",
-            "controller": "realestate_funding_print-fundrequest",
+            "controller": "realestate_ownership_fundrequests_print-pdf",
             "params": {
-                "entity": "realestate\\ownership\\Ownership",
                 "view_id": "print.default",
                 "debug": false
             }

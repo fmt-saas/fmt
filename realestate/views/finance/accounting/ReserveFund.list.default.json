@@ -1,0 +1,36 @@
+{
+    "name": "Fund Request",
+    "description": "A Reserve Fund is used by a Condominium as a link between a reserve fund account, an utilization account and an apportionment key.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Fund account",
+                "value": "fund_account_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Expense account",
+                "value": "expense_account_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Apportionment",
+                "value": "apportionment_id",
+                "width": "20%"
+            }
+        ]
+    }
+}

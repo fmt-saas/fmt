@@ -129,7 +129,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
     }
 
     public static function getActions() {
-        return [
+        return array_merge(parent::getActions(), [
             'generate_accounting_entry' => [
                 'description'   => 'Generate a draft of the resulting accounting entry and entry lines.',
                 'policies'      => [],
@@ -151,7 +151,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                 'policies'      => [],
                 'function'      => 'doCancelExecution'
             ]
-        ];
+        ]);
     }
 
 

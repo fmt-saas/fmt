@@ -6,7 +6,7 @@
             "id": "action.duplicate",
             "label": "Duplicate",
             "description": "Attempts to duplicate the apportionment.",
-            "controller": "core_model_perform",
+            "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\property\\Apportionment",
                 "action": "duplicate"

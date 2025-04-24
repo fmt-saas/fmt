@@ -9,6 +9,7 @@ namespace finance\accounting\invoice;
 
 use core\setting\Setting;
 use equal\orm\Model;
+use finance\accounting\AccountingEntry;
 
 class Invoice extends Model {
 
@@ -88,7 +89,8 @@ class Invoice extends Model {
                 'selection'         => [
                     'invoice',
                     'credit_note',
-                    'fund_request'
+                    'fund_request',
+                    'expense_statement'
                 ],
                 'default'           => 'invoice'
             ],
@@ -217,6 +219,16 @@ class Invoice extends Model {
         ];
     }
 
+
+    public static function getActions() {
+        return [
+            'validate_accounting_entries' => [
+                'description'   => 'Creates accounting entries according to invoice lines.',
+                'policies'      => [],
+                'function'      => 'doValidateAccountingEntries'
+            ]
+        ];
+    }
     /**
      * #memo - we need this value even if it can still change (i.e. accounting entry is not yet validated)
      */
@@ -246,19 +258,39 @@ class Invoice extends Model {
         return $result;
     }
 
-    public static function calcPrice($self): array {
-        $result = [];
-        $self->read(['invoice_lines_ids' => ['price']]);
-        $currency_decimal_precision = Setting::get_value('core', 'locale', 'currency.decimal_precision', 2);
-        foreach($self as $id => $invoice) {
+    protected static function computePrice($id): float {
+        $result = 0.0;
+        $invoice = static::id($id)->read(['invoice_lines_ids' => ['price']])->first();
+
+        if($invoice) {
+            $currency_decimal_precision = Setting::get_value('core', 'locale', 'currency.decimal_precision', 2);
+
             $price = array_reduce($invoice['invoice_lines_ids']->get(true), function ($c, $a) {
                 return $c + $a['price'];
             }, 0.0);
 
-            $result[$id] = round($price, $currency_decimal_precision);
+            $result = round($price, $currency_decimal_precision);
         }
 
         return $result;
+    }
+
+    public static function calcPrice($self): array {
+        $result = [];
+        $self->read(['invoice_lines_ids' => ['price']]);
+        foreach($self as $id => $invoice) {
+            $result[$id] = static::computePrice($id);
+        }
+        return $result;
+    }
+
+    public static function doValidateAccountingEntries($self) {
+        $self->read(['accounting_entry_id' => ['status']]);
+        foreach($self as $id => $invoice) {
+            if($invoice['accounting_entry_id']['status'] == 'pending') {
+                AccountingEntry::id($invoice['accounting_entry_id']['id'])->transition('validate');
+            }
+        }
     }
 
 }

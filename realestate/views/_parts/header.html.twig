@@ -1,0 +1,140 @@
+<!--
+
+    Expected input structure:
+
+    ```json
+    {
+        "debug": true,
+        "title": string,
+        "organisation_logo": "string",
+        "document_number": "string",
+        "organisation": {
+            "legal_name": "string",
+            "address_street": "string",
+            "address_zip": "string",
+            "address_city": "string",
+            "registration_number": "string (optional)"
+        },
+        "condominium": {
+            "name": "string",
+            "address_street": "string",
+            "address_zip": "string",
+            "address_city": "string"
+        },
+        "fiscal_period": {
+            "date_from": "date",
+            "date_to": "date"
+        },
+        "owner": {
+            "name": "string",
+            "address_street": "string (optional)",
+            "address_dispatch": "string (optional)",
+            "address_zip": "string",
+            "address_city": "string",
+            "address_country": "string",
+            "has_vat": "boolean",
+            "vat_number": "string (if has_vat = true)"
+        },
+        "date": "date",
+        "date_format": "string (ex: 'd/m/Y')",
+        "timezone": "string (ex: 'Europe/Brussels')",
+        "labels": {
+            "registration_number": "string",
+            "vat_number": "string (ex: 'TVA')",
+            "date": "string",
+            "invoice": "string"
+        }
+    }
+    ```
+
+    -->
+
+    <header class="{{ debug ? 'debug':'' }}">
+
+        <!-- organisation-info start -->
+            <div class="organisation-info {{ debug ? 'debug':'' }}">
+                {% if (organisation_logo | length > 0) %}
+                    <img src="{{ organisation_logo }}" />
+                {% endif %}
+                <div style="padding-left: 10px;">
+                    <h3>{{ organisation.legal_name }}</h3>
+                    <div>{{ organisation.address_street }}</div>
+                    <div>{{ organisation.address_zip }} {{ organisation.address_city }}</div>
+                    {% if organisation.registration_number | length > 0 %}
+                        <div>{{ labels.registration_number }}: <b>{{ organisation.registration_number }}</b></div>
+                    {% endif %}
+                </div>
+            </div>
+        <!-- organisation-info end -->
+        <!-- condominium-info start -->
+            <div class="condominium-info {{ debug ? 'debug' : '' }}">
+                <div style="padding-left: 10px; text-transform: uppercase;">
+                    <div style="font-weight: bold;">{{ condominium.name }}</div>
+                    <div>{{ condominium.address_street }}</div>
+                    <div>{{ condominium.address_zip }} {{ condominium.address_city }}</div>
+                </div>
+            </div>
+        <!-- condominium-info end -->
+
+        <!-- document-info start -->
+            <div class="document-info {{ debug ? 'debug' : '' }}">
+                <!-- fiscal_year-ref start -->
+                    <div class="fiscal_year-ref {{ debug ? 'debug' : '' }}">
+                    </div>
+                <!-- fiscal_year-ref start -->
+
+                <!-- fiscal_year-info start -->
+                    <div class="fiscal_year-info {{ debug ? 'debug' : '' }}">
+                        <h2 style="text-transform: uppercase; margin-bottom: 10px;">
+                            {{ title }}
+                        </h2>
+
+                        <table>
+                            {% if document_number | length > 0 %}
+                            <tr>
+                                <td style="text-transform: uppercase; padding-right: 10px;">N° DOC:</td>
+                                <td style="text-align: left;">{{ document_number }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td style="text-transform: uppercase; padding-right: 10px;">FAIT LE:</td>
+                                <td style="text-align: left;">{{ date | date(date_format, timezone) }}</td>
+                            </tr>
+                            <tr>
+                                <td style="text-transform: uppercase; padding-right: 10px;">PERIODE EXERICE:</td>
+                                <td>du {{ fiscal_period.date_from | date(date_format, timezone) }} au {{ fiscal_period.date_to | date(date_format, timezone) }}</td>
+                            </tr>
+
+                        </table>
+                    </div>
+                <!-- fiscal_year-info end -->
+            </div>
+        <!-- document-info end -->
+
+
+        <!-- owner-info start -->
+            <div class="owner-info {{ debug ? 'debug' : '' }}">
+                <div style="padding-left: 20px;">
+                    <div>{{ owner.name }}</div>
+                    {% if owner.address_street | length > 0 %}
+                        <div>{{ owner.address_street }}</div>
+                    {% endif %}
+
+                    {% if owner.address_dispatch | length > 0 %}
+                        <div>{{ owner.address_dispatch }}</div>
+                    {% endif %}
+
+                    {% if owner.address_city | length > 0 %}
+                        <div>{{ owner.address_zip }} {{ owner.address_city }}  </div>
+                    {% endif %}
+                    <!-- {{ owner.address_country }} -->
+                    {% if owner.has_vat and owner.vat_number | length > 0 %}
+                        <div>
+                            <b>{{ labels.vat_number }}:</b> {{ owner.vat_number }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        <!-- owner-info end -->
+
+    </header>

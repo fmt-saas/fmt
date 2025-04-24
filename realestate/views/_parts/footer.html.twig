@@ -1,0 +1,42 @@
+<!--
+
+    Expected input structure:
+
+    ```json
+    {
+        "debug": true,
+        "organisation": {
+            "legal_name": "string",
+            "address_street": "string",
+            "address_zip": "string",
+            "address_city": "string",
+            "registration_number": "string",
+            "bank_account_iban": "string",
+            "email": "string",
+            "website": "string",
+            "phone": "string",
+            "fax": "string (optional)"
+        },
+        "labels": {
+            "footer": {
+            "registration_number": "string (e.g. 'Company Number')",
+            "iban": "string (e.g. 'IBAN')",
+            "email": "string (e.g. 'Email')",
+            "web": "string (e.g. 'Website')",
+            "tel": "string (e.g. 'Phone')",
+            "fax": "string (e.g. 'Fax')"
+            }
+        }
+    }
+    ```
+-->
+
+    <footer class="{{ debug ? 'debug' : '' }}">
+        <!-- organisation-footer-info start -->
+        <div class="organisation-info">
+            <div>{{ organisation.legal_name }} - {{ organisation.address_street }} {{ organisation.address_zip }} {{ organisation.address_city }}</div>
+            <div>{{ labels.footer.registration_number }}: {{ organisation.registration_number }} - {{ labels.footer.iban }}: {{ organisation.bank_account_iban }}</div>
+            <div>{{ labels.footer.email }}: {{ organisation.email }} - {{ labels.footer.web }}: {{ organisation.website }} - {{ labels.footer.tel }}: {{ organisation.phone }}{% if organisation.fax %} - {{ labels.footer.fax }}: {{ organisation.fax }}{% endif %}</div>
+        </div>
+        <!-- organisation-footer-info end -->
+    </footer>

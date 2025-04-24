@@ -46,6 +46,14 @@ class FundRequest extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'fiscal_period_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'description'       => "Period of the fiscal year the invoice statement relates to.",
+                'help'              => "Posting date is automatically assigned on the last day of the period.",
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'request_type' => [
                 'type'              => 'string',
                 'description'       => 'Type of fund request.',
@@ -707,6 +715,7 @@ class FundRequest extends \equal\orm\Model {
     public static function onchange($event, $values) {
         $result = [];
         if(isset($event['request_type']) && $values['fiscal_year_id']) {
+            $result['request_account_id'] = null;
             if($event['request_type'] == 'expense_provisions') {
                 $fiscalYear = FiscalYear::id($values['fiscal_year_id'])->read(['fiscal_period_frequency', 'date_from', 'date_to'])->first();
                 $result['has_date_range'] = true;

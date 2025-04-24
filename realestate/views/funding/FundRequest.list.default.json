@@ -1,6 +1,15 @@
 {
     "name": "Fund Requests",
     "description": "",
+    "actions": [
+        {
+            "id": "action.print_pdf",
+            "label": "Print Funds Requests",
+            "help": "Current view domain is relayed to called controller.",
+            "description": "Generate a document for all owners for current fiscal year.",
+            "controller": "realestate_funding_fiscalyear_fundrequests_print-pdf"
+        }
+    ],
     "layout": {
         "items": [
             {
@@ -11,6 +20,7 @@
             },
             {
                 "type": "field",
+                "label": "type",
                 "value": "request_type",
                 "width": "15%"
             },

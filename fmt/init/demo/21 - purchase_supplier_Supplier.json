@@ -56,21 +56,5 @@
                 "owner_id": null
             }
         ]
-    },
-    {
-        "name": "purchase\\supplier\\SupplierShip",
-        "lang": "fr",
-        "data": [
-            {
-                "id": 1,
-                "condo_id": 1,
-                "supplier_id": 1
-            },
-            {
-                "id": 2,
-                "condo_id": 2,
-                "supplier_id": 1
-            }
-        ]
     }
 ]

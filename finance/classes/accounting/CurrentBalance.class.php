@@ -92,8 +92,8 @@ class CurrentBalance extends Balance {
 
             $delta = round($debit - $credit, 4);
 
-            $debit_balance += ($delta > 0.0) ? $delta : 0.0;
-            $credit_balance += ($delta < 0.0) ? abs($delta) : 0.0;
+            $debit_balance  = ($delta > 0.0) ? abs($delta) : 0.0;
+            $credit_balance = ($delta < 0.0) ? abs($delta) : 0.0;
 
             CurrentBalanceLine::id($balanceLine['id'])
                 ->update([

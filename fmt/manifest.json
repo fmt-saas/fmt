@@ -16,6 +16,15 @@
         "sale",
         "stats"
     ],
+    "requires_bin": {
+        "qpdf": {
+            "version": ">=10.0",
+            "check": "qpdf --version",
+            "package": {
+               "generic": "qpdf"
+            }
+        }
+    },
     "config": {
         "ORG_NAME": "FMT SRL",
         "ORG_URL": "https://symbiose.yesbabylon.com",

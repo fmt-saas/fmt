@@ -474,11 +474,10 @@ class Condominium extends \identity\Organisation {
             Setting::assert_sequence('realestate', 'organization', 'property_lot.sequence', 1, ['condo_id' => $id]);
             Setting::assert_sequence('realestate', 'organization', 'apportionment.sequence', 1, ['condo_id' => $id]);
             Setting::assert_sequence('realestate', 'organization', 'suppliership.sequence', 1, ['condo_id' => $id]);
-            Setting::assert_sequence('sale', 'accounting', 'invoice.sequence', 1, ['condo_id' => $id]);
-            Setting::assert_sequence('purchase', 'accounting', 'invoice.sequence', 1, ['condo_id' => $id]);
             Setting::assert_value('finance', 'accounting', 'fiscal_year', date('Y'), ['condo_id' => $id]);
-            Setting::assert_value('sale', 'accounting', 'invoice.sequence_format', '%2d{year}-%05d{sequence}', ['condo_id' => $id]);
-            Setting::assert_value('purchase', 'accounting', 'invoice.sequence_format', '%2d{year}-%05d{sequence}', ['condo_id' => $id]);
+            Setting::assert_value('sale', 'accounting', 'invoice.sequence_format', '%2d{year}/%02d{period}/%05d{sequence}', ['condo_id' => $id]);
+            Setting::assert_value('purchase', 'accounting', 'invoice.sequence_format', '%2d{year}/%02d{period}/%05d{sequence}', ['condo_id' => $id]);
+            // #memo - sequences for sale and purchase invoices are set in FiscalYear (since depending on year and period)
         }
     }
 

@@ -6,7 +6,7 @@
             "id": "action.generate_allocation",
             "label": "Generate allocation",
             "description": "Generate the lines of the fund request.",
-            "controller": "core_model_perform",
+            "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\funding\\FundRequestLine",
                 "action": "generate_allocation"

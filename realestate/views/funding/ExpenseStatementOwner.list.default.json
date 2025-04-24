@@ -1,0 +1,32 @@
+{
+    "name": "Expense Statement Owner",
+    "description": "Interface for model definition classes.",
+    "operations": {
+        "total": {
+            "expense_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "limit": 500,
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "ownership_id",
+                "width": "33%"
+            },
+            {
+                "type": "field",
+                "value": "property_lots_count",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "expense_amount",
+                "width": "15%"
+            }
+        ]
+    }
+}

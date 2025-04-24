@@ -89,10 +89,18 @@ class PropertyLot extends \equal\orm\Model {
 
             'nature_id' => [
                 'type'              => 'many2one',
-                'description'       => "Rental Unit which current unit belongs to, if any.",
+                'description'       => "Nature of the property lot.",
                 'foreign_object'    => 'realestate\property\PropertyLotNature',
                 'required'          => true,
                 'dependents'        => ['name', 'nature_id' => 'count_property_lots']
+            ],
+
+            'property_lot_nature' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "Nature name (from nature_id).",
+                'store'             => true,
+                'relation'           => ['nature_id' => 'name']
             ],
 
             'has_tenancy' => [

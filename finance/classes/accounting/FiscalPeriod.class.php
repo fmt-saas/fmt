@@ -67,7 +67,19 @@ class FiscalPeriod extends Model {
                 'description'       => 'Order of the period, based on its date within the fiscal year.',
                 'help'              => 'This value is assigned by parent Fiscal Year, and is needed for purchase invoice sequence numbering.',
                 'dependents'        => ['name']
+            ],
+
+            'status' => [
+                'type'        => 'string',
+                'selection'   => [
+                    'pending',
+                    'closed'
+                ],
+                'default'     => 'pending',
+                'description' => 'Status of the accounting period.',
+                'help'        => 'Status is `closed` once the expense statement has been validated.'
             ]
+
         ];
     }
 

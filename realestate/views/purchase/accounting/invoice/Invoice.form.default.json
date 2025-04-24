@@ -121,7 +121,8 @@
                                             {
                                                 "type": "field",
                                                 "value": "price",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "readonly": true
                                             }
                                         ]
                                     }

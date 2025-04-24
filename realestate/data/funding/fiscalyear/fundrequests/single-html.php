@@ -5,38 +5,31 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 use core\setting\Setting;
-use equal\data\DataFormatter;
 use finance\accounting\FiscalYear;
-use identity\Organisation;
 use realestate\funding\FundRequest;
 use realestate\ownership\Owner;
-use realestate\ownership\Ownership;
-use sale\accounting\invoice\Invoice;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
-use Dompdf\Dompdf;
-use Dompdf\Options as DompdfOptions;
 
 
 list($params, $providers) = eQual::announce([
-    'description'   => 'Generate an html view of given fund request.',
+    'description'   => 'Generate an html view of given fund request for a single ownership.',
     'params'        => [
-        'id' => [
-            'description'       => 'Identifier of the targeted Owner.',
+        'fiscal_year_id' => [
+            'description'       => 'Identifier of the targeted Fiscal Year.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\ownership\Ownership',
+            'foreign_object'    => 'finance\accounting\FiscalYear',
             'required'          => true
         ],
 
-        'fiscal_year_id' => [
+        'ownership_id' => [
+            'description'       => 'Identifier of the targeted Ownership (from which Owner is deduced).',
             'type'              => 'many2one',
-            'foreign_object'    => 'finance\accounting\FiscalYear',
-            'description'       => "Fiscal year the fund request relates to.",
-            'required'          => true,
-            'domain'            => ['condo_id', '=', 'object.condo_id']
+            'foreign_object'    => 'realestate\ownership\Ownership',
+            'required'          => true
         ],
 
         'debug' => [
@@ -60,7 +53,7 @@ list($params, $providers) = eQual::announce([
         'visibility' => 'protected'
     ],
     'response'      => [
-        'content-type'  => 'application/pdf',
+        'content-type'  => 'text/html',
         'accept-origin' => '*'
     ],
     'providers'     => ['context'],
@@ -166,27 +159,16 @@ $getPaymentQrCodeUri = function($legal_name, $bank_account_iban, $bank_account_b
 };
 
 
-$lang = $params['lang'] ?? 'fr';
+$fund_requests = [];
+$executions = [];
 
-/*
-if(!$lang) {
-    $invoice = Invoice::id($params['id'])->read(['customer_id' => ['lang_id' => ['code']]])->first();
-    $lang = $invoice['customer_id']['lang_id']['code'];
-}
-*/
 
-$ownership = Ownership::id($params['id'])->read(['id', 'ownership_type', 'has_representative', 'representative_identity_id'])->first();
-
-if(!$ownership) {
-    throw new Exception('unknown_ownership', EQ_ERROR_INVALID_PARAM);
-}
-
+// load all fund requests from a given fiscal year
 $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
     ->read([
         'date_from',
         'date_to',
         'fund_requests_ids',
-        // 'fund_requests_ids' => ['@domain' => ['status', '=', 'active']],
         'condo_id' => [
             'name', 'address_street', 'address_zip', 'address_city',
             'managing_agent_id' => [
@@ -206,9 +188,6 @@ if(!$fiscalYear) {
     throw new Exception('unknown_fiscal_year', EQ_ERROR_INVALID_PARAM);
 }
 
-$fund_requests = [];
-$executions = [];
-
 foreach($fiscalYear['fund_requests_ids'] as $fund_request_id) {
     $fundRequest = FundRequest::id($fund_request_id)
         ->read([
@@ -220,22 +199,23 @@ foreach($fiscalYear['fund_requests_ids'] as $fund_request_id) {
             'date_from',
             'date_to',
             'entry_lots_ids' => [
-                '@domain' => ['ownership_id', '=', $ownership['id']],
+                '@domain' => ['ownership_id', '=', $params['ownership_id']],
                 'ownership_id',
                 'apportionment_shares',
                 'allocated_amount',
-                'property_lot_id'   => ['name', 'property_lot_code'],
+                'property_lot_id'   => ['name', 'property_lot_code', 'property_lot_ref'],
                 'request_line_id'   => ['apportionment_id' => ['name', 'total_shares'], 'request_amount'],
                 'line_entry_id'     => ['allocated_amount']
             ],
             'execution_lines_ids' => [
-                '@domain' => ['ownership_id', '=', $ownership['id']],
+                '@domain' => ['ownership_id', '=', $params['ownership_id']],
                 'ownership_id',
                 'price',
                 'invoice_id' => ['emission_date', 'due_date', 'status']
             ]
         ])
         ->first(true);
+
 
     if($fundRequest['status'] != 'active') {
         continue;
@@ -258,11 +238,9 @@ foreach($fiscalYear['fund_requests_ids'] as $fund_request_id) {
         ];
 
     foreach($fundRequest['entry_lots_ids'] as $entry_lot) {
-        if($entry_lot['ownership_id'] != $ownership['id']) {
-            continue;
-        }
         $line = [
-            'code'          => $entry_lot['property_lot_id']['name'],
+            'name'          => $entry_lot['property_lot_id']['name'],
+            'code'          => $entry_lot['property_lot_id']['property_lot_code'],
             'apportionment' => $entry_lot['request_line_id']['apportionment_id']['name'],
             'total'         => $entry_lot['request_line_id']['request_amount'],
             'shares'        => $entry_lot['apportionment_shares'] . '/' . $entry_lot['request_line_id']['apportionment_id']['total_shares'],
@@ -273,9 +251,6 @@ foreach($fiscalYear['fund_requests_ids'] as $fund_request_id) {
     }
 
     foreach($fundRequest['execution_lines_ids'] as $execution_line) {
-        if($execution_line['ownership_id'] != $ownership['id']) {
-            continue;
-        }
         if($execution_line['invoice_id']['status'] === 'cancelled') {
             continue;
         }
@@ -300,18 +275,18 @@ usort($executions, function ($a, $b) {
     copropriétaire
 
         déterminer le bloc adresse en fonction du ownership_type et has_representant
-            => soit il y a un representative, soit ces sont les identités renseignées des les owner de l'ownership_id
-
         pour le moment, on prend l'identity du premier owner associé au ownership_id
 
+    si has_representative use representative_identity_id
+    sinon soit on prendre le premier owner de la liste, soit on prend le owner_id renseigné dans les params (pour courrier personnalisé, même s'il s'agit du même ownership)
 */
 
-
-$owner = Owner::search(['ownership_id', '=', $ownership['id']])
+$owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
     ->read([
         'identity_id' => [
             'name', 'address_street', 'address_dispatch', 'address_zip',
-            'address_city', 'address_country', 'has_vat', 'vat_number'
+            'address_city', 'address_country', 'has_vat', 'vat_number',
+            'lang_id' => ['code']
         ]
     ])
     ->first();
@@ -319,6 +294,8 @@ $owner = Owner::search(['ownership_id', '=', $ownership['id']])
 if(!$owner) {
     throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
 }
+
+$lang = $owner['identity_id']['lang_id']['code'];
 
 
 // adapt specific properties to TXT output
@@ -329,22 +306,27 @@ $invoice['organisation_id']['phone'] = DataFormatter::format($invoice['organisat
 */
 
 $values = [
-    'fiscal_year'         => [
+    'title'               => 'Document d\'appels de fonds',
+    'fiscal_period'         => [
             'date_from'     => $fiscalYear['date_from'],
             'date_to'       => $fiscalYear['date_to'],
         ],
     'fund_requests'       => $fund_requests,
     'executions'          => $executions,
+
     'organisation'        => $fiscalYear['condo_id']['managing_agent_id'],
-    'condominium'         => $fiscalYear['condo_id'],
-    'owner'               => $owner['identity_id'],
     'organisation_logo'   => $getOrganisationLogo($fiscalYear['condo_id']['managing_agent_id'], 'realestate\management\ManagingAgent'),
+
+    'condominium'         => $fiscalYear['condo_id'],
+
+    'owner'               => $owner['identity_id'],
+
 //    'payment_qr_code_uri' => $getPaymentQrCodeUri($invoice),
     'date'                => time(),
     'timezone'            => constant('L10N_TIMEZONE'),
     'locale'              => constant('L10N_LOCALE'),
     'date_format'         => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
-    'currency'            => $getTwigCurrency(Setting::get_value('core', 'units', 'currency', '€')),
+    'currency'            => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
     'labels'              => $getLabels($lang),
     'debug'               => $params['debug']
 ];
@@ -353,7 +335,11 @@ $values = [
 
 try {
     // generate HTML
-    $loader = new TwigFilesystemLoader(EQ_BASEDIR.'/packages/realestate/views/funding');
+    $loader = new TwigFilesystemLoader([
+            EQ_BASEDIR.'/packages/realestate/views/_parts',
+            EQ_BASEDIR.'/packages/realestate/views/funding'
+        ]);
+
     $twig = new TwigEnvironment($loader);
 
     /** @var ExtensionInterface $extension **/
@@ -370,42 +356,6 @@ try {
     $template = $twig->load('FundRequest.'.$params['view_id'].'.html');
     $html = $template->render($values);
 
-
-    /*
-        Convert HTML to PDF
-    */
-
-    // instantiate and use the dompdf class
-    $options = new DompdfOptions();
-    $options->set('isRemoteEnabled', true);
-    $dompdf = new Dompdf($options);
-    $dompdf->setPaper('A4', 'portrait');
-    $dompdf->loadHtml((string) $html);
-    $dompdf->render();
-    $canvas = $dompdf->getCanvas();
-
-    /*
-    // Pour forcer un nombre de pages pair
-    $page_count = $canvas()->get_page_count();
-
-    // Si impair, on ajoute une page blanche
-    if ($page_count % 2 !== 0) {
-        $blank_page_html = '<div style="page-break-before: always;"></div>';
-        $html .= $blank_page_html;
-
-        $dompdf->loadHtml($html);
-        $dompdf->render();
-        $canvas = $dompdf->getCanvas();
-    }
-    */
-
-    $font = $dompdf->getFontMetrics()->getFont("helvetica", "regular");
-    $canvas->page_text(530, $canvas->get_height() - 35, "p. {PAGE_NUM} / {PAGE_COUNT}", $font, 9, array(0,0,0));
-    // $canvas->page_text(40, $canvas->get_height() - 35, "Export", $font, 9, array(0,0,0));
-
-    // get generated PDF raw binary
-    $output = $dompdf->output();
-
 }
 catch(Exception $e) {
     trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_ERROR_INVALID_CONFIG);
@@ -413,7 +363,5 @@ catch(Exception $e) {
 }
 
 $context->httpResponse()
-        // ->header('Content-Disposition', 'attachment; filename="document.pdf"')
-        ->header('Content-Disposition', 'inline; filename="document.pdf"')
-        ->body($output)
+        ->body($html)
         ->send();

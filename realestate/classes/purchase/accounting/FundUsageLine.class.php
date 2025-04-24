@@ -57,7 +57,7 @@ class FundUsageLine extends \equal\orm\Model {
                 'description'       => "The key that the apportionment refers to.",
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
-                'relation'          => ['expense_account_id' => ['apportionment_id']],
+                'relation'          => ['fund_account_id' => ['apportionment_id']],
                 'store'             => true
             ],
 
@@ -108,20 +108,20 @@ class FundUsageLine extends \equal\orm\Model {
             $expense_account_id = self::computeExpenseAccountId($event['fund_account_id']);
             if($expense_account_id) {
                 $expenseAccount = Account::id($expense_account_id)->read(['id', 'name', 'apportionment_id'])->first();
-
                 $result['expense_account_id'] = [
                         'id'    => $expenseAccount['id'],
                         'name'  => $expenseAccount['name']
                     ];
-
-                if($expenseAccount['apportionment_id']) {
-                    $apportionment = Apportionment::id($expenseAccount['apportionment_id'])->read(['id', 'name'])->first();
-                    $result['apportionment_id'] = [
-                            'id'    => $apportionment['id'],
-                            'name'  => $apportionment['name']
-                        ];
-                }
             }
+            $fundAccount = Account::id($event['fund_account_id'])->read(['id', 'name', 'apportionment_id'])->first();
+            if($fundAccount && isset($fundAccount['apportionment_id'])) {
+                $apportionment = Apportionment::id($fundAccount['apportionment_id'])->read(['id', 'name'])->first();
+                $result['apportionment_id'] = [
+                        'id'    => $apportionment['id'],
+                        'name'  => $apportionment['name']
+                    ];
+            }
+
         }
         return $result;
     }

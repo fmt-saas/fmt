@@ -1,0 +1,212 @@
+{
+    "name": "Organisation",
+    "description": "Form holding basic information about an Organisation.",
+    "routes": [
+        {
+            "id": "item.fiscal_year",
+            "label": "Fiscal years",
+            "description": "",
+            "icon": "date_range",
+            "context": {
+                "entity": "finance\\accounting\\FiscalYear",
+                "view": "list.condo",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "item.reserve_funds",
+            "label": "Reserve Funds",
+            "description": "",
+            "icon": "savings",
+            "context": {
+                "entity": "realestate\\finance\\accounting\\ReserveFund",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "item.expense_statements",
+            "label": "Expense Statements",
+            "description": "",
+            "icon": "receipt",
+            "context": {
+                "entity": "realestate\\funding\\ExpenseStatement",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"], ["invoice_type", "=", "expense_statement"]]
+            }
+        },
+        {
+            "id": "item.accounting_entries",
+            "label": "Accounting entries",
+            "description": "",
+            "icon": "edit_note",
+            "context": {
+                "entity": "finance\\accounting\\AccountingEntry",
+                "view": "list.condo",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "item.current_balance",
+            "label": "Current Balance",
+            "description": "",
+            "icon": "balance",
+            "context": {
+                "entity": "finance\\accounting\\CurrentBalanceLine",
+                "view": "list.condo",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "item.accounts_chart",
+            "label": "Chart of Accounts",
+            "description": "",
+            "icon": "menu_book",
+            "context": {
+                "entity": "finance\\accounting\\AccountChart",
+                "view": "form.condo",
+                "domain": [["id", "=", "object.account_chart_id"], ["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "fund_requests",
+            "type": "entry",
+            "label": "Fund requests",
+            "icon": "savings",
+            "description": "",
+            "context": {
+                "entity": "realestate\\funding\\FundRequest",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        }
+    ],
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "legal_name",
+                                                "width": "66%",
+                                                "widget": {
+                                                    "header": false
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Language",
+                                                "value": "lang_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "registration_number",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "cadastral_number",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "16%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "type_id",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_vat",
+                                                "width": "50%",
+                                                "label": "Subject to VAT",
+                                                "help": "Do the company have a VAT number?"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%",
+                                                "visible": ["has_vat", "=", false]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "vat_number",
+                                                "width": "50%",
+                                                "visible": ["has_vat", "=", true]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "type",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_parent",
+                                                "visible": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "label": "Accounting",
+                        "id": "section.accounting",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_year_start",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_year_end",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_period_frequency",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

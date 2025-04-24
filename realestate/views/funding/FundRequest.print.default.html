@@ -17,8 +17,11 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 
     <title>
-        Document d'appels de fonds
+        {{ title }}
     </title>
+
+    {% include 'header.style.html.twig' %}
+    {% include 'footer.style.html.twig' %}
 
     <style type="text/css">
         @page {
@@ -38,20 +41,6 @@
             width: 100%;
         }
 
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            /* height must match body::margin-top */
-            height: 280px;
-            border: 0;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
         h1, h2, h3 {
             margin-top: 0;
             margin-bottom: 0;
@@ -65,84 +54,11 @@
             font-size: 15px;
         }
 
-        header.debug {
-            border: solid 1px blue;
-        }
-
-        header .organisation-info {
-            position: absolute;
-            height: 160px;
-            width: 50%;
-            max-width: 350px;
-            z-index: 1;
-        }
-
-        header .organisation-info img {
-            width: 350px;
-            height: auto;
-            /* #memo - we should keep this but it can lead to stretching the image and object-fit is not supported*/
-            /* max-height: 100px; */
-            border: 0;
-            margin-bottom: 10px;
-        }
-
-        header .organisation-info.debug {
-            border: solid 1px red;
-        }
-
-        header .owner-info {
-            position: absolute;
-            top: 160px;
-            right: 0;
-            width: 50%;
-            height: 120px;
-            font-size: 13px;
-            text-align: left;
-        }
-
-        header .owner-info.debug {
-            border: solid 1px green;
-        }
-
-        header .fiscalYear-details {
-            position: absolute;
-            top: 0px;
-            right: 0px;
-            height: 160px;
-            width: 50%;
-        }
-
-        header .fiscalYear-details .fiscalYear-ref {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            overflow: hidden
-        }
-
-        header .fiscalYear-details .fiscalYear-ref.debug {
-            border: solid 1px turquoise;
-        }
-
-        header .fiscalYear-details .fiscalYear-info {
-            position: absolute;
-            top: 0;
-            right: 0;
-            font-size: 13px;
-            width: 100%;
-            height: 100%;
-            text-align: left;
-            overflow: hidden;
-        }
-
-        header .fiscalYear-details .fiscalYear-info.debug {
-            border: solid 1px yellow;
-        }
-
         main.debug {
-            border: solid 1px brown;
+            outline: solid 1px brown;
         }
 
-        main .fiscalYear-payment-info {
+        main .fiscal_year-payment-info {
             font-size: 15px;
             position: relative;
             margin-top: 40px;
@@ -151,198 +67,60 @@
         }
 
         /*
-        main .fiscalYear-lines table {
+        main .fiscal_year-lines table {
             // #memo - if collapsed then horizontal lines strike through vertical ones
             // border-collapse: collapse;
         }
         */
 
-        main .fiscalYear-lines table.inner thead tr th {
+        main .fiscal_year-lines table.inner thead tr th {
             border-top: 1px solid black;
             border-bottom: 1px solid black;
             border-right: 1px solid black;
             font-weight: bold;
         }
 
-        main .fiscalYear-lines table.inner thead tr th:first-child {
+        main .fiscal_year-lines table.inner thead tr th:first-child {
             border-left: 1px solid black;
         }
 
-        main .fiscalYear-lines table.inner tbody tr td {
+        main .fiscal_year-lines table.inner tbody tr td {
             border-bottom: 1px solid lightgrey;
+            /* border-right: 1px solid black; */
+        }
+
+        main .fiscal_year-lines table.inner tbody tr td:first-child {
+            border-left: 1px solid black;
+        }
+
+        main .fiscal_year-lines table.inner tbody tr td:last-child {
             border-right: 1px solid black;
         }
 
-        main .fiscalYear-lines table.inner tbody tr td:first-child {
-            border-left: 1px solid black;
-        }
-
-        main .fiscalYear-lines table.inner tbody tr:last-child td {
+        main .fiscal_year-lines table.inner tbody tr:last-child td {
             border-bottom: 1px solid black;
         }
 
-        footer {
-            position: fixed;
-            bottom: 0px;
-            left: 0;
-            right: 0;
-            /* height must match body::margin-bottom */
-            height: 50px;
-            width: 100%;
-            overflow: hidden;
-            z-index: 1;
-            font-size: 11px;
-            border: 0;
-            margin: 0;
-            padding: 0;
-            background-color: white;
-            border-top: solid 1px black;
-        }
-
-        footer.debug {
-            border: solid 1px yellow;
-        }
-
-        footer .organisation-info {
-            margin-top: 10px;
-            text-align: center;
-        }
     </style>
 </head>
 
 <body>
-    <header class="{{ debug ? 'debug':'' }}">
-
-        <!-- organisation-info start -->
-            <div class="organisation-info {{ debug ? 'debug':'' }}">
-                {% if (organisation_logo | length > 0) %}
-                    <img src="{{ organisation_logo }}" alt="Company logo" />
-                {% endif %}
-                <div style="margin-left: 8px;">
-                    <h3>{{ organisation.legal_name }}</h3>
-                    <div>{{ organisation.address_street }} {{ organisation.address_zip }} {{ organisation.address_city }}</div>
-                    <div>{{ labels.registration_number }}: <b>{{ organisation.registration_number }}</b></div>
-                    <div>{{ labels.vat_number }}:
-                        <strong>
-                        {% if (organisation.has_vat == true) %}
-                            {{ organisation.vat_number }}
-                        {% else %}
-                            N/A
-                        {% endif %}
-                        </strong>
-                    </div>
-                </div>
-            </div>
-        <!-- organisation-info end -->
-
-        <!-- fiscalYear-details start -->
-            <div class="fiscalYear-details {{ debug ? 'debug' : '' }}">
-                <!-- fiscalYear-ref start -->
-                    <div class="fiscalYear-ref {{ debug ? 'debug' : '' }}">
-                    </div>
-                <!-- fiscalYear-ref start -->
-
-                <!-- fiscalYear-info start -->
-                    <div class="fiscalYear-info {{ debug ? 'debug' : '' }}">
-                        <h2 style="text-transform: uppercase; margin-bottom: 10px;">
-                            <!-- {{ labels.invoice }} -->
-                            Document d'appel de fonds
-                        </h2>
-
-                        <table>
-                            <tr>
-                                <td style="text-transform: uppercase; padding-right: 10px;">FAIT LE:</td>
-                                <!-- {{ labels.date }}:-->
-                                <td>{{ date | date(date_format, timezone) }}</td>
-                            </tr>
-                            <tr>
-                                <td style="text-transform: uppercase; padding-right: 10px; vertical-align: top;">IMMEUBLE:</td>
-                                <td style="text-transform: uppercase;">
-                                    <div style="font-weight: bold;">{{ condominium.name }}</div>
-                                    <div>{{ condominium.address_street }}</div>
-                                    <div>{{ condominium.address_zip }} {{ condominium.address_city }}</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="text-transform: uppercase; padding-right: 10px;">PERIODE EXERICE:</td>
-                                <td>du {{ fiscal_year.date_from | date(date_format, timezone) }} au {{ fiscal_year.date_to | date(date_format, timezone) }}</td>
-                            </tr>
-
-                        </table>
-                    </div>
-                <!-- fiscalYear-info end -->
-            </div>
-        <!-- fiscalYear-details end -->
-
-
-        <!-- owner-info start -->
-            <div class="owner-info {{ debug ? 'debug' : '' }}">
-                <table>
-                    <tr>
-                        <td style="width: 70px; vertical-align: top;">
-                            <b>{{ labels.customer_name }}:</b>
-                        </td>
-                        <td>
-                            {{ owner.name }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="vertical-align: top;">
-                            <b>{{ labels.customer_address }}:</b>
-                        </td>
-                        <td>
-                            {% if owner.address_street|length > 0 %}
-                                <div>{{ owner.address_street }}</div>
-                            {% endif %}
-
-                            {% if owner.address_dispatch|length > 0 %}
-                                <div>{{ owner.address_dispatch }}</div>
-                            {% endif %}
-
-                            <div>{{ owner.address_city }} {{ owner.address_zip }} {{ owner.address_country }}</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="vertical-align: top;">
-                            <b>{{ labels.vat_number }}:</b>
-                        </td>
-                        <td>
-                            {% if owner.has_vat and owner.vat_number|length > 0 %}
-                                {{ owner.vat_number }}
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        <!-- owner-info end -->
-
-    </header>
-
-    <footer class="{{ debug ? 'debug' : '' }}">
-        <!-- organisation-footer-info start -->
-        <div class="organisation-info">
-            <div>{{ organisation.legal_name }} - {{ organisation.address_street }} {{ organisation.address_zip }} {{ organisation.address_city }}</div>
-            <div>{{ labels.footer.registration_number }}: {{ organisation.registration_number }} - {{ labels.footer.iban }}: {{ organisation.bank_account_iban }}</div>
-            <div>{{ labels.footer.email }}: {{ organisation.email }} - {{ labels.footer.web }}: {{ organisation.website }} - {{ labels.footer.tel }}: {{ organisation.phone }}{% if organisation.fax %} - {{ labels.footer.fax }}: {{ organisation.fax }}{% endif %}</div>
-        </div>
-        <!-- organisation-footer-info end -->
-    </footer>
+    {% include 'header.html.twig' %}
+    {% include 'footer.html.twig' %}
 
     <main class="{{ debug ? 'debug' : '' }}">
         <!-- fund_requests start -->
 
-            <div class="fiscalYear-lines">
+            <div class="fiscal_year-lines">
                 <table class="inner" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: auto;">
                     <thead>
                         <tr>
                             <th style="text-align: center; padding-left: 7px; width: 20%;">
-                                N° LOTS
+                                Nature des opérations
                                 <!-- {{ labels.columns['product'] }} -->
                             </th>
                             <th style="text-align: center; padding-right: 7px; width: 30%;">
-                                Nature des opérations
+                                Clé de répartition
                             </th>
                             <th style="text-align: center; padding-right: 7px; width: 15%;">
                                 Montants
@@ -359,17 +137,20 @@
                     {% for fund_request in fund_requests %}
 
                         <tr>
-                            <td></td>
-                            <td colspan="3" style="text-align: left;">
+                            <td colspan="5" style="text-align: left;">
                                 <strong>{{ fund_request.name }}</strong>
                             </td>
-                            <td></td>
                         </tr>
 
                         {% for line in fund_request.lines %}
                         <tr>
+                            <td colspan="5">
+                                {{ line.name }}
+                            </td>
+                        </tr>
+                        <tr>
                             <td>
-                                {{ line.code }}<br />
+                                <!-- {{ line.code }}<br /> -->
                             </td>
                             <td>
                                 {{ line.apportionment }}
@@ -386,11 +167,11 @@
                         </tr>
                         {% endfor %}
                         <tr>
-                            <td></td>
-                            <td colspan="3" style="text-align: right;">
+                            <td style="border-top: solid 1px black !important;"></td>
+                            <td colspan="3" style="border-top: solid 1px black !important; text-align: right;">
                                 <strong>Total de l'appel</strong>
                             </td>
-                            <td style="text-align: right;"><strong>{{ fund_request.total | format_money() }}</strong></td>
+                            <td style="border-top: solid 1px black !important; text-align: right;"><strong>{{ fund_request.total | format_money() }}</strong></td>
                         </tr>
 
                     {% endfor %}
@@ -437,7 +218,7 @@
                 Planification des versements attendus :
             </div>
 
-            <div class="fiscalYear-lines">
+            <div class="fiscal_year-lines">
                 <table class="inner" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: auto;">
                     <thead>
                         <tr>
@@ -488,7 +269,7 @@
 
         <!--
         {% if item.status != 'proforma'  %}
-            <div class="fiscalYear-payment-info" style="height: 180px;">
+            <div class="fiscal_year-payment-info" style="height: 180px;">
                 <div style="padding-left: 15px; padding-top: 15px;">
                     {% set price = '<b>' ~ item.price | format_money() ~ '</b>' %}
                     {% set due_date = '<b>' ~ item.due_date | date(date_format, timezone) ~ '</b>' %}

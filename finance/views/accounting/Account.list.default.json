@@ -27,28 +27,25 @@
             },
             {
                 "type": "field",
-                "value": "account_nature",
-                "width": "15%",
-                "visible": false
-            },
-            {
-                "type": "field",
                 "label": "Control",
                 "value": "is_control_account",
                 "width": "10%"
             },
             {
                 "type": "field",
+                "label": "Class",
                 "value": "account_class",
                 "width": "20%"
             },
             {
                 "type": "field",
+                "label": "Type",
                 "value": "account_type",
                 "width": "10%"
             },
             {
                 "type": "field",
+                "label": "Nature",
                 "value": "account_nature",
                 "width": "10%"
             },
@@ -59,11 +56,13 @@
             },
             {
                 "type": "field",
+                "label": "Tenant",
                 "value": "tenant_share",
                 "width": "10%"
             },
             {
                 "type": "field",
+                "label": "Owner",
                 "value": "owner_share",
                 "width": "10%"
             },

@@ -52,7 +52,17 @@ class ReserveFund extends \equal\orm\Model {
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account for fund utilization.",
                 'ondelete'          => 'null',
-                'domain'            => [['condo_id', '=', 'object.condo_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id']],
+                'dependents'        => ['account_code']
+            ],
+
+            'expense_account_code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['expense_account_id' => 'code'],
+                'description'       => "Code of the expense account associated to the Reserve Fund.",
+                'store'             => true,
+                'instant'           => true
             ],
 
             'apportionment_id' => [

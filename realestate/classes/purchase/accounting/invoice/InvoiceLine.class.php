@@ -110,6 +110,11 @@ class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
 
     public static function onchange($event, $values) {
         $result = [];
+        // check VAT
+        if(isset($event['vat_rate']) && $event['vat_rate'] >= 1) {
+            $result['vat_rate'] = round($event['vat_rate'] / 100, 2);
+            $event['vat_rate'] = $result['vat_rate'];
+        }
         // update price
         if(array_key_exists('vat_rate', $event) && $values['total']) {
             $result['price'] = round($values['total'] * (1 + $event['vat_rate']), 2);
@@ -134,6 +139,15 @@ class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
                     ];
             }
         }
+
+        if(isset($event['tenant_share'])) {
+            $result['owner_share'] = 100 - intval($event['tenant_share']);
+        }
+        elseif(isset($event['owner_share'])) {
+            $result['tenant_share'] = 100 - intval($event['owner_share']);
+        }
+
+        // synchronize ownership & property lots
         if(array_key_exists('ownership_id', $event)) {
             if($event['ownership_id']) {
                 $ownership = Ownership::id($event['ownership_id'])->read(['property_lots_ids'])->first();

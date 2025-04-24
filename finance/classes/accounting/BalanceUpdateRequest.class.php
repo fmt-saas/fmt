@@ -53,6 +53,39 @@ class BalanceUpdateRequest extends Model {
         ];
     }
 
+    public static function getActions() {
+        return [
+            'process' => [
+                'description'   => 'Perform the update of the balance according to given accounting entry.',
+                'policies'      => ['can_be_processed'],
+                'function'      => 'doProcess'
+            ]
+        ];
+    }
+
+    public static function getPolicies(): array {
+        return [
+            'can_be_processed' => [
+                'description' => 'Verifies that an accounting entry can be cancelled (validated and not already cancelled).',
+                'function'    => 'policyCanBeProcessed'
+            ]
+        ];
+    }
+
+    public static function policyCanBeProcessed($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $accountingEntry) {
+            if($accountingEntry['status'] != 'pending') {
+                $result[$id] = [
+                        'invalid_status' => 'Request already processed.'
+                    ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
     public static function doProcess($self) {
         $self->read(['status', 'balance_id', 'accounting_entry_id' => ['entry_lines_ids' => ['account_id', 'debit', 'credit']]]);
         foreach($self as $id => $request) {

@@ -1,10 +1,10 @@
 <?php
 /*
-    This file is part of the Discope property management software.
-    Author: Yesbabylon SRL, 2020-2022
-    License: GNU AGPL 3 license <http://www.gnu.org/licenses/>
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Original author(s): Yesbabylon SA
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
-
 
 use equal\orm\Domain;
 

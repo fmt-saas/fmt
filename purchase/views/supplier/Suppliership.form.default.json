@@ -6,7 +6,7 @@
             "id": "action.generate_accounts",
             "label": "Generate accounts",
             "description": "Generate accounting accounts.",
-            "controller": "core_model_perform",
+            "controller": "core_model_do",
             "params": {
                 "entity": "purchase\\supplier\\Suppliership",
                 "action": "generate_accounts",

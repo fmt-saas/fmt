@@ -12,6 +12,7 @@ use finance\accounting\FiscalYear;
 use finance\accounting\Account;
 use finance\accounting\Journal;
 use fmt\setting\Setting;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat\Wizard\Accounting;
 use realestate\ownership\Ownership;
 use realestate\purchase\accounting\AccountingEntry;
 use realestate\purchase\accounting\AccountingEntryLine;
@@ -73,7 +74,8 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
             'accounting_entries_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\purchase\accounting\AccountingEntry',
-                'foreign_field'     => 'invoice_id',
+                'foreign_field'     => 'origin_object_id',
+                'domain'            => ['origin_object_class', '=', 'realestate\purchase\accounting\invoice\Invoice'],
                 'description'       => 'Accounting entries relating to the invoice.',
                 'help'              => "Purchase invoices might be subject to several accounting entries."
             ],
@@ -81,7 +83,8 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
             'emission_date' => [
                 'type'              => 'date',
                 'description'       => 'Date at which the invoice was emitted.',
-                'required'          => true
+                'required'          => true,
+                'onupdate'          => 'onupdateEmissionDate'
             ],
 
             'posting_date' => [
@@ -143,16 +146,6 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'description' => 'Verifies that an invoice can be allocated of the posting date(s).',
                 'function'    => 'policyCanBeAllocated'
             ],
-        ]);
-    }
-
-    public static function getActions() {
-        return array_merge(parent::getActions(), [
-            'validate_accounting_entries' => [
-                'description'   => 'Validate (emit) the generated accounting entries.',
-                'policies'      => [],
-                'function'      => 'doValidateAccountingEntries'
-            ]
         ]);
     }
 
@@ -230,8 +223,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
 
         }
 /*
-#todo
-FundUsageLines
+#todo - FundUsageLines
 * il faut que le montant du compte de réserve choisi soit suffisant pa rapport au montant assigné
 pour le trouver il faut prendre la dernière balance périodique, et ajouter tous les mouvements jusqu'à la date de facture
 
@@ -264,7 +256,14 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 $fiscalPeriod = FiscalPeriod::search([['date_from', '=', $date], ['condo_id', '=', $invoice['condo_id']]])
                     ->read(['fiscal_year_id' => ['id', 'status']])
                     ->first();
-                if($fiscalPeriod['fiscal_year_id'] && !in_array($fiscalPeriod['fiscal_year_id']['status'], ['preopen', 'open'])) {
+                if(!$fiscalPeriod) {
+                    $result[$id] = [
+                        'invalid_allocation_fiscal_period' => 'Fiscal period targeted by the posting date(s) is missing.'
+                    ];
+                    trigger_error("APP::Attempting to assign (partly or full) a purchase invoice with no matching fiscal period for date " . date('Y-m-d', $date) . ".", EQ_REPORT_WARNING);
+                    break;
+                }
+                if(!$fiscalPeriod['fiscal_year_id'] || !in_array($fiscalPeriod['fiscal_year_id']['status'], ['preopen', 'open'])) {
                     $result[$id] = [
                         'invalid_allocation_fiscal_year' => 'At least one fiscal year targeted by the invoice allocated is in a non-open state.'
                     ];
@@ -328,28 +327,14 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
             ->do('validate_accounting_entries');
     }
 
-    public static function doValidateAccountingEntries($self) {
-        $self->read(['accounting_entries_ids' => ['status']]);
-        foreach($self as $id => $invoice) {
-            foreach($invoice['accounting_entries_ids'] as $accounting_entry_id => $accountingEntry) {
-                if($accountingEntry['status'] == 'pending') {
-                    AccountingEntry::id($accounting_entry_id)->transition('validate');
-                }
-            }
-        }
-    }
 
     /**
      * Generates the initial accounting entry.
      *
      * The accounting entry created is meant to be instantly validated (with invoice validation action).
      *
-     * #todo - It may be necessary to complete the entries for a new period of the fiscal year:
-     *  with each call, we will look at the status of the invoice and determine what needs to be done.
      *
      */
-    public static function doUpdateAccountingEntries($self) {
-    }
     public static function doGenerateAccountingEntries($self) {
         $self->read([
                 'id', 'condo_id', 'price', 'description',
@@ -399,16 +384,8 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 throw new \Exception("missing_mandatory_journal", EQ_ERROR_INVALID_CONFIG);
             }
 
-            /*
-            // #memo - use of this account has been deprecated
-            $reinvoicedPrivateExpenseAccount = Account::search([['condo_id', '=', $invoice['condo_id']], ['operation_assignment', '=', 'reinvoiced_private_expenses']])
-                ->read(['id', 'name'])
-                ->first();
-            if(!$reinvoicedPrivateExpenseAccount) {
-                trigger_error("APP::unable to find a match for reinvoiced_private_account for condominium {$invoice['condo_id']}", EQ_REPORT_ERROR);
-                throw new \Exception("missing_mandatory_journal", EQ_ERROR_INVALID_CONFIG);
-            }
-            */
+            // #memo - use of the `reinvoiced_private_expense_account` has been deprecated
+
 
             // retrieve the accounting account relating to the supplier
             $assignmentAccount = Account::search([
@@ -436,13 +413,15 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     'journal_id'            => $journal['id'],
                     'invoice_id'            => $id,
                     'fiscal_year_id'        => $invoice['fiscal_year_id'],
-                    // #memo - entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
+                    // #memo - if necessary, entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
                     'entry_date'            => $date_from,
                     'origin_object_class'   => self::getType(),
                     'origin_object_id'      => $id
                 ])
                 ->first();
 
+            // map for keeping track of scheduled accounting entries based on periods dates (ued as key)
+            $map_planned_accounting_entries = [];
 
             $description = $invoice['description'];
 
@@ -499,7 +478,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
 
                     $ownership = Ownership::id($invoiceLine['ownership_id'])->read(['ownership_account_id'])->first();
 
-                    // create the debit line on the expense account (use of reserve fund)
+                    // create the debit line on the private expense account
                     AccountingEntryLine::create([
                             'condo_id'              => $invoice['condo_id'],
                             'accounting_entry_id'   => $accountingEntry['id'],
@@ -510,8 +489,8 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                             'credit'                => 0.0
                         ]);
 
-                    if($invoice['has_instant_reinvoice']){
-                        // create the debit line on the ownership account (working fund)
+                    if($invoice['has_instant_reinvoice']) {
+                        // create the debit line on the ownership account
                         AccountingEntryLine::create([
                                 'condo_id'              => $invoice['condo_id'],
                                 'accounting_entry_id'   => $accountingEntry['id'],
@@ -522,7 +501,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                                 'credit'                => $invoiceLine['price']
                             ]);
 
-                        // create the credit line on the reserve fund
+                        // create the credit line on the private expense
                         AccountingEntryLine::create([
                                 'condo_id'              => $invoice['condo_id'],
                                 'accounting_entry_id'   => $accountingEntry['id'],
@@ -607,7 +586,10 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                             // #memo - no entry line with $amount here: resulting allocated amount for first period will be the delta with following deferred lines
                             $remaining_amount -= $amount;
                         }
+                        // handle expense deferring
                         else {
+
+                            // 1) create deferred entry lines
                             $description = $invoice['description'];
                             $description .= ' (' . date('Y-m-d', $period_date_from) . ' - ' . date('Y-m-d', $period_date_to) . ')';
 
@@ -646,21 +628,69 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                                     'debit'                 => 0.0,
                                     'credit'                => $amount
                                 ]);
+
+                            // 2) schedule a symmetrical accounting entry for the related period ('planned')
+                            $plannedFiscalYear = FiscalYear::search([['condo_id', '=', $invoice['condo_id']], ['date_from', '<=', $period_date_from], ['date_to', '>=', $period_date_from]])->first();
+
+                            if(!$plannedFiscalYear) {
+                                throw new \Exception("missing_mandatory_matching_fiscal_year", EQ_ERROR_INVALID_CONFIG);
+                            }
+
+                            // put all lines related to a period on a single accounting entry
+                            if(!isset($map_planned_accounting_entries[$period_date_from])) {
+                                $map_planned_accounting_entries[$period_date_from] = AccountingEntry::create([
+                                        'condo_id'              => $invoice['condo_id'],
+                                        'journal_id'            => $journal['id'],
+                                        'invoice_id'            => $id,
+                                        'fiscal_year_id'        => $plannedFiscalYear['id'],
+                                        'entry_date'            => $period_date_from,
+                                        'origin_object_class'   => self::getType(),
+                                        'origin_object_id'      => $id
+                                    ])
+                                    ->first();
+                            }
+
+                            $plannedAccountingEntry = $map_planned_accounting_entries[$period_date_from];
+
+                            // create the credit line for the deferred expense
+                            AccountingEntryLine::create([
+                                    'condo_id'              => $invoice['condo_id'],
+                                    'accounting_entry_id'   => $plannedAccountingEntry['id'],
+                                    'name'                  => $description,
+                                    'account_id'            => $deferredExpensesAccount['id'],
+                                    'invoice_line_id'       => $invoice_line_id,
+                                    'debit'                 => 0.0,
+                                    'credit'                => $amount
+                                ]);
+
+                            // create the debit line for the expense
+                            AccountingEntryLine::create([
+                                    'condo_id'              => $invoice['condo_id'],
+                                    'accounting_entry_id'   => $plannedAccountingEntry['id'],
+                                    'name'                  => $description,
+                                    'account_id'            => $invoiceLine['expense_account_id'],
+                                    'invoice_line_id'       => $invoice_line_id,
+                                    'debit'                 => $amount,
+                                    'credit'                => 0.0
+                                ]);
+
                         }
 
                     }
                 }
-
             }
 
+            // mark all scheduled accounting entries as planned
+            foreach($map_planned_accounting_entries as $period_date_from => $plannedAccountingEntry) {
+                AccountingEntry::id($plannedAccountingEntry['id'])->transition('plan');
+            }
 
         }
     }
 
 
-// #todo - on doit encoder les factures en utilisant les séquences de périodes
     public static function doAssignInvoiceNumber($self) {
-        $self->read(['condo_id']);
+        $self->read(['condo_id', 'fiscal_year_id' => ['code'], 'fiscal_period_id' => ['code']]);
         foreach($self as $id => $invoice) {
             $format = Setting::get_value(
                     'purchase',
@@ -671,12 +701,11 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                         'condo_id'          => $invoice['condo_id']
                     ]
                 );
-            $year = Setting::get_value('finance', 'accounting', 'fiscal_year', date('Y'), ['condo_id' => $invoice['condo_id']]);
 
             $sequence = Setting::fetch_and_add(
-                    'sale',
+                    'purchase',
                     'accounting',
-                    'invoice.sequence',
+                    "invoice.sequence.{$invoice['fiscal_year_id']['code']}.{$invoice['fiscal_period_id']['code']}",
                     1,
                     [
                         'condo_id'          => $invoice['condo_id']
@@ -685,7 +714,8 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
 
             if($sequence) {
                 $invoice_number = Setting::parse_format($format, [
-                        'year'      => $year,
+                        'year'      => $invoice['fiscal_year_id']['code'],
+                        'period'    => $invoice['fiscal_period_id']['code'],
                         'condo'     => $invoice['condo_id'],
                         'sequence'  => $sequence
                     ]);
@@ -694,5 +724,25 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         }
     }
 
+    public static function doValidateAccountingEntries($self) {
+        $self->read(['accounting_entries_ids' => ['status']]);
+        foreach($self as $id => $invoice) {
+            foreach($invoice['accounting_entries_ids'] as $accounting_entry_id => $accountingEntry) {
+                if($accountingEntry['status'] == 'pending') {
+                    AccountingEntry::id($accounting_entry_id)->transition('validate');
+                }
+            }
+        }
+    }
 
+    public static function onchange($event, $values) {
+        $result = [];
+        if(array_key_exists('invoice_lines_ids', $event)) {
+            $result['price'] = static::computePrice($values['id']);
+        }
+        if(isset($event['emission_date'])) {
+            $result['due_date'] = strtotime('+30 days', strtotime('last day of this month', $event['emission_date']));
+        }
+        return array_merge(parent::onchange($event, $values), $result);
+    }
 }

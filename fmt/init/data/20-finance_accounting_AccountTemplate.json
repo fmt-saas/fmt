@@ -877,19 +877,9 @@
                 "id": 89,
                 "code": "4991",
                 "is_control_account": false,
-                "description": "Rounded debtor balance",
+                "description": "Rounding adjustment balance",
                 "account_chart_id": 1,
-                "operation_assignment": null,
-                "tenant_share": 0,
-                "owner_share": 0
-            },
-            {
-                "id": 90,
-                "code": "4992",
-                "is_control_account": false,
-                "description": "Rounded creditor balance",
-                "account_chart_id": 1,
-                "operation_assignment": null,
+                "operation_assignment": "rounding_adjustment",
                 "tenant_share": 0,
                 "owner_share": 0
             },

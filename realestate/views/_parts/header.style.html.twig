@@ -1,0 +1,99 @@
+<style type="text/css">
+    header {
+        /* show header on all pages */
+        position: fixed;
+        top: 0;
+        left: 0;
+        /* height must match body::margin-top */
+        height: 280px;
+        border: 0;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+        font-size: 13px;
+        background-color: white;
+    }
+
+    header.debug {
+        outline: solid 1px blue;
+    }
+
+    header .organisation-info {
+        position: absolute;
+        height: 160px;
+        width: 50%;
+        max-width: 350px;
+        z-index: 1;
+    }
+
+    header .organisation-info img {
+        width: 350px;
+        height: auto;
+        /* #memo - we should keep this but it can lead to stretching the image, and object-fit is not supported*/
+        /* max-height: 100px; */
+        border: 0;
+        margin-bottom: 10px;
+    }
+
+    header .organisation-info.debug {
+        outline: solid 1px red;
+    }
+
+    header .condominium-info {
+        position: absolute;
+        top: 160px;
+        left: 0;
+        height: 120px;
+        width: 50%;
+        max-width: 350px;
+        z-index: 1;
+    }
+
+    header .owner-info {
+        position: absolute;
+        top: 160px;
+        right: 0px;
+        height: 120px;
+        width: 50%;
+        text-align: left;
+    }
+
+    header .owner-info.debug {
+        outline: solid 1px green;
+    }
+
+    header .document-info {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        height: 160px;
+        width: 50%;
+    }
+
+    header .document-info .fiscal_year-ref {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden
+    }
+
+    header .document-info .fiscal_year-ref.debug {
+        outline: solid 1px turquoise;
+    }
+
+    header .document-info .fiscal_year-info {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        text-align: left;
+        overflow: hidden;
+    }
+
+    header .document-info .fiscal_year-info.debug {
+        outline: solid 1px yellow;
+    }
+</style>

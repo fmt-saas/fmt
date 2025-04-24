@@ -1,5 +1,14 @@
 {
     "name": "Accounting Balance Lines",
+    "controller": "finance_accounting_BalanceLine_collect",
+    "header": {
+        "actions": {
+            "ACTION.CREATE" : false
+        },
+        "advanced_search": {
+            "open": true
+        }
+    },
     "operations": {
         "total": {
             "debit": {
@@ -47,6 +56,11 @@
             {
                 "type": "field",
                 "value": "credit_balance",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "fiscal_year_id",
                 "width": "15%"
             }
         ]

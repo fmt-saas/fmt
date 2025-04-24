@@ -16,10 +16,11 @@
     "actions": [
         {
             "id": "action.generate_allocations",
+            "inline": true,
             "label": "Generate allocations",
             "icon": "play_arrow",
             "description": "Generate the allocations of the fund request part.",
-            "controller": "core_model_perform",
+            "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\funding\\FundRequestLine",
                 "action": "generate_allocation"

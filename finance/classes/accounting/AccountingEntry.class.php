@@ -136,11 +136,18 @@ class AccountingEntry extends Model {
                 'dependents'        => ['debit', 'credit']
             ],
 
+            'is_cancelled' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the entry as cancelled (reversed).',
+                'help'              => 'When cancelled an entry remains valid and continues impacting the balance. However it should not have an impact since its debit and credits are voided by the reverse entry.',
+                'default'           => false
+            ],
+
             'reverse_entry_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
                 'description'       => "Reverse accounting entry voiding the current one.",
-                'visible'           => ['visible', '=', 'cancelled']
+                'visible'           => ['is_cancelled', '=', true]
             ],
 
             'invoice_id' => [
@@ -155,12 +162,12 @@ class AccountingEntry extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'pending',
-                    'validated',
-                    'cancelled'
+                    'planned',
+                    'validated'
                 ],
                 'default'           => 'pending',
                 'description'       => 'Status of the accounting entry.',
-                'help'              => 'Once an accounting entry has been validated, it cannot be removed. It can however, be cancelled through a reverse entry.',
+                'help'              => 'Pending entries are not actual accounting entries but `drafts` that can be created and modified without impacting Balance. Once an accounting entry has been validated, it cannot be removed. It can however, be cancelled through a reverse entry. Planned entries are system entries and can never be removed manually (only through source document cancellation).',
                 'dependents'        => ['name']
             ]
 
@@ -169,6 +176,12 @@ class AccountingEntry extends Model {
 
     public static function getActions() {
         return [
+            'cancel' => [
+                'description'   => 'Delete the proforma and set receivables statuses back to pending.',
+                'help'          => 'A fiscal year can be opened before the previous one is definitely closed.',
+                'policies'      => ['can_be_cancelled'],
+                'function'      => 'doCancel'
+            ]
         ];
     }
 
@@ -185,6 +198,27 @@ class AccountingEntry extends Model {
                         ],
                         'onafter'   => 'onafterValidate',
                         'status'    => 'validated'
+                    ],
+                    'plan' => [
+                        'description' => 'Update the accounting entry status to `planned`.',
+                        'policies'    => [
+                            'is_valid'
+                        ],
+                        'status'    => 'planned'
+                    ]
+                ]
+            ],
+            'planned' => [
+                'description' => 'Scheduled system entry, waiting for entry date to be automatically validated.',
+                'icon'        => 'hourglass_top',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Update the accounting entry status to `validated`.',
+                        'policies'    => [
+                            'is_valid'
+                        ],
+                        'onafter'   => 'onafterValidate',
+                        'status'    => 'validated'
                     ]
                 ]
             ],
@@ -192,15 +226,6 @@ class AccountingEntry extends Model {
                 'description' => 'Draft fiscal year, still waiting to be completed for validation.',
                 'icon'        => 'drive_file_rename_outline',
                 'transitions' => [
-                    'cancel' => [
-                        'description' => 'Delete the proforma and set receivables statuses back to pending.',
-                        'help'        => 'A fiscal year can be opened before the previous one is definitely closed.',
-                        'policies'    => [
-                            'can_be_cancelled',
-                        ],
-                        'onbefore'  => 'onbeforeCancel',
-                        'status'    => 'cancelled'
-                    ]
                 ]
             ]
         ];
@@ -243,7 +268,7 @@ class AccountingEntry extends Model {
                     ]);
             }
 
-
+            // make sure entries are chronological
             // search for all entries in the period for the concerned journal and, if more recent, take the date of the most recent one
             $mostRecentEntry = self::search([['id', '<>', $id], ['journal_id', '=', $accountingEntry['journal_id']], ['fiscal_period_id', '=', $accountingEntry['fiscal_period_id']['id']]], ['sort' => ['entry_date' => 'desc'], 'limit' => 1])->read(['entry_date'])->first();
             $entry_date = $accountingEntry['entry_date'];
@@ -254,7 +279,7 @@ class AccountingEntry extends Model {
         }
     }
 
-    public static function onbeforeCancel($self) {
+    public static function doCancel($self) {
         // create and validate reverse entry
         $self->read(['condo_id', 'fiscal_year_id', 'journal_id', 'entry_date', 'entry_lines_ids' => ['account_id', 'debit', 'credit']]);
         foreach($self as $id => $accountingEntry) {
@@ -460,10 +485,15 @@ class AccountingEntry extends Model {
     }
 
     public static function candelete($self) {
-        $self->read(['status', 'is_temp']);
+        $self->read(['status', 'is_temp', 'invoice_id']);
         foreach($self as $entry) {
-            if(!$entry['is_temp'] && $entry['status'] != 'pending') {
+            // unless temporary, a validated entry cannot be removed
+            if($entry['status'] === 'validated' && !$entry['is_temp']) {
                 return ['status' => ['non_removable' => 'Non-draft accounting entries cannot be deleted.']];
+            }
+            // while still attached to an invoice, an planned entry cannot be removed
+            if($entry['invoice_id'] && $entry['status'] === 'planned') {
+                return ['status' => ['non_removable' => 'Planned accounting entries cannot be deleted (system entries).']];
             }
         }
         return parent::candelete($self);

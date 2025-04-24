@@ -58,59 +58,14 @@
             }
         },
         {
-            "id": "item.fiscal_year",
-            "label": "Fiscal years",
-            "description": "",
-            "icon": "date_range",
-            "context": {
-                "entity": "finance\\accounting\\FiscalYear",
-                "view": "list.condo",
-                "domain": [["condo_id", "=", "object.id"]]
-            }
-        },
-        {
-            "id": "item.accounting_entries",
-            "label": "Accounting entries",
+            "id": "item.accounting",
+            "label": "Accounting",
             "description": "",
             "icon": "edit_note",
             "context": {
-                "entity": "finance\\accounting\\AccountingEntry",
-                "view": "list.condo",
-                "domain": [["condo_id", "=", "object.id"]]
-            }
-        },
-        {
-            "id": "item.current_balance",
-            "label": "Current Balance",
-            "description": "",
-            "icon": "balance",
-            "context": {
-                "entity": "finance\\accounting\\CurrentBalanceLine",
-                "view": "list.condo",
-                "domain": [["condo_id", "=", "object.id"]]
-            }
-        },
-        {
-            "id": "item.accounts_chart",
-            "label": "Chart of Accounts",
-            "description": "",
-            "icon": "menu_book",
-            "context": {
-                "entity": "finance\\accounting\\AccountChart",
-                "view": "form.condo",
-                "domain": [["id", "=", "object.account_chart_id"], ["condo_id", "=", "object.id"]]
-            }
-        },
-        {
-            "id": "fund_requests",
-            "type": "entry",
-            "label": "Fund requests",
-            "icon": "savings",
-            "description": "",
-            "context": {
-                "entity": "realestate\\funding\\FundRequest",
-                "view": "list.default",
-                "domain": [["condo_id", "=", "object.id"]]
+                "entity": "realestate\\property\\Condominium",
+                "view": "form.accounting",
+                "domain": [["id", "=", "object.id"]]
             }
         },
         {
@@ -144,7 +99,7 @@
             "label": "Init",
             "icon": "play_arrow",
             "description": "Generate mandatory configuration.",
-            "controller": "core_model_perform",
+            "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\property\\Condominium",
                 "action": "init",
@@ -157,7 +112,7 @@
             "label": "Open fiscal Year",
             "icon": "event_available",
             "description": "Open the fiscal year. This action cannot be undone.",
-            "controller": "core_model_perform",
+            "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\property\\Condominium",
                 "action": "open_fiscal_year",
@@ -170,7 +125,7 @@
             "label": "Create draft fiscal Year",
             "icon": "edit_calendar",
             "description": "Create a new fiscal year draft. This will overwrite any existing fiscal year draft.",
-            "controller": "core_model_perform",
+            "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\property\\Condominium",
                 "action": "create_draft_fiscal_year",
@@ -452,41 +407,6 @@
                                                 "value": "management_contracts_ids",
                                                 "width": "100%"
                                             }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "label": "Accounting",
-                        "id": "section.accounting",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "50%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "fiscal_year_start",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "fiscal_year_end",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "fiscal_period_frequency",
-                                                "width": "50%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "50%",
-                                        "items": [
                                         ]
                                     }
                                 ]

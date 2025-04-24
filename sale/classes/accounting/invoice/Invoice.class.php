@@ -319,7 +319,8 @@ class Invoice extends \finance\accounting\invoice\Invoice {
     public static function onbeforeInvoice($self) {
         $self
             ->do('generate_accounting_entries')
-            ->do('assign_invoice_number');
+            ->do('assign_invoice_number')
+            ->do('validate_accounting_entries');
     }
 
     /**
@@ -394,7 +395,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
     }
 
     public static function getActions() {
-        return [
+        return array_merge(parent::getActions(), [
             'reverse' => [
                 'description'   => 'Creates a new invoice of type credit note to reverse invoice.',
                 'help'          => 'Reversing an invoice can only be done when status is "invoice".',
@@ -416,7 +417,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'policies'      => [],
                 'function'      => 'doGenerateAccountingEntries'
             ]
-        ];
+        ]);
     }
 
     /**

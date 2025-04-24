@@ -86,9 +86,7 @@ class PropertyLotApportionmentShare extends \equal\orm\Model {
 
     public function getUnique() {
         return [
-            ['property_lot_id'],
-            ['apportionment_id'],
-            ['condo_id']
+            ['property_lot_id', 'apportionment_id', 'condo_id']
         ];
     }
 }
