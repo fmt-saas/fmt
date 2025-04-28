@@ -3,6 +3,17 @@
     "description": "Form holding basic information about an Organisation.",
     "routes": [
         {
+            "id": "item.accounts_chart",
+            "label": "Chart of Accounts",
+            "description": "",
+            "icon": "menu_book",
+            "context": {
+                "entity": "finance\\accounting\\AccountChart",
+                "view": "form.condo",
+                "domain": [["id", "=", "object.account_chart_id"], ["condo_id", "=", "object.id"]]
+            }
+        },
+        {
             "id": "item.fiscal_year",
             "label": "Fiscal years",
             "description": "",
@@ -13,6 +24,18 @@
                 "domain": [["condo_id", "=", "object.id"]]
             }
         },
+        {
+            "id": "item.accounting_journals",
+            "label": "Accounting journals",
+            "description": "",
+            "icon": "auto_stories",
+            "context": {
+                "entity": "finance\\accounting\\Journal",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+
         {
             "id": "item.reserve_funds",
             "label": "Reserve Funds",
@@ -58,17 +81,6 @@
             }
         },
         {
-            "id": "item.accounts_chart",
-            "label": "Chart of Accounts",
-            "description": "",
-            "icon": "menu_book",
-            "context": {
-                "entity": "finance\\accounting\\AccountChart",
-                "view": "form.condo",
-                "domain": [["id", "=", "object.account_chart_id"], ["condo_id", "=", "object.id"]]
-            }
-        },
-        {
             "id": "fund_requests",
             "type": "entry",
             "label": "Fund requests",
@@ -76,6 +88,18 @@
             "description": "",
             "context": {
                 "entity": "realestate\\funding\\FundRequest",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "purchase_invoices",
+            "type": "entry",
+            "label": "Purchase Invoices",
+            "icon": "receipt_long",
+            "description": "",
+            "context": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }

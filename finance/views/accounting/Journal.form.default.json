@@ -4,6 +4,19 @@
     "access": {
         "groups": ["finance.default.users"]
     },
+    "routes": [
+        {
+            "id": "item.accounting_entries",
+            "label": "Accounting Entries",
+            "description": "",
+            "icon": "edit_note",
+            "context": {
+                "entity": "finance\\accounting\\AccountingEntry",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.condo_id"], ["journal_id", "=", "object.id"]]
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -59,31 +72,6 @@
                             }
                         ]
                     }
-                ]
-            },
-            {
-                "sections": [
-                    {
-                        "label": "Accounting Entries",
-                        "id": "section.accounting_entries_section",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "accounting_entries_ids",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-
                 ]
             }
         ]

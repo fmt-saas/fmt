@@ -162,7 +162,16 @@
                                             {
                                                 "type": "field",
                                                 "value": "condominiums_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "type": "many2many",
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false,
+                                                            "ACTION.SELECT": true
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

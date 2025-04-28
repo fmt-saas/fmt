@@ -24,6 +24,7 @@ use realestate\finance\accounting\ReserveFund;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestLine;
+use realestate\management\ManagingAgent;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\property\Condominium;
@@ -32,6 +33,11 @@ use realestate\property\PropertyLot;
 use realestate\purchase\accounting\invoice\Invoice as PurchaseInvoice;
 
 $condominiums = Condominium::search()->read(['id', 'account_chart_id']);
+
+$condominiums_ids = $condominiums->ids();
+
+// attach condos to default managing agent
+ManagingAgent::id(1)->update(['condominiums_ids' => $condominiums_ids]);
 
 $condominiums
     // init condominiums (generate sequences, chart of accounts & journals)
@@ -133,7 +139,6 @@ $condominiums
 FiscalPeriod::search(['status', '=', 'pending'])
     ->read(['name']);
 
-
 ReserveFund::create([
         'name'                  => 'fonds de réserve',
         'condo_id'              => 1,
@@ -143,7 +148,7 @@ ReserveFund::create([
     ]);
 
 
-$condominiums_ids = $condominiums->ids();
+
 
 // create a fund request for first condo
 $fundRequest = FundRequest::create([

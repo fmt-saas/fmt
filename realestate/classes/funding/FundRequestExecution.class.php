@@ -400,21 +400,22 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                 'posting_date',
                 'due_date',
                 'fiscal_year_id' => ['date_from'],
-                'condo_id',
+                'condo_id' => ['code'],
                 'fund_request_id' => [
                     'id', 'name', 'request_type', 'request_account_id', 'request_bank_account_id'
                 ],
-                'execution_lines_ids' => ['ownership_id', 'called_amount', 'funding_id']
+                'execution_lines_ids' => ['ownership_id' => ['ownership_code'], 'called_amount', 'funding_id']
             ]);
 
         foreach($self as $id => $requestExecution) {
 
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
-                $ownership_id = $executionLine['ownership_id'];
+                $ownership_id = $executionLine['ownership_id']['id'];
                 // retrieve detached-non-empty fundings relating to the targeted ownership and fund request, if any
                 $fund_request_id = $requestExecution['fund_request_id']['id'];
                 $fundings = Funding::search([
                         ['ownership_id', '=', $ownership_id],
+                        ['funding_type', '=', 'fund_request'],
                         ['fund_request_id', '=', $fund_request_id],
                         ['fund_request_execution_id', '=', null]
                     ])
@@ -434,19 +435,19 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
 
                 // CCC/CCCO/OOOXX
                 $reference =
-                    substr(str_pad($requestExecution['condo_id'], 6, '0', STR_PAD_LEFT), 0, 6) .
-                    substr(str_pad($ownership_id, 4, '0', STR_PAD_LEFT), 0, 4);
+                    substr(str_pad((int) $requestExecution['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
+                    substr(str_pad((int) $requestExecution['ownership_id']['ownership_code'], 4, '0', STR_PAD_LEFT), 0, 4);
 
                 $prefix = substr($reference, 0, 3);
                 $suffix = substr($reference, 3);
 
                 Funding::create([
-                        'condo_id'                  => $requestExecution['condo_id'],
+                        'condo_id'                  => $requestExecution['condo_id']['id'],
                         'description'               => $requestExecution['fund_request_id']['name'],
                         'fund_request_id'           => $requestExecution['fund_request_id']['id'],
                         'fund_request_execution_id' => $id,
                         'ownership_id'              => $ownership_id,
-                        'request_bank_account_id'   => $requestExecution['fund_request_id']['request_bank_account_id'],
+                        'bank_account_id'           => $requestExecution['fund_request_id']['request_bank_account_id'],
                         'issue_date'                => $issue_date,
                         'due_date'                  => $due_date,
                         'due_amount'                => $executionLine['called_amount'] - $paid_amount,

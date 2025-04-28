@@ -147,6 +147,34 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "id": "section.fundings",
+                        "label": "Payments followup",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "fundings_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.SELECT": false,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }

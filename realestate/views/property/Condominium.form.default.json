@@ -25,39 +25,6 @@
             }
         },
         {
-            "id": "item.role_assignments",
-            "label": "Roles Assignments",
-            "description": "",
-            "icon": "library_books",
-            "context": {
-                "entity": "hr\\role\\RoleAssignment",
-                "view": "list.default",
-                "domain": ["condo_id", "=", "object.id"]
-            }
-        },
-        {
-            "id": "item.statutory_quotas",
-            "label": "Statutory Quotas",
-            "description": "",
-            "icon": "pie_chart",
-            "context": {
-                "entity": "realestate\\property\\Apportionment",
-                "view": "list.statutory",
-                "domain": [["condo_id", "=", "object.id"], ["is_statutory", "=", true]]
-            }
-        },
-        {
-            "id": "item.apportionment_keys",
-            "label": "Apportionment keys",
-            "description": "",
-            "icon": "account_tree",
-            "context": {
-                "entity": "realestate\\property\\Apportionment",
-                "view": "list.default",
-                "domain": [["condo_id", "=", "object.id"], ["is_statutory", "=", false]]
-            }
-        },
-        {
             "id": "item.accounting",
             "label": "Accounting",
             "description": "",
@@ -69,27 +36,14 @@
             }
         },
         {
-            "id": "suppliers",
-            "type": "entry",
-            "label": "Suppliers",
-            "icon": "storefront",
+            "id": "item.admin",
+            "label": "Config",
             "description": "",
+            "icon": "settings",
             "context": {
-                "entity": "purchase\\supplier\\Suppliership",
-                "view": "list.default",
-                "domain": [["condo_id", "=", "object.id"]]
-            }
-        },
-        {
-            "id": "purchase_invoices",
-            "type": "entry",
-            "label": "Purchase Invoices",
-            "icon": "receipt_long",
-            "description": "",
-            "context": {
-                "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
-                "view": "list.default",
-                "domain": [["condo_id", "=", "object.id"]]
+                "entity": "realestate\\property\\Condominium",
+                "view": "form.admin",
+                "domain": [["id", "=", "object.id"]]
             }
         }
     ],
@@ -148,60 +102,31 @@
                                             {
                                                 "type": "field",
                                                 "value": "legal_name",
-                                                "width": "66%",
+                                                "width": "100%",
                                                 "widget": {
                                                     "header": false
                                                 }
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Language",
-                                                "value": "lang_id",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "registration_number",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "cadastral_number",
-                                                "width": "50%"
                                             }
                                         ]
                                     },
                                     {
-                                        "width": "16%",
+                                        "width": "25%",
                                         "items": []
                                     },
                                     {
-                                        "width": "33%",
+                                        "width": "25%",
                                         "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Language",
+                                                "value": "lang_id",
+                                                "width": "100%"
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "type_id",
                                                 "width": "100%",
                                                 "visible": false
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_vat",
-                                                "width": "50%",
-                                                "label": "Subject to VAT",
-                                                "help": "Do the company have a VAT number?"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%",
-                                                "visible": ["has_vat", "=", false]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "vat_number",
-                                                "width": "50%",
-                                                "visible": ["has_vat", "=", true]
                                             },
                                             {
                                                 "type": "field",
@@ -224,227 +149,18 @@
             {
                 "sections": [
                     {
-                        "label": "General info",
-                        "description": "signalétique",
-                        "id": "section.identity_info",
+                        "label": "Owners",
+                        "id": "section.owners",
                         "rows": [
                             {
-                                "columns": [
-                                    {
-                                        "width": "33%",
-                                        "items": [
-                                            {
-                                                "id": "label.construction",
-                                                "type": "label",
-                                                "value": "Construction",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Permit date",
-                                                "value": "construction_permit_date",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Start date",
-                                                "value": "construction_start_date",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Completion date",
-                                                "value": "construction_completion_date",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Compliance date",
-                                                "value": "construction_compliance_date",
-                                                "width": "50%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "33%",
-                                        "items": []
-                                    },
-                                    {
-                                        "width": "33%",
-                                        "items": [
-                                            {
-                                                "id": "label.regulations",
-                                                "type": "label",
-                                                "value": "Regulations",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "total_shares",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Creation date",
-                                                "value": "condo_creation_date",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Latest update",
-                                                "value": "condo_regulations_date",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "label": "Address",
-                        "id": "section.address",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "50%",
-                                        "items": [
-                                            {
-                                                "id": "label.main_addresses",
-                                                "type": "label",
-                                                "value": "Main address",
-                                                "width": "100%",
-                                                "align": "left"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "address_street",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "address_dispatch",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "address_zip",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "address_city",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "address_state",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "address_country",
-                                                "width": "50%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "label": "Bank Accounts",
-                        "id": "section.bank_accounts",
-                        "rows": [
-                            {
+
                                 "columns": [
                                     {
                                         "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "bank_account_ids",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "label": "Management Contracts",
-                        "id": "section.management_contracts",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "500%",
-                                        "items": [
-                                            {
-                                                "type": "label",
-                                                "value": "Current Managing Agent",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Managing Agent",
-                                                "value": "managing_agent_id",
-                                                "width": "50%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "management_contracts_ids",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "label": "Sequences",
-                        "id": "section.sequences",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "setting_sequences_ids",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "label": "Settings",
-                        "id": "section.settings",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "setting_values_ids",
+                                                "value": "ownerships_ids",
                                                 "width": "100%"
                                             }
                                         ]

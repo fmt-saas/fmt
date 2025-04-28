@@ -154,6 +154,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'relation'          => ['posting_date'],
                 'description'       => 'Date at which the invoice was emitted (by the system of origin).',
                 'help'              => 'For sale invoices, this value is the same as posting_date.',
+                'instant'           => true,
                 'store'             => true
             ],
 
@@ -286,6 +287,23 @@ class Invoice extends \finance\accounting\invoice\Invoice {
         return sprintf("%3d%04d%03d%02d", $a, $b / 1000, $b % 1000, $control);
     }
 
+    private static function computeDueDate($posting_date, $delay_from, $delay_count): int {
+        $due_date = $posting_date;
+
+        switch ($delay_from) {
+            case 'created':
+                // no change
+                break;
+            case 'next_month':
+                $due_date = strtotime('first day of next month', $due_date);
+                break;
+            default:
+                // ignore
+        }
+
+        return strtotime("+$delay_count days", $due_date);
+    }
+
     public static function calcDueDate($self): array {
         $result = [];
         $self->read(['emission_date', 'payment_terms_id' => ['delay_from', 'delay_count']]);
@@ -300,17 +318,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
             $delay = $invoice['payment_terms_id']['delay_count'];
             $emission_date = $invoice['emission_date'];
 
-            switch($from) {
-                case 'created':
-                    $due_date = $emission_date + ($delay * 86400);
-                    break;
-                case 'next_month':
-                default:
-                    $due_date = strtotime(date('Y-m-t', $emission_date)) + ($delay * 86400);
-                    break;
-            }
-
-            $result[$id] = $due_date;
+            $result[$id] = self::computeDueDate($emission_date, $from, $delay);
         }
 
         return $result;

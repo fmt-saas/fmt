@@ -1,6 +1,15 @@
 {
     "name": "Accounting entries",
     "description": "All accounting entries.",
+    "header": {
+        "actions": {
+            "ACTION.CREATE": [
+                {
+                    "view": "form.create"
+                }
+            ]
+        }
+    },
     "layout": {
         "items": [
             {

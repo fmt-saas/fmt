@@ -23,6 +23,17 @@
             "visible": ["status", "=", "proforma"]
         },
         {
+            "id": "action.generate_fundings",
+            "label": "Generate fundings",
+            "description": "Generate the lines of the statement.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\funding\\ExpenseStatement",
+                "action": "generate_fundings"
+            },
+            "visible": ["status", "=", "invoice"]
+        },
+        {
             "id": "action.invoice",
             "label": "Validate",
             "description": "To Invoice.",
@@ -123,11 +134,16 @@
                                             {
                                                 "type": "field",
                                                 "value": "posting_date",
-                                                "width": "100%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "payment_terms_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "statement_bank_account_id",
                                                 "width": "100%"
                                             }
                                         ]
@@ -182,6 +198,27 @@
                                                 "type": "field",
                                                 "value": "accounting_entry_id",
                                                 "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.fundings",
+                        "label": "Payments Followup",
+                        "visible": ["status", "=", "invoice"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "fundings_ids",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

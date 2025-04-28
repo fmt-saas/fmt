@@ -54,10 +54,11 @@ class Funding extends Model {
                 'selection'         => [
                     'installment',
                     'invoice',
-                    'fund_request'
+                    'fund_request',
+                    'expense_statement'
                 ],
                 'required'          => true,
-                'description'       => "Type of funding. Either an installment, a specific invoice, or a fund request."
+                'description'       => "Type of funding. Either an installment, a specific invoice, a fund request, or an expense statement."
             ],
 
             'due_amount' => [
@@ -92,13 +93,14 @@ class Funding extends Model {
             'is_paid' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
-                'description'       => "Has the full payment been received?",
+                'description'       => 'Has the full payment been received?',
+                'deprecated'        => 'Use status instead (balanced means fully paid).',
                 'function'          => 'calcIsPaid',
                 'store'             => true,
                 'instant'           => true
             ],
 
-            'request_bank_account_id' => [
+            'bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'The Bank account the funding relates to.',
@@ -110,7 +112,8 @@ class Funding extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\FundRequest',
                 'description'       => 'The fund request targeted by the funding, if any.',
-                'readonly'          => true
+                'readonly'          => true,
+                'visible'           => ['funding_type', '=', 'fund_request']
             ],
 
             'fund_request_execution_id' => [
@@ -118,6 +121,16 @@ class Funding extends Model {
                 'foreign_object'    => 'realestate\funding\FundRequestExecution',
                 'description'       => 'The fund request execution targeted by the funding, if any.',
                 'help'              => 'As a convention, this field is set when a funding relates to a fund request. Fund request executions are sale invoices (with invoice_type set to fund_request).',
+                'visible'           => ['funding_type', '=', 'fund_request'],
+                'readonly'          => true
+            ],
+
+            'expense_statement_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\ExpenseStatement',
+                'description'       => 'The fund request execution targeted by the funding, if any.',
+                'help'              => 'As a convention, this field is set when a funding relates to a fund request. Fund request executions are sale invoices (with invoice_type set to fund_request).',
+                'visible'           => ['funding_type', '=', 'expense_statement'],
                 'readonly'          => true
             ],
 
@@ -126,7 +139,8 @@ class Funding extends Model {
                 'foreign_object'    => 'sale\accounting\invoice\Invoice',
                 'description'       => 'The invoice targeted by the funding, if any.',
                 'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).',
-                'readonly'          => true
+                'readonly'          => true,
+                'visible'           => ['funding_type', 'in', ['installment', 'invoice']],
             ],
 
             'payment_reference' => [
@@ -144,6 +158,24 @@ class Funding extends Model {
                 'readonly'          => true
             ],
 
+            'is_cancelled' => [
+                'type'              => 'boolean',
+                'description'       => "Flag marking the funding as cancelled.",
+                'help'              => 'When cancelled, in addition to having this flag to true, the subsequent payments, if any, are also detached from the funding.',
+                'default'          => false
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'pending',
+                    'credit_balance',
+                    'debit_balance',
+                    'balanced'
+                ],
+                'default'           => 'pending',
+                'description'       => 'Status of the funding.'
+            ]
         ];
     }
 
@@ -186,7 +218,6 @@ class Funding extends Model {
         foreach($self as $id => $funding) {
             $result[$id] = $funding['paid_amount'] >= $funding['due_amount'] && $funding['due_amount'] > 0;
         }
-
         return $result;
     }
 

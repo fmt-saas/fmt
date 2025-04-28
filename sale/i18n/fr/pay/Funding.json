@@ -19,7 +19,8 @@
             "selection": {
                 "installment": "versement",
                 "invoice": "facture",
-                "fund_request": "appel de fonds"
+                "fund_request": "appel de fonds",
+                "expense_statement": "décompte de charges"
             },
             "help": ""
         },

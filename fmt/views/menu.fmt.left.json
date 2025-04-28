@@ -71,6 +71,37 @@
                 ]
             },
             {
+                "id": "item.allocations",
+                "label": "Allocations",
+                "description": "",
+                "icon": "call_split",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "apportionments",
+                        "type": "entry",
+                        "label": "Apportionments",
+                        "icon": "account_tree",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\property\\Apportionment",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "item.config.lot_natures",
+                        "type": "entry",
+                        "label": "Lot natures",
+                        "icon": "domain_add",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\property\\PropertyLotNature"
+                        }
+                    }
+                ]
+            },
+
+            {
                 "id": "item.hr",
                 "label": "HR",
                 "description": "",
@@ -154,17 +185,6 @@
                         }
                     },
                     {
-                        "id": "item.accounting.invoices",
-                        "type": "entry",
-                        "label": "Invoices",
-                        "icon": "receipt_long",
-                        "description": "",
-                        "context": {
-                            "entity": "finance\\accounting\\invoice\\Invoice",
-                            "view": "list.default"
-                        }
-                    },
-                    {
                         "id": "item.accounting_entries",
                         "label": "Acct. entries",
                         "description": "",
@@ -172,6 +192,42 @@
                         "context": {
                             "entity": "finance\\accounting\\AccountingEntry",
                             "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "item.accounting.invoices",
+                        "type": "entry",
+                        "label": "Invoices",
+                        "icon": "receipt_long",
+                        "description": "",
+                        "context": {
+                            "entity": "sale\\accounting\\invoice\\Invoice",
+                            "view": "list.default",
+                            "domain": ["invoice_type", "=", "invoice"]
+                        }
+                    },
+                    {
+                        "id": "item.accounting.expense_statements",
+                        "type": "entry",
+                        "label": "Expense Statements",
+                        "icon": "receipt",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\funding\\ExpenseStatement",
+                            "view": "list.default",
+                            "domain": ["invoice_type", "=", "expense_statement"]
+                        }
+                    },
+                    {
+                        "id": "purchase_invoices",
+                        "type": "entry",
+                        "label": "Purchase Invoices",
+                        "icon": "receipt_long",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
+                            "view": "list.default",
+                            "domain": ["invoice_type", "=", "invoice"]
                         }
                     },
                     {
@@ -277,16 +333,6 @@
                             "entity": "sale\\price\\PriceList",
                             "view": "list.org",
                             "domain": ["condo_id", "=", null]
-                        }
-                    },
-                    {
-                        "id": "item.config.lot_natures",
-                        "type": "entry",
-                        "label": "Lot natures",
-                        "icon": "domain_add",
-                        "description": "",
-                        "context": {
-                            "entity": "realestate\\property\\PropertyLotNature"
                         }
                     },
                     {

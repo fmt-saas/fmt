@@ -1,13 +1,5 @@
 {
     "name": "Accounting Entry Line",
-    "header": {
-        "actions": {
-            "ACTION.SAVE": [
-                {"id": "SAVE_AND_CONTINUE"},
-                {"id": "SAVE_AND_CLOSE"}
-            ]
-        }
-    },
     "layout": {
         "groups": [
             {
@@ -28,6 +20,12 @@
                                                 "type": "field",
                                                 "value": "account_id",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "50%",
+                                                "visible": false
                                             }
                                         ]
                                     },

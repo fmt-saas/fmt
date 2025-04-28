@@ -1,0 +1,439 @@
+{
+    "name": "Organisation",
+    "description": "Form holding basic information about an Organisation.",
+    "routes": [
+        {
+            "id": "item.ownerships",
+            "label": "Owners",
+            "description": "",
+            "icon": "group",
+            "context": {
+                "entity": "realestate\\ownership\\Ownership",
+                "view": "list.default",
+                "domain": ["condo_id", "=", "object.id"]
+            }
+        },
+        {
+            "id": "item.property_lots",
+            "label": "Property Lots",
+            "description": "",
+            "icon": "apartment",
+            "context": {
+                "entity": "realestate\\property\\PropertyLot",
+                "view": "list.default",
+                "domain": ["condo_id", "=", "object.id"]
+            }
+        },
+        {
+            "id": "item.role_assignments",
+            "label": "Roles Assignments",
+            "description": "",
+            "icon": "library_books",
+            "context": {
+                "entity": "hr\\role\\RoleAssignment",
+                "view": "list.default",
+                "domain": ["condo_id", "=", "object.id"]
+            }
+        },
+        {
+            "id": "item.statutory_quotas",
+            "label": "Statutory Quotas",
+            "description": "",
+            "icon": "pie_chart",
+            "context": {
+                "entity": "realestate\\property\\Apportionment",
+                "view": "list.statutory",
+                "domain": [["condo_id", "=", "object.id"], ["is_statutory", "=", true]]
+            }
+        },
+        {
+            "id": "item.apportionment_keys",
+            "label": "Apportionment keys",
+            "description": "",
+            "icon": "account_tree",
+            "context": {
+                "entity": "realestate\\property\\Apportionment",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"], ["is_statutory", "=", false]]
+            }
+        },
+        {
+            "id": "suppliers",
+            "type": "entry",
+            "label": "Suppliers",
+            "icon": "storefront",
+            "description": "",
+            "context": {
+                "entity": "purchase\\supplier\\Suppliership",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        }
+    ],
+    "actions": [
+        {
+            "id": "action.init",
+            "label": "Init",
+            "icon": "play_arrow",
+            "description": "Generate mandatory configuration.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\property\\Condominium",
+                "action": "init",
+                "ids": []
+            },
+            "confirm": false
+        },
+        {
+            "id": "action.open_fiscal_year",
+            "label": "Open fiscal Year",
+            "icon": "event_available",
+            "description": "Open the fiscal year. This action cannot be undone.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\property\\Condominium",
+                "action": "open_fiscal_year",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.create_fiscal_year",
+            "label": "Create draft fiscal Year",
+            "icon": "edit_calendar",
+            "description": "Create a new fiscal year draft. This will overwrite any existing fiscal year draft.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\property\\Condominium",
+                "action": "create_draft_fiscal_year",
+                "ids": []
+            },
+            "confirm": true
+        }
+    ],
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "legal_name",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": false
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Language",
+                                                "value": "lang_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "type_id",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "type",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_parent",
+                                                "visible": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "label": "Signalétique",
+                        "description": "Signalétique",
+                        "id": "section.main_info",
+                        "rows": [
+                            {
+
+                                "columns": [
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "id": "label.admin",
+                                                "type": "label",
+                                                "value": "Infos administratives",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "registration_number",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "cadastral_number",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_vat",
+                                                "width": "100%",
+                                                "label": "Subject to VAT",
+                                                "help": "Do the company have a VAT number?"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "vat_number",
+                                                "width": "100%",
+                                                "visible": ["has_vat", "=", true]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "id": "label.construction",
+                                                "type": "label",
+                                                "value": "Construction",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Permit date",
+                                                "value": "construction_permit_date",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Start date",
+                                                "value": "construction_start_date",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Completion date",
+                                                "value": "construction_completion_date",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Compliance date",
+                                                "value": "construction_compliance_date",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "id": "label.regulations",
+                                                "type": "label",
+                                                "value": "Regulations",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "total_shares",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Creation date",
+                                                "value": "condo_creation_date",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Latest update",
+                                                "value": "condo_regulations_date",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Address",
+                        "id": "section.address",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "id": "label.main_addresses",
+                                                "type": "label",
+                                                "value": "Main address",
+                                                "width": "100%",
+                                                "align": "left"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "address_street",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "address_dispatch",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "address_zip",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "address_city",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "address_state",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "address_country",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Bank Accounts",
+                        "id": "section.bank_accounts",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "bank_account_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Management Contracts",
+                        "id": "section.management_contracts",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "500%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "Current Managing Agent",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Managing Agent",
+                                                "value": "managing_agent_id",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "management_contracts_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Sequences",
+                        "id": "section.sequences",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "setting_sequences_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Settings",
+                        "id": "section.settings",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "setting_values_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -7,23 +7,17 @@
             {
                 "type": "field",
                 "value": "name",
-                "width": "20%"
+                "width": "30%"
             },
             {
                 "type": "field",
                 "value": "due_date",
-                "width": "20%"
+                "width": "15%"
             },
             {
                 "type": "field",
                 "label": "Type",
                 "value": "funding_type",
-                "width": "20%"
-            },
-            {
-                "type": "field",
-                "label": "Invoice",
-                "value": "invoice_id",
                 "width": "20%"
             },
             {
@@ -34,14 +28,14 @@
             {
                 "type": "field",
                 "label": "Paid",
-                "value": "is_paid",
-                "width": "20%"
+                "value": "status",
+                "width": "15%"
             },
             {
                 "type": "field",
                 "label": "Amount Due",
                 "value": "due_amount",
-                "width": "20%"
+                "width": "10%"
             }
         ]
     }

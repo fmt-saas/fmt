@@ -62,6 +62,7 @@
             // #memo - if collapsed then horizontal lines strike through vertical ones
             border-collapse: collapse;
             */
+            border-collapse: collapse;
             page-break-inside: avoid;
             border: 1px solid black;
         }
@@ -99,7 +100,7 @@
         }
 
         main table thead tr th, main table tfoot tr td {
-            /* background-color: #eaeaea; */
+            background-color: #eaeaea;
         }
 
         main table tfoot tr td {
@@ -128,6 +129,7 @@
         {% set private_total_tenant = 0 %}
         {% set private_total_owner = 0 %}
         {% set private_total_vat = 0 %}
+
         {% set common_total_tenant = 0 %}
         {% set common_total_owner = 0 %}
         {% set common_total_vat = 0 %}
@@ -139,12 +141,13 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 35%;">Désignation</th>
-                    <th style="width: 15%;">Quotités</th>
-                    <th style="width: 12%;">Montant à répartir</th>
-                    <th style="width: 13%;">Part propriétaire</th>
-                    <th style="width: 12%;">Dont TVA</th>
-                    <th style="width: 13%;">Part locataire</th>
+                    <th style="width: 33%;">Désignation</th>
+                    <th style="width: 12%;">Quotités</th>
+                    <th style="width: 11%;">Copro</th>
+                    <th style="width: 11%;">Lot</th>
+                    <th style="width: 11%;">TVA</th>
+                    <th style="width: 11%;">Prop</th>
+                    <th style="width: 11%;">Loc</th>
                 </tr>
             </thead>
             <tbody>
@@ -156,6 +159,7 @@
                     {% set total_vat = 0 %}
                     <tr>
                         <td colspan="2"><strong>{{ lot.code }} - {{ lot.ref }} ({{ lot.nature }})</strong></td>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -177,6 +181,7 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
+                                    <td></td>
                                 </tr>
 
                                 {% for account in apport.accounts %}
@@ -189,8 +194,9 @@
                                         <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
                                         <td>{{ quotites }}</td>
                                         <td>{{ account.total_amount | format_money() }}</td>
-                                        <td>{{ account.owner | format_money() }}</td>
+                                        <td>{{ (account.owner + account.tenant) | format_money() }}</td>
                                         <td>{{ account.vat | format_money() }}</td>
+                                        <td>{{ account.owner | format_money() }}</td>
                                         <td>{{ account.tenant | format_money() }}</td>
                                     </tr>
                                 {% endfor %}
@@ -207,8 +213,9 @@
                         <td style="text-align: right;">Total {{ lot.code }} - {{ lot.ref }}</td>
                         <td></td>
                         <td>{{ total_apport | format_money() }}</td>
-                        <td>{{ total_owner | format_money() }}</td>
+                        <td>{{ (total_owner + total_tenant) | format_money() }}</td>
                         <td>{{ total_vat | format_money() }}</td>
+                        <td>{{ total_owner | format_money() }}</td>
                         <td>{{ total_tenant | format_money() }}</td>
                     </tr>
                 {% set common_total_owner = common_total_owner + total_owner  %}
@@ -221,8 +228,9 @@
                         <td style="text-align: right;">Totaux généraux</td>
                         <td></td>
                         <td>{{ common_total | format_money() }}</td>
-                        <td>{{ common_total_owner | format_money() }}</td>
+                        <td><strong>{{ (common_total_owner + common_total_tenant) | format_money() }}</strong></td>
                         <td>{{ common_total_vat | format_money() }}</td>
+                        <td>{{ common_total_owner | format_money() }}</td>
                         <td>{{ common_total_tenant | format_money() }}</td>
                     </tr>
             </tfoot>
@@ -231,16 +239,17 @@
 
         <!-- pass-2 private expenses -->
         {% if owner.has_private_expense %}
-        <h2>Frais privatifs</h2>
+        <h2 style="margin-top: 20px;">Frais privatifs</h2>
         <table>
             <thead>
                 <tr>
                     <th style="width: 35%;">Désignation</th>
                     <th style="width: 15%;">Quotités</th>
-                    <th style="width: 12%;">Montant à répartir</th>
-                    <th style="width: 13%;">Part propriétaire</th>
-                    <th style="width: 12%;">Dont TVA</th>
-                    <th style="width: 13%;">Part locataire</th>
+                    <th style="width: 12%;">Copro</th>
+                    <th style="width: 12%;">Lot</th>
+                    <th style="width: 12%;">TVA</th>
+                    <th style="width: 13%;">Prop</th>
+                    <th style="width: 13%;">Loc</th>
                 </tr>
             </thead>
             <tbody>
@@ -251,7 +260,7 @@
                     {% set total_owner = 0 %}
                     {% set total_vat = 0 %}
                     <tr>
-                        <td colspan="6" style="border-bottom: solid 1px black;"><strong>{{ lot.code }} - {{ lot.ref }} ({{ lot.nature }})</strong></td>
+                        <td colspan="7" style="border-bottom: solid 1px black;"><strong>{{ lot.code }} - {{ lot.ref }} ({{ lot.nature }})</strong></td>
                     </tr>
 
                     {% for expense in lot.expenses %}
@@ -264,11 +273,11 @@
                                     <td><div style="padding-left: 20px;">{{ account.date | date('d/m/Y') }} - {{account.description }}</div></td>
                                     <td>/</td>
                                     <td></td>
-                                    <td>{{ account.owner | format_money() }}</td>
+                                    <td>{{ (account.owner + account.tenant) | format_money() }}</td>
                                     <td>{{ account.vat | format_money() }}</td>
+                                    <td>{{ account.owner | format_money() }}</td>
                                     <td>{{ account.tenant | format_money() }}</td>
                                 </tr>
-
 
                                 {% set total_owner = total_owner + account.owner %}
                                 {% set total_tenant = total_tenant + account.tenant %}
@@ -282,15 +291,17 @@
                         <td style="text-align: right;">Total {{ lot.code }} - {{ lot.ref }}</td>
                         <td ></td>
                         <td ></td>
-                        <td >{{ total_owner | format_money() }}</td>
+                        <td >{{ (total_owner + total_tenant) | format_money() }}</td>
                         <td >{{ total_vat | format_money() }}</td>
+                        <td >{{ total_owner | format_money() }}</td>
                         <td >{{ total_tenant | format_money() }}</td>
                     </tr>
+                    {% set private_total_owner = private_total_owner + total_owner  %}
+                    {% set private_total_tenant = private_total_tenant + total_tenant  %}
+                    {% set private_total_vat = private_total_vat + total_vat %}
+
                 {% endif %}
 
-                {% set private_total_owner = private_total_owner + total_owner  %}
-                {% set private_total_tenant = private_total_tenant + total_tenant  %}
-                {% set private_total_vat = private_total_vat + total_vat %}
             {% endfor %}
             </tbody>
         </table>
@@ -298,26 +309,26 @@
 
         <!-- pass-3 consumptions -->
 
-        <div style="height: 20px;"></div>
-
         <!-- pass-4 TOTAL expenses -->
-        <h2>Total des charges</h2>
+        <h2 style="margin-top: 20px;">Total des charges</h2>
         <table>
             <thead>
                 <tr>
                     <th style="width: 50%;">Désignation</th>
-                    <th style="width: 12%;">Total à répartir</th>
-                    <th style="width: 13%;">Part propriétaire</th>
-                    <th style="width: 12%;">Dont TVA</th>
-                    <th style="width: 13%;">Part locataire</th>
+                    <th style="width: 12%;">Copro</th>
+                    <th style="width: 12%;">Lot</th>
+                    <th style="width: 12%;">TVA</th>
+                    <th style="width: 13%;">Prop</th>
+                    <th style="width: 13%;">Loc</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>Charges communes</td>
                     <td>{{ common_total | format_money() }}</td>
-                    <td>{{ common_total_owner | format_money() }}</td>
+                    <td>{{ (common_total_owner + common_total_tenant) | format_money() }}</td>
                     <td>{{ common_total_vat | format_money() }}</td>
+                    <td>{{ common_total_owner | format_money() }}</td>
                     <td>{{ common_total_tenant | format_money() }}</td>
                 </tr>
                 <!-- #todo - add consumptions
@@ -329,12 +340,13 @@
                     <td></td>
                 </tr>
                 -->
-                {% if private_total_owner > 0 or private_total_tenant > 0 %}
+                {% if private_total > 0 %}
                 <tr>
                     <td>Frais privatifs</td>
-                    <td>{{ private_total | format_money() }}</td>
-                    <td>{{ private_total_owner | format_money() }}</td>
+                    <td></td>
+                    <td>{{ (private_total_owner + private_total_tenant)| format_money() }}</td>
                     <td>{{ private_total_vat | format_money() }}</td>
+                    <td>{{ private_total_owner | format_money() }}</td>
                     <td>{{ private_total_tenant | format_money() }}</td>
                 </tr>
                 {% endif %}
@@ -343,8 +355,9 @@
                 <tr class="total-footer">
                     <td style="text-align: right;">Totaux généraux</td>
                     <td></td>
-                    <td>{{ (common_total_owner + private_total_owner) | format_money() }}</td>
+                    <td>{{ (common_total_owner + private_total_owner + common_total_tenant + private_total_tenant) | format_money() }}</td>
                     <td>{{ (common_total_vat + private_total_vat) | format_money() }}</td>
+                    <td>{{ (common_total_owner + private_total_owner) | format_money() }}</td>
                     <td>{{ (common_total_tenant + private_total_tenant) | format_money() }}</td>
                 </tr>
             </tfoot>

@@ -27,6 +27,7 @@ class AccountingEntry extends Model {
                 'description'       => "The condominium the accounting entry refers to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 //'readonly'          => true
+                'default'           => 'defaultCondoId'
             ],
 
             'name' => [
@@ -54,7 +55,8 @@ class AccountingEntry extends Model {
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "Fiscal year the entry relates to.",
                 'required'          => true,
-                'dependents'        => ['fiscal_period_id']
+                'dependents'        => ['fiscal_period_id'],
+                'default'           => 'defaultFiscalYearId'
             ],
 
             'fiscal_period_id' => [
@@ -62,7 +64,7 @@ class AccountingEntry extends Model {
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
                 'description'       => "Period of the fiscal year the entry relates to (from entry_date).",
-                'help'              => "Period is automatically assigned when entry is validated.",
+                'help'              => "Period is automatically assigned based on entry date.",
                 'function'          => 'calcFiscalPeriodId',
                 'store'             => true,
                 'instant'           => true
@@ -87,7 +89,8 @@ class AccountingEntry extends Model {
             'entry_number' => [
                 'type'              => 'string',
                 'description'       => 'Unique code for entry identification.',
-                'dependents'        => ['name', 'debit', 'credit']
+                'dependents'        => ['name', 'debit', 'credit'],
+                'description'       => 'Entry number is automatically assigned after validation, and cannot be changed afterwards.'
             ],
 
             'origin_object_class' => [
@@ -133,7 +136,8 @@ class AccountingEntry extends Model {
                 'foreign_object'    => 'finance\accounting\AccountingEntryLine',
                 'foreign_field'     => 'accounting_entry_id',
                 'description'       => "Lines of the accounting entry.",
-                'dependents'        => ['debit', 'credit']
+                'dependents'        => ['debit', 'credit'],
+                'ondetach'          => 'delete'
             ],
 
             'is_cancelled' => [
@@ -229,6 +233,32 @@ class AccountingEntry extends Model {
                 ]
             ]
         ];
+    }
+
+
+    public static function defaultCondoId($values) {
+        $result = null;
+        if(isset($values['journal_id'])) {
+            $journal = Journal::id($values['journal_id'])->read(['condo_id'])->first();
+            if(isset($journal['condo_id'])) {
+                $result = $journal['condo_id'];
+            }
+        }
+        return $result;
+    }
+
+    public static function defaultFiscalYearId($values) {
+        $result = null;
+        if(isset($values['journal_id'])) {
+            $journal = Journal::id($values['journal_id'])->read(['condo_id'])->first();
+            if(isset($journal['condo_id'])) {
+                $fiscalYear = FiscalYear::search([['condo_id', '=', $journal['condo_id']], ['status', '=', 'open']], ['sort' => ['date_from' => 'desc'], 'limit' => 1])->first();
+                if($fiscalYear) {
+                    $result = $fiscalYear['id'];
+                }
+            }
+        }
+        return $result;
     }
 
     /**
@@ -388,17 +418,22 @@ class AccountingEntry extends Model {
         return $result;
     }
 
+    private static function computeIsBalanced($entry_lines_ids) {
+        $entry_lines = AccountingEntryLine::ids($entry_lines_ids)->read(['credit', 'debit']);
+        $credit = 0;
+        $debit = 0;
+        foreach($entry_lines as $line_id => $line) {
+            $credit += $line['credit'];
+            $debit += $line['debit'];
+        }
+        return (abs($credit - $debit) < 0.01 && round($credit, 2) != 0.00);
+    }
+
     public static function calcIsBalanced($self) {
         $result = [];
-        $self->read(['entry_lines_ids' => ['credit', 'debit']]);
+        $self->read(['entry_lines_ids']);
         foreach($self as $id => $entry) {
-            $credit = 0;
-            $debit = 0;
-            foreach($entry['entry_lines_ids'] as $line_id => $line) {
-                $credit += $line['credit'];
-                $debit += $line['debit'];
-            }
-            $result[$id] = ($credit === $debit && round($credit, 2) != 0.00);
+            $result[$id] = self::computeIsBalanced($entry['entry_lines_ids']);
         }
         return $result;
     }
@@ -497,5 +532,27 @@ class AccountingEntry extends Model {
             }
         }
         return parent::candelete($self);
+    }
+
+    public static function onchange($event, $values) {
+        $result = [];
+        if(isset($event['entry_lines_ids'])) {
+            $entry = self::id($values['id'])->read(['entry_lines_ids'])->first();
+            $map_entry_lines_ids = array_flip($entry['entry_lines_ids']);
+            foreach ($event['entry_lines_ids'] as $line_id) {
+                $action = $line_id[0];
+                $line_id = ltrim($line_id, '+-');
+                if($action === '-') {
+                    if(isset($map_entry_lines_ids[$line_id])) {
+                        unset($map_entry_lines_ids[$line_id]);
+                    }
+                }
+                else {
+                    $map_entry_lines_ids[$line_id] = true;
+                }
+            }
+            $result['is_balanced'] = self::computeIsBalanced(array_keys($map_entry_lines_ids));
+        }
+        return $result;
     }
 }

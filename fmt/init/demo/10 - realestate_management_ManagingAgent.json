@@ -16,7 +16,11 @@
 				"address_country": "BE",
                 "has_vat": true,
                 "vat_number": "BE0123231324",
-                "is_active": true
+                "bank_account_iban": "BE34954995767790",
+                "is_active": true,
+                "email": "perfect.syndic@example.com",
+                "phone": "+326602319",
+                "website": "https://perfectsyndic.com"
             }
         ]
     }

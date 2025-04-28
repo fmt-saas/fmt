@@ -16,7 +16,7 @@ use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\purchase\accounting\AccountingEntry;
 use realestate\purchase\accounting\invoice\InvoiceLine;
-
+use sale\pay\Funding;
 
 class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
 
@@ -81,6 +81,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
 
             /* additional fields*/
 
+            'statement_bank_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankAccount',
+                'description'       => 'Bank account to use for the request.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'statement_owners_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\funding\ExpenseStatementOwner',
@@ -112,6 +119,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => 'Rounding delta between allocation and expenses, if any.'
+            ],
+
+            'fundings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'sale\pay\Funding',
+                'foreign_field'     => 'expense_statement_id',
+                'description'       => 'The fundings that relate to the statement (sale invoice).'
             ],
 
             'schema' => [
@@ -166,6 +180,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 'description'   => 'Generate the request lines according to the property lots of the condominium and their respective shares.',
                 'policies'      => ['can_generate_statement'],
                 'function'      => 'doGenerateStatement'
+            ],
+            'generate_fundings' => [
+                'description'   => 'Generate fundings for each involved ownership.',
+                'policies'      => [],
+                'function'      => 'doGenerateFundings'
             ]
         ]);
     }
@@ -215,6 +234,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 ];
                 continue;
             }
+            // #todo - check that ownerships are set and continuous for all involved property lots of the period
         }
         return $result;
     }
@@ -391,8 +411,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
             // #todo - allow customization of label
             $description = 'Décompte de charge ' . $statement['fiscal_period_id']['name'];
 
-
             // handle assigned delta (diff between paid to provider and reinvoiced to owners - rounding account), if any
+            /*
+            // this unbalances the entry: it has to be taken under account at the end of the fiscal year
             $assigned_delta = round($statement['assigned_delta'], 2);
             if($assigned_delta != 0.0) {
                 // find the account based on operation_assignment
@@ -411,10 +432,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                         'credit'                => ($assigned_delta < 0.0) ? abs($assigned_delta) : 0.0
                     ]);
             }
+            */
 
             foreach($statement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
 
-                // somme des price -> vers le compte du propriétaire: au débit
+                // sum of field `price`, to be accounted on ownership debit
                 $total_ownership = 0.0;
 
                 foreach($statementOwner['statement_owner_lines_ids'] as $line_id => $statementLine) {
@@ -451,6 +473,72 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
             }
 
             self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
+        }
+    }
+
+
+    public static function doGenerateFundings($self) {
+
+            /* from finance\accounting\invoice\Invoice: */
+            // 'condo_id'
+            // 'fiscal_year_id'
+            // 'fiscal_period_id'
+            // 'accounting_entry_id'
+            // 'emission_date'
+            // 'due_date'
+
+
+        $self->read([
+                'name',
+                'posting_date',
+                'due_date',
+                'statement_bank_account_id',
+                'fiscal_year_id' => ['date_from'],
+                'fiscal_period_id' => ['date_from'],
+                'condo_id' => ['code'],
+                'statement_owners_ids' => [
+                    'ownership_id' => ['ownership_code'],
+                    'statement_owner_lines_ids' => [
+                        'price'
+                    ]
+                ]
+            ]);
+
+        foreach($self as $id => $expenseStatement) {
+            foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
+                $ownership_id = $statementOwner['ownership_id']['id'];
+
+                $due_amount = 0.0;
+                foreach($statementOwner['statement_owner_lines_ids'] as $line_id => $ownerLine) {
+                    $due_amount += $ownerLine['price'];
+                }
+
+                // a funding cannot be issued nor due in the past
+                $issue_date = max(strtotime('today'), $expenseStatement['posting_date']);
+                $due_date = $expenseStatement['due_date'];
+
+                // CCC/CCCO/OOOXX
+                $reference =
+                    substr(str_pad((int) $expenseStatement['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
+                    substr(str_pad((int) $expenseStatement['ownership_id']['ownership_code'], 4, '0', STR_PAD_LEFT), 0, 4);
+
+                $prefix = substr($reference, 0, 3);
+                $suffix = substr($reference, 3);
+
+                Funding::create([
+                        'condo_id'                  => $expenseStatement['condo_id']['id'],
+                        'description'               => $expenseStatement['name'],
+                        'funding_type'              => 'expense_statement',
+                        'expense_statement_id'      => $id,
+                        'ownership_id'              => $ownership_id,
+                        'bank_account_id'           => $expenseStatement['statement_bank_account_id'],
+                        'issue_date'                => $issue_date,
+                        'due_date'                  => $due_date,
+                        'due_amount'                => $due_amount,
+                        'payment_reference'         => self::computePaymentReference($prefix, $suffix)
+                    ]);
+
+            }
         }
     }
 
@@ -560,11 +648,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
          */
         $common_total = 0.0;
         /**
-         * @var float $assigned_total
-         * Total of assigned amounts, considering deferred expenses, cumulating rounded values.
+         * @var float $delta_total
+         * Total of diffs between line amounts and assigned amounts, considering deferred expenses, cumulating rounded values.
          * This value is used for computing assigned_delta.
          */
-        $assigned_total = 0.0;
+        $delta_total = 0.0;
         /**
          * @var float $private_total
          * Total amount of private expenses in the current statement (all owners included).
@@ -590,6 +678,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
 
                 // 1) private expense
                 // #todo - handle energy/water consumption in a distinct manner (different in section in the statement : `consumptions`)
+                /*
+                encodage des factures sur le compte correspondant à l'énergie consommée 61200
+                + utilisation d'un compte dédié au décomptes de consommation (compteur) 61240
+                + création d'un total consommations privatives
+                */
                 // #memo - consider both debit and credit lines here (to void already reinvoiced private expenses)
                 if(substr($accountingEntryLine['account_code'], 0, 3) === '643' && $accountingEntryLine['debit'] > 0) {
                     //skip private expense that have been reinvoiced
@@ -638,6 +731,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 }
                 // 2 a) common expenses that are deferred : withdraw from due amounts
                 // #memo - only debit lines for these
+// todo - remove unnecessary
                 if(substr($accountingEntryLine['account_code'], 0, 3) === '490' && $accountingEntryLine['debit'] > 0) {
 
                     $invoiceLine = InvoiceLine::id($accountingEntryLine['invoice_line_id'])->read(['expense_account_id', 'apportionment_id', 'owner_share', 'tenant_share'])->first();
@@ -678,7 +772,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                             $adjust = round($amount - $amount_owner - $amount_tenant, 2);
                             $amount_owner += $adjust;
 
-                            $assigned_total += ($amount_owner + $amount_tenant);
+                            $delta_total += $amount - ($amount_owner + $amount_tenant);
 
                             $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$invoiceLine['expense_account_id']]['owner'] += $amount_owner;
                             $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$invoiceLine['expense_account_id']]['tenant'] += $amount_tenant;
@@ -730,7 +824,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                             $adjust = round($amount - $amount_owner - $amount_tenant, 2);
                             $amount_owner += $adjust;
 
-                            $assigned_total += ($amount_owner + $amount_tenant);
+                            $delta_total += $amount - ($amount_owner + $amount_tenant);
 
                             $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['vat'] += $amount_vat;
                             $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['owner'] += $amount_owner;
@@ -784,6 +878,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                     }
                     $map_accounts_ids[$accountingEntryLine['account_id']] = true;
                 }
+
+                // #todo - compte provision 701
+                // clôture semestrielle ou annuelle
             }
         }
 
@@ -791,7 +888,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
         $result = [
                 'private_total'  => $private_total,
                 'common_total'   => $common_total,
-                'assigned_delta' => round($assigned_total - $common_total, 2),
+                // #memo - a positive amount means that a part of the purchase invoice was not allocated to owners
+                'assigned_delta' => round($delta_total, 2),
                 'owners'         => []
             ];
 

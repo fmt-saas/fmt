@@ -24,7 +24,8 @@ class AccountingEntryLine extends Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the accounting entry line refers to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'readonly'          => true
+                'readonly'          => true,
+                'default'           => 'defaultCondoId'
             ],
 
             'name' => [
@@ -86,4 +87,14 @@ class AccountingEntryLine extends Model {
         ];
     }
 
+    public static function defaultCondoId($values) {
+        $result = null;
+        if(isset($values['accounting_entry_id'])) {
+            $accountingEntry = AccountingEntry::id($values['accounting_entry_id'])->read(['condo_id'])->first();
+            if($accountingEntry) {
+                $result = $accountingEntry['condo_id'];
+            }
+        }
+        return $result;
+    }
 }

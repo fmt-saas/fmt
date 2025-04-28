@@ -4,38 +4,14 @@
     "header": {
         "actions": {
             "ACTION.SAVE": [
-                {"id": "SAVE_AND_CONTINUE"},
+                {
+                    "id": "SAVE_AND_EDIT",
+                    "view": "form.default"
+                },
                 {"id": "SAVE_AND_CLOSE"}
             ]
         }
     },
-    "actions": [
-        {
-            "id": "action.validate",
-            "label": "Validate",
-            "description": "Validate the accounting entry. This action is not reversible.",
-            "controller": "core_model_transition",
-            "visible": ["status", "=", "pending"],
-            "params": {
-                "entity": "finance\\accounting\\AccountingEntry",
-                "transition": "validate",
-                "ids": []
-            },
-            "confirm": true
-        },
-        {
-            "id": "action.cancel",
-            "label": "Cancel",
-            "controller": "core_model_do",
-            "visible": [["status", "=", "validated"], ["is_cancelled", "=", false]],
-            "params": {
-                "entity": "finance\\accounting\\AccountingEntry",
-                "action": "cancel",
-                "ids": []
-            },
-            "confirm": true
-        }
-    ],
     "layout": {
         "groups": [
             {
@@ -49,13 +25,18 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "entry_date",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "label": "Fiscal year",
                                                 "value": "fiscal_year_id",
                                                 "width": "33%"
                                             },
                                             {
-                                                "type": "field",
-                                                "value": "entry_date",
+                                                "type": "label",
+                                                "value": "",
                                                 "width": "33%"
                                             },
                                             {
@@ -83,15 +64,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "is_balanced",
-                                                "width": "50%",
-                                                "visible": ["status", "<>", "validated"]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Code",
-                                                "value": "entry_number",
-                                                "width": "33%",
-                                                "visible": ["status", "=", "validated"]
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "label",
@@ -104,31 +77,6 @@
                                                 "value": "reverse_entry_id",
                                                 "width": "50%",
                                                 "visible": ["status", "=", "cancelled"]
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "sections": [
-                    {
-                        "id": "section.lines",
-                        "label": "Lines",
-                        "visible": ["state", "=", "instance"],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "entry_lines_ids",
-                                                "width": "100%"
                                             }
                                         ]
                                     }

@@ -448,16 +448,6 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
             if($invoice['has_fund_usage']) {
                 foreach($invoice['fund_usage_lines_ids'] as $usage_line_id => $fundUsageLine) {
 
-                    // create the credit line on the reserve fund
-                    AccountingEntryLine::create([
-                            'condo_id'              => $invoice['condo_id'],
-                            'accounting_entry_id'   => $accountingEntry['id'],
-                            'name'                  => $invoice['description'],
-                            'account_id'            => $fundUsageLine['fund_account_id'],
-                            'debit'                 => 0.0,
-                            'credit'                => $fundUsageLine['amount']
-                        ]);
-
                     // create the debit line on the expense account (use of reserve fund)
                     AccountingEntryLine::create([
                             'condo_id'              => $invoice['condo_id'],
@@ -466,6 +456,16 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                             'account_id'            => $fundUsageLine['expense_account_id'],
                             'debit'                 => $fundUsageLine['amount'],
                             'credit'                => 0.0
+                        ]);
+
+                    // create the credit line on the reserve fund
+                    AccountingEntryLine::create([
+                            'condo_id'              => $invoice['condo_id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
+                            'name'                  => $invoice['description'],
+                            'account_id'            => $fundUsageLine['fund_account_id'],
+                            'debit'                 => 0.0,
+                            'credit'                => $fundUsageLine['amount']
                         ]);
                 }
             }

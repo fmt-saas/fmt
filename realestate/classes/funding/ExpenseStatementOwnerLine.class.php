@@ -107,7 +107,7 @@ class ExpenseStatementOwnerLine extends \sale\accounting\invoice\InvoiceLine {
                 'usage'             => 'amount/money:2',
                 'function'          => 'calcPrice',
                 'store'             => true,
-                'description'       => 'Override invoiceLine total price (vat incl.)',
+                'description'       => 'Override invoiceLine price (vat incl.)',
                 'help'              => 'This is the amount to be used for the related accounting entry. There is not VAT handling for Condominiums.'
             ],
 
