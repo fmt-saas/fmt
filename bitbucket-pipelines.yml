@@ -27,6 +27,11 @@ pipelines:
           - cp -r . /var/www/html/packages
           # Restore the equal core package
           - cp -r /var/www/html/packages.core/core /var/www/html/packages/core
+          # create a config file with Discope specifics
+          - |
+            echo "{\"DEFAULT_LANG\": \"fr\", \"SERVICE_ORM_COLLECTION_CLASS\": \"fmt\\orm\\Collection\", \"SERVICE_ACCESS_ACCESSCONTROLLER\": \"fmt\\access\\AccessController\"}" > /var/www/html/config/config.json
+          # Verify the content of the file
+          - cat /var/www/html/config/config.json
           # Run equal commands for testing and initialization
           - php /var/www/html/run.php --do=init_fs
           - php /var/www/html/run.php --do=test_fs-consistency
