@@ -37,7 +37,7 @@ list($context, $om, $auth) = [ $providers['context'], $providers['orm'], $provid
 
 $user_id = $auth->userId();
 
-// documents can be public : swith to root user to bypass any permission check
+// documents can be public : switch to root user to bypass any permission check
 $auth->su();
 
 // search for documents matching given hash code (should be only one match)
