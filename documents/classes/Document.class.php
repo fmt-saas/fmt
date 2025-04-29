@@ -26,7 +26,7 @@ class Document extends Model {
 
             'data' => [
                 'type'              => 'binary',
-                'dependents'        => ['uuid', 'hash', 'size', 'readable_size', 'preview_image']
+                'dependents'        => ['uuid', 'hash', 'type', 'size', 'readable_size', 'preview_image']
             ],
 
             'type' => [
@@ -58,6 +58,7 @@ class Document extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'store'             => true,
+                'instant'           => true,
                 'dependents'        => ['link'],
                 'function'          => 'calcHash',
                 'description'       => 'MD5 hash of the document.'
@@ -67,6 +68,7 @@ class Document extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'unique'            => true,
+                'instant'           => true,
                 'store'             => true,
                 'function'          => 'calcUuid'
             ],
