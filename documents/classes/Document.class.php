@@ -18,6 +18,12 @@ class Document extends Model {
 
     public static function getColumns() {
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the property lot belongs to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'required'          => true
+            ],
 
             'name' => [
                 'type'              => 'string',
