@@ -684,14 +684,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 + création d'un total consommations privatives
                 */
                 // #memo - consider both debit and credit lines here (to void already reinvoiced private expenses)
-                if(substr($accountingEntryLine['account_code'], 0, 3) === '643' && $accountingEntryLine['debit'] > 0) {
+                if(substr($accountingEntryLine['account_code'], 0, 3) === '643') {
                     //skip private expense that have been reinvoiced
+                    // ceci ne fonctionne pas dans le cas d'aller-retours multiples (annuler, recréeer)
                     if(isset($map_private_expenses[$accountingEntryLine['invoice_line_id']])) {
                         continue;
                     }
                     // #todo - pour les consommations on n'a pas d'invoice line, mais il faut un lien avec des lignes de relevés (format compatible avec InvoiceLine ? ConsumptionLine)
                     $invoiceLine = InvoiceLine::id($accountingEntryLine['invoice_line_id'])->read([
-                            'description', 'vat', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
+                            'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
                             'invoice_id' => ['posting_date']
                         ])
                         ->first();
@@ -703,7 +704,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                     $ownership_id = $invoiceLine['ownership_id'];
                     $property_lot_id = $invoiceLine['property_lot_id'];
 
-                    $amount = $accountingEntryLine['debit'];
+                    $amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
 
                     $private_total += $amount;
 
@@ -711,6 +712,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                         $map_result[$ownership_id][$property_lot_id]['private_expense'][0][$accountingEntryLine['account_id']] = [];
                     }
 
+                    $amount_vat = round($amount * $invoiceLine['vat_rate'], 2);
                     $amount_owner  = round($amount * ($invoiceLine['owner_share'] / 100), 2);
                     $amount_tenant = round($amount * (1 - $invoiceLine['owner_share'] / 100), 2);
                     $adjust = round($amount - $amount_owner - $amount_tenant, 2);
@@ -721,7 +723,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                     $map_result[$ownership_id][$property_lot_id]['private_expense'][0][$accountingEntryLine['account_id']][] = [
                             'owner'         => $amount_owner,
                             'tenant'        => $amount_tenant,
-                            'vat'           => $invoiceLine['vat'],
+                            'vat'           => $amount_vat,
                             'description'   => $invoiceLine['description'],
                             'date'          => $invoiceLine['invoice_id']['posting_date'] ?? null
                         ];
@@ -729,67 +731,17 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                     $map_accounts_ids[$accountingEntryLine['account_id']] = true;
                     $map_property_lots_ids[$property_lot_id] = true;
                 }
-                // 2 a) common expenses that are deferred : withdraw from due amounts
+                // 2) common expense
                 // #memo - only debit lines for these
-// todo - remove unnecessary
-                if(substr($accountingEntryLine['account_code'], 0, 3) === '490' && $accountingEntryLine['debit'] > 0) {
-
-                    $invoiceLine = InvoiceLine::id($accountingEntryLine['invoice_line_id'])->read(['expense_account_id', 'apportionment_id', 'owner_share', 'tenant_share'])->first();
-
-                    if(!$invoiceLine) {
-                        throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
-                    }
-                    // #memo - this amount must be withdrawn
-                    $line_amount = -$accountingEntryLine['debit'];
-                    $common_total += $line_amount;
-
-                    $apportionment = $map_apportionments[$invoiceLine['apportionment_id']];
-
-                    foreach($ownerships as $ownership_id => $ownership) {
-                        foreach($ownership['property_lots_ids'] as $property_lot_id) {
-                            if(!isset($apportionment[$property_lot_id])) {
-                                continue;
-                            }
-                            $prorata = $ownerships[$ownership_id]['nb_days'] / $nb_days;
-                            $shares = $apportionment[$property_lot_id];
-                            $total_shares = $apportionments[$invoiceLine['apportionment_id']]['total_shares'];
-                            $amount = $prorata * ($line_amount * $shares / $total_shares);
-                            if(!isset($map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$invoiceLine['expense_account_id']])) {
-                                $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$invoiceLine['expense_account_id']] = [
-                                        'shares'        => $shares,
-                                        'total_shares'  => $total_shares,
-                                        'total_amount'  => $line_amount,
-                                        'owner'         => 0.0,
-                                        'tenant'        => 0.0
-                                    ];
-                            }
-                            else {
-                                $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$invoiceLine['expense_account_id']]['total_amount'] += $line_amount;
-                            }
-
-                            $amount_owner = round($amount * ($invoiceLine['owner_share'] / 100), 2);
-                            $amount_tenant = round($amount * (1 - $invoiceLine['owner_share'] / 100), 2);
-                            $adjust = round($amount - $amount_owner - $amount_tenant, 2);
-                            $amount_owner += $adjust;
-
-                            $delta_total += $amount - ($amount_owner + $amount_tenant);
-
-                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$invoiceLine['expense_account_id']]['owner'] += $amount_owner;
-                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$invoiceLine['expense_account_id']]['tenant'] += $amount_tenant;
-                            $map_property_lots_ids[$property_lot_id] = true;
-                        }
-                    }
-                    $map_accounts_ids[$invoiceLine['expense_account_id']] = true;
-                }
-                // 2 b) common expense
-                // #memo - only debit lines for these
-                elseif(substr($accountingEntryLine['account_code'], 0, 2) === '61' && $accountingEntryLine['debit'] > 0) {
-                    $invoiceLine = InvoiceLine::id($accountingEntryLine['invoice_line_id'])->read(['vat', 'vat_rate', 'apportionment_id', 'owner_share', 'tenant_share'])->first();
+                elseif(substr($accountingEntryLine['account_code'], 0, 2) === '61') {
+                    $invoiceLine = InvoiceLine::id($accountingEntryLine['invoice_line_id'])->read(['vat_rate', 'apportionment_id', 'owner_share', 'tenant_share'])->first();
                     if(!$invoiceLine) {
                         throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
                     }
 
-                    $line_amount = $accountingEntryLine['debit'];
+                    $line_amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
+                    $vat_amount = $line_amount * $invoiceLine['vat_rate'];
+
                     $common_total += $line_amount;
 
                     $apportionment = $map_apportionments[$invoiceLine['apportionment_id']];
@@ -818,7 +770,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                                 $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['total_amount'] += $line_amount;
                             }
 
-                            $amount_vat = round($prorata * ($invoiceLine['vat'] * $shares / $total_shares), 2);
+                            $amount_vat = round($prorata * ($vat_amount * $shares / $total_shares), 2);
                             $amount_owner = round($amount * ($invoiceLine['owner_share'] / 100), 2);
                             $amount_tenant = round($amount * (1 - $invoiceLine['owner_share'] / 100), 2);
                             $adjust = round($amount - $amount_owner - $amount_tenant, 2);
@@ -837,7 +789,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 }
                 // 3) reserve fund
                 // #memo - limit to lines related to use of reserve fund (debit only)
-                elseif(substr($accountingEntryLine['account_code'], 0, 4) === '6816' && substr($accountingEntryLine['account_code'], -1) === '1' && $accountingEntryLine['debit'] > 0) {
+                elseif(substr($accountingEntryLine['account_code'], 0, 4) === '6816' && substr($accountingEntryLine['account_code'], -1) === '1') {
 
                     // retrieve account according to account_id and ReserveFund
                     $reserveFund = $map_reserve_funds[$accountingEntryLine['account_code']] ?? null;
@@ -846,7 +798,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                         throw new \Exception('missing_mandatory_reserve_fund', EQ_ERROR_INVALID_CONFIG);
                     }
 
-                    $line_amount = -$accountingEntryLine['debit'];
+                    $line_amount = ($accountingEntryLine['debit'] > 0) ? -$accountingEntryLine['debit'] : $accountingEntryLine['credit'];
+
                     $common_total += $line_amount;
 
                     $apportionment_id = $reserveFund['apportionment_id'];
@@ -878,9 +831,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                     }
                     $map_accounts_ids[$accountingEntryLine['account_id']] = true;
                 }
-
-                // #todo - compte provision 701
-                // clôture semestrielle ou annuelle
             }
         }
 

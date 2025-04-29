@@ -7,6 +7,8 @@
 */
 namespace finance\accounting;
 use equal\orm\Model;
+use realestate\funding\FundRequestExecution;
+use realestate\ownership\Ownership;
 
 class FiscalPeriod extends Model {
 
@@ -83,6 +85,45 @@ class FiscalPeriod extends Model {
         ];
     }
 
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Pending fiscal period, that can be used for recording new accounting entries.',
+                'icon' => 'draw',
+                'transitions' => [
+                    'close' => [
+                        'description' => 'Close the fiscal period.',
+                        'help' => 'A fiscal period is meant to be closed the sooner at the day matching date stored in `date_to` field.',
+                        'policies' => [
+                            'can_be_closed'
+                        ],
+                        'onbefore' => 'onbeforeClose',
+                        'status' => 'close'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    public static function getActions() {
+        return [
+            'generate_accounting_entries' => [
+                'description'   => 'Generate the accounting entries for closing the fiscal period.',
+                'policies'      => ['is_balanced', 'can_generate_executions'],
+                'function'      => 'doGenerateAccountingEntries'
+            ]
+        ];
+    }
+
+    public static function getPolicies(): array {
+        return [
+            'can_be_closed' => [
+                'description' => 'Verifies that a fiscal period can be closed according its configuration.',
+                'function'    => 'policyCanBeClosed'
+            ]
+        ];
+    }
+
     public static function calcName($self) {
         $result = [];
         $self->read(['code', 'date_from', 'date_to', 'condo_id' => ['name']]);
@@ -93,6 +134,87 @@ class FiscalPeriod extends Model {
             $result[$id] = $period['code'] . ' - ' . date('Y-m-d', $period['date_from']) . ' - ' . date('Y-m-d', $period['date_to']) . " ({$period['condo_id']['name']})";
         }
         return $result;
+    }
+
+
+    public static function policyCanBeClosed($self) {
+        $result = [];
+        return $result;
+    }
+
+    public static function onbeforeClose($self) {
+        $self->do('generate_accounting_entries');
+    }
+
+    public static function doGenerateAccountingEntries($self) {
+        $self->read([
+                'condo_id',
+                'date_from',
+                'date_to',
+                'fiscal_year_id'
+            ]);
+
+        foreach($self as $id => $fiscalPeriod) {
+            $miscJournal = Journal::search([['condo_id', '=', $fiscalPeriod['condo_id']], ['code', '=', 'MISC']])->first();
+            if(!$miscJournal) {
+                throw new \Exception('missing_opb_journal', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $expenseProvisionAccount = Account::search([['condo_id', '=', $fiscalPeriod['condo_id']], ['operation_assignment', '=', 'expense_provisions']])
+                ->read(['id'])
+                ->first();
+
+            $accountingEntry = AccountingEntry::create([
+                        'condo_id'          => $fiscalPeriod['condo_id'],
+                        'journal_id'        => $miscJournal['id'],
+                        'description'       => 'Extourne des provisions pour charges',
+                        'is_temp'           => true,
+                        'fiscal_year_id'    => $fiscalPeriod['fiscal_year_id'],
+                        'entry_date'        => time()
+                    ])
+                    ->first();
+
+            $requestExecutions = FundRequestExecution::search([
+                    ['posting_date', '>=', $fiscalPeriod['date_from']],
+                    ['posting_date', '<=', $fiscalPeriod['date_to']]
+                ])
+                ->read(['execution_lines_ids' => ['ownership_id', 'price']]);
+
+            $map_ownership_amounts = [];
+            foreach($requestExecutions as $requestExecution) {
+                foreach($requestExecution['execution_lines_ids'] as $requestExecutionLine) {
+                    $ownership_id = $requestExecutionLine['ownership_id'];
+                    $map_ownership_amounts[$ownership_id] = ($map_ownership_amounts[$ownership_id] ?? 0) + $requestExecutionLine['line'];
+                }
+            }
+
+            $ownerships = Ownership::ids(array_keys($map_ownership_amounts))->read(['ownership_account_id'])->get();
+
+            foreach($map_ownership_amounts as $ownership_id => $amount) {
+
+                // debit account 701
+                AccountingEntryLine::create([
+                        'condo_id'              => $fiscalPeriod['condo_id'],
+                        'accounting_entry_id'   => $accountingEntry['id'],
+                        'account_id'            => $expenseProvisionAccount['id'],
+                        'debit'                 => $amount,
+                        'credit'                => 0.0
+                    ]);
+
+                // credit owner account
+                AccountingEntryLine::create([
+                        'condo_id'              => $fiscalPeriod['condo_id'],
+                        'accounting_entry_id'   => $accountingEntry['id'],
+                        'account_id'            => $ownerships[$ownership_id]['ownership_account_id'],
+                        'debit'                 => 0.0,
+                        'credit'                => $amount
+                    ]);
+
+            }
+
+            // validate accounting entry
+            AccountingEntry::id($accountingEntry['id'])->transition('validate');
+        }
     }
 
 }

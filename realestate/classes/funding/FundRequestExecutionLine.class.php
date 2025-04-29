@@ -36,8 +36,12 @@ class FundRequestExecutionLine extends \sale\accounting\invoice\InvoiceLine {
             ],
 
             'request_execution_id' => [
-                'type'              => 'alias',
-                'alias'             => 'invoice_id'
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'realestate\funding\FundRequestExecution',
+                'relation'          => ['invoice_id'],
+                'description'       => 'The fund request execution (sale invoice) the line relates to.',
+                'help'              => 'This field acts as an alias of `invoice_id`.'
             ],
 
             'ownership_id' => [

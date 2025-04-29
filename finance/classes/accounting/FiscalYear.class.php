@@ -504,7 +504,7 @@ class FiscalYear extends Model {
 
             // 4 - create temporary carry-forward / opening-balance accounting entries in next fiscal year OPB journal
 
-            $carryForwardJournal = Journal::search([['code', '=', 'OPB']])->first();
+            $carryForwardJournal = Journal::search([['condo_id', '=', $fiscalYear['condo_id']], ['code', '=', 'OPB']])->first();
             if(!$carryForwardJournal) {
                 throw new \Exception('missing_opb_journal', EQ_ERROR_INVALID_CONFIG);
             }

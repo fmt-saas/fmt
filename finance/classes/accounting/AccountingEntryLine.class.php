@@ -83,7 +83,14 @@ class AccountingEntryLine extends Model {
                 'description'       => 'Amount to be credited on the account.',
                 'default'           => 0.0,
                 'dependents'        => ['accounting_entry_id' => 'credit']
-            ]
+            ],
+
+            'has_invoice_line' => [
+                'type'              => 'boolean',
+                'description'       => "Is the accounting entry line linked to an invoice line ?",
+                'default'           => false
+            ],
+
         ];
     }
 

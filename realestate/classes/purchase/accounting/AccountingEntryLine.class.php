@@ -30,6 +30,12 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'ondelete'          => 'cascade'
             ],
 
+            'has_invoice_line' => [
+                'type'              => 'boolean',
+                'description'       => "Is the accounting entry line linked to an invoice line ?",
+                'default'           => true
+            ],
+
             'invoice_line_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\InvoiceLine',
