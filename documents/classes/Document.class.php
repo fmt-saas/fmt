@@ -73,6 +73,7 @@ class Document extends Model {
             'uuid' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
+                'usage'             => 'text/plain:36',
                 'unique'            => true,
                 'instant'           => true,
                 'store'             => true,

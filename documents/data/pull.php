@@ -43,8 +43,7 @@ $user_id = $auth->userId();
 $auth->su();
 
 // search for documents matching given hash code (should be only one match)
-$collection = Document::search(['uuid', '=', $params['uuid']]);
-$document = $collection->read(['condo_id'])->first();
+$document = Document::search(['uuid', '=', $params['uuid']])->read(['condo_id'])->first();
 
 if(!$document) {
     throw new Exception("document_unknown", QN_ERROR_UNKNOWN_OBJECT);

@@ -20,7 +20,7 @@ class DocumentTag extends Model {
                 'required'          => true,
                 'unique'            => true
             ],
-            
+
             'description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain',
@@ -38,5 +38,5 @@ class DocumentTag extends Model {
             ]
 
         ];
-    }   
+    }
 }
