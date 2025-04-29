@@ -21,8 +21,7 @@ class Document extends Model {
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'realestate\property\Condominium',
-                'required'          => true
+                'foreign_object'    => 'realestate\property\Condominium'
             ],
 
             'name' => [
