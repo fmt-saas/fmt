@@ -25,7 +25,7 @@ class Document extends Model {
         return [
             'condo_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
+                'description'       => "The condominium the document belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium'
             ],
 
@@ -38,7 +38,7 @@ class Document extends Model {
 
             'suppliership_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
+                'description'       => "The supplier the document originates from.",
                 'foreign_object'    => 'purchase\supplier\Supplier',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
@@ -47,6 +47,12 @@ class Document extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'tracking\CaseFile',
                 'description'       => 'Optional link to the related case file (incident, quote, etc.).',
+            ],
+
+            'email_id' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'communication\email\Email',
+                'description'       => 'Email the document is an attachment of, if any.'
             ],
 
             'name' => [
@@ -98,6 +104,7 @@ class Document extends Model {
                 'function'          => 'calcContentSize',
                 'store'             => true,
                 'instant'           => true,
+                'dependents'        => ['readable_size'],
                 'description'       => 'Size of the document, in octets (from data).'
             ],
 
@@ -123,8 +130,8 @@ class Document extends Model {
             'uuid' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain:36',
-                // #todo - restore - only for testing
-                // 'unique'            => true,
+                // #memo - comment for testing
+                'unique'            => true,
                 'description'       => 'Unique document identifier provided by EDMS'
             ],
 
@@ -186,12 +193,6 @@ class Document extends Model {
                 'store'             => true
             ],
 
-            'email_id' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'communication\email\Email',
-                'description'       => 'Email the document is an attachment of.'
-            ],
-
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -234,7 +235,12 @@ class Document extends Model {
                         ->send();
                     $result = $response->body();
                     if(isset($result['uuid'])) {
-                        self::id($document['id'])->update(['uuid' => $result['uuid'], 'data' => null]);
+                        self::id($document['id'])->update([
+                                'uuid'          => $result['uuid'],
+                                'content_type'  => $result['content_type'] ?? null,
+                                'content_size'  => $result['content_size'] ?? null,
+                                'data'          => null
+                            ]);
                     }
                     else {
                         throw new \Exception('edms_response_without_uuid', EQ_ERROR_UNKNOWN);
@@ -607,6 +613,9 @@ class Document extends Model {
         $self->read(['name', 'content_type', 'data']);
         foreach($self as $id => $document) {
             if(!$document['data']) {
+                continue;
+            }
+            if(!$document['content_type']) {
                 continue;
             }
             try {

@@ -51,7 +51,7 @@ $document = Document::create([
     ])
     ->first();
 
-
+// generate unique UUID
 do {
     $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
             // 32 bits "time_low"
@@ -69,12 +69,18 @@ do {
 } while( $existing > 0 && count($existing) > 0 );
 
 
-Document::id($document['id'])->update(['uuid' => $uuid]);
+$result = Document::id($document['id'])
+    ->update(['uuid' => $uuid])
+    ->read([
+        'uuid',
+        'content_type',
+        'content_size'
+    ])
+    ->adapt('json')
+    ->first(true);
 
 
 $context->httpResponse()
         ->status(201)
-        ->body([
-            'uuid'  => $uuid
-        ])
+        ->body($result)
         ->send();

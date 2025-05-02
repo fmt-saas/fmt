@@ -30,6 +30,7 @@ use realestate\property\Condominium;
 
 ['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
 
+// retrieve user id from JWT (should be a managing_agent_id)
 $user_id = $auth->userId();
 
 // follow a specific logic for access control
@@ -41,21 +42,26 @@ $collection = Document::search(['uuid', '=', $params['uuid']])->read(['condo_id'
 $document = $collection->last();
 
 if(!$document) {
-    throw new Exception("document_unknown", QN_ERROR_UNKNOWN_OBJECT);
+    throw new Exception("document_unknown", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$condominium = Condominium::id($document['condo_id'])->read(['managing_agent_id'])->first();
-
-if(!$condominium) {
-    throw new Exception("condominium_unknown", QN_ERROR_UNKNOWN_OBJECT);
-}
 
 /*
-
+// #todo
 on doit garder la synchro entre l'instance Global et Edms
 l'instance Edms doit se synchroniser avec l'instance Global pour les Condominium
+
+
+$condominium = Condominium::id($document['condo_id'])
+    ->read(['managing_agent_id'])
+    ->first();
+
+if(!$condominium) {
+    throw new Exception("condominium_unknown", EQ_ERROR_UNKNOWN_OBJECT);
+}
+
 if($user_id !== $condominium['managing_agent_id']) {
-    throw new Exception("access_refused", QN_ERROR_UNKNOWN_OBJECT);
+    throw new Exception("access_refused", EQ_ERROR_UNKNOWN_OBJECT);
 }
 */
 
