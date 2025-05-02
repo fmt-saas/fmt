@@ -62,7 +62,8 @@ class Document extends Model {
 
             'data' => [
                 'type'              => 'binary',
-                'dependents'        => ['content_type', 'content_size', 'extension', 'readable_size', 'preview_image'],
+                // #memo - prevent resetting after voiding local data
+                // 'dependents'        => ['content_type', 'content_size', 'extension', 'readable_size', 'preview_image'],
                 'onupdate'          => 'onupdateData'
             ],
 
@@ -205,7 +206,7 @@ class Document extends Model {
         ];
     }
 
-    public static function onupdateData($self, $adapt, $orm) {
+    public static function onupdateData($self, $adapt) {
         $instance_type = constant('FMT_INSTANCE_TYPE');
         if($instance_type === 'agency') {
             /** @var \equal\data\adapt\DataAdapter */
@@ -233,14 +234,12 @@ class Document extends Model {
                         ->send();
                     $result = $response->body();
                     if(isset($result['uuid'])) {
-                        $orm->update(self::getType(), $id, [
+                        self::id($document['id'])
+                            ->update([
                                 // assign UUID
                                 'uuid'          => $result['uuid'],
                                 // remove local file (resets computed fields)
-                                'data'          => null
-                            ]);
-                        self::id($document['id'])
-                            ->update([
+                                'data'          => null,
                                 'content_type'  => $result['content_type'] ?? null,
                                 'content_size'  => $result['content_size'] ?? null
                             ]);
