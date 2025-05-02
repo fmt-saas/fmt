@@ -27,7 +27,7 @@ class Suppliership extends \equal\orm\Model {
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 // 'required'          => true
-                'dependents'        => ['suppliership_code']
+                'dependents'        => ['code']
             ],
 
             'name' => [
@@ -38,7 +38,7 @@ class Suppliership extends \equal\orm\Model {
                 'store'             => true
             ],
 
-            'suppliership_code' => [
+            'code' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'function'          => 'calcSuppliershipCode',
@@ -70,13 +70,13 @@ class Suppliership extends \equal\orm\Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['state', 'suppliership_code', 'supplier_id' => ['name']]);
+        $self->read(['state', 'code', 'supplier_id' => ['name']]);
         foreach($self as $id => $suppliership) {
             if($suppliership['state'] != 'instance') {
                 continue;
             }
             if($suppliership['supplier_id'] && strlen($suppliership['supplier_id']['name'])) {
-                $result[$id] = sprintf("%s - %s", $suppliership['suppliership_code'], $suppliership['supplier_id']['name']);
+                $result[$id] = sprintf("%s - %s", $suppliership['code'], $suppliership['supplier_id']['name']);
             }
         }
         return $result;
@@ -115,7 +115,7 @@ class Suppliership extends \equal\orm\Model {
      * - 440xxxxx:        suppliers
      */
     public static function doGenerateAccounts($self) {
-        $self->read(['condo_id', 'name', 'suppliership_code']);
+        $self->read(['condo_id', 'name', 'code']);
         foreach($self as $id => $suppliership) {
             if(!$suppliership['condo_id']) {
                 continue;
@@ -137,11 +137,11 @@ class Suppliership extends \equal\orm\Model {
                     throw new \Exception("missing_mandatory_account", EQ_ERROR_INVALID_CONFIG);
                 }
 
-                $account_exists = (bool) count(Account::search([['condo_id', '=', $suppliership['condo_id']], ['code', '=', $assignmentAccount['code'] . $suppliership['suppliership_code']]])->ids());
+                $account_exists = (bool) count(Account::search([['condo_id', '=', $suppliership['condo_id']], ['code', '=', $assignmentAccount['code'] . $suppliership['code']]])->ids());
 
                 if(!$account_exists) {
                     Account::create([
-                            'code'                  => $assignmentAccount['code'] . $suppliership['suppliership_code'],
+                            'code'                  => $assignmentAccount['code'] . $suppliership['code'],
                             'condo_id'              => $suppliership['condo_id'],
                             'parent_account_id'     => $assignmentAccount['id'],
                             'account_chart_id'      => $assignmentAccount['account_chart_id'],

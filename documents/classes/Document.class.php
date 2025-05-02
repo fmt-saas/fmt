@@ -7,6 +7,7 @@
 
 namespace documents;
 
+use equal\http\HttpRequest;
 use equal\orm\Model;
 use Exception;
 
@@ -14,6 +15,10 @@ class Document extends Model {
 
     public static function getLink() {
         return "/documents/#/document/object.id";
+    }
+
+    public static function constants() {
+        return ['FMT_INSTANCE_TYPE', 'FMT_API_URL_EDMS'];
     }
 
     public static function getColumns() {
@@ -24,6 +29,26 @@ class Document extends Model {
                 'foreign_object'    => 'realestate\property\Condominium'
             ],
 
+            'ownership_id' => [
+                'type'              => 'many2one',
+                'description'       => "The ownership that the owner refers to.",
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'suppliership_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the property lot belongs to.",
+                'foreign_object'    => 'purchase\supplier\Supplier',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'case_file_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'tracking\CaseFile',
+                'description' => 'Optional link to the related case file (incident, quote, etc.).',
+            ],
+
             'name' => [
                 'type'              => 'string',
                 'required'          => true
@@ -31,22 +56,48 @@ class Document extends Model {
 
             'data' => [
                 'type'              => 'binary',
-                'dependents'        => ['uuid', 'hash', 'type', 'size', 'readable_size', 'preview_image']
+                'dependents'        => ['content_type', 'content_size', 'readable_size', 'preview_image'],
+                'onupdate'          => 'onupdateData'
             ],
 
-            'type' => [
+            'document_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'invoice',
+                    'credit_note',
+                    'quote',
+                    'purchase_order',
+                    'delivery_note',
+                    'incident_report',
+                    'maintenance_report',
+                    'contract',
+                    'certificate',
+                    'terms_and_conditions',
+                    'reconciliation_report',
+                    'bank_statement',
+                    'legal_document',
+                    'correspondence',
+                    'supporting_document',
+                    'internal_memo'
+                ],
+                'description'       => 'Type of document related to its purpose.'
+            ],
+
+            'content_type' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'function'          => 'calcType',
+                'function'          => 'calcContentType',
                 'store'             => true,
+                'instant'           => true,
                 'description'       => 'Content type of the document (from data).'
             ],
 
-            'size' => [
+            'content_size' => [
                 'type'              => 'computed',
                 'result_type'       => 'integer',
-                'function'          => 'calcSize',
+                'function'          => 'calcContentSize',
                 'store'             => true,
+                'instant'           => true,
                 'description'       => 'Size of the document, in octets (from data).'
             ],
 
@@ -56,27 +107,16 @@ class Document extends Model {
                 'function'          => 'calcReadableSize',
                 'result_type'       => 'string',
                 'store'             => true,
+                'instant'           => true,
                 'readonly'          => true
             ],
 
-            'hash' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'store'             => true,
-                'instant'           => true,
-                'dependents'        => ['link'],
-                'function'          => 'calcHash',
-                'description'       => 'MD5 hash of the document.'
-            ],
-
             'uuid' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
+                'type'              => 'string',
                 'usage'             => 'text/plain:36',
-                'unique'            => true,
-                'instant'           => true,
-                'store'             => true,
-                'function'          => 'calcUuid'
+                // #todo - restore - only for testing
+                // 'unique'            => true,
+                'description'       => 'Unique document identifier provided by EDMS'
             ],
 
             'link' => [
@@ -137,40 +177,69 @@ class Document extends Model {
                 'store'             => true
             ],
 
-            'template_attachments_ids' => [
+            'email_id' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'communication\template\TemplateAttachment',
-                'foreign_field'     => 'document_id',
-                'description'       => "The links between document and templates."
+                'foreign_object'    => 'communication\email\Email',
+                'description'       => 'Email the document is an attachment of.'
             ],
 
-            'assignments_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'documents\DocumentRoleAssignment',
-                'foreign_field'     => 'object_id',
-                'domain'            => [ ['object_class', '=', 'documents\Document'], ['object_id', '=', 'object.id'] ],
-                'description'       => "Links between document and related roles assignments."
+            'status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'pending', 'processed', 'ignored'
+                ],
+                'default'     => 'pending',
+                'description' => 'Processing status of the document.'
             ]
+
         ];
     }
 
-    public static function getRoles() {
-        return [
-            "owner" => [
-                "description" => "Creator of the document. Has full control over it.",
-                "rights" => EQ_R_READ | EQ_R_WRITE | EQ_R_DELETE | EQ_R_MANAGE
-            ],
-            "editor" => [
-                "description" => "Editor of the document. Has read and write access on it. Cannot remove it.",
-                "rights" => EQ_R_READ | EQ_R_WRITE,
-                "implied_by" => ['owner']
-            ],
-            "viewer" => [
-                "description" => "Viewer of the document. Cannot edit the content.",
-                "rights" => EQ_R_READ,
-                "implied_by" => ['editor']
-            ]
-        ];
+    public static function onupdateData($self, $adapt) {
+        $instance_type = constant('FMT_INSTANCE_TYPE');
+        if($instance_type === 'agency') {
+            /** @var \equal\data\adapt\DataAdapter */
+            $adapter = $adapt->get('json');
+
+            $self->read(['condo_id', 'name', 'data']);
+            foreach($self as $id => $document) {
+                if(!$document['data']) {
+                    continue;
+                }
+                $data = $adapter->adaptOut($document['data'], 'binary');
+
+                // we need to relay document to EDMS in order to receive a UUID
+                $url = constant('FMT_API_URL_EDMS');
+                try {
+                    $request = new HttpRequest('POST '.$url.'?do=documents_push');
+                    $response = $request
+                        ->setBody([
+                            'name'      => $document['name'],
+                            'condo_id'  => $document['condo_id'],
+                            'data'      => $data
+                        ])
+                        ->send();
+                    $result = $response->body();
+                    if(isset($result['uuid'])) {
+                        self::id($document['id'])->update(['uuid' => $result['uuid'], 'data' => null]);
+                    }
+                    else {
+                        throw new \Exception('edms_response_without_uuid', EQ_ERROR_UNKNOWN);
+                    }
+                }
+                catch(\Exception $e) {
+                    trigger_error("APP:unable to store document on EDMS: ".$e->getMessage(), EQ_REPORT_ERROR);
+                }
+            }
+        }
+    }
+
+    public static function calcLink($self) {
+        $result = [];
+        foreach($self as $id => $document) {
+            $result[$id] = '/document/' . $id;
+        }
+        return $result;
     }
 
     public static function calcTags($self) {
@@ -184,48 +253,14 @@ class Document extends Model {
         return $result;
     }
 
-    public static function calcHash($self) {
-        $result = [];
-        $self->read(['data']);
-        foreach($self as $id => $document) {
-            $result[$id] = md5($document['data']);
-        }
-        return $result;
-    }
-
-    /**
-     * @param \equal\orm\Collection $self
-     * @param \equal\orm\ObjectManager $orm
-     */
-    public static function calcUuid($self, $orm) {
-        $result = [];
-        foreach($self as $id => $document) {
-            do {
-                $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-                        // 32 bits "time_low"
-                        mt_rand(0, 0xffff), mt_rand(0, 0xffff),
-                        // 16 bits "time_mid"
-                        mt_rand(0, 0xffff),
-                        // 16 bits "time_hi_and_version" (4 first bits with version number "4")
-                        mt_rand(0, 0x0fff) | 0x4000,
-                        // 16 bits: 8 bits "clock_seq_hi_and_reserved"; 8 bits "clock_seq_low"
-                        mt_rand(0, 0x3fff) | 0x8000,
-                        // 64 bits "node"
-                        mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
-                    );
-                $existing = $orm->search(self::getType(), ['uuid', '=', $uuid]);
-            } while( $existing > 0 && count($existing) > 0 );
-            $result[$id] = $uuid;
-        }
-        return $result;
-    }
-
-    public static function calcSize($self) {
+    public static function calcContentSize($self) {
         $result = [];
         $self->read(['data']);
 
         foreach($self as $id => $document) {
-            $result[$id] = strlen($document['data'] ?? '');
+            if(isset($document['data'])) {
+                $result[$id] = strlen($document['data'] ?? '');
+            }
         }
 
         return $result;
@@ -233,10 +268,10 @@ class Document extends Model {
 
     public static function calcReadableSize($self) {
         $result = [];
-        $self->read(['size']);
+        $self->read(['content_size']);
         $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
         foreach($self as $id => $document) {
-            $size = $document['size'];
+            $size = $document['content_size'];
             if($size) {
                 $power = $size > 0 ? floor(log($size, 1024)) : 0;
                 $result[$id] = number_format($size / pow(1024, $power), 1, '.', '') . ' ' . $units[$power];
@@ -245,21 +280,14 @@ class Document extends Model {
         return $result;
     }
 
-    public static function calcLink($self) {
-        $result = [];
-        $self->read(['hash']);
-        foreach($self as $id => $document) {
-            $result[$id] = '/document/'.$document['hash'];
-        }
-        return $result;
-    }
-
-    public static function calcType($self) {
+    public static function calcContentType($self) {
         $result = [];
         $self->read(['data']);
 
         foreach($self as $id => $document) {
-
+            if(!isset($document['data'])) {
+                continue;
+            }
             try {
                 $content = $document['data'] ?? '';
 
@@ -504,14 +532,14 @@ class Document extends Model {
         $result = [];
         $target_width = 150;
         $target_height = 150;
-        $self->read(['name', 'type', 'data']);
+        $self->read(['name', 'content_type', 'data']);
         foreach($self as $id => $document) {
             try {
-                if(substr($document['type'], 0, 5) != 'image') {
+                if(substr($document['content_type'], 0, 5) != 'image') {
                     throw new Exception('not_an_image');
                 }
 
-                $parts = explode('/', $document['type']);
+                $parts = explode('/', $document['content_type']);
 
                 if(count($parts) < 2) {
                     throw new Exception('invalid_content_type');
@@ -574,7 +602,7 @@ class Document extends Model {
             // non-supported image type or non-image document: fallback to hardcoded default thumbnail
             catch(Exception $e){
                 $found = false;
-                $extension = self::computeExtensionFromType($document['type'], $document['name']);
+                $extension = self::computeExtensionFromType($document['content_type'], $document['name']);
                 if($extension) {
                     $filename = EQ_BASEDIR.'/packages/documents/assets/img/extensions/'.$extension.'.jpg';
                     if(is_file($filename)) {

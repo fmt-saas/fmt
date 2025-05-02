@@ -28,7 +28,7 @@ class Supplier extends Identity {
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'description'       => "The name of the Owner.",
+                'description'       => "The name of the Supplier.",
                 'relation'          => ['identity_id' => 'name'],
                 'store'             => true,
                 'readonly'          => true,
@@ -61,6 +61,22 @@ class Supplier extends Identity {
                 'foreign_object'    => 'purchase\supplier\Suppliership',
                 'foreign_field'     => 'supplier_id',
                 'description'       => "Suppliership items relating to the Supplier."
+            ],
+
+            'supplier_type_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'purchase\supplier\SupplierType',
+                'description'       => "Suppliership items relating to the Supplier.",
+                'dependents'        => ['supplier_type_code']
+            ],
+
+            'supplier_type_code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['supplier_type_id' => 'code'],
+                'store'             => true,
+                'instant'           => true,
+                'description'       => "Code of the supplier type assigned to supplier."
             ]
 
         ];

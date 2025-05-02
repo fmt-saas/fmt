@@ -203,7 +203,7 @@ foreach($fiscalYear['fund_requests_ids'] as $fund_request_id) {
                 'ownership_id',
                 'apportionment_shares',
                 'allocated_amount',
-                'property_lot_id'   => ['name', 'property_lot_code', 'property_lot_ref'],
+                'property_lot_id'   => ['name', 'code', 'property_lot_ref'],
                 'request_line_id'   => ['apportionment_id' => ['name', 'total_shares'], 'request_amount'],
                 'line_entry_id'     => ['allocated_amount']
             ],
@@ -240,7 +240,7 @@ foreach($fiscalYear['fund_requests_ids'] as $fund_request_id) {
     foreach($fundRequest['entry_lots_ids'] as $entry_lot) {
         $line = [
             'name'          => $entry_lot['property_lot_id']['name'],
-            'code'          => $entry_lot['property_lot_id']['property_lot_code'],
+            'code'          => $entry_lot['property_lot_id']['code'],
             'apportionment' => $entry_lot['request_line_id']['apportionment_id']['name'],
             'total'         => $entry_lot['request_line_id']['request_amount'],
             'shares'        => $entry_lot['apportionment_shares'] . '/' . $entry_lot['request_line_id']['apportionment_id']['total_shares'],

@@ -13,12 +13,12 @@
             "description": "Données binaires brutes du document.",
             "help": ""
         },
-        "type": {
+        "content_type": {
             "label": "Type de média",
             "description": "Identifiant de format de données.",
             "help": ""
         },
-        "size": {
+        "content_size": {
             "label": "Taille",
             "description": "Taille du fichier (en octets).",
             "help": ""

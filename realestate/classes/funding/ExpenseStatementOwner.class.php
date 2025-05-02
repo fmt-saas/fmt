@@ -163,7 +163,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
             $property_lots_ids = array_map(function ($a) {return $a['property_lot_id'];}, $invoice_lines);
 
             $accounts = Account::ids($accounts_ids)->read(['name', 'code'])->get();
-            $property_lots = PropertyLot::ids($property_lots_ids)->read(['name', 'property_lot_code', 'property_lot_ref', 'property_lot_nature'])->get();
+            $property_lots = PropertyLot::ids($property_lots_ids)->read(['name', 'code', 'property_lot_ref', 'property_lot_nature'])->get();
             $apportionments = Apportionment::ids($apportionments_ids)->read(['name', 'total_shares'])->get();
 
             $owner = [
@@ -189,7 +189,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                     $owner['property_lots'][$property_lot_id] = [
                         'id'                    => $property_lot_id,
                         'name'                  => $property_lots[$property_lot_id]['name'],
-                        'code'                  => $property_lots[$property_lot_id]['property_lot_code'],
+                        'code'                  => $property_lots[$property_lot_id]['code'],
                         'ref'                   => $property_lots[$property_lot_id]['property_lot_ref'],
                         'nature'                => $property_lots[$property_lot_id]['property_lot_nature'],
                         'has_reserve_fund'      => false,

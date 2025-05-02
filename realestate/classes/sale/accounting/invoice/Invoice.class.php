@@ -128,7 +128,7 @@ class Invoice extends \sale\accounting\invoice\Invoice {
      * Create the accounting entries according tp invoices lines.
      */
     public static function doGenerateAccountingEntries($self) {
-        $self->read(['id', 'organisation_id', 'accounting_entries_ids']);
+        $self->read(['id', 'condo_id', 'accounting_entries_ids']);
         foreach($self as $id => $invoice) {
             try {
                 // remove previously created entries, if any (there should be none)
@@ -140,7 +140,7 @@ class Invoice extends \sale\accounting\invoice\Invoice {
                     throw new \Exception('invalid_invoice', EQ_ERROR_UNKNOWN);
                 }
 
-                $journal = Journal::search([['organisation_id', '=', $invoice['organisation_id']], ['journal_type', '=', 'SALE']])->read(['id'])->first();
+                $journal = Journal::search([['condo_id', '=', $invoice['condo_id']], ['journal_type', '=', 'SALE']])->read(['id'])->first();
 
                 if(!$journal) {
                     throw new \Exception('missing_mandatory_journal', EQ_ERROR_INVALID_CONFIG);

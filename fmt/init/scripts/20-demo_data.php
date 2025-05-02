@@ -75,10 +75,10 @@ foreach($apportionments as $apportionment_id => $apportionment) {
 
 // assign codes to entities depending on Condominium
 PropertyLot::search()
-    ->read(['property_lot_code']);
+    ->read(['lot_code']);
 
 Ownership::search()
-    ->read(['ownership_code'])
+    ->read(['code'])
     ->do('generate_accounts');
 
 
@@ -87,7 +87,7 @@ Suppliership::create(["condo_id" => 1, "supplier_id" => 1]);
 Suppliership::create(["condo_id" => 2, "supplier_id" => 1]);
 
 Suppliership::search()
-    ->read(['suppliership_code'])
+    ->read(['code'])
     ->do('generate_accounts');
 
 $user = User::id(3)

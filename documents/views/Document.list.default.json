@@ -35,7 +35,7 @@
             {
                 "type": "field",
                 "label": "Type",
-                "value": "type",
+                "value": "content_type",
                 "width": "10%"
             },
             {

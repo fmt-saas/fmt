@@ -1,0 +1,45 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "parent_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "14%"
+            },
+            {
+                "type": "field",
+                "value": "node_type",
+                "width": "14%"
+            },
+            {
+                "type": "field",
+                "value": "code",
+                "width": "14%"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "14%"
+            },
+            {
+                "type": "field",
+                "value": "document_id",
+                "width": "14%"
+            }
+        ]
+    }
+}

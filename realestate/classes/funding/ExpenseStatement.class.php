@@ -497,7 +497,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 'fiscal_period_id' => ['date_from'],
                 'condo_id' => ['code'],
                 'statement_owners_ids' => [
-                    'ownership_id' => ['ownership_code'],
+                    'ownership_id' => ['code'],
                     'statement_owner_lines_ids' => [
                         'price'
                     ]
@@ -520,7 +520,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 // CCC/CCCO/OOOXX
                 $reference =
                     substr(str_pad((int) $expenseStatement['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
-                    substr(str_pad((int) $expenseStatement['ownership_id']['ownership_code'], 4, '0', STR_PAD_LEFT), 0, 4);
+                    substr(str_pad((int) $expenseStatement['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
 
                 $prefix = substr($reference, 0, 3);
                 $suffix = substr($reference, 3);

@@ -35,7 +35,7 @@ class Apportionment extends \equal\orm\Model {
                 'dependents'        => ['name']
             ],
 
-            'apportionment_code' => [
+            'code' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'function'          => 'calcApportionmentCode',
@@ -153,9 +153,9 @@ class Apportionment extends \equal\orm\Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['is_statutory', 'total_shares', 'apportionment_code', 'description']);
+        $self->read(['is_statutory', 'total_shares', 'code', 'description']);
         foreach($self as $id => $apportionment) {
-            $name = ($apportionment['is_statutory']) ? '' : $apportionment['apportionment_code'] . ' - ';
+            $name = ($apportionment['is_statutory']) ? '' : $apportionment['code'] . ' - ';
             $result[$id] = $name . $apportionment['description'] .' (Q. '.$apportionment['total_shares'].')';
         }
         return $result;

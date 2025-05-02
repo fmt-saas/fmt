@@ -1,18 +1,6 @@
 {
-    "name": "Apportionment",
-    "description": "",
-    "actions": [
-        {
-            "id": "action.duplicate",
-            "label": "Duplicate",
-            "description": "Attempts to duplicate the apportionment.",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "realestate\\property\\Apportionment",
-                "action": "duplicate"
-            }
-        }
-    ],
+    "name": "Model",
+    "description": "Interface for model definition classes.",
     "layout": {
         "groups": [
             {
@@ -26,45 +14,56 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "description",
-                                                "width": "50%",
-                                                "widget": {
-                                                    "heading": true
-                                                }
+                                                "value": "name",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "code",
+                                                "value": "node_type",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "code",
-                                                "width": "25%",
-                                                "visible": false
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "is_statutory",
+                                                "value": "document_id",
                                                 "width": "25%"
                                             }
                                         ]
                                     },
                                     {
-                                        "width": "50%",
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "label": "Condominium",
                                                 "value": "condo_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "total_shares",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "assigned",
-                                                "value": "assigned_shares",
-                                                "width": "25%"
+                                                "value": "parent_id",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }
@@ -77,8 +76,6 @@
             {
                 "sections": [
                     {
-                        "label": "Apportionments",
-                        "id": "section.apportionments",
                         "rows": [
                             {
                                 "columns": [
@@ -87,7 +84,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "apportionment_shares_ids",
+                                                "value": "nodes_ids",
                                                 "width": "100%"
                                             }
                                         ]

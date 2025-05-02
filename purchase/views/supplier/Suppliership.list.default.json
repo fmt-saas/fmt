@@ -15,7 +15,7 @@
             },
             {
                 "type": "field",
-                "value": "suppliership_code",
+                "value": "code",
                 "width": "20%"
             },
             {

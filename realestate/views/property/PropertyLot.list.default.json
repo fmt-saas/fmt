@@ -16,7 +16,7 @@
             {
                 "type": "field",
                 "label": "Code",
-                "value": "property_lot_code",
+                "value": "code",
                 "width": "20%",
                 "sortable": true
             },

@@ -34,7 +34,7 @@ class Ownership extends \equal\orm\Model {
                 'dependents'        => ['name']
             ],
 
-            'ownership_code' => [
+            'code' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'function'          => 'calcOwnershipCode',
@@ -161,7 +161,7 @@ class Ownership extends \equal\orm\Model {
      */
     public static function calcOwnershipAccountId($self) {
         $result = [];
-        $self->read(['condo_id', 'ownership_code']);
+        $self->read(['condo_id', 'code']);
         foreach($self as $id => $ownership) {
             // find the account based on operation_assignment
             $account = Account::search([
@@ -173,7 +173,7 @@ class Ownership extends \equal\orm\Model {
             if($account) {
                 $ownerAccount = Account::search([
                         ['condo_id', '=', $ownership['condo_id']],
-                        ['code', '=', $account['code'] . $ownership['ownership_code']]
+                        ['code', '=', $account['code'] . $ownership['code']]
                     ])
                     ->first();
                 $result[$id] = $ownerAccount['id'] ?? null;
@@ -184,9 +184,9 @@ class Ownership extends \equal\orm\Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['ownership_code', 'has_representative', 'representative_identity_id' => ['name'], 'owners_ids' => ['name']]);
+        $self->read(['code', 'has_representative', 'representative_identity_id' => ['name'], 'owners_ids' => ['name']]);
         foreach($self as $id => $ownership) {
-            if(!$ownership['ownership_code']) {
+            if(!$ownership['code']) {
                 continue;
             }
             if($ownership['has_representative'] && $ownership['representative_identity_id'] && $ownership['representative_identity_id']['name']) {
@@ -204,7 +204,7 @@ class Ownership extends \equal\orm\Model {
                     $name = substr($name, 0, 128).'...';
                 }
                 if(strlen($name) > 0) {
-                    $result[$id] = $ownership['ownership_code'] . ' - ' . $name;
+                    $result[$id] = $ownership['code'] . ' - ' . $name;
                 }
             }
         }
@@ -242,7 +242,7 @@ class Ownership extends \equal\orm\Model {
      * - 4101xxxxx:        co_owners_working_fund
      */
     public static function doGenerateAccounts($self) {
-        $self->read(['condo_id', 'name', 'ownership_code']);
+        $self->read(['condo_id', 'name', 'code']);
         foreach($self as $id => $ownership) {
             if(!$ownership['condo_id']) {
                 continue;
@@ -265,11 +265,11 @@ class Ownership extends \equal\orm\Model {
                     throw new \Exception("missing_mandatory_account", EQ_ERROR_INVALID_CONFIG);
                 }
 
-                $account_exists = (bool) count(Account::search([['condo_id', '=', $ownership['condo_id']], ['code', '=', $assignmentAccount['code'] . $ownership['ownership_code']]])->ids());
+                $account_exists = (bool) count(Account::search([['condo_id', '=', $ownership['condo_id']], ['code', '=', $assignmentAccount['code'] . $ownership['code']]])->ids());
 
                 if(!$account_exists) {
                     Account::create([
-                            'code'                  => $assignmentAccount['code'] . $ownership['ownership_code'],
+                            'code'                  => $assignmentAccount['code'] . $ownership['code'],
                             'condo_id'              => $ownership['condo_id'],
                             'parent_account_id'     => $assignmentAccount['id'],
                             'account_chart_id'      => $assignmentAccount['account_chart_id'],

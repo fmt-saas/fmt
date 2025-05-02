@@ -343,7 +343,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 'has_fund_usage',
                 'fiscal_year_id',
                 'suppliership_id' => [
-                    'suppliership_code'
+                    'code'
                 ],
                 'invoice_lines_ids' => [
                     'expense_account_id',
@@ -400,7 +400,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 throw new \Exception("missing_mandatory_supplier_assignment_account", EQ_ERROR_INVALID_CONFIG);
             }
 
-            $supplier_account_code = $assignmentAccount['code'] . $invoice['suppliership_id']['suppliership_code'];
+            $supplier_account_code = $assignmentAccount['code'] . $invoice['suppliership_id']['code'];
             $supplierAccount = Account::search([['code', '=', $supplier_account_code], ['condo_id', '=', $invoice['condo_id']]])->first();
             if(!$supplierAccount) {
                 trigger_error("APP::unable to find a match for supplier code {$supplier_account_code}", EQ_REPORT_ERROR);

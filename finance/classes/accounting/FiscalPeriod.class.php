@@ -146,6 +146,10 @@ class FiscalPeriod extends Model {
         $self->do('generate_accounting_entries');
     }
 
+    /**
+     * Create accounting entries for closing  the period.
+     *
+     */
     public static function doGenerateAccountingEntries($self) {
         $self->read([
                 'condo_id',
@@ -157,7 +161,7 @@ class FiscalPeriod extends Model {
         foreach($self as $id => $fiscalPeriod) {
             $miscJournal = Journal::search([['condo_id', '=', $fiscalPeriod['condo_id']], ['code', '=', 'MISC']])->first();
             if(!$miscJournal) {
-                throw new \Exception('missing_opb_journal', EQ_ERROR_INVALID_CONFIG);
+                throw new \Exception('missing_misc_journal', EQ_ERROR_INVALID_CONFIG);
             }
 
             $expenseProvisionAccount = Account::search([['condo_id', '=', $fiscalPeriod['condo_id']], ['operation_assignment', '=', 'expense_provisions']])
@@ -174,9 +178,11 @@ class FiscalPeriod extends Model {
                     ])
                     ->first();
 
+            // #memo - execution can still be 'proforma' or can have been cancelled at some point in the period
             $requestExecutions = FundRequestExecution::search([
                     ['posting_date', '>=', $fiscalPeriod['date_from']],
-                    ['posting_date', '<=', $fiscalPeriod['date_to']]
+                    ['posting_date', '<=', $fiscalPeriod['date_to']],
+                    ['status', '=', 'invoice']
                 ])
                 ->read(['execution_lines_ids' => ['ownership_id', 'price']]);
 

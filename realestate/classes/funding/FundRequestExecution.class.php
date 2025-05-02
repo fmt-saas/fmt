@@ -404,7 +404,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                 'fund_request_id' => [
                     'id', 'name', 'request_type', 'request_account_id', 'request_bank_account_id'
                 ],
-                'execution_lines_ids' => ['ownership_id' => ['ownership_code'], 'called_amount', 'funding_id']
+                'execution_lines_ids' => ['ownership_id' => ['code'], 'called_amount', 'funding_id']
             ]);
 
         foreach($self as $id => $requestExecution) {
@@ -436,7 +436,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                 // CCC/CCCO/OOOXX
                 $reference =
                     substr(str_pad((int) $requestExecution['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
-                    substr(str_pad((int) $requestExecution['ownership_id']['ownership_code'], 4, '0', STR_PAD_LEFT), 0, 4);
+                    substr(str_pad((int) $requestExecution['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
 
                 $prefix = substr($reference, 0, 3);
                 $suffix = substr($reference, 3);

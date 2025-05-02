@@ -19,17 +19,6 @@
                                                 "widget":{
                                                     "heading": true
                                                 }
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "data",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Language",
-                                                "value": "lang_id",
-                                                "width": "50%"
                                             }
                                         ]
                                     },
@@ -42,17 +31,11 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "category_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "public",
+                                                "value": "data",
                                                 "width": "100%"
                                             }
                                         ]
                                     }
-
                                 ]
                             }
                         ]
@@ -73,15 +56,36 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "readable_size",
+                                                "value": "content_type",
                                                 "width": "30%",
                                                 "readonly": true
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "type",
-                                                "width": "30%",
+                                                "value": "readable_size",
+                                                "width": "25%",
                                                 "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Language",
+                                                "value": "lang_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "category_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "public",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "50%"
                                             }
                                         ]
                                     },

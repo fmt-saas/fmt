@@ -8,21 +8,13 @@
 use documents\Document;
 use realestate\property\Condominium;
 
-list($params, $providers) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description'   => 'Return raw data (with original MIME) of a document identified by given hash.',
     'params'        => [
         'uuid' =>  [
-            'description'   => 'Unique identifier of the resource (UUID).',
+            'description'   => 'Unique identifier of the document (UUID).',
             'type'          => 'string',
             'required'      => true
-        ],
-        'disposition' => [
-            'type'          => 'string',
-            'selection'     => [
-                'inline',
-                'attachment'
-            ],
-            'default'       => 'inline'
         ]
     ],
     'access' => [
@@ -32,6 +24,7 @@ list($params, $providers) = eQual::announce([
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
+    'constants'     => ['FMT_INSTANCE_TYPE'],
     'providers'     => ['context', 'orm', 'auth']
 ]);
 
@@ -45,7 +38,7 @@ $auth->su();
 // search for documents matching given hash code (should be only one match)
 $collection = Document::search(['uuid', '=', $params['uuid']])->read(['condo_id']);
 
-$document = $collection->first();
+$document = $collection->last();
 
 if(!$document) {
     throw new Exception("document_unknown", QN_ERROR_UNKNOWN_OBJECT);
@@ -57,13 +50,18 @@ if(!$condominium) {
     throw new Exception("condominium_unknown", QN_ERROR_UNKNOWN_OBJECT);
 }
 
+/*
+
+on doit garder la synchro entre l'instance Global et Edms
+l'instance Edms doit se synchroniser avec l'instance Global pour les Condominium
 if($user_id !== $condominium['managing_agent_id']) {
     throw new Exception("access_refused", QN_ERROR_UNKNOWN_OBJECT);
 }
+*/
 
-$document = $collection->read(['name', 'data', 'type'])
+$document = $collection->read(['name', 'data', 'content_type'])
     ->adapt('json')
-    ->first(true);
+    ->last(true);
 
 $context->httpResponse()
         ->body($document)

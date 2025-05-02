@@ -38,7 +38,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "ownership_code",
+                                                "value": "code",
                                                 "width": "50%"
                                             },
                                             {

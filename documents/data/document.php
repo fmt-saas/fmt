@@ -6,11 +6,12 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 use documents\Document;
+use equal\http\HttpRequest;
 
 list($params, $providers) = announce([
     'description'   => 'Return raw data (with original MIME) of a document identified by given hash.',
     'params'        => [
-        'hash' =>  [
+        'id' =>  [
             'description'   => 'Unique identifier of the resource.',
             'type'          => 'string',
             'required'      => true
@@ -30,10 +31,11 @@ list($params, $providers) = announce([
     'response'      => [
         'accept-origin' => '*'
     ],
-    'providers'     => ['context', 'orm', 'auth']
+    'constants'     => ['FMT_API_URL_EDMS'],
+    'providers'     => ['context', 'orm', 'auth', 'adapt']
 ]);
 
-list($context, $om, $auth) = [ $providers['context'], $providers['orm'], $providers['auth'] ];
+['context' => $context, 'orm' => $om, 'auth' => $auth, 'adapt' => $adapt] = $providers;
 
 $user_id = $auth->userId();
 
@@ -41,22 +43,45 @@ $user_id = $auth->userId();
 $auth->su();
 
 // search for documents matching given hash code (should be only one match)
-$collection = Document::search(['hash', '=', $params['hash']]);
-$document = $collection->read(['public'])->first();
+$collection = Document::id($params['id']);
+$document = $collection->read(['uuid', 'content_type', 'public'])->first();
 
 if(!$document) {
     throw new Exception("document_unknown", QN_ERROR_UNKNOWN_OBJECT);
 }
 
 // if document is not public, switch back to original user: regular permission checks will apply
+/*
 if(!$document['public']) {
     $auth->su($user_id);
 }
+*/
 
-$document = $collection->read(['name', 'data', 'type'])->first();
+// pull document data from EDMS server
+
+// il faut injecter le APP_TOKEN dans le header
+
+$url = constant('FMT_API_URL_EDMS');
+$request = new HttpRequest('GET '.$url.'?get=documents_pull&uuid=' . $document['uuid']);
+$response = $request->send();
+
+$result = $response->body();
+
+if(!isset($result['data'], $result['name'], $result['content_type'])) {
+    throw new Exception('invalid_response', EQ_ERROR_UNKNOWN);
+}
+
+if(strlen($result['data']) <= 0) {
+    throw new Exception('empty_response', EQ_ERROR_UNKNOWN);
+}
+
+/** @var \equal\data\adapt\DataAdapter */
+$adapter = $adapt->get('json');
+
+$output = $adapter->adaptIn($result['data'], 'binary');
 
 $context->httpResponse()
-        ->header('Content-Disposition', $params['disposition'].'; filename="'.$document['name'].'"')
-        ->header('Content-Type', $document['type'])
-        ->body($document['data'], true)
+        ->header('Content-Disposition', $params['disposition'].'; filename="'.$result['name'].'"')
+        ->header('Content-Type', $result['content_type'])
+        ->body($output, true)
         ->send();

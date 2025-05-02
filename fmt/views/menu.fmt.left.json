@@ -282,7 +282,7 @@
                 "type": "parent",
                 "children": [
                     {
-                        "id": "Suppliers",
+                        "id": "suppliers",
                         "type": "entry",
                         "label": "Suppliers",
                         "icon": "local_shipping",
@@ -290,6 +290,18 @@
                         "context": {
                             "entity": "purchase\\supplier\\Supplier",
                             "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "bank",
+                        "type": "entry",
+                        "label": "Banks",
+                        "icon": "account_balance",
+                        "description": "",
+                        "context": {
+                            "entity": "finance\\bank\\Bank",
+                            "view": "list.default",
+                            "domain": ["supplier_type_code", "=", "bank"]
                         }
                     },
                     {
@@ -343,6 +355,49 @@
                         "description": "",
                         "context": {
                             "entity": "sale\\pay\\PaymentTerms"
+                        }
+                    },
+                    {
+                        "id": "item.config.supplier_types",
+                        "type": "entry",
+                        "label": "Supplier Types",
+                        "icon": "category",
+                        "description": "",
+                        "context": {
+                            "entity": "purchase\\supplier\\SupplierType"
+                        }
+                    }
+
+                ]
+            },
+            {
+                "id": "item.documents",
+                "label": "Documents",
+                "description": "",
+                "icon": "picture_as_pdf",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "item.documents.folders",
+                        "type": "entry",
+                        "label": "Folders",
+                        "icon": "folder",
+                        "description": "",
+                        "context": {
+                            "entity": "documents\\navigation\\Node",
+                            "view": "list.default",
+                            "domain": ["condo_id", "=", null]
+                        }
+                    },
+                    {
+                        "id": "item.documents.documents",
+                        "type": "entry",
+                        "label": "Documents",
+                        "icon": "file_present",
+                        "description": "",
+                        "context": {
+                            "view": "list.default",
+                            "entity": "documents\\Document"
                         }
                     }
                 ]

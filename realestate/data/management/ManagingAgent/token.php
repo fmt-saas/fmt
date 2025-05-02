@@ -9,6 +9,7 @@ use realestate\management\ManagingAgent;
 // announce script and fetch parameters values
 list($params, $providers) = eQual::announce([
     'description'	=>	"Attempts to log a user in.",
+    'help'	        =>	"This controller is meant to be used on the Global instance for providing secret API keys to `agency` instances.",
     'params' 		=>	[
         'managing_agent_id' => [
             'type'              => 'many2one',

@@ -39,7 +39,7 @@ class PropertyLot extends \equal\orm\Model {
                 'dependents'        => ['name']
             ],
 
-            'property_lot_code' => [
+            'code' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'function'          => 'calcPropertyLotCode',
@@ -176,10 +176,10 @@ class PropertyLot extends \equal\orm\Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['property_lot_ref', 'property_lot_code', 'nature_id' => ['name'], 'active_ownership_id' => ['name']]);
+        $self->read(['property_lot_ref', 'code', 'nature_id' => ['name'], 'active_ownership_id' => ['name']]);
         foreach($self as $id => $propertyLot) {
-            if(isset($propertyLot['property_lot_code'], $propertyLot['property_lot_ref'], $propertyLot['nature_id'])) {
-                $result[$id] = $propertyLot['property_lot_code'] . ' - ' .
+            if(isset($propertyLot['code'], $propertyLot['property_lot_ref'], $propertyLot['nature_id'])) {
+                $result[$id] = $propertyLot['code'] . ' - ' .
                     $propertyLot['property_lot_ref'] . ' (' . $propertyLot['nature_id']['name'] . ')' . ' - ' .
                     $propertyLot['active_ownership_id']['name'];
             }
