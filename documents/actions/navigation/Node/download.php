@@ -40,7 +40,7 @@ if(!$document) {
     throw new Exception('unknown_document', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$output = eQual::run('get', 'documents_document', ['id' => $params['id']]);
+$output = eQual::run('get', 'documents_document', ['id' => $document['id']]);
 
 $context->httpResponse()
         ->header('Content-Disposition', 'attachment; filename="' . $document['name'] . '.' . $document['extension'] . '"')
