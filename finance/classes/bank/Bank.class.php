@@ -26,20 +26,4 @@ class Bank extends \purchase\supplier\Supplier {
         ];
     }
 
-    public static function onrevertName($self) {
-        $self->read(['supplierships_ids']);
-        foreach($self as $id => $supplier) {
-            Suppliership::ids($supplier['supplierships_ids'])->update(['name' => null]);
-        }
-    }
-
-    public static function onupdateIdentityId($self) {
-        $self->read(['identity_id']);
-        foreach($self as $id => $supplier) {
-            if($supplier['identity_id']) {
-                Identity::id($supplier['identity_id'])->update(['supplier_id' => $id]);
-            }
-        }
-    }
-
 }

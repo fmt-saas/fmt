@@ -18,3 +18,5 @@ Setting::assert_value('finance', 'accounting', 'accounting_entry.sequence_format
 Setting::assert_sequence('sale', 'accounting', 'invoice.sequence', 1, ['organisation_id' => 1]);
 Setting::assert_sequence('finance', 'accounting', 'accounting_entry.sequence', 1, ['organisation_id' => 1]);
 
+Setting::assert_value('identity', 'organization', 'identity_type_default', 3);
+Setting::assert_value('identity', 'organization', 'identity_lang_default', 2);

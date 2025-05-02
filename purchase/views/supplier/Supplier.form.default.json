@@ -1,0 +1,23 @@
+{
+    "name": "Supplier",
+    "description": "Supplier default form.",
+    "extends": {
+        "entity": "identity\\Identity",
+        "view": "form.default"
+    },
+    "layout": {
+        "remove": ["label.column_description_spacer"],
+        "update": {
+            "column.description": {
+                "prepend": [
+                    {
+                        "type": "field",
+                        "label": "Supplier type",
+                        "value": "supplier_type_id",
+                        "width": "50%"
+                    }
+                ]
+            }
+        }
+    }
+}

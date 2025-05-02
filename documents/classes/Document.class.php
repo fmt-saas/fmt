@@ -46,7 +46,7 @@ class Document extends Model {
             'case_file_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'tracking\CaseFile',
-                'description' => 'Optional link to the related case file (incident, quote, etc.).',
+                'description'       => 'Optional link to the related case file (incident, quote, etc.).',
             ],
 
             'name' => [
@@ -56,7 +56,7 @@ class Document extends Model {
 
             'data' => [
                 'type'              => 'binary',
-                'dependents'        => ['content_type', 'content_size', 'readable_size', 'preview_image'],
+                'dependents'        => ['content_type', 'content_size', 'extension', 'readable_size', 'preview_image'],
                 'onupdate'          => 'onupdateData'
             ],
 
@@ -99,6 +99,15 @@ class Document extends Model {
                 'store'             => true,
                 'instant'           => true,
                 'description'       => 'Size of the document, in octets (from data).'
+            ],
+
+            'extension' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcExtension',
+                'store'             => true,
+                'instant'           => true,
+                'description'       => 'Filename extension of the document (from data).'
             ],
 
             'readable_size' => [
@@ -206,6 +215,10 @@ class Document extends Model {
                 if(!$document['data']) {
                     continue;
                 }
+                if(!$document['condo_id']) {
+                    continue;
+                }
+
                 $data = $adapter->adaptOut($document['data'], 'binary');
 
                 // we need to relay document to EDMS in order to receive a UUID
@@ -248,6 +261,19 @@ class Document extends Model {
         foreach($self as $id => $document) {
             $tags = implode(', ', array_column($document['tags_ids']->get(true), 'name'));
             $result[$id] = strlen($tags) > 50 ? (substr($tags, 0, 50) . '...') : $tags;
+        }
+
+        return $result;
+    }
+
+    public static function calcExtension($self) {
+        $result = [];
+        $self->read(['content_type']);
+
+        foreach($self as $id => $document) {
+            if(isset($document['content_type'])) {
+                $result[$id] = self::computeExtensionFromType($document['content_type']);
+            }
         }
 
         return $result;
@@ -504,21 +530,67 @@ class Document extends Model {
             'zsh'   => 'application/x-zsh'
         ];
 
-        // if we have a name holding an extension, check if the given content_type is amongst the valid MIME of the map
+        static $map_mime_commons = [
+            'image/jpeg'                => 'jpg',
+            'image/pjpeg'               => 'jpg',
+            'image/png'                 => 'png',
+            'image/gif'                 => 'gif',
+            'image/webp'                => 'webp',
+            'image/avif'                => 'avif',
+            'image/tiff'                => 'tiff',
+            'image/bmp'                 => 'bmp',
+            'image/x-ms-bmp'            => 'bmp',
+            'image/heif'                => 'heic',
+            'image/heic'                => 'heic',
+            'image/svg+xml'             => 'svg',
+            'image/vnd.microsoft.icon'  => 'ico',
+            'image/x-icon'              => 'ico',
+            'image/x-adobe-dng'         => 'dng',
+            'application/pdf'           => 'pdf',
+            'application/msword'        => 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+            'application/vnd.ms-excel'  => 'xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+            'application/vnd.ms-powerpoint' => 'ppt',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'pptx',
+            'text/plain'                => 'txt',
+            'text/csv'                  => 'csv',
+            'text/html'                 => 'html',
+            'application/rtf'           => 'rtf',
+            'application/xml'           => 'xml',
+            'application/json'          => 'json',
+            'application/vnd.oasis.opendocument.text' => 'odt',
+            'application/vnd.oasis.opendocument.spreadsheet' => 'ods',
+            'application/vnd.oasis.opendocument.presentation' => 'odp',
+            'application/zip'           => 'zip',
+            'application/x-7z-compressed' => '7z',
+            'application/x-rar-compressed' => 'rar',
+            'application/x-tar'         => 'tar',
+            'application/gzip'          => 'gz',
+            'application/postscript'    => 'eps',
+        ];
+
+        // check against most common MIMEs
+        if(isset($map_mime_commons[$content_type])) {
+            return $map_mime_commons[$content_type];
+        }
+
+        // if $name holds an extension, check if the given content_type matches a valid MIME
         if(strlen($name)) {
-            $extension = strtolower( ( ($n = strrpos($name, ".")) === false) ? "" : substr($name, $n+1) );
+            $extension = strtolower( ( ($n = strrpos($name, ".")) === false) ? "" : substr($name, $n + 1) );
             if(strlen($extension) && isset($map_extensions[$extension])) {
                 if($map_extensions[$extension] == $content_type) {
                     return $extension;
                 }
             }
         }
-        // find the first extension that matches the given content_type
+        // fallback to the first extension that matches $content_type
         foreach($map_extensions as $extension => $mime) {
             if($mime == $content_type) {
                 return $extension;
             }
         }
+        // unknown or invalid content-type
         return false;
     }
 
@@ -534,6 +606,9 @@ class Document extends Model {
         $target_height = 150;
         $self->read(['name', 'content_type', 'data']);
         foreach($self as $id => $document) {
+            if(!$document['data']) {
+                continue;
+            }
             try {
                 if(substr($document['content_type'], 0, 5) != 'image') {
                     throw new Exception('not_an_image');
@@ -600,18 +675,19 @@ class Document extends Model {
                 $result[$id] = $buffer;
             }
             // non-supported image type or non-image document: fallback to hardcoded default thumbnail
-            catch(Exception $e){
+            catch(Exception $e) {
+                trigger_error("APP:unable to generate dynamic thumbnail: " . $e->getMessage(), EQ_REPORT_INFO);
                 $found = false;
                 $extension = self::computeExtensionFromType($document['content_type'], $document['name']);
                 if($extension) {
-                    $filename = EQ_BASEDIR.'/packages/documents/assets/img/extensions/'.$extension.'.jpg';
+                    $filename = EQ_BASEDIR . '/packages/documents/assets/img/extensions/'.$extension.'.jpg';
                     if(is_file($filename)) {
                         $found = true;
                         $result[$id] = file_get_contents($filename);
                     }
                 }
                 if(!$found) {
-                    $filename = EQ_BASEDIR.'/packages/documents/assets/img/extensions/unknown.jpg';
+                    $filename = EQ_BASEDIR . '/packages/documents/assets/img/extensions/unknown.jpg';
                     $result[$id] = file_get_contents($filename);
                 }
             }

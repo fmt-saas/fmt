@@ -9,6 +9,7 @@ namespace identity;
 
 use equal\services\Container;
 use equal\orm\Model;
+use fmt\setting\Setting;
 use hr\employee\Employee;
 use sale\customer\Customer;
 use sale\customer\Contact as CustomerContact;
@@ -71,8 +72,7 @@ class Identity extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\IdentityType',
                 'onupdate'          => 'onupdateTypeId',
-                // default is 'IN' individual
-                'default'           => 1,
+                'default'           => Setting::get_value('identity', 'organization', 'identity_type_default', 1),
                 'dependents  '      => ['type', 'name'],
                 'description'       => 'Type of identity.'
             ],
@@ -291,7 +291,7 @@ class Identity extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'core\Lang',
                 'description'       => "Preferred language of the identity.",
-                'default'           => 1,
+                'default'           => Setting::get_value('identity', 'organization', 'identity_lang_default', 1),
                 'onupdate'          => 'onupdateLangId'
             ],
 
@@ -398,6 +398,7 @@ class Identity extends Model {
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Logo or picture of the identity.',
                 'help'              => 'Company logo for organizations or profile image for natural person.',
+                'domain'            => ['extension', 'in', ['avif', 'jpg', 'png', 'svg', 'webp']],
                 'onupdate'          => 'onupdateImageDocumentId'
             ],
 

@@ -275,10 +275,12 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "label": "Logo image",
                                                 "value": "image_document_id",
                                                 "width": "50%"
                                             },
                                             {
+                                                "id": "label.column_description_spacer",
                                                 "type": "label",
                                                 "value": "",
                                                 "width": "50%"
