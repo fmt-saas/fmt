@@ -235,11 +235,16 @@ class Document extends Model {
                         ->send();
                     $result = $response->body();
                     if(isset($result['uuid'])) {
-                        self::id($document['id'])->update([
+                        self::id($document['id'])
+                            ->update([
+                                // assign UUID
                                 'uuid'          => $result['uuid'],
-                                'content_type'  => $result['content_type'] ?? null,
-                                'content_size'  => $result['content_size'] ?? null,
+                                // remove local file (resets computed fields)
                                 'data'          => null
+                            ])
+                            ->update([
+                                'content_type'  => $result['content_type'] ?? null,
+                                'content_size'  => $result['content_size'] ?? null
                             ]);
                     }
                     else {
