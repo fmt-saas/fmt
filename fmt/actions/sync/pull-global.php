@@ -31,10 +31,29 @@
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'constants'     => ['FMT_INSTANCE_TYPE'],
+    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_URL_EDMS'],
     'providers'     => ['context', 'orm', 'auth']
 ]);
 
 ['orm' => $orm] = $providers;
+
+// aller rechercher les entités créées sur l'instance Globale depuis la dernière syncrho
+$url = constant('FMT_API_URL_EDMS');
+/*
+liste des entités protégées
+
+$
+*/
+
+$map_entities = [
+    'identity\Identity'                     => 'protected',
+    'identity\User'                         => 'protected',
+    'purchase\supplier\Supplier'            => 'protected',
+    'realestate\management\ManagingAgent'   => 'protected',
+    'realestate\property\Condominium'       => 'protected',
+];
+
+
+
 
 

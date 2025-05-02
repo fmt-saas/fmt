@@ -44,22 +44,19 @@ $auth->su();
 
 // search for documents matching given hash code (should be only one match)
 $collection = Document::id($params['id']);
-$document = $collection->read(['uuid', 'content_type', 'public'])->first();
+$document = $collection->read(['uuid'])->first();
 
 if(!$document) {
     throw new Exception("document_unknown", QN_ERROR_UNKNOWN_OBJECT);
 }
 
-// if document is not public, switch back to original user: regular permission checks will apply
-/*
-if(!$document['public']) {
-    $auth->su($user_id);
+if(!$document['uuid']) {
+    throw new Exception("invalid_document", QN_ERROR_UNKNOWN_OBJECT);
 }
-*/
 
 // pull document data from EDMS server
 
-// il faut injecter le APP_TOKEN dans le header
+// #todo - il faut injecter le APP_TOKEN dans le header
 
 $url = constant('FMT_API_URL_EDMS');
 $request = new HttpRequest('GET '.$url.'?get=documents_pull&uuid=' . $document['uuid']);

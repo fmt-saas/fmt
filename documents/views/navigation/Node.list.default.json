@@ -37,8 +37,18 @@
             },
             {
                 "type": "field",
+                "label": "Document",
                 "value": "document_id",
                 "width": "14%"
+            },
+            {
+                "type": "field",
+                "label": "View",
+                "value": "document_link",
+                "width": "14%",
+                "widget": {
+                    "link": "icon"
+                }
             }
         ]
     }

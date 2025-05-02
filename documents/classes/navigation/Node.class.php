@@ -60,14 +60,34 @@ class Node extends Model {
                 'onupdate'          => 'onupdateDocumentId'
             ],
 
+            'document_link' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/url',
+                'description'       => 'URL for visualizing the document.',
+                'function'          => 'calcLink',
+                'store'             => true,
+                'readonly'          => true,
+                'visible'           => ['node_type', '=', 'document']
+            ],
+
             'nodes_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\navigation\Node',
                 'foreign_field'     => 'parent_id',
                 'description'       => 'Nodes having the node as parent.'
-            ],
+            ]
 
         ];
+    }
+
+    public static function calcLink($self) {
+        $result = [];
+        $self->read(['document_id']);
+        foreach($self as $id => $node) {
+            $result[$id] = '/document/' . $node['document_id'];
+        }
+        return $result;
     }
 
     protected static function computeName($id) {
