@@ -20,7 +20,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "node_type",
-                                                "width": "25%"
+                                                "width": "16%"
                                             },
                                             {
                                                 "type": "field",
@@ -31,6 +31,14 @@
                                                 "type": "field",
                                                 "value": "document_id",
                                                 "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_link",
+                                                "width": "8%",
+                                                "widget": {
+                                                    "link": "icon"
+                                                }
                                             }
                                         ]
                                     },
