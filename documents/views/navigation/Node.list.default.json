@@ -1,6 +1,16 @@
 {
     "name": "Model",
     "description": "Interface for model definition classes.",
+    "actions": [
+        {
+            "id": "action.download",
+            "inline": true,
+            "label": "Download",
+            "icon": "download",
+            "description": "Download the document.",
+            "controller": "documents_Document_download"
+        }
+    ],
     "layout": {
         "items": [
             {
