@@ -43,6 +43,7 @@ if(!$document) {
 $output = eQual::run('get', 'documents_document', ['id' => $document['id']]);
 
 $context->httpResponse()
+        ->status(202)
         ->header('Content-Disposition', 'attachment; filename="' . $document['name'] . '.' . $document['extension'] . '"')
         ->header('Content-Type', $document['content_type'])
         ->body($output, true)
