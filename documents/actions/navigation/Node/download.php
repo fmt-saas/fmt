@@ -21,7 +21,8 @@ use documents\navigation\Node;
         'visibility'        => 'public'
     ],
     'response'      => [
-        'accept-origin' => '*'
+        'accept-origin' => '*',
+        'content-type'  => 'application/octet-stream'
     ],
     'providers'     => ['context']
 ]);
