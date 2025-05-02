@@ -1,0 +1,43 @@
+<?php
+/*
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Original author(s): Yesbabylon SA
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
+use documents\Document;
+
+[$params, $providers]= eQual::announce([
+    'description'   => 'Return raw data (with original MIME) of a document identified by given hash.',
+    'params'        => [
+        'id' =>  [
+            'description'   => 'identifier of the document to download.',
+            'type'          => 'string',
+            'required'      => true
+        ]
+    ],
+    'access' => [
+        'visibility'        => 'public'
+    ],
+    'response'      => [
+        'accept-origin' => '*'
+    ],
+    'constants'     => ['FMT_API_URL_EDMS'],
+    'providers'     => ['context', 'orm', 'auth', 'adapt']
+]);
+
+['context' => $context, 'orm' => $om, 'auth' => $auth, 'adapt' => $adapt] = $providers;
+
+$document = Document::id($params['id'])->read(['name', 'content_type'])->first();
+
+if(!$document) {
+    throw new Exception('unknown_document', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+$output = eQual::run('get', 'documents_document', ['id' => $params['id']]);
+
+$context->httpResponse()
+        ->header('Content-Disposition', 'attachment; filename="'.$document['name'].'"')
+        ->header('Content-Type', $document['content_type'])
+        ->body($output, true)
+        ->send();
