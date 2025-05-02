@@ -22,13 +22,12 @@ use documents\Document;
     'response'      => [
         'accept-origin' => '*'
     ],
-    'constants'     => ['FMT_API_URL_EDMS'],
-    'providers'     => ['context', 'orm', 'auth', 'adapt']
+    'providers'     => ['context']
 ]);
 
-['context' => $context, 'orm' => $om, 'auth' => $auth, 'adapt' => $adapt] = $providers;
+['context' => $context] = $providers;
 
-$document = Document::id($params['id'])->read(['name', 'content_type'])->first();
+$document = Document::id($params['id'])->read(['name', 'extension', 'content_type'])->first();
 
 if(!$document) {
     throw new Exception('unknown_document', EQ_ERROR_UNKNOWN_OBJECT);
@@ -37,7 +36,7 @@ if(!$document) {
 $output = eQual::run('get', 'documents_document', ['id' => $params['id']]);
 
 $context->httpResponse()
-        ->header('Content-Disposition', 'attachment; filename="'.$document['name'].'"')
+        ->header('Content-Disposition', 'attachment; filename="' . $document['name'] . '.' . $document['extension'] . '"')
         ->header('Content-Type', $document['content_type'])
         ->body($output, true)
         ->send();
