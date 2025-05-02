@@ -8,7 +8,7 @@
             "label": "Download",
             "icon": "download",
             "description": "Download the document.",
-            "controller": "documents_Document_download"
+            "controller": "documents_navigation_Node_download"
         }
     ],
     "layout": {

@@ -6,12 +6,13 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 use documents\Document;
+use documents\navigation\Node;
 
 [$params, $providers]= eQual::announce([
     'description'   => 'Return raw data (with original MIME) of a document identified by given hash.',
     'params'        => [
         'id' =>  [
-            'description'   => 'Identifier of the document to download.',
+            'description'   => 'Identifier of the node to download.',
             'type'          => 'string',
             'required'      => true
         ]
@@ -27,7 +28,13 @@ use documents\Document;
 
 ['context' => $context] = $providers;
 
-$document = Document::id($params['id'])->read(['name', 'extension', 'content_type'])->first();
+$node = Node::id($params['id'])->read(['document_id'])->first();
+
+if(!$node) {
+    throw new Exception('unknown_node', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+$document = Document::id($node['document_id'])->read(['name', 'extension', 'content_type'])->first();
 
 if(!$document) {
     throw new Exception('unknown_document', EQ_ERROR_UNKNOWN_OBJECT);
