@@ -205,7 +205,7 @@ class Document extends Model {
         ];
     }
 
-    public static function onupdateData($self, $adapt) {
+    public static function onupdateData($self, $adapt, $orm) {
         $instance_type = constant('FMT_INSTANCE_TYPE');
         if($instance_type === 'agency') {
             /** @var \equal\data\adapt\DataAdapter */
@@ -220,8 +220,6 @@ class Document extends Model {
                     continue;
                 }
 
-                $data = $adapter->adaptOut($document['data'], 'binary');
-
                 // we need to relay document to EDMS in order to receive a UUID
                 $url = constant('FMT_API_URL_EDMS');
                 try {
@@ -230,18 +228,18 @@ class Document extends Model {
                         ->setBody([
                             'name'      => $document['name'],
                             'condo_id'  => $document['condo_id'],
-                            'data'      => $data
+                            'data'      => $adapter->adaptOut($document['data'], 'binary')
                         ])
                         ->send();
                     $result = $response->body();
                     if(isset($result['uuid'])) {
-                        self::id($document['id'])
-                            ->update([
+                        $orm->update(self::getType(), $id, [
                                 // assign UUID
                                 'uuid'          => $result['uuid'],
                                 // remove local file (resets computed fields)
                                 'data'          => null
-                            ])
+                            ]);
+                        self::id($document['id'])
                             ->update([
                                 'content_type'  => $result['content_type'] ?? null,
                                 'content_size'  => $result['content_size'] ?? null
