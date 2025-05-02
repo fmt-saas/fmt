@@ -385,8 +385,7 @@
                         "description": "",
                         "context": {
                             "entity": "documents\\navigation\\Node",
-                            "view": "list.default",
-                            "domain": ["condo_id", "=", null]
+                            "view": "list.default"
                         }
                     },
                     {

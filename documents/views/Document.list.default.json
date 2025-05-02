@@ -29,7 +29,7 @@
                 "type": "field",
                 "label": "Created",
                 "value": "created",
-                "width": "20%",
+                "width": "10%",
                 "readonly": true,
                 "widget": {
                     "usage": "date"
