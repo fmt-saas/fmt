@@ -25,20 +25,18 @@
                                             {
                                                 "type": "field",
                                                 "value": "code",
-                                                "width": "25%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "document_id",
-                                                "width": "25%"
+                                                "width": "0%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "document_link",
-                                                "width": "8%",
-                                                "widget": {
-                                                    "link": "icon"
-                                                }
+                                                "width": "33%"
                                             }
                                         ]
                                     },
