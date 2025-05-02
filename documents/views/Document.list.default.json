@@ -17,7 +17,7 @@
                 "type": "field",
                 "label": "Preview",
                 "value": "preview_image",
-                "width": "5%"
+                "width": "10%"
             },
             {
                 "type": "field",
@@ -30,7 +30,10 @@
                 "label": "Created",
                 "value": "created",
                 "width": "20%",
-                "readonly": true
+                "readonly": true,
+                "widget": {
+                    "usage": "date"
+                }
             },
             {
                 "type": "field",
@@ -41,7 +44,7 @@
             {
                 "type": "field",
                 "label": "Language",
-                "value": "lang_id",
+                "value": "readable_size",
                 "width": "10%"
             },
             {
@@ -49,11 +52,6 @@
                 "value": "link",
                 "width": "33%",
                 "readonly": true
-            },
-            {
-                "type": "field",
-                "value": "public",
-                "width": "10%"
             },
             {
                 "type": "field",

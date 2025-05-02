@@ -614,14 +614,11 @@ class Document extends Model {
         $target_height = 150;
         $self->read(['name', 'content_type', 'data']);
         foreach($self as $id => $document) {
-            if(!$document['data']) {
-                continue;
-            }
             if(!$document['content_type']) {
                 continue;
             }
             try {
-                if(substr($document['content_type'], 0, 5) != 'image') {
+                if(!$document['data'] || substr($document['content_type'], 0, 5) != 'image') {
                     throw new Exception('not_an_image');
                 }
 
