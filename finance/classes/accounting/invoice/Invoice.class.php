@@ -101,6 +101,12 @@ class Invoice extends Model {
                 'dependents'        => ['name']
             ],
 
+            'funding_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'sale\pay\Funding',
+                'description'       => 'The funding related to the invoice.'
+            ],
+
             'reversed_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\invoice\Invoice',

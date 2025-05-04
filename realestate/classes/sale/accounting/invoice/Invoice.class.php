@@ -30,7 +30,12 @@ class Invoice extends \sale\accounting\invoice\Invoice {
     public static function getColumns() {
 
         return [
-
+            'fundings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'sale\pay\Funding',
+                'foreign_field'     => 'invoice_id',
+                'description'       => 'The fundings relating to the invoice.'
+            ],
         ];
     }
 

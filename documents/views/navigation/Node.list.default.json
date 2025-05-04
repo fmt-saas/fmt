@@ -8,9 +8,12 @@
             "label": "Download",
             "icon": "download",
             "description": "Download the document.",
-            "controller": "documents_navigation_Node_download"
+            "controller": "documents_navigation_Node_download",
+            "visible": ["node_type", "=", "document"]
         }
     ],
+    "order": "nod_type",
+    "sort": "desc",
     "layout": {
         "items": [
             {
@@ -27,12 +30,17 @@
             },
             {
                 "type": "field",
-                "value": "name",
-                "width": "14%"
+                "label": "type",
+                "value": "node_type",
+                "width": "10%",
+                "widget": {
+                    "type": "string",
+                    "usage": "icon"
+                }
             },
             {
                 "type": "field",
-                "value": "node_type",
+                "value": "name",
                 "width": "14%"
             },
             {

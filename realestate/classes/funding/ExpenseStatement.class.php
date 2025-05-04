@@ -121,13 +121,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 'description'       => 'Rounding delta between allocation and expenses, if any.'
             ],
 
-            'fundings_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'sale\pay\Funding',
-                'foreign_field'     => 'expense_statement_id',
-                'description'       => 'The fundings that relate to the statement (sale invoice).'
-            ],
-
             'schema' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',

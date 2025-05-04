@@ -385,7 +385,8 @@
                         "description": "",
                         "context": {
                             "entity": "documents\\navigation\\Node",
-                            "view": "list.default"
+                            "view": "list.default",
+                            "domain": ["node_type", "=", "folder"]
                         }
                     },
                     {

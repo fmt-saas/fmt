@@ -26,6 +26,15 @@ class Payment extends Model {
                 'readonly'          => true
             ],
 
+            'ownership_id' => [
+                'type'              => 'many2one',
+                'description'       => "The ownership that the payment originates from.",
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'ondelete'          => 'cascade',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'readonly'          => true
+            ],
+
             'customer_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\customer\Customer',

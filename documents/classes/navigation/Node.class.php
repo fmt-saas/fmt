@@ -63,7 +63,7 @@ class Node extends Model {
             'document_link' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'usage'             => 'uri/url',
+                'usage'             => 'uri/url.relative',
                 'description'       => 'URL for visualizing the document.',
                 'function'          => 'calcLink',
                 'store'             => true,
@@ -85,7 +85,9 @@ class Node extends Model {
         $result = [];
         $self->read(['document_id']);
         foreach($self as $id => $node) {
-            $result[$id] = '/document/' . $node['document_id'];
+            if($node['document_id']) {
+                $result[$id] = '/document/' . $node['document_id'];
+            }
         }
         return $result;
     }

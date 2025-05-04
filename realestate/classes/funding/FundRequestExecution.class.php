@@ -16,7 +16,7 @@ use fmt\setting\Setting;
 use sale\pay\Funding;
 use sale\pay\Payment;
 
-class FundRequestExecution extends \sale\accounting\invoice\Invoice {
+class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
 
     public static function getName() {
         return 'Fund Request Execution';
@@ -85,13 +85,6 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
                 'type'              => 'string',
                 'usage'             => 'text/plain',
                 'description'       => 'Logs of the accounting entry generation'
-            ],
-
-            'fundings_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'sale\pay\Funding',
-                'foreign_field'     => 'fund_request_execution_id',
-                'description'       => 'The fundings that relate to the execution (sale invoice).'
             ]
 
         ];
@@ -132,7 +125,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
         return array_merge(parent::getActions(), [
             'generate_accounting_entry' => [
                 'description'   => 'Generate a draft of the resulting accounting entry and entry lines.',
-                'policies'      => [],
+                'policies'      => ['can_generate_accounting_entries'],
                 'function'      => 'doGenerateAccountingEntries'
             ],
             'generate_fundings' => [
@@ -143,7 +136,7 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
             'perform_execution' => [
                 'description'   => 'Perform the fund request execution by creating and validating resulting Accounting entries and Fundings.',
                 'help'          => 'This action is called by `onafterCall`, after emitting the invoice.',
-                'policies'      => [],
+                'policies'      => ['can_perform_execution'],
                 'function'      => 'doPerformExecution'
             ],
             'cancel_execution' => [
@@ -160,8 +153,25 @@ class FundRequestExecution extends \sale\accounting\invoice\Invoice {
             'can_perform_execution' => [
                 'description' => 'Verifies that a fiscal year can be opened according its configuration.',
                 'function'    => 'policyCanPerformExecution'
+            ],
+            'can_generate_accounting_entries' => [
+                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'function'    => 'policyCanGenerateAccountingEntries'
             ]
         ];
+    }
+
+    public static function policyCanGenerateAccountingEntries($self): array {
+        $result = [];
+        foreach($self as $id => $requestExecution) {
+            if($requestExecution['status'] != 'proforma') {
+                $result[$id] = [
+                    'invalid_status' => 'Request Execution status must be proforma.'
+                ];
+                continue;
+            }
+        }
+        return $result;
     }
 
     public static function policyCanPerformExecution($self): array {

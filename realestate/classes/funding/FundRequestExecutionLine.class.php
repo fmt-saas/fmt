@@ -82,11 +82,10 @@ class FundRequestExecutionLine extends \sale\accounting\invoice\InvoiceLine {
 
             'funding_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'sale\pay\Funding',
+                'foreign_object'    => 'realestate\sale\pay\Funding',
                 'description'       => 'The funding relating to the execution line, if any.',
                 'help'              => 'Fundings are created when execution is validated. In case of cancellation, only paid or partially paid fundings remain.'
-            ],
-
+            ]
 
         ];
     }

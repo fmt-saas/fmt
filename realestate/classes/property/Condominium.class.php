@@ -143,6 +143,19 @@ class Condominium extends \identity\Organisation {
                 */
             ],
 
+            'expense_management_mode' => [
+                'type'               => 'string',
+                'selection'          => [
+                        'real_expenses',
+                        'provisions'
+                    ],
+                'description'       => 'Management mode foc Condominium expenses.',
+                'help'              => "Defines how common charges are handled within the condominium.
+                    - In 'real_expenses' mode, no provisions are called in advance: charges are recorded as actual expenses and settled during each period, typically using the working capital.
+                    - In 'provisions' mode, regular fund calls are made and settled at the end of the fiscal year through a global expense statement. The working capital is usually minimal.",
+                'default'           => 'real_expenses'
+            ],
+
             'account_chart_id' => [
                 'type'              => 'many2one',
                 'description'       => "The Chart of accounts assigned to the Condominium.",

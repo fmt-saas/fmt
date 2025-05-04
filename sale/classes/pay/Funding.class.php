@@ -108,32 +108,6 @@ class Funding extends Model {
                 'readonly'          => true
             ],
 
-            'fund_request_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'realestate\funding\FundRequest',
-                'description'       => 'The fund request targeted by the funding, if any.',
-                'readonly'          => true,
-                'visible'           => ['funding_type', '=', 'fund_request']
-            ],
-
-            'fund_request_execution_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'realestate\funding\FundRequestExecution',
-                'description'       => 'The fund request execution targeted by the funding, if any.',
-                'help'              => 'As a convention, this field is set when a funding relates to a fund request. Fund request executions are sale invoices (with invoice_type set to fund_request).',
-                'visible'           => ['funding_type', '=', 'fund_request'],
-                'readonly'          => true
-            ],
-
-            'expense_statement_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'realestate\funding\ExpenseStatement',
-                'description'       => 'The fund request execution targeted by the funding, if any.',
-                'help'              => 'As a convention, this field is set when a funding relates to a fund request. Fund request executions are sale invoices (with invoice_type set to fund_request).',
-                'visible'           => ['funding_type', '=', 'expense_statement'],
-                'readonly'          => true
-            ],
-
             'invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\accounting\invoice\Invoice',
@@ -147,15 +121,6 @@ class Funding extends Model {
                 'type'              => 'string',
                 'description'       => 'Message for identifying the purpose of the transaction.',
                 'default'           => ''
-            ],
-
-            'ownership_id' => [
-                'type'              => 'many2one',
-                'description'       => "The ownership that the funding refers to.",
-                'foreign_object'    => 'realestate\ownership\Ownership',
-                'ondelete'          => 'cascade',
-                'domain'            => ['condo_id', '=', 'object.condo_id'],
-                'readonly'          => true
             ],
 
             'is_cancelled' => [
@@ -181,15 +146,12 @@ class Funding extends Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['due_amount', 'payment_reference', 'fund_request_execution_id' => ['name'],  'invoice_id' => ['name']]);
+        $self->read(['due_amount', 'payment_reference', 'invoice_id' => ['name']]);
         foreach($self as $id => $funding) {
             $result[$id] = Setting::format_number_currency($funding['due_amount']);
 
             if($funding['invoice_id']) {
                 $result[$id] .= '  ' . $funding['invoice_id']['name'];
-            }
-            if($funding['fund_request_execution_id']) {
-                $result[$id] .= '  ' . $funding['fund_request_execution_id']['name'];
             }
 
             if($funding['payment_reference']) {

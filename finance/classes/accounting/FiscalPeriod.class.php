@@ -164,6 +164,7 @@ class FiscalPeriod extends Model {
                 throw new \Exception('missing_misc_journal', EQ_ERROR_INVALID_CONFIG);
             }
 
+            // retrieve expense provision account
             $expenseProvisionAccount = Account::search([['condo_id', '=', $fiscalPeriod['condo_id']], ['operation_assignment', '=', 'expense_provisions']])
                 ->read(['id'])
                 ->first();
@@ -184,10 +185,16 @@ class FiscalPeriod extends Model {
                     ['posting_date', '<=', $fiscalPeriod['date_to']],
                     ['status', '=', 'invoice']
                 ])
-                ->read(['execution_lines_ids' => ['ownership_id', 'price']]);
+                ->read([
+                        'fund_request_id' => ['request_type'],
+                        'execution_lines_ids' => ['ownership_id', 'price']
+                    ]);
 
             $map_ownership_amounts = [];
             foreach($requestExecutions as $requestExecution) {
+                if($requestExecution['fund_request_id']['request_type'] !== 'expense_provisions') {
+                    continue;
+                }
                 foreach($requestExecution['execution_lines_ids'] as $requestExecutionLine) {
                     $ownership_id = $requestExecutionLine['ownership_id'];
                     $map_ownership_amounts[$ownership_id] = ($map_ownership_amounts[$ownership_id] ?? 0) + $requestExecutionLine['line'];
