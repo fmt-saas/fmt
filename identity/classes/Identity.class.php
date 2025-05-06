@@ -53,12 +53,20 @@ class Identity extends Model {
                     Whereas, for an individual having \"John\" as firstname and \"Smith\" as lastname, it will return \"John Smith\"."
             ],
 
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Class of the current entity .',
+                'help'              => 'This is required in order to display the relational fields accordingly.',
+                'default'           => 'identity\Identity'
+            ],
+
             'identity_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Identity',
                 'description'       => 'Identity the object relates to.',
                 'help'              => 'Meant for entities that inherit from `identity\Identity` and must be synced with parent Identity. Classes that inherit from Identity must implement `onupdateIdentityId()` method.',
-                'onupdate'          => 'onupdateIdentityId'
+                'onupdate'          => 'onupdateIdentityId',
+                'visible'           => ['object_class', '<>', 'identity\Identity']
             ],
 
             'owner_identity_id' => [
@@ -200,6 +208,10 @@ class Identity extends Model {
                 'description'       => 'Parent company of which the organization is a branch (department), if any.',
                 'visible'           => [ ['has_parent', '=', true] ]
             ],
+
+            /*
+                links to objects from entities that inherit from Identity
+            */
 
             'contacts_ids' => [
                 'type'              => 'one2many',

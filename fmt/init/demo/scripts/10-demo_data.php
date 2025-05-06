@@ -40,7 +40,7 @@ $condominiums_ids = $condominiums->ids();
 ManagingAgent::id(1)->update(['condominiums_ids' => $condominiums_ids]);
 
 $condominiums
-    // init condominiums (generate sequences, chart of accounts & journals)
+    // init condominiums (generate sequences, chart of accounts, journals, folders, ...)
     ->do('init');
 
 // activate "common expenses" apportionments
@@ -75,11 +75,11 @@ foreach($apportionments as $apportionment_id => $apportionment) {
 
 // assign codes to entities depending on Condominium
 PropertyLot::search()
-    ->read(['lot_code']);
+    ->read(['code']);
 
 Ownership::search()
     ->read(['code'])
-    ->do('generate_accounts');
+    ->do('init');
 
 
 // create supplierships
@@ -146,8 +146,6 @@ ReserveFund::create([
         'expense_account_id'    => 706,
         'apportionment_id'      => 2
     ]);
-
-
 
 
 // create a fund request for first condo

@@ -9,9 +9,9 @@
             "help": ""
         },
         "data": {
-            "label": "Données",
-            "description": "Données binaires brutes du document.",
-            "help": ""
+            "label": "Fichier source",
+            "description": "Fichier à importer..",
+            "help": "Fichier contenant les données binaires brutes du document."
         },
         "content_type": {
             "label": "Type de média",

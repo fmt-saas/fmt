@@ -57,7 +57,8 @@ class Node extends Model {
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'targeted document of the node.',
                 'visible'           => ['node_type', '=', 'document'],
-                'onupdate'          => 'onupdateDocumentId'
+                'onupdate'          => 'onupdateDocumentId',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'document_link' => [
@@ -75,7 +76,8 @@ class Node extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\navigation\Node',
                 'foreign_field'     => 'parent_id',
-                'description'       => 'Nodes having the node as parent.'
+                'description'       => 'Nodes having the node as parent.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ]
 
         ];
@@ -102,10 +104,46 @@ class Node extends Model {
     }
 
     public static function onupdateDocumentId($self) {
-        $self->read(['document_id' => ['name']]);
+        static $map_document_types_labels = [
+            'invoice'               => 'Facture',
+            'credit_note'           => 'Note de crédit',
+            'quote'                 => 'Devis',
+            'purchase_order'        => 'Bon de commande',
+            'delivery_note'         => 'Bon de livraison',
+            'incident_report'       => 'Rapport de sinistre',
+            'maintenance_report'    => 'Rapport d\'entretien',
+            'contract'              => 'Contrats fournisseurs',
+            'certificate'           => 'Attestations',
+            'terms_and_conditions'  => 'Conditions générales',
+            'reconciliation_report' => 'Relevés de consommations',
+            'fund_request'          => 'Appel de fonds',
+            'expense_statement'     => 'État des dépenses',
+            'bank_statement'        => 'Relevés bancaires',
+            'legal_document'        => 'Document juridique',
+            'correspondence'        => 'Courrier',
+            'supporting_document'   => 'Pièce justificative',
+            'internal_memo'         => 'PV',
+        ];
+
+        $self->read(['document_id' => ['name', 'document_type', 'suppliership_id' => ['name'], 'ownership_id' => ['name']]]);
         foreach($self as $id => $node) {
+            $description = '';
+
             if($node['document_id']) {
-                self::id($id)->update(['name' => self::computeName($id)]);
+
+                if(isset($map_document_types_labels[$node['document_id']['document_type']])) {
+                    $description .= $map_document_types_labels[$node['document_id']['document_type']];
+                }
+
+                if($node['ownership_id']) {
+                    $description .= ' - ' . $node['ownership_id']['name'];
+                }
+
+                if($node['suppliership_id']) {
+                    $description .= ' - ' . $node['suppliership_id']['name'];
+                }
+
+                self::id($id)->update(['name' => self::computeName($id), 'description' => $description]);
             }
         }
     }

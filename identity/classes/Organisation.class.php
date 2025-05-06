@@ -25,6 +25,13 @@ class Organisation extends Identity {
     public static function getColumns() {
         return [
 
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Class of the current entity .',
+                'help'              => 'This is required in order to display the relational fields accordingly.',
+                'default'           => 'identity\Organisation'
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',

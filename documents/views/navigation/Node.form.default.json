@@ -30,23 +30,8 @@
                                             {
                                                 "type": "field",
                                                 "value": "document_id",
-                                                "width": "0%",
-                                                "visible": false
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "document_link",
                                                 "width": "33%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "25%",
-                                        "items": []
-                                    },
-                                    {
-                                        "width": "25%",
-                                        "items": [
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
@@ -72,6 +57,20 @@
                                                 }
                                             }
                                         ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "document_link",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "type": "pdf",
+                                                    "height": "720"
+                                                }
+                                            }
+                                        ]
                                     }
                                 ]
                             }
@@ -82,6 +81,7 @@
             {
                 "sections": [
                     {
+                        "visible": [ ["state", "<>", "draft"], ["node_type", "=", "folder"] ],
                         "rows": [
                             {
                                 "columns": [
@@ -91,7 +91,13 @@
                                             {
                                                 "type": "field",
                                                 "value": "nodes_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline"
+                                                    },
+                                                    "view": "list.default"
+                                                }
                                             }
                                         ]
                                     }

@@ -12,16 +12,10 @@
             "visible": ["node_type", "=", "document"]
         }
     ],
-    "order": "node_type,name",
-    "sort": "desc,asc",
+    "order": "name",
+    "sort": "asc",
     "layout": {
         "items": [
-            {
-                "type": "field",
-                "value": "condo_id",
-                "width": "0%",
-                "visible": false
-            },
             {
                 "type": "field",
                 "value": "parent_id",
@@ -45,32 +39,13 @@
             },
             {
                 "type": "field",
-                "value": "created",
-                "width": "10%",
-                "widget": {
-                    "usage": "date/plain.short"
-                },
-                "visible": ["node_type", "=", "document"]
-            },
-            {
-                "type": "field",
-                "value": "code",
-                "width": "0%",
-                "visible": false
-            },
-            {
-                "type": "field",
-                "value": "description",
+                "value": "condo_id",
                 "width": "20%"
             },
             {
                 "type": "field",
-                "label": "View",
-                "value": "document_link",
-                "width": "14%",
-                "widget": {
-                    "link": "icon"
-                }
+                "value": "description",
+                "width": "25%"
             }
         ]
     }

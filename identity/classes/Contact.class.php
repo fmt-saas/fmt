@@ -26,6 +26,13 @@ class Contact extends Identity {
 
         return [
 
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Class of the current entity .',
+                'help'              => 'This is required in order to display the relational fields accordingly.',
+                'default'           => 'identity\Contact'
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',

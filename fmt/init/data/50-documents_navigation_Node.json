@@ -1,0 +1,104 @@
+[
+  {
+    "name": "documents\\navigation\\Node",
+    "lang": "fr",
+    "data": [
+      {
+        "code": "general_meetings",
+        "node_type": "folder",
+        "name": "Assemblées Générales",
+        "description": "Convocations, procès-verbaux, listes de présence"
+      },
+      {
+        "code": "tender_documents",
+        "node_type": "folder",
+        "name": "Bordereaux / Devis fournisseurs",
+        "description": "Appels d'offres, devis, consultation d'entreprises"
+      },
+      {
+        "code": "maintenance_logs",
+        "node_type": "folder",
+        "name": "Carnets d'entretien",
+        "description": "Rapports d'entretien périodiques (ex. extincteurs, chaudière, etc.)"
+      },
+      {
+        "code": "council_minutes",
+        "node_type": "folder",
+        "name": "Conseil de copropriété / Comptes rendus",
+        "description": "Comptes rendus des réunions du conseil"
+      },
+      {
+        "code": "legal_followup",
+        "node_type": "folder",
+        "name": "Contentieux / relance",
+        "description": "Courriers de relance, procédures judiciaires, assignations"
+      },
+      {
+        "code": "insurance_contracts",
+        "node_type": "folder",
+        "name": "Contrats d'assurance",
+        "description": "Contrats d'assurance, attestations associées"
+      },
+      {
+        "code": "syndic_contracts",
+        "node_type": "folder",
+        "name": "Contrats de syndic",
+        "description": "Contrat désignant le syndic en cours"
+      },
+      {
+        "code": "works_and_repairs",
+        "node_type": "folder",
+        "name": "Interventions - Travaux",
+        "description": "Bons d'intervention, rapports de travaux, plans techniques"
+      },
+      {
+        "code": "sepa_mandates",
+        "node_type": "folder",
+        "name": "Mandats de prélèvement",
+        "description": "Mandats SEPA signés"
+      },
+      {
+        "code": "regulations",
+        "node_type": "folder",
+        "name": "Règlement de copropriété",
+        "description": "Règlement, modificatifs, état descriptif de division, règlements intérieurs"
+      },
+      {
+        "code": "operation_statements",
+        "node_type": "folder",
+        "name": "Relevés des charges et produits",
+        "description": "Relevés de dépenses, répartitions, appels de fonds"
+      },
+      {
+        "code": "bank_statements",
+        "node_type": "folder",
+        "name": "Relevés bancaires",
+        "description": "Relevés bancaires liés au compte de la copropriété"
+      },
+      {
+        "code": "contracts",
+        "node_type": "folder",
+        "name": "Contrats fournisseurs",
+        "description": "Contrats de prestation (nettoyage, maintenance, etc.)"
+      },
+      {
+        "code": "justifications",
+        "node_type": "folder",
+        "name": "Pièces justificatives",
+        "description": "RIB, Kbis, attestations URSSAF, etc."
+      },
+      {
+        "code": "internal_notes",
+        "node_type": "folder",
+        "name": "Notes internes",
+        "description": "Notes internes, PV produits par l'app ou l'équipe"
+      },
+      {
+        "code": "supplier_invoices",
+        "node_type": "folder",
+        "name": "Factures et Notes de crédit fournisseurs",
+        "description": "Factures reçues ou à comptabiliser"
+      }
+    ]
+  }
+]

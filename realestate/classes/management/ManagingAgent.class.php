@@ -25,6 +25,13 @@ class ManagingAgent extends \identity\Identity {
 
     public static function getColumns() {
         return [
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Class of the current entity .',
+                'help'              => 'This is required in order to display the relational fields accordingly.',
+                'default'           => 'realestate\management\ManagingAgent'
+            ],
+
             'condominiums_ids' => [
                 'type'              => 'one2many',
                 'description'       => "Condominiums the managing agent is in charge of.",

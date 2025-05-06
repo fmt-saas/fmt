@@ -147,10 +147,20 @@ class Ownership extends \equal\orm\Model {
 
     public static function getActions() {
         return [
+            'init' => [
+                'description'   => 'Initializes a newly created Ownership.',
+                'policies'      => [],
+                'function'      => 'doInit'
+            ],
             'generate_accounts' => [
                 'description'   => 'Generate mandatory accounting Accounts for Ownership.',
                 'policies'      => [],
                 'function'      => 'doGenerateAccounts'
+            ],
+            'generate_folders' => [
+                'description'   => 'Generate folders for Ownership in Document repository.',
+                'policies'      => [],
+                'function'      => 'doGenerateFolders'
             ]
         ];
     }
@@ -285,19 +295,53 @@ class Ownership extends \equal\orm\Model {
         }
     }
 
+    public static function doGenerateFolders($self) {
+        /*
+        // #todo - unsure if necessary, not implemented for now
+        $self->read(['condo_id']);
+        foreach($self as $id => $ownership) {
+            if(!$ownership['condo_id']) {
+                continue;
+            }
+            // read 'default' journals (not assigned to any condominium)
+            $folders = Node::search(['condo_id', '=', null])
+                ->read([
+                    'name',
+                    'code',
+                    'description'
+                ]);
+
+            // duplicate each folder/node
+            foreach($folders as $folder_id => $folder) {
+                Node::create([
+                        'condo_id'      => $id,
+                        "node_type"     => 'folder',
+                        'name'          => $folder['name'],
+                        'code'          => $folder['code'],
+                        'description'   => $folder['description']
+                    ]);
+            }
+        }
+        */
+    }
+
     public static function onupdateCreationIdentityId($self) {
         $self->read(['creation_identity_id', 'condo_id']);
         foreach($self as $id => $ownership) {
             Owner::create([
                     'condo_id'      => $ownership['condo_id'],
-                    'ownership_id'  => $id,
+                    'ownership_id'  => $id
+                ])
+                ->update([
                     'identity_id'   => $ownership['creation_identity_id']
                 ]);
         }
     }
 
-    public static function oncreate($self) {
-        $self->do('generate_accounts');
+    public static function doInit($self) {
+        $self
+            ->do('generate_accounts')
+            ->do('generate_folders');
     }
 
 }

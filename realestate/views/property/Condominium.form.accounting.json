@@ -35,7 +35,6 @@
                 "domain": [["condo_id", "=", "object.id"]]
             }
         },
-
         {
             "id": "item.reserve_funds",
             "label": "Reserve Funds",
@@ -216,6 +215,16 @@
                                             {
                                                 "type": "field",
                                                 "value": "fiscal_period_frequency",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "expense_management_mode",
                                                 "width": "50%"
                                             }
                                         ]

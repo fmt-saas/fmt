@@ -7,6 +7,7 @@
 */
 namespace realestate\property;
 
+use documents\navigation\Node;
 use finance\accounting\AccountChart;
 use finance\accounting\AccountChartTemplate;
 use finance\accounting\FiscalYear;
@@ -151,8 +152,8 @@ class Condominium extends \identity\Organisation {
                     ],
                 'description'       => 'Management mode foc Condominium expenses.',
                 'help'              => "Defines how common charges are handled within the condominium.
-                    - In 'real_expenses' mode, no provisions are called in advance: charges are recorded as actual expenses and settled during each period, typically using the working capital.
-                    - In 'provisions' mode, regular fund calls are made and settled at the end of the fiscal year through a global expense statement. The working capital is usually minimal.",
+                    - In 'real_expenses' mode, no provisions are called in advance: charges are recorded as actual expenses and paid using the working capital, and settled during each period.
+                    - In 'provisions' mode, regular fund calls are made in advance and settled at the end of the fiscal year through a global expense statement. The working capital is usually minimal.",
                 'default'           => 'real_expenses'
             ],
 
@@ -285,6 +286,11 @@ class Condominium extends \identity\Organisation {
                 'description'   => 'Generate mandatory default Chart of accounts for Condominium.',
                 'policies'      => [],
                 'function'      => 'doGenerateJournals'
+            ],
+            'generate_folders' => [
+                'description'   => 'Generate default folders for Documents repository.',
+                'policies'      => [],
+                'function'      => 'doGenerateFolders'
             ]
         ];
     }
@@ -533,6 +539,29 @@ class Condominium extends \identity\Organisation {
         }
     }
 
+    public static function doGenerateFolders($self) {
+        foreach($self as $id => $condominium) {
+            // read 'default' journals (not assigned to any condominium)
+            $folders = Node::search(['condo_id', '=', null])
+                ->read([
+                    'name',
+                    'code',
+                    'description'
+                ]);
+
+            // duplicate each folder/node
+            foreach($folders as $folder_id => $folder) {
+                Node::create([
+                        'condo_id'      => $id,
+                        "node_type"     => 'folder',
+                        'name'          => $folder['name'],
+                        'code'          => $folder['code'],
+                        'description'   => $folder['description']
+                    ]);
+            }
+        }
+    }
+
     /**
      * Create mandatory dependencies for new Condominium
      */
@@ -543,8 +572,9 @@ class Condominium extends \identity\Organisation {
             // 2 - create (empty) account chart
             ->do('generate_account_chart')
             // 3 - create journals
-            ->do('generate_journals');
+            ->do('generate_journals')
+            // 4 - create folders
+            ->do('generate_folders');
     }
-
 
 }

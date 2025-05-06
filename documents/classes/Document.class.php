@@ -7,6 +7,7 @@
 
 namespace documents;
 
+use documents\navigation\Node;
 use equal\http\HttpRequest;
 use equal\orm\Model;
 use Exception;
@@ -67,6 +68,12 @@ class Document extends Model {
                 'onupdate'          => 'onupdateData'
             ],
 
+            'document_json' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.medium',
+                'description'       => 'JSON descriptor of the document, using a schema matching the document_type_id.'
+            ],
+
             'document_type' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -82,12 +89,28 @@ class Document extends Model {
                     'terms_and_conditions',
                     'reconciliation_report',
                     'bank_statement',
+                    'expense_statement',
                     'legal_document',
                     'correspondence',
                     'supporting_document',
                     'internal_memo'
                 ],
                 'description'       => 'Type of document related to its purpose.'
+            ],
+
+            'parent_node_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\navigation\Node',
+                'description'       => 'Node the document is linked with.',
+                'domain'            => [['node_type', '=', 'folder'], ['condo_id', '=', 'object.condo_id']],
+                'onupdate'          => 'onupdateParentNodeId'
+            ],
+
+            'node_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\navigation\Node',
+                'description'       => 'Node the document is linked with.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'content_type' => [
@@ -204,6 +227,24 @@ class Document extends Model {
             ]
 
         ];
+    }
+
+    public static function onupdateParentNodeId($self) {
+        $self->read(['name', 'parent_node_id', 'node_id', 'condo_id']);
+        foreach($self as $id => $document) {
+            if(!$document['node_id']) {
+                Node::create([
+                    'name'          => $document['name'],
+                    'node_type'     => 'document',
+                    'parent_id'     => $document['parent_node_id'],
+                    'document_id'   => $id,
+                    'condo_id'      => $document['condo_id']
+                ]);
+            }
+            else {
+                Node::id($document['node_id'])->update(['parent_id' => $document['parent_node_id']]);
+            }
+        }
     }
 
     public static function onupdateData($self, $adapt) {

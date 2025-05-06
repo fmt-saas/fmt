@@ -27,6 +27,13 @@ class Employee extends Identity {
     public static function getColumns() {
 
         return [
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Class of the current entity .',
+                'help'              => 'This is required in order to display the relational fields accordingly.',
+                'default'           => 'hr\employee\Employee'
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',

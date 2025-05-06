@@ -25,6 +25,13 @@ class Supplier extends Identity {
     public static function getColumns() {
 
         return [
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Class of the current entity .',
+                'help'              => 'This is required in order to display the relational fields accordingly.',
+                'default'           => 'purchase\supplier\Supplier'
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',

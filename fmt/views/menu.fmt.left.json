@@ -385,8 +385,8 @@
                         "description": "",
                         "context": {
                             "entity": "documents\\navigation\\Node",
-                            "view": "list.default",
-                            "domain": ["node_type", "=", "folder"]
+                            "view": "list.folders",
+                            "domain": [["node_type", "=", "folder"], ["parent_id", "=", null], ["condo_id", "<>", null]]
                         }
                     },
                     {

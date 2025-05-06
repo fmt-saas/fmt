@@ -76,7 +76,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "identity_id",
+                                                "value": "object_class",
                                                 "visible": false
                                             }
                                         ]
@@ -192,26 +192,24 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "reference_partner_id",
-                                                "label": "Person of reference",
+                                                "value": "identity_id",
+                                                "label": "Linked Identity",
                                                 "width": "100%",
-                                                "widget": {
-                                                    "domain": ["owner_identity_id", "=", "object.id"]
-                                                }
+                                                "visible": ["object_class", "<>", "identity\\Identity"]
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "User",
                                                 "value": "user_id",
                                                 "width": "100%",
-                                                "visible": ["identity_id", "=", null]
+                                                "visible": ["object_class", "=", "identity\\Identity"]
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Employee",
                                                 "value": "employee_id",
                                                 "width": "100%",
-                                                "visible": ["identity_id", "=", null],
+                                                "visible": ["object_class", "=", "identity\\Identity"],
                                                 "widget": {
                                                     "domain": [ ["identity_id", "=", "object.id"] ]
                                                 }
@@ -221,7 +219,7 @@
                                                 "label": "Customer",
                                                 "value": "customer_id",
                                                 "width": "100%",
-                                                "visible": ["identity_id", "=", null],
+                                                "visible": ["object_class", "=", "identity\\Identity"],
                                                 "widget": {
                                                     "domain": [ ["identity_id", "=", "object.id"] ]
                                                 }
@@ -231,7 +229,7 @@
                                                 "label": "Supplier",
                                                 "value": "supplier_id",
                                                 "width": "100%",
-                                                "visible": ["identity_id", "=", null],
+                                                "visible": ["object_class", "=", "identity\\Identity"],
                                                 "widget": {
                                                     "domain": [ ["identity_id", "=", "object.id"] ]
                                                 }
@@ -241,7 +239,7 @@
                                                 "label": "Contact",
                                                 "value": "contact_id",
                                                 "width": "100%",
-                                                "visible": ["identity_id", "=", null],
+                                                "visible": ["object_class", "=", "identity\\Identity"],
                                                 "widget": {
                                                     "domain": [ ["identity_id", "=", "object.id"] ]
                                                 }
@@ -251,7 +249,7 @@
                                                 "label": "Managing Agent",
                                                 "value": "managing_agent_id",
                                                 "width": "100%",
-                                                "visible": ["identity_id", "=", null],
+                                                "visible": ["object_class", "=", "identity\\Identity"],
                                                 "widget": {
                                                     "domain": [ ["identity_id", "=", "object.id"] ]
                                                 }
