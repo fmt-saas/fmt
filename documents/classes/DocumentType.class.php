@@ -27,6 +27,12 @@ class DocumentType extends Model {
                 'unique'            => true
             ],
 
+            'folder_code' => [
+                'type'              => 'string',
+                'description'       => 'Code of the Folder node a document by this type must be assigned to.',
+                'required'          => true
+            ],
+
             'description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.short',

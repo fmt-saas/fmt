@@ -68,6 +68,18 @@
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
+        },
+        {
+            "id": "documents",
+            "type": "entry",
+            "label": "Documents",
+            "icon": "folder",
+            "description": "",
+            "context": {
+                "entity": "documents\\navigation\\Node",
+                "view": "list.folders",
+                "domain": [["node_type", "=", "folder"], ["parent_id", "=", null], ["condo_id", "=", "object.id"]]
+            }
         }
     ],
     "actions": [

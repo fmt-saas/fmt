@@ -399,6 +399,18 @@
                             "view": "list.default",
                             "entity": "documents\\Document"
                         }
+                    },
+                    {
+                        "id": "item.documents.document_new",
+                        "type": "entry",
+                        "label": "Import Document",
+                        "icon": "file_upload",
+                        "description": "",
+                        "context": {
+                            "view": "form.import",
+                            "entity": "documents\\Document",
+                            "purpose": "create"
+                        }
                     }
                 ]
             }

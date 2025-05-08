@@ -1,0 +1,135 @@
+[
+  {
+    "name": "documents\\DocumentType",
+    "lang": "fr",
+    "description": "Types de documents utilisés dans la gestion des ACP.",
+    "data": [
+      {
+        "id": 1,
+        "name": "Facture fournisseur",
+        "code": "invoice",
+        "folder_code": "supplier_invoices",
+        "description": "Document comptable à comptabiliser et réconcilier"
+      },
+      {
+        "id": 2,
+        "name": "Note de crédit fournisseur",
+        "code": "credit_note",
+        "folder_code": "supplier_invoices",
+        "description": "Note de crédit liée à une facture précédente"
+      },
+      {
+        "id": 3,
+        "name": "Devis",
+        "code": "quote",
+        "folder_code": "tender_documents",
+        "description": "Proposition chiffrée, rattachable à un dossier travaux ou sinistre"
+      },
+      {
+        "id": 4,
+        "name": "Bon de commande",
+        "code": "purchase_order",
+        "folder_code": "works_and_repairs",
+        "description": "Validation d’engagement de dépenses"
+      },
+      {
+        "id": 5,
+        "name": "Bon de livraison",
+        "code": "delivery_note",
+        "folder_code": "works_and_repairs",
+        "description": "Justifie qu’un service ou une marchandise a été livré"
+      },
+      {
+        "id": 6,
+        "name": "Rapports de sinistre",
+        "code": "incident_report",
+        "folder_code": "works_and_repairs",
+        "description": "Document décrivant un problème ou dégât"
+      },
+      {
+        "id": 7,
+        "name": "Rapport d’entretien",
+        "code": "maintenance_report",
+        "folder_code": "maintenance_logs",
+        "description": "Suivi régulier, ex. extincteurs, ascenseurs"
+      },
+      {
+        "id": 8,
+        "name": "Contrat fournisseur",
+        "code": "contract",
+        "folder_code": "contracts",
+        "description": "Engagement contractuel formel (nettoyage, assurance, etc.)"
+      },
+      {
+        "id": 9,
+        "name": "Attestation",
+        "code": "certificate",
+        "folder_code": "insurance_contracts",
+        "description": "Preuve de conformité, certificat de contrôle ou d’assurance"
+      },
+      {
+        "id": 10,
+        "name": "Conditions générales",
+        "code": "terms_and_conditions",
+        "folder_code": "contracts",
+        "description": "Pièce annexe souvent non pertinente"
+      },
+      {
+        "id": 11,
+        "name": "Relevé de consommations",
+        "code": "reconciliation_report",
+        "folder_code": "operation_statements",
+        "description": "Répartition ou données de consommation (eau, gaz…)"
+      },
+      {
+        "id": 12,
+        "name": "Appel de fonds",
+        "code": "fund_request",
+        "folder_code": "operation_statements",
+        "description": "Document sollicitant un paiement d'avance ou une participation"
+      },
+      {
+        "id": 13,
+        "name": "État des dépenses",
+        "code": "expense_statement",
+        "folder_code": "operation_statements",
+        "description": "Détail ou synthèse des charges engagées"
+      },
+      {
+        "id": 14,
+        "name": "Relevés bancaires",
+        "code": "bank_statement",
+        "folder_code": "bank_statements",
+        "description": "Mouvement sur compte bancaire de l’ACP"
+      },
+      {
+        "id": 15,
+        "name": "Document juridique",
+        "code": "legal_document",
+        "folder_code": "legal_followup",
+        "description": "Assignation, ordonnance, etc."
+      },
+      {
+        "id": 16,
+        "name": "Courrier",
+        "code": "correspondence",
+        "folder_code": "internal_notes",
+        "description": "Message utile, libre ou informatif (sans pièce formelle)"
+      },
+      {
+        "id": 17,
+        "name": "Pièce justificative",
+        "code": "supporting_document",
+        "folder_code": "justifications",
+        "description": "RIB, Kbis, attestation URSSAF, etc."
+      },
+      {
+        "id": 18,
+        "name": "PV",
+        "code": "internal_memo",
+        "folder_code": "internal_notes",
+        "description": "Notes produites par l'application ou une personne de l'équipe"
+      }
+    ]
+  }
+]

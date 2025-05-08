@@ -9,9 +9,8 @@ use documents\Document;
 use equal\http\HttpRequest;
 use equal\http\HttpResponse;
 
-[$params, $providers]= eQual::announce([
-    'description'   => 'Return raw data (with original MIME) of a document identified by given hash.',
-    'help'          => 'This controller is meant to be used in Views for `document\Document` offering a download action.',
+[$params, $providers] = eQual::announce([
+    'description'   => 'Request a document analysis using Mindee.com service, and return the a result as a JSON descriptor.',
     'params'        => [
         'id' =>  [
             'description'   => 'Identifier of the document to parse.',
@@ -19,17 +18,30 @@ use equal\http\HttpResponse;
             'required'      => true
         ]
     ],
+    'constants'     => ['MINDEE_API_KEY'],
     'access' => [
         'visibility'        => 'public'
     ],
     'response'      => [
-        'accept-origin' => '*'
+        'accept-origin' => '*',
+        'content-type'  => 'application/json'
     ],
     'providers'     => ['context']
 ]);
 
 ['context' => $context] = $providers;
 
+// #est - uncomment for testing
+/*
+$result = <<<EOT
+{"api_request":{"error":[],"resources":["document"],"status":"success","status_code":201,"url":"https://api.mindee.net/v1/products/mindee/invoices/v4/predict"},"document":{"id":"29e61251-d0a0-43c5-9ca3-f99967d51f06","inference":{"extras":[],"finished_at":"2025-05-06T10:10:34.265672","is_rotation_applied":true,"pages":[{"extras":[],"id":0,"orientation":{"value":0},"prediction":{"billing_address":{"address_complement":null,"city":null,"confidence":1,"country":null,"po_box":null,"polygon":[[0.069,0.394],[0.274,0.394],[0.274,0.404],[0.069,0.404]],"postal_code":"1210","state":null,"street_name":null,"street_number":null,"value":"CHEE DE LOUVAIN 261, 1210"},"category":{"confidence":0.85,"value":"miscellaneous"},"customer_address":{"address_complement":"BTE 12","city":"SCHAERBEEK","confidence":1,"country":null,"po_box":null,"polygon":[[0.562,0.234],[0.777,0.234],[0.777,0.256],[0.562,0.256]],"postal_code":"1030","state":null,"street_name":"CHEE DE LOUVAIN","street_number":"267","value":"CHEE DE LOUVAIN 267 BTE 12 1030 SCHAERBEEK"},"customer_company_registrations":[],"customer_id":{"confidence":1,"polygon":[[0.068,0.283],[0.158,0.283],[0.158,0.292],[0.068,0.292]],"value":"1000328782"},"customer_name":{"confidence":0.99,"polygon":[[0.561,0.205],[0.723,0.205],[0.723,0.227],[0.561,0.227]],"raw_value":"ACP RESIDENCE THEO c/o YVAN FLION","value":"ACP RESIDENCE THEO C/O YVAN FLION"},"date":{"confidence":0.99,"polygon":[[0.7,0.353],[0.848,0.353],[0.848,0.373],[0.7,0.373]],"value":"2024-12-15"},"document_type":{"value":"INVOICE"},"document_type_extended":{"confidence":0.99,"value":"INVOICE"},"due_date":{"confidence":0.99,"is_computed":false,"polygon":[[0.75,0.553],[0.87,0.553],[0.87,0.569],[0.75,0.569]],"value":"2025-01-14"},"invoice_number":{"confidence":1,"polygon":[[0.46,0.355],[0.65,0.355],[0.65,0.369],[0.46,0.369]],"value":"744000399977"},"line_items":[{"confidence":1,"description":"Total de la facture (HTVA) TVA 6%","polygon":[[0.066,0.471],[0.523,0.471],[0.523,0.515],[0.066,0.515]],"product_code":null,"quantity":null,"tax_amount":null,"tax_rate":null,"total_amount":1051.89,"unit_measure":null,"unit_price":null}],"locale":{"confidence":0.93,"country":"BE","currency":"EUR","language":"fr","value":"fr-BE"},"orientation":{"confidence":0.99,"degrees":0},"payment_date":{"confidence":0.99,"polygon":[[0.75,0.553],[0.87,0.553],[0.87,0.569],[0.75,0.569]],"value":"2025-01-14"},"po_number":{"confidence":0.08,"polygon":[[0.757,0.395],[0.84,0.395],[0.84,0.402],[0.757,0.402]],"value":"4000232058"},"reference_numbers":[],"shipping_address":{"address_complement":null,"city":null,"confidence":0,"country":null,"po_box":null,"polygon":[],"postal_code":null,"state":null,"street_name":null,"street_number":null,"value":null},"subcategory":{"confidence":0.85,"value":null},"supplier_address":{"address_complement":null,"city":"Bruxelles","confidence":1,"country":null,"po_box":null,"polygon":[[0.389,0.951],[0.667,0.951],[0.667,0.958],[0.389,0.958]],"postal_code":"1000","state":null,"street_name":"boulevard de l'Impératrice","street_number":"17-19","value":"17-19 boulevard de l'Impératrice 1000 Bruxelles -"},"supplier_company_registrations":[{"confidence":1,"polygon":[[0.096,0.965],[0.189,0.965],[0.189,0.972],[0.096,0.972]],"type":"VAT NUMBER","value":"BE0202962701"}],"supplier_email":{"confidence":0,"polygon":[],"value":null},"supplier_name":{"confidence":1,"polygon":[[0.066,0.215],[0.19,0.215],[0.19,0.221],[0.066,0.221]],"raw_value":"vivaqua","value":"VIVAQUA"},"supplier_payment_details":[{"account_number":null,"confidence":1,"iban":"BE52096011784309","polygon":[[0.75,0.591],[0.924,0.591],[0.924,0.6],[0.75,0.6]],"routing_number":null,"swift":null}],"supplier_phone_number":{"confidence":1,"polygon":[[0.104,0.228],[0.2,0.228],[0.2,0.237],[0.104,0.237]],"value":"025188810"},"supplier_website":{"confidence":1,"polygon":[[0.06,0.207],[0.195,0.207],[0.195,0.226],[0.06,0.226]],"value":"www.vivaqua.be"},"taxes":[{"base":1051.89,"confidence":1,"polygon":[[0.1,0.507],[0.1,0.515],[0.52,0.515],[0.52,0.507]],"rate":6,"value":63.11}],"total_amount":{"confidence":1,"polygon":[[0.461,0.542],[0.522,0.542],[0.522,0.55],[0.461,0.55]],"value":1115},"total_net":{"confidence":1,"polygon":[[0.465,0.472],[0.523,0.472],[0.523,0.48],[0.465,0.48]],"value":1051.89},"total_tax":{"confidence":1,"polygon":[[0.486,0.507],[0.52,0.507],[0.52,0.515],[0.486,0.515]],"value":63.11}}},{"extras":[],"id":1,"orientation":{"value":0},"prediction":{"billing_address":{"address_complement":null,"city":null,"confidence":0,"country":null,"po_box":null,"polygon":[],"postal_code":null,"state":null,"street_name":null,"street_number":null,"value":null},"category":{"confidence":0.92,"value":"software"},"customer_address":{"address_complement":null,"city":null,"confidence":0,"country":null,"po_box":null,"polygon":[],"postal_code":null,"state":null,"street_name":null,"street_number":null,"value":null},"customer_company_registrations":[],"customer_id":{"confidence":0,"polygon":[],"value":null},"customer_name":{"confidence":0,"polygon":[],"raw_value":null,"value":null},"date":{"confidence":0,"polygon":[],"value":null},"document_type":{"value":"INVOICE"},"document_type_extended":{"confidence":0.78,"value":"OTHER"},"due_date":{"confidence":0,"is_computed":false,"polygon":[],"value":null},"invoice_number":{"confidence":0,"polygon":[],"value":null},"line_items":[],"locale":{"confidence":0.93,"country":"BE","currency":"EUR","language":"fr","value":"fr-BE"},"orientation":{"confidence":0.99,"degrees":0},"payment_date":{"confidence":0,"polygon":[],"value":null},"po_number":{"confidence":0,"polygon":[],"value":null},"reference_numbers":[],"shipping_address":{"address_complement":null,"city":null,"confidence":0,"country":null,"po_box":null,"polygon":[],"postal_code":null,"state":null,"street_name":null,"street_number":null,"value":null},"subcategory":{"confidence":0.92,"value":null},"supplier_address":{"address_complement":null,"city":null,"confidence":0,"country":null,"po_box":null,"polygon":[],"postal_code":null,"state":null,"street_name":null,"street_number":null,"value":null},"supplier_company_registrations":[],"supplier_email":{"confidence":0,"polygon":[],"value":null},"supplier_name":{"confidence":0,"polygon":[],"raw_value":null,"value":null},"supplier_payment_details":[],"supplier_phone_number":{"confidence":1,"polygon":[[0.456,0.173],[0.549,0.173],[0.549,0.181],[0.456,0.181]],"value":"025188810"},"supplier_website":{"confidence":1,"polygon":[[0.077,0.166],[0.315,0.166],[0.315,0.189],[0.077,0.189]],"value":"www.vivaqua.be"},"taxes":[],"total_amount":{"confidence":0,"polygon":[],"value":null},"total_net":{"confidence":0,"polygon":[],"value":null},"total_tax":{"confidence":0,"polygon":[],"value":null}}}],"prediction":{"billing_address":{"address_complement":null,"city":null,"confidence":1,"country":null,"page_id":0,"po_box":null,"polygon":[[0.069,0.394],[0.274,0.394],[0.274,0.404],[0.069,0.404]],"postal_code":"1210","state":null,"street_name":null,"street_number":null,"value":"CHEE DE LOUVAIN 261, 1210"},"category":{"confidence":0.85,"value":"miscellaneous"},"customer_address":{"address_complement":"BTE 12","city":"SCHAERBEEK","confidence":1,"country":null,"page_id":0,"po_box":null,"polygon":[[0.562,0.234],[0.777,0.234],[0.777,0.256],[0.562,0.256]],"postal_code":"1030","state":null,"street_name":"CHEE DE LOUVAIN","street_number":"267","value":"CHEE DE LOUVAIN 267 BTE 12 1030 SCHAERBEEK"},"customer_company_registrations":[],"customer_id":{"confidence":1,"page_id":0,"polygon":[[0.068,0.283],[0.158,0.283],[0.158,0.292],[0.068,0.292]],"value":"1000328782"},"customer_name":{"confidence":0.99,"page_id":0,"polygon":[[0.561,0.205],[0.723,0.205],[0.723,0.227],[0.561,0.227]],"raw_value":"ACP RESIDENCE THEO c/o YVAN FLION","value":"ACP RESIDENCE THEO C/O YVAN FLION"},"date":{"confidence":0.99,"page_id":0,"polygon":[[0.7,0.353],[0.848,0.353],[0.848,0.373],[0.7,0.373]],"value":"2024-12-15"},"document_type":{"value":"INVOICE"},"document_type_extended":{"confidence":0.99,"value":"INVOICE"},"due_date":{"confidence":0.99,"is_computed":false,"page_id":0,"polygon":[[0.75,0.553],[0.87,0.553],[0.87,0.569],[0.75,0.569]],"value":"2025-01-14"},"invoice_number":{"confidence":1,"page_id":0,"polygon":[[0.46,0.355],[0.65,0.355],[0.65,0.369],[0.46,0.369]],"value":"744000399977"},"line_items":[{"confidence":1,"description":"Total de la facture (HTVA) TVA 6%","page_id":0,"polygon":[[0.066,0.471],[0.523,0.471],[0.523,0.515],[0.066,0.515]],"product_code":null,"quantity":null,"tax_amount":null,"tax_rate":null,"total_amount":1051.89,"unit_measure":null,"unit_price":null}],"locale":{"confidence":0.93,"country":"BE","currency":"EUR","language":"fr","value":"fr-BE"},"payment_date":{"confidence":0.99,"page_id":0,"polygon":[[0.75,0.553],[0.87,0.553],[0.87,0.569],[0.75,0.569]],"value":"2025-01-14"},"po_number":{"confidence":0.08,"page_id":0,"polygon":[[0.757,0.395],[0.84,0.395],[0.84,0.402],[0.757,0.402]],"value":"4000232058"},"reference_numbers":[],"shipping_address":{"address_complement":null,"city":null,"confidence":0,"country":null,"page_id":null,"po_box":null,"polygon":[],"postal_code":null,"state":null,"street_name":null,"street_number":null,"value":null},"subcategory":{"confidence":0.85,"value":null},"supplier_address":{"address_complement":null,"city":"Bruxelles","confidence":1,"country":null,"page_id":0,"po_box":null,"polygon":[[0.389,0.951],[0.667,0.951],[0.667,0.958],[0.389,0.958]],"postal_code":"1000","state":null,"street_name":"boulevard de l'Impératrice","street_number":"17-19","value":"17-19 boulevard de l'Impératrice 1000 Bruxelles -"},"supplier_company_registrations":[{"confidence":1,"page_id":0,"polygon":[[0.096,0.965],[0.189,0.965],[0.189,0.972],[0.096,0.972]],"type":"VAT NUMBER","value":"BE0202962701"}],"supplier_email":{"confidence":0,"page_id":null,"polygon":[],"value":null},"supplier_name":{"confidence":1,"page_id":0,"polygon":[[0.066,0.215],[0.19,0.215],[0.19,0.221],[0.066,0.221]],"raw_value":"vivaqua","value":"VIVAQUA"},"supplier_payment_details":[{"account_number":null,"confidence":1,"iban":"BE52096011784309","page_id":0,"polygon":[[0.75,0.591],[0.924,0.591],[0.924,0.6],[0.75,0.6]],"routing_number":null,"swift":null}],"supplier_phone_number":{"confidence":1,"page_id":0,"polygon":[[0.104,0.228],[0.2,0.228],[0.2,0.237],[0.104,0.237]],"value":"025188810"},"supplier_website":{"confidence":1,"page_id":0,"polygon":[[0.06,0.207],[0.195,0.207],[0.195,0.226],[0.06,0.226]],"value":"www.vivaqua.be"},"taxes":[{"base":1051.89,"confidence":1,"page_id":0,"polygon":[[0.1,0.507],[0.1,0.515],[0.52,0.515],[0.52,0.507]],"rate":6,"value":63.11}],"total_amount":{"confidence":1,"page_id":0,"polygon":[[0.461,0.542],[0.522,0.542],[0.522,0.55],[0.461,0.55]],"value":1115},"total_net":{"confidence":1,"page_id":0,"polygon":[[0.465,0.472],[0.523,0.472],[0.523,0.48],[0.465,0.48]],"value":1051.89},"total_tax":{"confidence":1,"page_id":0,"polygon":[[0.486,0.507],[0.52,0.507],[0.52,0.515],[0.486,0.515]],"value":63.11}},"processing_time":1.383,"product":{"features":["locale","invoice_number","po_number","reference_numbers","date","due_date","payment_date","total_net","total_amount","total_tax","taxes","supplier_payment_details","supplier_name","supplier_company_registrations","supplier_address","supplier_phone_number","supplier_website","supplier_email","customer_name","customer_company_registrations","customer_address","customer_id","shipping_address","billing_address","document_type","document_type_extended","subcategory","category","orientation","line_items"],"name":"mindee/invoices","type":"standard","version":"4.11"},"started_at":"2025-05-06T10:10:32.882737"},"n_pages":2,"name":"document.pdf"}}
+EOT;
+
+$context->httpResponse()
+        ->body($result)
+        ->send();
+throw new Exception('exit', 0);
+*/
 
 $document = Document::id($params['id'])->read(['content_type', 'data', 'document_json'])->first();
 
@@ -37,7 +49,7 @@ if(!$document) {
     throw new Exception('unknown_document', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-/* #todo - check that content_type is supported by the API
+// check that content_type is supported by the API
 $supported_content_types = [
         'application/pdf',
         'image/webp',
@@ -48,201 +60,65 @@ $supported_content_types = [
         'image/tiff',
         'image/tif'
     ];
-*/
 
-// $request = new HttpRequest("POST https://api.mindee.net/v1/products/mindee/invoices/v4/predict");
+if(!in_array($document['content_type'], $supported_content_types)) {
+    throw new Exception('unsupported_document_type', EQ_ERROR_INVALID_PARAM);
+}
 
-// $api_key = '991f572174ddca42d36866d891e11606';
+$request = new HttpRequest("POST https://api.mindee.net/v1/products/mindee/invoices/v4/predict");
 
-// $boundary = uniqid('boundary_');
+$api_key = constant('MINDEE_API_KEY');
 
-// // build multipart body
-// $body = "--$boundary\r\n";
-// $body .= 'Content-Disposition: form-data; name="document"; filename="document.pdf"' . "\r\n";
-// $body .= 'Content-Type: ' . $document['content_type'] . "\r\n\r\n";
-// $body .= $document['data'] . "\r\n";
-// $body .= "--$boundary--\r\n";
+$boundary = uniqid('boundary_');
+
+// build multipart body
+$body = "--$boundary\r\n";
+$body .= 'Content-Disposition: form-data; name="document"; filename="document.pdf"' . "\r\n";
+$body .= 'Content-Type: ' . $document['content_type'] . "\r\n\r\n";
+$body .= $document['data'] . "\r\n";
+$body .= "--$boundary--\r\n";
 
 
-// /** @var HttpResponse */
-// $request
-//     ->header('Authorization', "Token {$api_key}")
-//     ->header('Content-Type', "multipart/form-data; boundary=$boundary");
+/** @var HttpResponse */
+$request
+    ->header('Authorization', "Token {$api_key}")
+    ->header('Content-Type', "multipart/form-data; boundary=$boundary");
 
-// $request->body($body, true);
+$request->body($body, true);
 
-// /** @var HttpResponse */
-// $response = $request->send();
+/** @var HttpResponse */
+$response = $request->send();
 
-// // check response status
-// $status = $response->getStatusCode();
+// check response status
+$status = $response->getStatusCode();
 
-// if($status < 200 || $status >= 300) {
-//     // upon request rejection, we stop the whole job
-//     ob_start();
-//     var_dump($response->body());
-//     $info = ob_get_clean();
-//     throw new Exception("request to API rejected with code $status: " . $info, EQ_ERROR_INVALID_PARAM);
-// }
+if($status < 200 || $status >= 300) {
+    // upon request rejection, we stop the whole job
+    ob_start();
+    var_dump($response->body());
+    $info = ob_get_clean();
+    throw new Exception("request to API rejected with code $status: " . $info, EQ_ERROR_INVALID_PARAM);
+}
 
-// // we should have received an application/json response, if so HttpMessage::body() contains a decoded version of the JSON data
-// $data = $response->body();
+// we should have received an application/json response, if so HttpMessage::body() contains a decoded version of the JSON data
+$data = $response->body();
 
-/*
 if(!is_array($data)) {
     throw new Exception('invalid_mindee_response', EQ_ERROR_UNKNOWN);
 }
-try {
-    $data = adaptFromMindee($data);
-    // #memo - document_json is meant to receive either content from parsed Mindee or from parsed UBL
-    Document::id($params['id'])->update(['document_json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)]);
-}
-catch(Exception $e) {
-    // unable to extract or confidence level too low
-}
 
-*/
-
-$xml = '<?xml version="1.0" encoding="UTF-8"?>
-<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:qdt="urn:oasis:names:specification:ubl:schema:xsd:QualifiedDataTypes-2" xmlns:udt="urn:oasis:names:specification:ubl:schema:xsd:UnqualifiedDataTypes-2" xmlns:ccts="urn:un:unece:uncefact:documentation:2">
-  <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0</cbc:CustomizationID>
-  <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>
-  <cbc:ID>744000399977</cbc:ID>
-  <cbc:IssueDate>2024-12-15</cbc:IssueDate>
-  <cbc:DueDate>2025-01-14</cbc:DueDate>
-  <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
-  <cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>
-  <cac:AccountingSupplierParty>
-    <cac:Party>
-      <cbc:EndpointID schemeID="0208">0202962701</cbc:EndpointID>
-      <cac:PartyName>
-        <cbc:Name>VIVAQUA</cbc:Name>
-      </cac:PartyName>
-      <cac:PostalAddress>
-        <cbc:StreetName>boulevard de l\'Impératrice 17-19</cbc:StreetName>
-        <cbc:CityName>Bruxelles</cbc:CityName>
-        <cbc:PostalZone>1000</cbc:PostalZone>
-        <cac:Country>
-          <cbc:IdentificationCode>BE</cbc:IdentificationCode>
-        </cac:Country>
-      </cac:PostalAddress>
-      <cac:PartyTaxScheme>
-        <cbc:CompanyID>BE0202962701</cbc:CompanyID>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:PartyTaxScheme>
-      <cac:PartyLegalEntity>
-        <cbc:RegistrationName>VIVAQUA</cbc:RegistrationName>
-        <cbc:CompanyID>BE0202962701</cbc:CompanyID>
-      </cac:PartyLegalEntity>
-    </cac:Party>
-  </cac:AccountingSupplierParty>
-  <cac:AccountingCustomerParty>
-    <cac:Party>
-      <cbc:EndpointID schemeID=""/>
-      <cac:PartyName>
-        <cbc:Name>ACP RESIDENCE THEO C/O YVAN FLION</cbc:Name>
-      </cac:PartyName>
-      <cac:PostalAddress>
-        <cbc:StreetName>CHEE DE LOUVAIN 267 BTE 12</cbc:StreetName>
-        <cbc:CityName>SCHAERBEEK</cbc:CityName>
-        <cbc:PostalZone>1030</cbc:PostalZone>
-        <cac:Country>
-          <cbc:IdentificationCode>BE</cbc:IdentificationCode>
-        </cac:Country>
-      </cac:PostalAddress>
-      <cac:PartyTaxScheme>
-        <cbc:CompanyID/>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:PartyTaxScheme>
-      <cac:PartyLegalEntity>
-        <cbc:RegistrationName>ACP RESIDENCE THEO C/O YVAN FLION</cbc:RegistrationName>
-        <cbc:CompanyID/>
-      </cac:PartyLegalEntity>
-    </cac:Party>
-  </cac:AccountingCustomerParty>
-  <cac:PaymentMeans>
-    <cbc:PaymentMeansCode>30</cbc:PaymentMeansCode>
-    <cac:PayeeFinancialAccount>
-      <cbc:ID>BE52096011784309</cbc:ID>
-      <cbc:Name>VIVAQUA</cbc:Name>
-      <cac:FinancialInstitutionBranch>
-        <cbc:ID/>
-      </cac:FinancialInstitutionBranch>
-    </cac:PayeeFinancialAccount>
-  </cac:PaymentMeans>
-  <cac:TaxTotal>
-    <cbc:TaxAmount currencyID="EUR">63.11</cbc:TaxAmount>
-    <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="EUR">1051.89</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="EUR">63.11</cbc:TaxAmount>
-      <cac:TaxCategory>
-        <cbc:ID>S</cbc:ID>
-        <cbc:Percent>6.00</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:TaxCategory>
-    </cac:TaxSubtotal>
-  </cac:TaxTotal>
-  <cac:LegalMonetaryTotal>
-    <cbc:LineExtensionAmount currencyID="EUR">1051.89</cbc:LineExtensionAmount>
-    <cbc:TaxExclusiveAmount currencyID="EUR">1051.89</cbc:TaxExclusiveAmount>
-    <cbc:TaxInclusiveAmount currencyID="EUR">1115.00</cbc:TaxInclusiveAmount>
-    <cbc:PayableAmount currencyID="EUR">1115.00</cbc:PayableAmount>
-  </cac:LegalMonetaryTotal>
-  <cac:InvoiceLine>
-    <cbc:ID>1</cbc:ID>
-    <cbc:InvoicedQuantity unitCode="C62">1.00</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="EUR">1051.89</cbc:LineExtensionAmount>
-    <cac:Item>
-      <cbc:Name>Total de la facture (HTVA) TVA 6%</cbc:Name>
-      <cac:ClassifiedTaxCategory>
-        <cbc:ID>S</cbc:ID>
-        <cbc:Percent>6.00</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:ClassifiedTaxCategory>
-    </cac:Item>
-    <cac:Price>
-      <cbc:PriceAmount currencyID="EUR">1051.89</cbc:PriceAmount>
-    </cac:Price>
-  </cac:InvoiceLine>
-</Invoice>';
-
-
-$json = convertUblToJson($xml);
-$xml1 = convertJsonToUbl($json);
-var_dump(areXmlsEqual($xml, $xml1));
+$json = $response->getBody(true);
 
 $context->httpResponse()
-        ->status(204)
+        ->body($json)
         ->send();
 
 
 
-function areXmlsEqual(string $xml1, string $xml2): bool {
-    $dom1 = new DOMDocument();
-    $dom2 = new DOMDocument();
 
-    $dom1->preserveWhiteSpace = false;
-    $dom2->preserveWhiteSpace = false;
-
-    $dom1->loadXML($xml1);
-    $dom2->loadXML($xml2);
-
-    $dom1->formatOutput = true;
-    $dom2->formatOutput = true;
-
-    return $dom1->C14N() === $dom2->C14N();
-}
 
 /*
-    Convert a JSON structure matching the 'invoice' schema to a valid UBL BIS3.0 XML (en16931)
+    Convert a JSON structure matching the 'invoice' schema to a valid UBL BIS3.0 XML (EN16931)
     Full specs here : https://docs.peppol.eu/poacc/billing/3.0/bis/
     Nodes details here: https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/tree/
 */
@@ -330,7 +206,7 @@ function convertJsonToUbl(string $json): string {
     $invoice->appendChild($cbc('InvoiceTypeCode', ($data['invoice_type'] === 'invoice') ? '380' : '381'));
     $invoice->appendChild($cbc('DocumentCurrencyCode', $data['currency'] ?? 'EUR'));
 
-    if (!empty($data['buyer_reference'])) {
+    if(!empty($data['buyer_reference'])) {
         $invoice->appendChild($cbc('BuyerReference', $data['buyer_reference']));
     }
 
@@ -345,8 +221,8 @@ function convertJsonToUbl(string $json): string {
     }
 
     // AccountingSupplierParty and AccountingCustomerParty
-    foreach (["supplier" => 'AccountingSupplierParty', "customer" => 'AccountingCustomerParty'] as $role => $tag) {
-        if (!isset($data[$role])) {
+    foreach(["supplier" => 'AccountingSupplierParty', "customer" => 'AccountingCustomerParty'] as $role => $tag) {
+        if(!isset($data[$role])) {
             continue;
         }
 
@@ -420,6 +296,9 @@ function convertJsonToUbl(string $json): string {
     if (!empty($data['payment'])) {
         $paymentMeans = $cac('PaymentMeans');
         $paymentMeans->appendChild($cbc('PaymentMeansCode', $data['payment']['payment_means_code']));
+        if (!empty($data['payment']['payment_id'])) {
+            $paymentMeans->appendChild($cbc('PaymentID', $data['payment']['payment_id']));
+        }
         $account = $cac('PayeeFinancialAccount');
         $account->appendChild($cbc('ID', $data['payment']['iban']));
         $account->appendChild($cbc('Name', $data['supplier']['name']));
@@ -486,6 +365,7 @@ function convertJsonToUbl(string $json): string {
 
 
 /*
+    Convert XML UBL BIS3.0 to a JSON structure following  the 'invoice' schema.
 */
 function convertUblToJson(string $xml): string {
     $doc = new DOMDocument();
@@ -578,7 +458,7 @@ function convertUblToJson(string $xml): string {
         ]
     ];
 
-    if($invoicePeriodStart !== '' &&  $invoicePeriodEnd !== '') {
+    if($invoicePeriodStart !== '' && $invoicePeriodEnd !== '') {
         $data['invoice_period'] = [
             'start_date' => $invoicePeriodStart . 'T00:00:00Z',
             'end_date'   => $invoicePeriodEnd . 'T00:00:00Z'
@@ -588,142 +468,3 @@ function convertUblToJson(string $xml): string {
     return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 }
 
-
-
-
-/*
-    Detailed response values here : https://developers.mindee.com/docs/invoice-ocr#api-response
-*/
-function adaptFromMindee(array $data): array {
-    $prediction = $data['document']['inference']['prediction'];
-
-    $extractAddress = function ($address, $default_country) {
-        if(!$address) {
-            return null;
-        }
-        $streetParts = [];
-        if(!empty($address['street_name'])) {
-            $streetParts[] = $address['street_name'];
-        }
-        if(!empty($address['street_number'])) {
-            $streetParts[] = $address['street_number'];
-        }
-        if(!empty($address['address_complement'])) {
-            $streetParts[] = $address['address_complement'];
-        }
-
-        return [
-            'street'        => implode(' ', $streetParts),
-            'city'          => $address['city'] ?? null,
-            'postal_code'   => $address['postal_code'] ?? null,
-            'country'       => $address['country'] ?? $default_country
-        ];
-    };
-    $formatDate = fn($date) => $date ? $date . 'T00:00:00Z' : null;
-    // for all requested value, check confidence and presence
-    $get = function ($key, $default = -1) use($prediction) {
-        $arr = $prediction[$key];
-        if(!isset($arr['confidence'])) {
-            throw new Exception('missing_confidence_for_property_' . $key, EQ_ERROR_INVALID_PARAM);
-        }
-        if($arr['confidence'] < 0.85) {
-            if($default === -1) {
-                throw new Exception('confidence_insufficient_for_property_' . $key, EQ_ERROR_INVALID_PARAM);
-            }
-            else {
-                return $default;
-            }
-        }
-        if(!isset($arr['value']) && $default === -1) {
-            throw new Exception('missing_mandatory_value', EQ_ERROR_INVALID_PARAM);
-        }
-        return $arr['value'] ?? $default;
-    };
-
-    $locale = $get('locale', 'fr-BE');
-    $localeCountry = $prediction['locale']['country'] ?? 'BE';
-    $localeCurrency = $prediction['locale']['currency'] ?? 'EUR';
-    $localeTaxPercent = 21;
-
-    $supplier_vat = null;
-    foreach($prediction['supplier_company_registrations'] ?? [] as $registration) {
-        if(in_array($registration['type'], ['VAT', 'VAT NUMBER'], true)) {
-            $supplier_vat = $registration['value'];
-            break;
-        }
-    }
-
-    $customer_vat = null;
-    foreach($prediction['customer_company_registrations'] ?? [] as $registration) {
-        if(in_array($registration['type'], ['VAT', 'VAT NUMBER'], true)) {
-            $customer_vat = $registration['value'];
-            break;
-        }
-    }
-
-    if(!isset($supplier_vat)) {
-        throw new Exception('missing_mandatory_seller_vat', EQ_ERROR_INVALID_PARAM);
-    }
-
-    $output = [
-        'invoice_number'    => $get('invoice_number'),
-        /*
-            possible values:
-                CREDIT NOTE: Reduces the amount a buyer owes.
-                INVOICE: Requests payment for goods or services.
-                PAYSLIP: Details employee earnings and deductions.
-                PURCHASE ORDER: Buyer's official request to purchase.
-                QUOTE: Seller's estimated cost for goods or services.
-                RECEIPT: Acknowledges payment.
-                STATEMENT: Summary of financial transactions over a period.
-                OTHER FINANCIAL: Miscellaneous financial documents.
-                OTHER: Documents not fitting other financial categories.
-        */
-        'invoice_type'      => strtolower(str_replace(' ', '_', $get('document_type_extended'))),
-        'issue_date'        => $formatDate($get('date')),
-        'due_date'          => $formatDate($get('due_date')),
-        'currency'          => $localeCurrency,
-        'buyer_reference'   => $get('po_number', null),
-        'supplier' => [
-            'name'              => $get('supplier_name'),
-            'vat_id'            => $supplier_vat,
-            'address'           => $extractAddress($prediction['supplier_address'], $localeCountry),
-        ],
-        'customer' => [
-            'name'              => $get('customer_name'),
-            'extref_id'         => $get('customer_id', null),
-            'vat_id'            => $customer_vat,
-            'address'           => $extractAddress($prediction['customer_address'], $localeCountry),
-        ],
-        'lines' => [],
-        'totals' => [
-            'total_excl_tax'    => (float) $get('total_net'),
-            'total_tax'         => (float) $get('total_tax'),
-            'total_incl_tax'    => (float) $get('total_amount'),
-            'payable_amount'    => (float) $get('total_amount'),
-        ],
-        'payment' => [
-            'iban'              => $prediction['supplier_payment_details'][0]['iban'] ?? null,
-            'bic'               => $prediction['supplier_payment_details'][0]['swift'] ?? null,
-            'payment_means_code' => '30'
-        ]
-    ];
-
-    foreach ($prediction['line_items'] as $i => $line) {
-        $output['lines'][] = [
-            'id'            => (string) ($i + 1),
-            'description'   => $line['description'],
-            'quantity'      => $line['quantity'] ?? 1,
-            'unit_code'     => $line['unit_measure'] ?? 'C62',
-            'unit_price'    => $line['unit_price'] ?? $line['total_amount'],
-            'amount'        => $line['total_amount'],
-            'tax'           => [
-                'category_id'   => 'S',
-                'percent'       => $line['tax_rate'] ?? ($prediction['taxes'][0]['rate'] ?? $localeTaxPercent),
-                'scheme_id'     => 'VAT'
-            ]
-        ];
-    }
-
-    return $output;
-}

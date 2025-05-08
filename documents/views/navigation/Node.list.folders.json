@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Folders",
+    "description": "List of root folders, by Condominium.",
     "actions": [
         {
             "id": "action.download",
@@ -39,6 +39,7 @@
             },
             {
                 "type": "field",
+                "label": "Condominium",
                 "value": "condo_id",
                 "width": "20%"
             },

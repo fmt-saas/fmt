@@ -23,6 +23,14 @@
             "package": {
                "generic": "qpdf"
             }
+        },
+        "pdftotext": {
+            "version": ">=0.26",
+            "check": "pdftotext -v",
+            "package": {
+                "generic": "poppler-utils",
+                "macos": "poppler"
+            }
         }
     },
     "config": {

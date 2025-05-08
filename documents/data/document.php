@@ -12,9 +12,10 @@ list($params, $providers) = announce([
     'description'   => 'Return raw data (with original MIME) of a document identified by given hash.',
     'params'        => [
         'id' =>  [
-            'description'   => 'Unique identifier of the resource.',
-            'type'          => 'string',
-            'required'      => true
+            'description'       => 'Identifier of the document.',
+            'type'              => 'many2one',
+            'foreign_object'    => 'documents\Document',
+            'required'          => true
         ],
         'disposition' => [
             'type'          => 'string',
