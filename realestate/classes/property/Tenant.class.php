@@ -7,7 +7,14 @@
 */
 namespace realestate\property;
 
-class Tenant extends \equal\orm\Model {
+use identity\Identity;
+
+class Tenant extends Identity {
+
+    public function getTable() {
+        // force table name to use distinct tables and ID columns
+        return 'realestate_property_tenant';
+    }
 
     public static function getDescription() {
         return "A tenant is a renter of a property lot. There can be multiple cohabitants for the same rental. The cohabitants (adults) are jointly responsible for the rental and the associated charges.";
@@ -53,5 +60,14 @@ class Tenant extends \equal\orm\Model {
             ]
 
         ];
+    }
+
+    public static function onupdateIdentityId($self) {
+        $self->read(['identity_id']);
+        foreach($self as $id => $owner) {
+            if($owner['identity_id']) {
+                Identity::id($owner['identity_id'])->update(['tenant_id' => $id]);
+            }
+        }
     }
 }

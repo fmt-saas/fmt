@@ -45,11 +45,20 @@ class Node extends Model {
                 'default'           => 'folder'
             ],
 
+            'nodes_count' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => 'Number of items contained by the node.',
+                'store'             => true,
+                'function'          => 'calcNodesCount'
+            ],
+
             'parent_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\navigation\Node',
                 'description'       => 'Parent node of the node.',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'onupdate'          => 'onupdateParentId'
             ],
 
             'document_id' => [
@@ -81,6 +90,87 @@ class Node extends Model {
             ]
 
         ];
+    }
+
+    public static function calcNodesCount($self) {
+        $result = [];
+
+        // Load parent_id to identify root nodes
+        $self->read(['id', 'parent_id']);
+
+        $root_nodes_ids = [];
+        foreach($self as $id => $node) {
+            if(!$node['parent_id']) {
+                $root_nodes_ids[] = $id;
+            }
+        }
+
+        foreach($root_nodes_ids as $root_node_id) {
+            // Stack for DFS: each entry is [id, expanded_flag]
+            $stack = [[$root_node_id, false]];
+            // stores already computed nodes_count
+            $map_cache = [];
+
+            while(!empty($stack)) {
+                [$current_id, $expanded] = array_pop($stack);
+
+                if(isset($map_cache[$current_id])) {
+                    continue;
+                }
+
+                $node = self::id($current_id)->read(['id', 'node_type', 'nodes_ids'])->first();
+
+                if($node['node_type'] === 'document') {
+                    $map_cache[$current_id] = 1;
+                    continue;
+                }
+
+                $child_ids = $node['nodes_ids'] ?? [];
+
+                if(!$expanded) {
+                    // Post-order traversal: push children first
+                    $stack[] = [$current_id, true];
+                    foreach($child_ids as $child_id) {
+                        if(!isset($map_cache[$child_id])) {
+                            $stack[] = [$child_id, false];
+                        }
+                    }
+                }
+                else {
+                    // All children have been processed
+                    $count = 0;
+                    foreach($child_ids as $child_id) {
+                        $count += $map_cache[$child_id] ?? 0;
+                    }
+                    $map_cache[$current_id] = $count;
+                    self::id($current_id)->update(['nodes_count' => $count]);
+                }
+            }
+            // return a result for root nodes
+            $result[$root_node_id] = $map_cache[$root_node_id];
+        }
+
+        return $result;
+    }
+
+    public static function onupdateParentId($self) {
+        $result = [];
+
+        $self->read(['parent_id']);
+
+        foreach($self as $id => $node) {
+            $current = $node;
+
+            // climb up to the root
+            while($current['parent_id']) {
+                $current = self::id($current['parent_id'])->read(['parent_id'])->first();
+            }
+
+            // current is a root node
+            self::id($current['id'])->update(['nodes_count' => null]);
+        }
+
+        return $result;
     }
 
     public static function calcLink($self) {

@@ -16,6 +16,7 @@ use sale\customer\Contact as CustomerContact;
 use purchase\supplier\Supplier;
 use realestate\management\ManagingAgent;
 use realestate\ownership\Owner;
+use realestate\property\Tenant;
 
 /**
  * This class is meant to be used as an interface for other entities (organisation and partner).
@@ -45,7 +46,10 @@ class Identity extends Model {
                     'customer_contact_id' => 'name',
                     'employee_id'         => 'name',
                     'customer_id'         => 'name',
-                    'supplier_id'         => 'name'
+                    'supplier_id'         => 'name',
+                    'managing_agent_id'   => 'name',
+                    'owner_id'            => 'name',
+                    'tenant_id'           => 'name'
                 ],
                 'description'       => 'The display name of the identity.',
                 'help'              => "The display name is a computed field that returns a concatenated string containing either the firstname+lastname, or the legal name of the Identity, based on the kind of Identity.\n
@@ -506,8 +510,15 @@ class Identity extends Model {
             'owner_id' => [
                 'type'           => 'many2one',
                 'foreign_object' => 'realestate\ownership\Owner',
-                'description'    => 'The managing agent the identity refers to.',
+                'description'    => 'The Owner the identity refers to.',
                 'onupdate'       => 'onupdateOwnerId'
+            ],
+
+            'tenant_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'realestate\ownership\Owner',
+                'description'    => 'The Tenant the identity refers to.',
+                'onupdate'       => 'onupdateTenantId'
             ]
 
         ];
@@ -778,7 +789,14 @@ class Identity extends Model {
     public static function onupdateOwnerId($self) {
         $self->read(['owner_id']);
         foreach($self as $id => $identity) {
-            ManagingAgent::id($identity['owner_id'])->update(['identity_id' => $id]);
+            Owner::id($identity['owner_id'])->update(['identity_id' => $id]);
+        }
+    }
+
+    public static function onupdateTenantId($self) {
+        $self->read(['owner_id']);
+        foreach($self as $id => $identity) {
+            Tenant::id($identity['tenant_id'])->update(['identity_id' => $id]);
         }
     }
 

@@ -5,10 +5,9 @@
         "actions": {
             "ACTION.SAVE": [
                 {
-                    "id": "SAVE_AND_EDIT",
-                    "view": "form.analysis"
-                },
-                {"id": "SAVE_AND_CLOSE"}
+                    "id": "SAVE_AND_VIEW",
+                    "view": "form.default"
+                }
             ]
         }
     },
@@ -30,6 +29,11 @@
                                                 "widget": {
                                                     "required": true
                                                 }
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",

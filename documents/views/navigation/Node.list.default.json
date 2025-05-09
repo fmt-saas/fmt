@@ -54,6 +54,16 @@
             },
             {
                 "type": "field",
+                "label": "Items",
+                "value": "nodes_count",
+                "width": "10%",
+                "widget": {
+                    "align": "center"
+                },
+                "visible": ["node_type", "=", "folder"]
+            },
+            {
+                "type": "field",
                 "value": "code",
                 "width": "0%",
                 "visible": false

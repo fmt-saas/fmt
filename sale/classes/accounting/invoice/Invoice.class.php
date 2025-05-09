@@ -410,12 +410,12 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'function'      => 'doCreateFunding'
             ],
             'assign_invoice_number' => [
-                'description'   => 'Creates accounting entries according to  invoice lines.',
+                'description'   => 'Assign a unique number to the invoice.',
                 'policies'      => [],
                 'function'      => 'doAssignInvoiceNumber'
             ],
             'generate_accounting_entries' => [
-                'description'   => 'Creates accounting entries according to  invoice lines.',
+                'description'   => 'Creates accounting entries according to invoice lines.',
                 'policies'      => [],
                 'function'      => 'doGenerateAccountingEntries'
             ]

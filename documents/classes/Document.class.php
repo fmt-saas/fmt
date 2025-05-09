@@ -30,7 +30,8 @@ class Document extends Model {
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the document belongs to.",
-                'foreign_object'    => 'realestate\property\Condominium'
+                'foreign_object'    => 'realestate\property\Condominium',
+                'onupdate'          => 'onupdateCondoId'
             ],
 
             'ownership_id' => [
@@ -53,7 +54,7 @@ class Document extends Model {
             ],
 
             'email_id' => [
-                'type'              => 'one2many',
+                'type'              => 'many2one',
                 'foreign_object'    => 'communication\email\Email',
                 'description'       => 'Email the document is an attachment of, if any.'
             ],
@@ -165,8 +166,9 @@ class Document extends Model {
             'uuid' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain:36',
-                // #memo - comment for testing
-                'unique'            => true,
+                // #memo - commented for testing
+                // #todo - uncomment for PROD
+                // 'unique'            => true,
                 'description'       => 'Unique document identifier provided by EDMS'
             ],
 
@@ -464,10 +466,11 @@ class Document extends Model {
                 Node::create([
                     'name'          => $document['name'],
                     'node_type'     => 'document',
-                    'parent_id'     => $document['parent_node_id'],
                     'document_id'   => $id,
                     'condo_id'      => $document['condo_id']
-                ]);
+                ])
+                // #memo - triggers nodes_count update
+                ->update(['parent_id' => $document['parent_node_id']]);
             }
             else {
                 Node::id($document['node_id'])->update(['parent_id' => $document['parent_node_id']]);
@@ -476,6 +479,20 @@ class Document extends Model {
     }
 
     public static function onupdateData($self, $adapt) {
+        $instance_type = constant('FMT_INSTANCE_TYPE');
+        if($instance_type === 'agency') {
+            self::attemptToPush($self, $adapt);
+        }
+    }
+
+    public static function onupdateCondoId($self, $adapt) {
+        $instance_type = constant('FMT_INSTANCE_TYPE');
+        if($instance_type === 'agency') {
+            self::attemptToPush($self, $adapt);
+        }
+    }
+
+    private static function attemptToPush($self, $adapt) {
         $instance_type = constant('FMT_INSTANCE_TYPE');
         if($instance_type === 'agency') {
             /** @var \equal\data\adapt\DataAdapter */

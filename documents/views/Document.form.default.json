@@ -1,6 +1,49 @@
 {
     "name": "Documents",
-    "description": "Document creation form.",
+    "description": "Document analysis form.",
+    "header": {
+    },
+    "routes": [
+        {
+            "id": "item.edit",
+            "label": "Edit meta data",
+            "description": "",
+            "icon": "edit",
+            "context": {
+                "entity": "documents\\Document",
+                "view": "form.edit",
+                "mode": "edit",
+                "purpose": "update",
+                "domain": [["id", "=", "object.id"]]
+            }
+        }
+    ],
+    "actions": [
+        {
+            "id": "action.perform_analysis",
+            "label": "Analyze",
+            "description": "Attempt to analyze the content of the document.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "documents\\Document",
+                "action": "perform_analysis"
+            },
+            "visible": [ ["status", "=", "imported"], ["has_document_json", "=", false] ]
+        },
+        {
+            "id": "action.validate",
+            "label": "Validate",
+            "description": "Validate the document and its configuration.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "imported"],
+            "params": {
+                "entity": "documents\\Document",
+                "transition": "validate",
+                "ids": []
+            },
+            "confirm": true
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -15,110 +58,115 @@
                                             {
                                                 "type": "field",
                                                 "value": "name",
+                                                "width": "50%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "Document Analysis",
                                                 "width": "100%",
-                                                "widget":{
-                                                    "heading": true
+                                                "widget": {
+                                                    "text_underline": true
                                                 }
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "25%",
-                                        "items": []
-                                    },
-                                    {
-                                        "width": "25%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "data",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "sections": [
-                    {
-                        "id": "section.details",
-                        "label":"Details",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "50%",
-                                        "align": "left",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "content_type",
-                                                "width": "30%",
-                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "readable_size",
+                                                "value": "has_document_json",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_type_code",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Document Type",
+                                                "value": "document_type_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Supplier",
+                                                "value": "supplier_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "invoicing_period",
+                                                "value": "invoice_has_period",
+                                                "width": "33%",
+                                                "visible": ["document_type_code", "=", "invoice"]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Date from",
+                                                "value": "invoice_date_from",
                                                 "width": "25%",
-                                                "readonly": true
+                                                "visible": ["invoice_has_period", "=", true]
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Language",
-                                                "value": "lang_id",
-                                                "width": "33%"
+                                                "label": "Date to",
+                                                "value": "invoice_date_to",
+                                                "width": "25%",
+                                                "visible": ["invoice_has_period", "=", true]
                                             },
                                             {
-                                                "type": "field",
-                                                "value": "category_id",
+                                                "type": "label",
+                                                "value": "",
                                                 "width": "50%"
                                             },
                                             {
-                                                "type": "field",
-                                                "value": "public",
-                                                "width": "50%"
+                                                "type": "label",
+                                                "value": "Document Assignment",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "text_underline": true
+                                                }
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Condominium",
                                                 "value": "condo_id",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Folder",
+                                                "value": "parent_node_id",
+                                                "width": "50%"
                                             }
                                         ]
                                     },
                                     {
                                         "width": "50%",
-                                        "align": "right",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "preview_image",
+                                                "value": "link",
                                                 "width": "100%",
-                                                "readonly": true
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "id": "section.tags",
-                        "label":"Tags",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "align": "left",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "tags_ids",
-                                                "width": "100%"
+                                                "widget": {
+                                                    "type": "pdf",
+                                                    "height": "720"
+                                                }
                                             }
                                         ]
                                     }

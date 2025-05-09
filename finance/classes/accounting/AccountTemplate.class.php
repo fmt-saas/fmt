@@ -45,4 +45,13 @@ class AccountTemplate extends Account {
 
         ];
     }
+
+    /**
+     * #memo - discard condo_id from unique key
+     */
+    public function getUnique() {
+        return [
+            ['code']
+        ];
+    }
 }

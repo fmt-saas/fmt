@@ -13,7 +13,7 @@ use finance\accounting\AccountingEntry;
 use finance\accounting\AccountingEntryLine;
 use realestate\ownership\Ownership;
 use fmt\setting\Setting;
-use sale\pay\Funding;
+use realestate\sale\pay\Funding;
 use sale\pay\Payment;
 
 class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
@@ -99,9 +99,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                     'call' => [
                         'description' => 'Update the fund request execution to `invoice`.',
                         'help'        => 'This is a substitute to the parent sale invoice workflow (there is a single accounting entry for a fund request execution).',
-                        'policies'    => ['can_perform_execution'],
+                        'policies'    => ['is_proforma', 'can_perform_execution'],
                         'onbefore'    => 'onbeforeCall',
-                        'onafter'     => 'onafterCall',
                         'status'      => 'invoice'
                     ]
                 ]
@@ -123,26 +122,31 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
 
     public static function getActions() {
         return array_merge(parent::getActions(), [
+            'perform_execution' => [
+                'description'   => 'Perform the fund request execution by creating and validating resulting Accounting entries and Fundings.',
+                'help'          => 'This action is for emitting the invoice, and can be either called by `onbeforeCall` or through UI.',
+                'policies'      => ['can_perform_execution'],
+                'function'      => 'doPerformExecution'
+            ],
             'generate_accounting_entry' => [
                 'description'   => 'Generate a draft of the resulting accounting entry and entry lines.',
-                'policies'      => ['can_generate_accounting_entries'],
-                'function'      => 'doGenerateAccountingEntries'
+                'policies'      => ['can_generate_accounting_entry'],
+                'function'      => 'doGenerateAccountingEntry'
             ],
             'generate_fundings' => [
                 'description'   => 'Generate fundings for each involved ownership.',
                 'policies'      => [],
                 'function'      => 'doGenerateFundings'
             ],
-            'perform_execution' => [
-                'description'   => 'Perform the fund request execution by creating and validating resulting Accounting entries and Fundings.',
-                'help'          => 'This action is called by `onafterCall`, after emitting the invoice.',
-                'policies'      => ['can_perform_execution'],
-                'function'      => 'doPerformExecution'
-            ],
             'cancel_execution' => [
                 'description'   => 'Void the execution, and cancel subsequent accounting entry.',
                 'policies'      => [],
                 'function'      => 'doCancelExecution'
+            ],
+            'assign_invoice_number' => [
+                'help'          => 'For FundRequestExecution, invoice number is assigned during `perform_execution`.',
+                'policies'      => ['is_proforma'],
+                'function'      => 'doAssignInvoiceNumber'
             ]
         ]);
     }
@@ -154,19 +158,42 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                 'description' => 'Verifies that a fiscal year can be opened according its configuration.',
                 'function'    => 'policyCanPerformExecution'
             ],
-            'can_generate_accounting_entries' => [
-                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
-                'function'    => 'policyCanGenerateAccountingEntries'
+            'can_generate_accounting_entry' => [
+                'description' => 'Verifies that an FundRequest execution invoice is still a draft (proforma).',
+                'help'        => 'This policy is duplicated to overwrite parent.',
+                'function'    => 'policyCanGenerateAccountingEntry'
+            ],
+            'is_proforma' => [
+                'description' => 'Verifies that an FundRequest execution invoice is still a draft (proforma).',
+                'function'    => 'policyIsProforma'
             ]
         ];
     }
 
-    public static function policyCanGenerateAccountingEntries($self): array {
+    public static function policyIsProforma($self): array {
         $result = [];
+        $self->read(['status']);
         foreach($self as $id => $requestExecution) {
             if($requestExecution['status'] != 'proforma') {
                 $result[$id] = [
                     'invalid_status' => 'Request Execution status must be proforma.'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * For FundRequestExecution invoices, accounting entry is generated upon funds being called, i.e. when invoice is validated and assigned to a number (there is no draft accounting entry).
+     */
+    public static function policyCanGenerateAccountingEntry($self): array {
+        $result = [];
+        $self->read(['status', 'accounting_entry_id']);
+        foreach($self as $id => $requestExecution) {
+            if($requestExecution['accounting_entry_id']) {
+                $result[$id] = [
+                    'invalid_status' => 'Request Execution already has an accounting entry.'
                 ];
                 continue;
             }
@@ -179,7 +206,6 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
         $self->read(['status', 'fiscal_period_id', 'emission_date', 'posting_date']);
 
         foreach($self as $id => $requestExecution) {
-
             if($requestExecution['status'] != 'proforma') {
                 $result[$id] = [
                     'invalid_status' => 'Request Execution status must be proforma.'
@@ -203,6 +229,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
     }
 
     public static function onbeforeCall($self) {
+        $self->do('perform_execution');
+    }
+
+    public static function doAssignInvoiceNumber($self) {
         $self->read(['organisation_id', 'condo_id', 'fiscal_year_id' => ['code'], 'fiscal_period_id' => ['code']]);
         foreach($self as $id => $requestExecution) {
             $format = Setting::get_value(
@@ -235,6 +265,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
 
             $invoice_number = Setting::parse_format($format, [
                     'year'      => $fiscal_year_code,
+                    'period'    => $fiscal_period_code,
                     'org'       => $requestExecution['organisation_id'],
                     'condo'     => $requestExecution['condo_id'],
                     'sequence'  => $sequence
@@ -242,10 +273,6 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
 
             self::id($id)->update(['invoice_number' => $invoice_number]);
         }
-    }
-
-    public static function onafterCall($self) {
-        $self->do('perform_execution');
     }
 
     public static function onafterCancelled($self) {
@@ -263,6 +290,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
 
     public static function doPerformExecution($self) {
         $self
+            ->do('assign_invoice_number')
             ->do('generate_accounting_entry')
             ->do('generate_fundings')
             ->read(['accounting_entry_id']);
@@ -309,7 +337,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
      * When an execution has been called, an accounting entry has been generated, and it can no longer be modified.
      * However, it is possible to cancel it by passing a cancellation entry (reversal).
      */
-    public static function doGenerateAccountingEntries($self) {
+    public static function doGenerateAccountingEntry($self) {
 
         static $map_debit_operation_assignments = [
                 'reserve_fund'           => 'co_owners_reserve_fund',
@@ -430,11 +458,12 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                         ['fund_request_execution_id', '=', null]
                     ])
                     ->read(['payments_ids']);
+                $paid_amount = 0;
                 foreach($fundings as $funding_id => $funding) {
                     // #memo - empty fundings have been removed at cancellation of previous execution(s)
                     // compute already paid/reimbursed amounts
                     $payments = Payment::ids($funding['payments_ids'])->read(['amount'])->get(true);
-                    $paid_amount = round(array_sum(array_column($payments, 'amount')), 2);
+                    $paid_amount += round(array_sum(array_column($payments, 'amount')), 2);
                     // attached funding to current execution
                     Funding::id($funding_id)->update(['fund_request_execution_id' => $id]);
                 }

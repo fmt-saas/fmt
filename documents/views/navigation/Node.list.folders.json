@@ -39,6 +39,15 @@
             },
             {
                 "type": "field",
+                "label": "Items",
+                "value": "nodes_count",
+                "width": "10%",
+                "widget": {
+                    "align": "center"
+                }
+            },
+            {
+                "type": "field",
                 "label": "Condominium",
                 "value": "condo_id",
                 "width": "20%"

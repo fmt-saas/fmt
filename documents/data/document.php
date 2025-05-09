@@ -8,7 +8,7 @@
 use documents\Document;
 use equal\http\HttpRequest;
 
-list($params, $providers) = announce([
+[$params, $providers] = eQual::announce([
     'description'   => 'Return raw data (with original MIME) of a document identified by given hash.',
     'params'        => [
         'id' =>  [
@@ -32,7 +32,7 @@ list($params, $providers) = announce([
     'response'      => [
         'accept-origin' => '*'
     ],
-    'constants'     => ['FMT_API_URL_EDMS'],
+    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_URL_EDMS'],
     'providers'     => ['context', 'orm', 'auth', 'adapt']
 ]);
 
@@ -48,38 +48,48 @@ $collection = Document::id($params['id']);
 $document = $collection->read(['uuid'])->first();
 
 if(!$document) {
-    throw new Exception("document_unknown", QN_ERROR_UNKNOWN_OBJECT);
+    throw new Exception("document_unknown", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-if(!$document['uuid']) {
-    throw new Exception("invalid_document", QN_ERROR_UNKNOWN_OBJECT);
+if(constant('FMT_INSTANCE_TYPE') === 'edms' && !$document['uuid']) {
+    throw new Exception("invalid_document", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 // pull document data from EDMS server
+if($document['uuid']) {
+    // #todo - inject APP_TOKEN in header
+    $url = constant('FMT_API_URL_EDMS');
+    $request = new HttpRequest('GET '.$url.'?get=documents_pull&uuid=' . $document['uuid']);
+    $response = $request->send();
 
-// #todo - il faut injecter le APP_TOKEN dans le header
+    $result = $response->body();
 
-$url = constant('FMT_API_URL_EDMS');
-$request = new HttpRequest('GET '.$url.'?get=documents_pull&uuid=' . $document['uuid']);
-$response = $request->send();
+    if(!isset($result['data'], $result['name'], $result['content_type'])) {
+        throw new Exception('invalid_response', EQ_ERROR_UNKNOWN);
+    }
 
-$result = $response->body();
+    if(strlen($result['data']) <= 0) {
+        throw new Exception('empty_response', EQ_ERROR_UNKNOWN);
+    }
 
-if(!isset($result['data'], $result['name'], $result['content_type'])) {
-    throw new Exception('invalid_response', EQ_ERROR_UNKNOWN);
+    /** @var \equal\data\adapt\DataAdapter */
+    $adapter = $adapt->get('json');
+
+    $content_type = $result['content_type'];
+    $filename = $result['name'];
+    $output = $adapter->adaptIn($result['data'], 'binary');
+}
+// no UUID, fallback to data (this can occur when condo_id is still missing)
+else {
+    $document = $collection->read(['name', 'data', 'content_type'])->first();
+    $content_type = $document['content_type'];
+    $filename = $document['name'];
+    $output = $document['data'];
 }
 
-if(strlen($result['data']) <= 0) {
-    throw new Exception('empty_response', EQ_ERROR_UNKNOWN);
-}
-
-/** @var \equal\data\adapt\DataAdapter */
-$adapter = $adapt->get('json');
-
-$output = $adapter->adaptIn($result['data'], 'binary');
 
 $context->httpResponse()
-        ->header('Content-Disposition', $params['disposition'].'; filename="'.$result['name'].'"')
-        ->header('Content-Type', $result['content_type'])
+        ->header('Content-Disposition', $params['disposition'].'; filename="'.$filename.'"')
+        ->header('Content-Type', $content_type)
         ->body($output, true)
         ->send();

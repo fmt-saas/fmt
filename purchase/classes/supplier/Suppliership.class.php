@@ -8,7 +8,6 @@ namespace purchase\supplier;
 
 use finance\accounting\Account;
 use fmt\setting\Setting;
-use purchase\supplier\Supplier;
 
 class Suppliership extends \equal\orm\Model {
 
@@ -26,8 +25,14 @@ class Suppliership extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                // 'required'          => true
+                'required'          => true,
                 'dependents'        => ['code']
+            ],
+
+            'supplier_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'purchase\supplier\Supplier',
+                'description'       => "Supplier the contract relates to."
             ],
 
             'name' => [
@@ -46,14 +51,14 @@ class Suppliership extends \equal\orm\Model {
                 'description'       => "Code of the supplier for the Condominium.",
                 'help'              => "Code is assigned automatically and cannot be changed, and is intended to internal use.",
                 'readonly'          => true
-            ],
-
-            'supplier_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'purchase\supplier\Supplier',
-                'description'       => "Supplier the contract relates to."
             ]
 
+        ];
+    }
+
+    public function getUnique() {
+        return [
+            ['condo_id', 'supplier_id']
         ];
     }
 
@@ -66,7 +71,6 @@ class Suppliership extends \equal\orm\Model {
             ]
         ];
     }
-
 
     public static function calcName($self) {
         $result = [];

@@ -3,14 +3,23 @@
     "description": "This view is intended for displaying the list of documents.",
     "header": {
         "actions": {
-            "ACTION.CREATE" : [
-                {
-                    "view": "form.create",
-                    "description": "overload form to use for document creation"
-                }
-            ]
+            "ACTION.CREATE" : false
         }
     },
+    "routes": [
+        {
+            "id": "item.import",
+            "label": "Import Document",
+            "description": "",
+            "icon": "file_upload",
+            "context": {
+                "entity": "documents\\Document",
+                "view": "form.import",
+                "purpose": "create",
+                "mode": "edit"
+            }
+        }
+    ],
     "layout": {
         "items": [
             {

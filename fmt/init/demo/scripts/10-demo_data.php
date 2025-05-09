@@ -167,7 +167,6 @@ $fundRequest = FundRequest::create([
     ->first();
 
 
-// créer une part
 FundRequestLine::create([
         'condo_id'          =>  $condominiums_ids[0],
         'fund_request_id'   => $fundRequest['id'],
@@ -183,11 +182,13 @@ FundRequest::id($fundRequest['id'])
 
 
 // call first execution
+// #memo - FundRequestExecution uses same table as Sale Invoice, so we need to specify the invoice_type
 FundRequestExecution::search([
+        ['invoice_type', '=', 'fund_request'],
         ['fund_request_id', '=', $fundRequest['id']]
     ],
     [
-        'sort' => [ 'posting_date' => 'desc'],
+        'sort' => [ 'posting_date' => 'asc' ],
         'limit' => 1
     ])
     ->transition('call');
