@@ -81,6 +81,13 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                 'description'       => "Lines of the Fund request execution."
             ],
 
+            'fundings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\sale\pay\Funding',
+                'foreign_field'     => 'fund_request_execution_id',
+                'description'       => 'The fundings that relate to the execution (sale invoice).'
+            ],
+
             'logs' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain',
@@ -472,14 +479,6 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                 $issue_date = max(strtotime('today'), $requestExecution['posting_date']);
                 $due_date = max(strtotime('today'), $requestExecution['issue_date']);
 
-                // CCC/CCCO/OOOXX
-                $reference =
-                    substr(str_pad((int) $requestExecution['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
-                    substr(str_pad((int) $requestExecution['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
-
-                $prefix = substr($reference, 0, 3);
-                $suffix = substr($reference, 3);
-
                 Funding::create([
                         'condo_id'                  => $requestExecution['condo_id']['id'],
                         'description'               => $requestExecution['fund_request_id']['name'],
@@ -490,8 +489,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                         'issue_date'                => $issue_date,
                         'due_date'                  => $due_date,
                         'due_amount'                => $executionLine['called_amount'] - $paid_amount,
-                        'funding_type'              => 'fund_request',
-                        'payment_reference'         => self::computePaymentReference($prefix, $suffix)
+                        'funding_type'              => 'fund_request'
                     ]);
 
             }

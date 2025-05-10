@@ -16,7 +16,7 @@ use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\purchase\accounting\AccountingEntry;
 use realestate\purchase\accounting\invoice\InvoiceLine;
-use sale\pay\Funding;
+use realestate\sale\pay\Funding;
 
 class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
 
@@ -98,8 +98,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
 
             'fundings_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'sale\pay\Funding',
-                'foreign_field'     => 'fund_request_execution_id',
+                'foreign_object'    => 'realestate\sale\pay\Funding',
+                'foreign_field'     => 'expense_statement_id',
                 'description'       => 'The fundings that relate to the execution (sale invoice).'
             ],
 
@@ -296,6 +296,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
         $self
             ->do('generate_statement')
             ->do('generate_accounting_entries')
+            ->do('generate_fundings')
             ->do('assign_invoice_number')
             ->do('validate_accounting_entries');
     }
@@ -434,7 +435,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
 
                 foreach($statementOwner['statement_owner_lines_ids'] as $line_id => $statementLine) {
 
-                    // ignore lines relating to use of reserve funds
+                    // ignore lines relating to use of reserve funds (already made when importing invoice)
                     if($statementLine['price'] <= 0.0) {
                         continue;
                     }
@@ -462,7 +463,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                         'debit'                 => $total_ownership,
                         'credit'                => 0.0
                     ]);
-
             }
 
             self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
@@ -472,13 +472,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
 
     public static function doGenerateFundings($self) {
 
-            /* from finance\accounting\invoice\Invoice: */
-            // 'condo_id'
-            // 'fiscal_year_id'
-            // 'fiscal_period_id'
-            // 'accounting_entry_id'
-            // 'emission_date'
-            // 'due_date'
+        /* from finance\accounting\invoice\Invoice: */
+        // 'condo_id'
+        // 'fiscal_year_id'
+        // 'fiscal_period_id'
+        // 'accounting_entry_id'
+        // 'emission_date'
+        // 'due_date'
 
 
         $self->read([
@@ -503,20 +503,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
 
                 $due_amount = 0.0;
                 foreach($statementOwner['statement_owner_lines_ids'] as $line_id => $ownerLine) {
+                    // use both positive and negative amounts
                     $due_amount += $ownerLine['price'];
                 }
 
                 // a funding cannot be issued nor due in the past
                 $issue_date = max(strtotime('today'), $expenseStatement['posting_date']);
                 $due_date = $expenseStatement['due_date'];
-
-                // CCC/CCCO/OOOXX
-                $reference =
-                    substr(str_pad((int) $expenseStatement['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
-                    substr(str_pad((int) $expenseStatement['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
-
-                $prefix = substr($reference, 0, 3);
-                $suffix = substr($reference, 3);
 
                 Funding::create([
                         'condo_id'                  => $expenseStatement['condo_id']['id'],
@@ -527,8 +520,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                         'bank_account_id'           => $expenseStatement['statement_bank_account_id'],
                         'issue_date'                => $issue_date,
                         'due_date'                  => $due_date,
-                        'due_amount'                => $due_amount,
-                        'payment_reference'         => self::computePaymentReference($prefix, $suffix)
+                        'due_amount'                => $due_amount
                     ]);
 
             }
@@ -562,7 +554,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
      *  - apportionment : for private expense, we usa a fake apportionment ('0'), so that the structure remains the same in all situations.
      *
      */
-    public static function computeExpenseStatementData($fiscal_period_id) {
+    private static function computeExpenseStatementData($fiscal_period_id) {
         $result = [];
 
         $fiscalPeriod = FiscalPeriod::id($fiscal_period_id)

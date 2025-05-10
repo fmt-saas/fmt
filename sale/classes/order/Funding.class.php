@@ -172,7 +172,7 @@ class Funding extends \sale\pay\Funding {
                     $code_ref += $funding['order'];
                 }
             }
-            $result[$id] = self::_get_payment_reference($code_ref, $order_code);
+            $result[$id] = self::computePaymentReference($code_ref, $order_code);
         }
 
         return $result;

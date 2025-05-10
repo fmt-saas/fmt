@@ -148,7 +148,9 @@ class FiscalPeriod extends Model {
 
     /**
      * Create accounting entries for closing  the period.
+     * #todo - to be completed
      *
+     * - empty account expense_provisions with owners accounts
      */
     public static function doGenerateAccountingEntries($self) {
         $self->read([
@@ -169,16 +171,6 @@ class FiscalPeriod extends Model {
                 ->read(['id'])
                 ->first();
 
-            $accountingEntry = AccountingEntry::create([
-                        'condo_id'          => $fiscalPeriod['condo_id'],
-                        'journal_id'        => $miscJournal['id'],
-                        'description'       => 'Extourne des provisions pour charges',
-                        'is_temp'           => true,
-                        'fiscal_year_id'    => $fiscalPeriod['fiscal_year_id'],
-                        'entry_date'        => time()
-                    ])
-                    ->first();
-
             // #memo - execution can still be 'proforma' or can have been cancelled at some point in the period
             $requestExecutions = FundRequestExecution::search([
                     ['posting_date', '>=', $fiscalPeriod['date_from']],
@@ -186,9 +178,9 @@ class FiscalPeriod extends Model {
                     ['status', '=', 'invoice']
                 ])
                 ->read([
-                        'fund_request_id' => ['request_type'],
-                        'execution_lines_ids' => ['ownership_id', 'price']
-                    ]);
+                    'fund_request_id' => ['request_type'],
+                    'execution_lines_ids' => ['ownership_id', 'price']
+                ]);
 
             $map_ownership_amounts = [];
             foreach($requestExecutions as $requestExecution) {
@@ -201,32 +193,47 @@ class FiscalPeriod extends Model {
                 }
             }
 
-            $ownerships = Ownership::ids(array_keys($map_ownership_amounts))->read(['ownership_account_id'])->get();
+            if(count($map_ownership_amounts)) {
+                $accountingEntry = AccountingEntry::create([
+                        'condo_id'          => $fiscalPeriod['condo_id'],
+                        'journal_id'        => $miscJournal['id'],
+                        'description'       => 'Extourne des provisions pour charges',
+                        'is_temp'           => true,
+                        'fiscal_year_id'    => $fiscalPeriod['fiscal_year_id'],
+                        'entry_date'        => time()
+                    ])
+                    ->first();
 
-            foreach($map_ownership_amounts as $ownership_id => $amount) {
+                $ownerships = Ownership::ids(array_keys($map_ownership_amounts))
+                    ->read(['ownership_account_id'])
+                    ->get();
 
-                // debit account 701
-                AccountingEntryLine::create([
-                        'condo_id'              => $fiscalPeriod['condo_id'],
-                        'accounting_entry_id'   => $accountingEntry['id'],
-                        'account_id'            => $expenseProvisionAccount['id'],
-                        'debit'                 => $amount,
-                        'credit'                => 0.0
-                    ]);
+                foreach($map_ownership_amounts as $ownership_id => $amount) {
 
-                // credit owner account
-                AccountingEntryLine::create([
-                        'condo_id'              => $fiscalPeriod['condo_id'],
-                        'accounting_entry_id'   => $accountingEntry['id'],
-                        'account_id'            => $ownerships[$ownership_id]['ownership_account_id'],
-                        'debit'                 => 0.0,
-                        'credit'                => $amount
-                    ]);
+                    // debit account 701
+                    AccountingEntryLine::create([
+                            'condo_id'              => $fiscalPeriod['condo_id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
+                            'account_id'            => $expenseProvisionAccount['id'],
+                            'debit'                 => $amount,
+                            'credit'                => 0.0
+                        ]);
 
+                    // credit owner account
+                    AccountingEntryLine::create([
+                            'condo_id'              => $fiscalPeriod['condo_id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
+                            'account_id'            => $ownerships[$ownership_id]['ownership_account_id'],
+                            'debit'                 => 0.0,
+                            'credit'                => $amount
+                        ]);
+
+                }
+
+                // validate accounting entry
+                AccountingEntry::id($accountingEntry['id'])->transition('validate');
             }
 
-            // validate accounting entry
-            AccountingEntry::id($accountingEntry['id'])->transition('validate');
         }
     }
 

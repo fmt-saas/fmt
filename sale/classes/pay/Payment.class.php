@@ -120,16 +120,6 @@ class Payment extends Model {
                 'type'              => 'boolean',
                 'description'       => 'Mark the payment as exported (part of an export to elsewhere).',
                 'default'           => false
-            ],
-
-            'status' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'pending',
-                    'paid'
-                ],
-                'description'       => 'Current status of the payment.',
-                'default'           => 'paid'
             ]
 
         ];
@@ -274,14 +264,5 @@ class Payment extends Model {
         return parent::ondelete($self);
     }
 
-    public static function candelete($self) {
-        $self->read(['status']);
-        foreach($self as $payment) {
-            if($payment['status'] == 'paid') {
-                return ['status' => ['non_removable' => 'Paid payments cannot be removed.']];
-            }
-        }
 
-        return parent::candelete($self);
-    }
 }

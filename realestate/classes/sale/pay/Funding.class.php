@@ -75,7 +75,15 @@ class Funding extends \sale\pay\Funding {
                 'ondelete'          => 'cascade',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'readonly'          => true
-            ]
+            ],
+
+            'payment_reference' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Message for identifying the purpose of the transaction.',
+                'store'             => true,
+                'function'          => 'calcPaymentReference'
+            ],
 
         ];
     }
@@ -98,6 +106,26 @@ class Funding extends \sale\pay\Funding {
             }
         }
 
+        return $result;
+    }
+
+    /**
+     * Generate payment reference according to SCOR/VCS logic
+     */
+    public static function calcPaymentReference($self) {
+        $result = [];
+        $self->read(['condo_id' => ['code'], 'ownership_id' => 'code']);
+        foreach($self as $id => $funding) {
+
+            $reference =
+                substr(str_pad((int) $funding['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
+                substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+
+            $prefix = substr($reference, 0, 3);
+            $suffix = substr($reference, 3);
+
+            $result[$id] = self::computePaymentReference($prefix, $suffix);
+        }
         return $result;
     }
 

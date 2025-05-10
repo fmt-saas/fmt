@@ -188,9 +188,9 @@ class FundRequest extends \equal\orm\Model {
 
             'fundings_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'sale\pay\Funding',
+                'foreign_object'    => 'realestate\sale\pay\Funding',
                 'foreign_field'     => 'fund_request_id',
-                'description'       => 'The fundings that relate to the fund request.'
+                'description'       => 'The fundings that relate to the execution (sale invoice).'
             ]
 
         ];

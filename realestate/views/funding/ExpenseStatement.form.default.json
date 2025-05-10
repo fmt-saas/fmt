@@ -23,17 +23,6 @@
             "visible": ["status", "=", "proforma"]
         },
         {
-            "id": "action.generate_fundings",
-            "label": "Generate fundings",
-            "description": "Generate the lines of the statement.",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "realestate\\funding\\ExpenseStatement",
-                "action": "generate_fundings"
-            },
-            "visible": ["status", "=", "invoice"]
-        },
-        {
             "id": "action.invoice",
             "label": "Validate",
             "description": "To Invoice.",

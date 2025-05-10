@@ -251,11 +251,11 @@ class Funding extends Model {
      *  as 10000000 % 97 = 76
      *  we do (aaa * 76 + bbbbbbb) % 97
      */
-    protected static function _get_payment_reference($prefix, $suffix) {
+    protected static function computePaymentReference($prefix, $suffix) {
         $a = intval($prefix);
         $b = intval($suffix);
         $control = ((76*$a) + $b ) % 97;
         $control = ($control == 0)?97:$control;
-        return sprintf("%3d%04d%03d%02d", $a, $b / 1000, $b % 1000, $control);
+        return sprintf("%03d%04d%03d%02d", $a, $b / 1000, $b % 1000, $control);
     }
 }

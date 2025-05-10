@@ -326,7 +326,7 @@ class Document extends Model {
 
 
     public static function doPerformAnalysis($self) {
-        $self->read(['content_type', 'data', 'document_json']);
+        $self->read(['content_type', 'data', 'document_json', 'condo_id']);
 
         static $supported_content_types = [
                 'application/pdf',
@@ -398,8 +398,12 @@ class Document extends Model {
                         'has_document_json' => true,
                         'analysis_version'  => 'mindee_v4',
                         'analysis_json'     => json_encode($prediction, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                        'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+                        'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
                     ];
+
+                if(isset($document['condo_id'])) {
+                    $values['condo_id'] = $document['condo_id'];
+                }
 
                 if(isset($data['document_type'])) {
                     $documentType = DocumentType::search(['code', '=', $data['document_type']])->first();
@@ -415,8 +419,8 @@ class Document extends Model {
                     if($supplier) {
                         $values['supplier_id'] = $supplier['id'];
                         // attempt to retrieve condominium by number
-                        if(isset($data['customer']['number'])) {
-
+                        if(!isset($values['condo_id']) && isset($data['customer']['number'])) {
+                            // #todo
                         }
                     }
                 }
@@ -453,6 +457,7 @@ class Document extends Model {
             }
             catch(Exception $e) {
                 // unable to extract or confidence level too low
+                trigger_error("APP::unable to extract document, or confidence level too low.", EQ_REPORT_WARNING);
             }
 
         }
