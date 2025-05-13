@@ -20,25 +20,23 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "data",
-                                                "width": "50%",
-                                                "widget": {
-                                                    "required": true
-                                                }
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
+                                                "value": "name",
+                                                "width": "0%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "name",
-                                                "width": "50%"
+                                                "value": "data",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "type": "upload",
+                                                    "required": true,
+                                                    "height": "700"
+                                                }
                                             }
                                         ]
                                     }

@@ -66,7 +66,7 @@
                                                 "value": "Document Analysis",
                                                 "width": "100%",
                                                 "widget": {
-                                                    "text_underline": true
+                                                    "text_decoration": "underline"
                                                 }
                                             },
                                             {
@@ -134,7 +134,7 @@
                                                 "value": "Document Assignment",
                                                 "width": "100%",
                                                 "widget": {
-                                                    "text_underline": true
+                                                    "text_decoration": "underline"
                                                 }
                                             },
                                             {

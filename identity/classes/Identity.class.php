@@ -59,7 +59,7 @@ class Identity extends Model {
 
             'object_class' => [
                 'type'              => 'string',
-                'description'       => 'Class of the current entity .',
+                'description'       => 'Class of the current entity.',
                 'help'              => 'This is required in order to display the relational fields accordingly.',
                 'default'           => 'identity\Identity'
             ],
@@ -78,6 +78,32 @@ class Identity extends Model {
                 'foreign_object'    => 'identity\Identity',
                 'description'       => 'Hierarchical Identity the identity depends on.',
                 'help'              => 'An object linked to an identity can have a logical link to a parent (for instance the subsidiary of an Organisation or the contact of a Customer).'
+            ],
+
+            'source_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'eid',
+                    'external_auth',
+                    'registry',
+                    'third_party',
+                    'manual'
+                ],
+                'default'           => 'manual',
+                'description'       => 'Type of source (eid, registry, manual, etc.)',
+                'help'              => 'Indicates how the identity data was obtained.',
+            ],
+
+            'source_origin' => [
+                'type'              => 'string',
+                'description'       => 'Detailed origin of the source (e.g. BCE, itsme, employer).',
+                'help'              => 'Specifies the originating system, registry or third party.',
+            ],
+
+            'source_date' => [
+                'type'              => 'date',
+                'description'       => 'Date when the identity information was collected or encoded.',
+                'help'              => 'Used to assess the freshness of the information.',
             ],
 
             'type_id' => [

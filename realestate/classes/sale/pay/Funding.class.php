@@ -24,6 +24,12 @@ class Funding extends \sale\pay\Funding {
                 'store'             => true
             ],
 
+            'is_sent' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag indicating if a SEPA order has been generated (and sent) from the Funding.',
+                'default'           => false
+            ],
+
             'bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
