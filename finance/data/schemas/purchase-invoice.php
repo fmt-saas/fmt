@@ -1,0 +1,318 @@
+<?php
+/*
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Original author(s): Yesbabylon SA
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
+
+[$params, $providers] = eQual::announce([
+    'description'   => "Schema `purchase-invoice` with format json-schema.org/draft/2020-12.",
+    'params'        => [],
+    'access' => [
+        'visibility'        => 'protected'
+    ],
+    'response'      => [
+        'content-type'  => 'application/json',
+        'charset'       => 'utf-8',
+        'accept-origin' => '*'
+    ],
+    'providers'     => ['context', 'auth']
+]);
+
+['context' => $context] = $providers;
+
+$schema = <<<'EOT'
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:purchase-invoice",
+  "title": "PEPPOL BIS Billing 3.0 (EN16931) compliant JSON Input",
+  "type": "object",
+  "required": [
+    "invoice_number",
+    "invoice_type",
+    "issue_date",
+    "due_date",
+    "currency",
+    "supplier",
+    "customer",
+    "lines",
+    "totals"
+  ],
+  "properties": {
+    "document_type": {
+      "type": "string"
+    },
+    "invoice_number": {
+      "type": "string"
+    },
+    "invoice_type": {
+      "type": "string",
+      "enum": [
+        "invoice",
+        "credit_note"
+      ]
+    },
+    "issue_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "buyer_reference": {
+      "type": "string"
+    },
+    "supplier": {
+      "type": "object",
+      "required": [
+        "name",
+        "vat_id",
+        "address"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "vat_id": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "required": [
+            "street",
+            "city",
+            "postal_code",
+            "country"
+          ],
+          "properties": {
+            "street": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "postal_code": {
+              "type": "string"
+            },
+            "country": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$"
+            }
+          }
+        }
+      }
+    },
+    "customer": {
+      "type": "object",
+      "required": [
+        "name",
+        "vat_id",
+        "address"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "vat_id": {
+          "type": "string"
+        },
+        "customer_number": {
+          "type": "string"
+        },
+        "contract_number": {
+          "type": "string"
+        },
+        "installation_number": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "required": [
+            "street",
+            "city",
+            "postal_code",
+            "country"
+          ],
+          "properties": {
+            "street": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "postal_code": {
+              "type": "string"
+            },
+            "country": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$"
+            }
+          }
+        }
+      }
+    },
+    "invoice_period": {
+      "type": "object",
+      "required": [
+        "start_date",
+        "end_date"
+      ],
+      "properties": {
+        "start_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "lines": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "description",
+          "quantity",
+          "unit_code",
+          "unit_price",
+          "amount",
+          "tax"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit_code": {
+            "type": "string",
+            "enum": [
+              "C62",
+              "EA",
+              "H87",
+              "KGM",
+              "GRM",
+              "LTR",
+              "MLT",
+              "MTR",
+              "CMK",
+              "MTK",
+              "MMK",
+              "MTQ",
+              "HUR",
+              "MIN",
+              "DAY",
+              "MON",
+              "ANN",
+              "TNE",
+              "NAR",
+              "XPP",
+              "XBG",
+              "XBX",
+              "XCR",
+              "XPK",
+              "XCT",
+              "XBT",
+              "XCA",
+              "XPL",
+              "XKG",
+              "XLT"
+            ]
+          },
+          "unit_price": {
+            "type": "number"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "tax": {
+            "type": "object",
+            "required": [
+              "category_id",
+              "percent",
+              "scheme_id"
+            ],
+            "properties": {
+              "category_id": {
+                "type": "string"
+              },
+              "percent": {
+                "type": "number"
+              },
+              "scheme_id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "required": [
+        "total_excl_tax",
+        "total_tax",
+        "total_incl_tax",
+        "payable_amount"
+      ],
+      "properties": {
+        "total_excl_tax": {
+          "type": "number"
+        },
+        "total_tax": {
+          "type": "number"
+        },
+        "total_incl_tax": {
+          "type": "number"
+        },
+        "payable_amount": {
+          "type": "number"
+        }
+      }
+    },
+    "payment": {
+      "type": "object",
+      "required": [
+        "iban",
+        "bic",
+        "payment_means_code"
+      ],
+      "properties": {
+        "iban": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}\\d{2}[A-Z0-9]{11,30}$"
+        },
+        "bic": {
+          "type": "string",
+          "pattern": "^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$"
+        },
+        "payment_means_code": {
+          "type": "string"
+        },
+        "payment_id": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
+EOT;
+
+$context->httpResponse()
+    ->body($schema, true)
+    ->send();

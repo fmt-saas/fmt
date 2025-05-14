@@ -871,7 +871,7 @@ class Identity extends Model {
 
         if(preg_match('/^[A-Z]{2}\d{2}\d{12}$/', $normalized_iban)) {
             $country = substr($normalized_iban, 0, 2);
-            $bank_code = substr($normalized_iban, 2, 3);
+            $bank_code = substr($normalized_iban, 4, 3);
 
             $file = EQ_BASEDIR."/packages/identity/i18n/{$lang}/bic/{$country}.json";
             if(file_exists($file)) {

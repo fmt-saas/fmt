@@ -37,7 +37,8 @@ list($params, $providers) = eQual::announce([
 
 /**
  * This controller converts a CODA formatted statement to a JSON structure
- * following the standard JSON Schema below:
+ *
+ * Target structure follows the `bank-statement` standard JSON Schema:
  *
  * JSON Schema (https://json-schema.org/draft/2020-12/schema):
  * {
@@ -169,16 +170,50 @@ $convertBbanToIban = function($account_number) {
     return trim(sprintf("BE%02d%s", $control, $account_number));
 };
 
-$getBankFromIban = function($iban) use($params) {
-    $result = '';
-    $country = substr($iban, 0, 2);
-    $bank_code = substr($iban, 2, 3);
+$getTransactionType = function($family, $operation) {
+    $result = $family . $operation;
+    // CODA syntax is : %02{famille} %02{operation} %03{rubrique}
+    // CAMT.053 uses domain, family, subfamily
 
-    $file = EQ_BASEDIR."/packages/identity/i18n/{$params['lang']}/bic/{$country}.json";
-    if(file_exists($file)) {
-        $data = file_get_contents($file);
-        $map_bic = json_decode($data, true);
-        $result = $map_bic[$bank_code]['bic'] ?? '';
+    /*
+    #memo - this list is incomplete and is only meant for CODA format extraction (from ISABEL XLSX)
+    */
+    static $coda_transaction_codes = [
+        // incoming transfers
+        '01'   => 'credit',
+        '0101' => 'credit_out',
+        '0150' => 'credit_in',
+        '0250' => 'credit_in',    // instant
+        // payments
+        '05'   => 'debit',
+        '0501' => 'debit_out',
+        '0505' => 'debit_in',
+        // account closure
+        '3501' => 'account_closure',
+        '3537' => 'closing_fee',
+        '3550' => 'account_closure_credit',
+        // fees
+        '8002' => 'electronic_fee',
+        '8035' => 'tax_fee',
+        '8037' => 'database_access_fee',
+        '8039' => 'guarantee_fee',
+        '8041' => 'research_fee',
+        '8043' => 'printing_fee',
+        '8045' => 'documentary_credit_fee',
+        '8087' => 'fee_reimbursement'
+    ];
+
+    // CODA format
+    $code = $family . $operation;
+    if(isset($coda_transaction_codes[$code])) {
+        return $coda_transaction_codes[$code];
+    }
+    $code = $family;
+    if(isset($coda_transaction_codes[$code])) {
+        return $coda_transaction_codes[$code];
+    }
+    else {
+        // other format
     }
     return $result;
 };
@@ -234,8 +269,7 @@ foreach ($statements as $statement) {
             'counterparty_bic'          => $account->getBic(),
             'counterparty_details'      => '',
             'mandate_id'                => null,
-            // ? $transaction->getTransactionCode()
-            'transaction_type'          => '',
+            'transaction_type'          => $getTransactionType($transaction->getTransactionCode()->getFamily(), $transaction->getTransactionCode()->getOperation()),
             'structured_reference'      => $transaction->getStructuredMessage(),
             'client_reference'          => $transaction->getClientReference(),
             'unstructured_reference'    => preg_replace('/\s+/', ' ', trim($transaction->getMessage())),
