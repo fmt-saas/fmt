@@ -12,7 +12,7 @@ use sale\order\ContractLineGroup;
 use sale\order\Funding;
 
 
-list($params, $providers) = announce([
+list($params, $providers) = eQual::announce([
     'description'   => "Sets order as confirmed, creates contract and generates payment plan.",
     'params'        => [
         'id' =>  [

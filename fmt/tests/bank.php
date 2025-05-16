@@ -6,14 +6,7 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
-use Opis\JsonSchema\ValidationResult;
-use Opis\JsonSchema\Validator;
-
-
 $providers = eQual::inject(['context', 'orm', 'auth', 'access']);
-
-// retrieve bank-statement schema
-$statement_schema = json_encode(eQual::run('get', 'finance_schemas_bank-statement'));
 
 $tests = [
 
@@ -23,16 +16,14 @@ $tests = [
             'arrange'           => function() use($providers) {
                 },
             'act'               => function() use($providers) {
-                    $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_coda.txt');
+                    $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/' . 'bank_coda.txt');
                     return eQual::run('get', 'finance_bank_BankStatement_parse-coda', ['data' => $data]);
                 },
-            'assert'            => function($statements) use($providers, $statement_schema) {
+            'assert'            => function($statements) use($providers) {
                     $valid = true;
                     foreach($statements as $statement) {
-                        $validator = new Validator();
-                        /** @var ValidationResult $result */
-                        $result = $validator->validate((object) json_decode(json_encode($statement)), $statement_schema);
-                        $valid &= $result->isValid();
+                        $data = eQual::run('get', 'json-validate', ['json' => json_encode($statement), 'schema_id' => 'urn:fmt:json-schema:finance:bank-statement']);
+                        $valid &= $data['result'] ?? false;
                     }
                     return $valid;
                 },
@@ -52,11 +43,8 @@ $tests = [
                     $valid = true;
 
                     foreach($statements as $i => $statement) {
-                        $validator = new Validator();
-                        /** @var ValidationResult $result */
-
-                        $result = $validator->validate((object) json_decode(json_encode($statement)), $statement_schema);
-                        $valid &= $result->isValid();
+                        $data = eQual::run('get', 'json-validate', ['json' => json_encode($statement), 'schema_id' => 'urn:fmt:json-schema:finance:bank-statement']);
+                        $valid &= $data['result'] ?? false;
                     }
                     return $valid;
                 },

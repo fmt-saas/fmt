@@ -7,7 +7,7 @@
 use sale\order\Order;
 
 
-list($params, $providers) = announce([
+list($params, $providers) = eQual::announce([
     'description'	=>	"Update a order status after balance invoice has been emitted.",
     'params' 		=>	[
         'id' =>  [

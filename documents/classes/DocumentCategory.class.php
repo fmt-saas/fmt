@@ -4,7 +4,6 @@
     Some Rights Reserved, FMT SRL, 2025-2026
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
-
 namespace documents;
 
 use equal\orm\Model;

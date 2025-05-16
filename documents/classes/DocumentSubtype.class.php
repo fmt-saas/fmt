@@ -4,25 +4,24 @@
     Some Rights Reserved, FMT SRL, 2025-2026
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
-
 namespace documents;
 
 use equal\orm\Model;
 
-class DocumentType extends Model {
+class DocumentSubtype extends Model {
 
     public static function getColumns() {
         return [
 
             'name' => [
                 'type'              => 'string',
-                'description'       => 'Name of the document Type.',
+                'description'       => 'Name of the document Subtype.',
                 'required'          => true
             ],
 
             'code' => [
                 'type'              => 'string',
-                'description'       => 'Unique code identifier of the document Type.',
+                'description'       => 'Unique code identifier of the document Subtype.',
                 'required'          => true,
                 'unique'            => true
             ],
@@ -39,17 +38,25 @@ class DocumentType extends Model {
                 'description'       => 'Description of the purpose and usage of the tag.'
             ],
 
-            'json_schema' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain.small',
-                'description'       => 'Schema following json-schema.org specs.'
+            'document_type_id' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\DocumentType',
+                'foreign_field'     => 'document_type_id',
+                'description'       => 'Parent documents type.'
+            ],
+
+            'accounting_rules_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\recording\AccountingRule',
+                'foreign_field'     => 'document_subtype_id',
+                'description'       => 'Rules matching the document subtype.'
             ],
 
             'documents_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\Document',
-                'foreign_field'     => 'document_type_id',
-                'description'       => 'Documents matching the document type.'
+                'foreign_field'     => 'document_subtype_id',
+                'description'       => 'Documents matching the document subtype.'
             ]
 
         ];

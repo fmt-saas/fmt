@@ -31,12 +31,22 @@
             },
             {
                 "type": "field",
-                "value": "old_balance",
+                "value": "opening_balance",
                 "width": "10%"
             },
             {
                 "type": "field",
-                "value": "new_balance",
+                "value": "opening_date",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "closing_balance",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "closing_date",
                 "width": "10%"
             },
             {

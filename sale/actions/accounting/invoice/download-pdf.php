@@ -7,7 +7,7 @@
 
 use sale\accounting\invoice\Invoice;
 
-list($params, $providers) = announce([
+list($params, $providers) = eQual::announce([
     'description'   => 'Download pdf of given invoice.',
     'params'        => [
         'id' => [

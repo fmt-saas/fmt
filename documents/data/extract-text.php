@@ -8,7 +8,7 @@
 use documents\Document;
 use equal\text\TextTransformer;
 
-list($params, $providers) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description'   => 'Extract raw text from a given Document.',
     'help'          => 'This controller is meant to be used on EDMS instance having direct access to document data.',
     'params'        => [
@@ -20,34 +20,31 @@ list($params, $providers) = eQual::announce([
         ]
     ],
     'access' => [
-        'visibility'        => 'public'
+        'visibility'        => 'protected'
     ],
     'response'      => [
         'accept-origin' => '*',
         'content-type'  => 'text/plain'
     ],
-    'constants'     => ['FMT_API_URL_EDMS'],
-    'providers'     => ['context', 'orm', 'auth', 'adapt']
+    'providers'     => ['context']
 ]);
 
-['context' => $context, 'orm' => $om, 'auth' => $auth, 'adapt' => $adapt] = $providers;
-
-$user_id = $auth->userId();
-
-// documents can be public : switch to root user to bypass any permission check
-$auth->su();
+['context' => $context] = $providers;
 
 // search for documents matching given hash code (should be only one match)
 $collection = Document::id($params['id']);
-$document = $collection->read(['content_type', 'data'])->first();
+$document = $collection->read(['content_type', 'uuid'])->first();
 
 if(!$document) {
-    throw new Exception("document_unknown", QN_ERROR_UNKNOWN_OBJECT);
+    throw new Exception("document_unknown", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+// #todo - check content-type & limit to supported document formats
+
+$document_data = eQual::run('get', 'documents_document', ['id' => $params['id']]);
 
 $output_file = tempnam(sys_get_temp_dir(), 'extract_') . '.pdf';
-file_put_contents($output_file, $document['data']);
+file_put_contents($output_file, $document_data);
 
 
 // 1) check if document is extractible

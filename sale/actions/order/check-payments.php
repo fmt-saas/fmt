@@ -8,7 +8,7 @@
 use sale\order\Order;
 use sale\order\Funding;
 
-list($params, $providers) = announce([
+list($params, $providers) = eQual::announce([
     'description'   => "Checks if all due payments have been received for a given order.",
     'params'        => [
         'id' =>  [

@@ -84,8 +84,7 @@ class ExpenseStatementOwnerLine extends \sale\accounting\invoice\InvoiceLine {
                 'required'          => true,
                 'ondelete'          => 'null',
                 'dependents'        => ['journal_id'],
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]],
-                'dependents'        => ['account_code']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]]
             ],
 
             'property_lot_id' => [

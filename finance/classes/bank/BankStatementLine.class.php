@@ -83,7 +83,7 @@ class BankStatementLine extends Model {
             'account_iban' => [
                 'type'              => 'string',
                 'usage'             => 'uri/urn:iban',
-                'description'       => 'IBAN which the payment originates from.',
+                'description'       => 'Counterparty IBAN, if any.',
                 'readonly'          => true
             ],
 
@@ -91,12 +91,6 @@ class BankStatementLine extends Model {
                 'type'              => 'string',
                 'description'       => 'Name of the Person whom the payment originates.',
                 'readonly'          => true
-            ],
-
-            'is_suspense' => [
-                'type'              => 'boolean',
-                'description'       => 'Origin is unknown (or unsure) and line has been put on suspense account.',
-                'default'           => false
             ],
 
             'status' => [

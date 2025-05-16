@@ -22,6 +22,11 @@ class Bank extends \purchase\supplier\Supplier {
 
         return [
 
+            'bic' => [
+                'type'              => 'string',
+                'description'       => 'Official BIC/Swift code of the Bank.',
+                'required'          => true
+            ]
 
         ];
     }

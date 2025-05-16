@@ -211,7 +211,7 @@ $getBicFromIban = function($iban) {
     $bank_code = substr($iban, 4, 3);
 
     if(!$map_bic) {
-        $file = EQ_BASEDIR."/packages/identity/i18n/en/bic/{$country}.json";
+        $file = EQ_BASEDIR . "/packages/identity/i18n/en/bic/{$country}.json";
         if(file_exists($file)) {
             $data = file_get_contents($file);
             $map_bic = json_decode($data, true);

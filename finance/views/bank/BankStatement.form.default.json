@@ -1,9 +1,6 @@
 {
     "name": "Bank Statement",
     "description": "",
-    "access": {
-        "groups": ["sale.default.users"]
-     },
     "layout": {
         "groups": [
             {
@@ -39,12 +36,12 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "old_balance",
+                                                "value": "opening_balance",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "new_balance",
+                                                "value": "closing_balance",
                                                 "width": "100%"
                                             }
                                         ]

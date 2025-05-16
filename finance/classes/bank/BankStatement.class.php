@@ -23,6 +23,14 @@ class BankStatement extends Model {
     public static function getColumns() {
 
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the accounting entry refers to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                //'readonly'          => true
+                'visible'           => ['organisation_id', '=', null]
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -43,7 +51,27 @@ class BankStatement extends Model {
                 'readonly'          => true
             ],
 
-            'old_balance' => [
+            'statement_currency' => [
+                'type'              => 'string',
+                'description'       => 'Currency of the statement.',
+                'default'           => 'EUR'
+            ],
+
+            'opening_date' => [
+                'type'              => 'date',
+                'description'       => 'Date the statement was received.',
+                'required'          => true,
+                'readonly'          => true
+            ],
+
+            'closing_date' => [
+                'type'              => 'date',
+                'description'       => 'Date the statement was received.',
+                'required'          => true,
+                'readonly'          => true
+            ],
+
+            'opening_balance' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => 'Account balance before the transactions.',
@@ -51,12 +79,24 @@ class BankStatement extends Model {
                 'readonly'          => true
             ],
 
-            'new_balance' => [
+            'closing_balance' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => 'Account balance after the transactions.',
                 'required'          => true,
                 'readonly'          => true
+            ],
+
+            'bank_account_iban' => [
+                'type'              => 'string',
+                'usage'             => 'uri/urn.iban',
+                'description'       => 'IBAN representation of the account number.',
+                'required'          => true
+            ],
+
+            'bank_account_bic' => [
+                'type'              => 'string',
+                'description'       => 'Bank Identification Code of the account.'
             ],
 
             'statement_lines_ids' => [
@@ -76,42 +116,17 @@ class BankStatement extends Model {
                 ],
                 'description'       => 'Status of the statement (depending on lines).',
                 'store'             => true
-            ],
-
-            'is_exported' => [
-                'type'              => 'boolean',
-                'description'       => 'Flag for marking statement as exported (for import in external tool).',
-                'default'           => false
-            ],
-
-            // #memo - CODA statements comes with IBAN or BBAN numbers for reference account
-            'bank_account_number' => [
-                'type'              => 'string',
-                'description'       => 'Original number of the account (as provided in the statement might not be IBAN).'
-            ],
-
-            'bank_account_bic' => [
-                'type'              => 'string',
-                'description'       => 'Bank Identification Code of the account.'
-            ],
-
-            'bank_account_iban' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'usage'             => 'uri/urn.iban',
-                'function'          => 'calcBankAccountIban',
-                'description'       => 'IBAN representation of the account number.',
-                'store'             => true
             ]
+
 
         ];
     }
 
     public static function calcName($om, $oids, $lang) {
         $result = [];
-        $statements = $om->read(get_called_class(), $oids, ['bank_account_number', 'date', 'old_balance', 'new_balance']);
+        $statements = $om->read(get_called_class(), $oids, ['bank_account_number', 'date', 'opening_balance', 'closing_balance']);
         foreach($statements as $oid => $statement) {
-            $result[$oid] = sprintf("%s - %s - %s - %s", $statement['bank_account_number'], date('Ymd', $statement['date']), $statement['old_balance'], $statement['new_balance']);
+            $result[$oid] = sprintf("%s - %s - %s - %s", $statement['bank_account_number'], date('Ymd', $statement['date']), $statement['opening_balance'], $statement['closing_balance']);
         }
         return $result;
     }
@@ -180,7 +195,7 @@ class BankStatement extends Model {
 
     public function getUnique() {
         return [
-            ['date', 'old_balance', 'new_balance']
+            ['bank_account_iban', 'opening_date', 'opening_balance', 'closing_balance']
         ];
     }
 }

@@ -85,14 +85,15 @@ class Document extends Model {
             'analysis_json' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.medium',
-                'description'       => 'JSON result of the document analysis.'
+                'description'       => 'JSON result of the document analysis.',
+                'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and might remain empty (depending on the feeding strategy associated to the document type).'
             ],
 
             'document_json' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.medium',
                 'description'       => 'Standard JSON descriptor of the document, using a schema matching the document_type_id.',
-                'help'              => 'This field is meant to receive either content from parsed Mindee analysis or from parsed UBL.'
+                'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and is used at the `completion` step for validating the completeness of the document.'
             ],
 
             'document_type_id' => [
@@ -196,25 +197,6 @@ class Document extends Model {
                 'default'           => 1
             ],
 
-            'tags_ids' => [
-                'type'              => 'many2many',
-                'foreign_object'    => 'documents\DocumentTag',
-                'foreign_field'     => 'documents_ids',
-                'rel_table'         => 'documents_rel_document_tag',
-                'rel_foreign_key'   => 'tag_id',
-                'rel_local_key'     => 'document_id',
-                'description'       => 'Tags of the document.'
-            ],
-
-            'tags' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'description'       => 'Short tags listing, max 50 characters.',
-                'store'             => false,
-                'function'          => 'calcTags',
-                'readonly'          => true
-            ],
-
             'public' => [
                 'type'              => 'boolean',
                 'description'       => 'Accessibility of the document.',
@@ -233,29 +215,107 @@ class Document extends Model {
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'imported', 'pending', 'processed', 'ignored'
+                    'imported',
+                    'pending',
+                    'processed',
+                    'ignored'
                 ],
                 'default'     => 'imported',
                 'description' => 'Processing status of the document.'
             ],
 
-            /* info relating to invoice document */
+            /*
+
+            info relating to invoice document
+
+            On utilise les infos contenues dans document_json pour compléter ces informations. Dans le cas où elles ne sont pas présentes, l'utilisateur peut les ajouter à la main.
+            
+
+            */
+
+            'invoice_number' => [
+                'type'              => 'string',
+                'description'       => 'Does the invoice have a period.',
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
+
+            'invoice_type' => [
+                'type'              => 'string',
+                'description'       => 'Does the invoice have a period.',
+                'selection'         => ['invoice', 'credit_note'],
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
 
             'invoice_has_period' => [
                 'type'              => 'boolean',
                 'description'       => 'Does the invoice have a period.',
-                'default'           => false
+                'default'           => false,
+                'visible'           => ['document_type_code', '=', 'invoice']
             ],
 
-            'invoice_date_from' => [
+            'invoice_period_date_from' => [
                 'type'              => 'date',
                 'description'       => 'First date of invoice period.',
+                'visible'           => ['document_type_code', '=', 'invoice']
             ],
 
-            'invoice_date_to' => [
+            'invoice_period_date_to' => [
                 'type'              => 'date',
                 'description'       => 'Last date of invoice period.',
-            ]
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
+
+            'invoice_issue_date' => [
+                'type'              => 'date',
+                'description'       => 'Last date of invoice period.',
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
+
+            'invoice_due_date' => [
+                'type'              => 'date',
+                'description'       => 'Last date of invoice period.',
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
+
+            'invoice_currency' => [
+                'type'              => 'string',
+                'description'       => 'Last date of invoice period.',
+                'default'           => 'EUR',
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
+
+            'invoice_supplier_id' => [
+                'type'              => 'date',
+                'description'       => 'Last date of invoice period.',
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
+
+            'invoice_condo_id' => [
+                'type'              => 'date',
+                'description'       => 'Last date of invoice period.',
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
+
+            'invoice_condo_id' => [
+                'type'              => 'date',
+                'description'       => 'Last date of invoice period.',
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
+
+            'invoice_lines' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'DocumentInvoiceLine',
+                'foreign_field'     => 'document_id',
+                'description'       => 'Last date of invoice period.',
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
+
+            'invoice_total' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => 'Total tax incl. of the invoice.',
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
 
         ];
     }
@@ -269,8 +329,7 @@ class Document extends Model {
                     'validate' => [
                         'description' => 'Update the document to `pending`.',
                         'policies'    => [],
-                        'onbefore'    => 'onbeforeCall',
-                        'onafter'     => 'onafterCall',
+                        'onbefore'    => 'onbeforeValidate',
                         'status'      => 'pending'
                     ]
                 ]
@@ -282,8 +341,6 @@ class Document extends Model {
                     'validate' => [
                         'description' => 'Update the document to `processed`.',
                         'policies'    => [],
-                        'onbefore'    => 'onbeforeCall',
-                        'onafter'     => 'onafterCall',
                         'status'      => 'processed'
                     ]
                 ]
@@ -326,7 +383,7 @@ class Document extends Model {
 
 
     public static function doPerformAnalysis($self) {
-        $self->read(['content_type', 'data', 'document_json', 'condo_id']);
+        $self->read(['content_type', 'condo_id']);
 
         static $supported_content_types = [
                 'application/pdf',
@@ -345,7 +402,7 @@ class Document extends Model {
                 continue;
             }
 
-            $data = eQual::run('get', 'documents_analyze-by-mindee', ['id' => $id]);
+            $data = eQual::run('get', 'documents_analyze-mindee', ['id' => $id]);
 
             if(!isset($data['document']['inference']['prediction'])) {
                 // invalid Mindee response
@@ -355,39 +412,42 @@ class Document extends Model {
 
             try {
                 $prediction = $data['document']['inference']['prediction'];
-                $data = self::extractFromMindee($prediction);
+
+                $data = eQual::run('get', 'documents_parse-mindee', ['json' => json_encode($data['document']['inference']['prediction'])]);
 
                 // attempt to enrich with additional data
                 try {
                     $text = eQual::run('get', 'documents_extract-text', ['id' => $id]);
-                    $result = self::extractFromText($text);
+                    $info = eQual::run('get', 'documents_parse-text', ['text' => $text]);
 
-                    if(!isset($data['customer']['customer_number']) && isset($result['customer_number'])) {
-                        $data['customer']['customer_number'] = $result['customer_number'];
+                    if(!isset($data['customer']['customer_number']) && isset($info['customer_number'])) {
+                        $data['customer']['customer_number'] = $info['customer_number'];
                     }
 
-                    if(!isset($data['customer']['contract_number']) && isset($result['contract_number'])) {
-                        $data['customer']['contract_number'] = $result['contract_number'];
+                    if(!isset($data['customer']['contract_number']) && isset($info['contract_number'])) {
+                        $data['customer']['contract_number'] = $info['contract_number'];
                     }
 
-                    if(!isset($data['customer']['installation_number']) && isset($result['installation_number'])) {
-                        $data['customer']['installation_number'] = $result['installation_number'];
+                    if(!isset($data['customer']['installation_number']) && isset($info['installation_number'])) {
+                        $data['customer']['installation_number'] = $info['installation_number'];
                     }
 
-                    if(!isset($data['payment']['payment_id']) && isset($result['payment_id'])) {
-                        $data['payment']['payment_id'] = $result['payment_id'];
+                    if(!isset($data['payment']['payment_id']) && isset($info['payment_id'])) {
+                        $data['payment']['payment_id'] = $info['payment_id'];
                     }
 
-                    if(!isset($data['payment']['iban']) && isset($result['iban'])) {
-                        $data['payment']['iban'] = str_replace(' ', '', $result['iban']);
+                    if(!isset($data['payment']['iban']) && isset($info['iban'])) {
+                        $data['payment']['iban'] = $info['iban'];
                     }
 
-                    if(!isset($data['invoice_period']) && isset($result['period_start'], $result['period_end'])) {
+                    if(!isset($data['invoice_period']) && isset($info['period_start'], $info['period_end'])) {
                         $data['invoice_period'] = [
-                            'start_date' => self::toIsoDate($result['period_start']),
-                            'end_date'   => self::toIsoDate($result['period_end'])
+                            'start_date' => $info['period_start'],
+                            'end_date'   => $info['period_end']
                         ];
                     }
+
+                    $data['payment']['bic'] = self::computeBicFromIban($data['payment']['iban']);
                 }
                 catch(Exception $e) {
                     // ignore attempt failure
@@ -448,8 +508,8 @@ class Document extends Model {
 
                 if(isset($data['invoice_period']['start_date'], $data['invoice_period']['end_date'])) {
                     $values['invoice_has_period'] = true;
-                    $values['invoice_date_from'] = strtotime($data['invoice_period']['start_date']);
-                    $values['invoice_date_to'] = strtotime($data['invoice_period']['end_date']);
+                    $values['invoice_period_date_from'] = strtotime($data['invoice_period']['start_date']);
+                    $values['invoice_period_date_to'] = strtotime($data['invoice_period']['end_date']);
                 }
 
                 // #memo - document_json is meant to receive either content from parsed Mindee or from parsed UBL
@@ -462,6 +522,20 @@ class Document extends Model {
 
         }
 
+    }
+
+    public static function onbeforeValidate($self) {
+        $self->read(['document_json']);
+        foreach($self as $id => $document) {
+            $result = eQual::run('get', 'json-validate', ['json' => $document['document_json'], 'schema_id' => 'urn:fmt:json-schema:finance:purchase-invoice']);
+            if(isset($result['errors']) && count($result['errors'])) {
+                ob_start();
+                print_r($result['errors']);
+                $out = ob_get_clean();
+                trigger_error('APP::unable to validate document: ' . $out, EQ_REPORT_INFO);
+                throw new Exception('invalid_document_json', EQ_ERROR_INVALID_PARAM);
+            }
+        }
     }
 
     public static function onupdateParentNodeId($self) {
@@ -515,7 +589,7 @@ class Document extends Model {
                 // we need to relay document to EDMS in order to receive a UUID
                 $url = constant('FMT_API_URL_EDMS');
                 try {
-                    $request = new HttpRequest('POST '.$url.'?do=documents_push');
+                    $request = new HttpRequest('POST ' . $url . '?do=documents_push');
                     $response = $request
                         ->setBody([
                             'name'      => $document['name'],
@@ -551,17 +625,6 @@ class Document extends Model {
         foreach($self as $id => $document) {
             $result[$id] = '/document/' . $id;
         }
-        return $result;
-    }
-
-    public static function calcTags($self) {
-        $result = [];
-        $self->read(['tags_ids' => ['name']]);
-        foreach($self as $id => $document) {
-            $tags = implode(', ', array_column($document['tags_ids']->get(true), 'name'));
-            $result[$id] = strlen($tags) > 50 ? (substr($tags, 0, 50) . '...') : $tags;
-        }
-
         return $result;
     }
 
@@ -1004,282 +1067,28 @@ class Document extends Model {
         return $result;
     }
 
+    private static function computeBicFromIban($iban) {
+        static $map_bic;
+        $result = null;
 
-    /*
-        Detailed response values here : https://developers.mindee.com/docs/invoice-ocr#api-response
-    */
-    private static function extractFromMindee(array $prediction): array {
+        if(!$iban) {
+            return null;
+        }
 
-        $extractAddress = function ($address, $default_country) {
-            if(!$address) {
-                return null;
-            }
-            $streetParts = [];
-            if(!empty($address['street_name'])) {
-                $streetParts[] = $address['street_name'];
-            }
-            if(!empty($address['street_number'])) {
-                $streetParts[] = $address['street_number'];
-            }
-            if(!empty($address['address_complement'])) {
-                $streetParts[] = $address['address_complement'];
-            }
+        $country = substr($iban, 0, 2);
+        $bank_code = substr($iban, 4, 3);
 
-            return [
-                'street'        => implode(' ', $streetParts),
-                'city'          => $address['city'] ?? null,
-                'postal_code'   => $address['postal_code'] ?? null,
-                'country'       => $address['country'] ?? $default_country
-            ];
-        };
-        $formatDate = fn($date) => $date ? $date . 'T00:00:00Z' : null;
-        // for all requested value, check confidence and presence
-        $get = function ($key, $default = -1) use($prediction) {
-            $arr = $prediction[$key];
-            if(!isset($arr['confidence'])) {
-                throw new Exception('missing_confidence_for_property_' . $key, EQ_ERROR_INVALID_PARAM);
-            }
-            if($arr['confidence'] < 0.85) {
-                if($default === -1) {
-                    throw new Exception('confidence_insufficient_for_property_' . $key, EQ_ERROR_INVALID_PARAM);
-                }
-                else {
-                    return $default;
-                }
-            }
-            if(!isset($arr['value']) && $default === -1) {
-                throw new Exception('missing_mandatory_value', EQ_ERROR_INVALID_PARAM);
-            }
-            return $arr['value'] ?? $default;
-        };
-
-        $locale = $get('locale', 'fr-BE');
-        $localeCountry = $prediction['locale']['country'] ?? 'BE';
-        $localeCurrency = $prediction['locale']['currency'] ?? 'EUR';
-        $localeTaxPercent = 21;
-
-        $supplier_vat = null;
-        foreach($prediction['supplier_company_registrations'] ?? [] as $registration) {
-            if(in_array($registration['type'], ['VAT', 'VAT NUMBER'], true)) {
-                $supplier_vat = $registration['value'];
-                break;
+        if(!$map_bic) {
+            $file = EQ_BASEDIR . "/packages/identity/i18n/en/bic/{$country}.json";
+            if(file_exists($file)) {
+                $data = file_get_contents($file);
+                $map_bic = json_decode($data, true);
             }
         }
 
-        $customer_vat = null;
-        foreach($prediction['customer_company_registrations'] ?? [] as $registration) {
-            if(in_array($registration['type'], ['VAT', 'VAT NUMBER'], true)) {
-                $customer_vat = $registration['value'];
-                break;
-            }
-        }
+        $result = $map_bic[$bank_code]['bic'] ?? null;
 
-        if(!isset($supplier_vat)) {
-            throw new Exception('missing_mandatory_seller_vat', EQ_ERROR_INVALID_PARAM);
-        }
-
-        /*
-            possible values from Mindee API v4:
-                CREDIT NOTE: Reduces the amount a buyer owes.
-                INVOICE: Requests payment for goods or services.
-                PAYSLIP: Details employee earnings and deductions.
-                PURCHASE ORDER: Buyer's official request to purchase.
-                QUOTE: Seller's estimated cost for goods or services.
-                RECEIPT: Acknowledges payment.
-                STATEMENT: Summary of financial transactions over a period.
-                OTHER FINANCIAL: Miscellaneous financial documents.
-                OTHER: Documents not fitting other financial categories.
-        */
-        $map_document_type = [
-            'CREDIT NOTE'    => 'credit_note',
-            'INVOICE'        => 'invoice',
-            'PURCHASE ORDER' => 'purchase_order',
-            'QUOTE'          => 'quote'
-        ];
-
-        $mindee_doc_type = $get('document_type_extended');
-
-        $document_type = $map_document_type[$mindee_doc_type] ?? 'unknown';
-
-        $output = [
-            'document_type'     => $document_type,
-            'invoice_number'    => $get('invoice_number'),
-            'invoice_type'      => strtolower(str_replace(' ', '_', $mindee_doc_type)),
-            'issue_date'        => $formatDate($get('date')),
-            'due_date'          => $formatDate($get('due_date')),
-            'currency'          => $localeCurrency,
-            'buyer_reference'   => $get('po_number', null), // accept low confidence
-            'supplier' => [
-                'name'              => $get('supplier_name'),
-                'vat_id'            => $supplier_vat,
-                'address'           => $extractAddress($prediction['supplier_address'], $localeCountry),
-            ],
-            'customer' => [
-                'name'              => $get('customer_name'),
-                'customer_number'   => $get('customer_id', null),
-                'vat_id'            => $customer_vat,
-                'address'           => $extractAddress($prediction['customer_address'], $localeCountry),
-            ],
-            'lines' => [],
-            'totals' => [
-                'total_excl_tax'    => (float) $get('total_net'),
-                'total_tax'         => (float) $get('total_tax'),
-                'total_incl_tax'    => (float) $get('total_amount'),
-                'payable_amount'    => (float) $get('total_amount'),
-            ],
-            'payment' => [
-                'iban'              => $prediction['supplier_payment_details'][0]['iban'] ?? null,
-                'bic'               => $prediction['supplier_payment_details'][0]['swift'] ?? null,
-                'payment_id'        => $prediction['supplier_payment_details'][0]['routing_number'] ?? null,
-                'payment_means_code' => '30'
-            ]
-        ];
-
-        foreach ($prediction['line_items'] as $i => $line) {
-            $output['lines'][] = [
-                'id'            => (string) ($i + 1),
-                'description'   => $line['description'],
-                'quantity'      => $line['quantity'] ?? 1,
-                'unit_code'     => $line['unit_measure'] ?? 'C62',
-                'unit_price'    => $line['unit_price'] ?? $line['total_amount'],
-                'amount'        => $line['total_amount'],
-                'tax'           => [
-                    'category_id'   => 'S',
-                    'percent'       => $line['tax_rate'] ?? ($prediction['taxes'][0]['rate'] ?? $localeTaxPercent),
-                    'scheme_id'     => 'VAT'
-                ]
-            ];
-        }
-
-        return $output;
-    }
-
-    /*
-            [invoice_number] => 744000399977
-            [invoice_date] => 15/12/2024
-            [customer_number] => 1000328782
-            [contract_number] =>
-            [installation_number] => 4000232058
-            [consumption_address] => CHEE DE LOUVAIN 261, 1210 SAINT-JOSSE-TEN-NOODE
-            [period_start] => 10/2024
-            [period_end] => 12/2024
-            [amount_htva] =>
-            [invoice_date] => 15/12/2024
-            [amount_htva] =>
-            [amount_tva] =>
-            [amount_tvac] => 1.115.00
-            [due_date] => 14/01/2025
-            [iban] => BE52 0960 1178 4309
-            [payment_id] => +++810/4584/43280+++
-    */
-    private static function extractFromText(string $text): array {
-        static $patterns = [
-            'invoice_number' => [
-                '/facture\s+[^0-9]*([A-Z0-9\/\-]{4,})/i',
-            ],
-
-            'invoice_date' => [
-                '/facture\s+[^0-9]*\d*\s+du\s+(\d{2}\/\d{2}\/\d{4})/i',
-                '/date\s*[:]?\s*(\d{2}\/\d{2}\/\d{4})/i',
-            ],
-
-            'contract_number' => [
-                '/[^0-9]*\scontrat\s*[:\-]?\s*(\d{4,})/i',
-            ],
-
-            'customer_number' => [
-                '/[^0-9]*\sclient\s*[:\-]?\s*(\d{4,})/i',
-            ],
-
-            'installation_number' => [
-                '/installation\s*[:\-]?\s*(\d{3,})/mi',
-                '/\s+EAN\s*[:\-]?\s*(\d{3,})/mi',
-            ],
-
-            'consumption_address' => [
-                '/adresse\s+[^:]*:?[^A-Z]*([0-9A-Z ,-]*)/mi',
-            ],
-
-            'period_start' => [
-                '/periode[\s\S]*?\s+de\s+(\d{2}\/\d{4})\s+/mi',
-                '/periode[\s\S]*?\s+du\s+(\d{2}\/\d{4})\s+/mi'
-            ],
-
-            'period_end' => [
-                '/periode[\s\S]*?a\s+(\d{2}\/\d{4})/mi',
-                '/periode[\s\S]*?au\s+(\d{2}\/\d{4})/mi',
-            ],
-
-            'amount_htva' => [
-                '/total de la facture\s*\(htva\)\s*([\d\s.,]+) ?€/i',
-            ],
-
-            'amount_tva' => [
-                '/tva\s*\d{1,2}%\s*([\d\s.,]+) ?€/i',
-            ],
-
-            'amount_tvac' => [
-                '/total de la facture\s*\(tvac\)\s*([\d\s.,]+) ?€/i',
-                '/a payer\s*([\d\s.,]+) ?€/i',
-            ],
-
-            'due_date' => [
-                '/avant le\s+(\d{2}\/\d{2}\/\d{4})/i',
-            ],
-
-            'iban' => [
-                '/(BE\d{2} ?\d{4} ?\d{4} ?\d{4})/i',
-            ],
-
-            'payment_id' => [
-                '/(\+{3}\d{3}\/\d{4}\/\d{5}\+{3})/',
-            ],
-        ];
-        $results = [];
-
-        foreach ($patterns as $field => $regexList) {
-            foreach ($regexList as $regex) {
-                if (preg_match($regex, $text, $match)) {
-                    $value = trim($match[1]);
-
-                    // Optionnel : normalisation des nombres
-                    if (preg_match('/amount_/', $field)) {
-                        $value = str_replace([' ', ','], ['', '.'], $value);
-                    }
-
-                    $results[$field] = trim($value);
-                    break;
-                }
-            }
-            if (!isset($results[$field])) {
-                $results[$field] = null;
-            }
-        }
-
-        return $results;
-
-    }
-
-    private static function toIsoDate(string $input): ?string {
-        $input = trim($input);
-
-        // Format moth/year : 10/2024 or 10-2024
-        if (preg_match('/^(\d{2})[\/\-](\d{4})$/', $input, $m)) {
-            return "{$m[2]}-{$m[1]}-01T00:00:00Z";
-        }
-
-        // Format day/month/year: 01/10/2024 or 01-10-2024
-        if (preg_match('/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/', $input, $m)) {
-            return "{$m[3]}-{$m[2]}-{$m[1]}T00:00:00Z";
-        }
-
-        // Format year-month : 2024-10
-        if (preg_match('/^(\d{4})-(\d{2})$/', $input, $m)) {
-            return "{$m[1]}-{$m[2]}-01T00:00:00Z";
-        }
-
-        $ts = strtotime($input);
-        return $ts ? date('Y-m-01\T00:00:00\Z', $ts) : null;
+        return $result;
     }
 
 }

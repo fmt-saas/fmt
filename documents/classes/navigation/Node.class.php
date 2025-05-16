@@ -87,6 +87,21 @@ class Node extends Model {
                 'foreign_field'     => 'parent_id',
                 'description'       => 'Nodes having the node as parent.',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            // #todo - this should be handled in a more generic way
+            'is_visible_for_owners' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking folder as visible for owners.',
+                'visible'           => ['node_type', '=', 'folder'],
+                'default'           => false
+            ],
+
+            'is_system' => [
+                'type'              => 'boolean',
+                'description'       => 'System folders cannot be changed.',
+                'visible'           => ['node_type', '=', 'folder'],
+                'default'           => false
             ]
 
         ];

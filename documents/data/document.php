@@ -9,7 +9,7 @@ use documents\Document;
 use equal\http\HttpRequest;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Return raw data (with original MIME) of a document identified by given hash.',
+    'description'   => 'Return raw data (with original MIME) of a document identified by given identifier.',
     'params'        => [
         'id' =>  [
             'description'       => 'Identifier of the document.',
@@ -30,7 +30,8 @@ use equal\http\HttpRequest;
         'visibility'        => 'public'
     ],
     'response'      => [
-        'accept-origin' => '*'
+        'accept-origin' => '*',
+        'content-type'  => 'application/octet-stream'
     ],
     'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_URL_EDMS'],
     'providers'     => ['context', 'orm', 'auth', 'adapt']

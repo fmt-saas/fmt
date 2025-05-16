@@ -422,6 +422,26 @@
                         }
                     }
                 ]
+            },
+            {
+                "id": "item.bank_statements",
+                "label": "Bank Statements",
+                "description": "",
+                "icon": "bank",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "bank",
+                        "type": "entry",
+                        "label": "Banks",
+                        "icon": "account_balance",
+                        "description": "",
+                        "context": {
+                            "entity": "finance\\bank\\BankStatement",
+                            "view": "list.default"
+                        }
+                    }
+                ]
             }
         ]
     }

@@ -6,9 +6,7 @@
 */
 namespace purchase\supplier;
 
-use purchase\supplier\Supplier;
-
-class SupplierContract extends \equal\orm\Model {
+class SuppliershipContract extends \equal\orm\Model {
 
     public static function getName() {
         return 'Supplier Contract';
@@ -29,10 +27,13 @@ class SupplierContract extends \equal\orm\Model {
             ],
 
             'supplier_id' => [
-                'type'              => 'many2one',
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
                 'foreign_object'    => 'purchase\supplier\Supplier',
                 'description'       => "Supplier the contract relates to.",
-                'required'          => true
+                'relation'          => ['suppliership_id' => 'supplier_id'],
+                'store'             => true,
+                'instant'           => true
             ],
 
             'suppliership_id' => [

@@ -38,7 +38,7 @@
             "description": "Solde du compte avant les transactions.",
             "help": ""
         },
-        "new_balance": {
+        "closing_balance": {
             "label": "Nouveau solde",
             "description": "Solde du compte après les transactions.",
             "help": ""
