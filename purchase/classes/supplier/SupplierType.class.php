@@ -19,7 +19,7 @@ class SupplierType extends Model {
         return [
             'name' => [
                 'type'              => 'string',
-                'description'       => "The name of the Supplier type.",
+                'description'       => "Name of the Supplier type.",
                 'required'          => true
             ],
 

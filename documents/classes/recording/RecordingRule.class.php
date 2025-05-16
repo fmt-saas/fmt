@@ -32,13 +32,13 @@ class RecordingRule extends Model {
             ],
 
             'document_type_id' => [
-                'type'              => 'one2many',
+                'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentType',
                 'description'       => 'Document type linked to the rule.'
             ],
 
             'document_subtype_id' => [
-                'type'              => 'one2many',
+                'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentSubtype',
                 'description'       => 'Document subtype linked to the rule.'
             ],

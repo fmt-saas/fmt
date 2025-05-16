@@ -4,17 +4,17 @@
     Some Rights Reserved, FMT SRL, 2025-2026
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
-namespace documents\validation;
+namespace documents\labeling;
 use equal\orm\Model;
 
-class ValidationRule extends Model {
+class LabelingRule extends Model {
 
     public static function getName() {
-        return "Document Validation Rule";
+        return "Document Labeling Rule";
     }
 
     public static function getDescription() {
-        return "Validation rules allow to specify a series of conditions a document has to meet, according to its type, in order to be considered valid.";
+        return "Labeling rules allow to specify how the internal operations originating from a document, and its subsequent allocations, should be labeled.";
     }
 
     public static function getColumns() {
@@ -37,22 +37,17 @@ class ValidationRule extends Model {
                 'default'           => true
             ],
 
-            'document_type_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'documents\DocumentType',
-                'description'       => 'Document type linked to the rule.'
-            ],
-
-            'document_subtype_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'documents\DocumentSubtype',
-                'description'       => 'Document subtype linked to the rule.'
-            ],
-
-            'validation_rule_lines_ids' => [
+            'labeling_rule_lines_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'documents\validation\ValidationRuleLine',
-                'foreign_field'     => 'validation_rule_id',
+                'foreign_object'    => 'documents\labeling\LabelingRuleLine',
+                'foreign_field'     => 'labeling_rule_id',
+                'description'       => "Lines that are related to this rule."
+            ],
+
+            'suppliers_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'purchase\supplier\Supplier',
+                'foreign_field'     => 'labeling_rule_id',
                 'description'       => "Lines that are related to this rule."
             ]
 

@@ -45,9 +45,9 @@ class DocumentSubtype extends Model {
                 'description'       => 'Parent documents type.'
             ],
 
-            'accounting_rules_ids' => [
+            'recording_rules_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'documents\recording\AccountingRule',
+                'foreign_object'    => 'documents\recording\RecordingRule',
                 'foreign_field'     => 'document_subtype_id',
                 'description'       => 'Rules matching the document subtype.'
             ],

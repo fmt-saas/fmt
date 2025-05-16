@@ -297,14 +297,15 @@ class Document extends Model {
             ],
 
             'invoice_condo_id' => [
-                'type'              => 'date',
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\property\Condominium',
                 'description'       => 'Last date of invoice period.',
                 'visible'           => ['document_type_code', '=', 'invoice']
             ],
 
             'invoice_lines' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'DocumentInvoiceLine',
+                'foreign_object'    => 'documents\typing\DocumentInvoiceLine',
                 'foreign_field'     => 'document_id',
                 'description'       => 'Last date of invoice period.',
                 'visible'           => ['document_type_code', '=', 'invoice']
