@@ -14,7 +14,11 @@
     ],
     "header": {
         "actions": {
-            "ACTION.CREATE" : false
+            "ACTION.CREATE" : [
+                {
+                    "view": "form.create"
+                }
+            ]
         }
     },
     "layout": {

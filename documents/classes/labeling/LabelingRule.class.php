@@ -44,6 +44,12 @@ class LabelingRule extends Model {
                 'description'       => "Lines that are related to this rule."
             ],
 
+            'supplier_type_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'purchase\supplier\SupplierType',
+                'description'       => "Type of supplier this rule applies to."
+            ],
+
             'suppliers_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'purchase\supplier\Supplier',

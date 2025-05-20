@@ -27,7 +27,7 @@ class Supplier extends Identity {
         return [
             'object_class' => [
                 'type'              => 'string',
-                'description'       => 'Class of the current entity .',
+                'description'       => 'Class of the current Identity.',
                 'help'              => 'This is required in order to display the relational fields accordingly.',
                 'default'           => 'purchase\supplier\Supplier'
             ],
@@ -45,6 +45,13 @@ class Supplier extends Identity {
             /**
              * Specific Supplier columns
              */
+
+            'uuid' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:36',
+                'unique'            => true,
+                'description'       => 'Unique supplier identifier provided by GLOBAL'
+            ],
 
             'invoices_ids' => [
                 'type'              => 'one2many',

@@ -1,50 +1,23 @@
 [
-    {
-        "name": "purchase\\supplier\\Supplier",
-        "lang": "fr",
-        "data": [
-            {
-                "id": 1000001,
-                "object_class": "purchase\\supplier\\Supplier",
-                "identity_id": 1000001,
-                "owner_identity_id": null,
-                "type_id": 3,
-                "description": null,
-                "bank_account_iban": null,
-                "bank_account_bic": null,
-                "signature": null,
-                "legal_name": "VIVAQUA SC ",
-                "short_name": "VIVAQUA",
-                "has_vat": true,
-                "vat_number": "BE0202962701",
-                "registration_number": "202962701",
-                "citizen_identification": null,
-                "nationality": "BE",
-                "has_parent": false,
-                "parent_id": null,
-                "firstname": null,
-                "lastname": null,
-                "gender": null,
-                "title": null,
-                "date_of_birth": null,
-                "lang_id": 2,
-                "address_street": "17-19 boulevard de l'Impératrice",
-                "address_dispatch": null,
-                "address_city": null,
-                "address_zip": "1000",
-                "address_state": null,
-                "address_country": "BE",
-                "address": "17-19 boulevard de l'Impératrice ",
-                "email": null,
-                "email_alt": null,
-                "phone": "+3225188810",
-                "phone_alt": null,
-                "mobile": null,
-                "website": "https://vivaqua.be",
-                "image_document_id": null,
-                "is_active": true,
-                "supplier_type_id": null
-            }
-        ]
-    }
+  {
+    "name": "purchase\\supplier\\Supplier",
+    "lang": "fr",
+    "data": [
+      {
+        "id": 1001,
+        "is_active": true,
+        "supplier_type_id": null
+      },
+      {
+        "id": 1002,
+        "is_active": true,
+        "supplier_type_id": null
+      },
+      {
+        "id": 1003,
+        "is_active": true,
+        "supplier_type_id": null
+      }
+    ]
+  }
 ]

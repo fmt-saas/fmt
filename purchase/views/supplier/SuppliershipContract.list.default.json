@@ -1,0 +1,28 @@
+{
+    "name": "Supplier Contracts",
+    "description": "A suppliership describes a relation between a supplier and a condominium.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "date_from",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "date_to",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "is_active",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "contract_ref",
+                "width": "20%"
+            }
+        ]
+    }
+}

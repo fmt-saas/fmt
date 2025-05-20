@@ -23,10 +23,23 @@ class BankStatementLine extends Model {
 
         return [
 
+            'name' => [
+                'type'              => 'alias',
+                'alias'             => 'sequence_number'
+            ],
+
+            'sequence_number' => [
+                'type'              => 'integer',
+                'description'       => 'Structured message, if any.',
+                'default'           => 'defaultSequenceNumber',
+                'required'          => true
+            ],
+
             'bank_statement_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankStatement',
-                'description'       => 'The bank statement the line relates to.'
+                'description'       => 'The bank statement the line relates to.',
+                'required'          => true
             ],
 
             'payments_ids' => [
@@ -39,9 +52,10 @@ class BankStatementLine extends Model {
             ],
 
             'date' => [
-                'type'              => 'datetime',
+                'type'              => 'date',
                 'description'       => 'Date at which the statement was issued.',
-                'readonly'          => true
+                'readonly'          => true,
+                'required'          => true
             ],
 
             'message' => [
@@ -56,19 +70,11 @@ class BankStatementLine extends Model {
                 'readonly'          => true
             ],
 
-            'customer_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'identity\Partner',
-                'domain'            => ['relationship', '=', 'customer'],
-                'description'       => 'The customer the payment relates to, if known.',
-                'readonly'          => true
-            ],
-
             'amount' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money',
                 'description'       => 'Amount of the transaction.',
-                'readonly'          => true
+                'required'          => true
             ],
 
             'remaining_amount' => [
@@ -84,13 +90,12 @@ class BankStatementLine extends Model {
                 'type'              => 'string',
                 'usage'             => 'uri/urn:iban',
                 'description'       => 'Counterparty IBAN, if any.',
-                'readonly'          => true
+                'required'          => true
             ],
 
             'account_holder' => [
                 'type'              => 'string',
-                'description'       => 'Name of the Person whom the payment originates.',
-                'readonly'          => true
+                'description'       => 'Name of the Person whom the payment originates.'
             ],
 
             'status' => [
@@ -98,15 +103,24 @@ class BankStatementLine extends Model {
                 'selection'         => [
                     'pending',              // requires a review
                     'ignored',              // has been manually processed but does not relate to a booking
-                    'reconciled',           // has been processed and assigned to a payment
-                    'to_refund'             // has been processed and refers to a payment already received
+                    'reconciled'            // has been processed and assigned to a payment
                 ],
                 'description'       => 'Status of the line.',
-                'default'           => 'pending',
-                'onupdate'          => 'onupdateStatus',
+                'default'           => 'pending'
             ]
 
         ];
+    }
+
+    public static function defaultSequenceNumber($values) {
+        $result = null;
+        if(isset($values['bank_statement_id'])) {
+            $statement = BankStatement::id($values['bank_statement_id'])->read(['statement_lines_ids' => ['@domain' => ['state', '=', 'instance']]])->first();
+            if($statement) {
+                $result = count($statement['statement_lines_ids']) + 1;
+            }
+        }
+        return $result;
     }
 
     /**
@@ -130,28 +144,6 @@ class BankStatementLine extends Model {
                 }
                 $om->update(self::getType(), $lid, ['status' => $status, 'remaining_amount' => null]);
             }
-        }
-    }
-
-    public static function onupdateStatus($om, $ids, $values, $lang) {
-        $lines = $om->read(self::getType(), $ids, ['status', 'bank_statement_id', 'payments_ids.partner_id']);
-
-        if($lines > 0) {
-            $bank_statements_ids = [];
-            foreach($lines as $lid => $line) {
-                // mark related statement for re-computing
-                $bank_statements_ids[] = $line['bank_statement_id'];
-                if($line['status'] == 'reconciled') {
-                    // resolve customer_id: retrieve first payment
-                    if(count((array) $line['payments_ids.partner_id'])) {
-                        $payment = reset($line['payments_ids.partner_id']);
-                        $om->update(self::getType(), $lid, ['customer_id' => $payment['partner_id']]);
-                    }
-                }
-            }
-            $om->update('finance\bank\BankStatement', $bank_statements_ids, ['status' => null]);
-            // force immediate re-computing
-            $om->read('finance\bank\BankStatement', $bank_statements_ids, ['status']);
         }
     }
 

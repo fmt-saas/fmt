@@ -8,6 +8,7 @@
 namespace finance\bank;
 
 use equal\orm\Model;
+use realestate\property\Condominium;
 
 class BankStatement extends Model {
 
@@ -28,7 +29,6 @@ class BankStatement extends Model {
                 'description'       => "The condominium the accounting entry refers to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 //'readonly'          => true
-                'visible'           => ['organisation_id', '=', null]
             ],
 
             'name' => [
@@ -48,7 +48,8 @@ class BankStatement extends Model {
                 'type'              => 'date',
                 'description'       => 'Date the statement was received.',
                 'required'          => true,
-                'readonly'          => true
+                'readonly'          => true,
+                'default'           => function () {return time();}
             ],
 
             'statement_currency' => [
@@ -60,31 +61,27 @@ class BankStatement extends Model {
             'opening_date' => [
                 'type'              => 'date',
                 'description'       => 'Date the statement was received.',
-                'required'          => true,
-                'readonly'          => true
+                'required'          => true
             ],
 
             'closing_date' => [
                 'type'              => 'date',
                 'description'       => 'Date the statement was received.',
-                'required'          => true,
-                'readonly'          => true
+                'required'          => true
             ],
 
             'opening_balance' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => 'Account balance before the transactions.',
-                'required'          => true,
-                'readonly'          => true
+                'required'          => true
             ],
 
             'closing_balance' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => 'Account balance after the transactions.',
-                'required'          => true,
-                'readonly'          => true
+                'required'          => true
             ],
 
             'bank_account_iban' => [
@@ -111,9 +108,11 @@ class BankStatement extends Model {
                 'result_type'       => 'string',
                 'function'          => 'calcStatus',
                 'selection'         => [
-                    'pending',                // hasn't been fully processed yet
-                    'reconciled'              // has been fully processed (all lines either ignored or reconciled)
+                    'draft',
+                    'pending',
+                    'reconciled'
                 ],
+                'default'           => 'draft',
                 'description'       => 'Status of the statement (depending on lines).',
                 'store'             => true
             ]
@@ -122,45 +121,120 @@ class BankStatement extends Model {
         ];
     }
 
-    public static function calcName($om, $oids, $lang) {
+    public static function getWorkflow() {
+        return [
+            'draft' => [
+                'description' => 'Draft invoice, pending and still waiting to be completed.',
+                'icon' => 'edit',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Validate a manually created statement.',
+                        'policies'    => [
+                            'is_balanced'
+                        ],
+                        'status'    => 'pending'
+                    ]
+                ],
+            ],
+            'pending' => [
+                'description' => 'Draft invoice, pending and still waiting to be completed.',
+                'icon' => 'edit',
+                'transitions' => [
+                    'reconcile' => [
+                        'description' => '',
+                        'policies'    => [
+                            'is_reconciled'
+                        ],
+                        'status'    => 'reconciled'
+                    ]
+                ],
+            ],
+            'reconciled' => [
+                'description' => 'The Bank Statement is .',
+                'icon' => 'receipt_long',
+                'transitions' => [
+                    'cancel' => [
+                        'description' => '',
+                        'status' => 'cancelled',
+                    ]
+                ],
+            ],
+        ];
+    }
+
+    public static function getPolicies(): array {
+        return array_merge(parent::getPolicies(), [
+            'is_balanced' => [
+                'description' => 'Checks & validate values required for activation.',
+                'function'    => 'policyIsBalanced'
+            ],
+            'is_reconciled' => [
+                'description' => 'Verifies that there are no invoiced executions.',
+                'function'    => 'policyIsReconciled'
+            ]
+        ]);
+    }
+
+    public static function calcName($self) {
         $result = [];
-        $statements = $om->read(get_called_class(), $oids, ['bank_account_number', 'date', 'opening_balance', 'closing_balance']);
-        foreach($statements as $oid => $statement) {
-            $result[$oid] = sprintf("%s - %s - %s - %s", $statement['bank_account_number'], date('Ymd', $statement['date']), $statement['opening_balance'], $statement['closing_balance']);
+        $self->read(['condo_id' => 'code', 'bank_account_iban', 'date', 'opening_balance', 'closing_balance']);
+        foreach($self as $id => $statement) {
+            if(!isset($statement['condo_id'], $statement['bank_account_iban'], $statement['date'], $statement['opening_balance'], $statement['closing_balance'])) {
+                continue;
+            }
+            $result[$id] = sprintf("%s - %s - %s - %s - %s", $statement['condo_id']['code'], $statement['bank_account_iban'], date('Ymd', $statement['date']), $statement['opening_balance'], $statement['closing_balance']);
         }
         return $result;
     }
 
-    public static function calcBankAccountIban($om, $oids, $lang) {
+    public static function calcBankAccountIban($om, $ids, $lang) {
         $result = [];
-        $statements = $om->read(get_called_class(), $oids, ['bank_account_number', 'bank_account_bic']);
+        $statements = $om->read(self::getType(), $ids, ['bank_account_iban', 'bank_account_bic']);
 
-        foreach($statements as $oid => $statement) {
-            $result[$oid] = self::convertBbanToIban($statement['bank_account_number']);
+        foreach($statements as $id => $statement) {
+            $result[$id] = self::convertBbanToIban($statement['bank_account_iban']);
         }
         return $result;
     }
 
-    public static function calcStatus($om, $oids, $lang) {
+    public static function calcStatus($self) {
         $result = [];
-        $statements = $om->read(get_called_class(), $oids, ['statement_lines_ids.status']);
-
-        if($statements > 0) {
-            foreach($statements as $sid => $statement) {
+        $self->read(['statement_lines_ids' => 'status']);
+        foreach($self as $id => $statement) {
+            $is_reconciled = false;
+            if(count($statement['statement_lines_ids'])) {
                 $is_reconciled = true;
-                foreach((array) $statement['statement_lines_ids.status'] as $lid => $line) {
+                foreach($statement['statement_lines_ids'] as $line_id => $line) {
                     if( !in_array($line['status'], ['reconciled', 'ignored']) ) {
                         $is_reconciled = false;
                         break;
                     }
                 }
-                $result[$sid] = ($is_reconciled)?'reconciled':'pending';
+            }
+            $result[$id] = ($is_reconciled) ? 'reconciled' : 'pending';
+        }
+        return $result;
+    }
+
+    public static function policyIsBalanced($self): array {
+        $result = [];
+        $self->read(['statement_lines_ids' => ['amount'], 'opening_balance', 'closing_balance']);
+        foreach($self as $id => $statement) {
+            $delta = round($statement['closing_balance'], 2) - round($statement['opening_balance'], 2);
+            $sum = 0;
+            foreach($statement['statement_lines_ids'] as $statementLine) {
+                $sum += round($statementLine['amount'], 2);
+            }
+            if(round($sum - $delta) !== 0.0) {
+                $result[$id] = [
+                    'invalid_amount' => 'The sum of the lines does not match the delta.'
+                ];
             }
         }
         return $result;
     }
 
-    public static function convertBbanToIban($account_number) {
+    private static function convertBbanToIban($account_number) {
 
         /*
             account number already has IBAN format
@@ -187,11 +261,25 @@ class BankStatement extends Model {
         }
 
         $check_digits = substr($account_number, -2);
-        $dummy = intval($check_digits.$check_digits.$code_num.'00');
+        $dummy = intval($check_digits . $check_digits . $code_num . '00');
         $control = 98 - ($dummy % 97);
         return trim(sprintf("BE%02d%s", $control, $account_number));
     }
 
+    public static function onchange($self, $event, $values, $lang) {
+        $result = [];
+
+        if(isset($event['bank_account_iban'])) {
+            $event['bank_account_iban'] = trim(str_replace(' ', '', $event['bank_account_iban']));
+            $result['bank_account_iban'] = $event['bank_account_iban'];
+            $bankAccount = BankAccount::search(['bank_account_iban', '=', $event['bank_account_iban']])->read(['condo_id' => ['id', 'name']])->first();
+            if($bankAccount) {
+                $result['condo_id'] = ['id' => $bankAccount['condo_id']['id'], 'name' => $bankAccount['condo_id']['name']];
+            }
+        }
+
+        return $result;
+    }
 
     public function getUnique() {
         return [

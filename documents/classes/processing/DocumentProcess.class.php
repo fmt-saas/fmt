@@ -85,5 +85,6 @@ class DocumentProcess extends Model {
         ];
     }
 
-
+    public static function onupdateData($self) {
+    }
 }

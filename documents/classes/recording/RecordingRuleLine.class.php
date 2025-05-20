@@ -26,23 +26,22 @@ class RecordingRuleLine extends Model {
                 'required'          => true
             ],
 
-            'account_code' => [
-                'type'              => 'string',
-                'description'       => "Code of the expense account associated to the Reserve Fund.",
-                'required'          => true
-            ],
-
             'recording_rule_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\recording\RecordingRule',
                 'description'       => "Parent recording rule this line relates to."
             ],
 
+            'account_code' => [
+                'type'              => 'string',
+                'description'       => "Code of the account associated to the Rule line.",
+                'required'          => true
+            ],
+
             'apportionment_id' => [
                 'type'              => 'many2one',
                 'description'       => "The key that the apportionment refers to.",
                 'foreign_object'    => 'realestate\property\Apportionment',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_statutory', '=', false], ['is_active', '=', true], ['status', '=', 'published']],
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed."
             ],
 

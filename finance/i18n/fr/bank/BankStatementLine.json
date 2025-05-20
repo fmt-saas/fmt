@@ -29,8 +29,8 @@
             "help": ""
         },
         "account_holder": {
-            "label": "Titulaire de compte",
-            "description": "Nom de la personne à l'origine du paiement.",
+            "label": "Titulaire du compte",
+            "description": "Nom associé au compte à l'origine du paiement.",
             "help": ""
         },
         "status": {

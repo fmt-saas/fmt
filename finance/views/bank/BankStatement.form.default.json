@@ -1,6 +1,22 @@
 {
     "name": "Bank Statement",
     "description": "",
+    "actions": [
+        {
+            "id": "action.validate",
+            "label": "Validate",
+            "icon": "play_arrow",
+            "description": "Generate mandatory configuration.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "finance\\bank\\BankStatement",
+                "transition": "validate",
+                "ids": []
+            },
+            "confirm": false,
+            "visible": ["status", "=", "draft"]
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -14,17 +30,36 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "name",
-                                                "width": "100%",
+                                                "value": "bank_account_iban",
+                                                "width": "50%",
                                                 "widget": {
-                                                    "heading": true,
-                                                    "readonly": true
+                                                    "heading": true
                                                 }
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "date",
+                                                "value": "condo_id",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "opening_date",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "closing_date",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "status",
+                                                "visible": false
                                             }
                                         ]
                                     },
@@ -35,20 +70,38 @@
                                         "width": "25%",
                                         "items": [
                                             {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
                                                 "type": "field",
                                                 "value": "opening_balance",
-                                                "width": "100%"
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "closing_balance",
-                                                "width": "100%"
+                                                "width": "50%"
                                             }
                                         ]
                                     }
 
                                 ]
-                            },
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "rows": [
                             {
                                 "columns": [
                                     {
@@ -60,8 +113,11 @@
                                                 "width": "100%",
                                                 "widget":{
                                                     "header": {
+                                                        "layout": "inline",
                                                         "actions": {
-                                                            "ACTION.CREATE": false
+                                                            "ACTION.CREATE": [{
+                                                                "view": "form.create"
+                                                            }]
                                                         }
                                                     }
                                                 }

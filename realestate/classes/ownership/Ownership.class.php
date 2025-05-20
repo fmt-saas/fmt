@@ -31,7 +31,7 @@ class Ownership extends \equal\orm\Model {
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 // 'required'          => true,
-                'dependents'        => ['name']
+                'dependents'        => ['name', 'ownership_account_id']
             ],
 
             'code' => [
@@ -139,7 +139,8 @@ class Ownership extends \equal\orm\Model {
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
-                'function'          => 'calcOwnershipAccountId'
+                'function'          => 'calcOwnershipAccountId',
+                'store'             => true
             ]
 
         ];

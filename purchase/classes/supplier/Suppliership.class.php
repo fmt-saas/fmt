@@ -32,7 +32,7 @@ class Suppliership extends \equal\orm\Model {
             'supplier_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\supplier\Supplier',
-                'description'       => "Supplier the contract relates to."
+                'description'       => "Supplier the Suppliership relates to."
             ],
 
             'name' => [
@@ -51,7 +51,22 @@ class Suppliership extends \equal\orm\Model {
                 'description'       => "Code of the supplier for the Condominium.",
                 'help'              => "Code is assigned automatically and cannot be changed, and is intended to internal use.",
                 'readonly'          => true
-            ]
+            ],
+
+            'suppliership_contracts_ids' => [
+                'type'              => 'one2many',
+                'description'       => "The contracts of the condominium for the supplier.",
+                'foreign_object'    => 'purchase\supplier\SuppliershipContract',
+                'foreign_field'     => 'suppliership_id'
+            ],
+
+            'suppliership_references_ids' => [
+                'type'              => 'one2many',
+                'description'       => "The references used by the supplier for targeting the condominium.",
+                'foreign_object'    => 'purchase\supplier\SuppliershipReference',
+                'foreign_field'     => 'suppliership_id'
+            ],
+
 
         ];
     }

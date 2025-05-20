@@ -36,17 +36,6 @@
             }
         },
         {
-            "id": "item.admin",
-            "label": "Config",
-            "description": "",
-            "icon": "settings",
-            "context": {
-                "entity": "realestate\\property\\Condominium",
-                "view": "form.admin",
-                "domain": [["id", "=", "object.id"]]
-            }
-        },
-        {
             "id": "documents",
             "type": "entry",
             "label": "Documents",
@@ -56,6 +45,29 @@
                 "entity": "documents\\navigation\\Node",
                 "view": "list.folders",
                 "domain": [["node_type", "=", "folder"], ["parent_id", "=", null], ["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "bank_accounts",
+            "type": "entry",
+            "label": "Bank Accounts",
+            "icon": "account_balance",
+            "description": "",
+            "context": {
+                "entity": "finance\\bank\\BankAccount",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "item.admin",
+            "label": "Config",
+            "description": "",
+            "icon": "settings",
+            "context": {
+                "entity": "realestate\\property\\Condominium",
+                "view": "form.admin",
+                "domain": [["id", "=", "object.id"]]
             }
         }
     ],

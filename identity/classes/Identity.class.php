@@ -40,17 +40,6 @@ class Identity extends Model {
                 'function'          => 'calcName',
                 'store'             => true,
                 'instant'           => true,
-                'dependents'        => [
-                    'user_id'             => 'name',
-                    'contact_id'          => 'name',
-                    'customer_contact_id' => 'name',
-                    'employee_id'         => 'name',
-                    'customer_id'         => 'name',
-                    'supplier_id'         => 'name',
-                    'managing_agent_id'   => 'name',
-                    'owner_id'            => 'name',
-                    'tenant_id'           => 'name'
-                ],
                 'description'       => 'The display name of the identity.',
                 'help'              => "The display name is a computed field that returns a concatenated string containing either the firstname+lastname, or the legal name of the Identity, based on the kind of Identity.\n
                     For instance, 'name', for a company with \"My Company\" as legal_name will return \"My Company\". \n
@@ -166,8 +155,9 @@ class Identity extends Model {
 
             'short_name' => [
                 'type'              => 'string',
-                'description'       => 'Usual name to be used as a memo for identifying the organization (acronym or short name).',
+                'description'       => 'Usual name to be used for the organization (acronym or brand name).',
                 'visible'           => [ ['type', '<>', 'IN'] ],
+                'multilang'         => true,
                 'dependents'        => ['name'],
                 'onupdate'          => 'onupdateShortName'
             ],
@@ -613,28 +603,28 @@ class Identity extends Model {
             if($identity['user_id']) {
                 User::id($identity['user_id'])->update([$field => $identity[$field]]);
             }
-            elseif($identity['contact_id']) {
+            if($identity['contact_id']) {
                 Contact::id($identity['contact_id'])->update([$field => $identity[$field]]);
             }
-            elseif($identity['customer_contact_id']) {
+            if($identity['customer_contact_id']) {
                 CustomerContact::id($identity['customer_contact_id'])->update([$field => $identity[$field]]);
             }
-            elseif($identity['employee_id']) {
+            if($identity['employee_id']) {
                 Employee::id($identity['employee_id'])->update([$field => $identity[$field]]);
             }
-            elseif($identity['customer_id']) {
+            if($identity['customer_id']) {
                 Customer::id($identity['customer_id'])->update([$field => $identity[$field]]);
             }
-            elseif($identity['supplier_id']) {
+            if($identity['supplier_id']) {
                 Supplier::id($identity['supplier_id'])->update([$field => $identity[$field]]);
             }
-            elseif($identity['organisation_id']) {
+            if($identity['organisation_id']) {
                 Organisation::id($identity['organisation_id'])->update([$field => $identity[$field]]);
             }
-            elseif($identity['managing_agent_id']) {
+            if($identity['managing_agent_id']) {
                 ManagingAgent::id($identity['managing_agent_id'])->update([$field => $identity[$field]]);
             }
-            elseif($identity['owner_id']) {
+            if($identity['owner_id']) {
                 Owner::id($identity['owner_id'])->update([$field => $identity[$field]]);
             }
         }
@@ -857,8 +847,27 @@ class Identity extends Model {
         }
 
         if(isset($event['bank_account_iban'])) {
-            $bic = self::computeBicFromIban($event['bank_account_iban'], $lang);
-            $result['bank_account_bic'] = $bic;
+            $result['bank_account_iban'] = preg_replace('/[^A-Z0-9]/i', '', $event['bank_account_iban']);
+            $bank_info = self::computeBankFromIban($result['bank_account_iban']);
+            if($bank_info) {
+                $result['bank_account_bic'] = $bank_info['bic'];
+            }
+        }
+
+        if(isset($event['phone'])) {
+            $result['phone'] = preg_replace('/[^\d+]/', '', $event['phone']);
+        }
+
+        if(isset($event['phone_alt'])) {
+            $result['phone_alt'] = preg_replace('/[^\d+]/', '', $event['phone_alt']);
+        }
+
+        if(isset($event['mobile'])) {
+            $result['mobile'] = preg_replace('/[^\d+]/', '', $event['mobile']);
+        }
+
+        if(isset($event['email'])) {
+            $result['email'] = trim($event['email']);
         }
 
         return $result;
@@ -879,6 +888,44 @@ class Identity extends Model {
                 $map_bic = json_decode($data, true);
                 $result = $map_bic[$bank_code]['bic'] ?? '';
             }
+        }
+
+        return $result;
+    }
+
+    private static function computeBankFromIban($iban, $lang='en') {
+        $result = null;
+
+        $normalized_iban = strtoupper(str_replace(' ', '', trim($iban)));
+
+        if(!preg_match('/^[A-Z]{2}\d{2}[A-Z0-9]+$/', $normalized_iban)) {
+            return null;
+        }
+
+        $country = substr($normalized_iban, 0, 2);
+        $bank_code = substr($normalized_iban, 2, 3);
+
+        $iban_formats = [
+                'BE' => ['bank_pos' => 4, 'bank_len' => 3],
+                'FR' => ['bank_pos' => 4, 'bank_len' => 5],
+                'DE' => ['bank_pos' => 4, 'bank_len' => 8],
+                'LU' => ['bank_pos' => 4, 'bank_len' => 3],
+                'NL' => ['bank_pos' => 4, 'bank_len' => 4],
+                // #todo - to complete
+            ];
+
+        if(!isset($iban_formats[$country])) {
+            return null; // pays non pris en charge
+        }
+
+        ['bank_pos' => $pos, 'bank_len' => $len] = $iban_formats[$country];
+        $bank_code = substr($normalized_iban, $pos, $len);
+
+        $file = EQ_BASEDIR."/packages/identity/i18n/{$lang}/bic/{$country}.json";
+        if(file_exists($file)) {
+            $data = file_get_contents($file);
+            $map_bank = json_decode($data, true);
+            $result = $map_bank[$bank_code] ?? null;
         }
 
         return $result;
@@ -945,6 +992,12 @@ class Identity extends Model {
                 }
             }
         }
+        else {
+            $name_dependencies = ['legal_name', 'short_name', 'firstname', 'lastname', 'type_id'];
+            if(array_intersect_key($values, array_flip($name_dependencies))) {
+                self::updateField($self, 'name');
+            }
+        }
     }
 
     /**
@@ -961,6 +1014,8 @@ class Identity extends Model {
         if(isset($values['type_id'])) {
             $identities = $om->read(get_called_class(), $ids, [ 'firstname', 'lastname', 'legal_name' ], $lang);
             foreach($identities as $id => $identity) {
+
+                /*
                 if($values['type_id'] == 1) {
                     $firstname = '';
                     $lastname = '';
@@ -996,6 +1051,7 @@ class Identity extends Model {
                         return ['legal_name' => ['missing' => 'Legal name cannot be empty for legal person.']];
                     }
                 }
+                */
             }
         }
         return parent::canupdate($om, $ids, $values, $lang);

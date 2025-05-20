@@ -53,7 +53,7 @@ class ValidationRule extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\validation\ValidationRuleLine',
                 'foreign_field'     => 'validation_rule_id',
-                'description'       => "Lines that are related to this rule."
+                'description'       => "Lines relating to the rule."
             ]
 
         ];

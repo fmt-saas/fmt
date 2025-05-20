@@ -6,7 +6,7 @@
 */
 namespace purchase\supplier;
 
-class SuppliershipRef extends \equal\orm\Model {
+class SuppliershipReference extends \equal\orm\Model {
 
     public static function getName() {
         return 'Supplier Reference';
@@ -47,9 +47,11 @@ class SuppliershipRef extends \equal\orm\Model {
                 'selection'         => [
                     'installation_number',
                     'ean_number',
+                    'meter_number',
                     'customer_number',
                     'phone_number',
-                    'elevator_number'
+                    'elevator_number',
+                    'building_code'
                 ],
                 'description'       => "Type of reference assigned by the supplier.",
                 'required'          => true

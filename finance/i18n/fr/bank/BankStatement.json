@@ -48,6 +48,7 @@
             "description": "Indicateur d'assignation de l'extrait aux paiements.",
             "help": "",
             "selection": {
+                "draft": "brouillon",
                 "pending": "à traiter",
                 "reconciled": "réconcilié"
             }

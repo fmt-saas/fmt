@@ -8,6 +8,7 @@ namespace finance\bank;
 
 use equal\data\DataFormatter;
 use equal\orm\Model;
+use finance\accounting\Account;
 use identity\Organisation;
 
 class BankAccount extends Model {
@@ -20,7 +21,8 @@ class BankAccount extends Model {
                 'description'       => "The condominium the accounting entry refers to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 //'readonly'          => true
-                'visible'           => ['organisation_id', '=', null]
+                'visible'           => ['organisation_id', '=', null],
+                'dependents'        => ['accounting_account_id']
             ],
 
             'name' => [
@@ -30,6 +32,18 @@ class BankAccount extends Model {
                 'description'       => 'The display name of the account (IBAN).',
                 'store'             => true,
                 'instant'           => true
+            ],
+
+            'bank_account_type' => [
+                'type'              => 'string',
+                'description'       => 'Type of bank account (current of savings).',
+                'help'              => 'Identifiers of this list should match the operation_assignment codes used in the chart of Accounts.',
+                'selection'         => [
+                    'bank_current',
+                    'bank_savings'
+                ],
+                'default'           => 'current',
+                'dependents'        => ['accounting_account_id']
             ],
 
             'description' => [
@@ -82,12 +96,45 @@ class BankAccount extends Model {
                 'description'       => 'The name of the bank where the organization holds its account.',
                 'function'          => 'calcBankName',
                 'store'             => true
-            ]
+            ],
 
+            'accounting_account_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'function'          => 'calcAccountingAccountId',
+                'store'             => true
+            ]
 
         ];
     }
 
+    private static function computeAccountingAccount($bank_account_type, $condo_id) {
+        if($condo_id && $bank_account_type) {
+            $account = Account::search([ ['condo_id', '=', $condo_id], ['operation_assignment', '=', $bank_account_type] ])->read(['id', 'name'])->first();
+            if($account) {
+                return [
+                    'id'    => $account['id'],
+                    'name'  => $account['name']
+                ];
+            }
+        }
+        return null;
+    }
+
+    public static function calcAccountingAccountId($self) {
+        $result = [];
+        $self->read(['bank_account_type', 'condo_id']);
+        foreach($self as $id => $bankAccount) {
+            if($bankAccount['condo_id'] && $bankAccount['bank_account_type']) {
+                $account = self::computeAccountingAccount($bankAccount['bank_account_type'], $bankAccount['condo_id']);
+                if($account) {
+                    $result[$id] = $account['id'];
+                }
+            }
+        }
+        return $result;
+    }
 
     public static function onupdateBankAccountIban($self) {
         $self->read(['organisation_id', 'bank_account_iban', 'condo_id']);
@@ -138,12 +185,17 @@ class BankAccount extends Model {
         $result = [];
 
         if(isset($event['bank_account_iban'])) {
-            $result['bank_country'] = self::computeCountryFromIban($event['bank_account_iban']);
+            $result['bank_account_iban'] = str_replace(' ', '', $event['bank_account_iban']);
+            $result['bank_country'] = self::computeCountryFromIban($result['bank_account_iban']);
             $bank_info = self::computeBankFromIban($event['bank_account_iban'], $lang);
             if($bank_info) {
                 $result['bank_name'] = $bank_info['name'];
                 $result['bank_account_bic'] = $bank_info['bic'];
             }
+        }
+
+        if(isset($event['bank_account_type'])) {
+            $result['accounting_account_id'] = self::computeAccountingAccount($event['bank_account_type'], $values['condo_id']);
         }
 
         return $result;
@@ -212,21 +264,39 @@ class BankAccount extends Model {
         return $country;
     }
 
-    private static function computeBankFromIban($iban, $lang) {
+    private static function computeBankFromIban($iban, $lang='en') {
         $result = null;
 
-        $normalized_iban = str_replace(' ', '', trim($iban));
+        $normalized_iban = strtoupper(str_replace(' ', '', trim($iban)));
 
-        if(preg_match('/^[A-Z]{2}\d{2}\d{12}$/', $normalized_iban)) {
-            $country = substr($normalized_iban, 0, 2);
-            $bank_code = substr($normalized_iban, 2, 3);
+        if(!preg_match('/^[A-Z]{2}\d{2}[A-Z0-9]+$/', $normalized_iban)) {
+            return null;
+        }
 
-            $file = EQ_BASEDIR."/packages/identity/i18n/{$lang}/bic/{$country}.json";
-            if(file_exists($file)) {
-                $data = file_get_contents($file);
-                $map_bank = json_decode($data, true);
-                $result = $map_bank[$bank_code] ?? null;
-            }
+        $country = substr($normalized_iban, 0, 2);
+        $bank_code = substr($normalized_iban, 2, 3);
+
+        $iban_formats = [
+                'BE' => ['bank_pos' => 4, 'bank_len' => 3],
+                'FR' => ['bank_pos' => 4, 'bank_len' => 5],
+                'DE' => ['bank_pos' => 4, 'bank_len' => 8],
+                'LU' => ['bank_pos' => 4, 'bank_len' => 3],
+                'NL' => ['bank_pos' => 4, 'bank_len' => 4],
+                // #todo - to complete
+            ];
+
+        if(!isset($iban_formats[$country])) {
+            return null; // pays non pris en charge
+        }
+
+        ['bank_pos' => $pos, 'bank_len' => $len] = $iban_formats[$country];
+        $bank_code = substr($normalized_iban, $pos, $len);
+
+        $file = EQ_BASEDIR."/packages/identity/i18n/{$lang}/bic/{$country}.json";
+        if(file_exists($file)) {
+            $data = file_get_contents($file);
+            $map_bank = json_decode($data, true);
+            $result = $map_bank[$bank_code] ?? null;
         }
 
         return $result;

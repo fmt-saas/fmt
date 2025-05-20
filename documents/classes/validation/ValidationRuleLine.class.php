@@ -34,6 +34,7 @@ class ValidationRuleLine extends Model {
 
             'controller' => [
                 'type'              => 'string',
+                'description'       => 'Controller holding the logic for validating the document.',
                 'required'          => true
             ],
 

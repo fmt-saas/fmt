@@ -1,9 +1,6 @@
 {
-    "name": "Bank Account",
-    "description": "Default form for bank account.",
-    "access": {
-        "groups": ["finance.default.users"]
-     },
+    "name": "Bank Statement",
+    "description": "",
     "layout": {
         "groups": [
             {
@@ -17,7 +14,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "description",
+                                                "value": "bank_account_iban",
                                                 "width": "100%",
                                                 "widget": {
                                                     "heading": true
@@ -25,63 +22,76 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label" : "Type of Account",
-                                                "value": "bank_account_type",
+                                                "value": "condo_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "bank_account_iban",
-                                                "width": "50%"
+                                                "value": "date",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "bank_name",
-                                                "width": "50%"
+                                                "value": "opening_date",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label" : "BIC",
-                                                "value": "bank_account_bic",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "bank_country",
-                                                "width": "25%"
+                                                "value": "closing_date",
+                                                "width": "33%"
                                             }
                                         ]
                                     },
                                     {
-                                        "width": "50%",
+                                        "width": "25%"
+                                    },
+                                    {
+                                        "width": "25%",
                                         "items": [
                                             {
                                                 "type": "label",
+                                                "value": "",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label" : "Organisation",
-                                                "value": "organisation_id",
-                                                "readonly": true,
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label" : "Condominium",
-                                                "value": "condo_id",
-                                                "readonly": true,
+                                                "value": "opening_balance",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "label",
+                                                "value": "",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label" : "Accounting Account",
-                                                "value": "accounting_account_id",
+                                                "value": "closing_balance",
                                                 "width": "50%"
+                                            }
+                                        ]
+                                    }
+
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "statement_lines_ids",
+                                                "width": "100%",
+                                                "widget":{
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": [{
+                                                                "view": "form.create"
+                                                            }]
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

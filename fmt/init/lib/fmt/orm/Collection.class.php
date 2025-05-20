@@ -32,7 +32,7 @@ class Collection extends \equal\orm\Collection {
         $schema = $this->model->getSchema();
 
         if(isset($schema['condo_id'])) {
-            $condo_id = Setting::get('fmt', 'organization', 'user.condo_id', 0, ['user_id' => $user_id]);
+            $condo_id = Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id]);
             if($condo_id) {
                 // sanitize and validate domain
                 if(!empty($domain)) {
@@ -47,6 +47,34 @@ class Collection extends \equal\orm\Collection {
         }
 
         parent::search($domain, $params, $lang);
+
+        return $this;
+    }
+
+    public function create(array $values=null, $lang=null) {
+
+        if(\eQual::constant('FMT_INSTANCE_TYPE') === 'agency') {
+            static $map_classes = [
+                'private' => [
+                    'core\User'                      => true,
+                    'identity\Identity'              => true,
+                    'purchase\supplier\Identity'     => true,
+                    'documents\DocumentType'         => true
+                ]
+            ];
+
+            static $root_class = null;
+
+            if(!$root_class) {
+                $root_class = $this->orm->getObjectRootClass($this->class);
+            }
+
+            if(isset($map_classes['private'][$root_class])) {
+                throw new \Exception('private_entity', EQ_ERROR_INVALID_PARAM);
+            }
+        }
+
+        parent::create($values, $lang);
 
         return $this;
     }

@@ -159,7 +159,7 @@
                 "id": "item.accounting",
                 "label": "Accounting",
                 "description": "",
-                "icon": "account_balance",
+                "icon": "edit_note",
                 "type": "parent",
                 "children": [
                     {
@@ -424,17 +424,17 @@
                 ]
             },
             {
-                "id": "item.bank_statements",
-                "label": "Bank Statements",
+                "id": "item.banks",
+                "label": "Banks",
                 "description": "",
-                "icon": "bank",
+                "icon": "account_balance",
                 "type": "parent",
                 "children": [
                     {
-                        "id": "bank",
+                        "id": "item.banks.bank_statements",
                         "type": "entry",
-                        "label": "Banks",
-                        "icon": "account_balance",
+                        "label": "Bank Statements",
+                        "icon": "receipt",
                         "description": "",
                         "context": {
                             "entity": "finance\\bank\\BankStatement",

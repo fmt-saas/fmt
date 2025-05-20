@@ -43,10 +43,10 @@ class RecordingRule extends Model {
                 'description'       => 'Document subtype linked to the rule.'
             ],
 
-            'accounting_rule_lines_ids' => [
+            'recording_rule_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\recording\RecordingRuleLine',
-                'foreign_field'     => 'accounting_rule_id',
+                'foreign_field'     => 'recording_rule_id',
                 'description'       => "Lines that are related to this rule."
             ]
 

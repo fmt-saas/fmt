@@ -190,13 +190,6 @@ class Document extends Model {
                 'default'           => 1
             ],
 
-            'category_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'documents\DocumentCategory',
-                'description'       => 'Category of the document.',
-                'default'           => 1
-            ],
-
             'public' => [
                 'type'              => 'boolean',
                 'description'       => 'Accessibility of the document.',
