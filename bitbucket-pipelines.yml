@@ -6,7 +6,7 @@ pipelines:
         artifacts:
           - artifacts/**
         services:
-          - mysql2
+          - mysql
         script:
           #memo - current directory is /opt/atlassian/pipelines/agent/build
           # Install dependencies
@@ -35,7 +35,9 @@ pipelines:
           - php /var/www/html/run.php --do=test_db-connectivity
           - php /var/www/html/run.php --do=init_db
           - php /var/www/html/run.php --do=init_package --package=core
-          - php /var/www/html/run.php --do=init_package --package=fmt --import=true --demo=true
+          - set +e ; php /var/www/html/run.php --do=init_package --package=fmt --import=true --demo=true ; export FAILING=$? ; set -e
+          - cp /var/www/html/log/equal.log artifacts/equal.log
+          - if [ "$FAILING" -ne 0 ]; then exit $FAILING; fi
           # create a config file with FMT specifics
           - |
             echo "{\"DEFAULT_LANG\": \"fr\", \"SERVICE_ORM_COLLECTION_CLASS\": \"fmt\\\\orm\\\\Collection\", \"SERVICE_ACCESS_ACCESSCONTROLLER\": \"fmt\\\\access\\\\AccessController\"}" > /var/www/html/config/config.json
@@ -49,12 +51,7 @@ pipelines:
           - exit $FAILING
 definitions:
   services:
-    mysql1:
-      image: mysql:5.7
-      environment:
-        MYSQL_ROOT_PASSWORD: test
-        MYSQL_DATABASE: equal
-    mysql2:
+    mysql:
       image: mysql:5.7
       environment:
         MYSQL_ROOT_PASSWORD: test
