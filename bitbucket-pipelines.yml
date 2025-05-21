@@ -42,10 +42,9 @@ pipelines:
           # Verify the content of the file
           - cat /var/www/html/config/config.json
           # Run tests
-          - set +e
-          - php /var/www/html/run.php --do=test_package --package=fmt
-          - FAILING=$?
-          - set -e
+          - set +e ; php /var/www/html/run.php --do=test_package --package=fmt ; export FAILING=$? ; set -e
+          # Dump main log to artifacts
+          - cp /var/www/html/log/equal.log artifacts/equal.log
           # Exit according to returned code
           - exit $FAILING
 definitions:
