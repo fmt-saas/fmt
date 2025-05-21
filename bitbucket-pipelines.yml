@@ -35,6 +35,9 @@ pipelines:
           - php /var/www/html/run.php --do=test_db-connectivity
           - php /var/www/html/run.php --do=init_db
           - php /var/www/html/run.php --do=init_package --package=core
+          # create temp config file for init with FMT specifics
+          - |
+            echo "{\"DEFAULT_LANG\": \"fr\", \"FMT_INSTANCE_TYPE\": \"agency\"}" > /var/www/html/config/config.json
           - set +e ; php /var/www/html/run.php --do=init_package --package=fmt --import=true --demo=true ; export FAILING=$? ; set -e
           - cp /var/www/html/log/equal.log artifacts/equal.log
           - if [ "$FAILING" -ne 0 ]; then exit $FAILING; fi
@@ -46,7 +49,7 @@ pipelines:
           # Run tests
           - set +e ; php /var/www/html/run.php --do=test_package --package=fmt ; export FAILING=$? ; set -e
           # Dump main log to artifacts
-          - cp /var/www/html/log/equal.log artifacts/equal.log
+          - if [ "$FAILING" -ne 0 ]; then cp /var/www/html/log/equal.log artifacts/equal.log; fi
           # Exit according to returned code
           - exit $FAILING
 definitions:
