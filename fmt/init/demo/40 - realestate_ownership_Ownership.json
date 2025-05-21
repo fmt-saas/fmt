@@ -1,0 +1,44 @@
+[
+    {
+        "name": "realestate\\ownership\\Ownership",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 2,
+                "condo_id": 1,
+                "ownership_type": "unique",
+                "total_shares": 100
+            },
+            {
+                "id": 3,
+                "condo_id": 1,
+                "ownership_type": "unique",
+                "total_shares": 100
+            },
+            {
+                "id": 4,
+                "condo_id": 1,
+                "ownership_type": "unique",
+                "total_shares": 100
+            },
+            {
+                "id": 5,
+                "condo_id": 2,
+                "ownership_type": "unique",
+                "total_shares": 100
+            },
+            {
+                "id": 6,
+                "condo_id": 2,
+                "ownership_type": "unique",
+                "total_shares": 100
+            },
+            {
+                "id": 7,
+                "condo_id": 2,
+                "ownership_type": "unique",
+                "total_shares": 100
+            }
+        ]
+    }
+]

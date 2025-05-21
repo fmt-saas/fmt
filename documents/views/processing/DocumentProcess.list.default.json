@@ -1,0 +1,53 @@
+{
+    "name": "Documents Processing",
+    "description": "List of documents processing in progress.",
+    "header": {
+        "actions": {
+            "ACTION.CREATE" : false
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "25%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "label": "Created",
+                "value": "created",
+                "width": "10%",
+                "readonly": true,
+                "widget": {
+                    "usage": "date"
+                }
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "33%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "document_id",
+                "width": "25%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "has_warning",
+                "width": "15%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "has_error",
+                "width": "15%",
+                "readonly": true
+            }
+        ]
+    }
+}
