@@ -27,6 +27,8 @@ pipelines:
           - cp -r . /var/www/html/packages
           # Restore the equal core package
           - cp -r /var/www/html/packages.core/core /var/www/html/packages/core
+          # Verify the content of the package dir
+          - ls -hal /var/www/html/packages
           # Run equal commands for testing and initialization
           - php /var/www/html/run.php --do=init_fs
           - php /var/www/html/run.php --do=test_fs-consistency
