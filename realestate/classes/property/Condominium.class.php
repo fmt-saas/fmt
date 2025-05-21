@@ -298,6 +298,8 @@ class Condominium extends \identity\Organisation {
     public static function policyCanOpenFiscalYear($self, $user_id) {
         $result = [];
         /** @var \fmt\access\AccessController */
+
+        #todo - find a generic way to check user against Roles
         ['access' => $access] = \eQual::inject(['access']);
 
         foreach($self as $id => $condominium) {
@@ -307,12 +309,15 @@ class Condominium extends \identity\Organisation {
                 ];
             }
         }
+
         return $result;
     }
 
     public static function policyCanCreateDraftFiscalYear($self, $user_id) {
         $result = [];
         /** @var \fmt\access\AccessController */
+        /*
+        // #todo - idem (see above)
         ['access' => $access] = \eQual::inject(['access']);
 
         foreach($self as $id => $condominium) {
@@ -323,6 +328,7 @@ class Condominium extends \identity\Organisation {
                 ];
             }
         }
+        */
         return $result;
     }
 

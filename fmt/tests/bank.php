@@ -39,7 +39,7 @@ $tests = [
                     $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_isabel.xlsx');
                     return eQual::run('get', 'finance_bank_BankStatement_parse-xls', ['data' => base64_encode($data)]);
                 },
-            'assert'            => function($statements) use($providers, $statement_schema) {
+            'assert'            => function($statements) use($providers) {
                     $valid = true;
 
                     foreach($statements as $i => $statement) {
