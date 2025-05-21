@@ -40,7 +40,7 @@ pipelines:
           - if [ "$FAILING" -ne 0 ]; then exit $FAILING; fi
           # create a config file with FMT specifics
           - |
-            echo "{\"DEFAULT_LANG\": \"fr\", \"SERVICE_ORM_COLLECTION_CLASS\": \"fmt\\\\orm\\\\Collection\", \"SERVICE_ACCESS_ACCESSCONTROLLER\": \"fmt\\\\access\\\\AccessController\"}" > /var/www/html/config/config.json
+            echo "{\"DEFAULT_LANG\": \"fr\", \"FMT_INSTANCE_TYPE\": \"agency\", \"SERVICE_ORM_COLLECTION_CLASS\": \"fmt\\\\orm\\\\Collection\", \"SERVICE_ACCESS_ACCESSCONTROLLER\": \"fmt\\\\access\\\\AccessController\"}" > /var/www/html/config/config.json
           # Verify the content of the file
           - cat /var/www/html/config/config.json
           # Run tests
