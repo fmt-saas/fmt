@@ -7,10 +7,7 @@
                 "id": 1,
                 "condo_id": 1,
                 "property_lot_id": 1,
-                "date_from": "2023-01-01T00:00:00+00:00",
-                "date_to": null,
-                "transfer_from_id": null,
-                "transfer_to_id": null
+                "date_from": "2023-01-01T00:00:00+00:00"
             }
         ]
     }

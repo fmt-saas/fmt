@@ -44,7 +44,7 @@ class LabelingRuleLine extends Model {
                 'description'       => 'Document subtype linked to the rule.'
             ],
 
-            /* la liste des éléments de format possibles dépend de type.subtype */
+            /* list of possible formatting elements depends on type.subtype */
 
             'document_format' => [
                 'type'              => 'string',
@@ -54,7 +54,7 @@ class LabelingRuleLine extends Model {
 
             'allocation_line_format' => [
                 'type'              => 'string',
-                'description'       => 'Format to use for allocation lines.',
+                'description'       => 'Format to use for referencing allocation lines.',
                 'multilang'         => true
             ]
 

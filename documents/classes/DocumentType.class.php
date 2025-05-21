@@ -41,8 +41,7 @@ class DocumentType extends Model {
 
             'json_schema' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
-                'description'       => 'Schema following json-schema.org specs.'
+                'description'       => 'URN identifier of the schema following json-schema.org specs.'
             ],
 
             'documents_ids' => [

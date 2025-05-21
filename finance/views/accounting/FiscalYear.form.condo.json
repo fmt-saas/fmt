@@ -17,7 +17,6 @@
             "id": "action.generate_periods",
             "label": "Generate periods",
             "controller": "finance_accounting_fiscalyear_generate-periods",
-            "visible": ["status", "=", "draft"],
             "confirm": true
         },
         {

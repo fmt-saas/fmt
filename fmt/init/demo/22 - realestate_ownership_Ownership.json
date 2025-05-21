@@ -5,6 +5,7 @@
         "data": [
             {
                 "id": 2,
+                "help": "Charles Max",
                 "condo_id": 1,
                 "ownership_type": "unique",
                 "total_shares": 100,
@@ -12,12 +13,13 @@
                 "date_to": null,
                 "transfer_from_id": null,
                 "transfer_to_id": null,
-                "creation_identity_id": null,
                 "representative_identity_id": null,
-                "has_representative": false
+                "has_representative": false,
+                "property_lots_ids": [3, 7]
             },
             {
                 "id": 3,
+                "help": "Lucienne Prévaut",
                 "condo_id": 1,
                 "ownership_type": "unique",
                 "total_shares": 100,
@@ -25,12 +27,13 @@
                 "date_to": null,
                 "transfer_from_id": null,
                 "transfer_to_id": null,
-                "creation_identity_id": 6,
                 "representative_identity_id": null,
-                "has_representative": false
+                "has_representative": false,
+                "property_lots_ids": [1]
             },
             {
                 "id": 4,
+                "help": "Etienne Duchemin, Sarah Duchemin, Louis Duchemin",
                 "condo_id": 1,
                 "ownership_type": "unique",
                 "total_shares": 100,
@@ -38,12 +41,13 @@
                 "date_to": null,
                 "transfer_from_id": null,
                 "transfer_to_id": null,
-                "creation_identity_id": 4,
                 "representative_identity_id": null,
-                "has_representative": false
+                "has_representative": false,
+                "property_lots_ids": [2, 8]
             },
             {
                 "id": 5,
+                "help": "Géraldine Desmet",
                 "condo_id": 2,
                 "ownership_type": "unique",
                 "total_shares": 100,
@@ -51,12 +55,13 @@
                 "date_to": null,
                 "transfer_from_id": null,
                 "transfer_to_id": null,
-                "creation_identity_id": 7,
                 "representative_identity_id": null,
-                "has_representative": false
+                "has_representative": false,
+                "property_lots_ids": [4]
             },
             {
                 "id": 6,
+                "help": "Raoul Ménart",
                 "condo_id": 2,
                 "ownership_type": "unique",
                 "total_shares": 100,
@@ -64,12 +69,13 @@
                 "date_to": null,
                 "transfer_from_id": null,
                 "transfer_to_id": null,
-                "creation_identity_id": 5,
                 "representative_identity_id": null,
-                "has_representative": false
+                "has_representative": false,
+                "property_lots_ids": [5]
             },
             {
                 "id": 7,
+                "help": "Roland Dupuis",
                 "condo_id": 2,
                 "ownership_type": "unique",
                 "total_shares": 100,
@@ -77,9 +83,9 @@
                 "date_to": null,
                 "transfer_from_id": null,
                 "transfer_to_id": null,
-                "creation_identity_id": 3,
                 "representative_identity_id": null,
-                "has_representative": false
+                "has_representative": false,
+                "property_lots_ids": [6]
             }
         ]
     }

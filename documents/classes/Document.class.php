@@ -8,10 +8,9 @@
 namespace documents;
 
 use documents\navigation\Node;
-use eQual;
 use equal\http\HttpRequest;
 use equal\orm\Model;
-use Exception;
+
 use purchase\supplier\Supplier;
 use realestate\property\Condominium;
 
@@ -217,100 +216,6 @@ class Document extends Model {
                 'description' => 'Processing status of the document.'
             ],
 
-            /*
-
-            info relating to invoice document
-
-            On utilise les infos contenues dans document_json pour compléter ces informations. Dans le cas où elles ne sont pas présentes, l'utilisateur peut les ajouter à la main.
-            
-
-            */
-
-            'invoice_number' => [
-                'type'              => 'string',
-                'description'       => 'Does the invoice have a period.',
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
-            'invoice_type' => [
-                'type'              => 'string',
-                'description'       => 'Does the invoice have a period.',
-                'selection'         => ['invoice', 'credit_note'],
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
-            'invoice_has_period' => [
-                'type'              => 'boolean',
-                'description'       => 'Does the invoice have a period.',
-                'default'           => false,
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
-            'invoice_period_date_from' => [
-                'type'              => 'date',
-                'description'       => 'First date of invoice period.',
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
-            'invoice_period_date_to' => [
-                'type'              => 'date',
-                'description'       => 'Last date of invoice period.',
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
-            'invoice_issue_date' => [
-                'type'              => 'date',
-                'description'       => 'Last date of invoice period.',
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
-            'invoice_due_date' => [
-                'type'              => 'date',
-                'description'       => 'Last date of invoice period.',
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
-            'invoice_currency' => [
-                'type'              => 'string',
-                'description'       => 'Last date of invoice period.',
-                'default'           => 'EUR',
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
-            'invoice_supplier_id' => [
-                'type'              => 'date',
-                'description'       => 'Last date of invoice period.',
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
-            'invoice_condo_id' => [
-                'type'              => 'date',
-                'description'       => 'Last date of invoice period.',
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
-            'invoice_condo_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'realestate\property\Condominium',
-                'description'       => 'Last date of invoice period.',
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
-            'invoice_lines' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'documents\typing\DocumentInvoiceLine',
-                'foreign_field'     => 'document_id',
-                'description'       => 'Last date of invoice period.',
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
-            'invoice_total' => [
-                'type'              => 'float',
-                'usage'             => 'amount/money:2',
-                'description'       => 'Total tax incl. of the invoice.',
-                'visible'           => ['document_type_code', '=', 'invoice']
-            ],
-
         ];
     }
 
@@ -396,7 +301,7 @@ class Document extends Model {
                 continue;
             }
 
-            $data = eQual::run('get', 'documents_analyze-mindee', ['id' => $id]);
+            $data = \eQual::run('get', 'documents_analyze-mindee', ['id' => $id]);
 
             if(!isset($data['document']['inference']['prediction'])) {
                 // invalid Mindee response
@@ -407,12 +312,12 @@ class Document extends Model {
             try {
                 $prediction = $data['document']['inference']['prediction'];
 
-                $data = eQual::run('get', 'documents_parse-mindee', ['json' => json_encode($data['document']['inference']['prediction'])]);
+                $data = \eQual::run('get', 'documents_parse-mindee', ['json' => json_encode($data['document']['inference']['prediction'])]);
 
                 // attempt to enrich with additional data
                 try {
-                    $text = eQual::run('get', 'documents_extract-text', ['id' => $id]);
-                    $info = eQual::run('get', 'documents_parse-text', ['text' => $text]);
+                    $text = \eQual::run('get', 'documents_extract-text', ['id' => $id]);
+                    $info = \eQual::run('get', 'documents_parse-text', ['text' => $text]);
 
                     if(!isset($data['customer']['customer_number']) && isset($info['customer_number'])) {
                         $data['customer']['customer_number'] = $info['customer_number'];
@@ -443,7 +348,7 @@ class Document extends Model {
 
                     $data['payment']['bic'] = self::computeBicFromIban($data['payment']['iban']);
                 }
-                catch(Exception $e) {
+                catch(\Exception $e) {
                     // ignore attempt failure
                     trigger_error("APP::unable to extract text from document", EQ_REPORT_WARNING);
                 }
@@ -509,7 +414,7 @@ class Document extends Model {
                 // #memo - document_json is meant to receive either content from parsed Mindee or from parsed UBL
                 self::id($id)->update($values);
             }
-            catch(Exception $e) {
+            catch(\Exception $e) {
                 // unable to extract or confidence level too low
                 trigger_error("APP::unable to extract document, or confidence level too low.", EQ_REPORT_WARNING);
             }
@@ -521,13 +426,13 @@ class Document extends Model {
     public static function onbeforeValidate($self) {
         $self->read(['document_json']);
         foreach($self as $id => $document) {
-            $result = eQual::run('get', 'json-validate', ['json' => $document['document_json'], 'schema_id' => 'urn:fmt:json-schema:finance:purchase-invoice']);
+            $result = \eQual::run('get', 'json-validate', ['json' => $document['document_json'], 'schema_id' => 'urn:fmt:json-schema:finance:purchase-invoice']);
             if(isset($result['errors']) && count($result['errors'])) {
                 ob_start();
                 print_r($result['errors']);
                 $out = ob_get_clean();
                 trigger_error('APP::unable to validate document: ' . $out, EQ_REPORT_INFO);
-                throw new Exception('invalid_document_json', EQ_ERROR_INVALID_PARAM);
+                throw new \Exception('invalid_document_json', EQ_ERROR_INVALID_PARAM);
             }
         }
     }
@@ -967,25 +872,25 @@ class Document extends Model {
             }
             try {
                 if(!$document['data'] || substr($document['content_type'], 0, 5) != 'image') {
-                    throw new Exception('not_an_image');
+                    throw new \Exception('not_an_image');
                 }
 
                 $parts = explode('/', $document['content_type']);
 
                 if(count($parts) < 2) {
-                    throw new Exception('invalid_content_type');
+                    throw new \Exception('invalid_content_type');
                 }
 
                 $image_type = strtolower($parts[1]);
 
                 if(!in_array($image_type, ['avif', 'apng', 'bmp', 'png', 'gif', 'jpeg', 'svg+xml', 'webp', 'x-icon'])) {
-                    throw new Exception('non_supported_format');
+                    throw new \Exception('non_supported_format');
                 }
 
                 $src_image = imagecreatefromstring($document['data']);
 
                 if(!$src_image) {
-                    throw new Exception('malformed_image_data');
+                    throw new \Exception('malformed_image_data');
                 }
 
                 $src_width = imageSX($src_image);
@@ -1031,7 +936,7 @@ class Document extends Model {
                 $result[$id] = $buffer;
             }
             // non-supported image type or non-image document: fallback to hardcoded default thumbnail
-            catch(Exception $e) {
+            catch(\Exception $e) {
                 trigger_error("APP:unable to generate dynamic thumbnail: " . $e->getMessage(), EQ_REPORT_INFO);
                 $found = false;
                 $extension = self::computeExtensionFromType($document['content_type'], $document['name']);

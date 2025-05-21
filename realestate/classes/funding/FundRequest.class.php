@@ -316,7 +316,7 @@ class FundRequest extends \equal\orm\Model {
         foreach($self as $id => $fundRequest) {
             if($fundRequest['request_amount'] != $fundRequest['allocated_amount']) {
                 $result[$id] = [
-                    'non_balanced' => 'Allocated amount the request amount must match.'
+                    'non_balanced' => 'Allocated amount and request amount must match.'
                 ];
                 continue;
             }

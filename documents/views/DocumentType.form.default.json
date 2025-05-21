@@ -45,11 +45,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "json_schema",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "type": "text",
-                                                    "height": "700"
-                                                }
+                                                "width": "100%"
                                             }
                                         ]
                                     }

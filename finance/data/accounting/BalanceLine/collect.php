@@ -59,8 +59,15 @@ list($params, $providers) = eQual::announce([
             'help'              => "When a fiscal year is not linked to a condominium, it relates to the organisation itself.",
             'foreign_object'    => 'realestate\property\Condominium',
             'default'           => function($domain=[]) {
+/*
+                // #memo - in some cases fiscal_year_id is provided in $domain and is not valid for Condominium schema
+
+                // $user_id = $this->am->userId();
+                // Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id]);
+
                 $condos_ids = Condominium::search($domain)->ids();
                 return count($condos_ids) ? current($condos_ids) : null;
+*/
             }
         ],
 

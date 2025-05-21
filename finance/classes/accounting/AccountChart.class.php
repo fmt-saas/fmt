@@ -71,6 +71,7 @@ class AccountChart extends Model {
             ]
         ];
     }
+
     public static function getActions() {
         return [
             'import_accounts' => [

@@ -6,6 +6,7 @@
 */
 namespace documents\processing;
 use equal\orm\Model;
+use documents\Document;
 
 class DocumentProcess extends Model {
 
@@ -28,7 +29,7 @@ class DocumentProcess extends Model {
 
             'name' => [
                 'type'              => 'string',
-                'description'       => "Name of the recording rule line",
+                'description'       => "Name of the processed document.",
                 'required'          => true
             ],
 
@@ -42,6 +43,13 @@ class DocumentProcess extends Model {
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Targeted document of the job.',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'document_type_code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['document_id' => ['document_type_id' => 'code']],
+                'store'             => true
             ],
 
             'data' => [
@@ -69,6 +77,18 @@ class DocumentProcess extends Model {
                 'default'           => false
             ],
 
+            'document_source' => [
+                'type'              => 'string',
+                'description'       => 'The source the document originated from.',
+                'selection'         => [
+                    'manual',           // manual upload
+                    'email',            // email digestor
+                    'internal',         // document produced by the software
+                    'external'          // document retrieved from an external source (API, ...)
+                ],
+                'default'           => 'manual'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'description'       => 'Current status of the job.',
@@ -81,10 +101,53 @@ class DocumentProcess extends Model {
                     'integrated'
                 ],
                 'default'           => 'created'
-            ]
+            ],
+
+            /*
+
+            info relating to invoice document
+
+                On utilise les infos contenues dans document_json pour compléter ces informations.
+                Dans le cas où elles ne sont pas présentes, l'utilisateur peut les ajouter à la main.
+
+                We use typing\Document[...] classes for holding temporary data extracted from imported document.
+
+            */
+
+            'document_invoice_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\typing\DocumentInvoice',
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
+
+            'document_bank_statement_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\typing\DocumentInvoice',
+                'visible'           => ['document_type_code', '=', 'bank_statement']
+            ],
+
+
         ];
     }
 
+    /**
+     * This method is used to create the document based on received data, and start the processing.
+     */
     public static function onupdateData($self) {
+        $self->read(['name', 'data']);
+        foreach($self as $id => $documentProcess) {
+            $document = Document::create(['name' => $documentProcess['name'], 'data' => $documentProcess['data']])->first();
+            self::id($id)->update(['document_id' => $document['id']]);
+        }
+    }
+
+    public static function onchange($event, $values) {
+        $result = [];
+
+        if(isset($event['data']['name'])) {
+            $result['name'] = $event['data']['name'];
+        }
+
+        return $result;
     }
 }

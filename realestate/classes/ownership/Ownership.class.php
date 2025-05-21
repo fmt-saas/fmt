@@ -200,7 +200,7 @@ class Ownership extends \equal\orm\Model {
             if(!$ownership['code']) {
                 continue;
             }
-            if($ownership['has_representative'] && $ownership['representative_identity_id'] && $ownership['representative_identity_id']['name']) {
+            if($ownership['has_representative'] && isset($ownership['representative_identity_id']['name'])) {
                 $result[$id] = $ownership['representative_identity_id']['name'];
             }
             else {
@@ -210,9 +210,12 @@ class Ownership extends \equal\orm\Model {
                         $names[] = $owner['name'];
                     }
                 }
+                if(!count($names)) {
+                    continue;
+                }
                 $name = implode(', ', $names);
                 if(strlen($name) > 128) {
-                    $name = substr($name, 0, 128).'...';
+                    $name = substr($name, 0, 128) . '...';
                 }
                 if(strlen($name) > 0) {
                     $result[$id] = $ownership['code'] . ' - ' . $name;
@@ -327,8 +330,11 @@ class Ownership extends \equal\orm\Model {
     }
 
     public static function onupdateCreationIdentityId($self) {
-        $self->read(['creation_identity_id', 'condo_id']);
+        $self->read(['owners_ids', 'creation_identity_id', 'condo_id']);
         foreach($self as $id => $ownership) {
+            if(count($ownership['owners_ids'])) {
+                continue;
+            }
             Owner::create([
                     'condo_id'      => $ownership['condo_id'],
                     'ownership_id'  => $id

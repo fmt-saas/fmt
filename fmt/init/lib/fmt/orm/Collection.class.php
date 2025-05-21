@@ -54,11 +54,12 @@ class Collection extends \equal\orm\Collection {
     public function create(array $values=null, $lang=null) {
 
         if(\eQual::constant('FMT_INSTANCE_TYPE') === 'agency') {
+            // #todo - adapt according to final logic
             static $map_classes = [
-                'private' => [
+                'protected' => [
                     'core\User'                      => true,
                     'identity\Identity'              => true,
-                    'purchase\supplier\Identity'     => true,
+                    'purchase\supplier\Supplier'     => true,
                     'documents\DocumentType'         => true
                 ]
             ];
@@ -70,6 +71,7 @@ class Collection extends \equal\orm\Collection {
             }
 
             if(isset($map_classes['private'][$root_class])) {
+                trigger_error("APP::Creation of private object {$this->class} forbidden for agency instance.", EQ_REPORT_WARNING);
                 throw new \Exception('private_entity', EQ_ERROR_INVALID_PARAM);
             }
         }
@@ -78,7 +80,5 @@ class Collection extends \equal\orm\Collection {
 
         return $this;
     }
-
-
 
 }

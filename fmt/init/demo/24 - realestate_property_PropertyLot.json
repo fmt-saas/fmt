@@ -17,9 +17,6 @@
                 "active_tenancy_id": 1,
                 "building_id": null,
                 "active_ownership_id": 3,
-                "ownerships_ids": [
-                    "3"
-                ],
                 "has_grouped_statements": false
             },
             {
@@ -36,9 +33,6 @@
                 "active_tenancy_id": null,
                 "building_id": null,
                 "active_ownership_id": 4,
-                "ownerships_ids": [
-                    "4"
-                ],
                 "has_grouped_statements": false
             },
             {
@@ -55,9 +49,6 @@
                 "active_tenancy_id": null,
                 "building_id": null,
                 "active_ownership_id": 2,
-                "ownerships_ids": [
-                    "2"
-                ],
                 "has_grouped_statements": false
             },
             {
@@ -74,9 +65,6 @@
                 "active_tenancy_id": null,
                 "building_id": null,
                 "active_ownership_id": 5,
-                "ownerships_ids": [
-                    "5"
-                ],
                 "has_grouped_statements": false
             },
             {
@@ -93,9 +81,6 @@
                 "active_tenancy_id": null,
                 "building_id": null,
                 "active_ownership_id": 6,
-                "ownerships_ids": [
-                    "6"
-                ],
                 "has_grouped_statements": false
             },
             {
@@ -112,9 +97,6 @@
                 "active_tenancy_id": null,
                 "building_id": null,
                 "active_ownership_id": 7,
-                "ownerships_ids": [
-                    "7"
-                ],
                 "has_grouped_statements": false
             },
             {
@@ -131,9 +113,6 @@
                 "active_tenancy_id": null,
                 "building_id": null,
                 "active_ownership_id": 2,
-                "ownerships_ids": [
-                    "2"
-                ],
                 "has_grouped_statements": false
             },
             {
@@ -150,16 +129,13 @@
                 "active_tenancy_id": null,
                 "building_id": null,
                 "active_ownership_id": 4,
-                "ownerships_ids": [
-                    "4"
-                ],
                 "has_grouped_statements": false
             }
         ]
     },
     {
         "name": "realestate\\property\\PropertyLot",
-        "lang": "en",
+        "lang": "fr",
         "data": [
             {
                 "id": 1,
@@ -191,7 +167,7 @@
             },
             {
                 "id": 8,
-                "name": "00005 - 1B-C (BASEMENT)"
+                "name": "00005 - 1B Cave (BASEMENT)"
             }
         ]
     }

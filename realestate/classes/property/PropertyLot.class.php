@@ -134,7 +134,6 @@ class PropertyLot extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'description'       => "Current ownership of the property lot.",
-                'onupdate'          => 'onupdateActiveOwnershipId',
                 'dependents'        => ['name']
             ],
 
@@ -210,16 +209,6 @@ class PropertyLot extends \equal\orm\Model {
             }
         }
         return $result;
-    }
-
-    public static function onupdateActiveOwnershipId($self) {
-        $self->read(['active_ownership_id', 'ownerships_ids']);
-        foreach($self as $id => $propertyLot) {
-            // if assigned ownership_id is not in history: add it
-            if(!in_array($propertyLot['active_ownership_id'], $propertyLot['ownerships_ids'])) {
-                self::id($id)->update(['ownerships_ids' => '+' . $propertyLot['active_ownership_id']]);
-            }
-        }
     }
 
     public static function onbeforeupdate($self, $values) {

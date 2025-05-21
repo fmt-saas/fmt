@@ -9,14 +9,16 @@
         "name": "Facture fournisseur",
         "code": "invoice",
         "folder_code": "supplier_invoices",
-        "description": "Document comptable à comptabiliser et réconcilier"
+        "description": "Document comptable à comptabiliser et réconcilier",
+        "json_schema": "urn:fmt:json-schema:finance:purchase-invoice"
       },
       {
         "id": 2,
         "name": "Note de crédit fournisseur",
         "code": "credit_note",
         "folder_code": "supplier_invoices",
-        "description": "Note de crédit liée à une facture précédente"
+        "description": "Note de crédit liée à une facture précédente",
+        "json_schema": "urn:fmt:json-schema:finance:purchase-invoice"
       },
       {
         "id": 3,
@@ -30,14 +32,14 @@
         "name": "Bon de commande",
         "code": "purchase_order",
         "folder_code": "works_and_repairs",
-        "description": "Validation d’engagement de dépenses"
+        "description": "Validation d'engagement de dépenses"
       },
       {
         "id": 5,
         "name": "Bon de livraison",
         "code": "delivery_note",
         "folder_code": "works_and_repairs",
-        "description": "Justifie qu’un service ou une marchandise a été livré"
+        "description": "Justifie qu'un service ou une marchandise a été livré"
       },
       {
         "id": 6,
@@ -48,7 +50,7 @@
       },
       {
         "id": 7,
-        "name": "Rapport d’entretien",
+        "name": "Rapport d'entretien",
         "code": "maintenance_report",
         "folder_code": "maintenance_logs",
         "description": "Suivi régulier, ex. extincteurs, ascenseurs"
@@ -65,7 +67,7 @@
         "name": "Attestation",
         "code": "certificate",
         "folder_code": "insurance_contracts",
-        "description": "Preuve de conformité, certificat de contrôle ou d’assurance"
+        "description": "Preuve de conformité, certificat de contrôle ou d'assurance"
       },
       {
         "id": 10,
@@ -100,7 +102,8 @@
         "name": "Relevés bancaires",
         "code": "bank_statement",
         "folder_code": "bank_statements",
-        "description": "Mouvement sur compte bancaire de l’ACP"
+        "description": "Mouvement sur compte bancaire de l'ACP",
+        "json_schema": "urn:fmt:json-schema:finance:bank-statement"
       },
       {
         "id": 15,
@@ -128,7 +131,7 @@
         "name": "PV",
         "code": "internal_memo",
         "folder_code": "internal_notes",
-        "description": "Notes produites par l'application ou une personne de l'équipe"
+        "description": "Procès verbal d'une assemblée ou d'un conseil."
       }
     ]
   }

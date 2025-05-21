@@ -5,9 +5,13 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 namespace documents\typing;
-use equal\orm\Model;
+use realestate\purchase\accounting\invoice\Invoice;
 
-class DocumentInvoice extends Model {
+class DocumentInvoice extends Invoice {
+
+    public function getTable() {
+        return 'documents_typing_documentinvoice';
+    }
 
     public static function getName() {
         return "Document Purchase Invoice";

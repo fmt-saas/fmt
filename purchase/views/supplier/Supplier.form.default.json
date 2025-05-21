@@ -5,6 +5,19 @@
         "entity": "identity\\Identity",
         "view": "form.default"
     },
+    "actions": [
+        {
+            "id": "action.cancel",
+            "label": "Sync from Identity",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "purchase\\supplier\\Supplier",
+                "action": "sync_from_identity",
+                "ids": []
+            },
+            "confirm": false
+        }
+    ],
     "layout": {
         "remove": ["label.column_description_spacer"],
         "update": {

@@ -401,7 +401,7 @@
                     {
                         "id": "item.documents.documents",
                         "type": "entry",
-                        "label": "Documents",
+                        "label": "All Documents",
                         "icon": "file_present",
                         "description": "",
                         "context": {
@@ -410,17 +410,29 @@
                         }
                     },
                     {
-                        "id": "item.documents.document_new",
+                        "id": "item.documents.document_import",
+                        "type": "entry",
+                        "label": "Doc Processing",
+                        "icon": "pending_actions",
+                        "description": "",
+                        "context": {
+                            "view": "list.default",
+                            "entity": "documents\\processing\\DocumentProcess"
+                        }
+                    },
+                    {
+                        "id": "item.documents.document_import",
                         "type": "entry",
                         "label": "Import Document",
                         "icon": "file_upload",
                         "description": "",
                         "context": {
                             "view": "form.import",
-                            "entity": "documents\\Document",
+                            "entity": "documents\\processing\\DocumentProcess",
                             "purpose": "create"
                         }
                     }
+
                 ]
             },
             {
