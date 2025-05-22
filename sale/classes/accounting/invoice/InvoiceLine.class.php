@@ -146,7 +146,9 @@ class InvoiceLine extends \finance\accounting\invoice\InvoiceLine {
         $result = [];
         $self->read(['product_id' => ['name']]);
         foreach($self as $id => $line) {
-            $result[$id] = $line['product_id']['name'];
+            if(isset($line['product_id']['name'])) {
+                $result[$id] = $line['product_id']['name'];
+            }
         }
 
         return $result;

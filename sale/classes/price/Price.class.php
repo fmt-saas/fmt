@@ -135,7 +135,9 @@ class Price extends Model {
         $result = [];
         $self->read(['price_list_id' => 'is_active']);
         foreach($self as $id => $price) {
-            $result[$id] = $price['price_list_id']['is_active'];
+            if(isset($price['price_list_id']['is_active'])) {
+                $result[$id] = $price['price_list_id']['is_active'];
+            }
         }
         return $result;
     }
