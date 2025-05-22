@@ -60,6 +60,18 @@
             }
         },
         {
+            "id": "suppliers",
+            "type": "entry",
+            "label": "Suppliers",
+            "icon": "storefront",
+            "description": "",
+            "context": {
+                "entity": "purchase\\supplier\\Suppliership",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
             "id": "item.admin",
             "label": "Config",
             "description": "",

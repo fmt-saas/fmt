@@ -153,9 +153,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 'icon' => 'receipt_long',
                 'transitions' => [
                     'cancel' => [
-                        'description' => 'Set the invoice and receivables statuses as cancelled.',
-                        'onafter' => 'onafterCancel',
-                        'status' => 'cancelled',
+                        'description'   => 'Set the invoice and receivables statuses as cancelled.',
+                        'onafter'       => 'onafterCancel',
+                        'status'        => 'cancelled',
                     ]
                 ],
             ],

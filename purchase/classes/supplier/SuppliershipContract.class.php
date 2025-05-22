@@ -39,7 +39,7 @@ class SuppliershipContract extends \equal\orm\Model {
             'suppliership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'purchase\supplier\Supplier',
+                'foreign_object'    => 'purchase\supplier\Suppliership',
                 'required'          => true
             ],
 

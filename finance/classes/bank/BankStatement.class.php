@@ -108,11 +108,11 @@ class BankStatement extends Model {
                 'result_type'       => 'string',
                 'function'          => 'calcStatus',
                 'selection'         => [
-                    'draft',
+                    'proforma',
                     'pending',
                     'reconciled'
                 ],
-                'default'           => 'draft',
+                'default'           => 'proforma',
                 'description'       => 'Status of the statement (depending on lines).',
                 'store'             => true
             ]
@@ -123,7 +123,7 @@ class BankStatement extends Model {
 
     public static function getWorkflow() {
         return [
-            'draft' => [
+            'proforma' => [
                 'description' => 'Draft invoice, pending and still waiting to be completed.',
                 'icon' => 'edit',
                 'transitions' => [

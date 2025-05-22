@@ -76,18 +76,6 @@ class Document extends Model {
                 'default'           => false
             ],
 
-            'analysis_version' => [
-                'type'              => 'string',
-                'description'       => 'Provider and version of the API used for the document analysis.'
-            ],
-
-            'analysis_json' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain.medium',
-                'description'       => 'JSON result of the document analysis.',
-                'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and might remain empty (depending on the feeding strategy associated to the document type).'
-            ],
-
             'document_json' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.medium',
@@ -99,7 +87,14 @@ class Document extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentType',
                 'description'       => 'Document type associated with the document.',
+                'onupdate'          => 'onupdateDocumentTypeId',
                 'dependents'        => ['document_type_code']
+            ],
+
+            'document_subtype_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\DocumentSubtype',
+                'description'       => 'Document subtype associated with the document.'
             ],
 
             'document_type_code' => [
@@ -113,7 +108,8 @@ class Document extends Model {
             'parent_node_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\navigation\Node',
-                'description'       => 'Node the document is linked with.',
+                'description'       => 'Parent Node the document-node should be linked with.',
+                'help'              => 'This is a virtual field used for creating a Node for the document when necessary (according to document_type_id).',
                 'domain'            => [['node_type', '=', 'folder'], ['condo_id', '=', 'object.condo_id']],
                 'onupdate'          => 'onupdateParentNodeId'
             ],
@@ -247,192 +243,16 @@ class Document extends Model {
         ];
     }
 
-    public static function getActions() {
-        return array_merge(parent::getActions(), [
-            'perform_analysis' => [
-                'description'   => 'Attempt to retrieve meta info of the document.',
-                'policies'      => ['can_perform_analysis'],
-                'function'      => 'doPerformAnalysis'
-            ]
-        ]);
-    }
-
-    public static function getPolicies(): array {
-        return [
-            'can_perform_analysis' => [
-                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
-                'function'    => 'policyCanPerformAnalysis'
-            ]
-        ];
-    }
-
-    public static function policyCanPerformAnalysis($self): array {
-        $result = [];
-        $self->read(['status', 'has_document_json']);
+    public static function onupdateDocumentTypeId($self) {
+        $self->read(['condo_id', 'document_type_id']);
         foreach($self as $id => $document) {
-            if($document['status'] != 'imported' || $document['has_document_json']) {
-                $result[$id] = [
-                    'invalid_status' => 'Document already has analysis data.'
-                ];
-                continue;
-            }
-        }
-        return $result;
-    }
-
-
-    public static function doPerformAnalysis($self) {
-        $self->read(['content_type', 'condo_id']);
-
-        static $supported_content_types = [
-                'application/pdf',
-                'image/webp',
-                'image/png',
-                'image/jpg',
-                'image/jpeg',
-                'image/heic',
-                'image/tiff',
-                'image/tif'
-            ];
-
-        foreach($self as $id => $document) {
-
-            if(!in_array($document['content_type'], $supported_content_types)) {
-                continue;
-            }
-
-            $data = \eQual::run('get', 'documents_analyze-mindee', ['id' => $id]);
-
-            if(!isset($data['document']['inference']['prediction'])) {
-                // invalid Mindee response
-                trigger_error("APP::invalid Mindee response", EQ_REPORT_WARNING);
-                continue;
-            }
-
-            try {
-                $prediction = $data['document']['inference']['prediction'];
-
-                $data = \eQual::run('get', 'documents_parse-mindee', ['json' => json_encode($data['document']['inference']['prediction'])]);
-
-                // attempt to enrich with additional data
-                try {
-                    $text = \eQual::run('get', 'documents_extract-text', ['id' => $id]);
-                    $info = \eQual::run('get', 'documents_parse-text', ['text' => $text]);
-
-                    if(!isset($data['customer']['customer_number']) && isset($info['customer_number'])) {
-                        $data['customer']['customer_number'] = $info['customer_number'];
-                    }
-
-                    if(!isset($data['customer']['contract_number']) && isset($info['contract_number'])) {
-                        $data['customer']['contract_number'] = $info['contract_number'];
-                    }
-
-                    if(!isset($data['customer']['installation_number']) && isset($info['installation_number'])) {
-                        $data['customer']['installation_number'] = $info['installation_number'];
-                    }
-
-                    if(!isset($data['payment']['payment_id']) && isset($info['payment_id'])) {
-                        $data['payment']['payment_id'] = $info['payment_id'];
-                    }
-
-                    if(!isset($data['payment']['iban']) && isset($info['iban'])) {
-                        $data['payment']['iban'] = $info['iban'];
-                    }
-
-                    if(!isset($data['invoice_period']) && isset($info['period_start'], $info['period_end'])) {
-                        $data['invoice_period'] = [
-                            'start_date' => $info['period_start'],
-                            'end_date'   => $info['period_end']
-                        ];
-                    }
-
-                    $data['payment']['bic'] = self::computeBicFromIban($data['payment']['iban']);
+            if(isset($document['document_type_id'], $document['condo_id'])) {
+                // assign the folder
+                $documentType = DocumentType::id($document['document_type_id'])->read(['folder_code'])->first();
+                $node = Node::search([['condo_id', '=', $document['condo_id']], ['code', '=', $documentType['folder_code']]])->first();
+                if($node) {
+                    self::id($id)->update(['parent_node_id' => $node['id']]);
                 }
-                catch(\Exception $e) {
-                    // ignore attempt failure
-                    trigger_error("APP::unable to extract text from document", EQ_REPORT_WARNING);
-                }
-
-                $values = [
-                        'has_document_json' => true,
-                        'analysis_version'  => 'mindee_v4',
-                        'analysis_json'     => json_encode($prediction, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                        'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
-                    ];
-
-                if(isset($document['condo_id'])) {
-                    $values['condo_id'] = $document['condo_id'];
-                }
-
-                if(isset($data['document_type'])) {
-                    $documentType = DocumentType::search(['code', '=', $data['document_type']])->first();
-                    if($documentType) {
-                        $values['document_type_id'] = $documentType['id'];
-                        $values['document_type_code'] = $data['document_type'];
-                    }
-                }
-
-                // attempt to retrieve supplier
-                if(isset($data['supplier']['name'])) {
-                    $supplier = Supplier::search(['legal_name', 'ilike', $data['supplier']['name'] . '%'])->first();
-                    if($supplier) {
-                        $values['supplier_id'] = $supplier['id'];
-                        // attempt to retrieve condominium by number
-                        if(!isset($values['condo_id']) && isset($data['customer']['number'])) {
-                            // #todo
-                        }
-                    }
-                }
-
-                if(!isset($values['condo_id'])) {
-                    // attempt to retrieve condominium by name
-                    if(isset($data['customer']['name'])) {
-                        $parts = explode(' ', trim($data['customer']['name'], " \n\r\t\v\0-_\/"));
-                        $customer_name = implode(' ', array_filter($parts, function($a, $k) { return $k < 3 && !preg_match('/[^\p{L}\p{N}]/iu', $a); }, ARRAY_FILTER_USE_BOTH));
-                        $condominium = Condominium::search(['legal_name', 'ilike', $customer_name . '%'])->first();
-                        if($condominium) {
-                            $values['condo_id'] = $condominium['id'];
-                        }
-                    }
-                }
-
-                if(isset($values['document_type_id'], $values['condo_id'])) {
-                    // assign the folder
-                    $documentType = DocumentType::id($values['document_type_id'])->read(['folder_code'])->first();
-                    $node = Node::search([['condo_id', '=', $values['condo_id']], ['code', '=', $documentType['folder_code']]])->first();
-                    if($node) {
-                        $values['parent_node_id'] = $node['id'];
-                    }
-                }
-
-                if(isset($data['invoice_period']['start_date'], $data['invoice_period']['end_date'])) {
-                    $values['invoice_has_period'] = true;
-                    $values['invoice_period_date_from'] = strtotime($data['invoice_period']['start_date']);
-                    $values['invoice_period_date_to'] = strtotime($data['invoice_period']['end_date']);
-                }
-
-                // #memo - document_json is meant to receive either content from parsed Mindee or from parsed UBL
-                self::id($id)->update($values);
-            }
-            catch(\Exception $e) {
-                // unable to extract or confidence level too low
-                trigger_error("APP::unable to extract document, or confidence level too low.", EQ_REPORT_WARNING);
-            }
-
-        }
-
-    }
-
-    public static function onbeforeValidate($self) {
-        $self->read(['document_json']);
-        foreach($self as $id => $document) {
-            $result = \eQual::run('get', 'json-validate', ['json' => $document['document_json'], 'schema_id' => 'urn:fmt:json-schema:finance:purchase-invoice']);
-            if(isset($result['errors']) && count($result['errors'])) {
-                ob_start();
-                print_r($result['errors']);
-                $out = ob_get_clean();
-                trigger_error('APP::unable to validate document: ' . $out, EQ_REPORT_INFO);
-                throw new \Exception('invalid_document_json', EQ_ERROR_INVALID_PARAM);
             }
         }
     }
@@ -442,13 +262,13 @@ class Document extends Model {
         foreach($self as $id => $document) {
             if(!$document['node_id']) {
                 Node::create([
-                    'name'          => $document['name'],
-                    'node_type'     => 'document',
-                    'document_id'   => $id,
-                    'condo_id'      => $document['condo_id']
-                ])
-                // #memo - triggers nodes_count update
-                ->update(['parent_id' => $document['parent_node_id']]);
+                        'name'          => $document['name'],
+                        'node_type'     => 'document',
+                        'document_id'   => $id,
+                        'condo_id'      => $document['condo_id']
+                    ])
+                    // #memo - triggers nodes_count update
+                    ->update(['parent_id' => $document['parent_node_id']]);
             }
             else {
                 Node::id($document['node_id'])->update(['parent_id' => $document['parent_node_id']]);
@@ -966,28 +786,5 @@ class Document extends Model {
         return $result;
     }
 
-    private static function computeBicFromIban($iban) {
-        static $map_bic;
-        $result = null;
-
-        if(!$iban) {
-            return null;
-        }
-
-        $country = substr($iban, 0, 2);
-        $bank_code = substr($iban, 4, 3);
-
-        if(!$map_bic) {
-            $file = EQ_BASEDIR . "/packages/identity/i18n/en/bic/{$country}.json";
-            if(file_exists($file)) {
-                $data = file_get_contents($file);
-                $map_bic = json_decode($data, true);
-            }
-        }
-
-        $result = $map_bic[$bank_code]['bic'] ?? null;
-
-        return $result;
-    }
 
 }

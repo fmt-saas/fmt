@@ -1,6 +1,5 @@
 {
-    "name": "Supplier Type",
-    "description": "Interface for model definition classes.",
+    "name": "Supplier Reference",
     "layout": {
         "groups": [
             {
@@ -14,22 +13,22 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "name",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "code",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "condo_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "supplier_id",
+                                                "value": "suppliership_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "reference_type",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "reference_value",
                                                 "width": "50%"
                                             }
                                         ]

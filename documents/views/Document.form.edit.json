@@ -88,11 +88,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "category_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "public",
                                                 "width": "50%"
                                             }
@@ -107,27 +102,6 @@
                                                 "value": "preview_image",
                                                 "width": "100%",
                                                 "readonly": true
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "id": "section.tags",
-                        "label":"Tags",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "align": "left",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "tags_ids",
-                                                "width": "100%"
                                             }
                                         ]
                                     }

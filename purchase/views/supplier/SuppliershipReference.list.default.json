@@ -5,22 +5,17 @@
         "items": [
             {
                 "type": "field",
-                "value": "name",
-                "width": "20%"
-            },
-            {
-                "type": "field",
-                "value": "condo_id",
-                "width": "20%"
-            },
-            {
-                "type": "field",
                 "value": "reference_type",
                 "width": "20%"
             },
             {
                 "type": "field",
                 "value": "reference_value",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
                 "width": "20%"
             }
         ]

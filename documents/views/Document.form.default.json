@@ -18,32 +18,6 @@
             }
         }
     ],
-    "actions": [
-        {
-            "id": "action.perform_analysis",
-            "label": "Analyze",
-            "description": "Attempt to analyze the content of the document.",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "documents\\Document",
-                "action": "perform_analysis"
-            },
-            "visible": [ ["status", "=", "imported"], ["has_document_json", "=", false] ]
-        },
-        {
-            "id": "action.validate",
-            "label": "Validate",
-            "description": "Validate the document and its configuration.",
-            "controller": "core_model_transition",
-            "visible": ["status", "=", "imported"],
-            "params": {
-                "entity": "documents\\Document",
-                "transition": "validate",
-                "ids": []
-            },
-            "confirm": true
-        }
-    ],
     "layout": {
         "groups": [
             {
@@ -56,14 +30,8 @@
                                         "width": "50%",
                                         "items": [
                                             {
-                                                "type": "field",
-                                                "value": "name",
-                                                "width": "50%",
-                                                "visible": false
-                                            },
-                                            {
                                                 "type": "label",
-                                                "value": "Document Analysis",
+                                                "value": "Document Assignment",
                                                 "width": "100%",
                                                 "widget": {
                                                     "text_decoration": "underline"
@@ -85,6 +53,18 @@
                                                 "type": "field",
                                                 "label": "Document Type",
                                                 "value": "document_type_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Subtype",
+                                                "value": "document_subtype_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Condominium",
+                                                "value": "condo_id",
                                                 "width": "50%"
                                             },
                                             {
@@ -125,33 +105,14 @@
                                                 "visible": ["invoice_has_period", "=", true]
                                             },
                                             {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "Document Assignment",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "text_decoration": "underline"
-                                                }
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Condominium",
-                                                "value": "condo_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
-                                            },
-                                            {
                                                 "type": "field",
                                                 "label": "Folder",
                                                 "value": "parent_node_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
                                                 "width": "50%"
                                             }
                                         ]
@@ -165,7 +126,7 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "type": "pdf",
-                                                    "height": "720"
+                                                    "height": "700"
                                                 }
                                             }
                                         ]

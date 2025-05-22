@@ -11,6 +11,79 @@
             ]
         }
     },
+    "actions": [
+        {
+            "id": "action.perform_analysis",
+            "label": "Analyze",
+            "description": "Attempt to analyze the content of the document.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "action": "perform_analysis"
+            },
+            "visible": [ ["state", "=", "instance"], ["status", "=", "created"], ["has_analysis_json", "=", false] ]
+        },
+        {
+            "id": "action.complete",
+            "label": "Complete",
+            "description": "Mark the document as completed.",
+            "controller": "core_model_transition",
+            "visible": [ ["status", "=", "created"] ],
+            "params": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "transition": "complete",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.validate",
+            "label": "Validate",
+            "description": "Mark the document as validated.",
+            "controller": "core_model_transition",
+            "visible": [ ["status", "=", "completed"] ],
+            "params": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "transition": "validate",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.record",
+            "label": "Validate",
+            "description": "Mark the document as recorded.",
+            "controller": "core_model_transition",
+            "visible": [ ["status", "=", "validated"] ],
+            "params": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "transition": "record",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.confirm",
+            "label": "Confirm",
+            "description": "Mark the document as confirmed.",
+            "controller": "core_model_transition",
+            "visible": [ ["status", "=", "recorded"] ],
+            "params": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "transition": "confirm",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.integrate",
+            "label": "Confirm",
+            "description": "Integrate the document to accounting.",
+            "controller": "core_model_transition",
+            "visible": [ ["status", "=", "confirmed"] ],
+            "params": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "transition": "integrate",
+                "ids": []
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -24,7 +97,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "name",
+                                                "value": "document_id",
                                                 "width": "50%"
                                             },
                                             {
@@ -34,8 +107,63 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "description",
-                                                "width": "100%"
+                                                "value": "document_type_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_subtype_id",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "sections.report",
+                        "label": "report",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "report_html",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "height": 400
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "sections.analysis",
+                        "label": "analysis",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "analysis_json",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "height": 400
+                                                }
                                             }
                                         ]
                                     }

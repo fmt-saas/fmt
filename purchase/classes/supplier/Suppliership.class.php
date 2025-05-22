@@ -57,14 +57,16 @@ class Suppliership extends \equal\orm\Model {
                 'type'              => 'one2many',
                 'description'       => "The contracts of the condominium for the supplier.",
                 'foreign_object'    => 'purchase\supplier\SuppliershipContract',
-                'foreign_field'     => 'suppliership_id'
+                'foreign_field'     => 'suppliership_id',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'suppliership_references_ids' => [
                 'type'              => 'one2many',
                 'description'       => "The references used by the supplier for targeting the condominium.",
                 'foreign_object'    => 'purchase\supplier\SuppliershipReference',
-                'foreign_field'     => 'suppliership_id'
+                'foreign_field'     => 'suppliership_id',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
 
