@@ -32,6 +32,9 @@ use realestate\property\PropertyLot;
 
 use realestate\purchase\accounting\invoice\Invoice as PurchaseInvoice;
 
+
+core\User::id(2)->update(['language' => 'fr']);
+
 $condominiums = Condominium::search()->read(['id', 'account_chart_id']);
 
 $condominiums_ids = $condominiums->ids();

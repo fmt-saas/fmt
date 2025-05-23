@@ -1,0 +1,38 @@
+{
+    "name": "Document Validation Rule Line",
+    "description": "Document Validation rules have one or more lines associating them with specific condition a document has to meet.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "labeling_rule_id",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "document_type_id",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "document_subtype_id",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "document_format",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "allocation_line_format",
+                "width": "16%"
+            }
+        ]
+    }
+}

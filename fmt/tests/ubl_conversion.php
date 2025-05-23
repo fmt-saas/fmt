@@ -128,13 +128,12 @@ $xml1 = '<?xml version="1.0" encoding="UTF-8"?>
  */
 $tests = [
     '0101' => [
-            'description'       =>  "Retrieve Access Controller.",
-            'help'              =>  "Access Controller service should be overridden by the one present in `fmt/lib` directory. ",
+            'description'       =>  "Convert a UBL XML to JSON, and convert it back to XML.",
+            'help'              =>  "Original XML data should match the resulting structure. ",
             'return'            =>  ['object'],
             'act'               =>  function () use($xml1) {
                     $json = convertUblToJson($xml1);
                     $xml2 = convertJsonToUbl($json);
-
                     return $xml2;
                 },
             'assert'            =>  function($xml2) use($xml1) {
@@ -382,7 +381,7 @@ function convertJsonToUbl(string $json): string {
     foreach ($data['lines'] as $l) {
         $line = $cac('InvoiceLine');
         $line->appendChild($cbc('ID', (string) $lineId++));
-        $qty = $cbc('InvoicedQuantity', $decimal($l['quantity']));
+        $qty = $cbc('InvoicedQuantity', $decimal($l['quantity'] ?? 1));
         $qty->setAttribute('unitCode', $l['unit_code']);
         $line->appendChild($qty);
         $line->appendChild($cbc('LineExtensionAmount', $decimal($l['amount'])))->setAttribute('currencyID', $data['currency']);

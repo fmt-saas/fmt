@@ -1,0 +1,43 @@
+{
+    "name": "Recording Rule Line",
+    "description": "Recording rules have one or more lines associating them with an account and a VAT rule.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "14%"
+            },
+            {
+                "type": "field",
+                "value": "recording_rule_id",
+                "width": "14%"
+            },
+            {
+                "type": "field",
+                "value": "account_code",
+                "width": "14%"
+            },
+            {
+                "type": "field",
+                "value": "apportionment_id",
+                "width": "14%"
+            },
+            {
+                "type": "field",
+                "value": "owner_share",
+                "width": "14%"
+            },
+            {
+                "type": "field",
+                "value": "tenant_share",
+                "width": "14%"
+            },
+            {
+                "type": "field",
+                "value": "share",
+                "width": "14%"
+            }
+        ]
+    }
+}

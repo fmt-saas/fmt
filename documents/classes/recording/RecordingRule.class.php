@@ -14,7 +14,7 @@ class RecordingRule extends Model {
     }
 
     public static function getDescription() {
-        return "Recording rules allow to specify the way a document is meant to be imputed.";
+        return "Recording rules specify how a document of a given type and subtype should be recorded in the accounting system.";
     }
 
     public static function getColumns() {

@@ -28,8 +28,7 @@ class DocumentSubtype extends Model {
 
             'folder_code' => [
                 'type'              => 'string',
-                'description'       => 'Code of the Folder node a document by this type must be assigned to.',
-                'required'          => true
+                'description'       => 'Code of the Folder node a document by this type must be assigned to.'
             ],
 
             'description' => [
@@ -39,13 +38,19 @@ class DocumentSubtype extends Model {
             ],
 
             'document_type_id' => [
-                'type'              => 'one2many',
+                'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentType',
-                'foreign_field'     => 'document_type_id',
                 'description'       => 'Parent documents type.'
             ],
 
             'recording_rules_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\recording\RecordingRule',
+                'foreign_field'     => 'document_subtype_id',
+                'description'       => 'Rules matching the document subtype.'
+            ],
+
+            'labeling_rules_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\recording\RecordingRule',
                 'foreign_field'     => 'document_subtype_id',

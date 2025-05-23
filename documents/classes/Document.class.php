@@ -83,6 +83,24 @@ class Document extends Model {
                 'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and is used at the `completion` step for validating the completeness of the document.'
             ],
 
+            'has_analysis_json' => [
+                'type'              => 'boolean',
+                'description'       => 'Does the document have a JSON version of its content.',
+                'default'           => false
+            ],
+
+            'analysis_version' => [
+                'type'              => 'string',
+                'description'       => 'Provider and version of the API used for the document analysis.'
+            ],
+
+            'analysis_json' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.medium',
+                'description'       => 'JSON result of the document analysis.',
+                'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and might remain empty (depending on the feeding strategy associated to the document type).'
+            ],
+
             'document_type_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentType',

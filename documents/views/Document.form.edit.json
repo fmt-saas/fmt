@@ -111,7 +111,7 @@
                     },
                     {
                         "id": "section.json",
-                        "label":"Document Analysis",
+                        "label":"Document JSON",
                         "visible": ["has_document_json", "=", true],
                         "rows": [
                             {
@@ -129,10 +129,40 @@
                                             {
                                                 "type": "field",
                                                 "value": "document_json",
-                                                "width": "100%",
+                                                "width": "50%",
                                                 "readonly": true,
                                                 "widget": {
                                                     "height": "400"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "sections.analysis",
+                        "label": "Document analysis",
+                        "visible": ["has_analysis_json", "=", true],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "has_analysis_json",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "analysis_json",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "height": 400
                                                 }
                                             }
                                         ]

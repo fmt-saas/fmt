@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Recording Rule",
+    "description": "Recording rules specify how a document of a given type and subtype should be recorded in the accounting system.",
     "layout": {
         "groups": [
             {
@@ -10,12 +10,12 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "name",
-                                                "width": "50%"
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
@@ -24,37 +24,13 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "code",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
+                                                "value": "document_type_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "folder_code",
+                                                "value": "document_subtype_id",
                                                 "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_subtype",
-                                                "width": "50%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "25%",
-                                        "items": []
-                                    },
-                                    {
-                                        "width": "25%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "json_schema",
-                                                "width": "100%"
                                             }
                                         ]
                                     }
@@ -67,9 +43,6 @@
             {
                 "sections": [
                     {
-                        "id": "section.subtypes",
-                        "label": "Subtypes",
-                        "visible": ["has_subtype", "=", true],
                         "rows": [
                             {
                                 "columns": [
@@ -78,7 +51,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "document_subtypes_ids",
+                                                "value": "recording_rule_lines_ids",
                                                 "width": "100%"
                                             }
                                         ]

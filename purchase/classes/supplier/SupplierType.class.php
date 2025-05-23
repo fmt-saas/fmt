@@ -14,6 +14,10 @@ class SupplierType extends Model {
         return 'Supplier Type';
     }
 
+    public static function getDescription() {
+        return 'Supplier Types allow to categorize suppliers and apply specific rules, such as Labelling Rules, based on their type.';
+    }
+
     public static function getColumns() {
 
         return [

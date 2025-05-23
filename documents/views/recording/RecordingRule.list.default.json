@@ -1,0 +1,28 @@
+{
+    "name": "Recording Rule",
+    "description": "Recording rules specify how a document of a given type and subtype should be recorded in the accounting system.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "document_type_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "document_subtype_id",
+                "width": "25%"
+            }
+        ]
+    }
+}

@@ -20,6 +20,13 @@ class RecordingRuleLine extends Model {
     public static function getColumns() {
 
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\property\Condominium',
+                'description'       => "The condominium the rule applies to.",
+                'help'              => "If left unset, the rule applies at the agency/managing agent level"
+            ],
+
             'name' => [
                 'type'              => 'string',
                 'description'       => "Name of the recording rule line",
@@ -38,11 +45,27 @@ class RecordingRuleLine extends Model {
                 'required'          => true
             ],
 
+            'account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Accounting account the rule points to.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['account_class', '=', '06']],
+                'visible'           => ['condo_id', '<>', null]
+            ],
+
+            'apportionment_code' => [
+                'type'              => 'string',
+                'description'       => "Code of the default apportionment key to use (implied in retrieval of related apportionment_id).",
+                'visible'           => ['condo_id', '=', null]
+            ],
+
             'apportionment_id' => [
                 'type'              => 'many2one',
                 'description'       => "The key that the apportionment refers to.",
                 'foreign_object'    => 'realestate\property\Apportionment',
-                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed."
+                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'visible'           => ['condo_id', '<>', null]
             ],
 
             'owner_share'           => [

@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Recording Rule Line",
+    "description": "Recording rules have one or more lines associating them with an account and a VAT rule.",
     "layout": {
         "groups": [
             {
@@ -15,70 +15,61 @@
                                             {
                                                 "type": "field",
                                                 "value": "name",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "description",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "code",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
+                                                "value": "recording_rule_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "folder_code",
+                                                "value": "condo_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "has_subtype",
+                                                "value": "account_code",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "account_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "apportionment_code",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "apportionment_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "owner_share",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "tenant_share",
                                                 "width": "50%"
                                             }
                                         ]
                                     },
                                     {
                                         "width": "25%",
-                                        "items": []
+                                        "items": [
+                                        ]
                                     },
                                     {
                                         "width": "25%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "json_schema",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "sections": [
-                    {
-                        "id": "section.subtypes",
-                        "label": "Subtypes",
-                        "visible": ["has_subtype", "=", true],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "document_subtypes_ids",
+                                                "value": "share",
                                                 "width": "100%"
                                             }
                                         ]

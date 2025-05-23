@@ -336,6 +336,45 @@
                 "type": "parent",
                 "children": [
                     {
+                                "id": "item.documents",
+                                "label": "Documents",
+                                "description": "",
+                                "icon": "picture_as_pdf",
+                                "type": "parent",
+                                "children": [
+                                    {
+                                        "id": "item.config.documents_types",
+                                        "type": "entry",
+                                        "label": "Document Types",
+                                        "icon": "book",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "documents\\DocumentType"
+                                        }
+                                    },
+                                    {
+                                        "id": "item.config.documents_subtypes",
+                                        "type": "entry",
+                                        "label": "Document Subtypes",
+                                        "icon": "book",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "documents\\DocumentSubtype"
+                                        }
+                                    },
+                                    {
+                                        "id": "item.config.documents_recording_rules",
+                                        "type": "entry",
+                                        "label": "Recording Rules",
+                                        "icon": "auto_awesome",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "documents\\recording\\RecordingRule"
+                                        }
+                                    }
+                                ]
+                    },
+                    {
                         "id": "item.config.pricelist",
                         "type": "entry",
                         "label": "Price list",
@@ -365,16 +404,6 @@
                         "description": "",
                         "context": {
                             "entity": "purchase\\supplier\\SupplierType"
-                        }
-                    },
-                    {
-                        "id": "item.config.documents_types",
-                        "type": "entry",
-                        "label": "Document Types",
-                        "icon": "book",
-                        "description": "",
-                        "context": {
-                            "entity": "documents\\DocumentType"
                         }
                     }
                 ]

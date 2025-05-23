@@ -1,0 +1,28 @@
+{
+    "name": "Document Labeling Rule",
+    "description": "Labeling rules allow to specify how the internal operations originating from a document, and its subsequent allocations, should be labeled.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "is_active",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "supplier_type_id",
+                "width": "25%"
+            }
+        ]
+    }
+}

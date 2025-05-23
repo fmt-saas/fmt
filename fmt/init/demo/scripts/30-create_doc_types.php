@@ -1,0 +1,183 @@
+<?php
+/*
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Original author(s): Yesbabylon SA
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
+use documents\DocumentType;
+use documents\DocumentSubtype;
+
+/**
+ * Document Types
+ */
+
+ DocumentType::create([
+    'id'            => 1,
+    'name'          => 'Facture fournisseur',
+    'code'          => 'invoice',
+    'folder_code'   => 'supplier_invoices',
+    'description'   => "Document comptable à comptabiliser et réconcilier",
+    'json_schema'   => 'urn:fmt:json-schema:finance:purchase-invoice'
+]);
+
+DocumentType::create([
+    'id'            => 2,
+    'name'          => 'Note de crédit fournisseur',
+    'code'          => 'credit_note',
+    'folder_code'   => 'supplier_invoices',
+    'description'   => "Note de crédit liée à une facture précédente",
+    'json_schema'   => 'urn:fmt:json-schema:finance:purchase-invoice'
+]);
+
+DocumentType::create([
+    'id'            => 3,
+    'name'          => 'Devis',
+    'code'          => 'quote',
+    'folder_code'   => 'tender_documents',
+    'description'   => "Proposition chiffrée, rattachable à un dossier travaux ou sinistre"
+]);
+
+DocumentType::create([
+    'id'            => 4,
+    'name'          => 'Bon de commande',
+    'code'          => 'purchase_order',
+    'folder_code'   => 'works_and_repairs',
+    'description'   => "Validation d'engagement de dépenses"
+]);
+
+DocumentType::create([
+    'id'            => 5,
+    'name'          => 'Bon de livraison',
+    'code'          => 'delivery_note',
+    'folder_code'   => 'works_and_repairs',
+    'description'   => "Justifie qu'un service ou une marchandise a été livré"
+]);
+
+DocumentType::create([
+    'id'            => 6,
+    'name'          => 'Rapports de sinistre',
+    'code'          => 'incident_report',
+    'folder_code'   => 'works_and_repairs',
+    'description'   => "Document décrivant un problème ou dégât"
+]);
+
+DocumentType::create([
+    'id'            => 7,
+    'name'          => 'Rapport d\'entretien',
+    'code'          => 'maintenance_report',
+    'folder_code'   => 'maintenance_logs',
+    'description'   => "Suivi régulier, ex. extincteurs, ascenseurs"
+]);
+
+DocumentType::create([
+    'id'            => 8,
+    'name'          => 'Contrat fournisseur',
+    'code'          => 'contract',
+    'folder_code'   => 'contracts',
+    'description'   => "Engagement contractuel formel (nettoyage, assurance, etc.)"
+]);
+
+DocumentType::create([
+    'id'            => 9,
+    'name'          => 'Attestation',
+    'code'          => 'certificate',
+    'folder_code'   => 'insurance_contracts',
+    'description'   => "Preuve de conformité, certificat de contrôle ou d'assurance"
+]);
+
+DocumentType::create([
+    'id'            => 10,
+    'name'          => 'Conditions générales',
+    'code'          => 'terms_and_conditions',
+    'folder_code'   => 'contracts',
+    'description'   => "Pièce annexe souvent non pertinente"
+]);
+
+DocumentType::create([
+    'id'            => 11,
+    'name'          => 'Relevé de consommations',
+    'code'          => 'reconciliation_report',
+    'folder_code'   => 'operation_statements',
+    'description'   => "Répartition ou données de consommation (eau, gaz…)"
+]);
+
+DocumentType::create([
+    'id'            => 12,
+    'name'          => 'Appel de fonds',
+    'code'          => 'fund_request',
+    'folder_code'   => 'operation_statements',
+    'description'   => "Document sollicitant un paiement d'avance ou une participation"
+]);
+
+DocumentType::create([
+    'id'            => 13,
+    'name'          => 'État des dépenses',
+    'code'          => 'expense_statement',
+    'folder_code'   => 'operation_statements',
+    'description'   => "Détail ou synthèse des charges engagées"
+]);
+
+DocumentType::create([
+    'id'            => 14,
+    'name'          => 'Relevés bancaires',
+    'code'          => 'bank_statement',
+    'folder_code'   => 'bank_statements',
+    'description'   => "Mouvement sur compte bancaire de l'ACP",
+    'json_schema'   => 'urn:fmt:json-schema:finance:bank-statement'
+]);
+
+DocumentType::create([
+    'id'            => 15,
+    'name'          => 'Document juridique',
+    'code'          => 'legal_document',
+    'folder_code'   => 'legal_followup',
+    'description'   => "Assignation, ordonnance, etc."
+]);
+
+DocumentType::create([
+    'id'            => 16,
+    'name'          => 'Courrier',
+    'code'          => 'correspondence',
+    'folder_code'   => 'internal_notes',
+    'description'   => "Message utile, libre ou informatif (sans pièce formelle)"
+]);
+
+DocumentType::create([
+    'id'            => 17,
+    'name'          => 'Pièce justificative',
+    'code'          => 'supporting_document',
+    'folder_code'   => 'justifications',
+    'description'   => "RIB, Kbis, attestation URSSAF, etc."
+]);
+
+DocumentType::create([
+    'id'            => 18,
+    'name'          => 'PV',
+    'code'          => 'internal_memo',
+    'folder_code'   => 'internal_notes',
+    'description'   => "Procès verbal d'une assemblée ou d'un conseil."
+]);
+
+
+/**
+ * Document Subtypes
+ */
+
+DocumentSubtype::create([
+    'name'              => 'Facture d\'acompte',
+    'code'              => 'advance_invoice',
+    'document_type_id'  => 1
+]);
+
+DocumentSubtype::create([
+    'name'              => 'Facture de régularisation',
+    'code'              => 'adjustment_invoice',
+    'document_type_id'  => 1
+]);
+
+DocumentSubtype::create([
+    'name'              => 'Facture de prestation hors-contrat',
+    'code'              => 'off_contract',
+    'document_type_id'  => 1
+]);

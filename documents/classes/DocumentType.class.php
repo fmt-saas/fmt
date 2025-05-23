@@ -44,12 +44,40 @@ class DocumentType extends Model {
                 'description'       => 'URN identifier of the schema following json-schema.org specs.'
             ],
 
+            'has_subtype' => [
+                'type'              => 'boolean',
+                'description'       => 'The document type has 2 ore more subtypes.',
+                'default'           => false
+            ],
+
             'documents_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\Document',
                 'foreign_field'     => 'document_type_id',
                 'description'       => 'Documents matching the document type.'
+            ],
+
+            'document_subtypes_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\DocumentSubtype',
+                'foreign_field'     => 'document_type_id',
+                'description'       => 'Documents matching the document type.'
+            ],
+
+            'recording_rules_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\recording\RecordingRule',
+                'foreign_field'     => 'document_type_id',
+                'description'       => 'Rules matching the document subtype.'
+            ],
+
+            'labeling_rules_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\recording\RecordingRule',
+                'foreign_field'     => 'document_type_id',
+                'description'       => 'Rules matching the document subtype.'
             ]
+
 
         ];
     }

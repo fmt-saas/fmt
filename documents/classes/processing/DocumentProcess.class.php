@@ -9,8 +9,11 @@ use equal\orm\Model;
 use documents\Document;
 use documents\DocumentType;
 use purchase\supplier\Supplier;
+use purchase\supplier\Suppliership;
 use purchase\supplier\SuppliershipReference;
 use realestate\property\Condominium;
+use realestate\purchase\accounting\invoice\Invoice;
+use realestate\purchase\accounting\invoice\InvoiceLine;
 
 class DocumentProcess extends Model {
 
@@ -50,24 +53,6 @@ class DocumentProcess extends Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
-            'analysis_version' => [
-                'type'              => 'string',
-                'description'       => 'Provider and version of the API used for the document analysis.'
-            ],
-
-            'analysis_json' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain.medium',
-                'description'       => 'JSON result of the document analysis.',
-                'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and might remain empty (depending on the feeding strategy associated to the document type).'
-            ],
-
-            'has_analysis_json' => [
-                'type'              => 'boolean',
-                'description'       => 'Does the document have a JSON version of its content.',
-                'default'           => false
-            ],
-
             'document_type_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentType',
@@ -98,11 +83,25 @@ class DocumentProcess extends Model {
                 'onupdate'          => 'onupdateSupplierId',
             ],
 
+            'ownership_id' => [
+                'type'              => 'many2one',
+                'description'       => "The ownership that the owner refers to.",
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'onupdate'          => 'onupdateOwnershipId'
+            ],
+
             'data' => [
                 'type'              => 'binary',
                 'description'       => 'Raw binary data of the uploaded document',
                 'help'              => 'This field is meant to be used for the subsequent document creation, and is emptied once the document creation is confirmed.',
                 'onupdate'          => 'onupdateData'
+            ],
+
+            'has_analysis' => [
+                'type'              => 'boolean',
+                'description'       => 'Does the document have a JSON version of its content.',
+                'default'           => false
             ],
 
             'report_html' => [
@@ -399,10 +398,66 @@ class DocumentProcess extends Model {
     }
 
     /**
-     * Create the proforma accounting resource based on Document type and JSON data.
+     * Create the proforma target resource based on Document type and JSON data.
      */
     public static function onbeforeRecord($self) {
+        $self->read(['condo_id', 'supplier_id', 'document_type_id', 'document_id' => ['document_json']]);
+        foreach($self as $id => $documentProcess) {
+            // convert the document to an invoice
+            if(!$documentProcess['document_type_id']) {
+                continue;
+            }
+            $data = json_decode($documentProcess['document_id']['document_json'], true);
+            if(json_last_error() !== JSON_ERROR_NONE) {
+                trigger_error('APP::JSON decoding error: ' . json_last_error_msg(), EQ_REPORT_WARNING);
+                throw new \Exception('invalid_json', EQ_ERROR_INVALID_PARAM);
+            }
 
+            // find suppliership
+            $suppliership = Suppliership::search([
+                    ['condo_id', '=', $documentProcess['condo_id']],
+                    ['supplier_id', '=',  $documentProcess['supplier_id']]
+                ])
+                ->first();
+
+            if(!$suppliership) {
+                throw new \Exception('missing_suppliership', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            // create invoice
+            $invoice = Invoice::create([
+                    'condo_id'                  => $documentProcess['condo_id'],
+                    'suppliership_id'           => $suppliership['id'],
+                    'supplier_invoice_number'   => $data['invoice_number'],
+                    'emission_date'             => strtotime($data['issue_date']),
+                    'due_date'                  => strtotime($data['due_date']),
+                    'has_fund_usage'            => false,
+                    'has_instant_reinvoice'     => false
+                ])
+                ->first();
+
+            // add invoice lines
+            foreach($data['lines'] as $line) {
+                $vat_rate = 0.0;
+                if(!empty($line['tax']['percent'])) {
+                    $vat_rate = round(floatval($line['tax']['percent']) / 100, 2);
+                }
+                InvoiceLine::create([
+                    'condo_id'              => $documentProcess['condo_id'],
+                    'invoice_id'            => $invoice['id'],
+                    'description'           => $line['description'] ?? '',
+                    'is_private_expense'    => false,
+                    'expense_account_id'    => null,
+                    'owner_share'           => 100,
+                    'tenant_share'          => 0,
+                    'total'                 => round(floatval($line['amount']), 2),
+                    'vat_rate'              => $vat_rate
+                ]);
+            }
+
+            self::id($id)->update(['document_invoice_id' => $invoice['id']]);
+
+        }
     }
 
     /**
@@ -452,6 +507,15 @@ class DocumentProcess extends Model {
         }
     }
 
+    public static function onupdateOwnershipId($self) {
+        $self->read(['ownership_id', 'document_id']);
+        foreach($self as $id => $documentProcess) {
+            if(isset($documentProcess['document_id'])) {
+                Document::id($documentProcess['document_id'])->update(['ownership_id' => $documentProcess['ownership_id']]);
+            }
+        }
+    }
+
     /**
      * DocumentProcess is used to upload and create a new Document.
      * We rely on the same strategy than regular Document upload, by receiving document meta from UI with onchange event.
@@ -491,77 +555,13 @@ class DocumentProcess extends Model {
             $logs = [];
 
             try {
-                $data = \eQual::run('get', 'documents_analyze-mindee', ['id' => $documentProcess['document_id']['id']]);
+                $data = \eQual::run('get', 'documents_processing_purchaseInvoice_extract', ['document_id' => $documentProcess['document_id']['id']]);
                 $logs[] = "data retrieved from document analysis";
-            }
-            catch(\Exception $e) {
-                // unable to extract or confidence level too low
-                trigger_error("APP::unable to perform document analysis: " . $e->getMessage(), EQ_REPORT_WARNING);
-                continue;
-            }
-
-            if(!isset($data['document']['inference']['prediction'])) {
-                // invalid Mindee response
-                trigger_error("APP::invalid Mindee response", EQ_REPORT_WARNING);
-                continue;
-            }
-
-            try {
-                $prediction = $data['document']['inference']['prediction'];
-
-                $data = \eQual::run('get', 'documents_parse-mindee', ['json' => json_encode($data['document']['inference']['prediction'])]);
-
-                // attempt to enrich with additional data
-                try {
-                    $text = \eQual::run('get', 'documents_extract-text', ['id' => $id]);
-                    $info = \eQual::run('get', 'documents_parse-text', ['text' => $text]);
-
-                    if(!isset($data['customer']['customer_number']) && isset($info['customer_number'])) {
-                        $data['customer']['customer_number'] = $info['customer_number'];
-                        $logs[] = "customer_number: {$info['customer_number']} - retrieved from parsing text ";
-                    }
-
-                    if(!isset($data['customer']['contract_number']) && isset($info['contract_number'])) {
-                        $data['customer']['contract_number'] = $info['contract_number'];
-                        $logs[] = "contract_number: {$info['contract_number']} - retrieved from parsing text ";
-                    }
-
-                    if(!isset($data['customer']['installation_number']) && isset($info['installation_number'])) {
-                        $data['customer']['installation_number'] = $info['installation_number'];
-                        $logs[] = "installation_number: {$info['installation_number']} - retrieved from parsing text ";
-                    }
-
-                    if(!isset($data['payment']['payment_id']) && isset($info['payment_id'])) {
-                        $data['payment']['payment_id'] = $info['payment_id'];
-                    }
-
-                    if(!isset($data['payment']['iban']) && isset($info['iban'])) {
-                        $data['payment']['iban'] = $info['iban'];
-                        $logs[] = "iban: {$info['iban']} - retrieved from parsing text ";
-                    }
-
-                    if(!isset($data['invoice_period']) && isset($info['period_start'], $info['period_end'])) {
-                        $data['invoice_period'] = [
-                            'start_date' => $info['period_start'],
-                            'end_date'   => $info['period_end']
-                        ];
-                        $logs[] = "invoice_period: {$info['period_start']}-{$info['period_end']} - retrieved from parsing text ";
-                    }
-
-                    $data['payment']['bic'] = self::computeBicFromIban($data['payment']['iban']);
-                    $logs[] = "bic: {$data['payment']['bic']} - retrieved from IBAN";
-                }
-                catch(\Exception $e) {
-                    // ignore attempt failure
-                    trigger_error("APP::unable to extract text from document. Error: " . $e->getMessage(), EQ_REPORT_WARNING);
-                }
 
                 $values = [
                         'condo_id'          => $documentProcess['condo_id'],
                         'supplier_id'       => $documentProcess['supplier_id'],
-                        'analysis_version'  => 'mindee_v4',
-                        'analysis_json'     => json_encode($prediction, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                        'has_analysis_json' => true
+                        'has_analysis'      => true
                     ];
 
                 // #memo - document_json is meant to receive a final content according to schema and independent from origin (ex.: parsed Mindee, parsed UBL, ...)
@@ -634,7 +634,7 @@ class DocumentProcess extends Model {
             }
             catch(\Exception $e) {
                 // unable to extract or confidence level too low
-                trigger_error("APP::unable to extract document, or confidence level too low.", EQ_REPORT_WARNING);
+                trigger_error("APP::unable to extract document, or confidence level too low." . $e->getMessage(), EQ_REPORT_WARNING);
             }
 
         }
