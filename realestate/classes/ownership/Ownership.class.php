@@ -44,6 +44,12 @@ class Ownership extends \equal\orm\Model {
                 'readonly'          => true
             ],
 
+            'description' => [
+                'type'              => 'string',
+                'description'       => "Short optional description.",
+                'store'             => true
+            ],
+
             'property_lots_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\property\PropertyLot',

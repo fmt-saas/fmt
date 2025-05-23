@@ -17,7 +17,7 @@ use realestate\property\PropertyLot;
 $providers = eQual::inject(['context', 'orm', 'auth', 'access']);
 
 /**
- * #memo - in general config.json, DEFAULT_RIGHTS is expected to be set to 0.
+ * #memo - IMPORTANT - in general config.json, DEFAULT_RIGHTS is expected to be set to 0.
  */
 $tests = [
     '0101' => [

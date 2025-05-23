@@ -5,7 +5,7 @@
         "data": [
             {
                 "id": 2,
-                "help": "Charles Max",
+                "description": "Charles Max",
                 "condo_id": 1,
                 "ownership_type": "unique",
                 "total_shares": 100,
@@ -19,7 +19,7 @@
             },
             {
                 "id": 3,
-                "help": "Lucienne Prévaut",
+                "description": "Lucienne Prévaut",
                 "condo_id": 1,
                 "ownership_type": "unique",
                 "total_shares": 100,
@@ -33,7 +33,7 @@
             },
             {
                 "id": 4,
-                "help": "Etienne Duchemin, Sarah Duchemin, Louis Duchemin",
+                "description": "Etienne Duchemin, Sarah Duchemin, Louis Duchemin",
                 "condo_id": 1,
                 "ownership_type": "unique",
                 "total_shares": 100,
@@ -47,7 +47,7 @@
             },
             {
                 "id": 5,
-                "help": "Géraldine Desmet",
+                "description": "Géraldine Desmet",
                 "condo_id": 2,
                 "ownership_type": "unique",
                 "total_shares": 100,
@@ -61,7 +61,7 @@
             },
             {
                 "id": 6,
-                "help": "Raoul Ménart",
+                "description": "Raoul Ménart",
                 "condo_id": 2,
                 "ownership_type": "unique",
                 "total_shares": 100,
@@ -75,7 +75,7 @@
             },
             {
                 "id": 7,
-                "help": "Roland Dupuis",
+                "description": "Roland Dupuis",
                 "condo_id": 2,
                 "ownership_type": "unique",
                 "total_shares": 100,
