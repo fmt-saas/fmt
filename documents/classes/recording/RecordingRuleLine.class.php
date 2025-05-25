@@ -41,8 +41,8 @@ class RecordingRuleLine extends Model {
 
             'account_code' => [
                 'type'              => 'string',
-                'description'       => "Code of the account associated to the Rule line.",
-                'required'          => true
+                'description'       => "Code of the account to be associated to the Rule line.",
+                'visible'           => ['condo_id', '=', null]
             ],
 
             'account_id' => [

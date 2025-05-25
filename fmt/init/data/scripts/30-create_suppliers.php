@@ -3438,8 +3438,6 @@ Supplier::create([
 Supplier::create([
         "id" => 1065,
         "identity_id" => 1065,
-        "legal_name" => "ISB VENTILATION",
-        "short_name" => "ISB",
         "is_active" => true
       ]);
 Supplier::create([

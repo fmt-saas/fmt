@@ -11,6 +11,8 @@
  in order to produce a coherent environment on which automated and/or manual tests can be conducted.
 */
 
+use documents\recording\RecordingRule;
+use documents\recording\RecordingRuleLine;
 use finance\accounting\Account;
 use finance\accounting\AccountChart;
 use finance\accounting\FiscalPeriod;
@@ -20,6 +22,7 @@ use hr\role\RoleAssignment;
 use identity\Identity;
 use identity\User;
 use purchase\supplier\Suppliership;
+use purchase\supplier\SuppliershipReference;
 use realestate\finance\accounting\ReserveFund;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
@@ -89,9 +92,18 @@ Ownership::search()
 Suppliership::create(["condo_id" => 1, "supplier_id" => 1]);
 Suppliership::create(["condo_id" => 2, "supplier_id" => 1]);
 
+// VIVAQUA
+$vivaquaSuppliership = Suppliership::create(["condo_id" => 1, "supplier_id" => 1131])->first();
+SuppliershipReference::create(['condo_id' => 1, 'suppliership_id' => $vivaquaSuppliership['id'], 'reference_type' => 'installation_number', 'reference_value' => '4000232058']);
+
 Suppliership::search()
     ->read(['code'])
     ->do('generate_accounts');
+
+$recordingRule = RecordingRule::create(['condo_id' => 1, 'name' => 'facture d\'acompte EAU', 'document_type_id' => 1, 'document_subtype_id' => 1])->first();
+RecordingRuleLine::create(['condo_id' => 1, 'recording_rule_id' => $recordingRule['id'], 'account_id' => 635, 'apportionment_id' => 1, 'owner_share' => 100, 'tenant_share' => 0, 'share' => 1.0]);
+
+
 
 $user = User::id(3)
     ->read(['firstname', 'lastname'])

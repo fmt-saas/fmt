@@ -35,7 +35,7 @@ class Invoice extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'store'             => true,
-                'relation'          => ['invoice_number'],
+                'function'          => 'calcName',
                 'description'       => 'Label of the invoice, depending on its status'
             ],
 
@@ -80,6 +80,7 @@ class Invoice extends Model {
                     'cancelled'             // the invoice has been cancelled (through reversing entries)
                 ],
                 'default'           => 'proforma',
+                'dependents'        => ['name'],
                 'help'              => "Status set to 'invoice' means the invoice has been emitted with a unique number and accounting entries. `cancelled` means that the invoice has been cancelled through a credit note (and related reversing entries)."
             ],
 
@@ -235,6 +236,21 @@ class Invoice extends Model {
             ]
         ];
     }
+
+    public static function calcName($self) {
+        $result = [];
+        $self->read(['status', 'invoice_number']);
+        foreach($self as $id => $invoice) {
+            if($invoice['status'] === 'proforma') {
+                $result[$id] = '[proforma]';
+            }
+            elseif($invoice['invoice_number']) {
+                $result[$id] = $invoice['invoice_number'];
+            }
+        }
+        return $result;
+    }
+
     /**
      * #memo - we need this value even if it can still change (i.e. accounting entry is not yet validated)
      */

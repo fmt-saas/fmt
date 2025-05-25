@@ -80,7 +80,7 @@ if(!isset($data['document']['inference']['prediction'])) {
 $prediction = $data['document']['inference']['prediction'];
 
 // retrieve the corresponding JSON matching schema $id purchase-invoice
-$data = eQual::run('get', 'documents_procesing_Invoice_parse-mindee', ['json' => json_encode($data['document']['inference']['prediction'])]);
+$data = eQual::run('get', 'documents_processing_Invoice_parse-mindee', ['json' => json_encode($data['document']['inference']['prediction'])]);
 
 // attempt to enrich with additional data
 $text = eQual::run('get', 'documents_processing_dump-text', ['id' =>  $document['id']]);

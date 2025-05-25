@@ -49,8 +49,8 @@
         },
         {
             "id": "action.record",
-            "label": "Validate",
-            "description": "Mark the document as recorded.",
+            "label": "Resolve",
+            "description": "Create related entities as proforma.",
             "controller": "core_model_transition",
             "visible": [ ["status", "=", "validated"] ],
             "params": {

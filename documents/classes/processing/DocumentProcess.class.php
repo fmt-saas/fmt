@@ -8,6 +8,8 @@ namespace documents\processing;
 use equal\orm\Model;
 use documents\Document;
 use documents\DocumentType;
+use documents\recording\RecordingRule;
+use documents\recording\RecordingRuleLine;
 use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
 use purchase\supplier\Supplier;
@@ -246,6 +248,7 @@ class DocumentProcess extends Model {
                     'integrate' => [
                         'description' => 'Update the document to `integrated`.',
                         'policies'    => [],
+                        'onbefore'    => 'onbeforeIntegrate',
                         'status'      => 'integrated'
                     ]
                 ]
@@ -455,7 +458,7 @@ class DocumentProcess extends Model {
      *
      */
     public static function onbeforeRecord($self) {
-        $self->read(['condo_id', 'supplier_id', 'document_type_code', 'document_id' => ['document_json']]);
+        $self->read(['condo_id', 'supplier_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'document_id' => ['document_json']]);
         foreach($self as $id => $documentProcess) {
 
             if(!$documentProcess['document_type_code']) {
@@ -483,6 +486,29 @@ class DocumentProcess extends Model {
 
             if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
 
+                $recordingRule = RecordingRule::search([
+                        ['document_type_id', '=', $documentProcess['document_type_id']],
+                        ['document_subtype_id', '=', $documentProcess['document_subtype_id']]
+                    ])
+                    ->first();
+
+                if(!$recordingRule) {
+                    $recordingRule = RecordingRule::search([
+                            ['document_type_id', '=', $documentProcess['document_type_id']]
+                        ])
+                        ->first();
+                }
+
+                if(!$recordingRule) {
+                    throw new \Exception('no_matching_recording_rule', EQ_REPORT_WARNING);
+                }
+
+                $recordingRuleLines = RecordingRuleLine::search([
+                            ['recording_rule_id', '=', $recordingRule['id']],
+                            ['condo_id', '=', $documentProcess['condo_id']]
+                        ])
+                    ->read(['account_id', 'apportionment_id', 'owner_share', 'tenant_share', 'share']);
+
                 // create invoice
                 $invoice = Invoice::create([
                         'condo_id'                  => $documentProcess['condo_id'],
@@ -495,23 +521,28 @@ class DocumentProcess extends Model {
                     ])
                     ->first();
 
-                // add invoice lines
-                foreach($data['lines'] as $line) {
-                    $vat_rate = 0.0;
-                    if(!empty($line['tax']['percent'])) {
-                        $vat_rate = round(floatval($line['tax']['percent']) / 100, 2);
+                foreach($recordingRuleLines as $recording_rule_line_id => $recordingRuleLine) {
+                    // add invoice lines
+                    foreach($data['lines'] as $line) {
+                        $vat_rate = 0.0;
+                        if(!empty($line['tax']['percent'])) {
+                            $vat_rate = round(floatval($line['tax']['percent']) / 100, 2);
+                        }
+
+                        $values = [
+                            'condo_id'              => $documentProcess['condo_id'],
+                            'invoice_id'            => $invoice['id'],
+                            'description'           => $line['description'] ?? '',
+                            'is_private_expense'    => false,
+                            'expense_account_id'    => $recordingRuleLine['account_id'],
+                            'owner_share'           => 100,
+                            'tenant_share'          => 0,
+                            'total'                 => round(floatval($line['amount']) * $recordingRuleLine['share'], 2),
+                            'vat_rate'              => $vat_rate
+                        ];
+
+                        InvoiceLine::create($values);
                     }
-                    InvoiceLine::create([
-                        'condo_id'              => $documentProcess['condo_id'],
-                        'invoice_id'            => $invoice['id'],
-                        'description'           => $line['description'] ?? '',
-                        'is_private_expense'    => false,
-                        'expense_account_id'    => null,
-                        'owner_share'           => 100,
-                        'tenant_share'          => 0,
-                        'total'                 => round(floatval($line['amount']), 2),
-                        'vat_rate'              => $vat_rate
-                    ]);
                 }
 
                 self::id($id)->update(['document_invoice_id' => $invoice['id']]);
@@ -549,6 +580,14 @@ class DocumentProcess extends Model {
                 self::id($id)->update(['document_bank_statement_id' => $statement['id']]);
             }
         }
+    }
+
+
+    /**
+     * Create accounting entries according to linked document
+     */
+    public static function onbeforeIntegrate($self) {
+        // #todo
     }
 
     /**
@@ -671,7 +710,7 @@ class DocumentProcess extends Model {
             }
             catch(\Exception $e) {
                 // unexpected error
-                trigger_error("APP::unable to extract document for process{$id} ({$documentProcess['document_type_code']}): " . $e->getMessage(), EQ_REPORT_WARNING);
+                trigger_error("APP::unable to extract document for process {$id} ({$documentProcess['document_type_code']}): " . $e->getMessage(), EQ_REPORT_WARNING);
             }
 
 
