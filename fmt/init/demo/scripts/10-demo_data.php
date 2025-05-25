@@ -101,7 +101,7 @@ Suppliership::search()
     ->do('generate_accounts');
 
 $recordingRule = RecordingRule::create(['condo_id' => 1, 'name' => 'facture d\'acompte EAU', 'document_type_id' => 1, 'document_subtype_id' => 1])->first();
-RecordingRuleLine::create(['condo_id' => 1, 'recording_rule_id' => $recordingRule['id'], 'account_id' => 635, 'apportionment_id' => 1, 'owner_share' => 100, 'tenant_share' => 0, 'share' => 1.0]);
+RecordingRuleLine::create(['name' => 'eau', 'condo_id' => 1, 'recording_rule_id' => $recordingRule['id'], 'account_id' => 635, 'apportionment_id' => 1, 'owner_share' => 100, 'tenant_share' => 0, 'share' => 1.0]);
 
 
 
