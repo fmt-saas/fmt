@@ -6,9 +6,11 @@
             "ACTION.SAVE": [
                 {
                     "id": "SAVE_AND_VIEW",
-                    "view": "form.default"
+                    "view": "form.default",
+                    "visible": false
                 }
-            ]
+            ],
+            "ACTION.CANCEL": false
         }
     },
     "layout": {

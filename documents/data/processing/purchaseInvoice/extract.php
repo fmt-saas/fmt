@@ -1,5 +1,10 @@
 <?php
-
+/*
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Original author(s): Yesbabylon SA
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
 use documents\Document;
 
 [$params, $providers] = eQual::announce([
@@ -13,7 +18,7 @@ use documents\Document;
     ],
     'constants'     => ['MINDEE_API_KEY'],
     'access' => [
-        'visibility'        => 'public'
+        'visibility'        => 'protected'
     ],
     'response'      => [
         'accept-origin' => '*',
@@ -65,7 +70,7 @@ if(!in_array($document['content_type'], $supported_content_types)) {
     throw new Exception('non_supported_document_type', EQ_ERROR_INVALID_PARAM);
 }
 
-$data = eQual::run('get', 'documents_analyze-mindee', ['id' => $document['id']]);
+$data = eQual::run('get', 'documents_processing_Invoice_analyze-mindee', ['id' => $document['id']]);
 
 if(!isset($data['document']['inference']['prediction'])) {
     // invalid Mindee response
@@ -75,11 +80,11 @@ if(!isset($data['document']['inference']['prediction'])) {
 $prediction = $data['document']['inference']['prediction'];
 
 // retrieve the corresponding JSON matching schema $id purchase-invoice
-$data = eQual::run('get', 'documents_parse-mindee', ['json' => json_encode($data['document']['inference']['prediction'])]);
+$data = eQual::run('get', 'documents_procesing_Invoice_parse-mindee', ['json' => json_encode($data['document']['inference']['prediction'])]);
 
 // attempt to enrich with additional data
-$text = eQual::run('get', 'documents_extract-text', ['id' =>  $document['id']]);
-$info = eQual::run('get', 'documents_parse-text', ['text' => $text]);
+$text = eQual::run('get', 'documents_processing_dump-text', ['id' =>  $document['id']]);
+$info = eQual::run('get', 'documents_processing_Invoice_parse-text', ['text' => $text]);
 
 if(!isset($data['customer']['customer_number']) && isset($info['customer_number'])) {
     $data['customer']['customer_number'] = $info['customer_number'];

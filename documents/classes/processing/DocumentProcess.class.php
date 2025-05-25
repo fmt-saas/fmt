@@ -8,6 +8,8 @@ namespace documents\processing;
 use equal\orm\Model;
 use documents\Document;
 use documents\DocumentType;
+use finance\bank\BankStatement;
+use finance\bank\BankStatementLine;
 use purchase\supplier\Supplier;
 use purchase\supplier\Suppliership;
 use purchase\supplier\SuppliershipReference;
@@ -142,7 +144,7 @@ class DocumentProcess extends Model {
                 ],
                 'default'           => 'manual',
                 'description'       => 'Type of source (eid, registry, manual, etc.)',
-                'help'              => 'Indicates how the identity data was obtained.',
+                'help'              => 'Indicates how the document data was obtained.',
             ],
 
             'status' => [
@@ -247,15 +249,28 @@ class DocumentProcess extends Model {
                         'status'      => 'integrated'
                     ]
                 ]
+            ],
+            'integrated' => [
+                'description' => 'Finalized document.',
+                'icon'        => 'check_circle',
+                'transitions' => []
             ]
         ];
     }
 
     public static function getPolicies(): array {
         return [
-            'can_perform_analysis' => [
+            'can_perform_identification' => [
                 'description' => 'Verifies that a fiscal year can be opened according its configuration.',
-                'function'    => 'policyCanPerformAnalysis'
+                'function'    => 'policyCanPerformIdentification'
+            ],
+            'can_perform_extraction' => [
+                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'function'    => 'policyCanPerformExtraction'
+            ],
+            'can_perform_matching' => [
+                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'function'    => 'policyCanPerformMatching'
             ],
             'is_complete' => [
                 'description' => 'Verifies that a fiscal year can be opened according its configuration.',
@@ -270,21 +285,59 @@ class DocumentProcess extends Model {
 
     public static function getActions() {
         return array_merge(parent::getActions(), [
-            'perform_analysis' => [
+            'perform_identification' => [
+                'description'   => 'Attempt to identity document type and subtype.',
+                'policies'      => ['can_perform_identification'],
+                'function'      => 'doPerformIdentification'
+            ],
+            'perform_extraction' => [
                 'description'   => 'Attempt to retrieve meta info of the document.',
-                'policies'      => ['can_perform_analysis'],
-                'function'      => 'doPerformAnalysis'
+                'policies'      => ['can_perform_extraction'],
+                'function'      => 'doPerformExtraction'
+            ],
+            'perform_matching' => [
+                'description'   => 'Attempt to retrieve meta info of the document.',
+                'policies'      => ['can_perform_matching'],
+                'function'      => 'doPerformMatching'
             ]
         ]);
     }
 
-    public static function policyCanPerformAnalysis($self): array {
+    public static function policyCanPerformIdentification($self): array {
+        $result = [];
+        $self->read(['status', 'document_type_id']);
+        foreach($self as $id => $documentProcess) {
+            if($documentProcess['status'] != 'created' || $documentProcess['document_type_id']) {
+                $result[$id] = [
+                    'invalid_status' => 'Document type has already been identified.'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    public static function policyCanPerformExtraction($self): array {
         $result = [];
         $self->read(['status', 'document_id' => ['has_document_json']]);
         foreach($self as $id => $documentProcess) {
-            if($documentProcess['status'] != 'created' || $documentProcess['document_id']['has_document_json']) {
+            if( $documentProcess['status'] != 'created' || ($documentProcess['document_id']['has_document_json'] ?? false) ) {
                 $result[$id] = [
-                    'invalid_status' => 'Document already has analysis data.'
+                    'invalid_status' => 'Document already has extraction data.'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    public static function policyCanPerformMatching($self): array {
+        $result = [];
+        $self->read(['status', 'has_analysis']);
+        foreach($self as $id => $documentProcess) {
+            if($documentProcess['status'] != 'created' || $documentProcess['has_analysis']) {
+                $result[$id] = [
+                    'invalid_status' => 'Document type has already been analyzed.'
                 ];
                 continue;
             }
@@ -399,12 +452,13 @@ class DocumentProcess extends Model {
 
     /**
      * Create the proforma target resource based on Document type and JSON data.
+     *
      */
     public static function onbeforeRecord($self) {
-        $self->read(['condo_id', 'supplier_id', 'document_type_id', 'document_id' => ['document_json']]);
+        $self->read(['condo_id', 'supplier_id', 'document_type_code', 'document_id' => ['document_json']]);
         foreach($self as $id => $documentProcess) {
-            // convert the document to an invoice
-            if(!$documentProcess['document_type_id']) {
+
+            if(!$documentProcess['document_type_code']) {
                 continue;
             }
             $data = json_decode($documentProcess['document_id']['document_json'], true);
@@ -424,39 +478,76 @@ class DocumentProcess extends Model {
                 throw new \Exception('missing_suppliership', EQ_ERROR_INVALID_CONFIG);
             }
 
-            // create invoice
-            $invoice = Invoice::create([
-                    'condo_id'                  => $documentProcess['condo_id'],
-                    'suppliership_id'           => $suppliership['id'],
-                    'supplier_invoice_number'   => $data['invoice_number'],
-                    'emission_date'             => strtotime($data['issue_date']),
-                    'due_date'                  => strtotime($data['due_date']),
-                    'has_fund_usage'            => false,
-                    'has_instant_reinvoice'     => false
-                ])
-                ->first();
 
-            // add invoice lines
-            foreach($data['lines'] as $line) {
-                $vat_rate = 0.0;
-                if(!empty($line['tax']['percent'])) {
-                    $vat_rate = round(floatval($line['tax']['percent']) / 100, 2);
+            // #todo - use recording rules
+
+            if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
+
+                // create invoice
+                $invoice = Invoice::create([
+                        'condo_id'                  => $documentProcess['condo_id'],
+                        'suppliership_id'           => $suppliership['id'],
+                        'supplier_invoice_number'   => $data['invoice_number'],
+                        'emission_date'             => strtotime($data['issue_date']),
+                        'due_date'                  => strtotime($data['due_date']),
+                        'has_fund_usage'            => false,
+                        'has_instant_reinvoice'     => false
+                    ])
+                    ->first();
+
+                // add invoice lines
+                foreach($data['lines'] as $line) {
+                    $vat_rate = 0.0;
+                    if(!empty($line['tax']['percent'])) {
+                        $vat_rate = round(floatval($line['tax']['percent']) / 100, 2);
+                    }
+                    InvoiceLine::create([
+                        'condo_id'              => $documentProcess['condo_id'],
+                        'invoice_id'            => $invoice['id'],
+                        'description'           => $line['description'] ?? '',
+                        'is_private_expense'    => false,
+                        'expense_account_id'    => null,
+                        'owner_share'           => 100,
+                        'tenant_share'          => 0,
+                        'total'                 => round(floatval($line['amount']), 2),
+                        'vat_rate'              => $vat_rate
+                    ]);
                 }
-                InvoiceLine::create([
-                    'condo_id'              => $documentProcess['condo_id'],
-                    'invoice_id'            => $invoice['id'],
-                    'description'           => $line['description'] ?? '',
-                    'is_private_expense'    => false,
-                    'expense_account_id'    => null,
-                    'owner_share'           => 100,
-                    'tenant_share'          => 0,
-                    'total'                 => round(floatval($line['amount']), 2),
-                    'vat_rate'              => $vat_rate
-                ]);
+
+                self::id($id)->update(['document_invoice_id' => $invoice['id']]);
             }
+            elseif($documentProcess['document_type_code'] === 'bank_statement') {
+                // create the BankStatement
+                $statement = BankStatement::create([
+                        'condo_id'              => $documentProcess['condo_id'],
+                        'raw_data'              => $documentProcess['document_id']['data'] ?? null,
+                        'opening_date'          => strtotime($data['opening_date']),
+                        'closing_date'          => strtotime($data['closing_date']),
+                        'opening_balance'       => round(floatval($data['opening_balance']), 2),
+                        'closing_balance'       => round(floatval($data['closing_balance']), 2),
+                        'statement_currency'    => $data['statement_currency'],
+                        'bank_account_iban'     => $data['account_iban'],
+                        'bank_account_bic'      => $data['bank_bic']
+                    ])
+                    ->first();
 
-            self::id($id)->update(['document_invoice_id' => $invoice['id']]);
+                // create statement lines
+                foreach ($data['transactions'] as $txn) {
+                    BankStatementLine::create([
+                            'bank_statement_id'       => $statement['id'],
+                            'sequence_number'         => $txn['sequence_number'],
+                            'date'                    => strtotime($txn['value_date']),
+                            'amount'                  => round(floatval($txn['amount']), 2),
+                            'account_iban'            => $txn['counterparty_iban'] ?? $data['account_iban'],
+                            'account_holder'          => $txn['counterparty_name'] ?? null,
+                            'message'                 => $txn['unstructured_reference'] ?? null,
+                            'structured_message'      => $txn['structured_reference'] ?? null,
+                            'status'                  => 'pending'
+                        ]);
+                }
 
+                self::id($id)->update(['document_bank_statement_id' => $statement['id']]);
+            }
         }
     }
 
@@ -469,6 +560,11 @@ class DocumentProcess extends Model {
             $document = Document::create(['name' => $documentProcess['name'], 'data' => $documentProcess['data']])->first();
             self::id($id)->update(['document_id' => $document['id']]);
         }
+        // #todo - check if completion.auto enabled
+        $self
+            ->do('perform_identification')
+            ->do('perform_extraction')
+            ->do('perform_matching');
     }
 
     public static function onupdateCondoId($self) {
@@ -530,39 +626,40 @@ class DocumentProcess extends Model {
         return $result;
     }
 
-    /**
-     * Auto analysis/completion of the document meta data.
-     */
-    public static function doPerformAnalysis($self) {
-        $self->read(['document_id' => ['id', 'content_type'], 'condo_id', 'supplier_id', 'report_html']);
 
-        static $supported_content_types = [
-                'application/pdf',
-                'image/webp',
-                'image/png',
-                'image/jpg',
-                'image/jpeg'
-            ];
+    public static function doPerformIdentification($self) {
+        $self->read(['document_id']);
+        foreach($self as $id => $documentProcess) {
+            $identification = \eQual::run('get', 'documents_processing_identify', ['id' => $documentProcess['document_id']]);
+            if($identification['document_type_id']) {
+                self::id($id)->update($identification);
+            }
+        }
+    }
+
+    public static function doPerformExtraction($self) {
+        $self->read(['document_type_id', 'document_subtype_id', 'document_type_code', 'document_id', 'report_html']);
 
         foreach($self as $id => $documentProcess) {
             if(!$documentProcess['document_id']) {
                 continue;
             }
-            if(!in_array($documentProcess['document_id']['content_type'], $supported_content_types)) {
-                continue;
-            }
 
             $logs = [];
 
+            // extract data based on document type
             try {
-                $data = \eQual::run('get', 'documents_processing_purchaseInvoice_extract', ['document_id' => $documentProcess['document_id']['id']]);
-                $logs[] = "data retrieved from document analysis";
-
-                $values = [
-                        'condo_id'          => $documentProcess['condo_id'],
-                        'supplier_id'       => $documentProcess['supplier_id'],
-                        'has_analysis'      => true
-                    ];
+                switch($documentProcess['document_type_code']) {
+                    case 'invoice':
+                    case 'credit_note':
+                        $data = \eQual::run('get', 'documents_processing_purchaseInvoice_extract', ['document_id' => $documentProcess['document_id']]);
+                        break;
+                    case 'bank_statement':
+                        $data = \eQual::run('get', 'documents_processing_bankStatement_extract', ['document_id' => $documentProcess['document_id']]);
+                        break;
+                    default:
+                        throw new \Exception('unsupported_document_type', EQ_ERROR_INVALID_PARAM);
+                }
 
                 // #memo - document_json is meant to receive a final content according to schema and independent from origin (ex.: parsed Mindee, parsed UBL, ...)
                 $doc_values = [
@@ -570,12 +667,50 @@ class DocumentProcess extends Model {
                         'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
                     ];
 
-                if(isset($data['document_type'])) {
-                    $documentType = DocumentType::search(['code', '=', $data['document_type']])->first();
-                    if($documentType) {
-                        $values['document_type_id'] = $documentType['id'];
-                    }
-                }
+                Document::id($documentProcess['document_id'])->update($doc_values);
+            }
+            catch(\Exception $e) {
+                // unexpected error
+                trigger_error("APP::unable to extract document for process{$id} ({$documentProcess['document_type_code']}): " . $e->getMessage(), EQ_REPORT_WARNING);
+            }
+
+
+            $logs[] = "data retrieved from document analysis";
+            $values = [];
+            $report_html = $documentProcess['report_html'];
+            if(strlen($report_html) > 0) {
+                $report_html .= "\n";
+            }
+            $values['report_html'] = $report_html . implode("\n", $logs);
+
+            self::id($id)->update($values);
+
+        }
+
+    }
+
+    /**
+     * Auto analysis/completion of the document meta data.
+     */
+    public static function doPerformMatching($self) {
+        $self->read(['document_id' => ['id', 'content_type', 'document_json'], 'condo_id', 'supplier_id', 'report_html']);
+
+        foreach($self as $id => $documentProcess) {
+            if(!$documentProcess['document_id']) {
+                continue;
+            }
+
+            $logs = [];
+
+            try {
+
+                $values = [
+                        'condo_id'          => $documentProcess['condo_id'],
+                        'supplier_id'       => $documentProcess['supplier_id'],
+                        'has_analysis'      => true
+                    ];
+
+                $data = json_decode($documentProcess['document_id']['document_json'], true);
 
                 // attempt to retrieve supplier
                 if(isset($data['supplier']['name'])) {
@@ -622,8 +757,6 @@ class DocumentProcess extends Model {
                     }
                 }
 
-                Document::id($documentProcess['document_id']['id'])->update($doc_values);
-
                 $report_html = $documentProcess['report_html'];
                 if(strlen($report_html) > 0) {
                     $report_html .= "\n";
@@ -639,30 +772,6 @@ class DocumentProcess extends Model {
 
         }
 
-    }
-
-    private static function computeBicFromIban($iban) {
-        static $map_bic;
-        $result = null;
-
-        if(!$iban) {
-            return null;
-        }
-
-        $country = substr($iban, 0, 2);
-        $bank_code = substr($iban, 4, 3);
-
-        if(!$map_bic) {
-            $file = EQ_BASEDIR . "/packages/identity/i18n/en/bic/{$country}.json";
-            if(file_exists($file)) {
-                $data = file_get_contents($file);
-                $map_bic = json_decode($data, true);
-            }
-        }
-
-        $result = $map_bic[$bank_code]['bic'] ?? null;
-
-        return $result;
     }
 
 }
