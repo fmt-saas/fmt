@@ -11,6 +11,18 @@
                 "entity": "realestate\\property\\Apportionment",
                 "action": "duplicate"
             }
+        },
+        {
+            "id": "action.publish",
+            "label": "Publish",
+            "description": "Mark the apportionment as published.",
+            "controller": "core_model_transition",
+            "visible": [ ["status", "=", "draft"] ],
+            "params": {
+                "entity": "realestate\\property\\Apportionment",
+                "transition": "publish",
+                "ids": []
+            }
         }
     ],
     "layout": {

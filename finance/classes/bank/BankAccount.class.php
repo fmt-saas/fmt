@@ -185,7 +185,7 @@ class BankAccount extends Model {
         $result = [];
 
         if(isset($event['bank_account_iban'])) {
-            $result['bank_account_iban'] = str_replace(' ', '', $event['bank_account_iban']);
+            $result['bank_account_iban'] = preg_replace('/[^A-Z0-9]/i', '', $event['bank_account_iban']);
             $result['bank_country'] = self::computeCountryFromIban($result['bank_account_iban']);
             $bank_info = self::computeBankFromIban($result['bank_account_iban'], $lang);
             if($bank_info) {
@@ -274,7 +274,6 @@ class BankAccount extends Model {
         }
 
         $country = substr($normalized_iban, 0, 2);
-        $bank_code = substr($normalized_iban, 2, 3);
 
         $iban_formats = [
                 'BE' => ['bank_pos' => 4, 'bank_len' => 3],

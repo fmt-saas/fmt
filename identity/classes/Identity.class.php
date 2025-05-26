@@ -986,7 +986,6 @@ class Identity extends Model {
         }
 
         $country = substr($normalized_iban, 0, 2);
-        $bank_code = substr($normalized_iban, 2, 3);
 
         $iban_formats = [
                 'BE' => ['bank_pos' => 4, 'bank_len' => 3],
