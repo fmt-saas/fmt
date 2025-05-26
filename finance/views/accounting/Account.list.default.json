@@ -2,7 +2,7 @@
     "name": "Accounting Charts List",
     "description": "This view is intended for displaying the accounting charts.",
     "group_by_deactivated": ["account_class"],
-    "limit": 100,
+    "limit": 25,
     "order": "name,level",
     "sort": "asc",
     "domain": ["is_visible", "=", true],
