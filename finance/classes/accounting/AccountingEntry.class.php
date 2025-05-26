@@ -55,6 +55,7 @@ class AccountingEntry extends Model {
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "Fiscal year the entry relates to.",
                 'required'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'dependents'        => ['fiscal_period_id'],
                 'default'           => 'defaultFiscalYearId'
             ],
