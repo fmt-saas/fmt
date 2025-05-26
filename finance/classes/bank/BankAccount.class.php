@@ -42,7 +42,7 @@ class BankAccount extends Model {
                     'bank_current',
                     'bank_savings'
                 ],
-                'default'           => 'current',
+                'default'           => 'bank_current',
                 'dependents'        => ['accounting_account_id']
             ],
 
