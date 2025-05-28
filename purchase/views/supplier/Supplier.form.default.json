@@ -30,6 +30,18 @@
                         "width": "50%"
                     }
                 ]
+            },
+            "item.bank_accounts_ids": {
+                "attributes": {
+                    "widget": {
+                        "header": {
+                            "actions": {
+
+                            },
+                            "selection": false
+                        }
+                    }
+                }
             }
         }
     }

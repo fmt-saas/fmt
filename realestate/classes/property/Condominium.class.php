@@ -9,13 +9,12 @@ namespace realestate\property;
 
 use documents\navigation\Node;
 use finance\accounting\AccountChart;
-use finance\accounting\AccountChartTemplate;
 use finance\accounting\FiscalYear;
-use finance\accounting\FiscalPeriod;
 use finance\accounting\Journal;
 use fmt\setting\Setting;
+use identity\Identity;
 
-class Condominium extends \identity\Organisation {
+class Condominium extends Identity {
 
     public function getTable() {
         return 'realestate_property_condominium';
@@ -24,6 +23,13 @@ class Condominium extends \identity\Organisation {
     public static function getColumns() {
 
         return [
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Class of the current Identity.',
+                'help'              => 'This is required in order to display the relational fields accordingly.',
+                'default'           => 'realestate\property\Condominium'
+            ],
+
             'condo_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'integer',
@@ -240,6 +246,15 @@ class Condominium extends \identity\Organisation {
                 'rel_local_key'     => 'condo_id'
             ],
         ];
+    }
+
+    public static function onupdateIdentityId($self) {
+        $self->read(['identity_id']);
+        foreach($self as $id => $condominium) {
+            if($condominium['identity_id']) {
+                Identity::id($condominium['identity_id'])->update(['condominium_id' => $id]);
+            }
+        }
     }
 
     public static function getPolicies(): array {

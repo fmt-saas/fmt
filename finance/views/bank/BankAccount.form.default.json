@@ -68,9 +68,8 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label" : "Condominium",
-                                                "value": "condo_id",
-                                                "readonly": true,
+                                                "label" : "Identity",
+                                                "value": "owner_identity_id",
                                                 "width": "50%"
                                             },
                                             {
@@ -79,8 +78,14 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label" : "Accounting Account",
+                                                "label": "Accounting Account",
                                                 "value": "accounting_account_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Primary",
+                                                "value": "is_primary",
                                                 "width": "50%"
                                             }
                                         ]

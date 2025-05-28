@@ -106,15 +106,15 @@ list($params, $providers) = eQual::announce([
  *
  * Example:
  * {
- *   "account_iban": "BE71 0961 2345 6769",
+ *   "account_iban": "BE71 0961 2345 6789",
  *   "statement_number": "0000123456",
  *   "opening_balance": 1000.00,
  *   "opening_date": "2024-05-01",
  *   "closing_balance": 1200.00,
  *   "closing_date": "2024-05-10",
  *   "statement_currency": "EUR",
-  *   "bank_bic": "CREGBEBB",
- *   "account_holder": "ASBL Kaleo",
+ *   "bank_bic": "CREGBEBB",
+ *   "account_holder": "FMT solutions",
  *   "account_type": "current",
  *   "transactions": [
  *     {

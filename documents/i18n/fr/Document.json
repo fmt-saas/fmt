@@ -80,7 +80,7 @@
             "description": "",
             "layout": {
                 "section.details": {
-                    "label": "Dètails"
+                    "label": "Détails"
                 },
                 "section.tags": {
                     "label": "Étiquettes"

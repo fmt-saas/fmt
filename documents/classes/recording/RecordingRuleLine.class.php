@@ -42,6 +42,7 @@ class RecordingRuleLine extends Model {
             'account_code' => [
                 'type'              => 'string',
                 'description'       => "Code of the account to be associated to the Rule line.",
+                'help'              => "This value depends on the intended use and should be defined as a template fo auto-assigning an account when a rule is created for a condominium.",
                 'visible'           => ['condo_id', '=', null]
             ],
 
@@ -56,7 +57,8 @@ class RecordingRuleLine extends Model {
             'apportionment_code' => [
                 'type'              => 'string',
                 'description'       => "Code of the default apportionment key to use (implied in retrieval of related apportionment_id).",
-                'visible'           => ['condo_id', '=', null]
+                'visible'           => ['condo_id', '=', null],
+                'default'           => '0001'
             ],
 
             'apportionment_id' => [
@@ -64,7 +66,7 @@ class RecordingRuleLine extends Model {
                 'description'       => "The key that the apportionment refers to.",
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
-                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_statutory', '=', false] ],
                 'visible'           => ['condo_id', '<>', null]
             ],
 

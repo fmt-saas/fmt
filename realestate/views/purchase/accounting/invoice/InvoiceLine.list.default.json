@@ -21,15 +21,21 @@
             },
             {
                 "type": "field",
-                "label": "Expense Account",
+                "label": "Account",
                 "value": "expense_account_id",
                 "width": "20%"
             },
             {
                 "type": "field",
-                "label": "Apportionment",
+                "label": "Apport.",
                 "value": "apportionment_id",
                 "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Private",
+                "value": "is_private_expense",
+                "width": "10%"
             },
             {
                 "type": "field",
@@ -45,6 +51,7 @@
             },
             {
                 "type": "field",
+                "label": "vat",
                 "value": "vat_rate",
                 "width": "10%"
             },

@@ -50,6 +50,7 @@ class Ownership extends \equal\orm\Model {
                 'store'             => true
             ],
 
+            /*
             'property_lots_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\property\PropertyLot',
@@ -57,6 +58,15 @@ class Ownership extends \equal\orm\Model {
                 'rel_table'         => 'realestate_ownership_ownership_rel_property_lot',
                 'rel_foreign_key'   => 'lot_id',
                 'rel_local_key'     => 'ownership_id',
+                'description'       => 'Property lots that are assigned to this ownership.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+            */
+
+            'property_lot_ownerships_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\PropertyLotOwnership',
+                'foreign_field'     => 'ownership_id',
                 'description'       => 'Property lots that are assigned to this ownership.',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
@@ -86,16 +96,6 @@ class Ownership extends \equal\orm\Model {
                 'default'           => 100,
                 'visible'           => ['ownership_type' => 'joint'],
                 'dependents'        => ['owners_ids' => 'ownership_percentage']
-            ],
-
-            'date_from' => [
-                'type'              => 'date',
-                'description'       => "The date from which the ownership is valid."
-            ],
-
-            'date_to' => [
-                'type'              => 'date',
-                'description'       => "The date from which the ownership is valid.",
             ],
 
             'transfer_from_id' => [

@@ -132,8 +132,9 @@ class Apportionment extends \equal\orm\Model {
                 'transitions' => [
                     'publish' => [
                         'description' => 'Publish the Apportionment (this cannot be undone).',
-                        'policies' => [],
-                        'status' => 'published',
+                        'policies'    => [],
+                        'onafter'     => 'onafterPublish',
+                        'status'      => 'published',
                     ]
                 ]
             ]
@@ -151,10 +152,20 @@ class Apportionment extends \equal\orm\Model {
         ];
     }
 
+    public static function onafterPublish($self) {
+        $self->update(['code' => null, 'name' => null]);
+    }
+
     public static function calcName($self) {
         $result = [];
-        $self->read(['is_statutory', 'total_shares', 'code', 'description']);
+        $self->read(['status', 'is_statutory', 'total_shares', 'code', 'description']);
         foreach($self as $id => $apportionment) {
+            if($apportionment['status'] != 'published') {
+                continue;
+            }
+            if(!$apportionment['code']) {
+                continue;
+            }
             $name = ($apportionment['is_statutory']) ? '' : $apportionment['code'] . ' - ';
             $result[$id] = $name . $apportionment['description'] .' (Q. '.$apportionment['total_shares'].')';
         }
@@ -163,9 +174,9 @@ class Apportionment extends \equal\orm\Model {
 
     public static function calcApportionmentCode($self) {
         $result = [];
-        $self->read(['state', 'is_statutory', 'condo_id']);
+        $self->read(['status', 'is_statutory', 'condo_id']);
         foreach($self as $id => $apportionment) {
-            if($apportionment['state'] != 'instance') {
+            if($apportionment['status'] != 'published') {
                 continue;
             }
             if($apportionment['is_statutory']) {

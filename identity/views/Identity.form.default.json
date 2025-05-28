@@ -221,6 +221,16 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Condominium",
+                                                "value": "condominium_id",
+                                                "width": "100%",
+                                                "visible": ["object_class", "=", "identity\\Identity"],
+                                                "widget": {
+                                                    "domain": [ ["identity_id", "=", "object.id"] ]
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
                                                 "label": "Supplier",
                                                 "value": "supplier_id",
                                                 "width": "100%",
@@ -248,6 +258,29 @@
                                                 "widget": {
                                                     "domain": [ ["identity_id", "=", "object.id"] ]
                                                 }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Bank Accounts",
+                        "id": "section.bank_accounts",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "id": "column.bank_accounts",
+                                        "width": "100%",
+                                        "align": "left",
+                                        "items": [
+                                            {
+                                                "id": "item.bank_accounts_ids",
+                                                "type": "field",
+                                                "value": "bank_accounts_ids",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

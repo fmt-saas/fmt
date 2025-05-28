@@ -113,13 +113,6 @@ class Customer extends \identity\Identity {
                 'description'       => 'List invoices of the customer.'
             ],
 
-            'contacts_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'sale\customer\Contact',
-                'foreign_field'     => 'customer_id',
-                'description'       => 'List contacts of the customer.'
-            ],
-
             'customer_external_ref' => [
                 'type'              => 'string',
                 'description'       => 'External reference for the customer, if any.'
@@ -141,6 +134,28 @@ class Customer extends \identity\Identity {
                 'type'              => 'boolean',
                 'default'           => false,
                 'description'       => 'Mark the customer with a disturbances history.'
+            ],
+
+            // #memo - foreign_field cannot be used here, since it should be identity_id, which points back to current object's `id` instead of `identity_id`
+            'bank_accounts_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\bank\BankAccount',
+                'description'       => 'List of the bank account of the supplier.',
+                'domain'            => ['owner_identity_id', '=', 'object.identity_id']
+            ],
+
+            'addresses_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'identity\Address',
+                'description'       => 'List of addresses related to the supplier.',
+                'domain'            => ['owner_identity_id', '=', 'object.identity_id']
+            ],
+
+            'contacts_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'identity\Contact',
+                'description'       => 'List of contacts related to the supplier.',
+                'domain'            => ['owner_identity_id', '=', 'object.identity_id']
             ]
 
         ];

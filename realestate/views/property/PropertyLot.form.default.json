@@ -143,7 +143,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "ownerships_ids",
+                                                "value": "property_lot_ownerships_ids",
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {

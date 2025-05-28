@@ -152,7 +152,7 @@ class Invoice extends Model {
 
             'has_date_range' => [
                 'type'              => 'boolean',
-                'description'       => 'Is the invoice about a service delivered over a period of time.',
+                'description'       => 'Service delivered over a period of time.',
                 'default'           => false
             ],
 

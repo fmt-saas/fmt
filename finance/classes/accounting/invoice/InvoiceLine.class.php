@@ -154,7 +154,7 @@ class InvoiceLine extends Model {
         return $result;
     }
 
-    public static function canupdate($self, $values): array {
+    public static function canupdate($self, $values) {
         $self->read(['invoice_id' => ['status'], 'qty', 'free_qty']);
         foreach($self as $invoice_line) {
             if(

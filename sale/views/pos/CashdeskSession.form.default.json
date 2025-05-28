@@ -19,7 +19,7 @@
             "icon": "close",
             "route": "/session/object.id/close"
         }
-    ],    
+    ],
     "layout": {
         "groups": [
             {
@@ -35,9 +35,9 @@
                                                 "type": "field",
                                                 "value": "created",
                                                 "width": "50%",
-                                                "widget": {                                                
+                                                "widget": {
                                                     "readonly": true,
-                                                    "heading": true                                                    
+                                                    "heading": true
                                                 }
                                             },
                                             {
@@ -46,7 +46,7 @@
                                                 "width": "50%",
                                                 "widget": {
                                                     "readonly": true,
-                                                    "heading": true                                                    
+                                                    "heading": true
                                                 }
                                             }
                                         ]
@@ -76,7 +76,7 @@
                                                 }
                                             }
                                         ]
-                                    }                                    
+                                    }
                                 ]
                             }
                         ]

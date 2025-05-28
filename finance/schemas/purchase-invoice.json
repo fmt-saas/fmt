@@ -278,7 +278,8 @@
             "required": [
                 "iban",
                 "bic",
-                "payment_means_code"
+                "payment_means_code",
+                "payment_id"
             ],
             "properties": {
                 "iban": {

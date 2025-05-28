@@ -12,7 +12,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Extract raw text from a given Document.',
+    'description'   => 'Extract raw text from a given Document.Response is given as plain text.  Support PDF, XLS, XLSX',
     'help'          => 'This controller is meant to be used on EDMS instance having direct access to document data.',
     'params'        => [
         'id' =>  [
@@ -122,7 +122,7 @@ $extractTxtFromSpreadsheet = function ($document_data, string $format = 'Xlsx') 
     return $result;
 };
 
-// Récupération du document
+// Retrieve document
 $collection = Document::id($params['id']);
 $document = $collection->read(['content_type', 'uuid'])->first();
 

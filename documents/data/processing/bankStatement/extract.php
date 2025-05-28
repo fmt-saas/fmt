@@ -60,3 +60,39 @@ switch($document['content_type']) {
 $context->httpResponse()
         ->body($result)
         ->send();
+
+/*
+ * Returned response example:
+ * {
+ *   "account_iban": "BE71 0961 2345 6789",
+ *   "statement_number": "0000123456",
+ *   "opening_balance": 1000.00,
+ *   "opening_date": "2024-05-01",
+ *   "closing_balance": 1200.00,
+ *   "closing_date": "2024-05-10",
+ *   "statement_currency": "EUR",
+ *   "bank_bic": "CREGBEBB",
+ *   "account_holder": "FMT solutions",
+ *   "account_type": "current",
+ *   "transactions": [
+ *     {
+ *       "entry_date": "2024-05-05",
+ *       "value_date": "2024-05-05",
+ *       "amount": -150.00,
+ *       "currency": "EUR",
+ *       "transaction_type": "sepa_direct_debit",
+ *       "sequence_number": 123,
+ *       "received_at": "2024-05-05T10:45:00Z",
+ *       "mandate_id": "MANDATE-2023-XYZ",
+ *       "client_reference": "Facture 2024-87",
+ *       "structured_reference": "+++123/4567/89012+++",
+ *       "bank_reference": "987654321",
+ *       "unstructured_reference": "Paiement pour facture avril",
+ *       "counterparty_name": "EDF Luminus",
+ *       "counterparty_iban": "BE23 0910 1111 2222",
+ *       "counterparty_bic": "GEBA BE BB",
+ *       "counterparty_details": "Rue de l'Énergie, Liège",
+ *       "transaction_message": "Paiement automatique"
+ *     }
+ *   ]
+ * }

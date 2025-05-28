@@ -88,7 +88,7 @@ class BankStatementLine extends Model {
 
             'account_iban' => [
                 'type'              => 'string',
-                'usage'             => 'uri/urn:iban',
+                'usage'             => 'uri/urn.iban',
                 'description'       => 'Counterparty IBAN, if any.',
                 'required'          => true
             ],

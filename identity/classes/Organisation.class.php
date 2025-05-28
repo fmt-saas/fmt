@@ -70,7 +70,7 @@ class Organisation extends Identity {
 
             'bank_account_iban' => [
                 'type'              => 'string',
-                'usage'             => 'uri/urn:iban',
+                'usage'             => 'uri/urn.iban',
                 'description'       => "Number of the bank account of the Identity, if any.",
                 'onupdate'          => 'onupdateBankAccountIban'
             ],

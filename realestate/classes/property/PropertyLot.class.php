@@ -144,6 +144,7 @@ class PropertyLot extends \equal\orm\Model {
                 'description'       => "The property purchase transfer file.",
             ],
 
+            /*
             'ownerships_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\ownership\Ownership',
@@ -151,7 +152,17 @@ class PropertyLot extends \equal\orm\Model {
                 'rel_table'         => 'realestate_ownership_ownership_rel_property_lot',
                 'rel_foreign_key'   => 'ownership_id',
                 'rel_local_key'     => 'lot_id',
-                'description'       => 'Ownerships to which this property lot is assigned.'
+                'description'       => 'Ownerships to which this property lot is assigned.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+            */
+
+            'property_lot_ownerships_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\PropertyLotOwnership',
+                'foreign_field'     => 'lot_id',
+                'description'       => 'Property lots that are assigned to this ownership.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'apportionment_shares_ids' => [

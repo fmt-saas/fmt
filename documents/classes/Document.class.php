@@ -46,18 +46,6 @@ class Document extends Model {
                 'foreign_object'    => 'purchase\supplier\Supplier'
             ],
 
-            'case_file_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'tracking\CaseFile',
-                'description'       => 'Optional link to the related case file (incident, quote, etc.).',
-            ],
-
-            'email_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'communication\email\Email',
-                'description'       => 'Email the document is an attachment of, if any.'
-            ],
-
             'name' => [
                 'type'              => 'string',
                 'required'          => true
@@ -216,6 +204,32 @@ class Document extends Model {
                 'function'          => 'calcPreviewImage',
                 'description'       => 'Thumbnail of the document.',
                 'store'             => true
+            ],
+
+            'case_file_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'tracking\CaseFile',
+                'description'       => 'Optional link to the related case file (incident, quote, etc.).',
+            ],
+
+            'email_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'communication\email\Email',
+                'description'       => 'Email the document is an attachment of, if any.'
+            ],
+
+            'invoice_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\purchase\accounting\invoice\Invoice',
+                'description'       => 'Optional link to the related purchase invoice.',
+                'visible'           => ['document_type_code', '=', 'invoice']
+            ],
+
+            'bank_statement_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankStatement',
+                'description'       => 'Optional link to the related bank statement.',
+                'visible'           => ['document_type_code', '=', 'bank_statement']
             ],
 
             'status' => [

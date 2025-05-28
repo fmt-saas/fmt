@@ -9,6 +9,7 @@ namespace finance\bank;
 use equal\data\DataFormatter;
 use equal\orm\Model;
 use finance\accounting\Account;
+use identity\Identity;
 use identity\Organisation;
 
 class BankAccount extends Model {
@@ -25,6 +26,19 @@ class BankAccount extends Model {
                 'dependents'        => ['accounting_account_id']
             ],
 
+            'owner_identity_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the accounting entry refers to.",
+                'foreign_object'    => 'identity\Identity'
+            ],
+
+            'is_primary' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the account as primary account.',
+                'help'              => 'When a primary account is updated, sync is automatically replicated on related identity.',
+                'default'           => false
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -32,6 +46,12 @@ class BankAccount extends Model {
                 'description'       => 'The display name of the account (IBAN).',
                 'store'             => true,
                 'instant'           => true
+            ],
+
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Short description of the account (purpose).',
+                'dependents'        => ['name']
             ],
 
             'bank_account_type' => [
@@ -46,12 +66,6 @@ class BankAccount extends Model {
                 'dependents'        => ['accounting_account_id']
             ],
 
-            'description' => [
-                'type'              => 'string',
-                'description'       => 'Short description of the account (purpose).',
-                'dependents'        => ['name']
-            ],
-
             'organisation_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Organisation',
@@ -63,10 +77,12 @@ class BankAccount extends Model {
 
             'bank_account_iban' => [
                 'type'              => 'string',
-                'usage'             => 'uri/urn:iban',
+                'usage'             => 'uri/urn.iban',
                 'description'       => 'The IBAN number of the organization\'s bank account.',
+                'help'              => 'The IBAN number is a unique identifier for the bank account. Example: BE54000000000097',
                 'dependents'        => ['name', 'bank_country', 'bank_account_bic', 'bank_name'],
                 'required'          => true,
+                'unique'            => true,
                 'onupdate'          => 'onupdateBankAccountIban'
             ],
 
@@ -109,19 +125,6 @@ class BankAccount extends Model {
         ];
     }
 
-    private static function computeAccountingAccount($bank_account_type, $condo_id) {
-        if($condo_id && $bank_account_type) {
-            $account = Account::search([ ['condo_id', '=', $condo_id], ['operation_assignment', '=', $bank_account_type] ])->read(['id', 'name'])->first();
-            if($account) {
-                return [
-                    'id'    => $account['id'],
-                    'name'  => $account['name']
-                ];
-            }
-        }
-        return null;
-    }
-
     public static function calcAccountingAccountId($self) {
         $result = [];
         $self->read(['bank_account_type', 'condo_id']);
@@ -136,6 +139,9 @@ class BankAccount extends Model {
         return $result;
     }
 
+
+/*
+// #todo - create sync for this
     public static function onupdateBankAccountIban($self) {
         $self->read(['organisation_id', 'bank_account_iban', 'condo_id']);
         foreach($self as $id => $bankAccount) {
@@ -181,6 +187,8 @@ class BankAccount extends Model {
         }
     }
 
+*/
+
     public static function onchange($event, $values, $lang) {
         $result = [];
 
@@ -213,6 +221,15 @@ class BankAccount extends Model {
         return $result;
     }
 
+    public static function calcBankCountry($self) {
+        $result = [];
+        $self->read(['bank_account_iban']);
+        foreach($self as $id => $bankAccount) {
+            $result[$id]  = self::computeCountryFromIban($bankAccount['bank_account_iban']);
+        }
+        return $result;
+    }
+
     public static function calcBankAccountBic($self, $lang) {
         $result = [];
         $self->read(['bank_account_iban']);
@@ -221,15 +238,6 @@ class BankAccount extends Model {
             if($bank_info) {
                 $result[$id] = $bank_info['bic'];
             }
-        }
-        return $result;
-    }
-
-    public static function calcBankCountry($self) {
-        $result = [];
-        $self->read(['bank_account_iban']);
-        foreach($self as $id => $bankAccount) {
-            $result[$id]  = self::computeCountryFromIban($bankAccount['bank_account_iban']);
         }
         return $result;
     }
@@ -246,14 +254,26 @@ class BankAccount extends Model {
     }
 
     public static function candelete($self) {
-        $self->read(['organisation_id']);
+        $self->read(['is_primary']);
         foreach($self as $bankAccount) {
-            $organisation = Organisation::id($bankAccount['organisation_id'])->read(['bank_account_ids'])->first();
-            if(count($organisation['bank_account_ids']) <= 1 ) {
-                return ['id' => ['non_removable' => 'The bank account cannot be removed. Organizations must have at least one bank account.']];
+            if($bankAccount['is_primary']) {
+                return ['id' => ['non_removable' => 'The primary bank account cannot be removed. Organizations must have at least one bank account.']];
             }
         }
         return parent::candelete($self);
+    }
+
+    private static function computeAccountingAccount($bank_account_type, $condo_id) {
+        if($condo_id && $bank_account_type) {
+            $account = Account::search([ ['condo_id', '=', $condo_id], ['operation_assignment', '=', $bank_account_type] ])->read(['id', 'name'])->first();
+            if($account) {
+                return [
+                    'id'    => $account['id'],
+                    'name'  => $account['name']
+                ];
+            }
+        }
+        return null;
     }
 
     private static function computeCountryFromIban($iban) {
@@ -270,6 +290,7 @@ class BankAccount extends Model {
         $normalized_iban = strtoupper(str_replace(' ', '', trim($iban)));
 
         if(!preg_match('/^[A-Z]{2}\d{2}[A-Z0-9]+$/', $normalized_iban)) {
+
             return null;
         }
 
@@ -285,21 +306,43 @@ class BankAccount extends Model {
             ];
 
         if(!isset($iban_formats[$country])) {
-            return null; // pays non pris en charge
+            return null;
         }
 
         ['bank_pos' => $pos, 'bank_len' => $len] = $iban_formats[$country];
         $bank_code = substr($normalized_iban, $pos, $len);
 
-        $file = EQ_BASEDIR."/packages/identity/i18n/{$lang}/bic/{$country}.json";
-        if(file_exists($file)) {
-            $data = file_get_contents($file);
-            $map_bank = json_decode($data, true);
-            $result = $map_bank[$bank_code] ?? null;
+        $file = EQ_BASEDIR . "/packages/identity/i18n/{$lang}/bic/{$country}.json";
+
+        if(!file_exists($file)) {
+            $file = EQ_BASEDIR . "/packages/identity/i18n/en/bic/{$country}.json";
         }
+        if(!file_exists($file)) {
+            return null;
+        }
+
+        $data = file_get_contents($file);
+        $map_bank = json_decode($data, true);
+        $result = $map_bank[$bank_code] ?? null;
 
         return $result;
     }
 
+    /**
+     * Synchronize the primary bank account of the identity.
+     *
+     */
+    public static function onafterupdate($self, $values) {
+        $self->read(['is_primary', 'owner_identity_id', 'bank_account_iban', 'bank_account_bic']);
+        foreach($self as $id => $bankAccount) {
+            if($bankAccount['is_primary']) {
+                Identity::id($bankAccount['owner_identity_id'])
+                    ->update([
+                        'bank_account_iban' => $bankAccount['bank_account_iban'],
+                        'bank_account_bic'  => $bankAccount['bank_account_bic']
+                    ]);
+            }
+        }
+    }
 
 }

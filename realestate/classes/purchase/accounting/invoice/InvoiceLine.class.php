@@ -188,4 +188,29 @@ class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
         }
         return $result;
     }
+
+    public static function canupdate($self, $values) {
+        $self->read(['invoice_id' => ['status', 'document_process_id' => ['status']]]);
+        foreach($self as $id => $invoiceLine) {
+            if($invoiceLine['invoice_id']['status'] !== 'proforma') {
+                return ['invoice_id' => ['non_editable' => 'Line cannot be updated after invoice creation.']];
+            }
+            if(!$invoiceLine['invoice_id']['document_process_id']) {
+                continue;
+            }
+            if($invoiceLine['invoice_id']['document_process_id']['status'] !== 'created') {
+                return ['invoice_id' => ['non_editable' => 'Line cannot be updated after Document processing.']];
+            }
+        }
+    }
+
+    public static function onafterupdate($self, $values) {
+        $self->read(['invoice_id']);
+        $map_invoices_ids = [];
+        foreach($self as $id => $invoiceLine) {
+            $map_invoices_ids[$invoiceLine['invoice_id']] = true;
+        }
+        Invoice::ids(array_keys($map_invoices_ids))->do('update_document_json', ['lines' => $values]);
+    }
 }
+

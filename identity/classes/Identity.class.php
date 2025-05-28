@@ -9,6 +9,7 @@ namespace identity;
 
 use equal\services\Container;
 use equal\orm\Model;
+use finance\bank\BankAccount;
 use fmt\setting\Setting;
 use hr\employee\Employee;
 use sale\customer\Customer;
@@ -16,6 +17,7 @@ use sale\customer\Contact as CustomerContact;
 use purchase\supplier\Supplier;
 use realestate\management\ManagingAgent;
 use realestate\ownership\Owner;
+use realestate\property\Condominium;
 use realestate\property\Tenant;
 
 /**
@@ -66,7 +68,8 @@ class Identity extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Identity',
                 'description'       => 'Hierarchical Identity the identity depends on.',
-                'help'              => 'An object linked to an identity can have a logical link to a parent (for instance the subsidiary of an Organisation or the contact of a Customer).'
+                'help'              => 'An object linked to an identity can have a logical link to a parent (for instance the subsidiary of an Organisation or the contact of a Customer).',
+                'visible'           => ['object_class', '<>', 'identity\Identity']
             ],
 
             'identity_source' => [
@@ -140,10 +143,31 @@ class Identity extends Model {
             ],
 
             'bank_account_bic' => [
-                'type'              => 'string',
-                'description'       => "Identifier of the Bank related to the Identity's bank account, when set.",
-                'visible'           => [ ['has_parent', '=', false] ],
-                'onupdate'          => 'onupdateBankAccountBic'
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'The BIC code of the bank related to the organization\'s bank account.',
+                'onupdate'          => 'onupdateBankAccountBic',
+                'function'          => 'calcBankAccountBic',
+                'store'             => true
+            ],
+
+            'bank_country' => [
+                'type'              => 'computed',
+                'function'          => 'calcBankCountry',
+                'result_type'       => 'string',
+                'usage'             => 'country/iso-3166:2',
+                'description'       => 'The country where the organization holds the bank account, specified using the ISO 3166-2 code.',
+                'store'             => true,
+                'instant'           => true,
+                'readonly'          => true
+            ],
+
+            'bank_name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'The name of the bank where the organization holds its account.',
+                'function'          => 'calcBankName',
+                'store'             => true
             ],
 
             'signature' => [
@@ -222,7 +246,7 @@ class Identity extends Model {
                 'foreign_field'     => 'parent_id',
                 'domain'            => [ ['id', '<>', 'object.id'], ['type', '<>', 'IN'] ],
                 'description'       => 'Children departments of the organization, if any.',
-                'visible'           => [ ['type', '<>', 'IN'] ]
+                'visible'           => [ ['type', '<>', 'IN'], ['object_class', '=', 'identity\Identity'] ]
             ],
 
             'has_parent' => [
@@ -241,24 +265,20 @@ class Identity extends Model {
             ],
 
             /*
-                links to objects from entities that inherit from Identity
+                Fields related to Entities that are linked to Identity by using field `owner_identity_id`
+                If used in children classes, these must be re-written in order to use a domain instead of foreign_field (which points to object id instead of object.owner_identity_id).
+                    'foreign_field' => 'owner_identity_id'
+                should become:
+                    'domain' => ['owner_identity_id', '=', 'object.identity_id']
+
+                #memo - since that kind of object might itself inherit from Identity, by convention, we use `owner_identity_id` for the relational field
             */
-
-            'contacts_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'identity\Contact',
-                'foreign_field'     => 'owner_identity_id',
-                'domain'            => ['identity_id', '<>', 'object.id'],
-                'description'       => 'List of contacts related to the organization, if any.',
-                'help'              => 'A contact is an arbitrary relation between two identities. Any Identity can have several contacts.'
-            ],
-
             'users_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'identity\User',
                 'foreign_field'     => 'owner_identity_id',
                 'description'       => 'List of users of the identity, if any.' ,
-                'visible'           => [ ['type', '<>', 'IN'] ]
+                'visible'           => [ ['type', '<>', 'IN'], ['object_class', '=', 'identity\Identity'] ]
             ],
 
             'employees_ids' => [
@@ -266,24 +286,32 @@ class Identity extends Model {
                 'foreign_object'    => 'hr\employee\Employee',
                 'foreign_field'     => 'owner_identity_id',
                 'description'       => 'List of employees of the organization, if any.' ,
-                'visible'           => [ ['type', '<>', 'IN'] ]
+                'visible'           => [ ['type', '<>', 'IN'], ['object_class', '=', 'identity\Identity'] ]
             ],
 
-            'customers_ids' => [
+            'contacts_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'sale\customer\Customer',
+                'foreign_object'    => 'identity\Contact',
                 'foreign_field'     => 'owner_identity_id',
-                'domain'            => ['relationship', '=', 'customer'],
-                'description'       => 'List of customers of the organization, if any.',
-                'visible'           => [ ['type', '<>', 'IN'] ]
+                'description'       => 'List of contacts related to the organization, if any.',
+                'help'              => 'A contact is an arbitrary relation between two identities. Any Identity can have several contacts.',
+                'visible'           => ['object_class', '=', 'identity\Identity']
             ],
 
-            'suppliers_ids' => [
+            'bank_accounts_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'purchase\supplier\Supplier',
+                'foreign_object'    => 'finance\bank\BankAccount',
                 'foreign_field'     => 'owner_identity_id',
-                'description'       => 'List of suppliers of the organization, if any.',
-                'visible'           => [ ['type', '<>', 'IN'] ]
+                'description'       => 'List of the bank account of the organisation',
+                'visible'           => ['object_class', '=', 'identity\Identity']
+            ],
+
+            'addresses_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'identity\Address',
+                'foreign_field'     => 'owner_identity_id',
+                'description'       => 'List of addresses related to the identity.',
+                'visible'           => ['object_class', '=', 'identity\Identity']
             ],
 
 
@@ -452,14 +480,6 @@ class Identity extends Model {
                 'default'           => true
             ],
 
-            // an identity can have additional addresses
-            'addresses_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'identity\Address',
-                'foreign_field'     => 'identity_id',
-                'description'       => 'List of addresses related to the identity.',
-            ],
-
             /*
                 For organizations, there might be a reference person: a person who is entitled to legally represent the organization (typically the director, the manager, the CEO, ...).
                 These contact details are commonly requested by service providers for validating the identity of an organization.
@@ -488,6 +508,14 @@ class Identity extends Model {
                 'onupdate'          => 'onupdateCustomerId'
             ],
 
+            'condominium_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\property\Condominium',
+                'foreign_field'     => 'identity_id',
+                'description'       => 'Condominium associated to this identity, if any.',
+                'onupdate'          => 'onupdateCondominiumId'
+            ],
+
             'supplier_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\supplier\Supplier',
@@ -502,14 +530,6 @@ class Identity extends Model {
                 'foreign_field'     => 'identity_id',
                 'description'       => 'Contact associated to this identity, if any.',
                 'onupdate'          => 'onupdateContactId'
-            ],
-
-            'customer_contact_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'sale\customer\Contact',
-                'foreign_field'     => 'identity_id',
-                'description'       => 'Customer contact associated to this identity, if any.',
-                'onupdate'          => 'onupdateCustomerContactId'
             ],
 
             'employee_id' => [
@@ -673,30 +693,67 @@ class Identity extends Model {
         return $result;
     }
 
+    public static function calcBankName($self, $lang) {
+        $result = [];
+        $self->read(['bank_account_iban']);
+        foreach($self as $id => $bankAccount) {
+            $bank_info = self::computeBankFromIban($bankAccount['bank_account_iban'], $lang);
+            if($bank_info) {
+                $result[$id] = $bank_info['name'];
+            }
+        }
+        return $result;
+    }
+
+    public static function calcBankCountry($self) {
+        $result = [];
+        $self->read(['bank_account_iban']);
+        foreach($self as $id => $bankAccount) {
+            $result[$id]  = self::computeCountryFromIban($bankAccount['bank_account_iban']);
+        }
+        return $result;
+    }
+
+    public static function calcBankAccountBic($self, $lang) {
+        $result = [];
+        $self->read(['bank_account_iban']);
+        foreach($self as $id => $bankAccount) {
+            $bank_info = self::computeBankFromIban($bankAccount['bank_account_iban'], $lang);
+            if($bank_info) {
+                $result[$id] = $bank_info['bic'];
+            }
+        }
+        return $result;
+    }
+
     protected static function updateField($self, $field) {
-        $self->read(['identity_id', 'user_id', 'contact_id', 'customer_contact_id', 'employee_id', 'customer_id', 'supplier_id', 'organisation_id', 'managing_agent_id', 'owner_id', $field]);
+        $self->read(['identity_id', 'user_id', 'contact_id', 'employee_id', 'customer_id', 'condominium_id', 'supplier_id', 'organisation_id', 'managing_agent_id', 'owner_id', 'tenant_id', $field]);
         foreach($self as $id => $identity) {
+
             /* update from derived class to Identity */
+
             if($identity['identity_id']) {
                 $orm = Container::getInstance()->get(['orm']);
                 $orm->update(Identity::getType(), $identity['identity_id'], [$field => $identity[$field]]);
                 continue;
             }
+
             /* update from Identity to derived class */
+
             if($identity['user_id']) {
                 User::id($identity['user_id'])->update([$field => $identity[$field]]);
             }
             if($identity['contact_id']) {
                 Contact::id($identity['contact_id'])->update([$field => $identity[$field]]);
             }
-            if($identity['customer_contact_id']) {
-                CustomerContact::id($identity['customer_contact_id'])->update([$field => $identity[$field]]);
-            }
             if($identity['employee_id']) {
                 Employee::id($identity['employee_id'])->update([$field => $identity[$field]]);
             }
             if($identity['customer_id']) {
                 Customer::id($identity['customer_id'])->update([$field => $identity[$field]]);
+            }
+            if($identity['condominium_id']) {
+                Condominium::id($identity['condominium_id'])->update([$field => $identity[$field]]);
             }
             if($identity['supplier_id']) {
                 Supplier::id($identity['supplier_id'])->update([$field => $identity[$field]]);
@@ -710,8 +767,15 @@ class Identity extends Model {
             if($identity['owner_id']) {
                 Owner::id($identity['owner_id'])->update([$field => $identity[$field]]);
             }
+            if($identity['tenant_id']) {
+                Tenant::id($identity['tenant_id'])->update([$field => $identity[$field]]);
+            }
         }
     }
+
+    /*
+        Handlers for updates of scalar fields
+    */
 
     public static function onupdateTypeId($self) {
         self::updateField($self, 'type_id');
@@ -829,6 +893,10 @@ class Identity extends Model {
         self::updateField($self, 'image_document_id');
     }
 
+    /*
+        Handlers for updates of relational fields
+    */
+
     public static function onupdateUserId($self) {
         $self->read(['user_id']);
         foreach($self as $id => $identity) {
@@ -843,17 +911,17 @@ class Identity extends Model {
         }
     }
 
-    public static function onupdateCustomerContactId($self) {
-        $self->read(['customer_contact_id']);
-        foreach($self as $id => $identity) {
-            CustomerContact::id($identity['customer_contact_id'])->update(['identity_id' => $id]);
-        }
-    }
-
     public static function onupdateEmployeeId($self) {
         $self->read(['employee_id']);
         foreach($self as $id => $identity) {
             Employee::id($identity['employee_id'])->update(['identity_id' => $id]);
+        }
+    }
+
+    public static function onupdateCondominiumId($self) {
+        $self->read(['condominium_id']);
+        foreach($self as $id => $identity) {
+            Condominium::id($identity['condominium_id'])->update(['identity_id' => $id]);
         }
     }
 
@@ -956,24 +1024,12 @@ class Identity extends Model {
         return $result;
     }
 
-    private static function computeBicFromIban($iban, $lang) {
-        $result = null;
-
-        $normalized_iban = str_replace(' ', '', trim($iban));
-
-        if(preg_match('/^[A-Z]{2}\d{2}\d{12}$/', $normalized_iban)) {
-            $country = substr($normalized_iban, 0, 2);
-            $bank_code = substr($normalized_iban, 4, 3);
-
-            $file = EQ_BASEDIR."/packages/identity/i18n/{$lang}/bic/{$country}.json";
-            if(file_exists($file)) {
-                $data = file_get_contents($file);
-                $map_bic = json_decode($data, true);
-                $result = $map_bic[$bank_code]['bic'] ?? '';
-            }
+    private static function computeCountryFromIban($iban) {
+        $country = '';
+        if($iban && strlen($iban) > 0) {
+            $country = substr($iban, 0, 2);
         }
-
-        return $result;
+        return $country;
     }
 
     private static function computeBankFromIban($iban, $lang='en') {
@@ -982,6 +1038,7 @@ class Identity extends Model {
         $normalized_iban = strtoupper(str_replace(' ', '', trim($iban)));
 
         if(!preg_match('/^[A-Z]{2}\d{2}[A-Z0-9]+$/', $normalized_iban)) {
+
             return null;
         }
 
@@ -997,18 +1054,24 @@ class Identity extends Model {
             ];
 
         if(!isset($iban_formats[$country])) {
-            return null; // pays non pris en charge
+            return null;
         }
 
         ['bank_pos' => $pos, 'bank_len' => $len] = $iban_formats[$country];
         $bank_code = substr($normalized_iban, $pos, $len);
 
-        $file = EQ_BASEDIR."/packages/identity/i18n/{$lang}/bic/{$country}.json";
-        if(file_exists($file)) {
-            $data = file_get_contents($file);
-            $map_bank = json_decode($data, true);
-            $result = $map_bank[$bank_code] ?? null;
+        $file = EQ_BASEDIR . "/packages/identity/i18n/{$lang}/bic/{$country}.json";
+
+        if(!file_exists($file)) {
+            $file = EQ_BASEDIR . "/packages/identity/i18n/en/bic/{$country}.json";
         }
+        if(!file_exists($file)) {
+            return null;
+        }
+
+        $data = file_get_contents($file);
+        $map_bank = json_decode($data, true);
+        $result = $map_bank[$bank_code] ?? null;
 
         return $result;
     }
@@ -1040,11 +1103,12 @@ class Identity extends Model {
         return $result;
     }
 
+    /**
+     * Handle creation of related identity for objects that inherit from Identity
+     */
     public static function onafterupdate($self, $values, $orm) {
 
-        /**
-         * Handle creation of related identity for objects that inherit from Identity
-         */
+        // Class inherits from Identity but uses a distinct table
         if(substr(self::getType(), strrpos(self::getType(), '\\') + 1) !== 'Identity') {
             $common_fields = [
                     'identity_source',
@@ -1067,7 +1131,7 @@ class Identity extends Model {
                 }
 
                 // create a new Identity for objects that are meant to relate to an identity but are not linked yet
-                if(is_null($identity['identity_id'])) {
+                if(is_null($identity['identity_id']) && !array_key_exists('identity_id', $values)) {
                     $values = [];
                     foreach($common_fields as $field) {
                         $values[$field] = $identity[$field];
@@ -1080,10 +1144,65 @@ class Identity extends Model {
                 }
             }
         }
+        // Class uses identity_identity table
         else {
             $name_dependencies = ['legal_name', 'short_name', 'firstname', 'lastname', 'type_id'];
             if(array_intersect_key($values, array_flip($name_dependencies))) {
                 self::updateField($self, 'name');
+            }
+
+            foreach($self as $id => $identity) {
+                // sync primary address
+                $address_fields = ['address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_state', 'address_country'];
+                $address_updates = [];
+                foreach($address_fields as $address_field) {
+                    if(isset($values[$address_field])) {
+                        $address_updates[$address_field] = $values[$address_field];
+                    }
+                }
+
+                if(count($address_updates)) {
+                    $mainAddress = Address::search([['owner_identity_id', '=', $id], ['is_primary', '=', true]]);
+                    if($mainAddress->count() <= 0) {
+                        $identity = self::id($id)->read($address_fields)->first();
+                        $mainAddress = Address::create([
+                            'owner_identity_id' => $id,
+                            'is_primary'        => true,
+                            'address_street'    => $identity['address_street'],
+                            'address_dispatch'  => $identity['address_dispatch'],
+                            'address_zip'       => $identity['address_zip'],
+                            'address_state'     => $identity['address_state'],
+                            'address_country'   => $identity['address_country']
+                        ]);
+                    }
+                    $mainAddress->update($address_updates);
+                }
+
+                // sync primary bank account
+                $bank_fields = ['bank_account_iban', 'bank_account_iban', 'bank_name', 'bank_country'];
+                $bank_updates = [];
+                foreach($bank_fields as $bank_field) {
+                    if(isset($values[$bank_field])) {
+                        $bank_updates[$bank_field] = $values[$bank_field];
+                    }
+                }
+
+                if(count($bank_updates)) {
+                    $mainBankAccount = BankAccount::search([['owner_identity_id', '=', $id], ['is_primary', '=', true]]);
+                    if($mainBankAccount->count() <= 0) {
+                        $identity = self::id($id)->read($bank_fields)->first();
+                        $mainBankAccount = BankAccount::create([
+                            'owner_identity_id' => $id,
+                            'is_primary'        => true,
+                            'bank_account_iban' => $identity['bank_account_iban'],
+                            'bank_account_bic'  => $identity['bank_account_bic'],
+                            'bank_name'         => $identity['bank_name'],
+                            'bank_country'      => $identity['bank_country']
+                        ]);
+                    }
+                    $mainBankAccount->update($bank_updates);
+                }
+
             }
         }
     }

@@ -28,11 +28,27 @@
             }
         }
     ],
+    "routes": [
+        {
+            "id": "item.import_invoice",
+            "label": "Import Document",
+            "description": "",
+            "icon": "file_upload",
+            "context": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
+                "view": "form.import",
+                "mode": "edit",
+                "domain": [["id", "=", "object.id"]]
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {
                 "sections": [
                     {
+                        "id": "section.encoding",
+                        "label": "Encoding",
                         "rows": [
                             {
                                 "columns": [
@@ -45,58 +61,6 @@
                                                 "visible": false
                                             },
                                             {
-                                                "id": "item.description",
-                                                "type": "field",
-                                                "value": "description",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "heading": true
-                                                }
-                                            },
-                                            {
-                                                "id": "item.invoice_number",
-                                                "type": "field",
-                                                "value": "supplier_invoice_number",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Supplier",
-                                                "value": "suppliership_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "id": "item.invoice_type",
-                                                "type": "field",
-                                                "value": "invoice_type",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "id": "item.emission_date",
-                                                "type": "field",
-                                                "value": "emission_date",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "id": "item.due_date",
-                                                "type": "field",
-                                                "value": "due_date",
-                                                "width": "33%",
-                                                "visible": ["status", "<>", "cancelled"]
-                                            },
-                                            {
-                                                "id": "item.reversed_invoice_id",
-                                                "type": "field",
-                                                "value": "reversed_invoice_id",
-                                                "width": "33%",
-                                                "visible": ["status", "=", "cancelled"]
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "50%",
-                                        "items": [
-                                            {
                                                 "type": "field",
                                                 "label": "Condominium",
                                                 "value": "condo_id",
@@ -104,48 +68,71 @@
                                                 "visible": false
                                             },
                                             {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
+                                                "id": "item.description",
+                                                "type": "field",
+                                                "value": "description",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "heading": true
+                                                }
                                             },
+                                            {
+                                                "id": "item.invoice_type",
+                                                "type": "field",
+                                                "label": "Type",
+                                                "value": "invoice_type",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "id": "item.emission_date",
+                                                "type": "field",
+                                                "value": "emission_date",
+                                                "width": "25%"
+                                            },
+
+
                                             {
                                                 "type": "field",
-                                                "value": "payment_reference",
+                                                "label": "Supplier",
+                                                "value": "suppliership_id",
                                                 "width": "50%"
                                             },
                                             {
-                                                "type": "label",
-                                                "value": "",
+                                                "id": "item.invoice_number",
+                                                "label": "number",
+                                                "type": "field",
+                                                "value": "supplier_invoice_number",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "id": "item.due_date",
+                                                "type": "field",
+                                                "value": "due_date",
+                                                "width": "25%"
+                                            },
+
+                                            {
+                                                "type": "field",
+                                                "label": "Bank Account",
+                                                "value": "suppliership_bank_account_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "price",
-                                                "width": "50%",
+                                                "width": "25%",
                                                 "readonly": true
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "sections": [
-                    {
-                        "id": "section.invoice_lines",
-                        "label": "Lines",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
+                                            },
                                             {
                                                 "type": "field",
-                                                "label": "Posting over a date range",
+                                                "value": "payment_reference",
+                                                "width": "25%"
+                                            },
+
+
+                                            {
+                                                "type": "field",
+                                                "label": "Date range",
                                                 "value": "has_date_range",
                                                 "width": "25%"
                                             },
@@ -153,6 +140,12 @@
                                                 "type": "field",
                                                 "value": "posting_date",
                                                 "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "posting_date",
+                                                "width": "50%",
+                                                "visible": ["has_date_range", "=", false]
                                             },
                                             {
                                                 "type": "field",
@@ -171,19 +164,8 @@
                                                 "label": "Fiscal Year",
                                                 "value": "fiscal_year_id",
                                                 "width": "25%",
-                                                "widget": {
-                                                    "readonly": true
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
+                                                "visible": false
+                                            },
                                             {
                                                 "id": "item.invoice_lines_ids",
                                                 "type": "field",
@@ -192,12 +174,28 @@
                                                 "widget": {
                                                     "view": "list.default",
                                                     "header": {
+                                                        "layout": "inline",
                                                         "actions": {
-                                                            "ACTION.SELECT": true,
+                                                            "ACTION.SELECT": false,
                                                             "ACTION.CREATE": true
                                                         }
                                                     },
                                                     "domain": ["condo_id", "=", "object.condo_id"]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "visible": ["document_id", "is not", null],
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "document_link",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "type": "pdf",
+                                                    "height": "1100"
                                                 }
                                             }
                                         ]
@@ -207,8 +205,8 @@
                         ]
                     },
                     {
-                        "id": "section.options",
-                        "label": "Options",
+                        "id": "section.advanced",
+                        "label": "Advanced",
                         "rows": [
                             {
                                 "columns": [

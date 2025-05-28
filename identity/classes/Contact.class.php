@@ -33,6 +33,13 @@ class Contact extends Identity {
                 'default'           => 'identity\Contact'
             ],
 
+            'is_primary' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the account as primary account.',
+                'help'              => 'When a primary account is updated, sync is automatically replicated on related identity.',
+                'default'           => false
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',

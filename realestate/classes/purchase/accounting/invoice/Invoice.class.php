@@ -7,12 +7,14 @@
 
 namespace realestate\purchase\accounting\invoice;
 
+use documents\processing\DocumentProcess;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Account;
 use finance\accounting\Journal;
+use finance\bank\BankAccount;
 use fmt\setting\Setting;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat\Wizard\Accounting;
+use purchase\supplier\Suppliership;
 use realestate\ownership\Ownership;
 use realestate\purchase\accounting\AccountingEntry;
 use realestate\purchase\accounting\AccountingEntryLine;
@@ -21,6 +23,19 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
 
     public static function getColumns() {
         return [
+
+            'document_data' => [
+                'type'              => 'binary',
+                'description'       => 'Raw binary data of the uploaded document',
+                'help'              => 'This field is meant to be used for the subsequent document creation, and is emptied once the document creation is confirmed.',
+                'onupdate'          => 'onupdateDocumentData'
+            ],
+
+            'document_name' => [
+                'type'              => 'string',
+                'description'       => "Name of the processed document."
+            ],
+
             'supplier_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
@@ -30,13 +45,31 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'store'             => true
             ],
 
+            'supplier_identity_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'identity\Identity',
+                'description'       => 'The supplier the invoice relates to.',
+                'relation'          => ['suppliership_id' => ['supplier_id' => 'identity_id']],
+                'store'             => true,
+                'instant'           => true
+            ],
+
             'suppliership_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\supplier\Suppliership',
                 'description'       => 'The supplier the invoice relates to.',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'required'          => true,
-                'dependents'        => ['supplier_id']
+                'dependents'        => ['supplier_id', 'supplier_identity_id']
+            ],
+
+            'suppliership_bank_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankAccount',
+                'description'       => 'The bank account of the supplier to be used.',
+                'domain'            => ['owner_identity_id', '=', 'object.supplier_identity_id'],
+                'required'          => true
             ],
 
             'invoice_lines_ids' => [
@@ -101,6 +134,28 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'required'          => true
             ],
 
+            'document_process_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\processing\DocumentProcess',
+                'description'       => 'Document Process the invoice originates from.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Targeted document of the job.'
+            ],
+
+            'document_link' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/url.relative',
+                'description'       => 'URL for visualizing the document.',
+                'function'          => 'calcLink',
+            ],
+
+
         ];
     }
 
@@ -111,7 +166,8 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'icon' => 'edit',
                 'transitions' => [
                     'validate' => [
-                        'description' => 'Update the invoice status based on the `invoice` field. Assign invoice number, generate accounting entries and validate accounting entries.',
+                        'description' => 'Update the invoice status based on the `invoice` field.',
+                        'help'        => 'Assign invoice number, generate accounting entries and validate accounting entries.',
                         'policies'    => [
                             'can_be_invoiced',
                             'can_be_allocated'
@@ -140,6 +196,16 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
         ];
     }
 
+    public static function getActions() {
+        return array_merge(parent::getActions(), [
+            'update_document_json' => [
+                'description'   => 'Generate fundings for each involved ownership.',
+                'policies'      => [],
+                'function'      => 'doUpdateDocumentJson'
+            ]
+        ]);
+    }
+
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
             'can_be_allocated' => [
@@ -153,6 +219,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
         $result = [];
         $self->read([
                 'price',
+                'suppliership_bank_account_id',
                 'invoice_lines_ids' => [
                     'total', 'price', 'vat_rate', 'owner_share', 'tenant_share'
                 ],
@@ -161,6 +228,14 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 ]
             ]);
         foreach($self as $id => $invoice) {
+
+            if(!$invoice['suppliership_bank_account_id']) {
+                // error : missing suppliership bank account
+                $result[$id] = [
+                    'missing_suppliership_bank_account' => 'Missing suppliership bank account.'
+                ];
+                continue;
+            }
             $lines_total = 0.0;
             foreach($invoice['invoice_lines_ids'] as $line_id => $invoiceLine) {
                 if(($invoiceLine['owner_share'] + $invoiceLine['tenant_share']) != 100) {
@@ -199,7 +274,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 $map_fund_accounts[$fundUsageLine['fund_account_id']] = true;
                 $usage_total += $fundUsageLine['amount'];
                 if(!$fundUsageLine['apportionment_id']) {
-                    //error: non apportionment
+                    //error: no apportionment
                     $result[$id] = [
                         'missing_apportionment' => 'Apportionment is mandatory.'
                     ];
@@ -224,7 +299,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
         }
 /*
 #todo - FundUsageLines
-* il faut que le montant du compte de réserve choisi soit suffisant pa rapport au montant assigné
+* il faut que le montant du compte de réserve choisi soit suffisant par rapport au montant assigné
 pour le trouver il faut prendre la dernière balance périodique, et ajouter tous les mouvements jusqu'à la date de facture
 
 */
@@ -735,6 +810,44 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         }
     }
 
+    public static function calcLink($self) {
+        $result = [];
+        $self->read(['document_id']);
+        foreach($self as $id => $invoice) {
+            if($invoice['document_id']) {
+                $result[$id] = '/document/' . $invoice['document_id'];
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * This method is used to create the document based on received data, and start the processing.
+     */
+    public static function onupdateDocumentData($self) {
+        $self->read(['document_process_id', 'document_name', 'document_data']);
+        foreach($self as $id => $invoice) {
+            if(!$invoice['document_process_id']) {
+                $collection = DocumentProcess::create(['name' => $invoice['document_name']]);
+            }
+            else {
+                $collection = DocumentProcess::id($invoice['document_process_id']);
+            }
+
+            $documentProcess = $collection
+                ->update(['data' => $invoice['document_data']])
+                ->read(['document_id'])
+                ->first();
+
+            self::id($id)
+                ->update([
+                    'document_process_id' => $documentProcess['id'],
+                    'document_id'         => $documentProcess['document_id'],
+                    'document_data'       => null
+                ]);
+        }
+    }
+
     public static function onchange($event, $values) {
         $result = [];
         if(array_key_exists('invoice_lines_ids', $event)) {
@@ -743,6 +856,118 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         if(isset($event['emission_date'])) {
             $result['due_date'] = strtotime('+30 days', strtotime('last day of this month', $event['emission_date']));
         }
+        if(isset($event['document_data']['name'])) {
+            $result['document_name'] = $event['document_data']['name'];
+        }
         return array_merge(parent::onchange($event, $values), $result);
     }
+
+    public static function canupdate($self) {
+        $self->read(['status', 'document_process_id' => ['status']]);
+        foreach($self as $id => $invoice) {
+            if($invoice['status'] !== 'proforma') {
+                return ['status' => ['non_editable' => 'Invoice cannot be updated after recording.']];
+            }
+            if(!$invoice['document_process_id']) {
+                continue;
+            }
+            if($invoice['document_process_id']['status'] !== 'created') {
+                return ['status' => ['non_editable' => 'Invoice cannot be updated after Document processing.']];
+            }
+        }
+    }
+
+    /**
+     * Sync back manually encoded values to the JSON structure of the document.
+     */
+    public static function doUpdateDocumentJson($self, $values) {
+        $self->read(['document_process_id']);
+
+        foreach($self as $id => $invoice) {
+            if(!$invoice['document_process_id']) {
+                continue;
+            }
+            $fields = [];
+
+            if(isset($values['suppliership_bank_account_id'])) {
+                $bankAccount = BankAccount::id($values['suppliership_bank_account_id'])->read(['bank_account_iban'])->first();
+                $fields['payment']['iban'] = $bankAccount['bank_account_iban'];
+            }
+
+            if(isset($values['suppliership_id'])) {
+                $suppliership = Suppliership::id($values['suppliership_id'])->read(['supplier_id' => ['name', 'vat_number', 'address_street', 'address_city', 'address_zip', 'address_country']])->first();
+                $fields['supplier']['name'] = $suppliership['supplier_id']['name'];
+                $fields['supplier']['vat_id'] = $suppliership['supplier_id']['vat_number'];
+                $fields['supplier']['address']['street'] = $suppliership['supplier_id']['address_street'];
+                $fields['supplier']['address']['city'] = $suppliership['supplier_id']['address_city'];
+                $fields['supplier']['address']['postal_code'] = $suppliership['supplier_id']['address_zip'];
+                $fields['supplier']['address']['country'] = $suppliership['supplier_id']['address_country'];
+            }
+
+            if(isset($values['invoice_type'])) {
+                $fields['invoice_type'] = $values['invoice_type'];
+            }
+
+            if(isset($values['supplier_invoice_number'])) {
+                $fields['invoice_number'] = $values['supplier_invoice_number'];
+            }
+
+            if(isset($values['due_date'])) {
+                $fields['due_date'] = date('c', $values['due_date']);
+            }
+
+            if(isset($values['emission_date'])) {
+                $fields['issue_date'] = date('c', $values['emission_date']);
+            }
+
+            if(isset($values['payment_reference'])) {
+                $fields['payment']['payment_id'] = $values['payment_reference'];
+            }
+
+            // #todo - ce champ ne change jamais : il est calculé via les lignes
+            if(isset($values['price'])) {
+                $fields['totals']['total_incl_tax'] = $values['price'];
+                $fields['totals']['payable_amount'] = $values['price'];
+            }
+
+            if(isset($values['date_from'], $values['date_to'])) {
+                $fields['invoice_period']['start_date'] = date('c', $values['date_from']);
+                $fields['invoice_period']['end_date'] = date('c', $values['date_to']);
+            }
+
+            // values relayed from InvoiceLine::onafterupdate (1 line at a time)
+            if(isset($values['lines'])) {
+                // re-sync all lines
+                $invoiceLines = InvoiceLine::search(['invoice_id', '=', $id])->read(['description', 'qty', 'unit_price', 'vat_rate', 'total']);
+                $line_index = 1;
+                $fields['lines'] = [];
+                foreach($invoiceLines as $invoiceLine) {
+                    $line = [
+                        'id'            => $line_index++,
+                        'description'   => $invoiceLine['description'],
+                        'quantity'      => $invoiceLine['qty'],
+                        'unit_price'    => $invoiceLine['unit_price'],
+                        'unit_code'     => 'C62',
+                        'amount'        => $invoiceLine['total'],
+                        'tax'           => [
+                            'category_id'   => 'S',
+                            'percent'       => intval(round($invoiceLine['vat_rate'], 2) * 100),
+                            'scheme_id'     => 'VAT'
+                        ]
+                    ];
+
+                    $fields['lines'][] = $line;
+                }
+            }
+
+            if(count($fields)) {
+                DocumentProcess::id($invoice['document_process_id'])->do('update_document_json', $fields);
+            }
+        }
+    }
+
+    public static function onafterupdate($self, $values) {
+        $self->do('update_document_json', $values);
+    }
+
 }

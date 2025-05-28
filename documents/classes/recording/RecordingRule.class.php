@@ -20,10 +20,24 @@ class RecordingRule extends Model {
     public static function getColumns() {
 
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\property\Condominium',
+                'description'       => "The condominium the rule applies to.",
+                'help'              => "If left unset, the rule is considered as a template."
+            ],
+
             'name' => [
                 'type'              => 'string',
                 'description'       => "Name of the accounting rule.",
                 'required'          => true
+            ],
+
+            'is_template' => [
+                'type'              => 'boolean',
+                'description'       => "Flag marking rhe rule as a template.",
+                'help'              => "The rule is a template meant to be used for condominium-specific rules.",
+                'default'           => false
             ],
 
             'description' => [

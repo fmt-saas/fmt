@@ -481,7 +481,19 @@
                             "entity": "finance\\bank\\BankStatement",
                             "view": "list.default"
                         }
+                    },
+                    {
+                        "id": "item.banks.bank_accounts",
+                        "type": "entry",
+                        "label": "Bank Accounts",
+                        "icon": "receipt",
+                        "description": "",
+                        "context": {
+                            "entity": "finance\\bank\\BankAccount",
+                            "view": "list.default"
+                        }
                     }
+
                 ]
             }
         ]

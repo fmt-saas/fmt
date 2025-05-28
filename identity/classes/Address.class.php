@@ -21,71 +21,68 @@ class Address extends Model {
 
     public static function getColumns() {
         return [
-            'display_name' => [
-                'type'             => 'alias',
-                'alias'            => 'name'
-            ],
 
             'name' => [
                 'type'              => 'computed',
-                'function'          => 'calcName',
                 'result_type'       => 'string',
+                'function'          => 'calcName',
                 'store'             => true,
                 'description'       => 'The display name of the address.'
             ],
 
-            'identity_id' => [
+            'owner_identity_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Identity',
                 'description'       => 'The identity that the address relates to.'
             ],
 
+            'is_primary' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the account as primary account.',
+                'help'              => 'When a primary address is updated, sync is automatically replicated on related identity.',
+                'default'           => false
+            ],
+
             'role' => [
                 'type'              => 'string',
                 'selection'         => [ 'legal', 'invoice', 'delivery', 'other' ],
-                'description'       => 'The main purpose for which the address is to be preferred.'
+                'description'       => 'The main purpose for which the address is to be preferred.',
+                'default'           => 'legal'
             ],
 
-            /*
-                Description of the address.
-            */
             'address_street' => [
                 'type'              => 'string',
                 'description'       => 'Street and number.',
-                'onupdate'          => 'onupdateAddress'
+                'dependents'        => ['name']
             ],
 
             'address_dispatch' => [
                 'type'              => 'string',
-                'description'       => 'Optional info for mail dispatch (appartment, box, floor, ...).',
-                'onupdate'          => 'onupdateAddress'
+                'description'       => 'Optional info for mail dispatch (appartment, box, floor, ...).'
             ],
 
             'address_city' => [
                 'type'              => 'string',
                 'description'       => 'City.',
-                'onupdate'          => 'onupdateAddress'
+                'dependents'        => ['name']
             ],
 
             'address_zip' => [
                 'type'              => 'string',
                 'description'       => 'Postal code.',
-                'onupdate'          => 'onupdateAddress'
+                'dependents'        => ['name']
             ],
 
             'address_state' => [
                 'type'              => 'string',
-                'description'       => 'State or region.',
-                'onupdate'          => 'onupdateAddress'
+                'description'       => 'State or region.'
             ],
 
             'address_country' => [
                 'type'              => 'string',
                 'usage'             => 'country/iso-3166:2',
-                'description'       => 'Country.',
-                'onupdate'          => 'onupdateAddress'
-            ],
-
+                'description'       => 'Country.'
+            ]
 
         ];
     }
@@ -99,8 +96,24 @@ class Address extends Model {
         return $result;
     }
 
-
-    public static function onupdateAddress($om, $oids, $values, $lang) {
-        $om->write(__CLASS__, $oids, [ 'display_name' => null ], $lang);
+    /**
+     * Synchronize the primary address of the identity.
+     *
+     */
+    public static function onafterupdate($self, $values) {
+        $self->read(['is_primary', 'owner_identity_id', 'address_street', 'address_dispatch', 'address_city', 'address_zip', 'address_country']);
+        foreach($self as $id => $address) {
+            if($address['is_primary']) {
+                Identity::id($address['owner_identity_id'])
+                    ->update([
+                        'address_street'    => $address['bank_account_iban'],
+                        'address_dispatch'  => $address['address_dispatch'],
+                        'address_city'      => $address['bank_account_bic'],
+                        'address_zip'       => $address['bank_account_bic'],
+                        'address_country'   => $address['bank_account_bic']
+                    ]);
+            }
+        }
     }
+
 }

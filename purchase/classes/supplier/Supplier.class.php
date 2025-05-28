@@ -6,6 +6,7 @@
 */
 namespace purchase\supplier;
 
+use finance\bank\BankAccount;
 use identity\Identity;
 
 class Supplier extends Identity {
@@ -91,10 +92,33 @@ class Supplier extends Identity {
                 'store'             => true,
                 'instant'           => true,
                 'description'       => "Code of the supplier type assigned to supplier."
+            ],
+
+            // #memo - foreign_field cannot be used here, since it should be identity_id, which points back to current object's `id` instead of `identity_id`
+            'bank_accounts_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\bank\BankAccount',
+                'description'       => 'List of the bank account of the supplier.',
+                'domain'            => ['owner_identity_id', '=', 'object.identity_id']
+            ],
+
+            'addresses_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'identity\Address',
+                'description'       => 'List of addresses related to the supplier.',
+                'domain'            => ['owner_identity_id', '=', 'object.identity_id']
+            ],
+
+            'contacts_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'identity\Contact',
+                'description'       => 'List of contacts related to the supplier.',
+                'domain'            => ['owner_identity_id', '=', 'object.identity_id']
             ]
 
         ];
     }
+
 
     public static function onrevertName($self) {
         $self->read(['supplierships_ids']);
