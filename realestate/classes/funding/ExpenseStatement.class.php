@@ -588,7 +588,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
         */
 
         $ownerships = Ownership::search(['condo_id', '=', $fiscalPeriod['condo_id']])
-            ->read(['name', 'date_from', 'date_to', 'property_lots_ids'])
+            ->read(['name', 'date_from', 'date_to', 'property_lot_ownerships_ids' => ['property_lot_id', 'date_from', 'date_to']])
             ->get();
 
 
@@ -732,11 +732,20 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                     $apportionment = $map_apportionments[$invoiceLine['apportionment_id']];
 
                     foreach($ownerships as $ownership_id => $ownership) {
-                        foreach($ownership['property_lots_ids'] as $property_lot_id) {
+                        foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
+                            $property_lot_id = $property_lot_ownership['property_lot_id'];
+                            if($property_lot_ownership['date_to'] && $property_lot_ownership['date_to'] < $fiscalPeriod['date_from']) {
+                                continue;
+                            }
                             if(!isset($apportionment[$property_lot_id])) {
                                 continue;
                             }
-                            $prorata = $ownerships[$ownership_id]['nb_days'] / $nb_days;
+
+                            $start = max($fiscalPeriod['date_from'], $property_lot_ownership['date_from'] ?? $fiscalPeriod['date_from']);
+                            $end   = min($fiscalPeriod['date_to'], $property_lot_ownership['date_to'] ?? $fiscalPeriod['date_to']);
+                            $ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
+
+                            $prorata = $ownership_nb_days / $nb_days;
                             $shares = $apportionment[$property_lot_id];
                             $total_shares = $apportionments[$invoiceLine['apportionment_id']]['total_shares'];
                             $amount = $prorata * ($line_amount * $shares / $total_shares);
@@ -791,11 +800,19 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                     $apportionment = $map_apportionments[$apportionment_id];
 
                     foreach($ownerships as $ownership_id => $ownership) {
-                        foreach($ownership['property_lots_ids'] as $property_lot_id) {
+                        foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
+                            $property_lot_id = $property_lot_ownership['property_lot_id'];
+                            if($property_lot_ownership['date_to'] && $property_lot_ownership['date_to'] < $fiscalPeriod['date_from']) {
+                                continue;
+                            }
                             if(!isset($apportionment[$property_lot_id])) {
                                 continue;
                             }
-                            $prorata = $ownerships[$ownership_id]['nb_days'] / $nb_days;
+                            $start = max($fiscalPeriod['date_from'], $property_lot_ownership['date_from'] ?? $fiscalPeriod['date_from']);
+                            $end   = min($fiscalPeriod['date_to'], $property_lot_ownership['date_to'] ?? $fiscalPeriod['date_to']);
+                            $ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
+
+                            $prorata = $ownership_nb_days / $nb_days;
                             $shares = $apportionment[$property_lot_id];
                             $total_shares = $apportionments[$apportionment_id]['total_shares'];
                             $amount = $prorata * ($line_amount * $shares / $total_shares);

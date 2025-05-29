@@ -50,24 +50,23 @@ class Ownership extends \equal\orm\Model {
                 'store'             => true
             ],
 
-            /*
+            // #memo - this does not consider the date_from and date_to stored in propertyLotOwnership
             'property_lots_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\property\PropertyLot',
                 'foreign_field'     => 'ownerships_ids',
                 'rel_table'         => 'realestate_ownership_ownership_rel_property_lot',
-                'rel_foreign_key'   => 'lot_id',
+                'rel_foreign_key'   => 'property_lot_id',
                 'rel_local_key'     => 'ownership_id',
                 'description'       => 'Property lots that are assigned to this ownership.',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
-            */
 
             'property_lot_ownerships_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\property\PropertyLotOwnership',
                 'foreign_field'     => 'ownership_id',
-                'description'       => 'Property lots that are assigned to this ownership.',
+                'description'       => 'Links of property lots currently assigned to this ownership.',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
@@ -96,6 +95,17 @@ class Ownership extends \equal\orm\Model {
                 'default'           => 100,
                 'visible'           => ['ownership_type' => 'joint'],
                 'dependents'        => ['owners_ids' => 'ownership_percentage']
+            ],
+
+            'date_from' => [
+                'type'              => 'date',
+                'description'       => "Date from which the owners own at least one property lot."
+            ],
+
+            'date_to' => [
+                'type'              => 'date',
+                'description'       => "Date at which the last owned lot was sold by the owners.",
+                'help'              => "If set, targeted owners no longer own any lot in the condominium.",
             ],
 
             'transfer_from_id' => [
@@ -206,6 +216,7 @@ class Ownership extends \equal\orm\Model {
             if(!$ownership['code']) {
                 continue;
             }
+
             if($ownership['has_representative'] && isset($ownership['representative_identity_id']['name'])) {
                 $result[$id] = $ownership['representative_identity_id']['name'];
             }
@@ -216,15 +227,15 @@ class Ownership extends \equal\orm\Model {
                         $names[] = $owner['name'];
                     }
                 }
-                if(!count($names)) {
-                    continue;
-                }
                 $name = implode(', ', $names);
                 if(strlen($name) > 128) {
                     $name = substr($name, 0, 128) . '...';
                 }
                 if(strlen($name) > 0) {
                     $result[$id] = $ownership['code'] . ' - ' . $name;
+                }
+                else {
+                    $result[$id] = $ownership['code'];
                 }
             }
         }

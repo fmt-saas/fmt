@@ -208,15 +208,19 @@ FundRequestExecution::search([
     ])
     ->transition('call');
 
+
+$suppliership = Suppliership::search(['condo_id', '=',  1])->read(['supplier_id' => ['identity_id' => ['bank_accounts_ids']]])->first();
+
 $purchaseInvoice = PurchaseInvoice::create([
-        'condo_id'                  => $condominiums_ids[0],
-        'status'                    => 'proforma',
-        'invoice_type'              => 'invoice',
-        'emission_date'             => strtotime('2024-01-01T00:00:00Z'),
-        'posting_date'              => strtotime('2024-01-01T00:00:00Z'),
-        'due_date'                  => strtotime('2024-03-01T00:00:00Z'),
-        'description'               => 'services',
-        'supplier_invoice_number'   => '1234567',
-        'suppliership_id'           => 2
+        'condo_id'                      => $condominiums_ids[0],
+        'status'                        => 'proforma',
+        'invoice_type'                  => 'invoice',
+        'emission_date'                 => strtotime('2024-01-01T00:00:00Z'),
+        'posting_date'                  => strtotime('2024-01-01T00:00:00Z'),
+        'due_date'                      => strtotime('2024-03-01T00:00:00Z'),
+        'description'                   => 'services',
+        'supplier_invoice_number'       => '1234567',
+        'suppliership_id'               => $suppliership['id'],
+        'suppliership_bank_account_id'  => current($suppliership['supplier_id']['identity_id']['bank_accounts_ids'])
     ])
     ->first();

@@ -12,7 +12,7 @@
             },
             {
                 "type": "field",
-                "value": "lot_id",
+                "value": "property_lot_id",
                 "width": "16%"
             },
             {

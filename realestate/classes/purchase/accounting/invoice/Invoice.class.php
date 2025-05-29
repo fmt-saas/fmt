@@ -859,6 +859,10 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         if(isset($event['document_data']['name'])) {
             $result['document_name'] = $event['document_data']['name'];
         }
+        if(isset($event['suppliership_id'])) {
+            $suppliership = Suppliership::id($event['suppliership_id'])->read(['supplier_id' => ['identity_id']])->first();
+            $result['supplier_identity_id'] = $suppliership['supplier_id']['identity_id'];
+        }
         return array_merge(parent::onchange($event, $values), $result);
     }
 

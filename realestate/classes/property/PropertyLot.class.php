@@ -151,7 +151,7 @@ class PropertyLot extends \equal\orm\Model {
                 'foreign_field'     => 'property_lots_ids',
                 'rel_table'         => 'realestate_ownership_ownership_rel_property_lot',
                 'rel_foreign_key'   => 'ownership_id',
-                'rel_local_key'     => 'lot_id',
+                'rel_local_key'     => 'property_lot_id',
                 'description'       => 'Ownerships to which this property lot is assigned.',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
@@ -160,7 +160,7 @@ class PropertyLot extends \equal\orm\Model {
             'property_lot_ownerships_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\property\PropertyLotOwnership',
-                'foreign_field'     => 'lot_id',
+                'foreign_field'     => 'property_lot_id',
                 'description'       => 'Property lots that are assigned to this ownership.',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],

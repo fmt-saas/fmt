@@ -450,7 +450,7 @@ class FundRequest extends \equal\orm\Model {
                 $sum_delta = 0.0;
                 foreach($fundRequest['condo_id']['ownerships_ids'] as $ownership_id) {
 
-                    $ownership = Ownership::id($ownership_id)->read(['date_from', 'date_to', 'property_lots_ids'])->first();
+                    $ownership = Ownership::id($ownership_id)->read(['date_from', 'date_to', 'property_lot_ownerships_ids' => ['property_lot_id', 'date_from', 'date_to']])->first();
 
                     // ignore ownerships outside of the fund request
                     if($ownership['date_to'] && $ownership['date_to'] < $date_from) {
@@ -462,18 +462,6 @@ class FundRequest extends \equal\orm\Model {
                         }
                     }
 
-                    $ratio = 1.0;
-
-                    // In the case where the request is a time range and the ownership is partially within it, we need to allocate the called amount pro-rata based on the duration of the ownership.
-                    // #memo - We assume that a property lot always belongs to someone and that the dates are contiguous in the event of a property transfer.
-                    if($fundRequest['has_date_range'] && $fundRequest['request_type'] == 'expense_provisions') {
-                        $intersect_from = $ownership['date_from'] ? max($ownership['date_from'], $fundRequest['date_from']) : $fundRequest['date_from'];
-                        $intersect_to = $ownership['date_to'] ? min($ownership['date_to'], $fundRequest['date_to']) : $fundRequest['date_to'];
-                        $total_days = ( ($fundRequest['date_to'] - $fundRequest['date_from']) / 86400 ) + 1;
-                        $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
-                        $ratio = round($intersect_days / $total_days, 4);
-                    }
-
                     $lineEntry = FundRequestLineEntry::create([
                             'condo_id'          => $fundRequest['condo_id']['id'],
                             'fund_request_id'   => $id,
@@ -482,7 +470,21 @@ class FundRequest extends \equal\orm\Model {
                         ])
                         ->first();
 
-                    foreach($ownership['property_lots_ids'] as $property_lot_id) {
+                    foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
+
+                        $property_lot_id = $property_lot_ownership['property_lot_id'];
+
+                        $ratio = 1.0;
+
+                        // In the case where the request is a time range and the ownership is partially within it, we need to allocate the called amount pro-rata based on the duration of the ownership.
+                        // #memo - We assume that a property lot always belongs to someone and that the dates are contiguous in the event of a property transfer.
+                        if($fundRequest['has_date_range'] && $fundRequest['request_type'] == 'expense_provisions') {
+                            $intersect_from = $property_lot_ownership['date_from'] ? max($property_lot_ownership['date_from'], $fundRequest['date_from']) : $fundRequest['date_from'];
+                            $intersect_to = $property_lot_ownership['date_to'] ? min($property_lot_ownership['date_to'], $fundRequest['date_to']) : $fundRequest['date_to'];
+                            $total_days = ( ($fundRequest['date_to'] - $fundRequest['date_from']) / 86400 ) + 1;
+                            $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
+                            $ratio = round($intersect_days / $total_days, 4);
+                        }
 
                         // if the lot has a share for this apportionment key, we add it
                         $apportionmentShare = PropertyLotApportionmentShare::search([

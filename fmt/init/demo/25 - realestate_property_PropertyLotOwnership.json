@@ -6,42 +6,42 @@
             {
                 "ownership_id": 2,
                 "condo_id": 1,
-                "lot_id": 3
+                "property_lot_id": 3
             },
             {
                 "ownership_id": 2,
                 "condo_id": 1,
-                "lot_id": 7
+                "property_lot_id": 7
             },
             {
                 "ownership_id": 3,
                 "condo_id": 1,
-                "lot_id": 1
+                "property_lot_id": 1
             },
             {
                 "ownership_id": 4,
                 "condo_id": 1,
-                "lot_id": 2
+                "property_lot_id": 2
             },
             {
                 "ownership_id": 4,
                 "condo_id": 1,
-                "lot_id": 8
+                "property_lot_id": 8
             },
             {
                 "ownership_id": 5,
                 "condo_id": 2,
-                "lot_id": 4
+                "property_lot_id": 4
             },
             {
                 "ownership_id": 6,
                 "condo_id": 2,
-                "lot_id": 5
+                "property_lot_id": 5
             },
             {
                 "ownership_id": 7,
                 "condo_id": 2,
-                "lot_id": 6
+                "property_lot_id": 6
             }
         ]
     }

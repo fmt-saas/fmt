@@ -8,8 +8,8 @@
 namespace realestate\purchase\accounting\invoice;
 
 use finance\accounting\Account;
-use realestate\ownership\Ownership;
 use realestate\property\PropertyLot;
+use realestate\property\PropertyLotOwnership;
 
 class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
 
@@ -148,16 +148,21 @@ class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
         }
 
         // synchronize ownership & property lots
+        // #memo - we must be able to assign any ownership (not only active ones)
         if(array_key_exists('ownership_id', $event)) {
             if($event['ownership_id']) {
-                $ownership = Ownership::id($event['ownership_id'])->read(['property_lots_ids'])->first();
-                if(!$values['property_lot_id'] || !in_array($values['property_lot_id'], $ownership['property_lots_ids']) ) {
+                $propertyOwnerships = PropertyLotOwnership::search([['ownership_id', '=', $event['ownership_id']]])->read(['property_lot_id'])->get(true);
+                $property_lots_ids = array_map(function ($a) {return $a['property_lot_id'];}, $propertyOwnerships);
+                if(!$values['property_lot_id'] || !in_array($values['property_lot_id'], $property_lots_ids) ) {
                     $result['property_lot_id'] = [
-                        'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $ownership['property_lots_ids']]]
+                        'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $property_lots_ids]]
                     ];
                 }
             }
             else {
+                $result['ownership_id'] = [
+                    'domain' => ['condo_id', '=', $values['condo_id']]
+                ];
                 $result['property_lot_id'] = [
                     'domain' => ['condo_id', '=', $values['condo_id']]
                 ];
@@ -165,15 +170,19 @@ class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
         }
         if(array_key_exists('property_lot_id', $event)) {
             if($event['property_lot_id']) {
-                $propertyLot = PropertyLot::id($event['property_lot_id'])->read(['ownerships_ids'])->first();
-                if(!$values['ownership_id'] || !in_array($values['ownership_id'], $propertyLot['ownerships_ids']) ) {
+                $propertyOwnerships = PropertyLotOwnership::search([['property_lot_id', '=', $event['property_lot_id']]])->read(['ownership_id'])->get(true);
+                $ownerships_ids = array_map(function ($a) {return $a['ownership_id'];}, $propertyOwnerships);
+                if(!$values['ownership_id'] || !in_array($values['ownership_id'], $ownerships_ids) ) {
                     $result['ownership_id'] = [
-                        'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $propertyLot['ownerships_ids']]]
+                        'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $ownerships_ids]]
                     ];
                 }
             }
             else {
                 $result['ownership_id'] = [
+                    'domain' => ['condo_id', '=', $values['condo_id']]
+                ];
+                $result['property_lot_id'] = [
                     'domain' => ['condo_id', '=', $values['condo_id']]
                 ];
             }
