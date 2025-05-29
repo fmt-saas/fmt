@@ -49,7 +49,6 @@
                 "customer_id": null,
                 "supplier_id": null,
                 "contact_id": null,
-                "customer_contact_id": null,
                 "employee_id": null,
                 "organisation_id": null,
                 "managing_agent_id": null,

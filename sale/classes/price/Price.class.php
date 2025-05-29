@@ -115,9 +115,11 @@ class Price extends Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['product_id' => ['id', 'sku'], 'price_list_id' => 'name']);
+        $self->read(['product_id' => ['id', 'sku'], 'price_list_id' => ['name']]);
         foreach($self as $id => $product) {
-            $result[$id] = "{$product['product_id']['sku']} [{$product['product_id']['id']}] - {$product['price_list_id']['name']}";
+            if(isset($product['product_id'], $product['price_list_id'])) {
+                $result[$id] = "{$product['product_id']['sku']} [{$product['product_id']['id']}] - {$product['price_list_id']['name']}";
+            }
         }
         return $result;
     }
