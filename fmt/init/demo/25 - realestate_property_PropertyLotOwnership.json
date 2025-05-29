@@ -1,79 +1,47 @@
 [
     {
-        "name": "realestate\\ownership\\Ownership",
+        "name": "realestate\\property\\PropertyLotOwnership",
         "lang": "fr",
         "data": [
             {
-                "id": 2,
-                "description": "Charles Max",
+                "ownership_id": 2,
                 "condo_id": 1,
-                "ownership_type": "unique",
-                "total_shares": 100,
-                "transfer_from_id": null,
-                "transfer_to_id": null,
-                "representative_identity_id": null,
-                "has_representative": false,
-                "property_lots_ids": [3, 7]
+                "lot_id": 3
             },
             {
-                "id": 3,
-                "description": "Lucienne Prévaut",
+                "ownership_id": 2,
                 "condo_id": 1,
-                "ownership_type": "unique",
-                "total_shares": 100,
-                "transfer_from_id": null,
-                "transfer_to_id": null,
-                "representative_identity_id": null,
-                "has_representative": false,
-                "property_lots_ids": [1]
+                "lot_id": 7
             },
             {
-                "id": 4,
-                "description": "Etienne Duchemin, Sarah Duchemin, Louis Duchemin",
+                "ownership_id": 3,
                 "condo_id": 1,
-                "ownership_type": "unique",
-                "total_shares": 100,
-                "transfer_from_id": null,
-                "transfer_to_id": null,
-                "representative_identity_id": null,
-                "has_representative": false,
-                "property_lots_ids": [2, 8]
+                "lot_id": 1
             },
             {
-                "id": 5,
-                "description": "Géraldine Desmet",
-                "condo_id": 2,
-                "ownership_type": "unique",
-                "total_shares": 100,
-                "transfer_from_id": null,
-                "transfer_to_id": null,
-                "representative_identity_id": null,
-                "has_representative": false,
-                "property_lots_ids": [4]
+                "ownership_id": 4,
+                "condo_id": 1,
+                "lot_id": 2
             },
             {
-                "id": 6,
-                "description": "Raoul Ménart",
-                "condo_id": 2,
-                "ownership_type": "unique",
-                "total_shares": 100,
-                "transfer_from_id": null,
-                "transfer_to_id": null,
-                "representative_identity_id": null,
-                "has_representative": false,
-                "property_lots_ids": [5]
+                "ownership_id": 4,
+                "condo_id": 1,
+                "lot_id": 8
             },
             {
-                "id": 7,
-                "description": "Roland Dupuis",
+                "ownership_id": 5,
                 "condo_id": 2,
-                "ownership_type": "unique",
-                "total_shares": 100,
-                "transfer_from_id": null,
-                "transfer_to_id": null,
-                "representative_identity_id": null,
-                "has_representative": false,
-                "property_lots_ids": [6]
+                "lot_id": 4
+            },
+            {
+                "ownership_id": 6,
+                "condo_id": 2,
+                "lot_id": 5
+            },
+            {
+                "ownership_id": 7,
+                "condo_id": 2,
+                "lot_id": 6
             }
         ]
     }
