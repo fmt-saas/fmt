@@ -5,8 +5,10 @@ use purchase\supplier\Supplier;
 
 ['orm' => $orm] = eQual::inject(['orm']);
 
-$orm->disableEvents();
+$events = $orm->disableEvents();
 
+
+// #todo - BankAccount::create OU action correspondante
 
 Identity::create([
         "id" => 1001,
@@ -3791,7 +3793,7 @@ Supplier::create([
         "is_active" => true
 ]);
 
-$orm->enableEvents();
+$orm->enableEvents($events);
 
 // sync values from Identities to Suppliers
 Supplier::search()->do('sync_from_identity');

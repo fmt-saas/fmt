@@ -9,17 +9,42 @@ use documents\DocumentType;
 use documents\DocumentSubtype;
 
 /**
- * Document Types
+ * Invoices
  */
 
- DocumentType::create([
-    'id'            => 1,
-    'name'          => 'Facture fournisseur',
-    'code'          => 'invoice',
-    'folder_code'   => 'supplier_invoices',
-    'description'   => "Document comptable à comptabiliser et réconcilier",
-    'json_schema'   => 'urn:fmt:json-schema:finance:purchase-invoice'
+$documentType = DocumentType::create([
+        'id'            => 1,
+        'name'          => 'Facture fournisseur',
+        'code'          => 'invoice',
+        'folder_code'   => 'supplier_invoices',
+        'description'   => "Document comptable à comptabiliser et réconcilier",
+        'json_schema'   => 'urn:fmt:json-schema:finance:purchase-invoice'
+    ])
+    ->first();
+
+
+DocumentSubtype::create([
+    'name'              => 'Facture d\'acompte',
+    'code'              => 'advance_invoice',
+    'document_type_id'  => $documentType['id']
 ]);
+
+DocumentSubtype::create([
+    'name'              => 'Facture de régularisation',
+    'code'              => 'adjustment_invoice',
+    'document_type_id'  => $documentType['id']
+]);
+
+DocumentSubtype::create([
+    'name'              => 'Facture de prestation hors-contrat',
+    'code'              => 'off_contract',
+    'document_type_id'  => $documentType['id']
+]);
+
+
+// ---
+
+
 
 DocumentType::create([
     'id'            => 2,
@@ -159,25 +184,3 @@ DocumentType::create([
     'description'   => "Procès verbal d'une assemblée ou d'un conseil."
 ]);
 
-
-/**
- * Document Subtypes
- */
-
-DocumentSubtype::create([
-    'name'              => 'Facture d\'acompte',
-    'code'              => 'advance_invoice',
-    'document_type_id'  => 1
-]);
-
-DocumentSubtype::create([
-    'name'              => 'Facture de régularisation',
-    'code'              => 'adjustment_invoice',
-    'document_type_id'  => 1
-]);
-
-DocumentSubtype::create([
-    'name'              => 'Facture de prestation hors-contrat',
-    'code'              => 'off_contract',
-    'document_type_id'  => 1
-]);

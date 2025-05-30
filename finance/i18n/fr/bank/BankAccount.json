@@ -18,8 +18,8 @@
             "description" : "Le nom de la banque où l'organisation détient son compte."
         },
         "bank_country": {
-            "label": "Pays de la banque",
-            "description": "Le pays où l'organisation détient le compte bancaire, spécifié à l'aide du code ISO 3166-2..",
+            "label": "Pays",
+            "description": "Le pays où l'organisation détient le compte bancaire, code ISO 3166-2.",
             "help": ""
         },
         "bank_account_iban": {

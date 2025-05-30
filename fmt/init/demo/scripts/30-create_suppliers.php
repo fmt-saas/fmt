@@ -46,10 +46,11 @@ $supplier = Supplier::create([
     ->first();
 
 BankAccount::create([
-        "owner_identity_id" => $identity['id'],
-        "description"   =>  "Principal",
-        "bank_account_iban" =>  "BE08457219881558",
-        "bank_account_bic" => "GKCCBEBB"
+        'owner_identity_id' => $identity['id'],
+        'description'       => "Principal",
+        'bank_account_iban' => "BE08457219881558",
+        'bank_account_bic'  => "GKCCBEBB",
+        'is_primary'        => true
     ]);
 
 $orm->enableEvents($events);

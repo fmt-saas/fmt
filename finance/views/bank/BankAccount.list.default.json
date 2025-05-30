@@ -30,6 +30,12 @@
             },
             {
                 "type": "field",
+                "value": "bank_account_type",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "is_primary",
                 "width": "10%"
             }

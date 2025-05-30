@@ -98,7 +98,28 @@ SuppliershipReference::create(['condo_id' => 1, 'suppliership_id' => $vivaquaSup
 
 Suppliership::search()
     ->read(['code'])
-    ->do('generate_accounts');
+    ->do('generate_accounts')
+    ->do('import_bank_account');
+
+
+/*
+// récupérer toutes les RecordingRules `is_template` et les dupliquer dans le Condominium (condo_id)
+$recordingRules = RecordingRule::search(['is_template', '=', true])->read([
+        'name',
+        'document_type_id',
+        'document_subtype_id',
+        'recording_rule_lines_ids' => [
+            'name', 'account_code', 'apportionment_code', 'owner_share', 'tenant_share', 'share'
+        ]
+    ]);
+
+foreach($recordingRules as $recordingRule) {
+    $newRecordingRule = RecordingRule::create(['condo_id' => 1, 'name' => 'facture d\'acompte EAU', 'document_type_id' => 1, 'document_subtype_id' => 1])->first();
+    foreach($recordingRule['recording_rule_lines_ids'] as $recordingRuleLine) {
+        RecordingRuleLine::create(['name' => 'eau', 'condo_id' => 1, 'recording_rule_id' => $recordingRule['id'], 'account_id' => 635, 'apportionment_id' => 1, 'owner_share' => 100, 'tenant_share' => 0, 'share' => 1.0]);
+    }
+}
+*/
 
 $recordingRule = RecordingRule::create(['condo_id' => 1, 'name' => 'facture d\'acompte EAU', 'document_type_id' => 1, 'document_subtype_id' => 1])->first();
 RecordingRuleLine::create(['name' => 'eau', 'condo_id' => 1, 'recording_rule_id' => $recordingRule['id'], 'account_id' => 635, 'apportionment_id' => 1, 'owner_share' => 100, 'tenant_share' => 0, 'share' => 1.0]);

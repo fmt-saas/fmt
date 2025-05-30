@@ -295,12 +295,12 @@ class DocumentProcess extends Model {
                 'function'      => 'doPerformIdentification'
             ],
             'perform_extraction' => [
-                'description'   => 'Attempt to retrieve meta info of the document.',
+                'description'   => 'Attempt to retrieve meta info of the document (based on document type).',
                 'policies'      => ['can_perform_extraction'],
                 'function'      => 'doPerformExtraction'
             ],
             'perform_matching' => [
-                'description'   => 'Attempt to auto-link to other entities according to document meta data.',
+                'description'   => 'Attempt to auto-link to other entities according to document meta data (cond_id, supplier_id).',
                 'policies'      => ['can_perform_matching'],
                 'function'      => 'doPerformMatching'
             ],
@@ -466,6 +466,7 @@ class DocumentProcess extends Model {
      *
      */
     public static function onbeforeRecord($self) {
+        // #todo - on a peut-être déjà créé la pièce : si c'est le cas, on ignore
         $self->read(['condo_id', 'supplier_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'document_id' => ['document_json']]);
         foreach($self as $id => $documentProcess) {
 
@@ -489,7 +490,7 @@ class DocumentProcess extends Model {
                 throw new \Exception('missing_suppliership', EQ_ERROR_INVALID_CONFIG);
             }
 
-            // #todo - use recording rules to determine the recording tasks to be performed
+            // #todo - use les recording rules sont uniquement pour décrire comment encoder une facture ou une note de crédit, et ne s'appliquent pas aux autres documents
 
             $recordingRule = RecordingRule::search([
                     ['condo_id', '=', $documentProcess['condo_id']],
@@ -611,6 +612,7 @@ class DocumentProcess extends Model {
     }
 
     /**
+     * Handle data update (i.e. file upload).
      * This method is used to create the document based on received data, and start the processing.
      */
     public static function onupdateData($self) {
@@ -629,6 +631,9 @@ class DocumentProcess extends Model {
                 ->do('perform_identification')
                 ->do('perform_extraction')
                 ->do('perform_matching');
+
+// #todo - si on a pu résoudre le type/subtype alors, si on trouve une rule, on peut crééer le doc
+
         }
         catch(\Exception $e) {
             // do not interrupt - we allow Documents that cannot be automatically analyzed

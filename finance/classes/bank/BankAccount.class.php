@@ -53,8 +53,7 @@ class BankAccount extends Model {
                     'bank_current',
                     'bank_savings'
                 ],
-                'default'           => 'bank_current',
-                'dependents'        => ['accounting_account_id']
+                'default'           => 'bank_current'
             ],
 
             'organisation_id' => [
@@ -72,6 +71,7 @@ class BankAccount extends Model {
                 'description'       => 'The IBAN number of the bank account.',
                 'help'              => 'The IBAN number is a unique identifier for the bank account. Example: BE54000000000097',
                 'dependents'        => ['name', 'bank_country', 'bank_account_bic', 'bank_name'],
+                'unique'            => true,
                 'required'          => true,
                 'onupdate'          => 'onupdateBankAccountIban'
             ],
@@ -171,7 +171,6 @@ class BankAccount extends Model {
         }
 
         if(isset($event['bank_account_type'])) {
-            $result['accounting_account_id'] = self::computeAccountingAccount($event['bank_account_type'], $values['condo_id']);
             if($event['bank_account_type'] !== 'bank_current') {
                 $result['is_primary'] = false;
             }

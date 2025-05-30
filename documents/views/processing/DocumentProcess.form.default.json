@@ -97,32 +97,38 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "label": "Document",
                                                 "value": "document_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Condominium",
                                                 "value": "condo_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Supplier",
                                                 "value": "supplier_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Doc Type",
                                                 "value": "document_type_code",
                                                 "width": "50%",
                                                 "visible": false
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Invoice",
                                                 "value": "document_invoice_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Bank Statement",
                                                 "value": "document_bank_statement_id",
                                                 "width": "50%"
                                             }
@@ -137,11 +143,13 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "label": "Doc Type",
                                                 "value": "document_type_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Doc Sub Type",
                                                 "value": "document_subtype_id",
                                                 "width": "100%"
                                             }
@@ -166,6 +174,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "label": "Report",
                                                 "value": "report_html",
                                                 "width": "50%",
                                                 "widget": {

@@ -24,7 +24,7 @@ class RecordingRule extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\Condominium',
                 'description'       => "The condominium the rule applies to.",
-                'help'              => "If left unset, the rule is considered as a template."
+                'help'              => "Template rules have this field left unset."
             ],
 
             'name' => [

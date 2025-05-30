@@ -7,6 +7,7 @@
 namespace purchase\supplier;
 
 use finance\accounting\Account;
+use finance\bank\SuppliershipBankAccount;
 use fmt\setting\Setting;
 
 class Suppliership extends \equal\orm\Model {
@@ -32,7 +33,8 @@ class Suppliership extends \equal\orm\Model {
             'supplier_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\supplier\Supplier',
-                'description'       => "Supplier the Suppliership relates to."
+                'description'       => "Supplier the Suppliership relates to.",
+                'required'          => true
             ],
 
             'name' => [
@@ -92,6 +94,11 @@ class Suppliership extends \equal\orm\Model {
                 'description'   => 'Generate mandatory accounting Accounts for Suppliership.',
                 'policies'      => [],
                 'function'      => 'doGenerateAccounts'
+            ],
+            'import_bank_account' => [
+                'description'   => 'Import the primary bank account of the Supplier as a first Suppliership Bank Account.',
+                'policies'      => [],
+                'function'      => 'doImportBankAccount'
             ]
         ];
     }
@@ -136,6 +143,24 @@ class Suppliership extends \equal\orm\Model {
             }
         }
         return $result;
+    }
+
+    public static function doImportBankAccount($self) {
+        $self->read(['condo_id', 'supplier_id' => ['identity_id' => ['bank_accounts_ids' => ['@domain' => ['is_primary', '=', true]]]]]);
+        foreach($self as $id => $suppliership) {
+            if(!$suppliership['supplier_id']) {
+                continue;
+            }
+            if(!isset($suppliership['supplier_id']['identity_id']['bank_accounts_ids']) || count($suppliership['supplier_id']['identity_id']['bank_accounts_ids']) <= 0) {
+                continue;
+            }
+            $bank_account_id = current($suppliership['supplier_id']['identity_id']['bank_accounts_ids']);
+            SuppliershipBankAccount::create([
+                    'condo_id'          => $suppliership['condo_id'],
+                    'suppliership_id'   => $id,
+                    'bank_account_id'   => $bank_account_id
+                ]);
+        }
     }
 
     /**

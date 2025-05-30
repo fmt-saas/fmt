@@ -53,40 +53,30 @@
                                         ]
                                     },
                                     {
-                                        "width": "50%",
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
                                         "items": [
-                                            {
-                                                "type": "label",
-                                                "width": "50%"
-                                            },
                                             {
                                                 "type": "field",
                                                 "label" : "Organisation",
                                                 "value": "organisation_id",
                                                 "readonly": true,
-                                                "width": "50%"
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label" : "Identity",
                                                 "value": "owner_identity_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Accounting Account",
-                                                "value": "accounting_account_id",
-                                                "width": "50%"
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Primary",
                                                 "value": "is_primary",
-                                                "width": "50%"
+                                                "width": "100%"
                                             }
                                         ]
                                     }
