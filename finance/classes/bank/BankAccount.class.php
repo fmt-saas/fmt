@@ -17,14 +17,6 @@ class BankAccount extends Model {
     public static function getColumns() {
 
         return [
-            'condo_id' => [
-                'type'              => 'many2one',
-                'description'       => "The condominium the accounting entry refers to.",
-                'foreign_object'    => 'realestate\property\Condominium',
-                //'readonly'          => true
-                'visible'           => ['organisation_id', '=', null],
-                'dependents'        => ['accounting_account_id']
-            ],
 
             'owner_identity_id' => [
                 'type'              => 'many2one',
@@ -35,7 +27,7 @@ class BankAccount extends Model {
             'is_primary' => [
                 'type'              => 'boolean',
                 'description'       => 'Flag marking the account as primary account.',
-                'help'              => 'When a primary account is updated, sync is automatically replicated on related identity.',
+                'help'              => 'When a primary account is updated, sync is automatically replicated on related identity (from `owner_identity_id`).',
                 'default'           => false
             ],
 
@@ -112,31 +104,9 @@ class BankAccount extends Model {
                 'description'       => 'The name of the bank where the organization holds its account.',
                 'function'          => 'calcBankName',
                 'store'             => true
-            ],
-
-            'accounting_account_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'foreign_object'    => 'finance\accounting\Account',
-                'function'          => 'calcAccountingAccountId',
-                'store'             => true
             ]
 
         ];
-    }
-
-    public static function calcAccountingAccountId($self) {
-        $result = [];
-        $self->read(['bank_account_type', 'condo_id']);
-        foreach($self as $id => $bankAccount) {
-            if($bankAccount['condo_id'] && $bankAccount['bank_account_type']) {
-                $account = self::computeAccountingAccount($bankAccount['bank_account_type'], $bankAccount['condo_id']);
-                if($account) {
-                    $result[$id] = $account['id'];
-                }
-            }
-        }
-        return $result;
     }
 
 
@@ -261,19 +231,6 @@ class BankAccount extends Model {
             }
         }
         return parent::candelete($self);
-    }
-
-    private static function computeAccountingAccount($bank_account_type, $condo_id) {
-        if($condo_id && $bank_account_type) {
-            $account = Account::search([ ['condo_id', '=', $condo_id], ['operation_assignment', '=', $bank_account_type] ])->read(['id', 'name'])->first();
-            if($account) {
-                return [
-                    'id'    => $account['id'],
-                    'name'  => $account['name']
-                ];
-            }
-        }
-        return null;
     }
 
     private static function computeCountryFromIban($iban) {

@@ -209,7 +209,7 @@ FundRequestExecution::search([
     ->transition('call');
 
 
-$suppliership = Suppliership::search(['condo_id', '=',  1])->read(['supplier_id' => ['identity_id' => ['bank_accounts_ids']]])->first();
+$suppliership = Suppliership::search(['condo_id', '=',  1])->read(['supplier_id' => ['identity_id' => ['bank_accounts_ids']]])->first(true);
 
 $purchaseInvoice = PurchaseInvoice::create([
         'condo_id'                      => $condominiums_ids[0],
@@ -221,6 +221,6 @@ $purchaseInvoice = PurchaseInvoice::create([
         'description'                   => 'services',
         'supplier_invoice_number'       => '1234567',
         'suppliership_id'               => $suppliership['id'],
-        'suppliership_bank_account_id'  => current($suppliership['supplier_id']['identity_id']['bank_accounts_ids'])
+        'suppliership_bank_account_id'  => current($suppliership['supplier_id']['identity_id']['bank_accounts_ids'] ?? [])
     ])
     ->first();

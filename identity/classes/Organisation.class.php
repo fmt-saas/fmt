@@ -6,7 +6,6 @@
 */
 
 namespace identity;
-use finance\bank\BankAccount;
 
 class Organisation extends Identity {
 
@@ -84,6 +83,15 @@ class Organisation extends Identity {
         ];
     }
 
+    public static function onupdateIdentityId($self) {
+        $self->read(['identity_id']);
+        foreach($self as $id => $organisation) {
+            if($organisation['identity_id']) {
+                Identity::id($organisation['identity_id'])->update(['organisation_id' => $id]);
+            }
+        }
+    }
+
     public static function calcName($self) {
         $result = [];
         $self->read(['identity_id' => ['type', 'firstname', 'lastname', 'legal_name', 'short_name']]);
@@ -112,53 +120,6 @@ class Organisation extends Identity {
             $result[$id] = implode(' ', $parts);
         }
         return $result;
-    }
-
-    public static function onupdateBankAccountIban($self) {
-        $self->read(['bank_account_ids', 'bank_account_iban', 'bank_account_bic']);
-        foreach($self as $id => $organisation) {
-            if(!isset($organisation['bank_account_ids']) || empty($organisation['bank_account_ids'])) {
-                if(isset($organisation['bank_account_iban'], $organisation['bank_account_bic'])) {
-                    BankAccount::create([
-                        'organisation_id'   => $id,
-                        'bank_account_iban' => $organisation['bank_account_iban'],
-                        'bank_account_bic'  => $organisation['bank_account_bic']
-                    ]);
-                }
-            }
-            /*
-            // #memo - this leads to multiple identical accounts
-            elseif(isset($organisation['bank_account_iban'])) {
-                $bank_account_id = reset($organisation['bank_account_ids']);
-                // #memo - BIC is computed
-                BankAccount::id($bank_account_id)->update([
-                    'bank_account_iban' => $organisation['bank_account_iban']
-                ]);
-            }
-            */
-        }
-    }
-
-    public static function onupdateBankAccountBic($self) {
-        $self->read(['bank_account_ids', 'bank_account_bic']);
-        foreach($self as $id => $organisation) {
-            // #memo - we don't create an account here since IBAN might not have been provided
-            if(isset($organisation['bank_account_ids']) && !empty($organisation['bank_account_ids'])) {
-                $bank_account_id = reset($organisation['bank_account_ids']);
-                BankAccount::id($bank_account_id)->update([
-                    'bank_account_bic'  => $organisation['bank_account_bic']
-                ]);
-            }
-        }
-    }
-
-    public static function onupdateIdentityId($self) {
-        $self->read(['identity_id']);
-        foreach($self as $id => $organisation) {
-            if($organisation['identity_id']) {
-                Identity::id($organisation['identity_id'])->update(['organisation_id' => $id]);
-            }
-        }
     }
 
 }

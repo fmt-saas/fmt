@@ -271,7 +271,7 @@ class Condominium extends Identity {
     }
 
     public static function getActions() {
-        return [
+        return array_merge(parent::getActions(), [
             'init' => [
                 'description'   => 'Initializes a newly created Condominium.',
                 'policies'      => [],
@@ -307,7 +307,7 @@ class Condominium extends Identity {
                 'policies'      => [],
                 'function'      => 'doGenerateFolders'
             ]
-        ];
+        ]);
     }
 
     public static function policyCanOpenFiscalYear($self, $user_id) {

@@ -615,13 +615,12 @@ class Identity extends Model {
             ];
 
         $self->read(['object_class', 'identity_id']);
-        $orm_events = $orm->disableEvents();
         foreach($self as $id => $identity) {
             if(!$identity['identity_id']) {
                 continue;
             }
             if(substr($identity['object_class'], strrpos($identity['object_class'], '\\') + 1) !== 'Identity') {
-
+                $orm_events = $orm->disableEvents();
                 $parentIdentity = Identity::id($identity['identity_id'])
                     ->read($common_fields)
                     ->first(true);
@@ -637,9 +636,12 @@ class Identity extends Model {
                     }
                 }
                 self::id($id)->update($values);
+                $orm->enableEvents($orm_events);
             }
+            // force sync backlink from target Identity
+            self::id($id)->update(['identity_id' => $identity['identity_id']]);
         }
-        $orm->enableEvents($orm_events);
+
     }
 
     /**

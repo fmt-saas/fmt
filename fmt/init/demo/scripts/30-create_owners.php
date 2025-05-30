@@ -6,7 +6,7 @@ use realestate\ownership\Owner;
 
 ['orm' => $orm] = eQual::inject(['orm']);
 
-$orm->disableEvents();
+$events = $orm->disableEvents();
 
 
 Identity::create([
@@ -426,7 +426,7 @@ Owner::create([
 
 
 
-$orm->enableEvents();
+$orm->enableEvents($events);
 
-// sync values from Identities to Suppliers
+// sync values from Identities to Owners
 Owner::search()->do('sync_from_identity');

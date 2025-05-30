@@ -27,6 +27,11 @@
                 "type": "field",
                 "value": "bank_name",
                 "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "is_primary",
+                "width": "10%"
             }
         ]
     }
