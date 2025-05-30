@@ -68,8 +68,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\SuppliershipBankAccount',
                 'description'       => 'The bank account of the supplier to be used.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['suppliership_id', '=', 'object.suppliership_id']],
-                'required'          => true
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['suppliership_id', '=', 'object.suppliership_id']]
             ],
 
             'invoice_lines_ids' => [
@@ -152,7 +151,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'result_type'       => 'string',
                 'usage'             => 'uri/url.relative',
                 'description'       => 'URL for visualizing the document.',
-                'function'          => 'calcLink',
+                'function'          => 'calcDocumentLink',
             ],
 
 
@@ -810,7 +809,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         }
     }
 
-    public static function calcLink($self) {
+    public static function calcDocumentLink($self) {
         $result = [];
         $self->read(['document_id']);
         foreach($self as $id => $invoice) {

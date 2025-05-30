@@ -58,6 +58,14 @@ class DocumentProcess extends Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'document_link' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/url.relative',
+                'description'       => 'URL for visualizing the document.',
+                'function'          => 'calcDocumentLink',
+            ],
+
             'document_type_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentType',
@@ -103,12 +111,6 @@ class DocumentProcess extends Model {
                 'onupdate'          => 'onupdateData'
             ],
 
-            'has_analysis' => [
-                'type'              => 'boolean',
-                'description'       => 'Does the document have a JSON version of its content.',
-                'default'           => false
-            ],
-
             'report_html' => [
                 'type'              => 'string',
                 'usage'             => 'text/html',
@@ -124,6 +126,19 @@ class DocumentProcess extends Model {
             'has_error' => [
                 'type'              => 'boolean',
                 'description'       => 'Flag marking the processing job with error(s).',
+                'default'           => false
+            ],
+
+            'has_analysis' => [
+                'type'              => 'boolean',
+                'description'       => 'Does the document have a JSON version of its content.',
+                'default'           => false
+            ],
+
+            'has_target_document' => [
+                'type'              => 'boolean',
+                'description'       => 'Has the target entity been created.',
+                'help'              => 'When the target entity is created (document_invoice_id, document_bank_statement_id, ...), this flag is automatically set to true.',
                 'default'           => false
             ],
 
@@ -165,17 +180,9 @@ class DocumentProcess extends Model {
             ],
 
             /*
-
-                info relating to invoice document
-                links to possible documents being processed
-                list depends on DocumentTypes
-                which must be associated to a valid JSON schema ()
-
-                On utilise les infos contenues dans document_json pour compléter ces informations.
-                Dans le cas où elles ne sont pas présentes, l'utilisateur peut les ajouter à la main.
-
-
-
+                Fields below are links to possible documents being processed, depending on DocumentTypes (associated to a valid JSON schema)
+                The information contained in document_json is used to complete this information.
+                In cases where they are not present, the user can add them manually.
             */
 
             'document_invoice_id' => [
@@ -276,6 +283,10 @@ class DocumentProcess extends Model {
                 'description' => 'Verifies that a fiscal year can be opened according its configuration.',
                 'function'    => 'policyCanPerformMatching'
             ],
+            'can_perform_drafting' => [
+                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'function'    => 'policyCanPerformDrafting'
+            ],
             'is_complete' => [
                 'description' => 'Verifies that a fiscal year can be opened according its configuration.',
                 'function'    => 'policyIsComplete'
@@ -303,6 +314,11 @@ class DocumentProcess extends Model {
                 'description'   => 'Attempt to auto-link to other entities according to document meta data (cond_id, supplier_id).',
                 'policies'      => ['can_perform_matching'],
                 'function'      => 'doPerformMatching'
+            ],
+            'perform_drafting' => [
+                'description'   => 'Attempt to create the target Entity that derives from the uploaded Document.',
+                'policies'      => ['can_perform_drafting'],
+                'function'      => 'doPerformDrafting'
             ],
             'update_document_json' => [
                 'description'   => 'Update the JSON representation of the target document.',
@@ -349,6 +365,34 @@ class DocumentProcess extends Model {
             if($documentProcess['status'] != 'created' || $documentProcess['has_analysis']) {
                 $result[$id] = [
                     'invalid_status' => 'Document type has already been analyzed.'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    private static function policyCanPerformDrafting($self): array {
+        $result = [];
+        $self->read(['condo_id', 'document_type_id', 'document_subtype_id', 'has_target_document']);
+
+        foreach($self as $id => $documentProcess) {
+            if($documentProcess['has_target_document']) {
+                $result[$id] = [
+                    'invalid_status' => 'Target document has already been created.'
+                ];
+                continue;
+            }
+            if(!isset($documentProcess['document_type_id'])) {
+                $result[$id] = [
+                    'invalid_status' => 'Document type is unknown.'
+                ];
+                continue;
+            }
+            $rules_ids = RecordingRule::search([['condo_id', '=', $documentProcess['condo_id']], ['document_type_id', '=', $documentProcess['document_type_id']]])->ids();
+            if(count($rules_ids) <= 0) {
+                $result[$id] = [
+                    'no_rule_match' => 'No rule are available for the document type.'
                 ];
                 continue;
             }
@@ -461,11 +505,14 @@ class DocumentProcess extends Model {
         return $result;
     }
 
+    public static function onbeforeRecord($self) {
+    }
+
     /**
      * Create the proforma target resource based on Document type and JSON data.
      *
      */
-    public static function onbeforeRecord($self) {
+    public static function doPerformDrafting($self) {
         // #todo - on a peut-être déjà créé la pièce : si c'est le cas, on ignore
         $self->read(['condo_id', 'supplier_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'document_id' => ['document_json']]);
         foreach($self as $id => $documentProcess) {
@@ -562,7 +609,7 @@ class DocumentProcess extends Model {
                     }
                 }
 
-                self::id($id)->update(['document_invoice_id' => $invoice['id']]);
+                self::id($id)->update(['document_invoice_id' => $invoice['id'], 'has_target_document' => true]);
             }
             elseif($documentProcess['document_type_code'] === 'bank_statement') {
                 // create the BankStatement
@@ -580,7 +627,8 @@ class DocumentProcess extends Model {
                     ->first();
 
                 // create statement lines
-                foreach ($data['transactions'] as $txn) {
+                foreach($data['transactions'] as $txn) {
+                    // #memo - by convention new statements have their status set to 'proforma'
                     BankStatementLine::create([
                             'bank_statement_id'       => $statement['id'],
                             'sequence_number'         => $txn['sequence_number'],
@@ -594,7 +642,7 @@ class DocumentProcess extends Model {
                         ]);
                 }
 
-                self::id($id)->update(['document_bank_statement_id' => $statement['id']]);
+                self::id($id)->update(['document_bank_statement_id' => $statement['id'], 'has_target_document' => true]);
             }
         }
     }
@@ -618,6 +666,7 @@ class DocumentProcess extends Model {
     public static function onupdateData($self) {
         $self->read(['name', 'data']);
         foreach($self as $id => $documentProcess) {
+            // create a new document and remove data from current object
             $document = Document::create(['name' => $documentProcess['name'], 'data' => $documentProcess['data']])->first();
             self::id($id)->update([
                     'document_id' => $document['id'],
@@ -630,13 +679,12 @@ class DocumentProcess extends Model {
             $self
                 ->do('perform_identification')
                 ->do('perform_extraction')
-                ->do('perform_matching');
-
-// #todo - si on a pu résoudre le type/subtype alors, si on trouve une rule, on peut crééer le doc
-
+                ->do('perform_matching')
+                ->do('perform_drafting');
         }
         catch(\Exception $e) {
-            // do not interrupt - we allow Documents that cannot be automatically analyzed
+            // do not interrupt - Documents might not be automatically analyzed
+            trigger_error("APP::issue in automated tasks" . $e->getMessage(), EQ_REPORT_WARNING);
         }
     }
 
@@ -908,5 +956,16 @@ class DocumentProcess extends Model {
             }
         }
         return $logs;
+    }
+
+    private static function calcDocumentLink($self) {
+        $result = [];
+        $self->read(['document_id']);
+        foreach($self as $id => $invoice) {
+            if($invoice['document_id']) {
+                $result[$id] = '/document/' . $invoice['document_id'];
+            }
+        }
+        return $result;
     }
 }

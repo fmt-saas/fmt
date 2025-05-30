@@ -131,58 +131,45 @@
                                                 "label": "Bank Statement",
                                                 "value": "document_bank_statement_id",
                                                 "width": "50%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "25%",
-                                        "items": []
-                                    },
-                                    {
-                                        "width": "25%",
-                                        "items": [
+                                            },
                                             {
                                                 "type": "field",
                                                 "label": "Doc Type",
                                                 "value": "document_type_id",
-                                                "width": "100%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Doc Sub Type",
                                                 "value": "document_subtype_id",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "sections": [
-                    {
-                        "id": "sections.report",
-                        "label": "report",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
+                                                "width": "50%"
+                                            },
                                             {
                                                 "type": "field",
                                                 "label": "Report",
                                                 "value": "report_html",
-                                                "width": "50%",
+                                                "width": "100%",
                                                 "widget": {
-                                                    "height": 400
+                                                    "height": 440
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "document_link",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "type": "pdf",
+                                                    "height": 700
                                                 }
                                             }
                                         ]
                                     }
+
                                 ]
                             }
                         ]

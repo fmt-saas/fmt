@@ -439,7 +439,7 @@
                         }
                     },
                     {
-                        "id": "item.documents.document_import",
+                        "id": "item.documents.document_processings",
                         "type": "entry",
                         "label": "Doc Processing",
                         "icon": "pending_actions",
