@@ -69,6 +69,13 @@ class Suppliership extends \equal\orm\Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'suppliership_bank_accounts_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\bank\SuppliershipBankAccount',
+                'foreign_field'     => 'suppliership_id',
+                'description'       => "The bank accounts with specific info to the condominium.",
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ]
 
         ];
     }

@@ -66,9 +66,9 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
 
             'suppliership_bank_account_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\bank\BankAccount',
+                'foreign_object'    => 'finance\bank\SuppliershipBankAccount',
                 'description'       => 'The bank account of the supplier to be used.',
-                'domain'            => ['owner_identity_id', '=', 'object.supplier_identity_id'],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['suppliership_id', '=', 'object.suppliership_id']],
                 'required'          => true
             ],
 

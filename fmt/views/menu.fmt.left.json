@@ -492,8 +492,18 @@
                             "entity": "finance\\bank\\BankAccount",
                             "view": "list.default"
                         }
+                    },
+                    {
+                        "id": "item.banks.suppliers_bank_accounts",
+                        "type": "entry",
+                        "label": "Suppliers Bank Accounts",
+                        "icon": "receipt",
+                        "description": "",
+                        "context": {
+                            "entity": "finance\\bank\\SuppliershipBankAccount",
+                            "view": "list.default"
+                        }
                     }
-
                 ]
             }
         ]

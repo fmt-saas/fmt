@@ -8,9 +8,7 @@ namespace finance\bank;
 
 use equal\data\DataFormatter;
 use equal\orm\Model;
-use finance\accounting\Account;
 use identity\Identity;
-use identity\Organisation;
 
 class BankAccount extends Model {
 
@@ -28,7 +26,8 @@ class BankAccount extends Model {
                 'type'              => 'boolean',
                 'description'       => 'Flag marking the account as primary account.',
                 'help'              => 'When a primary account is updated, sync is automatically replicated on related identity (from `owner_identity_id`).',
-                'default'           => false
+                'default'           => false,
+                'visible'           => ['bank_account_type', '=', 'bank_current']
             ],
 
             'name' => [
@@ -70,11 +69,10 @@ class BankAccount extends Model {
             'bank_account_iban' => [
                 'type'              => 'string',
                 'usage'             => 'uri/urn.iban',
-                'description'       => 'The IBAN number of the organization\'s bank account.',
+                'description'       => 'The IBAN number of the bank account.',
                 'help'              => 'The IBAN number is a unique identifier for the bank account. Example: BE54000000000097',
                 'dependents'        => ['name', 'bank_country', 'bank_account_bic', 'bank_name'],
                 'required'          => true,
-                // 'unique'            => true,
                 'onupdate'          => 'onupdateBankAccountIban'
             ],
 
@@ -174,6 +172,9 @@ class BankAccount extends Model {
 
         if(isset($event['bank_account_type'])) {
             $result['accounting_account_id'] = self::computeAccountingAccount($event['bank_account_type'], $values['condo_id']);
+            if($event['bank_account_type'] !== 'bank_current') {
+                $result['is_primary'] = false;
+            }
         }
 
         return $result;
