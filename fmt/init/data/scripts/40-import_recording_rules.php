@@ -1,5 +1,6 @@
 <?php
 
+use documents\DocumentSubtype;
 use documents\DocumentType;
 use documents\recording\RecordingRule;
 use documents\recording\RecordingRuleLine;
