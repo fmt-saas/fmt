@@ -39,11 +39,6 @@ class BankStatement extends Model {
                 'store'             => true
             ],
 
-            'raw_data'  => [
-                'type'              => 'binary',
-                'description'       => 'Original file used for creating the statement.'
-            ],
-
             'date' => [
                 'type'              => 'date',
                 'description'       => 'Date the statement was received.',

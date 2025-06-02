@@ -473,14 +473,35 @@
                 "children": [
                     {
                         "id": "item.banks.bank_statements",
-                        "type": "entry",
+                        "type": "parent",
                         "label": "Bank Statements",
                         "icon": "receipt",
                         "description": "",
-                        "context": {
-                            "entity": "finance\\bank\\BankStatement",
-                            "view": "list.default"
-                        }
+                        "children": [
+                            {
+                                "id": "item.banks.bank_statements.all",
+                                "type": "entry",
+                                "label": "Bank Statements",
+                                "icon": "receipt",
+                                "description": "",
+                                "context": {
+                                    "entity": "finance\\bank\\BankStatement",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "item.banks.bank_statements.import",
+                                "type": "entry",
+                                "label": "Import Statements",
+                                "icon": "file_upload",
+                                "description": "",
+                                "context": {
+                                    "view": "form.import",
+                                    "entity": "finance\\bank\\BankStatementImport",
+                                    "purpose": "create"
+                                }
+                            }
+                        ]
                     },
                     {
                         "id": "item.banks.bank_accounts",

@@ -1,6 +1,6 @@
 <?php
 
-use finance\bank\BankAccount;
+use finance\bank\CondominiumBankAccount;
 use identity\Identity;
 use realestate\property\Condominium;
 
@@ -46,16 +46,19 @@ $condominium = Condominium::create([
     ->first();
 
 
-BankAccount::create([
-        "owner_identity_id" => $identity['id'],
-        "description"   =>  "Compte à vue",
-        "bank_account_iban" =>  "BE04233241973931"
+CondominiumBankAccount::create([
+        'condo_id'          => $condominium['id'],
+        'owner_identity_id' => $identity['id'],
+        'description'       => "Compte à vue",
+        'bank_account_iban' => "BE04233241973931",
+        'is_primary'        => true
     ]);
 
-BankAccount::create([
-        "owner_identity_id" => $identity['id'],
-        "description"   =>  "Compte épargne",
-        "bank_account_iban" =>  "BE04456595434922"
+CondominiumBankAccount::create([
+        'condo_id'          => $condominium['id'],
+        'owner_identity_id' => $identity['id'],
+        'description'       => "Compte épargne",
+        'bank_account_iban' => "BE04456595434922"
     ]);
 
 
@@ -93,16 +96,19 @@ $condominium = Condominium::create([
     ])
     ->first();
 
-BankAccount::create([
-        "owner_identity_id" => $identity['id'],
-        "description"   =>  "Compte à vue",
-        "bank_account_iban" =>  "BE05173234451275"
+CondominiumBankAccount::create([
+        'condo_id'          => $condominium['id'],
+        'owner_identity_id' => $identity['id'],
+        'description'       => "Compte à vue",
+        'bank_account_iban' => "BE05173234451275",
+        'is_primary'        => true
     ]);
 
-BankAccount::create([
-        "owner_identity_id" => $identity['id'],
-        "description"   =>  "Compte épargne",
-        "bank_account_iban" =>  "BE05373234451279"
+CondominiumBankAccount::create([
+        'condo_id'          => $condominium['id'],
+        'owner_identity_id' => $identity['id'],
+        'description'       => "Compte épargne",
+        'bank_account_iban' => "BE05373234451279"
     ]);
 
 $orm->enableEvents($events);

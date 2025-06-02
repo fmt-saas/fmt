@@ -46,17 +46,18 @@ $text = eQual::run('get', 'documents_processing_dump-text', ['id' => $params['id
 $document_type = null;
 $document_subtype = null;
 
-
 // use clues in order to attempt retrieving document type and subtype
 if(!$document_type) {
+
     if(in_array($document['content_type'], ['text/plain', 'text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'])) {
         $lines = explode("\n", $text);
 
         $line = trim($lines[0]);
+        // CODA file -> bank statement
         if(preg_match('/^0{1}0{4}\d{6}\d{3}05[D ]{1}[A-Z0-9 ]{7}[A-Z0-9 ]{10}[A-Z0-9 ]{26}[A-Z0-9 ]{11}\d{11}[ ]{1}\d{5}[A-Z0-9 ]{16}[A-Z0-9 ]{16}[A-Z0-9 ]{7}2$/', $line)) {
-            // CODA file -> bank statement
             $document_type = 'bank_statement';
         }
+        // check match against ISABEL format
         else {
             $coda_headers = [
                     'Account', 'Account holder', 'Bank', 'Account type', 'Bic',
@@ -140,14 +141,12 @@ if(!$document_type) {
     }
 }
 
-
 $result = [
     'document_type_id'      => null,
     'document_subtype_id'   => null
 ];
 
 if($document_type) {
-
 
     $documentTypes = DocumentType::search()->read(['code'])->get();
 

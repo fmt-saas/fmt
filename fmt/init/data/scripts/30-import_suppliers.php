@@ -8,8 +8,6 @@ use purchase\supplier\Supplier;
 $events = $orm->disableEvents();
 
 
-// #todo - BankAccount::create OU action correspondante
-
 Identity::create([
         "id" => 1001,
         "supplier_id" => 1001,
@@ -3792,6 +3790,8 @@ Supplier::create([
         "identity_id" => 1135,
         "is_active" => true
 ]);
+
+Identity::search()->do('refresh_bank_accounts');
 
 $orm->enableEvents($events);
 

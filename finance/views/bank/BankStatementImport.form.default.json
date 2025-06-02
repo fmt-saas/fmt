@@ -1,0 +1,42 @@
+{
+    "name": "Bank Statement Import",
+    "description": "Bank Statement import.",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {
+                    "id": "SAVE_AND_VIEW",
+                    "view": "form.default",
+                    "visible": false
+                }
+            ],
+            "ACTION.CANCEL": false
+        }
+    },
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "Document imported",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

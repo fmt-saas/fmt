@@ -54,7 +54,7 @@
             "icon": "account_balance",
             "description": "",
             "context": {
-                "entity": "finance\\bank\\BankAccount",
+                "entity": "finance\\bank\\CondominiumBankAccount",
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }

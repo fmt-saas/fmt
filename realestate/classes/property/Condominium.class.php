@@ -11,8 +11,10 @@ use documents\navigation\Node;
 use finance\accounting\AccountChart;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
+use finance\bank\Bank;
 use fmt\setting\Setting;
 use identity\Identity;
+use purchase\supplier\Suppliership;
 
 class Condominium extends Identity {
 
@@ -248,15 +250,6 @@ class Condominium extends Identity {
         ];
     }
 
-    public static function onupdateIdentityId($self) {
-        $self->read(['identity_id']);
-        foreach($self as $id => $condominium) {
-            if($condominium['identity_id']) {
-                Identity::id($condominium['identity_id'])->update(['condominium_id' => $id]);
-            }
-        }
-    }
-
     public static function getPolicies(): array {
         return [
             'can_open_fiscal_year' => [
@@ -306,8 +299,39 @@ class Condominium extends Identity {
                 'description'   => 'Generate default folders for Documents repository.',
                 'policies'      => [],
                 'function'      => 'doGenerateFolders'
+            ],
+            'sync_from_identity' => [
+                'description'   => 'Force sync values from related identity.',
+                'function'      => 'doSyncFromIdentity'
             ]
         ]);
+    }
+
+    public static function onupdateIdentityId($self) {
+        $self->read(['identity_id']);
+        foreach($self as $id => $condominium) {
+            if($condominium['identity_id']) {
+                Identity::id($condominium['identity_id'])->update(['condominium_id' => $id]);
+            }
+        }
+    }
+
+    public static function doSyncFromIdentity($self, $orm) {
+        // sync bank accounts
+        $self->read(['identity_id' => ['bank_accounts_ids' => ['bank_account_bic']]]);
+        foreach($self as $id => $condominium) {
+            foreach($condominium['identity_id']['bank_accounts_ids'] as $bank_account_id => $bankAccount) {
+                $bank = Bank::search(['bic', '=', $bankAccount['bank_account_bic']])->first();
+                if($bank) {
+                    // #memo - class Bank inherits from Supplier
+                    $suppliership = Suppliership::search([['condo_id', '=', $id], ['supplier_id', '=', $bank['id']]])->first();
+                    if(!$suppliership) {
+                        Suppliership::create(['condo_id' => $id, 'supplier_id' => $bank['id']]);
+                    }
+                }
+            }
+        }
+        parent::doSyncFromIdentity($self, $orm);
     }
 
     public static function policyCanOpenFiscalYear($self, $user_id) {

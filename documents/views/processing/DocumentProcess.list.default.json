@@ -47,6 +47,12 @@
                 "value": "has_error",
                 "width": "15%",
                 "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "10%",
+                "readonly": true
             }
         ]
     }

@@ -576,6 +576,10 @@ class Identity extends Model {
             'sync_from_identity' => [
                 'description'   => 'Force sync values from related identity.',
                 'function'      => 'doSyncFromIdentity'
+            ],
+            'refresh_bank_accounts' => [
+                'description'   => 'Force sync between Identity main bank account and additional ones.',
+                'function'      => 'doRefreshBankAccounts'
             ]
         ];
     }
@@ -642,6 +646,27 @@ class Identity extends Model {
             self::id($id)->update(['identity_id' => $identity['identity_id']]);
         }
 
+    }
+
+    protected static function doRefreshBankAccounts($self) {
+        $self->read(['bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country']);
+
+        foreach($self as $id => $identity) {
+            if(!$identity['bank_account_iban'] || strlen($identity['bank_account_iban']) <= 0) {
+                continue;
+            }
+            $mainBankAccount = BankAccount::search([['owner_identity_id', '=', $id], ['is_primary', '=', true]])->first();
+            if(!$mainBankAccount) {
+                BankAccount::create([
+                    'owner_identity_id' => $id,
+                    'is_primary'        => true,
+                    'bank_account_iban' => $identity['bank_account_iban'],
+                    'bank_account_bic'  => $identity['bank_account_bic'],
+                    'bank_name'         => $identity['bank_name'],
+                    'bank_country'      => $identity['bank_country']
+                ]);
+            }
+        }
     }
 
     /**
@@ -1181,7 +1206,7 @@ class Identity extends Model {
                 }
 
                 // sync primary bank account
-                $bank_fields = ['bank_account_iban', 'bank_account_iban', 'bank_name', 'bank_country'];
+                $bank_fields = ['bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country'];
                 $bank_updates = [];
                 foreach($bank_fields as $bank_field) {
                     if(isset($values[$bank_field])) {

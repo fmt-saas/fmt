@@ -174,7 +174,8 @@ class DocumentProcess extends Model {
                     'validated',
                     'recorded',
                     'confirmed',
-                    'integrated'
+                    'integrated',
+                    'cancelled'
                 ],
                 'default'           => 'created'
             ],
@@ -210,8 +211,13 @@ class DocumentProcess extends Model {
                 'transitions' => [
                     'complete' => [
                         'description' => 'Update the document to `completed`.',
-                        'policies'    => ['is_complete'],
+                        'policies'    => ['is_complete', 'is_unique'],
                         'status'      => 'completed'
+                    ],
+                    'cancel' => [
+                        'description' => 'Cancel the processing (duplicate, invalid, complaint, ...).',
+                        'policies'    => [],
+                        'status'      => 'cancelled'
                     ]
                 ]
             ],
@@ -265,6 +271,11 @@ class DocumentProcess extends Model {
                 'description' => 'Finalized document.',
                 'icon'        => 'check_circle',
                 'transitions' => []
+            ],
+            'cancelled' => [
+                'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
+                'icon'        => 'cancel',
+                'transitions' => []
             ]
         ];
     }
@@ -272,27 +283,31 @@ class DocumentProcess extends Model {
     public static function getPolicies(): array {
         return [
             'can_perform_identification' => [
-                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'description' => 'Verifies that the state of the processing allows identification.',
                 'function'    => 'policyCanPerformIdentification'
             ],
             'can_perform_extraction' => [
-                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'description' => 'Verifies that the state of the processing allows extraction.',
                 'function'    => 'policyCanPerformExtraction'
             ],
             'can_perform_matching' => [
-                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'description' => 'Verifies that the state of the processing allows matching.',
                 'function'    => 'policyCanPerformMatching'
             ],
             'can_perform_drafting' => [
-                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'description' => 'Verifies that the state of the processing allows drafting.',
                 'function'    => 'policyCanPerformDrafting'
             ],
             'is_complete' => [
-                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'description' => 'Verifies that all requested information are present.',
                 'function'    => 'policyIsComplete'
             ],
+            'is_unique' => [
+                'description' => 'Verifies that the document has not been already imported (unless cancelled).',
+                'function'    => 'policyIsUnique'
+            ],
             'is_valid' => [
-                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'description' => 'Verifies that the document is valid, according to rules linked to document type.',
                 'function'    => 'policyIsValid'
             ]
         ];
@@ -330,11 +345,22 @@ class DocumentProcess extends Model {
         ]);
     }
 
+    public static function candelete($self) {
+        $self->read(['status']);
+        foreach($self as $fiscalYear) {
+            if($fiscalYear['status'] != 'created') {
+                return ['status' => ['non_removable' => 'Non-draft Document cannot be deleted.']];
+            }
+        }
+        return parent::candelete($self);
+    }
+
     public static function policyCanPerformIdentification($self): array {
         $result = [];
         $self->read(['status', 'document_type_id']);
         foreach($self as $id => $documentProcess) {
-            if($documentProcess['status'] != 'created' || $documentProcess['document_type_id']) {
+            // #memo - we must allow assigning document_type_id manually
+            if($documentProcess['status'] != 'created') {
                 $result[$id] = [
                     'invalid_status' => 'Document type has already been identified.'
                 ];
@@ -372,9 +398,9 @@ class DocumentProcess extends Model {
         return $result;
     }
 
-    private static function policyCanPerformDrafting($self): array {
+    protected static function policyCanPerformDrafting($self): array {
         $result = [];
-        $self->read(['condo_id', 'document_type_id', 'document_subtype_id', 'has_target_document']);
+        $self->read(['condo_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'has_target_document']);
 
         foreach($self as $id => $documentProcess) {
             if($documentProcess['has_target_document']) {
@@ -389,13 +415,79 @@ class DocumentProcess extends Model {
                 ];
                 continue;
             }
-            $rules_ids = RecordingRule::search([['condo_id', '=', $documentProcess['condo_id']], ['document_type_id', '=', $documentProcess['document_type_id']]])->ids();
-            if(count($rules_ids) <= 0) {
+
+            // #todo - to complete
+            $is_recording_rule_mandatory = in_array($documentProcess['document_type_code'], ['invoice', 'credit_note']);
+
+            // #memo - recording rules might not be mandatory
+            if($is_recording_rule_mandatory) {
+                $rules_ids = RecordingRule::search([['condo_id', '=', $documentProcess['condo_id']], ['document_type_id', '=', $documentProcess['document_type_id']]])->ids();
+                if(count($rules_ids) <= 0) {
+                    $result[$id] = [
+                        'no_rule_match' => 'No rule are available for the document type.'
+                    ];
+                    continue;
+                }
+            }
+
+        }
+        return $result;
+    }
+
+    public static function policyIsUnique($self): array {
+        $result = [];
+        $self->read(['document_type_code']);
+        foreach($self as $id => $documentProcess) {
+            if(!isset($documentProcess['document_type_code'])) {
+                continue;
+            }
+            // duplicate invoice amongst purchase invoice of the Condominium
+            if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
+                // check if there is a non-cancelled DocumentProcess concerning an invoice with the same characteristics
+                $documentProcess = self::id($id)->read(['document_invoice_id'])->first();
+                $purchaseInvoice = Invoice::id($documentProcess['document_invoice_id'])->read(['id', 'suppliership_id', 'supplier_invoice_number'])->first();
+                $has_duplicate = false;
+                $duplicateInvoices = Invoice::search([
+                        ['id','<>', $purchaseInvoice['id']],
+                        ['suppliership_id', '=', $purchaseInvoice['suppliership_id']],
+                        ['supplier_invoice_number', '=', $purchaseInvoice['supplier_invoice_number']]
+                    ])
+                    ->read(['document_process_id' => ['status']]);
+
+                foreach($duplicateInvoices as $duplicateInvoice) {
+                    if(isset($duplicateInvoice['document_process_id']['status']) && $duplicateInvoice['document_process_id']['status'] !== 'cancelled') {
+                        $has_duplicate = true;
+                        break;
+                    }
+                }
+            }
+            // duplicate invoice amongst purchase invoice of the Condominium
+            elseif($documentProcess['document_type_code'] === 'bank_statement') {
+                $documentProcess = self::id($id)->read(['document_bank_statement_id'])->first();
+                $bankStatement = BankStatement::id($documentProcess['document_bank_statement_id'])->read(['id', 'opening_date', 'closing_date', 'opening_balance', 'closing_balance'])->first();
+                $duplicateStatements = BankStatement::search([
+                        ['id','<>', $bankStatement['id']],
+                        ['opening_date', '=', $bankStatement['opening_date']],
+                        ['closing_date', '=', $bankStatement['closing_date']],
+                        ['opening_balance', '=', $bankStatement['opening_balance']],
+                        ['closing_balance', '=', $bankStatement['closing_balance']]
+                    ])
+                    ->read(['document_process_id' => ['status']]);
+
+                foreach($duplicateStatements as $duplicateStatement) {
+                    if(isset($duplicateStatement['document_process_id']['status']) && $duplicateStatement['document_process_id']['status'] !== 'cancelled') {
+                        $has_duplicate = true;
+                        break;
+                    }
+                }
+            }
+            if($has_duplicate) {
                 $result[$id] = [
-                    'no_rule_match' => 'No rule are available for the document type.'
+                    'duplicate_document' => 'This document has already been imported'
                 ];
                 continue;
             }
+
         }
         return $result;
     }
@@ -424,18 +516,19 @@ class DocumentProcess extends Model {
             if(!isset($documentProcess['document_type_id']['json_schema'])) {
                 // missing document schema
                 $result[$id] = [
-                    'invalid_document' => 'Missing document schema'
+                    'invalid_document_type' => 'Missing document schema'
                 ];
                 continue;
             }
             if(!isset($documentProcess['document_id']['document_json'])) {
                 // missing document json
                 $result[$id] = [
-                    'invalid_document' => 'Missing document json payload'
+                    'invalid_document' => 'Missing document JSON payload'
                 ];
                 continue;
             }
             try {
+                // validate the document JSON using the schema associated to the document type, including values format and requested properties
                 $data = \eQual::run('get', 'json-validate', ['json' => $documentProcess['document_id']['document_json'], 'schema_id' => $documentProcess['document_type_id']['json_schema']]);
                 if(isset($data['errors']) && count($data['errors'])) {
                     $result[$id] = [
@@ -446,6 +539,9 @@ class DocumentProcess extends Model {
             }
             catch(\Exception $e) {
                 trigger_error("APP::unable to validate JSON :" . $e->getMessage(), EQ_REPORT_WARNING);
+                $result[$id] = [
+                    'invalid_document' => 'Unable to validate document'
+                ];
             }
         }
         return $result;
@@ -460,7 +556,7 @@ class DocumentProcess extends Model {
         $result = [];
         $self->read(['status', 'document_type_id' => ['json_schema'], 'document_subtype_id', 'document_id' => ['document_json']]);
         // #todo - use ValidationRule based on document_type
-        // as a first draft, we use the same check as for completeness
+        // as a first draft, we use the same check as for completeness (`policyIsComplete`)
         foreach($self as $id => $documentProcess) {
             if(!isset($documentProcess['document_id'])) {
                 // missing document
@@ -513,7 +609,6 @@ class DocumentProcess extends Model {
      *
      */
     public static function doPerformDrafting($self) {
-        // #todo - on a peut-être déjà créé la pièce : si c'est le cas, on ignore
         $self->read(['condo_id', 'supplier_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'document_id' => ['document_json']]);
         foreach($self as $id => $documentProcess) {
 
@@ -537,8 +632,6 @@ class DocumentProcess extends Model {
                 throw new \Exception('missing_suppliership', EQ_ERROR_INVALID_CONFIG);
             }
 
-            // #todo - use les recording rules sont uniquement pour décrire comment encoder une facture ou une note de crédit, et ne s'appliquent pas aux autres documents
-
             $recordingRule = RecordingRule::search([
                     ['condo_id', '=', $documentProcess['condo_id']],
                     ['document_type_id', '=', $documentProcess['document_type_id']],
@@ -554,15 +647,17 @@ class DocumentProcess extends Model {
                     ->first();
             }
 
-            if(!$recordingRule) {
-                trigger_error("APP::No matching Recording Rule found for Process {$documentProcess['id']} - Document {$documentProcess['document_id']['id']} of type {$documentProcess['document_type_id']}/{$documentProcess['document_subtype_id']}", EQ_REPORT_WARNING);
-                throw new \Exception('missing_suppliership', EQ_ERROR_INVALID_CONFIG);
+            if($recordingRule) {
+                $recordingRuleLines = RecordingRuleLine::search(['recording_rule_id', '=', $recordingRule['id']])
+                    ->read([
+                        'account_id', 'apportionment_id', 'owner_share', 'tenant_share', 'share'
+                    ]);
             }
-
-            $recordingRuleLines = RecordingRuleLine::search(['recording_rule_id', '=', $recordingRule['id']])
-                ->read([
-                    'account_id', 'apportionment_id', 'owner_share', 'tenant_share', 'share'
-                ]);
+            else {
+                // #memo - recording rules might not apply on specific documents (e.g. bank statements)
+                // trigger_error("APP::No matching Recording Rule found for Process {$documentProcess['id']} - Document {$documentProcess['document_id']['id']} of type {$documentProcess['document_type_id']}/{$documentProcess['document_subtype_id']}", EQ_REPORT_WARNING);
+                // throw new \Exception('missing_recording_rule', EQ_ERROR_INVALID_CONFIG);
+            }
 
             if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
                 $bankAccount = BankAccount::search(['bank_account_iban', '=', $data['payment']['iban']])->first();
@@ -795,7 +890,6 @@ class DocumentProcess extends Model {
             $logs = [];
 
             // extract data based on document type
-            // #todo - use ExtractionRule
             try {
                 switch($documentProcess['document_type_code']) {
                     case 'invoice':
@@ -804,13 +898,40 @@ class DocumentProcess extends Model {
                         break;
                     case 'bank_statement':
                         $data = \eQual::run('get', 'documents_processing_bankStatement_extract', ['document_id' => $documentProcess['document_id']]);
+// print_r($data);
+// die();                        
+                        if(!is_array($data)) {
+                            trigger_error("APP::unexpected bank statement returned as a non-array for process {$id} ({$documentProcess['document_type_code']})", EQ_REPORT_WARNING);
+                            throw new \Exception('unsupported_document', EQ_ERROR_INVALID_PARAM);
+                        }
+                        if(count($data) > 1) {
+                            trigger_error("APP::unexpected bank statement returned with more than one statement for process {$id} ({$documentProcess['document_type_code']})", EQ_REPORT_WARNING);
+                            // #memo - file holding several bank statements
+                            throw new \Exception('unsupported_document', EQ_ERROR_INVALID_PARAM);
+                        }
+                        $data = current($data);
                         break;
                     default:
                         throw new \Exception('unsupported_document_type', EQ_ERROR_INVALID_PARAM);
                 }
 
-                if(count($data)) {
-                    $schema = \eQual::run('get', 'core_json-schema', ['id' => $documentProcess['document_type_id']['json_schema']]);
+                if(!empty($data)) {
+                    $validation = \eQual::run('get', 'json-validate', ['json' => json_encode($data), 'schema_id' => $documentProcess['document_type_id']['json_schema']]);
+
+                    if(isset($validation['errors']) && count($validation['errors'])) {
+                        foreach((array) $validation['errors'] as $section => $errors) {
+                            foreach($errors as $error) {
+                                $logs[] = $error;
+                            }
+                        }
+                        ob_start();
+                        print_r($validation['errors']);
+                        $out = ob_get_clean();
+                        trigger_error("APP::received validation errors for process {$id} ({$documentProcess['document_type_code']}): ".$out, EQ_REPORT_WARNING);
+                        throw new \Exception('unsupported_document', EQ_ERROR_INVALID_PARAM);
+                    }
+
+                    $schema = \eQual::run('get', 'json-schema', ['id' => $documentProcess['document_type_id']['json_schema']]);
 
                     $logs = array_merge(['Data retrieved from document analysis:'], self::computeLogsFromSchema($schema['properties'] ?? [], $data));
 
@@ -825,6 +946,8 @@ class DocumentProcess extends Model {
             }
             catch(\Exception $e) {
                 // unexpected error
+                $logs[] = "Document does not match expected format.";
+                $logs[] = "For bank Statement this might be due to a list of statements instead of a single statement.";
                 trigger_error("APP::unable to extract document for process {$id} ({$documentProcess['document_type_code']}): " . $e->getMessage(), EQ_REPORT_WARNING);
             }
 
@@ -958,7 +1081,7 @@ class DocumentProcess extends Model {
         return $logs;
     }
 
-    private static function calcDocumentLink($self) {
+    protected static function calcDocumentLink($self) {
         $result = [];
         $self->read(['document_id']);
         foreach($self as $id => $invoice) {

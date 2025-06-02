@@ -13,6 +13,19 @@
     },
     "actions": [
         {
+            "id": "action.delete",
+            "label": "Delete",
+            "description": "Delete the import and the related document.",
+            "controller": "core_model_delete",
+            "params": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "permanent": true,
+                "ids": []
+            },
+            "confirm": true,
+            "visible": [ ["state", "=", "instance"], ["status", "=", "created"] ]
+        },
+        {
             "id": "action.perform_analysis",
             "label": "Analyze",
             "description": "Attempt to analyze the content of the document.",
@@ -162,6 +175,7 @@
                                                 "type": "field",
                                                 "value": "document_link",
                                                 "width": "100%",
+                                                "visible": ["document_invoice_id", "<>", null],
                                                 "widget": {
                                                     "type": "pdf",
                                                     "height": 700

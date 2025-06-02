@@ -21,14 +21,14 @@ class Payment extends Model {
         return [
             'condo_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the payment refers to.",
+                'description'       => "The condominium the payment relates to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'readonly'          => true
             ],
 
             'ownership_id' => [
                 'type'              => 'many2one',
-                'description'       => "The ownership that the payment originates from.",
+                'description'       => "The ownership that the payment originates from, if any.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'ondelete'          => 'cascade',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
@@ -120,9 +120,29 @@ class Payment extends Model {
                 'type'              => 'boolean',
                 'description'       => 'Mark the payment as exported (part of an export to elsewhere).',
                 'default'           => false
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'proforma',
+                    'payment'
+                ],
+                'default'           => 'proforma',
+                'description'       => 'Status of the payment (depending on parent bank statement).',
             ]
 
         ];
+    }
+
+    public static function candelete($self) {
+        $self->read(['status']);
+        foreach($self as $payment) {
+            if($payment['status'] != 'proforma') {
+                return ['status' => ['non_editable' => 'Non-proforma payments cannot be deleted manually.']];
+            }
+        }
+        return parent::candelete($self);
     }
 
     public static function onchange($event, $values) {
@@ -163,41 +183,6 @@ class Payment extends Model {
         return $result;
     }
 
-    /**
-     * Assign customer_id and invoice_id from invoice relating to funding, if any.
-     * Force recomputing of target funding computed fields (is_paid and paid_amount).
-     */
-    public static function onupdateFundingId($self, $values) {
-        $self->read([
-                'customer_id', 'amount', 'statement_line_id',
-                'funding_id' => [
-                    'id',
-                    'funding_type',
-                    'due_amount',
-                    'invoice_id' => ['id', 'customer_id']
-                ]
-            ]);
-
-        foreach($self as $id => $payment) {
-            if($payment['funding_id']) {
-                $values = [];
-                // make sure a customer_id is assigned to the payment
-                if(isset($payment['funding_id']['invoice_id'])) {
-                    if(!$payment['customer_id']) {
-                        $values['customer_id'] = $payment['funding_id']['invoice_id']['customer_id'];
-                    }
-                    if(!$payment['invoice_id']) {
-                        $values['invoice_id'] = $payment['funding_id']['invoice_id']['id'];
-                    }
-                }
-                if(count($values)) {
-                    self::id($id)->update($values);
-                }
-                $fundings_ids[] = $payment['funding_id']['id'];
-            }
-        }
-        Funding::ids($fundings_ids)->update(['is_paid' => null, 'paid_amount' => null]);
-    }
 
     public static function canupdate($self, $values) {
         $self->read(['state', 'is_exported', 'payment_origin', 'amount', 'statement_line_id' => ['amount', 'remaining_amount']]);
@@ -253,16 +238,5 @@ class Payment extends Model {
 
         return parent::canupdate($self, $values);
     }
-
-    public static function ondelete($self) {
-        $self->read(['statement_line_id', 'funding_id']);
-        foreach($self as $payment) {
-            BankStatementLine::id($payment['statement_line_id'])->update(['status' => 'pending']);
-            Funding::id($payment['funding_id'])->update(['is_paid' => false]);
-        }
-
-        return parent::ondelete($self);
-    }
-
 
 }
