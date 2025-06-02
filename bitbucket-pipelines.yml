@@ -34,11 +34,11 @@ pipelines:
           - php /var/www/html/run.php --do=test_fs-consistency
           - php /var/www/html/run.php --do=test_db-connectivity
           - php /var/www/html/run.php --do=init_db
-          - php /var/www/html/run.php --do=init_package --package=core
+          - php /var/www/html/run.php --do=init_package --package=core --ignore_platform
           # create temp config file for init with FMT specific constants
           - |
             echo "{\"DEFAULT_LANG\": \"fr\", \"FMT_INSTANCE_TYPE\": \"agency\", \"FMT_API_URL_EDMS\": \"http://localhost/\", \"FMT_API_URL_GLOBAL\": \"http://localhost/\", \"MINDEE_API_KEY\": \"\"}" > /var/www/html/config/config.json
-          - set +e ; php /var/www/html/run.php --do=init_package --package=fmt --import=true ; export FAILING=$? ; set -e
+          - set +e ; php /var/www/html/run.php --do=init_package --package=fmt --import=true --ignore_platform=true ; export FAILING=$? ; set -e
           - cp /var/www/html/log/equal.log artifacts/equal.log
           - if [ "$FAILING" -ne 0 ]; then exit $FAILING; fi
           # create a config file with FMT specific constants & specific services
