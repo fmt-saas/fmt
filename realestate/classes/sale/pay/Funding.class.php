@@ -36,9 +36,18 @@ class Funding extends \sale\pay\Funding {
 
             'bank_account_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\bank\BankAccount',
+                'foreign_object'    => 'finance\bank\CondominiumBankAccount',
                 'description'       => 'The Bank account the funding relates to.',
                 'help'              => 'This is the bank account to which payments are expected to be received or from which payment is expected to be made.',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'counterpart_bank_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\CondominiumBankAccount',
+                'description'       => 'Counterpart bank account, when applying.',
+                'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
                 'readonly'          => true,
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
@@ -100,8 +109,15 @@ class Funding extends \sale\pay\Funding {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['due_amount', 'payment_reference', 'fund_request_execution_id' => ['name'],  'invoice_id' => ['name']]);
+        $self->read(['state', 'due_amount', 'payment_reference', 'fund_request_execution_id' => ['name'],  'invoice_id' => ['name']]);
         foreach($self as $id => $funding) {
+            if($funding['state'] === 'draft') {
+                continue;
+            }
+            if(!$funding['due_amount']) {
+                continue;
+            }
+
             $result[$id] = Setting::format_number_currency($funding['due_amount']);
 
             if($funding['invoice_id']) {

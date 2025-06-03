@@ -110,6 +110,14 @@ class Funding extends Model {
                 'readonly'          => true
             ],
 
+            'counterpart_bank_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankAccount',
+                'description'       => 'Counterpart bank account, when applying.',
+                'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
+                'readonly'          => true
+            ],
+
             'invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\accounting\invoice\Invoice',

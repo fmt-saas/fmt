@@ -1,9 +1,17 @@
 {
     "name": "Funding",
     "description": "",
-    "access": {
-        "groups": ["sale.default.users"]
-     },
+    "routes": [
+        {
+            "id": "route.export_sepa",
+            "label": "Export SEPA",
+            "description": "Generate a SEPA XML envelope.",
+            "icon": "print",
+            "route": "/?get=sale_pay_Funding_sepa&id=object.id",
+            "target": "_blank",
+            "absolute": true
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -21,7 +29,23 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "heading": true
-                                                }
+                                                },
+                                                "visible": ["state", "<>", "draft"]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "description",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "heading": true
+                                                },
+                                                "visible": ["state", "=", "draft"]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "0%",
+                                                "visible": false
                                             }
                                         ]
                                     },
@@ -30,18 +54,19 @@
                                         "items": [
                                             {
                                                 "type": "label",
-                                                "width": "15%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_paid",
-                                                "width": "33%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Amount Due",
                                                 "value": "due_amount",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_paid",
+                                                "width": "33%",
+                                                "visible": false
                                             }
                                         ]
                                     }
@@ -91,6 +116,22 @@
                                                 "type": "field",
                                                 "value": "due_date",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "bank_account_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "counterpart_bank_account_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "state",
+                                                "width": "0%",
+                                                "visible": false
                                             }
                                         ]
                                     }
@@ -101,6 +142,7 @@
                     {
                         "label": "Payments",
                         "id": "section.payments_section",
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [

@@ -55,7 +55,7 @@
             "description": "",
             "context": {
                 "entity": "realestate\\property\\Condominium",
-                "view": "form.accounting",
+                "view": "form.banking",
                 "domain": [["id", "=", "object.id"]]
             }
         },

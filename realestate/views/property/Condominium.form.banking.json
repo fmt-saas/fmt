@@ -2,16 +2,28 @@
     "name": "Condominium Banking",
     "description": "Details about bank accounts and related operations.",
     "routes": [
-                {
+        {
             "id": "item.transfer",
             "label": "Money Transfer",
             "description": "",
-            "icon": "payments",
+            "icon": "add_card",
             "context": {
                 "entity": "realestate\\sale\\pay\\Funding",
                 "view": "form.default",
                 "purpose": "create",
-                "mode": "edit"
+                "mode": "edit",
+                "domain": ["condo_id", "=", "object.id"]
+            }
+        },
+        {
+            "id": "item.fundings",
+            "label": "Fundings",
+            "description": "",
+            "icon": "payments",
+            "context": {
+                "entity": "realestate\\sale\\pay\\Funding",
+                "view": "list.default",
+                "domain": ["condo_id", "=", "object.id"]
             }
         }
     ],
@@ -115,8 +127,8 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "fiscal_year_start",
-                                                "width": "50%"
+                                                "value": "bank_accounts_ids",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

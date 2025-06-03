@@ -486,7 +486,7 @@
                         "id": "item.banks.suppliers_bank_accounts",
                         "type": "entry",
                         "label": "Suppliers Bank Accounts",
-                        "icon": "account_balance",
+                        "icon": "assured_workload",
                         "description": "",
                         "context": {
                             "entity": "finance\\bank\\SuppliershipBankAccount",
