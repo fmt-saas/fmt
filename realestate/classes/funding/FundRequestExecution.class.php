@@ -290,7 +290,9 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
         $result = [];
         $self->read(['fund_request_id' => ['name'], 'posting_date']);
         foreach($self as $id => $requestExecution) {
-            $result[$id] = $requestExecution['fund_request_id']['name'] . ' ('. date('d/m/Y', $requestExecution['posting_date']) . ')';
+            if($requestExecution['fund_request_id']) {
+                $result[$id] = $requestExecution['fund_request_id']['name'] . ' ('. date('d/m/Y', $requestExecution['posting_date']) . ')';
+            }
         }
         return $result;
     }

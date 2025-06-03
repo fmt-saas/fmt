@@ -5,16 +5,25 @@
         "items": [
             {
                 "type": "field",
+                "value": "id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Owner",
+                "value": "owner_identity_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Iban",
                 "value": "name",
                 "width": "30%"
             },
             {
                 "type": "field",
-                "value": "bank_account_iban",
-                "width": "20%"
-            },
-            {
-                "type": "field",
+                "label": "BIC",
                 "value": "bank_account_bic",
                 "width": "15%"
             },

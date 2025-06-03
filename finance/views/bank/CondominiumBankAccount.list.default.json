@@ -1,0 +1,12 @@
+{
+    "name": "Permission",
+    "description": "Default form for Permission with all fields.",
+    "extends": {
+        "entity": "finance\\bank\\BankAccount",
+        "view": "list.default"
+    },
+    "routes": [
+    ],
+    "layout": {
+    }
+}

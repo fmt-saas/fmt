@@ -3,7 +3,7 @@
     "description": "",
     "access": {
         "groups": ["sale.default.users"]
-     },
+    },
     "layout": {
         "groups": [
             {
@@ -83,6 +83,12 @@
                                                 "type": "field",
                                                 "label": "Fund Request Execution",
                                                 "value": "fund_request_execution_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Bank Account",
+                                                "value": "bank_account_id",
                                                 "width": "50%"
                                             }
                                         ]

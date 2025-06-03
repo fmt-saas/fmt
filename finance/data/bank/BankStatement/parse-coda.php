@@ -172,7 +172,7 @@ $convertBbanToIban = function($account_number) {
 
 $getTransactionType = function($family, $operation) {
     $result = $family . $operation;
-    // CODA syntax is : %02{famille} %02{operation} %03{rubrique}
+    // CODA syntax is : %02{family} %02{operation} %03{section}
     // CAMT.053 uses domain, family, subfamily
 
     /*

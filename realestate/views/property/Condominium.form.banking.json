@@ -1,0 +1,131 @@
+{
+    "name": "Condominium Banking",
+    "description": "Details about bank accounts and related operations.",
+    "routes": [
+                {
+            "id": "item.transfer",
+            "label": "Money Transfer",
+            "description": "",
+            "icon": "payments",
+            "context": {
+                "entity": "realestate\\sale\\pay\\Funding",
+                "view": "form.default",
+                "purpose": "create",
+                "mode": "edit"
+            }
+        }
+    ],
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "legal_name",
+                                                "width": "66%",
+                                                "widget": {
+                                                    "header": false
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Language",
+                                                "value": "lang_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "registration_number",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "cadastral_number",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "16%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "type_id",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_vat",
+                                                "width": "50%",
+                                                "label": "Subject to VAT",
+                                                "help": "Do the company have a VAT number?"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%",
+                                                "visible": ["has_vat", "=", false]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "vat_number",
+                                                "width": "50%",
+                                                "visible": ["has_vat", "=", true]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "type",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_parent",
+                                                "visible": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "label": "Bank Accounts",
+                        "id": "section.bank_accounts",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_year_start",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

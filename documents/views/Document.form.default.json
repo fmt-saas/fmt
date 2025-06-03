@@ -124,6 +124,7 @@
                                                 "type": "field",
                                                 "value": "link",
                                                 "width": "100%",
+                                                "visible": ["document_type_code", "in", ["invoice", "credit_note"]],
                                                 "widget": {
                                                     "type": "pdf",
                                                     "height": "700"

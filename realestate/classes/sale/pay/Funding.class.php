@@ -12,6 +12,10 @@ use equal\data\DataFormatter;
 
 class Funding extends \sale\pay\Funding {
 
+    public static function getDescription() {
+        return 'Funding for tracking fund requests and expense statements (funds to be received).';
+    }
+
     public static function getColumns() {
 
         return [

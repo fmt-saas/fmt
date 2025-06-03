@@ -41,8 +41,7 @@ class BankStatement extends Model {
 
             'date' => [
                 'type'              => 'date',
-                'description'       => 'Date the statement was received.',
-                'required'          => true,
+                'description'       => 'Date at which the statement was received.',
                 'readonly'          => true,
                 'default'           => function () {return time();}
             ],
@@ -55,13 +54,13 @@ class BankStatement extends Model {
 
             'opening_date' => [
                 'type'              => 'date',
-                'description'       => 'Date the statement was received.',
+                'description'       => 'First date the statement refers to.',
                 'required'          => true
             ],
 
             'closing_date' => [
                 'type'              => 'date',
-                'description'       => 'Date the statement was received.',
+                'description'       => 'Last date the statement refers to.',
                 'required'          => true
             ],
 
@@ -99,17 +98,13 @@ class BankStatement extends Model {
             ],
 
             'status' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'function'          => 'calcStatus',
+                'type'              => 'string',
                 'selection'         => [
                     'proforma',
-                    'pending',
-                    'reconciled'
+                    'bank_statement'
                 ],
                 'default'           => 'proforma',
-                'description'       => 'Status of the statement (depending on lines).',
-                'store'             => true
+                'description'       => 'Status of the statement (depending on lines).'
             ]
 
 

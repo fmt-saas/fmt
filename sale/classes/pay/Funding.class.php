@@ -53,6 +53,8 @@ class Funding extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'installment',
+                    'reimbursement',
+                    'transfer',
                     'invoice',
                     'fund_request',
                     'expense_statement'
@@ -104,7 +106,7 @@ class Funding extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'The Bank account the funding relates to.',
-                'help'              => 'This is the bank account to which payments are expected to be received or from which payment is expected to be made.',
+                'help'              => 'This is the bank account to which payments are expected to be received (or from which payment is expected to be made).',
                 'readonly'          => true
             ],
 

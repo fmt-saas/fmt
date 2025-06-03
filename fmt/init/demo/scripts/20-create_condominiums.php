@@ -100,7 +100,7 @@ CondominiumBankAccount::create([
         'condo_id'          => $condominium['id'],
         'owner_identity_id' => $identity['id'],
         'description'       => "Compte à vue",
-        'bank_account_iban' => "BE05173234451275",
+        'bank_account_iban' => "BE02068937205640",
         'is_primary'        => true
     ]);
 

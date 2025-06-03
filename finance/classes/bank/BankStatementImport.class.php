@@ -65,19 +65,15 @@ class BankStatementImport extends Model {
                 // error
                 throw new \Exception('invalid_data', EQ_ERROR_INVALID_PARAM);
             }
-            foreach($data as $statement) {
-                $supplier_id = null;
-                if(isset($statement['bank_bic']) && strlen($statement['bank_bic'])) {
-                    $bank = Bank::search(['bic', '=', $statement['bank_bic']])->first();
-                    if($bank) {
-                        $supplier_id = $bank['id'];
-                    }
-                }
+            $file_name = pathinfo($bankStatementImport['name'], PATHINFO_FILENAME);
+            $extension = pathinfo($bankStatementImport['name'], PATHINFO_EXTENSION);
+
+            foreach($data as $i => $statement) {
                 $binary = self::computeXlsxBinaryFromStatement($statement);
 
                 // this will trigger the creation of the document and the auto processing, which might fail without interrupting the import
                 try {
-                    DocumentProcess::create(['name' => $bankStatementImport['name'], 'document_type_id' => $documentType['id'], 'supplier_id' => $supplier_id])
+                    DocumentProcess::create(['name' => $file_name . '(' . ($i+1) . ').' . $extension, 'document_type_id' => $documentType['id']])
                         ->update(['data' => $binary])
                         ->first();
                 }
@@ -103,7 +99,10 @@ class BankStatementImport extends Model {
         return $result;
     }
 
-    // $statement_json doit être décodé en tableau associatif
+    /**
+     * Generate a XLSX binary from an array representation of a Bank Statement.
+     *
+     */
     private static function computeXlsxBinaryFromStatement(array $statement): string {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();

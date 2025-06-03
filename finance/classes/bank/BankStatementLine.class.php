@@ -22,6 +22,12 @@ class BankStatementLine extends Model {
     public static function getColumns() {
 
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the accounting entry refers to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                //'readonly'          => true
+            ],
 
             'name' => [
                 'type'              => 'alias',

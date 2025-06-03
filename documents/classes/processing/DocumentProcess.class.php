@@ -10,9 +10,11 @@ use documents\Document;
 use documents\DocumentType;
 use documents\recording\RecordingRule;
 use documents\recording\RecordingRuleLine;
+use finance\bank\Bank;
 use finance\bank\BankAccount;
 use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
+use finance\bank\CondominiumBankAccount;
 use purchase\supplier\Supplier;
 use purchase\supplier\Suppliership;
 use purchase\supplier\SuppliershipReference;
@@ -710,7 +712,6 @@ class DocumentProcess extends Model {
                 // create the BankStatement
                 $statement = BankStatement::create([
                         'condo_id'              => $documentProcess['condo_id'],
-                        'raw_data'              => $documentProcess['document_id']['data'] ?? null,
                         'opening_date'          => strtotime($data['opening_date']),
                         'closing_date'          => strtotime($data['closing_date']),
                         'opening_balance'       => round(floatval($data['opening_balance']), 2),
@@ -898,8 +899,6 @@ class DocumentProcess extends Model {
                         break;
                     case 'bank_statement':
                         $data = \eQual::run('get', 'documents_processing_bankStatement_extract', ['document_id' => $documentProcess['document_id']]);
-// print_r($data);
-// die();                        
                         if(!is_array($data)) {
                             trigger_error("APP::unexpected bank statement returned as a non-array for process {$id} ({$documentProcess['document_type_code']})", EQ_REPORT_WARNING);
                             throw new \Exception('unsupported_document', EQ_ERROR_INVALID_PARAM);
@@ -969,7 +968,7 @@ class DocumentProcess extends Model {
      *
      */
     public static function doPerformMatching($self) {
-        $self->read(['document_id' => ['id', 'content_type', 'document_json'], 'condo_id', 'supplier_id', 'report_html']);
+        $self->read(['condo_id', 'supplier_id', 'report_html', 'document_type_code', 'document_id' => ['id', 'content_type', 'document_json']]);
 
         foreach($self as $id => $documentProcess) {
             if(!$documentProcess['document_id']) {
@@ -979,58 +978,89 @@ class DocumentProcess extends Model {
             $logs = [];
 
             try {
-
+                // updates for the DocumentProcess
                 $values = [
                         'condo_id'          => $documentProcess['condo_id'],
                         'supplier_id'       => $documentProcess['supplier_id'],
                         'has_analysis'      => true
                     ];
 
+                // updates for the Document
+                $doc_values = [];
+
                 $data = json_decode($documentProcess['document_id']['document_json'], true);
 
-                // attempt to retrieve supplier
-                if(isset($data['supplier']['name'])) {
-                    $suppliers_ids = Supplier::search(['legal_name', 'ilike', $data['supplier']['name'] . '%'])->ids();
-                    if(count($suppliers_ids)) {
-                        $values['supplier_id'] = current($suppliers_ids);
-                        $logs[] = "supplier_id retrieved from '{$data['supplier']['name']}'";
-                    }
-                }
-                // attempt to retrieve condominium by number
-                if(!$values['condo_id'] && $values['supplier_id']) {
-                    // lookup into SuppliershipReference to identify the Condominium
-                    $customer_refs = ['customer_number', 'contract_number', 'installation_number'];
-                    foreach($customer_refs as $ref) {
-                        if(!isset($data['customer'][$ref])) {
-                            continue;
+                switch($documentProcess['document_type_code']) {
+                    case 'invoice':
+                    case 'credit_note':
+                        // attempt to retrieve supplier
+                        if(!$values['supplier_id']) {
+                            if(isset($data['supplier']['name'])) {
+                                $suppliers_ids = Supplier::search(['legal_name', 'ilike', $data['supplier']['name'] . '%'])->ids();
+                                if(count($suppliers_ids)) {
+                                    $values['supplier_id'] = current($suppliers_ids);
+                                    $logs[] = "supplier_id retrieved from '{$data['supplier']['name']}'";
+                                }
+                            }
                         }
-                        $supplierReference = SuppliershipReference::search([
-                                ['supplier_id', '=', $values['supplier_id']],
-                                ['reference_type', '=', $ref],
-                                ['reference_value', '=', $data['customer'][$ref]]
-                            ])
-                            ->read(['condo_id'])
-                            ->first();
+                        // attempt to retrieve condominium by number
+                        if(!$values['condo_id'] && $values['supplier_id']) {
+                            // lookup into SuppliershipReference to identify the Condominium
+                            $customer_refs = ['customer_number', 'contract_number', 'installation_number'];
+                            foreach($customer_refs as $ref) {
+                                if(!isset($data['customer'][$ref])) {
+                                    continue;
+                                }
+                                $supplierReference = SuppliershipReference::search([
+                                        ['supplier_id', '=', $values['supplier_id']],
+                                        ['reference_type', '=', $ref],
+                                        ['reference_value', '=', $data['customer'][$ref]]
+                                    ])
+                                    ->read(['condo_id'])
+                                    ->first();
 
-                        if($supplierReference) {
-                            $values['condo_id'] = $supplierReference['condo_id'];
-                            $logs[] = "condo_id retrieved from '{$data['customer'][$ref]}' ($ref)";
-                            break;
+                                if($supplierReference) {
+                                    $values['condo_id'] = $supplierReference['condo_id'];
+                                    $doc_values['condo_id'] = $values['condo_id'];
+                                    $logs[] = "condo_id retrieved from '{$data['customer'][$ref]}' ($ref)";
+                                    break;
+                                }
+                            }
                         }
-                    }
-                }
 
-                if(!isset($values['condo_id'])) {
-                    // attempt to retrieve condominium by name
-                    if(isset($data['customer']['name'])) {
-                        $parts = explode(' ', trim($data['customer']['name'], " \n\r\t\v\0-_\/"));
-                        $customer_name = implode(' ', array_filter($parts, function($a, $k) { return $k < 3 && !preg_match('/[^\p{L}\p{N}]/iu', $a); }, ARRAY_FILTER_USE_BOTH));
-                        $condominiums_ids = Condominium::search(['legal_name', 'ilike', $customer_name . '%'])->ids();
-                        if(count($condominiums_ids) === 1) {
-                            $values['condo_id'] = current($condominiums_ids);
-                            $logs[] = "condo_id retrieved from '{$customer_name}'";
+                        if(!isset($values['condo_id'])) {
+                            // attempt to retrieve condominium by name
+                            if(isset($data['customer']['name'])) {
+                                $parts = explode(' ', trim($data['customer']['name'], " \n\r\t\v\0-_\/"));
+                                $customer_name = implode(' ', array_filter($parts, function($a, $k) { return $k < 3 && !preg_match('/[^\p{L}\p{N}]/iu', $a); }, ARRAY_FILTER_USE_BOTH));
+                                $condominiums_ids = Condominium::search(['legal_name', 'ilike', $customer_name . '%'])->ids();
+                                if(count($condominiums_ids) === 1) {
+                                    $values['condo_id'] = current($condominiums_ids);
+                                    $doc_values['condo_id'] = $values['condo_id'];
+                                    $logs[] = "condo_id retrieved from '{$customer_name}'";
+                                }
+                            }
                         }
-                    }
+                        break;
+                    case 'bank_statement':
+                        if(!$values['condo_id']) {
+                            if(isset($data['account_iban']) && strlen($data['account_iban'])) {
+                                $bankAccount = CondominiumBankAccount::search(['bank_account_iban', '=', $data['account_iban']])->read(['condo_id'])->first();
+                                if($bankAccount) {
+                                    $values['condo_id'] = $bankAccount['condo_id'];
+                                    $doc_values['condo_id'] = $values['condo_id'];
+                                    $logs[] = "condo_id retrieved from '{$data['account_iban']}'";
+                                }
+                            }
+                        }
+                        if(isset($data['bank_bic']) && strlen($data['bank_bic'])) {
+                            $bank = Bank::search(['bic', '=', $data['bank_bic']])->first();
+                            if($bank) {
+                                $values['supplier_id'] = $bank['id'];
+                                $logs[] = "supplier_id retrieved from '{$data['bank_bic']}'";
+                            }
+                        }
+                        break;
                 }
 
                 $report_html = $documentProcess['report_html'];
@@ -1040,6 +1070,10 @@ class DocumentProcess extends Model {
                 $values['report_html'] = $report_html . implode("\n", $logs);
 
                 self::id($id)->update($values);
+
+                if(count($doc_values)) {
+                    Document::id($documentProcess['document_id']['id'])->update($doc_values);
+                }
             }
             catch(\Exception $e) {
                 // unable to extract or confidence level too low

@@ -40,6 +40,11 @@ if(!$document) {
     throw new Exception("document_unknown", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+$result = [
+    'document_type_id'      => null,
+    'document_subtype_id'   => null
+];
+
 // extract data (based on content-type)
 $text = eQual::run('get', 'documents_processing_dump-text', ['id' => $params['id']]);
 
@@ -49,10 +54,12 @@ $document_subtype = null;
 // use clues in order to attempt retrieving document type and subtype
 if(!$document_type) {
 
-    if(in_array($document['content_type'], ['text/plain', 'text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'])) {
+    if(in_array($document['content_type'], ['text/plain', 'text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'], true)) {
+
         $lines = explode("\n", $text);
 
         $line = trim($lines[0]);
+
         // CODA file -> bank statement
         if(preg_match('/^0{1}0{4}\d{6}\d{3}05[D ]{1}[A-Z0-9 ]{7}[A-Z0-9 ]{10}[A-Z0-9 ]{26}[A-Z0-9 ]{11}\d{11}[ ]{1}\d{5}[A-Z0-9 ]{16}[A-Z0-9 ]{16}[A-Z0-9 ]{7}2$/', $line)) {
             $document_type = 'bank_statement';
@@ -61,14 +68,14 @@ if(!$document_type) {
         else {
             $coda_headers = [
                     'Account', 'Account holder', 'Bank', 'Account type', 'Bic',
-                    'Type of account information', 'Statement number', 'Statement currency',
+                    'Statement number', 'Statement currency',
                     'Opening balance date', 'Opening balance', 'Closing balance date', 'Closing balance',
                     'Closing available balance', 'Entry date', 'Value date', 'Transaction amount',
                     'Transaction currency', 'Transaction type', 'Client reference',
                     'Structured Reference', 'Unstructured Reference', 'Bank reference',
                     'Counterparty name', 'Counterparty account', 'Counterparty bank BIC',
                     'Counterparty data', 'Transaction message', 'Sequence number',
-                    'Reception Date/Time', 'stFreeMessage'
+                    'Reception Date/Time'
                 ];
 
             $headers = str_getcsv($line, ',');
@@ -140,11 +147,6 @@ if(!$document_type) {
         }
     }
 }
-
-$result = [
-    'document_type_id'      => null,
-    'document_subtype_id'   => null
-];
 
 if($document_type) {
 

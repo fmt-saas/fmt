@@ -17,17 +17,9 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "name",
-                                                "width": "50%",
-                                                "widget": {
-                                                    "heading": true
-                                                }
-                                            },
-                                            {
-                                                "type": "field",
                                                 "label": "Bank Statement",
                                                 "value": "bank_statement_id",
-                                                "width": "50%"
+                                                "width": "66%"
                                             },
                                             {
                                                 "type": "field",

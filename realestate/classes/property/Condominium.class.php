@@ -228,11 +228,11 @@ class Condominium extends Identity {
                 'foreign_field'     => 'condo_id'
             ],
 
-            'bank_account_ids' => [
+            'bank_accounts_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'finance\bank\BankAccount',
+                'foreign_object'    => 'finance\bank\CondominiumBankAccount',
                 'foreign_field'     => 'condo_id',
-                'description'       => 'List of the bank account of the organisation',
+                'description'       => 'List of the bank account of the Condominium.',
                 'ondetach'          => 'delete',
                 'order'             => 'id',
                 'sort'              => 'asc'

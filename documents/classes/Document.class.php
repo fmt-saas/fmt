@@ -316,6 +316,17 @@ class Document extends Model {
     }
 
     public static function onupdateCondoId($self, $adapt) {
+        $self->read(['condo_id', 'document_type_id', 'parent_node_id']);
+        foreach($self as $id => $document) {
+            if(!$document['parent_node_id'] && isset($document['document_type_id'], $document['condo_id'])) {
+                // assign the folder
+                $documentType = DocumentType::id($document['document_type_id'])->read(['folder_code'])->first();
+                $node = Node::search([['condo_id', '=', $document['condo_id']], ['code', '=', $documentType['folder_code']]])->first();
+                if($node) {
+                    self::id($id)->update(['parent_node_id' => $node['id']]);
+                }
+            }
+        }
         $instance_type = constant('FMT_INSTANCE_TYPE');
         if($instance_type === 'agency') {
             self::attemptToPush($self, $adapt);

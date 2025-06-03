@@ -269,6 +269,11 @@ $adapters = [
     'iban_normalize' => function($account_number) {
         $account_number = strtoupper(trim($account_number));
 
+        // IBAN followed by currency
+        if(preg_match('/^([A-Z]{2}[0-9]{2}[A-Z0-9]{11,30})([A-Z]{3})$/', $account_number, $matches)) {
+            $account_number = $matches[1];
+        }
+
         $prefix = substr($account_number, 0, 2);
 
         if(!preg_match('/^[A-Z]{2}$/', $prefix)) {
@@ -285,11 +290,11 @@ $adapters = [
     // converts transaction type to a standardized code (string)
     'transaction_type_normalize' => function($transaction_type) {
         $result = $transaction_type;
-        // CODA syntax is : %02{famille} %02{operation} %03{rubrique}
+        // CODA syntax is : %02{family} %02{operation} %03{section}
         // CAMT.053 uses domain, family, subfamily
 
         /*
-        #memo - this list is incomplete and is only meant for CODA format extraction (from ISABEL XLSX)
+        #memo - this list is incomplete and is only meant for XLS/CODA format extraction (from ISABEL XLSX)
         */
         static $coda_transaction_codes = [
             // incoming transfers
@@ -485,7 +490,7 @@ foreach($worksheet->getRowIterator() as $rowIterator) {
     $lines[] = $row;
 }
 
-// array for knowing if a column should be part of the statement or of a transaction
+// array for knowing if a column should be part of the statement or of one of its transaction
 $statement_fields = ['account_iban','statement_number','opening_balance','opening_date','closing_balance','closing_date','statement_currency','bank_bic','account_holder','account_type'];
 
 $statements = [];
