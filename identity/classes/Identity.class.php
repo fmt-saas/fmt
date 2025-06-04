@@ -139,6 +139,7 @@ class Identity extends Model {
                 'usage'             => 'uri/urn.iban',
                 'description'       => "Number of the bank account of the Identity, if any.",
                 'visible'           => [ ['has_parent', '=', false] ],
+                'dependents'        => ['bank_account_bic', 'bank_country', 'bank_name'],
                 'onupdate'          => 'onupdateBankAccountIban'
             ],
 

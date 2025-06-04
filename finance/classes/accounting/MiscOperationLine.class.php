@@ -8,14 +8,14 @@
 namespace finance\accounting;
 use equal\orm\Model;
 
-class AccountingEntryLine extends Model {
+class MiscOperationLine extends Model {
 
     public static function getName() {
-        return "Accounting entry line";
+        return "Miscellaneous Operation Line";
     }
 
     public static function getDescription() {
-        return "Accounting entries lines map invoices lines into records of financial transactions in the accounting books.";
+        return "A miscellaneous accounting operation can have one or more lines that are used to create related Accounting entry lines.";
     }
 
     public static function getColumns() {
@@ -28,14 +28,9 @@ class AccountingEntryLine extends Model {
                 'default'           => 'defaultCondoId'
             ],
 
-            'name' => [
-                'type'              => 'string',
-                'description'       => 'Label for identifying the entry.',
-            ],
-
-            'accounting_entry_id' => [
+            'misc_operation_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'foreign_object'    => 'finance\accounting\MiscOperation',
                 'description'       => "Accounting entry the line relates to.",
                 'ondelete'          => 'cascade',
                 'dependents'        => ['journal_id']
@@ -64,7 +59,7 @@ class AccountingEntryLine extends Model {
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => "Accounting journal the entry relates to.",
-                'relation'          => ['accounting_entry_id' => 'journal_id'],
+                'relation'          => ['misc_operation_id' => 'journal_id'],
                 'store'             => true
             ],
 
@@ -72,35 +67,17 @@ class AccountingEntryLine extends Model {
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
                 'description'       => 'Amount to be debited on the account.',
-                'default'           => 0.0,
-                'dependents'        => ['accounting_entry_id' => 'debit']
+                'default'           => 0.0
             ],
 
             'credit' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
                 'description'       => 'Amount to be credited on the account.',
-                'default'           => 0.0,
-                'dependents'        => ['accounting_entry_id' => 'credit']
-            ],
-
-            'has_invoice_line' => [
-                'type'              => 'boolean',
-                'description'       => "Is the accounting entry line linked to an invoice line ?",
-                'default'           => false
-            ],
+                'default'           => 0.0
+            ]
 
         ];
     }
 
-    public static function defaultCondoId($values) {
-        $result = null;
-        if(isset($values['accounting_entry_id'])) {
-            $accountingEntry = AccountingEntry::id($values['accounting_entry_id'])->read(['condo_id'])->first();
-            if($accountingEntry) {
-                $result = $accountingEntry['condo_id'];
-            }
-        }
-        return $result;
-    }
 }

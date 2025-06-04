@@ -1,0 +1,63 @@
+{
+    "name": "Miscellaneous Operation",
+    "description": "This class represents miscellaneous accounting operation. It provides functionalities for creating misc journal entries that are not classified under standard categories.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "organisation_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "fiscal_year_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "posting_date",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "emission_date",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "fiscal_period_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "journal_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "document_id",
+                "width": "9%"
+            }
+        ]
+    }
+}

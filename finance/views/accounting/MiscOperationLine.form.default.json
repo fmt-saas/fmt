@@ -1,0 +1,52 @@
+{
+    "name": "Miscellaneous Operation Line",
+    "description": "A miscellaneous accounting operation can have one or more lines that are used to create related Accounting entry lines.",
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "misc_operation_id",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "account_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "debit",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "credit",
+                                                "width": "33%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

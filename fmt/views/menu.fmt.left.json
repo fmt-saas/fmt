@@ -185,12 +185,22 @@
                         }
                     },
                     {
-                        "id": "item.accounting_entries",
+                        "id": "item.accounting.accounting_entries",
                         "label": "Acct. entries",
                         "description": "",
                         "icon": "edit_note",
                         "context": {
                             "entity": "finance\\accounting\\AccountingEntry",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "item.accounting.misc_operations",
+                        "label": "Misc Operations",
+                        "description": "",
+                        "icon": "edit_note",
+                        "context": {
+                            "entity": "finance\\accounting\\MiscOperation",
                             "view": "list.default"
                         }
                     },

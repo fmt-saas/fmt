@@ -80,7 +80,6 @@ class BankAccount extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'description'       => 'The BIC code of the bank related to the organization\'s bank account.',
-                'onupdate'          => 'onupdateBankAccountBic',
                 'function'          => 'calcBankAccountBic',
                 'store'             => true
             ],
@@ -108,54 +107,14 @@ class BankAccount extends Model {
     }
 
 
-/*
-// #todo - create sync for this
     public static function onupdateBankAccountIban($self) {
-        $self->read(['organisation_id', 'bank_account_iban', 'condo_id']);
+        $self->read(['owner_identity_id', 'bank_account_iban', 'is_primary']);
         foreach($self as $id => $bankAccount) {
-            // ignore condominiums accounts
-            if($bankAccount['condo_id']) {
-                // #todo
-                continue;
-            }
-            else {
-                $organisation = Organisation::id($bankAccount['organisation_id'])->read(['id', 'bank_account_ids'])->first();
-                if($organisation) {
-                    // by convention, if current bank account is the first of the organisation, sync back with iban from organisation
-                    $first_bank_account_id = min($organisation['bank_account_ids']);
-                    if($id == $first_bank_account_id) {
-                        Organisation::id($bankAccount['organisation_id'])
-                        ->update([
-                            'bank_account_iban' => $bankAccount['bank_account_iban']
-                        ]);
-                    }
-                }
+            if($bankAccount['is_primary']) {
+                Identity::id($bankAccount['owner_identity_id'])->update(['bank_account_iban' => $bankAccount['bank_account_iban']]);
             }
         }
     }
-
-    public static function onupdateBankAccountBic($self) {
-        $self->read(['organisation_id', 'bank_account_bic', 'condo_id']);
-        foreach($self as $id => $bankAccount) {
-            // ignore condominiums accounts
-            if($bankAccount['condo_id']) {
-                continue;
-            }
-            $organisation = Organisation::id($bankAccount['organisation_id'])->read(['id', 'bank_account_ids'])->first();
-            if($organisation) {
-                // by convention, if current bank account is the first of the organisation, sync back with iban from organisation
-                $first_bank_account_id = min($organisation['bank_account_ids']);
-                if($id == $first_bank_account_id) {
-                    Organisation::id($bankAccount['organisation_id'])
-                       ->update([
-                           'bank_account_bic' => $bankAccount['bank_account_bic']
-                       ]);
-               }
-            }
-        }
-    }
-
-*/
 
     public static function onchange($event, $values, $lang) {
         $result = [];

@@ -1,0 +1,41 @@
+{
+    "name": "Miscellaneous Operation Line",
+    "description": "A miscellaneous accounting operation can have one or more lines that are used to create related Accounting entry lines.",
+    "operations": {
+        "total": {
+            "credit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "debit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "limit": 100,
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "account_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "journal_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "debit",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "credit",
+                "width": "12%"
+            }
+        ]
+    }
+}
