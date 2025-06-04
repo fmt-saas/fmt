@@ -230,7 +230,7 @@ class Invoice extends Model {
     public static function getActions() {
         return [
             'validate_accounting_entries' => [
-                'description'   => 'Creates accounting entries according to invoice lines.',
+                'description'   => 'Validate accounting entry (that should be pending) to be accounted in balance.',
                 'policies'      => [],
                 'function'      => 'doValidateAccountingEntries'
             ]
