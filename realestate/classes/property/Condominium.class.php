@@ -334,7 +334,7 @@ class Condominium extends Identity {
         parent::doSyncFromIdentity($self, $orm);
     }
 
-    public static function policyCanOpenFiscalYear($self, $user_id) {
+    protected static function policyCanOpenFiscalYear($self, $user_id) {
         $result = [];
         /** @var \fmt\access\AccessController */
 
@@ -352,7 +352,7 @@ class Condominium extends Identity {
         return $result;
     }
 
-    public static function policyCanCreateDraftFiscalYear($self, $user_id) {
+    protected static function policyCanCreateDraftFiscalYear($self, $user_id) {
         $result = [];
         /** @var \fmt\access\AccessController */
         /*
@@ -371,7 +371,7 @@ class Condominium extends Identity {
         return $result;
     }
 
-    public static function calcCode($self) {
+    protected static function calcCode($self) {
         $result = [];
         $self->read(['id']);
         foreach($self as $id => $condominium) {
@@ -397,7 +397,7 @@ class Condominium extends Identity {
     /**
      * Attempt to open the preopen fiscal year of the Condominium.
      */
-    public static function doOpenFiscalYear($self) {
+    protected static function doOpenFiscalYear($self) {
         $self->read(['fiscal_year_start']);
 
         foreach($self as $id => $condominium) {
@@ -419,7 +419,7 @@ class Condominium extends Identity {
      * If a fiscal year already exist, it is overwritten (re-created).
      *
      */
-    public static function doCreateDraftFiscalYear($self) {
+    protected static function doCreateDraftFiscalYear($self) {
         $self->read([
                 'fiscal_year_start', 'fiscal_year_end', 'fiscal_period_frequency',
                 'construction_compliance_date',
@@ -532,7 +532,7 @@ class Condominium extends Identity {
      * - suppliers:         realestate.organization.suppliership.sequence   [condo_id]
      * - purchase invoice:  purchase.accounting.invoice.sequence    [condo_id]
      */
-    public static function doGenerateSequences($self) {
+    protected static function doGenerateSequences($self) {
         foreach($self as $id => $condominium) {
             Setting::assert_sequence('realestate', 'organization', 'ownership.sequence', 1, ['condo_id' => $id]);
             Setting::assert_sequence('realestate', 'organization', 'property_lot.sequence', 1, ['condo_id' => $id]);
@@ -545,7 +545,7 @@ class Condominium extends Identity {
         }
     }
 
-    public static function doGenerateAccountChart($self) {
+    protected static function doGenerateAccountChart($self) {
         foreach($self as $id => $condominium) {
             $accountChart = AccountChart::create([
                     'condo_id'  => $id,
@@ -556,7 +556,7 @@ class Condominium extends Identity {
         }
     }
 
-    public static function doGenerateJournals($self) {
+    protected static function doGenerateJournals($self) {
         foreach($self as $id => $condominium) {
             // read 'default' journals (not assigned to any condominium)
             $journals = Journal::search(['condo_id', '=', null])
@@ -584,7 +584,7 @@ class Condominium extends Identity {
         }
     }
 
-    public static function doGenerateFolders($self) {
+    protected static function doGenerateFolders($self) {
         foreach($self as $id => $condominium) {
             // read 'default' journals (not assigned to any condominium)
             $folders = Node::search(['condo_id', '=', null])
@@ -610,7 +610,7 @@ class Condominium extends Identity {
     /**
      * Create mandatory dependencies for new Condominium
      */
-    public static function doInit($self) {
+    protected static function doInit($self) {
         $self
             // 1 - create specific sequences for accounting entries, invoices, lots, owners, ...
             ->do('generate_sequences')
