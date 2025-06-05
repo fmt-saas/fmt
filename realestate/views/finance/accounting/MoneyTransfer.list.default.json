@@ -1,0 +1,78 @@
+{
+    "name": "Miscellaneous Operation",
+    "description": "A MoneyTransfer is a specific type of Miscellaneous Operation designed to generate entries and funding for tracking a transfer between internal bank accounts.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "organisation_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "fiscal_year_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "posting_date",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "fiscal_period_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "journal_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "accounting_entry_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "document_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "funding_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "bank_account_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "counterpart_bank_account_id",
+                "width": "7%"
+            }
+        ]
+    }
+}

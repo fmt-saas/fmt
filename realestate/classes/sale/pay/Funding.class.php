@@ -78,6 +78,14 @@ class Funding extends \sale\pay\Funding {
                 'readonly'          => true
             ],
 
+            'misc_operation_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\MiscOperation',
+                'description'       => 'Miscellaneous operation targeted by the funding, if any.',
+                'readonly'          => true,
+                'visible'           => ['funding_type', 'in', ['transfer']],
+            ],
+
             'invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\sale\accounting\invoice\Invoice',
@@ -137,15 +145,22 @@ class Funding extends \sale\pay\Funding {
 
     /**
      * Generate payment reference according to SCOR/VCS logic
+     *
      */
     public static function calcPaymentReference($self) {
         $result = [];
-        $self->read(['condo_id' => ['code'], 'ownership_id' => 'code']);
+        $self->read(['funding_type', 'misc_operation_id', 'condo_id' => ['code'], 'ownership_id' => 'code']);
         foreach($self as $id => $funding) {
+            $reference = str_pad('', 12, '0');
 
-            $reference =
-                substr(str_pad((int) $funding['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
-                substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+            if($funding['funding_type'] === 'transfer') {
+                $reference = sprintf("%010s", $funding['misc_operation_id']);
+            }
+            elseif(in_array($funding['funding_type'], ['fund_request','expense_statement'], true)) {
+                $reference =
+                    substr(str_pad((int) $funding['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
+                    substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+            }
 
             $prefix = substr($reference, 0, 3);
             $suffix = substr($reference, 3);

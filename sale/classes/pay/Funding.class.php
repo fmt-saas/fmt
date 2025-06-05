@@ -79,14 +79,14 @@ class Funding extends Model {
             'issue_date' => [
                 'type'              => 'date',
                 'description'       => "Date at which the request for payment has to be issued.",
-                'default'           => time()
+                'default'           => function() { return time(); }
             ],
 
             'paid_amount' => [
                 'type'              => 'computed',
                 'result_type'       => 'float',
                 'usage'             => 'amount/money:2',
-                'description'       => "Total amount that has been received (can be greater than due_amount).",
+                'description'       => "Total amount that has been received or paid (can exceed due_amount).",
                 'function'          => 'calcPaidAmount',
                 'store'             => true,
                 'instant'           => true
@@ -95,7 +95,7 @@ class Funding extends Model {
             'is_paid' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
-                'description'       => 'Has the full payment been received?',
+                'description'       => 'Has the full payment been performed?',
                 'deprecated'        => 'Use status instead (balanced means fully paid).',
                 'function'          => 'calcIsPaid',
                 'store'             => true,
@@ -265,7 +265,7 @@ class Funding extends Model {
         $a = intval($prefix);
         $b = intval($suffix);
         $control = ((76*$a) + $b ) % 97;
-        $control = ($control == 0)?97:$control;
+        $control = ($control == 0) ? 97 : $control;
         return sprintf("%03d%04d%03d%02d", $a, $b / 1000, $b % 1000, $control);
     }
 }

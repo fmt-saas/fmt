@@ -54,7 +54,7 @@ class CurrentBalance extends Balance {
      * @param   array   $values     Is expected to hold values for following attributes: account_id, debit, credit.
      *
      */
-    public static function doUpdateAccount($self, $values) {
+    protected static function doUpdateAccount($self, $values) {
         if(!isset($values['account_id'], $values['debit'], $values['credit'])) {
             return;
         }

@@ -47,30 +47,25 @@ class MiscOperation extends Model {
                 'default'           => 1
             ],
 
+            'posting_date' => [
+                'type'              => 'date',
+                'description'       => 'Date the operation is posted in the accounting system.',
+                'default'           => function () { return time(); }
+            ],
+
             'fiscal_year_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => 'Fiscal year in which the operation is recorded.',
-                'required'          => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id']
-            ],
-
-            'posting_date' => [
-                'type'              => 'date',
-                'description'       => 'Date the operation is posted in the accounting system.',
-                'default'           => function () { return time(); },
-                'dependents'        => ['fiscal_period_id']
+                'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['status', 'in', ['preopen','open']] ]
             ],
 
             'fiscal_period_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
+                'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
                 'description'       => 'Accounting period derived from the posting date.',
                 'help'              => 'Automatically computed when the operation is validated.',
-                'function'          => 'calcFiscalPeriodId',
-                'store'             => true,
-                'instant'           => true
+                'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['status', '<>', 'closed'] ]
             ],
 
             'journal_id' => [
@@ -112,13 +107,50 @@ class MiscOperation extends Model {
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
+                    'draft',
                     'proforma',
-                    'misc_operation'
+                    'posted'
                 ],
-                'default'           => 'proforma',
+                'default'           => 'draft',
                 'description'       => 'Current status of the operation.',
             ],
 
+        ];
+    }
+
+    public static function getWorkflow() {
+        return [
+            'draft' => [
+                'description' => 'Miscellaneous operation being created.',
+                'icon'        => 'draw',
+                'transitions' => [
+                    'publish' => [
+                        'description' => 'Update the document to `proforma`.',
+                        'status'      => 'proforma'
+                    ]
+                ]
+            ],
+            'proforma' => [
+                'description' => 'Ready for review. Not posted yet to the accountancy books.',
+                'icon'        => 'hourglass_top',
+                'transitions' => [
+                    'post' => [
+                        'description' => 'Create accounting entries and update the document to `posted`.',
+                        'policies'    => ['is_valid'],
+                        'onafter'     => 'onafterPost',
+                        'status'      => 'posted'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    public static function getPolicies(): array {
+        return [
+            'is_valid' => [
+                'description' => 'Verifies that the state of the Money Transfer allows validation.',
+                'function'    => 'policyIsValid'
+            ]
         ];
     }
 
@@ -137,7 +169,25 @@ class MiscOperation extends Model {
         ];
     }
 
-    public static function calcName($self) {
+    protected static function policyIsValid($self): array {
+        $result = [];
+        $self->read(['status', 'condo_id']);
+        foreach($self as $id => $moneyTransfer) {
+            if(!isset($moneyTransfer['bank_account_id'], $moneyTransfer['counterpart_bank_account_id'])) {
+                $result[$id] = [
+                    'missing_bank_account' => 'At least one bank account is missing.'
+                ];
+            }
+            if(!isset($moneyTransfer['condo_id'])) {
+                $result[$id] = [
+                    'missing_condominium' => 'The target condominium must be specified.'
+                ];
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcName($self) {
         $result = [];
         $self->read(['description', 'journal_id' => ['code']]);
         foreach($self as $id => $operation) {
@@ -148,7 +198,7 @@ class MiscOperation extends Model {
         return $result;
     }
 
-    public static function doValidateAccountingEntry($self) {
+    protected static function doValidateAccountingEntry($self) {
         $self->read(['accounting_entry_id' => ['status']]);
         foreach($self as $id => $miscOperation) {
             if($miscOperation['accounting_entry_id']['status'] == 'pending') {
@@ -157,11 +207,42 @@ class MiscOperation extends Model {
         }
     }
 
-    public static function doGenerateAccountingEntry($self) {
-        $self->read(['misc_operation_lines_ids' => ['account_id', 'debit', 'credit']]);
-        foreach($self as $id => $miscOperation) {
+    protected static function doGenerateAccountingEntry($self) {
+        $self->read([
+                'condo_id', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
+                'misc_operation_lines_ids' => ['account_id', 'debit', 'credit']
+            ]);
+        foreach ($self as $id => $miscOperation) {
 
+            $accountingEntry = AccountingEntry::create([
+                    'condo_id'              => $miscOperation['condo_id'],
+                    'entry_date'            => $miscOperation['posting_date'],
+                    'origin_object_class'   => self::getType(),
+                    'origin_object_id'      => $id,
+                    'journal_id'            => $miscOperation['journal_id'],
+                    'fiscal_year_id'        => $miscOperation['fiscal_year_id'],
+                    'fiscal_period_id'      => $miscOperation['fiscal_period_id']
+                ])
+                ->first();
+
+            foreach($miscOperation['misc_operation_lines_ids'] as $line) {
+                AccountingEntryLine::create([
+                        'account_id'            => $line['account_id'],
+                        'debit'                 => $line['debit'],
+                        'credit'                => $line['credit'],
+                        'accounting_entry_id'   => $accountingEntry['id']
+                    ]);
+            }
+
+            // Store the created accounting entry ID back to the misc operation
+            self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
         }
+    }
+
+    protected static function onafterPost($self) {
+        $self
+            ->do('generate_accounting_entry')
+            ->do('validate_accounting_entry');
     }
 
 }

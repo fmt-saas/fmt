@@ -56,7 +56,8 @@ class AccountingEntryLine extends Model {
                 'result_type'       => 'string',
                 'description'       => "Code of the related accounting account.",
                 'relation'          => ['account_id' => 'code'],
-                'store'             => true
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'journal_id' => [
@@ -65,7 +66,28 @@ class AccountingEntryLine extends Model {
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => "Accounting journal the entry relates to.",
                 'relation'          => ['accounting_entry_id' => 'journal_id'],
-                'store'             => true
+                'store'             => true,
+                'readonly'          => true
+            ],
+
+            'fiscal_year_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => "Fiscal year the entry relates to.",
+                'relation'          => ['accounting_entry_id' => 'fiscal_year_id'],
+                'store'             => true,
+                'readonly'          => true
+            ],
+
+            'fiscal_period_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'description'       => "Period of the fiscal year the entry relates to (from entry_date).",
+                'relation'          => ['accounting_entry_id' => 'fiscal_period_id'],
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'debit' => [

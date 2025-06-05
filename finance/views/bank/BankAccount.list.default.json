@@ -44,6 +44,7 @@
                 "visible": false
             },
             {
+                "id": "item.is_primary",
                 "type": "field",
                 "value": "is_primary",
                 "width": "10%"

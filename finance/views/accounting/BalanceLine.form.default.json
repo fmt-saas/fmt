@@ -18,8 +18,8 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "fiscal_year_id",
-                                                "width": "50%"
+                                                "value": "account_id",
+                                                "width": "100%"
                                             }
                                         ]
                                     },
@@ -34,6 +34,11 @@
                                                 "type": "field",
                                                 "value": "condo_id",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_year_id",
+                                                "width": "100%"
                                             }
                                         ]
                                     }
@@ -46,17 +51,36 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "account_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "debit",
-                                                "width": "100%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "credit",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.entry_lines",
+                        "label": "Accounting Entry lines",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "entry_lines_ids",
                                                 "width": "100%"
                                             }
                                         ]

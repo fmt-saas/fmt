@@ -271,8 +271,8 @@ class AccountingEntry extends Model {
         $self->read([
                 'condo_id',
                 'entry_date',
-                'fiscal_period_id' => ['id', 'date_from'],
                 'journal_id',
+                'fiscal_period_id' => ['id', 'date_from'],
                 'fiscal_year_id'   => ['current_balance_id'],
                 'entry_lines_ids'  => ['account_id', 'debit', 'credit']
             ]);
@@ -282,12 +282,13 @@ class AccountingEntry extends Model {
                 throw new \Exception('missing_balance', EQ_ERROR_INVALID_PARAM);
             }
             // #memo - we cannot update the Balance directly to avoid concurrent changes: always use BalanceUpdateRequest
+            /*
             BalanceUpdateRequest::create([
                     'condo_id'              => $accountingEntry['condo_id'],
                     'balance_id'            => $accountingEntry['fiscal_year_id']['current_balance_id'],
                     'accounting_entry_id'   => $id
                 ]);
-
+            */
 
             // #todo - temporary for testing - to remove once cron handling balanceupdate request will be running
             foreach($accountingEntry['entry_lines_ids'] ?? [] as $entry_line_id => $entryLine) {

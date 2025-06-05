@@ -1,6 +1,30 @@
 {
     "name": "Miscellaneous Operation",
     "description": "This class represents miscellaneous accounting operation. It provides functionalities for creating misc journal entries that are not classified under standard categories.",
+    "actions": [
+        {
+            "id": "action.generate_accounting_entry",
+            "label": "Generate accounting entry",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "finance\\accounting\\MiscOperation",
+                "action": "generate_accounting_entry",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.validate_accounting_entry",
+            "label": "Validate accounting entry",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "finance\\accounting\\MiscOperation",
+                "action": "validate_accounting_entry",
+                "ids": []
+            },
+            "confirm": true
+        }
+    ],
     "layout": {
         "groups": [
             {

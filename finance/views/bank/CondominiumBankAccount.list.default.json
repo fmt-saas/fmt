@@ -8,5 +8,17 @@
     "routes": [
     ],
     "layout": {
+        "update": {
+            "item.is_primary": {
+                "after": [
+                    {
+                        "type": "field",
+                        "label": "Balance",
+                        "value": "available_balance",
+                        "width": "10%"
+                    }
+                ]
+            }
+        }
     }
 }

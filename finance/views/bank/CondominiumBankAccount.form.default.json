@@ -71,6 +71,12 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label" : "Accounting Account",
+                                                "value": "accounting_account_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "label": "Primary",
                                                 "value": "is_primary",
                                                 "width": "100%"

@@ -4,14 +4,12 @@
     "routes": [
         {
             "id": "item.transfer",
-            "label": "Money Transfer",
+            "label": "Money Transfers",
             "description": "",
             "icon": "add_card",
             "context": {
-                "entity": "realestate\\sale\\pay\\Funding",
-                "view": "form.default",
-                "purpose": "create",
-                "mode": "edit",
+                "entity": "realestate\\finance\\accounting\\MoneyTransfer",
+                "view": "list.default",
                 "domain": ["condo_id", "=", "object.id"]
             }
         },

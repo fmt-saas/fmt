@@ -82,6 +82,13 @@ class BalanceLine extends Model {
                 'usage'             => 'amount/money:4',
                 'description'       => 'The remaining balance on the account if the total credits exceed the total debits.',
                 'default'           => 0.0
+            ],
+
+            'entry_lines_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\AccountingEntryLine',
+                'description'       => "Accounting entry lines impacting the account.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['fiscal_year_id', '=', 'object.fiscal_year_id'], ['account_id', '=', 'object.account_id']]
             ]
 
         ];
