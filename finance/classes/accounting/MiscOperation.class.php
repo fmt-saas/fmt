@@ -82,7 +82,7 @@ class MiscOperation extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => 'Accounting journal used for this miscellaneous operation.',
-                'required'          => true,
+                'default'           => 'defaultJournalId',
                 'domain'            => [['journal_type', '=', 'MISC'], ['condo_id', '=', 'object.condo_id']]
             ],
 
@@ -189,6 +189,18 @@ class MiscOperation extends Model {
         ];
     }
 
+    public static function defaultJournalId($values) {
+        $result = null;
+        if(isset($values['condo_id'])) {
+            $journal = Journal::search([['condo_id', '=', $values['condo_id']], ['journal_type', '=', 'MISC']])->first();
+            if($journal) {
+                $result = $journal['id'];
+            }
+        }
+        return $result;
+
+    }
+
     protected static function policyIsValid($self): array {
         $result = [];
         $self->read(['status', 'condo_id', 'fiscal_year_id', 'fiscal_period_id', 'journal_id']);
@@ -273,6 +285,22 @@ class MiscOperation extends Model {
         $self
             ->do('generate_accounting_entry')
             ->do('validate_accounting_entry');
+    }
+
+    public static function onchange($event, $values) {
+        $result = [];
+
+        if(isset($event['condo_id'])) {
+            $journal = Journal::search([['condo_id', '=', $values['condo_id']], ['journal_type', '=', 'MISC']])->read(['id', 'name'])->first();
+            if($journal) {
+                $result['journal_id'] = [
+                        'id'    => $journal['id'],
+                        'name'  => $journal['name']
+                    ];
+            }
+        }
+
+        return $result;
     }
 
 }

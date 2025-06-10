@@ -115,6 +115,7 @@ class BankStatement extends Model {
                 'selection'         => [
                     'draft',
                     'proforma',
+                    'reconciled',
                     'posted'
                 ],
                 'default'           => 'proforma',
@@ -138,6 +139,19 @@ class BankStatement extends Model {
                 ]
             ],
             'proforma' => [
+                'description' => 'Draft invoice, pending and still waiting to be completed.',
+                'icon' => 'edit',
+                'transitions' => [
+                    'reconcile' => [
+                        'description' => 'Post bank statement statement to the accounting system.',
+                        'policies'    => [
+                            'is_balanced'
+                        ],
+                        'status'    => 'reconciled'
+                    ]
+                ],
+            ],
+            'reconciled' => [
                 'description' => 'Draft invoice, pending and still waiting to be completed.',
                 'icon' => 'edit',
                 'transitions' => [

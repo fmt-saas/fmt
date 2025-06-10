@@ -107,7 +107,8 @@ class Funding extends Model {
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'The Bank account the funding relates to.',
                 'help'              => 'This is the bank account to which payments are expected to be received (or from which payment is expected to be made).',
-                'readonly'          => true
+                'readonly'          => true,
+                'dependents'        => ['bank_account_iban']
             ],
 
             'counterpart_bank_account_id' => [
@@ -115,7 +116,28 @@ class Funding extends Model {
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'Counterpart bank account, when applying.',
                 'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
-                'readonly'          => true
+                'readonly'          => true,
+                'dependents'        => ['counterpart_bank_account_iban']
+            ],
+
+            'bank_account_iban' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/urn.iban',
+                'description'       => 'The Bank account IBAN.',
+                'relation'          => ['bank_account_id' => 'bank_account_iban'],
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'counterpart_bank_account_iban' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/urn.iban',
+                'description'       => 'Counterpart bank account IBAN.',
+                'relation'          => ['counterpart_bank_account_id' => 'bank_account_iban'],
+                'store'             => true,
+                'instant'           => true
             ],
 
             'invoice_id' => [

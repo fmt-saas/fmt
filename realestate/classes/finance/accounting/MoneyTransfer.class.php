@@ -263,7 +263,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         $self->read(['condo_id', 'amount', 'bank_account_id', 'counterpart_bank_account_id']);
 
         foreach($self as $id => $moneyTransfer) {
-            Funding::create([
+            $funding = Funding::create([
                     'condo_id'                      => $moneyTransfer['condo_id'],
                     'misc_operation_id'             => $id,
                     'funding_type'                  => 'transfer',
@@ -273,6 +273,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     // #todo - allow custom with setting
                     'due_date'                      => time() + 10 * 86400
                 ]);
+            self::id($id)->update(['funding_id' => $funding['id']]);
         }
     }
 

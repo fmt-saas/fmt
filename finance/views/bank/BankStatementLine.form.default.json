@@ -4,6 +4,21 @@
     "access": {
         "groups": ["sale.default.users"]
     },
+    "actions": [
+        {
+            "id": "action.reconcile",
+            "label": "Reconcile",
+            "icon": "play_arrow",
+            "description": "Attempts to reconcile the line with a Funding.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "finance\\bank\\BankStatementLine",
+                "action": "reconcile"
+            },
+            "confirm": false,
+            "visible": ["status", "=", "pending"]
+        }
+    ],
     "layout": {
         "groups": [
             {

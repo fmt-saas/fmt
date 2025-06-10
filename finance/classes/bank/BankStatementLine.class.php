@@ -6,7 +6,9 @@
 */
 namespace finance\bank;
 
+use equal\orm\Domain;
 use equal\orm\Model;
+use sale\pay\Funding;
 use sale\pay\Payment;
 
 class BankStatementLine extends Model {
@@ -118,6 +120,16 @@ class BankStatementLine extends Model {
         ];
     }
 
+    public static function getActions() {
+        return [
+            'reconcile' => [
+                'description'   => 'Creates accounting entries according to operation lines.',
+                'policies'      => [/* 'can_generate_accounting_entry' */],
+                'function'      => 'doReconcile'
+            ],
+        ];
+    }
+
     public static function defaultSequenceNumber($values) {
         $result = null;
         if(isset($values['bank_statement_id'])) {
@@ -129,12 +141,83 @@ class BankStatementLine extends Model {
         return $result;
     }
 
+
+    protected static function doReconcile($self) {
+        $self->read(['condo_id', 'bank_statement_id' => ['bank_account_iban'], 'structured_message', 'message', 'date', 'amount', 'account_iban']);
+
+        foreach($self as $id => $bankStatementLine) {
+
+            $amount = $bankStatementLine['amount'];
+            $iban = $bankStatementLine['account_iban'];
+            $is_outgoing = $bankStatementLine['amount'] < 0.0;
+
+            $structured = trim(str_replace(['+', '/', ' '], '', $bankStatementLine['structured_message'] ?? ''));
+            $message = trim(str_replace(['+', '/', ' '], '', $bankStatementLine['message'] ?? ''));
+
+            $domain = [
+                ['is_cancelled', '=', false],
+                ['status', '<>', 'balanced']
+            ];
+
+            if($is_outgoing) {
+                $domain[] = ['due_amount', '=', $amount];
+                $domain[] = ['bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']];
+                $domain[] = ['counterpart_bank_account_iban', '=', $iban];
+            }
+            else {
+                $domain[] = ['due_amount', '=', -$amount];
+                $domain[] = ['bank_account_iban', '=', $iban];
+                $domain[] = ['counterpart_bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']];
+            }
+
+            $funding = null;
+
+            if(strlen($structured) > 0) {
+                $funding = Funding::search(
+                    array_merge(
+                        $domain,
+                        [['payment_reference', '=', $structured]]
+                    ))
+                    ->first();
+            }
+
+            if(!$funding) {
+                if(strlen($message) > 0) {
+                    $funding = Funding::search(
+                        array_merge(
+                            $domain,
+                            [['payment_reference', '=', $message]]
+                        ))
+                        ->first();
+                }
+
+            }
+
+            if(!$funding) {
+                continue;
+            }
+
+            $communication = (strlen($structured) > 0) ? $structured : $message;
+
+            Payment::create([
+                    'condo_id'          => $bankStatementLine['condo_id'],
+                    'amount'            => $bankStatementLine['amount'],
+                    'communication'     => $communication,
+                    'receipt_date'      => $bankStatementLine['date'],
+                    'payment_origin'    => 'bank',
+                    'payment_method'    => 'wire_transfer',
+                    'statement_line_id' => $id,
+                    'funding_id'        => $funding['id']
+                ]);
+        }
+    }
+
     /**
      * Update status according to the payments attached to the line.
      * Line is considered 'reconciled' if its amount matches the sum of its payments.
      *
      */
-    public static function onupdatePaymentsIds($om, $ids, $values, $lang) {
+    protected static function onupdatePaymentsIds($om, $ids, $values, $lang) {
         $lines = $om->read(self::getType(), $ids, ['amount', 'payments_ids.amount']);
 
         if($lines > 0) {
@@ -153,7 +236,7 @@ class BankStatementLine extends Model {
         }
     }
 
-    public static function calcRemainingAmount($self) {
+    protected static function calcRemainingAmount($self) {
         $result = [];
         $self->read(['payments_ids', 'amount']);
         foreach($self as $lid => $line) {

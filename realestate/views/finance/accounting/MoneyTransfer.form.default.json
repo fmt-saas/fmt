@@ -108,7 +108,7 @@
                                                 "type": "field",
                                                 "label": "Accounting Entry",
                                                 "value": "accounting_entry_id",
-                                                "width": "50%",
+                                                "width": "100%",
                                                 "visible": ["accounting_entry_id", "<>", null]
                                             },
                                             {

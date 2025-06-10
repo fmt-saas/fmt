@@ -17,27 +17,14 @@
         "items": [
             {
                 "type": "field",
-                "label": "Partner",
-                "value": "partner_id",
-                "width": "25%"
+                "value": "name",
+                "width": "10%"
             },
             {
                 "type": "field",
                 "label": "Funding",
                 "value": "funding_id",
-                "width": "20%"
-            },
-            {
-                "type": "field",
-                "label": "Funding",
-                "value": "order_id",
-                "width": "20%"
-            },
-            {
-                "type": "field",
-                "label": "Office",
-                "value": "center_office_id",
-                "width": "20%"
+                "width": "80%"
             },
             {
                 "type": "field",
