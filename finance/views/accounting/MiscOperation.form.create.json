@@ -4,40 +4,35 @@
     "header": {
         "actions": {
             "ACTION.SAVE": [
-                {"id": "SAVE_AND_CONTINUE"},
-                {"id": "SAVE_AND_VIEW"},
-                {"id": "SAVE_AND_CLOSE"}
+                {
+                    "id": "SAVE_AND_VIEW",
+                    "view": "form.default"
+                }
             ]
         }
     },
     "actions": [
-{
-            "id": "action.publish",
-            "label": "Publish",
-            "icon": "play_arrow",
-            "description": "Generate mandatory configuration.",
-            "controller": "core_model_transition",
+        {
+            "id": "action.generate_accounting_entry",
+            "label": "Generate accounting entry",
+            "controller": "core_model_do",
             "params": {
                 "entity": "finance\\accounting\\MiscOperation",
-                "transition": "publish",
+                "action": "generate_accounting_entry",
                 "ids": []
             },
-            "confirm": false,
-            "visible": ["status", "=", "draft"]
+            "confirm": true
         },
         {
-            "id": "action.post",
-            "label": "Post",
-            "icon": "play_arrow",
-            "description": "Generate mandatory configuration.",
-            "controller": "core_model_transition",
+            "id": "action.validate_accounting_entry",
+            "label": "Validate accounting entry",
+            "controller": "core_model_do",
             "params": {
                 "entity": "finance\\accounting\\MiscOperation",
-                "transition": "post",
+                "action": "validate_accounting_entry",
                 "ids": []
             },
-            "confirm": false,
-            "visible": ["status", "=", "proforma"]
+            "confirm": true
         }
     ],
     "layout": {
@@ -96,28 +91,6 @@
                                                 "value": "status",
                                                 "width": "0%",
                                                 "visible": false
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "sections": [
-                    {
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "misc_operation_lines_ids",
-                                                "width": "100%"
                                             }
                                         ]
                                     }

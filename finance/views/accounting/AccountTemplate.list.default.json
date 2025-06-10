@@ -1,8 +1,8 @@
 {
     "name": "Accounting Charts List",
     "description": "This view is intended for displaying the accounting charts.",
-    "group_by": ["account_class"],
-    "limit": 1000,
+    "group_by_deactivated": ["account_class"],
+    "limit": 25,
     "order": "name,level",
     "sort": "asc",
     "layout": {
@@ -21,13 +21,7 @@
             {
                 "type": "field",
                 "value": "level",
-                "width": "15%",
-                "visible": false
-            },
-            {
-                "type": "field",
-                "value": "account_nature",
-                "width": "15%",
+                "width": "0%",
                 "visible": false
             },
             {

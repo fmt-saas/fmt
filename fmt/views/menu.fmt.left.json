@@ -255,6 +255,7 @@
                                 "description": "",
                                 "context": {
                                     "entity": "finance\\accounting\\Journal",
+                                    "domain": ["condo_id", "=", null],
                                     "view": "list.default"
                                 }
                             },

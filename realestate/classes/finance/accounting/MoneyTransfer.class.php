@@ -16,6 +16,10 @@ use realestate\sale\pay\Funding;
 
 class MoneyTransfer extends \finance\accounting\MiscOperation {
 
+    public static function getName() {
+        return 'Money Transfer';
+    }
+
     public static function getDescription() {
         return 'A MoneyTransfer is a specific type of Miscellaneous Operation designed to generate entries and funding for tracking a transfer between internal bank accounts.';
     }
@@ -30,12 +34,21 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'default'           => 'Money Transfer'
             ],
 
+            'operation_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'misc',
+                    'transfer'
+                ],
+                'default'           => 'transfer',
+                'description'       => "Type of operation, necessary for entities inheriting from MiscOperation."
+            ],
+
             'bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
                 'description'       => 'The Bank account the funding relates to.',
                 'help'              => 'This is the bank account to which payments are expected to be received or from which payment is expected to be made.',
-                'readonly'          => true,
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
@@ -44,7 +57,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
                 'description'       => 'Counterpart bank account, when applying.',
                 'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
-                'readonly'          => true,
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
@@ -229,7 +241,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return $result;
     }
 
-
     protected static function calcFiscalYearId($self) {
         $result = [];
         $self->read(['condo_id', 'posting_date']);
@@ -249,17 +260,18 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
     }
 
     protected static function doCreateFunding($self) {
-        $self->read(['condo_id', 'amount', 'bank_account_id']);
+        $self->read(['condo_id', 'amount', 'bank_account_id', 'counterpart_bank_account_id']);
 
         foreach($self as $id => $moneyTransfer) {
             Funding::create([
-                    'condo_id'              => $moneyTransfer['condo_id'],
-                    'misc_operation_id'     => $id,
-                    'funding_type'          => 'transfer',
-                    'due_amount'            => $moneyTransfer['amount'],
-                    'bank_account_id'       => $moneyTransfer['bank_account_id'],
+                    'condo_id'                      => $moneyTransfer['condo_id'],
+                    'misc_operation_id'             => $id,
+                    'funding_type'                  => 'transfer',
+                    'due_amount'                    => -$moneyTransfer['amount'],
+                    'bank_account_id'               => $moneyTransfer['bank_account_id'],
+                    'counterpart_bank_account_id'   => $moneyTransfer['counterpart_bank_account_id'],
                     // #todo - allow custom with setting
-                    'due_date'              => time() + 10 * 86400
+                    'due_date'                      => time() + 10 * 86400
                 ]);
         }
     }
@@ -287,7 +299,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 $bankTransferAccount = Account::search([ ['condo_id', '=', $moneyTransfer['condo_id']], ['operation_assignment', '=', 'bank_transfer'] ])->first();
 
                 AccountingEntryLine::create([
-                        'account_id'            => $moneyTransfer['counterpart_bank_account_id']['accounting_account_id'],
+                        'account_id'            => $moneyTransfer['bank_account_id']['accounting_account_id'],
                         'debit'                 => 0.0,
                         'credit'                => $moneyTransfer['amount'],
                         'accounting_entry_id'   => $accountingEntry['id']
@@ -348,7 +360,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
         return $result;
     }
-
 
     public static function onchange($event, $values) {
         $result = [];

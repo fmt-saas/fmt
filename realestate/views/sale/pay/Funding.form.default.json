@@ -98,10 +98,37 @@
                                                 "width": "50%"
                                             },
                                             {
+                                                "type": "label",
+                                                "value": "Document",
+                                                "width": "50%"
+                                            },
+                                            {
                                                 "type": "field",
                                                 "label": "Invoice",
                                                 "value": "invoice_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "visible": ["funding_type", "=", "invoice"]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Fund Request Execution",
+                                                "value": "fund_request_execution_id",
+                                                "width": "50%",
+                                                "visible": ["funding_type", "=", "fund_request"]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Expense Statement",
+                                                "value": "expense_statement_id",
+                                                "width": "50%",
+                                                "visible": ["funding_type", "=", "expense_statement"]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Misc Operation",
+                                                "value": "misc_operation_id",
+                                                "width": "50%",
+                                                "visible": ["funding_type", "=", "transfer"]
                                             }
                                         ]
                                     },

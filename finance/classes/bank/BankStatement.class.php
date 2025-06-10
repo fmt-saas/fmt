@@ -26,7 +26,7 @@ class BankStatement extends Model {
         return [
             'condo_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the accounting entry refers to.",
+                'description'       => "The condominium the bank statement refers to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 //'readonly'          => true
             ],
@@ -97,11 +97,25 @@ class BankStatement extends Model {
                 'description'       => 'The lines that are assigned to the statement.'
             ],
 
+            'document_process_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\processing\DocumentProcess',
+                'description'       => 'Document Process the statement originates from, if any.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Received Document that the statement is issued from, if any.'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
+                    'draft',
                     'proforma',
-                    'bank_statement'
+                    'posted'
                 ],
                 'default'           => 'proforma',
                 'description'       => 'Status of the statement (depending on lines).'
@@ -113,34 +127,32 @@ class BankStatement extends Model {
 
     public static function getWorkflow() {
         return [
+            'draft' => [
+                'description' => 'Bank Statement being created.',
+                'icon'        => 'draw',
+                'transitions' => [
+                    'publish' => [
+                        'description' => 'Update the statement to `proforma`.',
+                        'status'      => 'proforma'
+                    ]
+                ]
+            ],
             'proforma' => [
                 'description' => 'Draft invoice, pending and still waiting to be completed.',
                 'icon' => 'edit',
                 'transitions' => [
-                    'validate' => [
-                        'description' => 'Validate a manually created statement.',
+                    'post' => [
+                        'description' => 'Post bank statement statement to the accounting system.',
                         'policies'    => [
                             'is_balanced'
                         ],
-                        'status'    => 'pending'
+                        'onafter'     => 'onafterPost',
+                        'status'    => 'posted'
                     ]
                 ],
             ],
-            'pending' => [
-                'description' => 'Draft invoice, pending and still waiting to be completed.',
-                'icon' => 'edit',
-                'transitions' => [
-                    'reconcile' => [
-                        'description' => '',
-                        'policies'    => [
-                            'is_reconciled'
-                        ],
-                        'status'    => 'reconciled'
-                    ]
-                ],
-            ],
-            'reconciled' => [
-                'description' => 'The Bank Statement is .',
+            'posted' => [
+                'description' => 'The Bank Statement is reconciled.',
                 'icon' => 'receipt_long',
                 'transitions' => [
                     'cancel' => [
@@ -163,6 +175,12 @@ class BankStatement extends Model {
                 'function'    => 'policyIsReconciled'
             ]
         ]);
+    }
+
+    protected static function onafterPost($self) {
+        $self
+            ->do('generate_accounting_entry')
+            ->do('validate_accounting_entry');
     }
 
     public static function calcName($self) {

@@ -10,7 +10,7 @@
             "context": {
                 "entity": "realestate\\finance\\accounting\\MoneyTransfer",
                 "view": "list.default",
-                "domain": ["condo_id", "=", "object.id"]
+                "domain": [["condo_id", "=", "object.id"], ["operation_type", "=", "transfer"]]
             }
         },
         {

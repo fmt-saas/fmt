@@ -9,6 +9,12 @@
             }
         }
     },
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": true
+        }
+    },
     "sort": "asc",
     "limit": 100,
     "layout": {

@@ -13,9 +13,21 @@
             }
         }
     },
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": true
+        }
+    },
     "limit": 100,
     "layout": {
         "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "0%",
+                "visible": false
+            },
             {
                 "type": "field",
                 "value": "account_id",

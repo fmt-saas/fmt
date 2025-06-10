@@ -60,6 +60,7 @@ class MiscOperationLine extends Model {
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => "Accounting journal the entry relates to.",
                 'relation'          => ['misc_operation_id' => 'journal_id'],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['journal_type', '=', 'MISC']],
                 'store'             => true
             ],
 

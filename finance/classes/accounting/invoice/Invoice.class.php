@@ -76,7 +76,7 @@ class Invoice extends Model {
                 'description'       => 'Current status of the invoice.',
                 'selection'         => [
                     'proforma',             // draft invoice (no number yet)
-                    'invoice',              // final invoice (with unique number and accounting entries)
+                    'posted',               // final invoice (with unique number and accounting entries)
                     'cancelled'             // the invoice has been cancelled (through reversing entries)
                 ],
                 'default'           => 'proforma',
@@ -122,7 +122,7 @@ class Invoice extends Model {
                     'credit_balance',   // reimbursement to buyer is required
                     'balanced'          // fully paid and balanced
                 ],
-                'visible'           => ['status', '=', 'invoice'],
+                'visible'           => ['status', '=', 'posted'],
                 'default'           => 'pending'
             ],
 

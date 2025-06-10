@@ -1,5 +1,5 @@
 {
-    "name": "Miscellaneous Operation",
+    "name": "Money Transfer",
     "description": "A MoneyTransfer is a specific type of Miscellaneous Operation designed to generate entries and funding for tracking a transfer between internal bank accounts.",
     "actions": [
         {
@@ -25,28 +25,6 @@
                 "transition": "post",
                 "ids": []
             }
-        },
-        {
-            "id": "action.generate_accounting_entry",
-            "label": "Generate accounting entry",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "realestate\\finance\\accounting\\MoneyTransfer",
-                "action": "generate_accounting_entry",
-                "ids": []
-            },
-            "confirm": true
-        },
-        {
-            "id": "action.validate_accounting_entry",
-            "label": "Validate accounting entry",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "realestate\\finance\\accounting\\MoneyTransfer",
-                "action": "validate_accounting_entry",
-                "ids": []
-            },
-            "confirm": true
         }
     ],
     "layout": {
@@ -63,7 +41,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "100%",
+                                                "width": "0%",
                                                 "visible": false
                                             },
                                             {
@@ -86,81 +64,7 @@
                                                 "type": "field",
                                                 "value": "description",
                                                 "width": "100%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "50%",
-                                        "items": [
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
                                             },
-                                            {
-                                                "type": "field",
-                                                "label": "Fiscal year",
-                                                "value": "fiscal_year_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Fiscal period",
-                                                "value": "fiscal_period_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%",
-                                                "visible": ["funding_id", "<>", null]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Funding",
-                                                "value": "funding_id",
-                                                "width": "50%",
-                                                "visible": ["funding_id", "<>", null]
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%",
-                                                "visible": ["accounting_entry_id", "<>", null]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Accounting Entry",
-                                                "value": "accounting_entry_id",
-                                                "width": "50%",
-                                                "visible": ["accounting_entry_id", "<>", null]
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%",
-                                                "visible": ["accounting_entry_id", "<>", null]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_complete",
-                                                "width": "50%",
-                                                "visible": ["accounting_entry_id", "<>", null]
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "columns": [
-                                    {
-                                        "width": "50%",
-                                        "items": [
                                             {
                                                 "type": "field",
                                                 "label": "Origin account",
@@ -172,6 +76,46 @@
                                                 "label": "Destination account",
                                                 "value": "counterpart_bank_account_id",
                                                 "width": "100%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%"
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Fiscal year",
+                                                "value": "fiscal_year_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Fiscal period",
+                                                "value": "fiscal_period_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Funding",
+                                                "value": "funding_id",
+                                                "width": "100%",
+                                                "visible": ["funding_id", "<>", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Accounting Entry",
+                                                "value": "accounting_entry_id",
+                                                "width": "50%",
+                                                "visible": ["accounting_entry_id", "<>", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_complete",
+                                                "width": "100%",
+                                                "visible": ["accounting_entry_id", "<>", null]
                                             }
                                         ]
                                     }

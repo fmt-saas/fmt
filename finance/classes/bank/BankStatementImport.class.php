@@ -57,12 +57,11 @@ class BankStatementImport extends Model {
         $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
 
         foreach($self as $id => $bankStatementImport) {
-            // create a temporary import Document
+            // create a temporary import Document holding all statements
             $document = Document::create(['name' => $bankStatementImport['name'], 'data' => $bankStatementImport['data']])->first();
             $data = \eQual::run('get', 'documents_processing_bankStatement_extract', ['document_id' => $document['id']]);
 
             if(!is_array($data)) {
-                // error
                 throw new \Exception('invalid_data', EQ_ERROR_INVALID_PARAM);
             }
             $file_name = pathinfo($bankStatementImport['name'], PATHINFO_FILENAME);
@@ -70,7 +69,6 @@ class BankStatementImport extends Model {
 
             foreach($data as $i => $statement) {
                 $binary = self::computeXlsxBinaryFromStatement($statement);
-
                 // this will trigger the creation of the document and the auto processing, which might fail without interrupting the import
                 try {
                     DocumentProcess::create(['name' => $file_name . '(' . ($i+1) . ').' . $extension, 'document_type_id' => $documentType['id']])
@@ -81,6 +79,7 @@ class BankStatementImport extends Model {
                     // ignore (outputs are in logs)
                 }
             }
+            Document::id($document['id'])->delete();
             self::id($id)->delete(true);
         }
     }

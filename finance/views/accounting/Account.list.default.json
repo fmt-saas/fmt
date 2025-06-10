@@ -22,7 +22,7 @@
             {
                 "type": "field",
                 "value": "level",
-                "width": "15%",
+                "width": "0%",
                 "visible": false
             },
             {

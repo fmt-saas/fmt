@@ -463,7 +463,7 @@ class DocumentProcess extends Model {
                     }
                 }
             }
-            // duplicate invoice amongst purchase invoice of the Condominium
+            // duplicate bank statement amongst statements of the Condominium
             elseif($documentProcess['document_type_code'] === 'bank_statement') {
                 $documentProcess = self::id($id)->read(['document_bank_statement_id'])->first();
                 $bankStatement = BankStatement::id($documentProcess['document_bank_statement_id'])->read(['id', 'opening_date', 'closing_date', 'opening_balance', 'closing_balance'])->first();
@@ -710,7 +710,7 @@ class DocumentProcess extends Model {
             }
             elseif($documentProcess['document_type_code'] === 'bank_statement') {
                 // create the BankStatement
-                $statement = BankStatement::create([
+                $bankStatement = BankStatement::create([
                         'condo_id'              => $documentProcess['condo_id'],
                         'opening_date'          => strtotime($data['opening_date']),
                         'closing_date'          => strtotime($data['closing_date']),
@@ -718,7 +718,9 @@ class DocumentProcess extends Model {
                         'closing_balance'       => round(floatval($data['closing_balance']), 2),
                         'statement_currency'    => $data['statement_currency'],
                         'bank_account_iban'     => $data['account_iban'],
-                        'bank_account_bic'      => $data['bank_bic']
+                        'bank_account_bic'      => $data['bank_bic'],
+                        'document_process_id'   => $id,
+                        'document_id'           => $documentProcess['document_id']['id']
                     ])
                     ->first();
 
@@ -726,7 +728,7 @@ class DocumentProcess extends Model {
                 foreach($data['transactions'] as $txn) {
                     // #memo - by convention new statements have their status set to 'proforma'
                     BankStatementLine::create([
-                            'bank_statement_id'       => $statement['id'],
+                            'bank_statement_id'       => $bankStatement['id'],
                             'sequence_number'         => $txn['sequence_number'],
                             'date'                    => strtotime($txn['value_date']),
                             'amount'                  => round(floatval($txn['amount']), 2),
@@ -737,8 +739,10 @@ class DocumentProcess extends Model {
                             'status'                  => 'pending'
                         ]);
                 }
+                // switch Bank statement to `proforma`
+                BankStatement::id($bankStatement['id'])->transition('publish');
 
-                self::id($id)->update(['document_bank_statement_id' => $statement['id'], 'has_target_document' => true]);
+                self::id($id)->update(['document_bank_statement_id' => $bankStatement['id'], 'has_target_document' => true]);
             }
         }
     }
@@ -749,9 +753,14 @@ class DocumentProcess extends Model {
      */
     public static function onbeforeIntegrate($self) {
         // #todo
-        $self->read(['document_invoice_id']);
+        $self->read(['document_type_code', 'document_invoice_id', 'document_bank_statement_id']);
         foreach($self as $id => $documentProcess) {
-            Invoice::id($documentProcess['document_invoice_id'])->transition('validate');
+            if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
+                Invoice::id($documentProcess['document_invoice_id'])->transition('post');
+            }
+            elseif($documentProcess['document_type_code'] === 'bank_statement') {
+                BankStatement::id($documentProcess['document_bank_statement_id'])->transition('post');
+            }
         }
     }
 

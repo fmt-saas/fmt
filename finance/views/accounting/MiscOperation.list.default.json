@@ -1,6 +1,15 @@
 {
     "name": "Miscellaneous Operation",
     "description": "This class represents miscellaneous accounting operation. It provides functionalities for creating misc journal entries that are not classified under standard categories.",
+    "header": {
+        "actions": {
+            "ACTION.CREATE": [
+                {
+                    "view": "form.create"
+                }
+            ]
+        }
+    },
     "layout": {
         "items": [
             {

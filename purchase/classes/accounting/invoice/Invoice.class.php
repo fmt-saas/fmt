@@ -176,17 +176,17 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'description' => 'Draft invoice, pending and still waiting to be completed.',
                 'icon' => 'edit',
                 'transitions' => [
-                    'invoice' => [
+                    'post' => [
                         'description' => 'Update the invoice status based on the `invoice` field.',
                         'policies'    => [
                             'can_be_invoiced',
                         ],
                         'onbefore'  => 'onbeforeInvoice',
-                        'status'    => 'invoice',
+                        'status'    => 'posted',
                     ]
                 ],
             ],
-            'invoice' => [
+            'posted' => [
                 'description' => 'Invoice can no longer be modified and can be sent to the customer.',
                 'icon' => 'receipt_long',
                 'transitions' => [

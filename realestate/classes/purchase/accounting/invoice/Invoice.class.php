@@ -143,7 +143,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
             'document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
-                'description'       => 'Targeted document of the job.'
+                'description'       => 'Received Document that the invoice is issued from.'
             ],
 
             'document_link' => [
@@ -161,10 +161,10 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
     public static function getWorkflow() {
         return [
             'proforma' => [
-                'description' => 'Draft invoice, pending and still waiting to be completed.',
+                'description' => 'Proforma invoice, pending and still waiting to be completed.',
                 'icon' => 'edit',
                 'transitions' => [
-                    'validate' => [
+                    'post' => [
                         'description' => 'Update the invoice status based on the `invoice` field.',
                         'help'        => 'Assign invoice number, generate accounting entries and validate accounting entries.',
                         'policies'    => [
@@ -172,11 +172,11 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                             'can_be_allocated'
                         ],
                         'onbefore'  => 'onbeforeInvoice',
-                        'status'    => 'invoice',
+                        'status'    => 'posted',
                     ]
                 ],
             ],
-            'invoice' => [
+            'posted' => [
                 'description' => 'Invoice can no longer be modified and can be sent to the customer.',
                 'icon' => 'receipt_long',
                 'transitions' => [

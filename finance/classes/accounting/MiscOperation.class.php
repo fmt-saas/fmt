@@ -47,6 +47,16 @@ class MiscOperation extends Model {
                 'default'           => 1
             ],
 
+            'operation_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'misc',
+                    'transfer'
+                ],
+                'default'           => 'misc',
+                'description'       => "Type of operation, necessary for entities inheriting from MiscOperation."
+            ],
+
             'posting_date' => [
                 'type'              => 'date',
                 'description'       => 'Date the operation is posted in the accounting system.',
@@ -131,7 +141,7 @@ class MiscOperation extends Model {
                 ]
             ],
             'proforma' => [
-                'description' => 'Ready for review. Not posted yet to the accountancy books.',
+                'description' => 'Ready for review. Not posted yet to the accounting system.',
                 'icon'        => 'hourglass_top',
                 'transitions' => [
                     'post' => [
@@ -141,7 +151,17 @@ class MiscOperation extends Model {
                         'status'      => 'posted'
                     ]
                 ]
-            ]
+            ],
+            'posted' => [
+                'description' => 'The Miscellaneous Operation is posted to the accounting system.',
+                'icon' => 'receipt_long',
+                'transitions' => [
+                    'cancel' => [
+                        'description' => '',
+                        'status' => 'cancelled',
+                    ]
+                ],
+            ],
         ];
     }
 
@@ -171,14 +191,24 @@ class MiscOperation extends Model {
 
     protected static function policyIsValid($self): array {
         $result = [];
-        $self->read(['status', 'condo_id']);
-        foreach($self as $id => $moneyTransfer) {
-            if(!isset($moneyTransfer['bank_account_id'], $moneyTransfer['counterpart_bank_account_id'])) {
+        $self->read(['status', 'condo_id', 'fiscal_year_id', 'fiscal_period_id', 'journal_id']);
+        foreach($self as $id => $miscOperation) {
+            if(!isset($miscOperation['fiscal_year_id'])) {
                 $result[$id] = [
-                    'missing_bank_account' => 'At least one bank account is missing.'
+                    'missing_fiscal_year' => 'Fiscal year is missing.'
                 ];
             }
-            if(!isset($moneyTransfer['condo_id'])) {
+            if(!isset($miscOperation['fiscal_period_id'])) {
+                $result[$id] = [
+                    'missing_fiscal_period' => 'Fiscal period is missing.'
+                ];
+            }
+            if(!isset($miscOperation['journal_id'])) {
+                $result[$id] = [
+                    'missing_journal' => 'Accounting journal is missing.'
+                ];
+            }
+            if(!isset($miscOperation['condo_id'])) {
                 $result[$id] = [
                     'missing_condominium' => 'The target condominium must be specified.'
                 ];

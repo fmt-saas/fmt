@@ -36,7 +36,10 @@
             {
                 "type": "field",
                 "value": "name",
-                "width": "25%"
+                "width": "25%",
+                "widget": {
+                    "wrap": true
+                }
             },
             {
                 "type": "field",
@@ -56,6 +59,11 @@
             {
                 "type": "field",
                 "value": "registration_number",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "account_chart_id",
                 "width": "20%"
             }
         ]

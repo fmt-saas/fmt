@@ -85,7 +85,7 @@ class Journal extends Model {
 
             'is_visible' => [
                 'type'              => 'boolean',
-                'description'       => "Flag to switch visibility of the account.",
+                'description'       => "Flag to switch visibility of the journal.",
                 'default'           => true
             ],
 

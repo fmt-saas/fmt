@@ -56,6 +56,7 @@ class Condominium extends Identity {
                 'result_type'       => 'string',
                 'function'          => 'calcCode',
                 'store'             => true,
+                'readonly'          => true,
                 'description'       => 'The unique code of the Condominium, for global identification.',
             ],
 
@@ -169,6 +170,7 @@ class Condominium extends Identity {
                 'type'              => 'many2one',
                 'description'       => "The Chart of accounts assigned to the Condominium.",
                 'foreign_object'    => 'finance\accounting\AccountChart',
+                'domain'            => ['condo_id', '=', 'object.id']
                 // 'readonly'          => true
             ],
 

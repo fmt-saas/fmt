@@ -50,6 +50,7 @@ CondominiumBankAccount::create([
         'condo_id'          => $condominium['id'],
         'owner_identity_id' => $identity['id'],
         'description'       => "Compte à vue",
+        'bank_account_type' => 'bank_current',
         'bank_account_iban' => "BE04233241973931",
         'is_primary'        => true
     ]);
@@ -58,6 +59,7 @@ CondominiumBankAccount::create([
         'condo_id'          => $condominium['id'],
         'owner_identity_id' => $identity['id'],
         'description'       => "Compte épargne",
+        'bank_account_type' => 'bank_savings',
         'bank_account_iban' => "BE04456595434922"
     ]);
 
@@ -100,6 +102,7 @@ CondominiumBankAccount::create([
         'condo_id'          => $condominium['id'],
         'owner_identity_id' => $identity['id'],
         'description'       => "Compte à vue",
+        'bank_account_type' => 'bank_current',
         'bank_account_iban' => "BE02068937205640",
         'is_primary'        => true
     ]);
@@ -108,6 +111,7 @@ CondominiumBankAccount::create([
         'condo_id'          => $condominium['id'],
         'owner_identity_id' => $identity['id'],
         'description'       => "Compte épargne",
+        'bank_account_type' => 'bank_savings',
         'bank_account_iban' => "BE05373234451279"
     ]);
 

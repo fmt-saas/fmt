@@ -60,17 +60,19 @@ class CondominiumBankAccount extends BankAccount {
         $self->read(['accounting_account_id', 'bank_account_type', 'condo_id']);
         foreach($self as $id => $bankAccount) {
             $balance = 0.0;
-            $balanceLine = CurrentBalanceLine::search(['account_id', '=', $bankAccount['accounting_account_id']])->read(['debit', 'credit'])->first();
-            if($balanceLine) {
+            $balanceLines = CurrentBalanceLine::search(['account_id', '=', $bankAccount['accounting_account_id']])->read(['debit', 'credit']);
+            foreach($balanceLines as $balanceLine) {
                 $balance += $balanceLine['debit'];
+                $balance -= $balanceLine['credit'];
             }
+/*
             $fundings = Funding::search([ ['condo_id', '=', $bankAccount['condo_id']], ['bank_account_id', '=', $id], ['funding_type', '=', 'transfer'], ['status', '<>', 'balanced'] ])
                 ->read(['due_amount']);
 
             foreach($fundings as $funding) {
                 $balance -= $funding['due_amount'];
             }
-
+*/
             $result[$id] = $balance;
         }
         return $result;

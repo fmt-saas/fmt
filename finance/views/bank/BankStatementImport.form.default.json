@@ -1,16 +1,12 @@
 {
     "name": "Bank Statement Import",
     "description": "Bank Statement import.",
-    "header": {
-        "actions": {
-            "ACTION.SAVE": [
-                {
-                    "id": "SAVE_AND_VIEW",
-                    "view": "form.default",
-                    "visible": false
-                }
-            ],
-            "ACTION.CANCEL": false
+    "on_error": {
+        "missing": {
+            "context": {
+                "entity": "finance\\bank\\BankStatement",
+                "view": "list.default"
+            }
         }
     },
     "layout": {
