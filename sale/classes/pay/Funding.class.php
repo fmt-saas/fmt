@@ -54,10 +54,7 @@ class Funding extends Model {
                 'selection'         => [
                     'installment',
                     'reimbursement',
-                    'transfer',
-                    'invoice',
-                    'fund_request',
-                    'expense_statement'
+                    'invoice'
                 ],
                 'required'          => true,
                 'description'       => "Type of funding. Either an installment, a specific invoice, a fund request, or an expense statement."
@@ -176,7 +173,7 @@ class Funding extends Model {
         ];
     }
 
-    public static function calcName($self) {
+    protected static function calcName($self) {
         $result = [];
         $self->read(['due_amount', 'payment_reference', 'invoice_id' => ['name']]);
         foreach($self as $id => $funding) {
@@ -196,24 +193,34 @@ class Funding extends Model {
 
     public static function calcPaidAmount($self) {
         $result = [];
-        $self->read(['payments_ids' => ['amount']]);
+        $self->read(['payments_ids' => ['status', 'amount']]);
         foreach($self as $id => $funding) {
             $result[$id] = array_reduce($funding['payments_ids']->get(true), function ($c, $a) {
-                return $c + $a['amount'];
+                return ($a['status'] === 'payment') ? ($c + $a['amount']) : $c;
             }, 0.0);
         }
-
         return $result;
     }
 
-    public static function calcIsPaid($self) {
+    protected static function calcIsPaid($self) {
         $result = [];
         $self->read(['due_amount', 'paid_amount']);
-        foreach($self as $id => $funding) {
-            $result[$id] = $funding['paid_amount'] >= $funding['due_amount'] && $funding['due_amount'] > 0;
+
+        foreach ($self as $id => $funding) {
+            $due  = round($funding['due_amount'] ?? 0.0, 2);
+            $paid = round($funding['paid_amount'] ?? 0.0, 2);
+
+            if($due > 0.0) {
+                $result[$id] = ($paid >= $due);
+            }
+            else {
+                $result[$id] = ($paid <= $due);
+            }
         }
+
         return $result;
     }
+
 
     public static function canupdate($self, $values) {
         $allowed = ['is_paid', 'invoice_id','funding_type'];

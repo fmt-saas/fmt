@@ -726,6 +726,25 @@ class DocumentProcess extends Model {
 
                 // create statement lines
                 foreach($data['transactions'] as $txn) {
+
+                    $communication = '';
+                    $communication_type = 'free';
+
+                    if(!empty($txn['structured_reference'])) {
+                        $communication = $txn['structured_reference'];
+                        if(preg_match('/^RF\d{2}[A-Z0-9]{1,21}$/', str_replace(' ', '', $communication))) {
+                            $communication_type = 'RF';
+                        }
+                        elseif(preg_match('/^\+{3}\d{3}\/\d{4}\/\d{5}\+{3}$/', $communication)) {
+                            $communication_type = 'VCS';
+                        }
+                        else {
+                            $communication_type = 'SCOR';
+                        }
+                    }
+                    elseif(!empty($txn['unstructured_reference'])) {
+                        $communication = $txn['unstructured_reference'];
+                    }
                     // #memo - by convention new statements have their status set to 'proforma'
                     BankStatementLine::create([
                             'bank_statement_id'       => $bankStatement['id'],
@@ -734,11 +753,12 @@ class DocumentProcess extends Model {
                             'amount'                  => round(floatval($txn['amount']), 2),
                             'account_iban'            => $txn['counterparty_iban'] ?? $data['account_iban'],
                             'account_holder'          => $txn['counterparty_name'] ?? null,
-                            'message'                 => $txn['unstructured_reference'] ?? null,
-                            'structured_message'      => $txn['structured_reference'] ?? null,
+                            'communication'           => $communication,
+                            'communication_type'      => $communication_type,
                             'status'                  => 'pending'
                         ]);
                 }
+
                 // switch Bank statement to `proforma`
                 BankStatement::id($bankStatement['id'])->transition('publish');
 

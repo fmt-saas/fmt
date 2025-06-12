@@ -6,10 +6,9 @@
 */
 namespace finance\bank;
 
-use equal\orm\Domain;
 use equal\orm\Model;
-use sale\pay\Funding;
-use sale\pay\Payment;
+use realestate\sale\pay\Funding;
+use realestate\sale\pay\Payment;
 
 class BankStatementLine extends Model {
 
@@ -52,10 +51,9 @@ class BankStatementLine extends Model {
 
             'payments_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'sale\pay\Payment',
+                'foreign_object'    => 'realestate\sale\pay\Payment',
                 'foreign_field'     => 'statement_line_id',
                 'description'       => 'The list of payments this line relates to.',
-                'onupdate'          => 'onupdatePaymentsIds',
                 'ondetach'          => 'delete'
             ],
 
@@ -66,15 +64,21 @@ class BankStatementLine extends Model {
                 'required'          => true
             ],
 
-            'message' => [
+            'communication' => [
                 'type'              => 'string',
                 'description'       => 'Message from the payer (or ref from the bank).',
                 'readonly'          => true
             ],
 
-            'structured_message' => [
+            'communication_type' => [
                 'type'              => 'string',
-                'description'       => 'Structured message, if any.',
+                'selection'         => [
+                    'free',
+                    'RF',
+                    'SCOR',
+                    'VCS'
+                ],
+                'description'       => 'Message from the payer (or ref from the bank).',
                 'readonly'          => true
             ],
 
@@ -111,7 +115,8 @@ class BankStatementLine extends Model {
                 'selection'         => [
                     'pending',              // requires a review
                     'ignored',              // has been manually processed but does not relate to a booking
-                    'reconciled'            // has been processed and assigned to a payment
+                    'reconciled',            // has been processed and assigned to a payment
+                    'to_refund'
                 ],
                 'description'       => 'Status of the line.',
                 'default'           => 'pending'
@@ -143,111 +148,65 @@ class BankStatementLine extends Model {
 
 
     protected static function doReconcile($self) {
-        $self->read(['condo_id', 'bank_statement_id' => ['bank_account_iban'], 'structured_message', 'message', 'date', 'amount', 'account_iban']);
+        $self->read(['condo_id', 'bank_statement_id' => ['bank_account_iban'], 'communication', 'date', 'amount', 'account_iban']);
 
         foreach($self as $id => $bankStatementLine) {
 
             $amount = $bankStatementLine['amount'];
-            $iban = $bankStatementLine['account_iban'];
-            $is_outgoing = $bankStatementLine['amount'] < 0.0;
 
-            $structured = trim(str_replace(['+', '/', ' '], '', $bankStatementLine['structured_message'] ?? ''));
-            $message = trim(str_replace(['+', '/', ' '], '', $bankStatementLine['message'] ?? ''));
+            $reference = trim(str_replace(['+', '/', ' '], '', $bankStatementLine['communication'] ?? ''));
+
+            if(strlen($reference) <= 0) {
+                continue;
+            }
 
             $domain = [
                 ['is_cancelled', '=', false],
-                ['status', '<>', 'balanced']
+                ['status', '<>', 'balanced'],
+                ['due_amount', '=', $amount],
+                ['bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']],
+                ['payment_reference', '=', $reference]
             ];
 
-            if($is_outgoing) {
-                $domain[] = ['due_amount', '=', $amount];
-                $domain[] = ['bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']];
-                $domain[] = ['counterpart_bank_account_iban', '=', $iban];
-            }
-            else {
-                $domain[] = ['due_amount', '=', -$amount];
-                $domain[] = ['bank_account_iban', '=', $iban];
-                $domain[] = ['counterpart_bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']];
-            }
-
-            $funding = null;
-
-            if(strlen($structured) > 0) {
-                $funding = Funding::search(
-                    array_merge(
-                        $domain,
-                        [['payment_reference', '=', $structured]]
-                    ))
-                    ->first();
-            }
+            $funding = Funding::search(array_merge($domain, [['counterpart_bank_account_iban', '=', $bankStatementLine['account_iban']]]))->first();
 
             if(!$funding) {
-                if(strlen($message) > 0) {
-                    $funding = Funding::search(
-                        array_merge(
-                            $domain,
-                            [['payment_reference', '=', $message]]
-                        ))
-                        ->first();
-                }
-
+                $funding = Funding::search($domain)->first();
             }
 
             if(!$funding) {
                 continue;
             }
 
-            $communication = (strlen($structured) > 0) ? $structured : $message;
-
             Payment::create([
                     'condo_id'          => $bankStatementLine['condo_id'],
                     'amount'            => $bankStatementLine['amount'],
-                    'communication'     => $communication,
+                    'communication'     => $bankStatementLine['communication'],
                     'receipt_date'      => $bankStatementLine['date'],
                     'payment_origin'    => 'bank',
                     'payment_method'    => 'wire_transfer',
                     'statement_line_id' => $id,
                     'funding_id'        => $funding['id']
                 ]);
-        }
-    }
 
-    /**
-     * Update status according to the payments attached to the line.
-     * Line is considered 'reconciled' if its amount matches the sum of its payments.
-     *
-     */
-    protected static function onupdatePaymentsIds($om, $ids, $values, $lang) {
-        $lines = $om->read(self::getType(), $ids, ['amount', 'payments_ids.amount']);
+            self::id($id)->update(['status' => 'reconciled']);
 
-        if($lines > 0) {
-            foreach($lines as $lid => $line) {
-                $sum = 0;
-                $payments = (array) $line['payments_ids.amount'];
-                foreach($payments as $pid => $payment) {
-                    $sum += $payment['amount'];
-                }
-                $status = 'pending';
-                if($sum == $line['amount']) {
-                    $status = 'reconciled';
-                }
-                $om->update(self::getType(), $lid, ['status' => $status, 'remaining_amount' => null]);
-            }
+            // #memo - parent bank statement is_reconciled is not stored
         }
     }
 
     protected static function calcRemainingAmount($self) {
         $result = [];
         $self->read(['payments_ids', 'amount']);
-        foreach($self as $lid => $line) {
+        foreach($self as $lid => $statementLine) {
             $sum = 0.0;
-            $payments = Payment::ids($line['payments_ids'])->read(['amount']);
+            $payments = Payment::ids($statementLine['payments_ids'])->read(['amount']);
 
             foreach($payments as $pid => $payment) {
                 $sum += $payment['amount'];
             }
 
-            $result[$lid] = $line['amount'] - $sum;
+            $result[$lid] = $statementLine['amount'] - $sum;
         }
         return $result;
     }

@@ -12,6 +12,8 @@ use finance\accounting\CurrentBalanceLine;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
+use realestate\purchase\accounting\AccountingEntry;
+use realestate\purchase\accounting\AccountingEntryLine;
 use realestate\sale\pay\Funding;
 
 class MoneyTransfer extends \finance\accounting\MiscOperation {
@@ -60,17 +62,19 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
-            'funding_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'realestate\sale\pay\Funding',
-                'description'       => 'The funding related to the misc operation, if any.'
+            'accounting_entries_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'foreign_field'     => 'origin_object_id',
+                'description'       => "Accounting entry of the invoice.",
+                'domain'            => [['origin_object_class', '=', 'realestate\finance\accounting\MoneyTransfer']]
             ],
 
-            'is_complete' => [
-                'type'              => 'boolean',
-                'description'       => 'Flag marking the money transfer as complete.',
-                'help'              => 'A Money Transfer is considered complete when the amount has been credited to the destination account following the processing of a bank statement.',
-                'default'           => false
+            'fundings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\sale\pay\Funding',
+                'foreign_field'     => 'money_transfer_id',
+                'description'       => 'The fundings related to the money transfer.'
             ],
 
             'amount' => [
@@ -121,7 +125,8 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'selection'         => [
                     'draft',
                     'proforma',
-                    'posted'
+                    'posted',
+                    'completed'
                 ],
                 'default'           => 'draft',
                 'description'       => 'Current status of the operation.',
@@ -143,21 +148,38 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                         'status'      => 'posted'
                     ]
                 ]
+            ],
+            'posted' => [
+                'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
+                'icon'        => 'draw',
+                'transitions' => [
+                    'complete' => [
+                        'description' => 'Update the document to `completed`.',
+                        'policies'    => ['is_paid'],
+                        'onafter'     => 'onafterComplete',
+                        'status'      => 'completed'
+                    ]
+                ]
             ]
         ]);
     }
 
     public static function getActions() {
         return array_merge(parent::getActions(), [
-            'generate_accounting_entry' => [
+            'generate_accounting_entry_outgoing' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
-                'function'      => 'doGenerateAccountingEntry'
+                'function'      => 'doGenerateAccountingEntryOutgoing'
             ],
-            'create_funding' => [
+            'generate_accounting_entry_incoming' => [
+                'description'   => 'Creates accounting entries according to operation lines.',
+                'policies'      => [/* 'can_generate_accounting_entry' */],
+                'function'      => 'doGenerateAccountingEntryIncoming'
+            ],
+            'create_fundings' => [
                 'description'   => 'Creates a funding for the transfer followup.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
-                'function'      => 'doCreateFunding'
+                'function'      => 'doCreateFundings'
             ]
         ]);
     }
@@ -167,6 +189,10 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             'is_valid' => [
                 'description' => 'Verifies that the state of the Money Transfer allows validation.',
                 'function'    => 'policyIsValid'
+            ],
+            'is_paid' => [
+                'description' => 'Verifies that the state of the Money Transfer allows validation.',
+                'function'    => 'policyIsPaid'
             ],
             'can_transfer' => [
                 'description' => 'Verifies that the origin bank account has enough funds to transfer the amount.',
@@ -198,6 +224,27 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 $result[$id] = [
                     'invalid_posting_date' => 'Posting date must be today.'
                 ];
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyIsPaid($self): array {
+        $result = [];
+        $self->read(['status', 'condo_id', 'amount', 'fundings_ids' => ['due_amount', 'paid_amount', 'is_paid']]);
+        foreach($self as $id => $moneyTransfer) {
+            if($moneyTransfer['fundings_ids']->count() <> 2) {
+                $result[$id] = [
+                    'missing_funding' => 'There should be exactly 2 fundings.'
+                ];
+            }
+            foreach($moneyTransfer['fundings_ids'] as $funding_id => $funding) {
+                if(!$funding['is_paid']) {
+                    $result[$id] = [
+                        'unpaid_funding' => 'At least one funding is not paid.'
+                    ];
+                    break;
+                }
             }
         }
         return $result;
@@ -259,13 +306,13 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return $result;
     }
 
-    protected static function doCreateFunding($self) {
+    protected static function doCreateFundings($self) {
         $self->read(['condo_id', 'amount', 'bank_account_id', 'counterpart_bank_account_id']);
 
         foreach($self as $id => $moneyTransfer) {
-            $funding = Funding::create([
+            Funding::create([
                     'condo_id'                      => $moneyTransfer['condo_id'],
-                    'misc_operation_id'             => $id,
+                    'money_transfer_id'             => $id,
                     'funding_type'                  => 'transfer',
                     'due_amount'                    => -$moneyTransfer['amount'],
                     'bank_account_id'               => $moneyTransfer['bank_account_id'],
@@ -273,16 +320,27 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     // #todo - allow custom with setting
                     'due_date'                      => time() + 10 * 86400
                 ]);
-            self::id($id)->update(['funding_id' => $funding['id']]);
+
+            Funding::create([
+                    'condo_id'                      => $moneyTransfer['condo_id'],
+                    'money_transfer_id'             => $id,
+                    'funding_type'                  => 'transfer',
+                    'due_amount'                    => $moneyTransfer['amount'],
+                    'bank_account_id'               => $moneyTransfer['counterpart_bank_account_id'],
+                    'counterpart_bank_account_id'   => $moneyTransfer['bank_account_id'],
+                    // #todo - allow custom with setting
+                    'due_date'                      => time() + 10 * 86400
+                ]);
         }
     }
 
-    protected static function doGenerateAccountingEntry($self) {
+    protected static function doGenerateAccountingEntryOutgoing($self) {
         $self->read([
                 'condo_id', 'amount', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
                 'bank_account_id' => ['accounting_account_id'],
                 'counterpart_bank_account_id' => ['accounting_account_id']
             ]);
+
         foreach($self as $id => $moneyTransfer) {
 
             try {
@@ -315,6 +373,61 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
                 // Store the created accounting entry ID back to the misc operation
                 self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
+
+                AccountingEntry::id($accountingEntry['id'])->transition('validate');
+            }
+            catch(\Exception $e) {
+                // rollback
+                if($accountingEntry) {
+                    AccountingEntry::id($accountingEntry['id'])->delete(true);
+                }
+                trigger_error("APP:Unexpected error while creating accounting entry: ".$e->getMessage(), EQ_REPORT_WARNING);
+                throw new \Exception('unexpected_error', EQ_ERROR_UNKNOWN);
+            }
+        }
+    }
+
+    protected static function doGenerateAccountingEntryIncoming($self) {
+        $self->read([
+                'condo_id', 'amount', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
+                'bank_account_id' => ['accounting_account_id'],
+                'counterpart_bank_account_id' => ['accounting_account_id']
+            ]);
+
+        foreach($self as $id => $moneyTransfer) {
+
+            try {
+                $accountingEntry = AccountingEntry::create([
+                        'condo_id'              => $moneyTransfer['condo_id'],
+                        'entry_date'            => $moneyTransfer['posting_date'],
+                        'origin_object_class'   => self::getType(),
+                        'origin_object_id'      => $id,
+                        'journal_id'            => $moneyTransfer['journal_id'],
+                        'fiscal_year_id'        => $moneyTransfer['fiscal_year_id'],
+                        'fiscal_period_id'      => $moneyTransfer['fiscal_period_id']
+                    ])
+                    ->first();
+
+                $bankTransferAccount = Account::search([ ['condo_id', '=', $moneyTransfer['condo_id']], ['operation_assignment', '=', 'bank_transfer'] ])->first();
+
+                AccountingEntryLine::create([
+                        'account_id'            => $moneyTransfer['counterpart_bank_account_id']['accounting_account_id'],
+                        'debit'                 => $moneyTransfer['amount'],
+                        'credit'                => 0.0,
+                        'accounting_entry_id'   => $accountingEntry['id']
+                    ]);
+
+                AccountingEntryLine::create([
+                        'account_id'            => $bankTransferAccount['id'],
+                        'debit'                 => 0.0,
+                        'credit'                => $moneyTransfer['amount'],
+                        'accounting_entry_id'   => $accountingEntry['id']
+                    ]);
+
+                // Store the created accounting entry ID back to the misc operation
+                self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
+
+                AccountingEntry::id($accountingEntry['id'])->transition('validate');
             }
             catch(\Exception $e) {
                 // rollback
@@ -390,9 +503,12 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
     protected static function onafterPost($self) {
         $self
-            ->do('generate_accounting_entry')
-            ->do('validate_accounting_entry')
-            ->do('create_funding');
+            ->do('generate_accounting_entry_outgoing')
+            ->do('create_fundings');
     }
 
+    protected static function onafterComplete($self) {
+        $self
+            ->do('generate_accounting_entry_incoming');
+    }
 }

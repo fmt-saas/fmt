@@ -201,7 +201,8 @@
                         "icon": "edit_note",
                         "context": {
                             "entity": "finance\\accounting\\MiscOperation",
-                            "view": "list.default"
+                            "view": "list.default",
+                            "domain": ["operation_type", "=", "misc"]
                         }
                     },
                     {

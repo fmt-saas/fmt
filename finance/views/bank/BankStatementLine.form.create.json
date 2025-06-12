@@ -49,7 +49,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "structured_message",
+                                                "value": "communication",
                                                 "width": "25%"
                                             },
                                             {

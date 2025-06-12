@@ -63,7 +63,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "structured_message",
+                                                "value": "communication",
                                                 "width": "50%"
                                             },
                                             {
@@ -92,9 +92,10 @@
                                                 "widget": {
                                                     "view": "list.statement",
                                                     "header": {
+                                                        "layout": "inline",
                                                         "actions": {
-                                                            "ACTION.CREATE": [ {
-                                                                "view": "form.statement",
+                                                            "ACTION.CREATE_INLINE": [ {
+                                                                "view": false,
                                                                 "domain": [ ["amount", "=", "object.amount"], ["receipt_date", "=", "object.date"] ]
                                                             } ]
                                                         }

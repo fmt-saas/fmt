@@ -49,7 +49,8 @@ if(!$funding || !$funding['bank_account_id'] || !$funding['counterpart_bank_acco
     throw new Exception('missing_bank_accounts', EQ_ERROR_INVALID_PARAM);
 }
 
-$amount = round((float) $funding['due_amount'], 2);
+// #memo - SEPA are supposed to be outgoing payment, so funding amount should be negative
+$amount = abs(round((float) $funding['due_amount'], 2));
 
 if($amount <= 0) {
     throw new Exception('invalid_amount', EQ_ERROR_INVALID_PARAM);

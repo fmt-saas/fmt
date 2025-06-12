@@ -44,12 +44,12 @@
                 "to_refund": "à rembourser"
             }
         },
-        "structured_message": {
-            "label": "Communication structurée",
-            "description": "Communication structurée (VCS/SCOR), si présente.",
+        "communication_type": {
+            "label": "Type de Communication",
+            "description": "Type de communication structurée (VCS/SCOR).",
             "help": ""
         },
-        "message": {
+        "communication": {
             "label": "Communication",
             "description": "Communication complémentaire.",
             "help": ""

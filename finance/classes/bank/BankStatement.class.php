@@ -8,7 +8,7 @@
 namespace finance\bank;
 
 use equal\orm\Model;
-use realestate\property\Condominium;
+use realestate\sale\pay\Payment;
 
 class BankStatement extends Model {
 
@@ -110,58 +110,39 @@ class BankStatement extends Model {
                 'description'       => 'Received Document that the statement is issued from, if any.'
             ],
 
+            'is_reconciled' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'A statement is balanced if all its lines are reconciled or ignored.',
+                'function'          => 'calcIsReconciled'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'draft',
                     'proforma',
-                    'reconciled',
                     'posted'
                 ],
                 'default'           => 'proforma',
                 'description'       => 'Status of the statement (depending on lines).'
             ]
 
-
         ];
     }
 
     public static function getWorkflow() {
         return [
-            'draft' => [
-                'description' => 'Bank Statement being created.',
-                'icon'        => 'draw',
-                'transitions' => [
-                    'publish' => [
-                        'description' => 'Update the statement to `proforma`.',
-                        'status'      => 'proforma'
-                    ]
-                ]
-            ],
             'proforma' => [
-                'description' => 'Draft invoice, pending and still waiting to be completed.',
-                'icon' => 'edit',
-                'transitions' => [
-                    'reconcile' => [
-                        'description' => 'Post bank statement statement to the accounting system.',
-                        'policies'    => [
-                            'is_balanced'
-                        ],
-                        'status'    => 'reconciled'
-                    ]
-                ],
-            ],
-            'reconciled' => [
-                'description' => 'Draft invoice, pending and still waiting to be completed.',
+                'description' => 'Bank Statement being created.',
                 'icon' => 'edit',
                 'transitions' => [
                     'post' => [
                         'description' => 'Post bank statement statement to the accounting system.',
                         'policies'    => [
-                            'is_balanced'
+                            'is_balanced', 'is_reconciled'
                         ],
                         'onafter'     => 'onafterPost',
-                        'status'    => 'posted'
+                        'status'      => 'posted'
                     ]
                 ],
             ],
@@ -181,23 +162,46 @@ class BankStatement extends Model {
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
             'is_balanced' => [
-                'description' => 'Checks & validate values required for activation.',
+                'description' => 'Checks that delta between opening and closing amounts matches the sum of the lines amounts.',
                 'function'    => 'policyIsBalanced'
             ],
             'is_reconciled' => [
-                'description' => 'Verifies that there are no invoiced executions.',
+                'description' => 'Verifies that all statement lines have been processed.',
                 'function'    => 'policyIsReconciled'
             ]
         ]);
     }
 
     protected static function onafterPost($self) {
-        $self
-            ->do('generate_accounting_entry')
-            ->do('validate_accounting_entry');
+        $self->read(['document_process_id', 'statement_lines_ids' => ['payments_ids']]);
+        foreach($self as $id => $bankStatement) {
+            // mark involved payment as published
+            foreach($bankStatement['statement_lines_ids'] as $lid => $statementLine) {
+                Payment::ids($statementLine['payments_ids'])->transition('publish');
+            }
+            if($bankStatement['document_process_id']) {
+                // #todo + mark DocumentProcess as integrated
+                // not sure how to do that if previous steps have not been performed yet
+            }
+        }
     }
 
-    public static function calcName($self) {
+    protected static function calcIsReconciled($self) {
+        $result = [];
+        $self->read(['statement_lines_ids' => ['status']]);
+        foreach($self as $id => $bankStatement) {
+            $result[$id] = true;
+            foreach($bankStatement['statement_lines_ids'] as $bankStatementLine) {
+                if($bankStatementLine['status'] === 'pending') {
+                    $result[$id] = false;
+                    break;
+                }
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcName($self) {
         $result = [];
         $self->read(['condo_id' => 'code', 'bank_account_iban', 'date', 'opening_balance', 'closing_balance']);
         foreach($self as $id => $statement) {
@@ -234,6 +238,19 @@ class BankStatement extends Model {
                 }
             }
             $result[$id] = ($is_reconciled) ? 'reconciled' : 'pending';
+        }
+        return $result;
+    }
+
+    public static function policyIsReconciled($self): array {
+        $result = [];
+        $self->read(['is_reconciled']);
+        foreach($self as $id => $statement) {
+            if(!$statement['is_reconciled']) {
+                $result[$id] = [
+                    'not_reconciled' => 'The statement is not reconciled.'
+                ];
+            }
         }
         return $result;
     }

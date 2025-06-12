@@ -48,8 +48,9 @@
             "description": "Indicateur d'assignation de l'extrait aux paiements.",
             "help": "",
             "selection": {
-                "proforma": "à traiter",
-                "bank_statement": "réconcilié"
+                "draft": "à traiter",
+                "proforma": "proforma",
+                "posted": "encodé"
             }
         }
     },

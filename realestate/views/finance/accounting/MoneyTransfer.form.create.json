@@ -11,44 +11,6 @@
             ]
         }
     },
-    "actions": [
-        {
-            "id": "action.publish",
-            "label": "Publish",
-            "description": "Publish the Money Transfer for validation.",
-            "controller": "core_model_transition",
-            "visible": [ ["status", "=", "draft"] ],
-            "params": {
-                "entity": "realestate\\finance\\accounting\\MoneyTransfer",
-                "transition": "publish",
-                "ids": []
-            }
-        },
-        {
-            "id": "action.post",
-            "label": "Post",
-            "description": "Mark the transfer as posted/initiated.",
-            "controller": "core_model_transition",
-            "visible": [ ["status", "=", "proforma"] ],
-            "params": {
-                "entity": "realestate\\finance\\accounting\\MoneyTransfer",
-                "transition": "post",
-                "ids": []
-            }
-        },
-        {
-            "id": "action.complete",
-            "label": "Complete",
-            "description": "Mark the transfer as completed.",
-            "controller": "core_model_transition",
-            "visible": [ ["status", "=", "posted"] ],
-            "params": {
-                "entity": "realestate\\finance\\accounting\\MoneyTransfer",
-                "transition": "complete",
-                "ids": []
-            }
-        }
-    ],
     "layout": {
         "groups": [
             {
@@ -117,50 +79,6 @@
                                                 "type": "field",
                                                 "label": "Fiscal period",
                                                 "value": "fiscal_period_id",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "sections": [
-                    {
-                        "id": "section.fundings",
-                        "label": "Fundings",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "fundings_ids",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "id": "section.accounting_entries",
-                        "label": "Accounting Entries",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "accounting_entries_ids",
                                                 "width": "100%"
                                             }
                                         ]

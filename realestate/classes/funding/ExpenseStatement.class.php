@@ -135,7 +135,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
     public static function getWorkflow() {
         return [
             'proforma' => [
-                'description' => 'Draft invoice, pending and still waiting to be completed.',
+                'description' => 'Draft expense statement, pending and still waiting to be completed.',
                 'icon' => 'edit',
                 'transitions' => [
                     'validate' => [
@@ -149,7 +149,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 ],
             ],
             'invoice' => [
-                'description' => 'Invoice can no longer be modified and can be sent to the customer.',
+                'description' => 'Expense statement can no longer be modified and can be sent to the customer.',
                 'icon' => 'receipt_long',
                 'transitions' => [
                     'cancel' => [
@@ -160,7 +160,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 ],
             ],
             'cancelled' => [
-                'description' => 'The invoice is cancelled. There are no transitions available.',
+                'description' => 'The expense statement is cancelled. There are no transitions available.',
                 'icon' => 'cancel',
                 'transitions' => []
             ],

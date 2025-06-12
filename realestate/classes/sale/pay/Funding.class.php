@@ -9,6 +9,7 @@ namespace realestate\sale\pay;
 
 use core\setting\Setting;
 use equal\data\DataFormatter;
+use realestate\finance\accounting\MoneyTransfer;
 
 class Funding extends \sale\pay\Funding {
 
@@ -30,8 +31,16 @@ class Funding extends \sale\pay\Funding {
 
             'is_sent' => [
                 'type'              => 'boolean',
-                'description'       => 'Flag indicating if a SEPA order has been generated (and sent) from the Funding.',
+                'description'       => 'Flag indicating if a SEPA order has been generated (once or more) from the Funding.',
                 'default'           => false
+            ],
+
+            'payments_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\sale\pay\Payment',
+                'foreign_field'     => 'funding_id',
+                'description'       => 'Payments of the funding.',
+                'dependents'        => ['paid_amount', 'is_paid']
             ],
 
             'bank_account_id' => [
@@ -50,6 +59,20 @@ class Funding extends \sale\pay\Funding {
                 'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
                 'readonly'          => true,
                 'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'funding_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'installment',
+                    'reimbursement',
+                    'transfer',
+                    'invoice',
+                    'fund_request',
+                    'expense_statement'
+                ],
+                'required'          => true,
+                'description'       => "Type of funding. Either an installment, a specific invoice, a fund request, or an expense statement."
             ],
 
             'fund_request_id' => [
@@ -78,14 +101,6 @@ class Funding extends \sale\pay\Funding {
                 'readonly'          => true
             ],
 
-            'misc_operation_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\MiscOperation',
-                'description'       => 'Miscellaneous operation targeted by the funding, if any.',
-                'readonly'          => true,
-                'visible'           => ['funding_type', 'in', ['transfer']],
-            ],
-
             'invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\sale\accounting\invoice\Invoice',
@@ -93,6 +108,15 @@ class Funding extends \sale\pay\Funding {
                 'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).',
                 'readonly'          => true,
                 'visible'           => ['funding_type', 'in', ['installment', 'invoice']],
+            ],
+
+            'money_transfer_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\MiscOperation',
+                'description'       => 'Miscellaneous operation targeted by the funding, if any.',
+                'help'              => 'Money transfer is a particular case of misc operation.',
+                'readonly'          => true,
+                'visible'           => ['funding_type', 'in', ['transfer']],
             ],
 
             'ownership_id' => [
@@ -115,7 +139,34 @@ class Funding extends \sale\pay\Funding {
         ];
     }
 
-    public static function calcName($self) {
+    public static function getActions() {
+        return [
+            'attempt_posting' => [
+                'description'   => 'Creates accounting entries according to operation lines.',
+                'policies'      => [/* 'can_generate_accounting_entry' */],
+                'function'      => 'doAttemptPosting'
+            ],
+        ];
+    }
+
+    protected static function doAttemptPosting($self) {
+        $self->read(['funding_type', 'invoice_id', 'money_transfer_id', 'fund_request_execution_id', 'expense_statement_id', 'ownership_id']);
+        foreach($self as $id => $funding) {
+            try {
+                switch($funding['funding_type']) {
+                    case 'transfer':
+                        MoneyTransfer::id($funding['money_transfer_id'])->transition('complete');
+                        break;
+                    default:
+                }
+            }
+            catch(\Exception $e) {
+                // error is plausible and considered as normal
+            }
+        }
+    }
+
+    protected static function calcName($self) {
         $result = [];
         $self->read(['state', 'due_amount', 'payment_reference', 'fund_request_execution_id' => ['name'],  'invoice_id' => ['name']]);
         foreach($self as $id => $funding) {
@@ -149,17 +200,19 @@ class Funding extends \sale\pay\Funding {
      */
     public static function calcPaymentReference($self) {
         $result = [];
-        $self->read(['funding_type', 'misc_operation_id', 'condo_id' => ['code'], 'ownership_id' => 'code']);
+        $self->read(['funding_type', 'invoice_id', 'money_transfer_id', 'condo_id' => ['code'], 'ownership_id' => 'code']);
         foreach($self as $id => $funding) {
             $reference = str_pad('', 12, '0');
 
             if($funding['funding_type'] === 'transfer') {
-                $reference = sprintf("%010s", $funding['misc_operation_id']);
+                $reference = sprintf("%010s", $funding['money_transfer_id']);
             }
-            elseif(in_array($funding['funding_type'], ['fund_request','expense_statement'], true)) {
+            elseif(in_array($funding['funding_type'], ['fund_request', 'expense_statement'], true)) {
                 $reference =
                     substr(str_pad((int) $funding['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
                     substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+            }
+            elseif($funding['funding_type'] === 'invoice') {
             }
 
             $prefix = substr($reference, 0, 3);

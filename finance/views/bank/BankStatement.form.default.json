@@ -31,6 +31,15 @@
             "visible": ["status", "=", "proforma"]
         }
     ],
+    "header": {
+        "actions": {
+            "ACTION.EDIT": [
+                {
+                    "view": ["posted", "<>", "object.status"]
+                }
+            ]
+        }
+    },
     "layout": {
         "groups": [
             {
@@ -92,10 +101,19 @@
                                                 "type": "field",
                                                 "value": "closing_balance",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_reconciled",
+                                                "width": "50%"
                                             }
                                         ]
                                     }
-
                                 ]
                             }
                         ]
@@ -114,17 +132,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "statement_lines_ids",
-                                                "width": "100%",
-                                                "widget":{
-                                                    "header": {
-                                                        "layout": "inline",
-                                                        "actions": {
-                                                            "ACTION.CREATE": [{
-                                                                "view": "form.create"
-                                                            }]
-                                                        }
-                                                    }
-                                                }
+                                                "width": "100%"
                                             }
                                         ]
                                     }

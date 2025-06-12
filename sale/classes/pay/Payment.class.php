@@ -8,6 +8,7 @@
 namespace sale\pay;
 
 use equal\orm\Model;
+use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
 class Payment extends Model {
 
@@ -135,6 +136,57 @@ class Payment extends Model {
         ];
     }
 
+    public static function getWorkflow() {
+        return [
+            'proforma' => [
+                'description' => 'Payment being created.',
+                'icon'        => 'draw',
+                'transitions' => [
+                    'publish' => [
+                        'description' => 'Update the payment status to `payment`.',
+                        'status'      => 'payment'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    public static function oncreate($self) {
+        $self->read(['funding_id', 'statement_line_id']);
+        foreach($self as $id => $payment) {
+            if($payment['funding_id']) {
+                Funding::id($payment['funding_id'])->update(['paid_amount' => null, 'is_paid' => null]);
+            }
+            if($payment['statement_line_id']) {
+                BankStatement::id($payment['statement_line_id'])->update(['remaining_amount' => null]);
+            }
+        }
+    }
+
+    public static function onafterupdate($self) {
+        $self->read(['funding_id', 'statement_line_id']);
+        foreach($self as $id => $payment) {
+            if($payment['funding_id']) {
+                Funding::id($payment['funding_id'])->update(['paid_amount' => null, 'is_paid' => null]);
+            }
+            if($payment['statement_line_id']) {
+                BankStatement::id($payment['statement_line_id'])->update(['remaining_amount' => null]);
+            }
+        }
+    }
+
+    protected static function onafterPublish($self) {
+        $self->read(['funding_id', 'statement_line_id']);
+        foreach($self as $id => $payment) {
+            if($payment['funding_id']) {
+                Funding::id($payment['funding_id'])->update(['paid_amount' => null, 'is_paid' => null]);
+            }
+            if($payment['statement_line_id']) {
+                BankStatement::id($payment['statement_line_id'])->update(['remaining_amount' => null]);
+            }
+        }
+    }
+
     public static function candelete($self) {
         $self->read(['status']);
         foreach($self as $payment) {
@@ -185,10 +237,14 @@ class Payment extends Model {
 
 
     public static function canupdate($self, $values) {
-        $self->read(['state', 'is_exported', 'payment_origin', 'amount', 'statement_line_id' => ['amount', 'remaining_amount']]);
+        $self->read(['status', 'is_exported', 'payment_origin', 'amount', 'statement_line_id' => ['amount', 'remaining_amount']]);
         foreach($self as $payment) {
             if($payment['is_exported']) {
                 return ['is_exported' => ['non_editable' => 'Once exported a payment can no longer be updated.']];
+            }
+
+            if($payment['status'] != 'proforma' && (count($values) > 1 || !isset($values['status']) ) ) {
+                return ['status' => ['non_editable' => 'Non proforma payment cannot be updated.']];
             }
 
             $payment_origin = $values['payment_origin'] ?? $payment['payment_origin'];
@@ -208,31 +264,17 @@ class Payment extends Model {
                     return ['amount' => ['incompatible_sign' => "Payment amount ({$values['amount']}) and statement line amount ({$statement_line['amount']}) must have the same sign."]];
                 }
 
-                // #memo - when state is still draft, it means that reconcile is made manually
-                if($payment['state'] == 'draft') {
-                    if(round($statement_line['amount'], 2) < 0) {
-                        if(round($statement_line['remaining_amount'] - $values['amount'], 2) > 0) {
-                            return ['amount' => ['excessive_amount' => "Payment amount ({$values['amount']}) cannot be higher than statement line remaining amount ({$statement_line['remaining_amount']}) (err#1)."]];
-                        }
-                    }
-                    else {
-                        if(round($statement_line['remaining_amount'] - $values['amount'], 2) < 0) {
-                            return ['amount' => ['excessive_amount' => "Payment amount ({$values['amount']}) cannot be higher than statement line remaining amount ({$statement_line['remaining_amount']}) (err#2)."]];
-                        }
+                if(round($statement_line['amount'], 2) < 0) {
+                    if(round($statement_line['remaining_amount'] + $payment['amount'] - $values['amount'], 2) > 0) {
+                        return ['amount' => ['excessive_amount' => "Payment amount ({$values['amount']}) cannot be higher than statement line remaining amount ({$statement_line['remaining_amount']}) (err#3)."]];
                     }
                 }
-                else  {
-                    if(round($statement_line['amount'], 2) < 0) {
-                        if(round($statement_line['remaining_amount'] + $payment['amount'] - $values['amount'], 2) > 0) {
-                            return ['amount' => ['excessive_amount' => "Payment amount ({$values['amount']}) cannot be higher than statement line remaining amount ({$statement_line['remaining_amount']}) (err#3)."]];
-                        }
-                    }
-                    else {
-                        if(round($statement_line['remaining_amount'] + $payment['amount'] - $values['amount'], 2) < 0) {
-                            return ['amount' => ['excessive_amount' => "Payment amount ({$values['amount']}) cannot be higher than statement line remaining amount ({$statement_line['remaining_amount']}) (err#4)."]];
-                        }
+                else {
+                    if(round($statement_line['remaining_amount'] + $payment['amount'] - $values['amount'], 2) < 0) {
+                        return ['amount' => ['excessive_amount' => "Payment amount ({$values['amount']}) cannot be higher than statement line remaining amount ({$statement_line['remaining_amount']}) (err#4)."]];
                     }
                 }
+
             }
         }
 
