@@ -89,7 +89,7 @@ $tests = [
                         ->transition('post');
                 },
             'assert'            => function() use($providers) {
-                    $bankAccount = CondominiumBankAccount::search(['accounting_account_id', '=', 468])
+                    $bankAccount = CondominiumBankAccount::search([['condo_id', '=', '1'], ['bank_account_type', '=', 'bank_savings']])
                         ->read(['available_balance'])
                         ->first();
 
