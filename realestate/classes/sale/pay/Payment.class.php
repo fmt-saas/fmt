@@ -7,6 +7,7 @@
 
 namespace realestate\sale\pay;
 
+use finance\bank\BankStatement;
 
 class Payment extends \sale\pay\Payment {
 

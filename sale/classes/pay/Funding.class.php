@@ -223,21 +223,10 @@ class Funding extends Model {
 
 
     public static function canupdate($self, $values) {
-        $allowed = ['is_paid', 'invoice_id','funding_type'];
-        $count_non_allowed = 0;
-
-        foreach($values as $field => $value) {
-            if(!in_array($field, $allowed)) {
-                ++$count_non_allowed;
-            }
-        }
-
-        if($count_non_allowed > 0) {
-            $self->read(['is_paid', 'due_amount', 'paid_amount', 'payments_ids']);
-            foreach($self as $funding) {
-                if($funding['is_paid'] && $funding['due_amount'] == $funding['paid_amount'] && count($funding['payments_ids'])) {
-                    return ['is_paid' => ['non_editable' => 'No change is allowed once the funding has been fully paid.']];
-                }
+        $self->read(['status']);
+        foreach($self as $funding) {
+            if($funding['status'] == 'balanced') {
+                return ['status' => ['non_editable' => 'No change is allowed once the funding has been fully paid.']];
             }
         }
 

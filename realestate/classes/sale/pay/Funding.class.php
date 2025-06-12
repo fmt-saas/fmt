@@ -142,7 +142,7 @@ class Funding extends \sale\pay\Funding {
     public static function getActions() {
         return [
             'attempt_posting' => [
-                'description'   => 'Creates accounting entries according to operation lines.',
+                'description'   => 'Attempt to post the related accounting document.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
                 'function'      => 'doAttemptPosting'
             ],

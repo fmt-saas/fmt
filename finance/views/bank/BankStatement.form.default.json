@@ -17,6 +17,20 @@
             "visible": ["status", "=", "draft"]
         },
         {
+            "id": "action.reconcile",
+            "label": "Reconcile",
+            "icon": "play_arrow",
+            "description": "Attempt to reconcile and post the bank statement.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "finance\\bank\\BankStatement",
+                "action": "attempt_posting",
+                "ids": []
+            },
+            "confirm": false,
+            "visible": [["status", "=", "proforma"], ["is_reconciled", "=", false]]
+        },
+        {
             "id": "action.post",
             "label": "Post",
             "icon": "play_arrow",

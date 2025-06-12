@@ -130,6 +130,16 @@ class BankStatement extends Model {
         ];
     }
 
+    public static function getActions() {
+        return [
+            'attempt_posting' => [
+                'description'   => 'Attempt to reconcile the statement and its lines and invoke the creation of subsequent accounting entries.',
+                'policies'      => [/* 'can_generate_accounting_entry' */],
+                'function'      => 'doAttemptPosting'
+            ],
+        ];
+    }
+
     public static function getWorkflow() {
         return [
             'proforma' => [
@@ -182,6 +192,20 @@ class BankStatement extends Model {
             if($bankStatement['document_process_id']) {
                 // #todo + mark DocumentProcess as integrated
                 // not sure how to do that if previous steps have not been performed yet
+            }
+        }
+    }
+
+    protected static function doAttemptPosting($self) {
+        $self->read(['statement_lines_ids' => ['status']]);
+        foreach($self as $id => $bankStatement) {
+            try {
+                // attempt to reconcile lines
+                $bankStatement['statement_lines_ids']->do('reconcile');
+                self::id($id)->transition('post');
+            }
+            catch(\Exception $e) {
+                // safely ignore errors
             }
         }
     }
