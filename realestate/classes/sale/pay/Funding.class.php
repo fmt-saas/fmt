@@ -140,13 +140,13 @@ class Funding extends \sale\pay\Funding {
     }
 
     public static function getActions() {
-        return [
+        return array_merge(parent::getActions(), [
             'attempt_posting' => [
                 'description'   => 'Attempt to post the related accounting document.',
-                'policies'      => [/* 'can_generate_accounting_entry' */],
+                'policies'      => [/* no policies - action is allowed to fail */],
                 'function'      => 'doAttemptPosting'
             ],
-        ];
+        ]);
     }
 
     protected static function doAttemptPosting($self) {
@@ -159,6 +159,7 @@ class Funding extends \sale\pay\Funding {
                         break;
                     default:
                 }
+                self::id($id)->update(['status' => 'balanced']);
             }
             catch(\Exception $e) {
                 // error is plausible and considered as normal

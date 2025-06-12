@@ -173,6 +173,58 @@ class Funding extends Model {
         ];
     }
 
+    public static function getActions() {
+        return [
+            'refresh_status' => [
+                'description'   => 'Attempt to post the related accounting document.',
+                'policies'      => [/* no policies - action is allowed to fail */],
+                'function'      => 'doRefreshStatus'
+            ]
+        ];
+    }
+
+    public static function getPolicies(): array {
+        return [
+            'is_paid' => [
+                'description' => 'Checks that delta between opening and closing amounts matches the sum of the lines amounts.',
+                'function'    => 'policyIsPaid'
+            ],
+        ];
+    }
+
+    public static function policyIsPaid($self): array {
+        $result = [];
+        $self->read(['is_paid']);
+        foreach($self as $id => $funding) {
+            if(!$funding['is_paid']) {
+                $result[$id] = [
+                    'not_paid' => 'The funding is not fully paid.'
+                ];
+            }
+        }
+        return $result;
+    }
+
+    protected static function doRefreshStatus($self) {
+        $self->update(['is_paid' => null, 'paid_amount' => null]);
+        $self->read(['due_amount', 'paid_amount']);
+        foreach($self as $id => $funding) {
+            $due = round((float) $funding['due_amount'], 2);
+            $paid = round((float) $funding['paid_amount'], 2);
+
+            if($paid === $due) {
+                $status = 'balanced';
+            }
+            elseif(($due > 0 && $paid > $due) || ($due < 0 && $paid < $due)) {
+                $status = 'credit_balance';
+            }
+            else {
+                $status = 'debit_balance';
+            }
+            self::id($id)->update(['status' => $status]);
+        }
+    }
+
     protected static function calcName($self) {
         $result = [];
         $self->read(['due_amount', 'payment_reference', 'invoice_id' => ['name']]);

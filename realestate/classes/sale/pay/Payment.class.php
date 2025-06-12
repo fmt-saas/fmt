@@ -43,7 +43,7 @@ class Payment extends \sale\pay\Payment {
         foreach($self as $id => $payment) {
             if($payment['funding_id']) {
                 Funding::id($payment['funding_id'])
-                    ->update(['paid_amount' => null, 'is_paid' => null])
+                    ->do('refresh_status')
                     ->do('attempt_posting');
             }
             if($payment['statement_line_id']) {

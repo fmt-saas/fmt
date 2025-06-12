@@ -231,7 +231,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
     protected static function policyIsPaid($self): array {
         $result = [];
-        $self->read(['status', 'condo_id', 'amount', 'fundings_ids' => ['due_amount', 'paid_amount', 'is_paid']]);
+        $self->read(['status', 'condo_id', 'amount', 'fundings_ids' => ['is_paid']]);
         foreach($self as $id => $moneyTransfer) {
             if($moneyTransfer['fundings_ids']->count() <> 2) {
                 $result[$id] = [

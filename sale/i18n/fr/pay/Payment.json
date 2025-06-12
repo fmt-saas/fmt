@@ -67,8 +67,8 @@
             "label": "Status",
             "description": "Status du paiement",
             "selection": {
-                "pending": "En cours",
-                "paid": "Payé"
+                "proforma": "Brouillon",
+                "payment": "Payé"
             },
             "help": ""
         }
