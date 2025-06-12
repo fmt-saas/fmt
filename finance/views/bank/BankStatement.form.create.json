@@ -76,17 +76,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "statement_lines_ids",
-                                                "width": "100%",
-                                                "widget":{
-                                                    "header": {
-                                                        "layout": "inline",
-                                                        "actions": {
-                                                            "ACTION.CREATE": [{
-                                                                "view": "form.create"
-                                                            }]
-                                                        }
-                                                    }
-                                                }
+                                                "width": "100%"
                                             }
                                         ]
                                     }
