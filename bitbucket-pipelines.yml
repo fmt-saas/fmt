@@ -10,8 +10,8 @@ pipelines:
         script:
           #memo - current directory is /opt/atlassian/pipelines/agent/build
           # Install dependencies
-          - apt-get update && apt-get -y install git libzip-dev default-mysql-client
-          - docker-php-ext-install pdo pdo_mysql mysqli zip
+          - apt-get update && apt-get -y install git libzip-dev libicu-dev default-mysql-client
+          - docker-php-ext-install pdo pdo_mysql mysqli zip intl
           - docker-php-ext-enable mysqli
           # Create a directory for artifacts
           - mkdir -p artifacts
