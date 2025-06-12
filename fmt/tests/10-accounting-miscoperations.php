@@ -16,7 +16,7 @@ $providers = eQual::inject(['context', 'orm', 'auth', 'access']);
 $tests = [
 
     '1101' => [
-            'description'       => "Accounting entry with non-balanced lines.",
+            'description'       => "Create Misc Operation.",
             'help'              => "Create an accounting entry, with 2 balanced lines. Entry balance test is expected to return true.",
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
@@ -55,22 +55,22 @@ $tests = [
                         ->transition('post');
                 },
             'assert'            => function() use($providers) {
-                    $bankAccount = CondominiumBankAccount::search(['accounting_account_id', '=', 468])
+                    $bankAccount = CondominiumBankAccount::search([['condo_id', '=', '1'], ['bank_account_type', '=', 'bank_savings']])
                         ->read(['available_balance'])
                         ->first();
-
-                    return $bankAccount['available_balance'] == 5000;
+                    return $bankAccount && $bankAccount['available_balance'] == 5000;
                 },
             'rollback'          => function() use($providers) {
                 }
         ],
 
     '1102' => [
-            'description'       => "Accounting entry with non-balanced lines.",
+            'description'       => "Create Money transfer.",
             'help'              => "Create an accounting entry, with 2 balanced lines. Entry balance test is expected to return true.",
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
                     $moneyTransfer = MoneyTransfer::create([
+                            'condo_id'          => 1,
                             'description'       => 'Money Transfer',
                             'posting_date'      => time(),
                             'fiscal_year_id'    => 3,
@@ -93,7 +93,7 @@ $tests = [
                         ->read(['available_balance'])
                         ->first();
 
-                    return $bankAccount['available_balance'] == 0.0;
+                    return $bankAccount && $bankAccount['available_balance'] == 0.0;
                 },
             'rollback'          => function() use($providers) {
                 }
