@@ -69,6 +69,14 @@ $tests = [
             'help'              => "Create an accounting entry, with 2 balanced lines. Entry balance test is expected to return true.",
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
+                    $currentAccount = CondominiumBankAccount::search([['condo_id', '=', '1'], ['bank_account_type', '=', 'bank_current']])
+                        ->read(['available_balance'])
+                        ->first();
+
+                    $savingsAccount = CondominiumBankAccount::search([['condo_id', '=', '1'], ['bank_account_type', '=', 'bank_savings']])
+                        ->read(['available_balance'])
+                        ->first();
+
                     $moneyTransfer = MoneyTransfer::create([
                             'condo_id'          => 1,
                             'description'       => 'Money Transfer',
@@ -76,8 +84,8 @@ $tests = [
                             'fiscal_year_id'    => 3,
                             'fiscal_period_id'  => 10,
                             'amount'            => 5000,
-                            'bank_account_id'   => 138,
-                            'counterpart_bank_account_id' => 137
+                            'bank_account_id'   => $savingsAccount['id'],
+                            'counterpart_bank_account_id' => $currentAccount['id']
                         ])
                         ->first();
 
