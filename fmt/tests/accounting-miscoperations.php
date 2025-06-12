@@ -9,6 +9,7 @@
 use finance\accounting\MiscOperation;
 use finance\accounting\MiscOperationLine;
 use finance\bank\CondominiumBankAccount;
+use realestate\finance\accounting\MoneyTransfer;
 
 $providers = eQual::inject(['context', 'orm', 'auth', 'access']);
 
@@ -62,5 +63,40 @@ $tests = [
                 },
             'rollback'          => function() use($providers) {
                 }
+        ],
+
+    '1102' => [
+            'description'       => "Accounting entry with non-balanced lines.",
+            'help'              => "Create an accounting entry, with 2 balanced lines. Entry balance test is expected to return true.",
+            'return'            => ['boolean'],
+            'arrange'           => function() use($providers) {
+                    $moneyTransfer = MoneyTransfer::create([
+                            'description'       => 'Money Transfer',
+                            'posting_date'      => time(),
+                            'fiscal_year_id'    => 3,
+                            'fiscal_period_id'  => 10,
+                            'amount'            => 5000,
+                            'bank_account_id'   => 138,
+                            'counterpart_bank_account_id' => 137
+                        ])
+                        ->first();
+
+                    return $moneyTransfer;
+                },
+            'act'               => function($moneyTransfer) use($providers) {
+                    MoneyTransfer::id($moneyTransfer['id'])
+                        ->transition('publish')
+                        ->transition('post');
+                },
+            'assert'            => function() use($providers) {
+                    $bankAccount = CondominiumBankAccount::search(['accounting_account_id', '=', 468])
+                        ->read(['available_balance'])
+                        ->first();
+
+                    return $bankAccount['available_balance'] == 0.0;
+                },
+            'rollback'          => function() use($providers) {
+                }
         ]
+
 ];
