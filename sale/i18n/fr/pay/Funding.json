@@ -18,7 +18,7 @@
             "description": "Les délais sont échelonnés sauf le dernier : facture définitive.",
             "selection": {
                 "installment": "acompte",
-                "reimbursement": "remboursement",
+                "refund": "remboursement",
                 "transfer": "transfert",
                 "invoice": "facture",
                 "fund_request": "appel de fonds",

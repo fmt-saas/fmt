@@ -9,7 +9,8 @@
             "icon": "print",
             "route": "/?get=sale_pay_Funding_sepa&id=object.id",
             "target": "_blank",
-            "absolute": true
+            "absolute": true,
+            "visible": ["pending", "=", "object.status"]
         }
     ],
     "layout": {
@@ -44,6 +45,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "status",
                                                 "width": "0%",
                                                 "visible": false
                                             }

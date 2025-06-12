@@ -65,7 +65,7 @@ class Funding extends \sale\pay\Funding {
                 'type'              => 'string',
                 'selection'         => [
                     'installment',
-                    'reimbursement',
+                    'refund',
                     'transfer',
                     'invoice',
                     'fund_request',

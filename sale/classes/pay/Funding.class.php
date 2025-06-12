@@ -53,7 +53,7 @@ class Funding extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'installment',
-                    'reimbursement',
+                    'refund',
                     'invoice'
                 ],
                 'required'          => true,
