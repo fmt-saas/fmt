@@ -26,7 +26,7 @@ $tests = [
                             'posting_date'      => time(),
                             'fiscal_year_id'    => 1,
                             'fiscal_period_id'  => 1,
-                            'journal_id'        => 5,
+                            'journal_id'        => 11,
                             'operation_type'    => 'misc'
                         ])
                         ->first();
@@ -55,7 +55,7 @@ $tests = [
                         ->transition('post');
                 },
             'assert'            => function() use($providers) {
-                    $bankAccount = CondominiumBankAccount::search([['condo_id', '=', '1'], ['bank_account_type', '=', 'bank_savings']])
+                    $bankAccount = CondominiumBankAccount::search([['condo_id', '=', 1], ['bank_account_type', '=', 'bank_savings']])
                         ->read(['available_balance'])
                         ->first();
                     return $bankAccount && $bankAccount['available_balance'] == 5000;
@@ -69,20 +69,19 @@ $tests = [
             'help'              => "Create an accounting entry, with 2 balanced lines. Entry balance test is expected to return true.",
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
-                    $currentAccount = CondominiumBankAccount::search([['condo_id', '=', '1'], ['bank_account_type', '=', 'bank_current']])
-                        ->read(['available_balance'])
+                    $currentAccount = CondominiumBankAccount::search([['condo_id', '=', 1], ['bank_account_type', '=', 'bank_current']])
                         ->first();
 
-                    $savingsAccount = CondominiumBankAccount::search([['condo_id', '=', '1'], ['bank_account_type', '=', 'bank_savings']])
-                        ->read(['available_balance'])
+                    $savingsAccount = CondominiumBankAccount::search([['condo_id', '=', 1], ['bank_account_type', '=', 'bank_savings']])
                         ->first();
 
                     $moneyTransfer = MoneyTransfer::create([
                             'condo_id'          => 1,
+                            'journal_id'        => 11,
                             'description'       => 'Money Transfer',
                             'posting_date'      => time(),
-                            'fiscal_year_id'    => 3,
-                            'fiscal_period_id'  => 10,
+                            'fiscal_year_id'    => 1,
+                            'fiscal_period_id'  => 1,
                             'amount'            => 5000,
                             'bank_account_id'   => $savingsAccount['id'],
                             'counterpart_bank_account_id' => $currentAccount['id']
@@ -97,7 +96,7 @@ $tests = [
                         ->transition('post');
                 },
             'assert'            => function() use($providers) {
-                    $bankAccount = CondominiumBankAccount::search([['condo_id', '=', '1'], ['bank_account_type', '=', 'bank_savings']])
+                    $bankAccount = CondominiumBankAccount::search([['condo_id', '=', 1], ['bank_account_type', '=', 'bank_savings']])
                         ->read(['available_balance'])
                         ->first();
 
