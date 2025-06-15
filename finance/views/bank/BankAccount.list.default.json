@@ -10,6 +10,7 @@
                 "visible": false
             },
             {
+                "id": "item.owner_identity_id",
                 "type": "field",
                 "label": "Owner",
                 "value": "owner_identity_id",

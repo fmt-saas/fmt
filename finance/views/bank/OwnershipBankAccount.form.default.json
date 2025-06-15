@@ -1,6 +1,6 @@
 {
-    "name": "Suppliership Bank Accounts",
-    "description": "Suppliership Bank Account details.",
+    "name": "Ownership Bank Account",
+    "description": "Ownership bank account details.",
     "layout": {
         "groups": [
             {
@@ -14,24 +14,32 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "condo_id",
-                                                "width": "100%"
+                                                "value": "description",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "heading": true
+                                                }
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "suppliership_id",
-                                                "width": "100%"
+                                                "value": "bank_account_iban",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "bank_account_id",
-                                                "width": "100%"
+                                                "value": "bank_name",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "supplier_identity_id",
-                                                "width": "0%",
-                                                "visible": false
+                                                "label" : "BIC",
+                                                "value": "bank_account_bic",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "bank_country",
+                                                "width": "25%"
                                             }
                                         ]
                                     },
@@ -44,17 +52,21 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "bank_account_type",
+                                                "value": "ownership_id",
+                                                "visible": false,
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "bank_account_iban",
+                                                "label" : "Condominium",
+                                                "value": "condo_id",
+                                                "readonly": true,
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "bank_account_bic",
+                                                "label": "Primary",
+                                                "value": "is_primary",
                                                 "width": "100%"
                                             }
                                         ]

@@ -157,6 +157,14 @@ class Ownership extends \equal\orm\Model {
                 'foreign_object'    => 'finance\accounting\Account',
                 'function'          => 'calcOwnershipAccountId',
                 'store'             => true
+            ],
+
+            'ownership_bank_accounts_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\bank\OwnershipBankAccount',
+                'foreign_field'     => 'ownership_id',
+                'description'       => "The bank accounts of the ownership.",
+                'domain'            => [['ownership_id', '=', 'object.id'], ['condo_id', '=', 'object.condo_id']]
             ]
 
         ];

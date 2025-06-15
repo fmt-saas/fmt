@@ -110,6 +110,13 @@ class BankStatementLine extends Model {
                 'description'       => 'Name of the Person whom the payment originates.'
             ],
 
+            'is_reconciled' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'A statement is balanced if all its lines are reconciled or ignored.',
+                'function'          => 'calcIsReconciled'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -148,9 +155,12 @@ class BankStatementLine extends Model {
 
 
     protected static function doReconcile($self) {
-        $self->read(['condo_id', 'bank_statement_id' => ['bank_account_iban'], 'communication', 'date', 'amount', 'account_iban']);
+        $self->read(['is_reconciled', 'condo_id', 'bank_statement_id' => ['bank_account_iban'], 'communication', 'date', 'amount', 'account_iban']);
 
         foreach($self as $id => $bankStatementLine) {
+            if($bankStatementLine['is_reconciled']) {
+                continue;
+            }
 
             $amount = $bankStatementLine['amount'];
 
@@ -198,7 +208,7 @@ class BankStatementLine extends Model {
     protected static function calcRemainingAmount($self) {
         $result = [];
         $self->read(['payments_ids', 'amount']);
-        foreach($self as $lid => $statementLine) {
+        foreach($self as $id => $statementLine) {
             $sum = 0.0;
             $payments = Payment::ids($statementLine['payments_ids'])->read(['amount']);
 
@@ -206,7 +216,23 @@ class BankStatementLine extends Model {
                 $sum += $payment['amount'];
             }
 
-            $result[$lid] = $statementLine['amount'] - $sum;
+            $result[$id] = $statementLine['amount'] - $sum;
+        }
+        return $result;
+    }
+
+    protected static function calcIsReconciled($self) {
+        $result = [];
+        $self->read(['payments_ids', 'amount']);
+        foreach($self as $id => $statementLine) {
+            $sum = 0.0;
+            $payments = Payment::ids($statementLine['payments_ids'])->read(['amount']);
+
+            foreach($payments as $pid => $payment) {
+                $sum += round($payment['amount'], 2);
+            }
+
+            $result[$id] = ($payments->count() > 0 && $sum === 0.0);
         }
         return $result;
     }

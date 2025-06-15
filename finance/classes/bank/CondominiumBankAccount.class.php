@@ -21,7 +21,7 @@ class CondominiumBankAccount extends BankAccount {
                 'foreign_object'    => 'realestate\property\Condominium',
                 //'readonly'          => true
                 'visible'           => ['organisation_id', '=', null],
-                'dependents'        => ['accounting_account_id']
+                'dependents'        => ['condominium_identity_id', 'accounting_account_id']
             ],
 
             'bank_account_type' => [
@@ -34,6 +34,15 @@ class CondominiumBankAccount extends BankAccount {
                 ],
                 'default'           => 'bank_current',
                 'dependents'        => ['accounting_account_id']
+            ],
+
+            'condominium_identity_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'identity\Identity',
+                'description'       => "The condominium identity this bank account belongs to.",
+                'relation'          => ['condo_id' => 'identity_id'],
+                'store'             => true
             ],
 
             'accounting_account_id' => [
@@ -50,6 +59,13 @@ class CondominiumBankAccount extends BankAccount {
                 'result_type'       => 'float',
                 'usage'             => 'amount/money:2',
                 'function'          => 'calcAvailableBalance',
+            ],
+
+            'owner_identity_id' => [
+                'type'              => 'many2one',
+                'description'       => "The Identity the bank account in attached to.",
+                'foreign_object'    => 'identity\Identity',
+                'domain'            => ['id', '=', 'object.condominium_identity_id']
             ]
 
         ];
@@ -57,16 +73,17 @@ class CondominiumBankAccount extends BankAccount {
 
     protected static function calcAvailableBalance($self) {
         $result = [];
-        $self->read(['accounting_account_id', 'bank_account_type', 'condo_id']);
+        $self->read(['accounting_account_id', 'bank_account_type', 'condo_id' => ['current_fiscal_year_id']]);
         foreach($self as $id => $bankAccount) {
             $balance = 0.0;
-            $balanceLines = CurrentBalanceLine::search(['account_id', '=', $bankAccount['accounting_account_id']])->read(['debit', 'credit']);
+
+            $balanceLines = CurrentBalanceLine::search([['fiscal_year_id', '=', $bankAccount['condo_id']['current_fiscal_year_id']], ['account_id', '=', $bankAccount['accounting_account_id']]])->read(['debit', 'credit']);
             foreach($balanceLines as $balanceLine) {
                 $balance += $balanceLine['debit'];
                 $balance -= $balanceLine['credit'];
             }
 /*
-            $fundings = Funding::search([ ['condo_id', '=', $bankAccount['condo_id']], ['bank_account_id', '=', $id], ['funding_type', '=', 'transfer'], ['status', '<>', 'balanced'] ])
+            $fundings = Funding::search([ ['condo_id', '=', $bankAccount['condo_id']['id']], ['bank_account_id', '=', $id], ['funding_type', '=', 'transfer'], ['status', '<>', 'balanced'] ])
                 ->read(['due_amount']);
 
             foreach($fundings as $funding) {

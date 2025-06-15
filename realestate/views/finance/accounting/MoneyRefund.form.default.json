@@ -1,6 +1,6 @@
 {
-    "name": "Money Transfer",
-    "description": "A MoneyTransfer is a specific type of Miscellaneous Operation designed to generate entries and funding for tracking a transfer between internal bank accounts.",
+    "name": "Money Refund",
+    "description": "A MoneyRefund is a specific type of Miscellaneous Operation designed to generate entries and funding for tracking a refund from an internal bank account.",
     "header": {
         "actions": {
             "ACTION.SAVE": [
@@ -19,7 +19,7 @@
             "controller": "core_model_transition",
             "visible": [ ["status", "=", "draft"] ],
             "params": {
-                "entity": "realestate\\finance\\accounting\\MoneyTransfer",
+                "entity": "realestate\\finance\\accounting\\MoneyRefund",
                 "transition": "publish",
                 "ids": []
             }
@@ -31,7 +31,7 @@
             "controller": "core_model_transition",
             "visible": [ ["status", "=", "proforma"] ],
             "params": {
-                "entity": "realestate\\finance\\accounting\\MoneyTransfer",
+                "entity": "realestate\\finance\\accounting\\MoneyRefund",
                 "transition": "post",
                 "ids": []
             }
@@ -43,7 +43,7 @@
             "controller": "core_model_transition",
             "visible": [ ["status", "=", "posted"] ],
             "params": {
-                "entity": "realestate\\finance\\accounting\\MoneyTransfer",
+                "entity": "realestate\\finance\\accounting\\MoneyRefund",
                 "transition": "complete",
                 "ids": []
             }
@@ -101,15 +101,16 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Destination account",
-                                                "value": "counterpart_bank_account_id",
-                                                "width": "66%"
+                                                "label": "Owner",
+                                                "value": "ownership_id",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Destination balance",
-                                                "value": "counterpart_available_balance",
-                                                "width": "33%"
+                                                "label": "Ownership account",
+                                                "value": "ownership_bank_account_id",
+                                                "width": "66%",
+                                                "visible": ["ownership_id", "<>", null]
                                             }
                                         ]
                                     },

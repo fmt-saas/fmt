@@ -14,7 +14,20 @@
                 "name": "Accountant",
                 "code": "accountant",
                 "description": "Accounting management."
+            },
+            {
+                "id": 3,
+                "name": "Director",
+                "code": "director",
+                "description": "Agency director."
+            },
+            {
+                "id": 4,
+                "name": "Assistant",
+                "code": "assistant",
+                "description": "Assistant."
             }
+
         ]
     },
     {
@@ -30,6 +43,16 @@
                 "id": 2,
                 "name": "Comptable",
                 "description": "Gestion comptable."
+            },
+            {
+                "id": 3,
+                "name": "Directeur",
+                "description": "Directeur d'agence."
+            },
+            {
+                "id": 4,
+                "name": "Assistant",
+                "description": "Assistant."
             }
         ]
     }

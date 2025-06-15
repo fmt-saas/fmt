@@ -185,7 +185,8 @@ class Condominium extends Identity {
                 'type'              => 'many2one',
                 'description'       => "Current `open` fiscal year assigned to the condominium.",
                 'help'              => "This value is assigned at fiscal year opening.",
-                'foreign_object'    => 'finance\accounting\FiscalYear'
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'onupdate'          => 'onupdateCurrentFiscalYearId',
             ],
 
             'common_areas_ids' => [
@@ -235,6 +236,7 @@ class Condominium extends Identity {
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
                 'foreign_field'     => 'condo_id',
                 'description'       => 'List of the bank account of the Condominium.',
+                'domain'            => ['owner_identity_id', '=', 'object.identity_id'],
                 'ondetach'          => 'delete',
                 'order'             => 'id',
                 'sort'              => 'asc'
@@ -406,10 +408,14 @@ class Condominium extends Identity {
             $fiscalYear = FiscalYear::search([
                     ['status', '=', 'preopen'],
                     ['condo_id', '=', $id]
-                ]);
+                ])
+                ->read(['date_from', 'date_to']);
 
-            if($fiscalYear->count() != 1) {
+            if($fiscalYear->count() <= 0) {
                 throw new \Exception('missing_preopen_fiscal_year', EQ_ERROR_INVALID_CONFIG);
+            }
+            elseif($fiscalYear->count() > 1) {
+                throw new \Exception('ambiguous_fiscal_year', EQ_ERROR_INVALID_CONFIG);
             }
 
             $fiscalYear->transition('open');
@@ -622,6 +628,23 @@ class Condominium extends Identity {
             ->do('generate_journals')
             // 4 - create folders
             ->do('generate_folders');
+    }
+
+    protected static function onupdateCurrentFiscalYearId($self) {
+        $self->read(['current_fiscal_year_id']);
+        foreach($self as $id => $condominium) {
+            if(!$condominium['current_fiscal_year_id']) {
+                continue;
+            }
+
+            $fiscalYear = FiscalYear::id($condominium['current_fiscal_year_id'])
+                ->read(['date_from', 'date_to'])
+                ->first();
+
+            if($fiscalYear) {
+                self::id($id)->update(['fiscal_year_start' => $fiscalYear['date_from'], 'fiscal_year_end' => $fiscalYear['date_to']]);
+            }
+        }
     }
 
 }

@@ -75,7 +75,7 @@ class Suppliership extends \equal\orm\Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\bank\SuppliershipBankAccount',
                 'foreign_field'     => 'suppliership_id',
-                'description'       => "The bank accounts with specific info to the condominium.",
+                'description'       => "The bank accounts of the supplier.",
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ]
 

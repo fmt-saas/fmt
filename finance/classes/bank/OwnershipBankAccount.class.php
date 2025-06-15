@@ -23,12 +23,27 @@ class OwnershipBankAccount extends BankAccount {
                 'dependents'        => ['accounting_account_id']
             ],
 
+            'bank_account_type' => [
+                'type'              => 'string',
+                'description'       => 'Type of bank account (current of savings).',
+                'help'              => 'Identifiers of this list should match the operation_assignment codes used in the chart of Accounts.',
+                'default'           => 'bank_current'
+            ],
+
             'ownership_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'description'       => "Ownership the bank account belongs to.",
                 'required'          => true,
-                'dependents'        => ['ownership_code']
+                'dependents'        => ['ownership_code', 'description']
+            ],
+
+            'description' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'store'             => true,
+                'relation'          => ['ownership_id' => 'name'],
+                'description'       => 'Short description of the account (purpose).',
             ],
 
             'ownership_code' => [
@@ -38,6 +53,13 @@ class OwnershipBankAccount extends BankAccount {
                 'description'       => "Unique code of the Ownership.",
                 'relation'          => ['ownership_id' => 'code'],
                 'store'             => true
+            ],
+
+            // #todo - an ownership is not directly linked to an identity
+            'owner_identity_id' => [
+                'type'              => 'many2one',
+                'description'       => "The Identity the bank account in attached to.",
+                'foreign_object'    => 'identity\Identity'
             ],
 
             'accounting_account_id' => [

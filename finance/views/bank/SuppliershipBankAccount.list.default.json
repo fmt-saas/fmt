@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Suppliership Bank Account",
+    "description": "Suppliership bank accounts.",
     "layout": {
         "items": [
             {

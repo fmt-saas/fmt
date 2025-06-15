@@ -485,7 +485,7 @@ class FiscalYear extends Model {
      *
      */
     public static function onafterOpen($self) {
-        $self->read(['condo_id', 'previous_fiscal_year_id', 'fiscal_periods_ids' => ['id', 'date_from', 'date_to']]);
+        $self->read(['condo_id', 'date_from', 'date_to', 'previous_fiscal_year_id', 'fiscal_periods_ids' => ['id', 'date_from', 'date_to']]);
 
         foreach($self as $id => $fiscalYear) {
 
@@ -537,7 +537,11 @@ class FiscalYear extends Model {
             }
 
             // 5 - update current fiscal year for targeted Condominium
-            Condominium::id($fiscalYear['condo_id'])->update(['current_fiscal_year_id' => $id]);
+            Condominium::id($fiscalYear['condo_id'])
+                ->update([
+                    'current_fiscal_year_id' => $id
+                ]);
+
         }
 
     }

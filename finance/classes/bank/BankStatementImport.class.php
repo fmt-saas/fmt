@@ -69,7 +69,7 @@ class BankStatementImport extends Model {
 
             foreach($data as $i => $statement) {
                 $binary = self::computeXlsxBinaryFromStatement($statement);
-                // this will trigger the creation of the document and the auto processing, which might fail without interrupting the import
+                // this will trigger the creation of the document and the auto processing, which should not interrupt the import even if it fails
                 try {
                     DocumentProcess::create(['name' => $file_name . '(' . ($i+1) . ').' . $extension, 'document_type_id' => $documentType['id']])
                         ->update(['data' => $binary])
@@ -106,7 +106,7 @@ class BankStatementImport extends Model {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        // Colonnes fixes, en cohérence avec le mapping d’entrée
+        // columns from standard ISABEL XLS exports
         $headers = [
                 'Account',
                 'Account holder',
@@ -189,7 +189,6 @@ class BankStatementImport extends Model {
             $row++;
         }
 
-        // Écriture en mémoire
         $writer = new Xlsx($spreadsheet);
         $stream = fopen('php://memory', 'w+');
         $writer->save($stream);

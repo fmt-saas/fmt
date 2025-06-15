@@ -16,20 +16,6 @@ class BankAccount extends Model {
 
         return [
 
-            'owner_identity_id' => [
-                'type'              => 'many2one',
-                'description'       => "The condominium the accounting entry refers to.",
-                'foreign_object'    => 'identity\Identity'
-            ],
-
-            'is_primary' => [
-                'type'              => 'boolean',
-                'description'       => 'Flag marking the account as primary account.',
-                'help'              => 'When a primary account is updated, sync is automatically replicated on related identity (from `owner_identity_id`).',
-                'default'           => false,
-                'visible'           => ['bank_account_type', '=', 'bank_current']
-            ],
-
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -56,6 +42,14 @@ class BankAccount extends Model {
                 'default'           => 'bank_current'
             ],
 
+            'is_primary' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the account as primary account.',
+                'help'              => 'When a primary account is updated, sync is automatically replicated on related identity (from `owner_identity_id`).',
+                'default'           => false,
+                'visible'           => ['bank_account_type', '=', 'bank_current']
+            ],
+
             'organisation_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Organisation',
@@ -63,6 +57,12 @@ class BankAccount extends Model {
                 'dependents'        => ['name'],
                 'ondelete'          => 'cascade',
                 'visible'           => ['condo_id', '=', null]
+            ],
+
+            'owner_identity_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the accounting entry refers to.",
+                'foreign_object'    => 'identity\Identity'
             ],
 
             'bank_account_iban' => [

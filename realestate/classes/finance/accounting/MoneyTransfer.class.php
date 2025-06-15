@@ -12,6 +12,7 @@ use finance\accounting\CurrentBalanceLine;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
+use finance\bank\CondominiumBankAccount;
 use realestate\purchase\accounting\AccountingEntry;
 use realestate\purchase\accounting\AccountingEntryLine;
 use realestate\sale\pay\Funding;
@@ -38,11 +39,8 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
             'operation_type' => [
                 'type'              => 'string',
-                'selection'         => [
-                    'misc',
-                    'transfer'
-                ],
                 'default'           => 'transfer',
+                'readonly'          => true,
                 'description'       => "Type of operation, necessary for entities inheriting from MiscOperation."
             ],
 
@@ -60,6 +58,22 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'description'       => 'Counterpart bank account, when applying.',
                 'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'account_available_balance' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:2',
+                'relation'          => ['bank_account_id' => 'available_balance'],
+                'description'       => 'The origin Bank account available balance.'
+            ],
+
+            'counterpart_available_balance' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:2',
+                'relation'          => ['counterpart_bank_account_id' => 'available_balance'],
+                'description'       => 'The target Bank account available balance.'
             ],
 
             'accounting_entries_ids' => [
@@ -478,6 +492,26 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
     public static function onchange($event, $values) {
         $result = [];
 
+        if(isset($event['bank_account_id'])) {
+            $bankAccount = CondominiumBankAccount::id($event['bank_account_id'])->read(['available_balance'])->first();
+            if($bankAccount) {
+                $result['account_available_balance'] = $bankAccount['available_balance'];
+            }
+        }
+        elseif(array_key_exists('bank_account_id', $event)) {
+            $result['account_available_balance'] = 0.0;
+        }
+
+        if(isset($event['counterpart_bank_account_id'])) {
+            $bankAccount = CondominiumBankAccount::id($event['counterpart_bank_account_id'])->read(['available_balance'])->first();
+            if($bankAccount) {
+                $result['counterpart_available_balance'] = $bankAccount['available_balance'];
+            }
+        }
+        elseif(array_key_exists('counterpart_bank_account_id', $event)) {
+            $result['counterpart_available_balance'] = 0.0;
+        }
+
         if(isset($event['posting_date'], $values['condo_id'])) {
             $fiscal_year_id = self::computeFiscalYearId($values['condo_id'], $event['posting_date']);
             if($fiscal_year_id) {
@@ -500,6 +534,24 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
         return $result;
     }
+
+    public static function canupdate($self, $values) {
+        $self->read(['amount', 'bank_account_id', 'counterpart_bank_account_id', 'account_available_balance']);
+
+        foreach($self as $id => $moneyTransfer) {
+            $amount = $values['amount'] ?? $moneyTransfer['amount'];
+            $account_available_balance = $values['account_available_balance'] ?? $moneyTransfer['account_available_balance'];
+            if($amount > $account_available_balance) {
+                return [
+                    'amount' => [
+                        'invalid_amount' => 'The amount to transfer cannot be greater than the available balance of the origin bank account.'
+                    ]
+                ];
+            }
+        }
+        return parent::canupdate($self);
+    }
+
 
     protected static function onafterPost($self) {
         $self

@@ -3,7 +3,7 @@
     "description": "Details about bank accounts and related operations.",
     "routes": [
         {
-            "id": "item.transfer",
+            "id": "item.transfers",
             "label": "Money Transfers",
             "description": "",
             "icon": "add_card",
@@ -11,6 +11,17 @@
                 "entity": "realestate\\finance\\accounting\\MoneyTransfer",
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"], ["operation_type", "=", "transfer"]]
+            }
+        },
+        {
+            "id": "item.refunds",
+            "label": "Money Refunds",
+            "description": "",
+            "icon": "credit_card_off",
+            "context": {
+                "entity": "realestate\\finance\\accounting\\MoneyRefund",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"], ["operation_type", "=", "refund"]]
             }
         },
         {
@@ -102,6 +113,11 @@
                                             {
                                                 "type": "field",
                                                 "value": "has_parent",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "identity_id",
                                                 "visible": false
                                             }
                                         ]

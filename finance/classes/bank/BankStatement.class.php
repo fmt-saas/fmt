@@ -7,6 +7,7 @@
 
 namespace finance\bank;
 
+use documents\processing\DocumentProcess;
 use equal\orm\Model;
 use realestate\sale\pay\Payment;
 
@@ -186,12 +187,21 @@ class BankStatement extends Model {
         $self->read(['document_process_id', 'statement_lines_ids' => ['payments_ids']]);
         foreach($self as $id => $bankStatement) {
             // mark involved payment as published
-            foreach($bankStatement['statement_lines_ids'] as $lid => $statementLine) {
-                Payment::ids($statementLine['payments_ids'])->transition('publish');
+            try {
+                foreach($bankStatement['statement_lines_ids'] as $lid => $statementLine) {
+                    Payment::ids($statementLine['payments_ids'])->transition('publish');
+                }
+            }
+            catch(\Exception $e) {
+                // ignore already published payments
             }
             if($bankStatement['document_process_id']) {
-                // #todo + mark DocumentProcess as integrated
-                // not sure how to do that if previous steps have not been performed yet
+                DocumentProcess::id($bankStatement['document_process_id'])
+                    // bypass all stages
+                    ->update(['status' => 'confirmed'])
+                    // mark DocumentProcess as integrated
+                    ->transition('integrate');
+                // #memo - subsequent call to this method will be ignored by callonce
             }
         }
     }

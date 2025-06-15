@@ -38,6 +38,7 @@ class MiscOperation extends Model {
             'description' => [
                 'type'              => 'string',
                 'description'       => 'Explanation or internal notes about the operation.',
+                'required'          => true
             ],
 
             'organisation_id' => [
@@ -256,6 +257,14 @@ class MiscOperation extends Model {
             ]);
         foreach ($self as $id => $miscOperation) {
 
+            // remove any previously created accounting entry (resulting from an incomplete operation)
+            AccountingEntry::search([
+                    ['condo_id', '=', $miscOperation['condo_id']],
+                    ['origin_object_class', '=', self::getType()],
+                    ['origin_object_id', '=', $id]
+                ])
+                ->delete(true);
+
             $accountingEntry = AccountingEntry::create([
                     'condo_id'              => $miscOperation['condo_id'],
                     'entry_date'            => $miscOperation['posting_date'],
@@ -296,6 +305,38 @@ class MiscOperation extends Model {
                 $result['journal_id'] = [
                         'id'    => $journal['id'],
                         'name'  => $journal['name']
+                    ];
+            }
+        }
+
+        if(isset($event['posting_date'])) {
+            $fiscalYear = FiscalYear::search([
+                    ['condo_id', '=', $values['condo_id']],
+                    ['date_from', '<=', $event['posting_date']],
+                    ['date_to', '>=', $event['posting_date']]
+                ])
+                ->read(['id', 'name'])
+                ->first();
+
+            $fiscalPeriod = FiscalPeriod::search([
+                    ['condo_id', '=', $values['condo_id']],
+                    ['date_from', '<=', $event['posting_date']],
+                    ['date_to', '>=', $event['posting_date']]
+                ])
+                ->read(['id', 'name'])
+                ->first();
+
+            if($fiscalYear) {
+                $result['fiscal_year_id'] = [
+                        'id'    => $fiscalYear['id'],
+                        'name'  => $fiscalYear['name']
+                    ];
+            }
+
+            if($fiscalPeriod) {
+                $result['fiscal_period_id'] = [
+                        'id'    => $fiscalPeriod['id'],
+                        'name'  => $fiscalPeriod['name']
                     ];
             }
         }

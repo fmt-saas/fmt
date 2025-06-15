@@ -47,6 +47,13 @@ class SuppliershipBankAccount extends Model {
                 'instant'           => true
             ],
 
+            'owner_identity_id' => [
+                'type'              => 'many2one',
+                'description'       => "The Identity the bank account in attached to.",
+                'foreign_object'    => 'identity\Identity',
+                'domain'            => ['id', '=', 'object.supplier_identity_id']
+            ],
+
             'bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',

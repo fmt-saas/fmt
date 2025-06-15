@@ -1,6 +1,6 @@
 {
-    "name": "Ownership Bank Account",
-    "description": "Ownership bank account list.",
+    "name": "Permission",
+    "description": "Default form for Permission with all fields.",
     "extends": {
         "entity": "finance\\bank\\BankAccount",
         "view": "list.default"
@@ -8,6 +8,7 @@
     "routes": [
     ],
     "layout": {
+        "remove": ["item.owner_identity_id"],
         "update": {
             "item.is_primary": {
                 "after": [

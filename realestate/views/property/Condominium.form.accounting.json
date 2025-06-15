@@ -230,8 +230,19 @@
                                         ]
                                     },
                                     {
-                                        "width": "50%",
+                                        "width": "25%",
                                         "items": [
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Current Fiscal Year",
+                                                "value": "current_fiscal_year_id",
+                                                "width": "100%"
+                                            }
                                         ]
                                     }
                                 ]

@@ -15,6 +15,8 @@ use finance\bank\BankAccount;
 use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
 use finance\bank\CondominiumBankAccount;
+use hr\role\Role;
+use hr\role\RoleAssignment;
 use purchase\supplier\Supplier;
 use purchase\supplier\Suppliership;
 use purchase\supplier\SuppliershipReference;
@@ -229,7 +231,7 @@ class DocumentProcess extends Model {
                 'transitions' => [
                     'validate' => [
                         'description' => 'Update the document to `validated`.',
-                        'policies'    => ['is_valid'],
+                        'policies'    => ['is_valid', 'can_validate'],
                         'status'      => 'validated'
                     ]
                 ]
@@ -240,7 +242,7 @@ class DocumentProcess extends Model {
                 'transitions' => [
                     'record' => [
                         'description' => 'Update the document to `recorded`.',
-                        'policies'    => [],
+                        'policies'    => ['can_record'],
                         'onbefore'    => 'onbeforeRecord',
                         'status'      => 'recorded'
                     ]
@@ -252,7 +254,7 @@ class DocumentProcess extends Model {
                 'transitions' => [
                     'confirm' => [
                         'description' => 'Update the document to `confirmed`.',
-                        'policies'    => [],
+                        'policies'    => ['can_confirm'],
                         'status'      => 'confirmed'
                     ]
                 ]
@@ -263,6 +265,7 @@ class DocumentProcess extends Model {
                 'transitions' => [
                     'integrate' => [
                         'description' => 'Update the document to `integrated`.',
+                        'help'        => 'Integration is meant to be made automatically at the end of the workflow.',
                         'policies'    => [],
                         'onbefore'    => 'onbeforeIntegrate',
                         'status'      => 'integrated'
@@ -311,6 +314,18 @@ class DocumentProcess extends Model {
             'is_valid' => [
                 'description' => 'Verifies that the document is valid, according to rules linked to document type.',
                 'function'    => 'policyIsValid'
+            ],
+            'can_validate' => [
+                'description' => 'Checks if the current user is permitted to validate the document based on their roles.',
+                'function'    => 'policyCanValidate'
+            ],
+            'can_record' => [
+                'description' => 'Checks if the current user is permitted to record the document based on their roles.',
+                'function'    => 'policyCanRecord'
+            ],
+            'can_confirm' => [
+                'description' => 'Checks if the current user is permitted to confirm the document based on their roles.',
+                'function'    => 'policyCanConfirm'
             ]
         ];
     }
@@ -345,6 +360,57 @@ class DocumentProcess extends Model {
                 'function'      => 'doUpdateDocumentJson'
             ]
         ]);
+    }
+
+    /**
+     * #todo - vérifier que l'utilisateur a un rôle de "Manager"
+     *
+     */
+    protected static function policyCanValidate($self, $auth): array {
+        $result = [];
+
+        return $result;
+        $user_id = $auth->userId();
+
+        $authorized_roles = ['director', 'manager'];
+        $roles_ids = Role::search(['code', 'in', $authorized_roles])->ids();
+
+        $self->read(['condo_id']);
+
+        foreach($self as $id => $documentProcess) {
+            // check if user has an assignment for this role on the targeted condo_id
+            // #memo - if $condo_id is null, it will fetch global entry, if any (i.e. the user has the role for any condo)
+            $assignments_ids = RoleAssignment::search([
+                    ['user_id', '=', $user_id],
+                    ['role_id', 'in', $roles_ids],
+                    ['condo_id', '=', $documentProcess['condo_id']]
+                ])
+                ->ids();
+            if(!count($assignments_ids)) {
+                $result[$id] = [
+                    'not_allowed' => 'User has none of allowed roles.'
+                ];
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * #todo - vérifier que l'utilisateur a un rôle de "Accountant"
+     *
+     */
+    protected static function policyCanRecord($self): array {
+        $result = [];
+        $authorized_roles = ['accountant'];
+
+        return $result;
+    }
+
+    protected static function policyCanConfirm($self): array {
+        $result = [];
+        $authorized_roles = ['director', 'accountant'];
+
+        return $result;
     }
 
     public static function candelete($self) {
@@ -759,9 +825,6 @@ class DocumentProcess extends Model {
                         ]);
                 }
 
-                // switch Bank statement to `proforma`
-                BankStatement::id($bankStatement['id'])->transition('publish');
-
                 self::id($id)->update(['document_bank_statement_id' => $bankStatement['id'], 'has_target_document' => true]);
             }
         }
@@ -772,7 +835,7 @@ class DocumentProcess extends Model {
      * Create accounting entries according to linked document
      */
     public static function onbeforeIntegrate($self) {
-        // #todo
+        // #todo - to complete according to document types
         $self->read(['document_type_code', 'document_invoice_id', 'document_bank_statement_id']);
         foreach($self as $id => $documentProcess) {
             if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
@@ -1154,4 +1217,15 @@ class DocumentProcess extends Model {
         }
         return $result;
     }
+
+    public static function canupdate($self) {
+        $self->read(['status']);
+        foreach($self as $id => $chart) {
+            if($chart['status'] == 'integrated') {
+                return ['status' => ['not_allowed' => 'Integrated document cannot be modified.']];
+            }
+        }
+        return parent::canupdate($self);
+    }
+
 }

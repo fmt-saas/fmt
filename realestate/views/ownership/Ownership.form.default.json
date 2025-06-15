@@ -121,6 +121,35 @@
                         ]
                     },
                     {
+                        "id": "section.bank_accounts",
+                        "label": "Bank Accounts",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "ownership_bank_accounts_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": [ {
+                                                                "view": "form.create"
+                                                            } ]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "id": "section.property_lots",
                         "label": "Lots",
                         "rows": [
