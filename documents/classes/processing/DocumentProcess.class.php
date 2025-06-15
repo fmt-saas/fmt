@@ -836,13 +836,23 @@ class DocumentProcess extends Model {
      */
     public static function onbeforeIntegrate($self) {
         // #todo - to complete according to document types
-        $self->read(['document_type_code', 'document_invoice_id', 'document_bank_statement_id']);
+        $self->read(['document_type_code', 'document_invoice_id' => ['status'], 'document_bank_statement_id' => ['status']]);
         foreach($self as $id => $documentProcess) {
-            if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
-                Invoice::id($documentProcess['document_invoice_id'])->transition('post');
-            }
-            elseif($documentProcess['document_type_code'] === 'bank_statement') {
-                BankStatement::id($documentProcess['document_bank_statement_id'])->transition('post');
+            switch($documentProcess['document_type_code']) {
+                case 'invoice':
+                    if($documentProcess['document_invoice_id']['status'] === 'proforma') {
+                        Invoice::id($documentProcess['document_invoice_id'['id']])->transition('post');
+                    }
+                    break;
+                case 'bank_statement':
+                    if($documentProcess['document_bank_statement_id']['status'] === 'proforma') {
+                        BankStatement::id($documentProcess['document_bank_statement_id']['id'])->transition('post');
+                    }
+                    break;
+                // #todo - add other document types
+                default:
+                    trigger_error("APP::onbeforeIntegrate - Document type {$documentProcess['document_type_code']} is not supported for integration.", EQ_REPORT_WARNING);
+                    break;
             }
         }
     }

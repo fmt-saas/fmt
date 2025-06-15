@@ -89,7 +89,8 @@
                                             {
                                                 "type": "field",
                                                 "value": "document_id",
-                                                "width": "33%"
+                                                "width": "33%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",

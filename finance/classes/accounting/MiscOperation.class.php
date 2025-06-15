@@ -204,8 +204,13 @@ class MiscOperation extends Model {
 
     protected static function policyIsValid($self): array {
         $result = [];
-        $self->read(['status', 'condo_id', 'fiscal_year_id', 'fiscal_period_id', 'journal_id']);
+        $self->read(['status', 'posting_date', 'condo_id', 'fiscal_year_id', 'fiscal_period_id', 'journal_id']);
         foreach($self as $id => $miscOperation) {
+            if($miscOperation['posting_date'] >= strtotime('tomorrow midnight')) {
+                $result[$id] = [
+                    'invalid_posting_date' => 'Posting date cannot be in the future.'
+                ];
+            }
             if(!isset($miscOperation['fiscal_year_id'])) {
                 $result[$id] = [
                     'missing_fiscal_year' => 'Fiscal year is missing.'
@@ -300,13 +305,17 @@ class MiscOperation extends Model {
         $result = [];
 
         if(isset($event['condo_id'])) {
-            $journal = Journal::search([['condo_id', '=', $values['condo_id']], ['journal_type', '=', 'MISC']])->read(['id', 'name'])->first();
+            $journal = Journal::search([['condo_id', '=', $event['condo_id']], ['journal_type', '=', 'MISC']])->read(['id', 'name'])->first();
             if($journal) {
                 $result['journal_id'] = [
                         'id'    => $journal['id'],
                         'name'  => $journal['name']
                     ];
             }
+            if(!isset($event['posting_date']) && isset($values['posting_date'])) {
+                $event['posting_date'] = $values['posting_date'];
+            }
+            $values['condo_id'] = $event['condo_id'];
         }
 
         if(isset($event['posting_date'])) {

@@ -24,7 +24,7 @@
             "controller": "core_model_do",
             "params": {
                 "entity": "finance\\bank\\BankStatement",
-                "action": "attempt_posting",
+                "action": "attempt_reconcile",
                 "ids": []
             },
             "confirm": false,

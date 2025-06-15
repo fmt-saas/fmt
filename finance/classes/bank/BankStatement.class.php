@@ -133,10 +133,10 @@ class BankStatement extends Model {
 
     public static function getActions() {
         return [
-            'attempt_posting' => [
+            'attempt_reconcile' => [
                 'description'   => 'Attempt to reconcile the statement and its lines and invoke the creation of subsequent accounting entries.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
-                'function'      => 'doAttemptPosting'
+                'function'      => 'doAttemptReconcile'
             ],
         ];
     }
@@ -201,18 +201,16 @@ class BankStatement extends Model {
                     ->update(['status' => 'confirmed'])
                     // mark DocumentProcess as integrated
                     ->transition('integrate');
-                // #memo - subsequent call to this method will be ignored by callonce
             }
         }
     }
 
-    protected static function doAttemptPosting($self) {
+    protected static function doAttemptReconcile($self) {
         $self->read(['statement_lines_ids' => ['status']]);
         foreach($self as $id => $bankStatement) {
             try {
                 // attempt to reconcile lines
                 $bankStatement['statement_lines_ids']->do('reconcile');
-                self::id($id)->transition('post');
             }
             catch(\Exception $e) {
                 // safely ignore errors
