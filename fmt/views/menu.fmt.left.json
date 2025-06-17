@@ -105,7 +105,7 @@
                         "icon": "swap_horiz",
                         "description": "",
                         "context": {
-                            "entity": "realestate\\ownership\\OwnershipTransfer",
+                            "entity": "realestate\\property\\OwnershipTransfer",
                             "view": "list.default"
                         }
                     }

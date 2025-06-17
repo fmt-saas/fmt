@@ -25,10 +25,14 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'required'          => true
             ],
 
-            'property_lot_id' => [
-                'type'              => 'many2one',
+            'property_lots_ids' => [
+                'type'              => 'many2many',
                 'foreign_object'    => 'realestate\property\PropertyLot',
-                'description'       => "The  Property Lot the transfer file relates to.",
+                'foreign_field'     => 'ownership_transfers_ids',
+                'rel_table'         => 'realestate_propertylot_rel_transfer',
+                'rel_foreign_key'   => 'lot_id',
+                'rel_local_key'     => 'transfer_id',
+                'description'       => 'Property Lots that are part of the ownership transfer.'
             ],
 
             'old_ownership_id' => [
