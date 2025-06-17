@@ -8,6 +8,7 @@
 namespace finance\accounting;
 use equal\orm\Model;
 use fmt\setting\Setting;
+use realestate\purchase\accounting\AccountingEntry;
 
 class Account extends Model {
 
@@ -288,11 +289,30 @@ class Account extends Model {
         $result = [];
         $self->read(['code', 'description']);
         foreach($self as $id => $line) {
-            $result[$id] = $line['code'] . ' - ' . $line['description'];
+            if(!isset($line['code'])) {
+                continue;
+            }
+            $name = $line['code'];
+            if($line['description'] && strlen($line['description']) > 0) {
+                $name .= ' - ' . $line['description'];
+            }
+            $result[$id] = $name;
         }
         return $result;
     }
 
+    public static function candelete($self) {
+        $self->read(['condo_id']);
+        foreach($self as $id => $account) {
+            if(!$account['condo_id']) {
+                continue;
+            }
+            $accounting_entries_ids = AccountingEntry::search([ ['condo_id', '=', $account['condo_id']], ['account_id', '=', $id] ])->ids();
+            if(count($accounting_entries_ids) > 0) {
+                return ['id' => ['non_removable' => 'Account with accounting entries cannot be removed.']];
+            }
+        }
+        return parent::candelete($self);
+    }
 
 }
-
