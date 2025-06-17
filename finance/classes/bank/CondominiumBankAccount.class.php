@@ -8,7 +8,7 @@ namespace finance\bank;
 
 use finance\accounting\Account;
 use finance\accounting\CurrentBalanceLine;
-use sale\pay\Funding;
+use realestate\sale\pay\Funding;
 
 class CondominiumBankAccount extends BankAccount {
 
@@ -54,6 +54,24 @@ class CondominiumBankAccount extends BankAccount {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'last_statement_balance' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'default'           => 0.0
+            ],
+
+            'last_statement_date' => [
+                'type'              => 'date',
+                'description'       => 'Date of the last imported bank statement.',
+            ],
+
+            'current_balance' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:2',
+                'function'          => 'calcCurrentBalance',
+            ],
+
             'available_balance' => [
                 'type'              => 'computed',
                 'result_type'       => 'float',
@@ -78,7 +96,7 @@ class CondominiumBankAccount extends BankAccount {
         ];
     }
 
-    protected static function calcAvailableBalance($self) {
+    protected static function calcCurrentBalance($self) {
         $result = [];
         $self->read(['accounting_account_id', 'bank_account_type', 'condo_id' => ['current_fiscal_year_id']]);
         foreach($self as $id => $bankAccount) {
@@ -89,14 +107,27 @@ class CondominiumBankAccount extends BankAccount {
                 $balance += $balanceLine['debit'];
                 $balance -= $balanceLine['credit'];
             }
-/*
-            $fundings = Funding::search([ ['condo_id', '=', $bankAccount['condo_id']['id']], ['bank_account_id', '=', $id], ['funding_type', '=', 'transfer'], ['status', '<>', 'balanced'] ])
-                ->read(['due_amount']);
+
+            $result[$id] = $balance;
+        }
+        return $result;
+    }
+
+    protected static function calcAvailableBalance($self) {
+        $result = [];
+        $self->read(['current_balance', 'condo_id']);
+        foreach($self as $id => $bankAccount) {
+            $balance = $bankAccount['current_balance'] ?? 0.0;
+
+            $fundings = Funding::search([
+                    [ ['condo_id', '=', $bankAccount['condo_id']], ['status', '<>', 'balanced'], ['funding_type', '=', 'transfer'], ['due_amount', '<', 0.0], ['bank_account_id', '=', $id] ],
+                ])
+                ->read(['due_amount', 'paid_amount']);
 
             foreach($fundings as $funding) {
-                $balance -= $funding['due_amount'];
+                $balance += $funding['due_amount'] - $funding['paid_amount'];
             }
-*/
+
             $result[$id] = $balance;
         }
         return $result;

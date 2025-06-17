@@ -186,8 +186,9 @@ class BankStatement extends Model {
     protected static function onafterPost($self) {
         $self->read(['document_process_id', 'statement_lines_ids' => ['payments_ids']]);
         foreach($self as $id => $bankStatement) {
-            // mark involved payment as published
             try {
+                // mark involved payment as published
+                // #memo - this triggers a cascade event `attempt_posting` on Funding and related MisOperation (MoneyTransfer or other)
                 foreach($bankStatement['statement_lines_ids'] as $lid => $statementLine) {
                     Payment::ids($statementLine['payments_ids'])->transition('publish');
                 }
@@ -202,6 +203,7 @@ class BankStatement extends Model {
                     // mark DocumentProcess as integrated
                     ->transition('integrate');
             }
+// #todo
         }
     }
 

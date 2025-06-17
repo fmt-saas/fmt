@@ -155,7 +155,7 @@ class Funding extends \sale\pay\Funding {
             try {
                 switch($funding['funding_type']) {
                     case 'transfer':
-                        MoneyTransfer::id($funding['money_transfer_id'])->transition('complete');
+                        MoneyTransfer::id($funding['money_transfer_id'])->do('attempt_posting');
                         break;
                     default:
                 }

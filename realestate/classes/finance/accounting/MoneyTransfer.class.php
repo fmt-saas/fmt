@@ -151,27 +151,27 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
     public static function getWorkflow() {
         return array_merge(parent::getWorkflow(), [
+            'draft' => [
+                'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
+                'icon'        => 'draw',
+                'transitions' => [
+                    'publish' => [
+                        'description' => 'Update the document to `completed`.',
+                        'policies'    => ['is_valid', 'can_transfer'],
+                        'onafter'     => 'onafterPublish',
+                        'status'      => 'proforma'
+                    ]
+                ]
+            ],
             'proforma' => [
                 'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
                 'icon'        => 'draw',
                 'transitions' => [
                     'post' => [
                         'description' => 'Update the document to `completed`.',
-                        'policies'    => ['is_valid', 'can_transfer'],
+                        'policies'    => ['is_paid'],
                         'onafter'     => 'onafterPost',
                         'status'      => 'posted'
-                    ]
-                ]
-            ],
-            'posted' => [
-                'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
-                'icon'        => 'draw',
-                'transitions' => [
-                    'complete' => [
-                        'description' => 'Update the document to `completed`.',
-                        'policies'    => ['is_paid'],
-                        'onafter'     => 'onafterComplete',
-                        'status'      => 'completed'
                     ]
                 ]
             ]
@@ -180,20 +180,21 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
     public static function getActions() {
         return array_merge(parent::getActions(), [
-            'generate_accounting_entry_outgoing' => [
+            'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
-                'policies'      => [/* 'can_generate_accounting_entry' */],
-                'function'      => 'doGenerateAccountingEntryOutgoing'
-            ],
-            'generate_accounting_entry_incoming' => [
-                'description'   => 'Creates accounting entries according to operation lines.',
-                'policies'      => [/* 'can_generate_accounting_entry' */],
-                'function'      => 'doGenerateAccountingEntryIncoming'
+                'policies'      => ['is_paid'],
+                'function'      => 'doGenerateAccountingEntry'
             ],
             'create_fundings' => [
                 'description'   => 'Creates a funding for the transfer followup.',
-                'policies'      => [/* 'can_generate_accounting_entry' */],
+                'policies'      => [/* 'can_generate_fundings' */],
                 'function'      => 'doCreateFundings'
+            ],
+            'attempt_posting' => [
+                'description'   => 'Attempt to post the money transfer.',
+                'help'          => 'This action is used to attempt posting the money transfer, after a bank statement has been integrated.',
+                'policies'      => [/* no policies - action is allowed to fail */],
+                'function'      => 'doAttemptPosting'
             ]
         ]);
     }
@@ -320,6 +321,15 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return $result;
     }
 
+    protected static function doAttemptPosting($self) {
+        try {
+            $self->transition('post');
+        }
+        catch(\Exception $e) {
+            // error is plausible and considered as normal
+        }
+    }
+
     protected static function doCreateFundings($self) {
         $self->read(['condo_id', 'amount', 'bank_account_id', 'counterpart_bank_account_id']);
 
@@ -348,7 +358,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         }
     }
 
-    protected static function doGenerateAccountingEntryOutgoing($self) {
+    protected static function doGenerateAccountingEntry($self) {
         $self->read([
                 'condo_id', 'amount', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
                 'bank_account_id' => ['accounting_account_id'],
@@ -385,45 +395,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                         'accounting_entry_id'   => $accountingEntry['id']
                     ]);
 
-                // Store the created accounting entry ID back to the misc operation
-                self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
-
-                AccountingEntry::id($accountingEntry['id'])->transition('validate');
-            }
-            catch(\Exception $e) {
-                // rollback
-                if($accountingEntry) {
-                    AccountingEntry::id($accountingEntry['id'])->delete(true);
-                }
-                trigger_error("APP:Unexpected error while creating accounting entry: ".$e->getMessage(), EQ_REPORT_WARNING);
-                throw new \Exception('unexpected_error', EQ_ERROR_UNKNOWN);
-            }
-        }
-    }
-
-    protected static function doGenerateAccountingEntryIncoming($self) {
-        $self->read([
-                'condo_id', 'amount', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
-                'bank_account_id' => ['accounting_account_id'],
-                'counterpart_bank_account_id' => ['accounting_account_id']
-            ]);
-
-        foreach($self as $id => $moneyTransfer) {
-
-            try {
-                $accountingEntry = AccountingEntry::create([
-                        'condo_id'              => $moneyTransfer['condo_id'],
-                        'entry_date'            => $moneyTransfer['posting_date'],
-                        'origin_object_class'   => self::getType(),
-                        'origin_object_id'      => $id,
-                        'journal_id'            => $moneyTransfer['journal_id'],
-                        'fiscal_year_id'        => $moneyTransfer['fiscal_year_id'],
-                        'fiscal_period_id'      => $moneyTransfer['fiscal_period_id']
-                    ])
-                    ->first();
-
-                $bankTransferAccount = Account::search([ ['condo_id', '=', $moneyTransfer['condo_id']], ['operation_assignment', '=', 'bank_transfer'] ])->first();
-
                 AccountingEntryLine::create([
                         'account_id'            => $moneyTransfer['counterpart_bank_account_id']['accounting_account_id'],
                         'debit'                 => $moneyTransfer['amount'],
@@ -438,10 +409,10 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                         'accounting_entry_id'   => $accountingEntry['id']
                     ]);
 
+                AccountingEntry::id($accountingEntry['id'])->transition('validate');
+
                 // Store the created accounting entry ID back to the misc operation
                 self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
-
-                AccountingEntry::id($accountingEntry['id'])->transition('validate');
             }
             catch(\Exception $e) {
                 // rollback
@@ -552,15 +523,12 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return parent::canupdate($self);
     }
 
+    protected static function onafterPublish($self) {
+        $self->do('create_fundings');
+    }
 
     protected static function onafterPost($self) {
-        $self
-            ->do('generate_accounting_entry_outgoing')
-            ->do('create_fundings');
+        $self->do('generate_accounting_entry');
     }
 
-    protected static function onafterComplete($self) {
-        $self
-            ->do('generate_accounting_entry_incoming');
-    }
 }

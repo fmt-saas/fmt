@@ -144,7 +144,7 @@
                     {
                         "id": "section.fundings",
                         "label": "Fundings",
-                        "visible": [["state", "<>", "draft"], ["status", "in", ["posted", "completed"]]],
+                        "visible": [["state", "<>", "draft"], ["status", "in", ["proforma", "posted"]]],
                         "rows": [
                             {
                                 "columns": [
@@ -165,7 +165,7 @@
                     {
                         "id": "section.accounting_entries",
                         "label": "Accounting Entries",
-                        "visible": ["status", "in", ["posted", "completed"]],
+                        "visible": ["status", "=", "posted"],
                         "rows": [
                             {
                                 "columns": [
