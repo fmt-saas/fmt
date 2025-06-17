@@ -736,7 +736,7 @@ class DocumentProcess extends Model {
                         'condo_id'                      => $documentProcess['condo_id'],
                         'suppliership_id'               => $suppliership['id'],
                         'supplier_invoice_number'       => $data['invoice_number'],
-                        'suppliership_bank_account_id'  => $bankAccount['id'],
+                        'suppliership_bank_account_id'  => $bankAccount['id'] ?? null,
                         'payment_reference'             => $data['payment']['payment_id'],
                         'emission_date'                 => strtotime($data['issue_date']),
                         'posting_date'                  => strtotime($data['issue_date']),
@@ -778,6 +778,8 @@ class DocumentProcess extends Model {
                 self::id($id)->update(['document_invoice_id' => $invoice['id'], 'has_target_document' => true]);
             }
             elseif($documentProcess['document_type_code'] === 'bank_statement') {
+                $bankAccount = BankAccount::search([['condo_id', '=', $documentProcess['condo_id']], ['bank_account_iban', '=', $data['account_iban']]])->first();
+
                 // create the BankStatement
                 $bankStatement = BankStatement::create([
                         'condo_id'              => $documentProcess['condo_id'],
@@ -786,6 +788,7 @@ class DocumentProcess extends Model {
                         'opening_balance'       => round(floatval($data['opening_balance']), 2),
                         'closing_balance'       => round(floatval($data['closing_balance']), 2),
                         'statement_currency'    => $data['statement_currency'],
+                        'bank_account_id'       => $bankAccount['id'] ?? null,
                         'bank_account_iban'     => $data['account_iban'],
                         'bank_account_bic'      => $data['bank_bic'],
                         'document_process_id'   => $id,

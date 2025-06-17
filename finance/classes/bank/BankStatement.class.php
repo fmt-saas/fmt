@@ -32,6 +32,12 @@ class BankStatement extends Model {
                 //'readonly'          => true
             ],
 
+            'bank_account_id' => [
+                'type'              => 'many2one',
+                'description'       => "The bank account the statement refers to.",
+                'foreign_object'    => 'finance\bank\BankAccount'
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',

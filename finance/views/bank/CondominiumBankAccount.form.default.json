@@ -105,6 +105,30 @@
                         ]
                     }
                 ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.bank_statements",
+                        "label": "Bank Statements",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "bank_statements_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             }
         ]
     }
