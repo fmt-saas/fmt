@@ -17,7 +17,8 @@ Ownership::create([
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,
     "representative_identity_id"=> null,
-    "has_representative"=> false
+    "has_representative"=> false,
+    "date_from"=> strtotime("2020-01-01T00:00:00+00:00"),
 ]);
 
 Ownership::create([
@@ -29,7 +30,8 @@ Ownership::create([
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,
     "representative_identity_id"=> null,
-    "has_representative"=> false
+    "has_representative"=> false,
+    "date_from"=> strtotime("2010-01-01T00:00:00+00:00"),
 ]);
 
 Ownership::create([
@@ -41,7 +43,8 @@ Ownership::create([
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,
     "representative_identity_id"=> null,
-    "has_representative"=> false
+    "has_representative"=> false,
+    "date_from"=> strtotime("2020-01-01T00:00:00+00:00"),
 ]);
 
 Ownership::create([
@@ -53,7 +56,8 @@ Ownership::create([
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,
     "representative_identity_id"=> null,
-    "has_representative"=> false
+    "has_representative"=> false,
+    "date_from"=> strtotime("2020-01-01T00:00:00+00:00"),
 ]);
 Ownership::create([
     "id"=> 6,
@@ -64,7 +68,8 @@ Ownership::create([
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,
     "representative_identity_id"=> null,
-    "has_representative"=> false
+    "has_representative"=> false,
+    "date_from"=> strtotime("2020-01-01T00:00:00+00:00"),
 ]);
 Ownership::create([
     "id"=> 7,
@@ -75,7 +80,8 @@ Ownership::create([
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,
     "representative_identity_id"=> null,
-    "has_representative"=> false
+    "has_representative"=> false,
+    "date_from"=> strtotime("2020-01-01T00:00:00+00:00"),
 ]);
 
 

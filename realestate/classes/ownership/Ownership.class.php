@@ -99,7 +99,8 @@ class Ownership extends \equal\orm\Model {
 
             'date_from' => [
                 'type'              => 'date',
-                'description'       => "Date from which the owners own at least one property lot."
+                'description'       => "Date from which the owners own at least one property lot.",
+                'required'          => true
             ],
 
             'date_to' => [
