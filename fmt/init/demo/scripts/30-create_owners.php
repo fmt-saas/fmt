@@ -2,7 +2,7 @@
 
 use identity\Identity;
 use realestate\ownership\Owner;
-
+use realestate\ownership\Ownership;
 
 ['orm' => $orm] = eQual::inject(['orm']);
 
