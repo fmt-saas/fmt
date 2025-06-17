@@ -140,7 +140,8 @@ class Identity extends Model {
                 'description'       => "Number of the bank account of the Identity, if any.",
                 'visible'           => [ ['has_parent', '=', false] ],
                 'dependents'        => ['bank_account_bic', 'bank_country', 'bank_name'],
-                'onupdate'          => 'onupdateBankAccountIban'
+                'onupdate'          => 'onupdateBankAccountIban',
+                'unique'            => true
             ],
 
             'bank_account_bic' => [
@@ -210,7 +211,8 @@ class Identity extends Model {
                 'type'              => 'string',
                 'description'       => 'Value Added Tax identification number, if any.',
                 'visible'           => [ ['has_vat', '=', true], ['type', '<>', 'IN'], ['has_parent', '=', false] ],
-                'onupdate'          => 'onupdateVatNumber'
+                'onupdate'          => 'onupdateVatNumber',
+                'unique'            => true
             ],
 
             'registration_number' => [
