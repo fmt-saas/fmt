@@ -8,6 +8,76 @@ use realestate\ownership\Owner;
 
 $events = $orm->disableEvents();
 
+Ownership::create([
+    "id"=> 2,
+    "description"=> "Charles Max",
+    "condo_id"=> 1,
+    "ownership_type"=> "unique",
+    "total_shares"=> 100,
+    "transfer_from_id"=> null,
+    "transfer_to_id"=> null,
+    "representative_identity_id"=> null,
+    "has_representative"=> false
+]);
+
+Ownership::create([
+    "id"=> 3,
+    "description"=> "Lucienne Prévaut",
+    "condo_id"=> 1,
+    "ownership_type"=> "unique",
+    "total_shares"=> 100,
+    "transfer_from_id"=> null,
+    "transfer_to_id"=> null,
+    "representative_identity_id"=> null,
+    "has_representative"=> false
+]);
+
+Ownership::create([
+    "id"=> 4,
+    "description"=> "Etienne Duchemin, Sarah Duchemin, Louis Duchemin",
+    "condo_id"=> 1,
+    "ownership_type"=> "unique",
+    "total_shares"=> 100,
+    "transfer_from_id"=> null,
+    "transfer_to_id"=> null,
+    "representative_identity_id"=> null,
+    "has_representative"=> false
+]);
+
+Ownership::create([
+    "id"=> 5,
+    "description"=> "Géraldine Desmet",
+    "condo_id"=> 2,
+    "ownership_type"=> "unique",
+    "total_shares"=> 100,
+    "transfer_from_id"=> null,
+    "transfer_to_id"=> null,
+    "representative_identity_id"=> null,
+    "has_representative"=> false
+]);
+Ownership::create([
+    "id"=> 6,
+    "description"=> "Raoul Ménart",
+    "condo_id"=> 2,
+    "ownership_type"=> "unique",
+    "total_shares"=> 100,
+    "transfer_from_id"=> null,
+    "transfer_to_id"=> null,
+    "representative_identity_id"=> null,
+    "has_representative"=> false
+]);
+Ownership::create([
+    "id"=> 7,
+    "description"=> "Roland Dupuis",
+    "condo_id"=> 2,
+    "ownership_type"=> "unique",
+    "total_shares"=> 100,
+    "transfer_from_id"=> null,
+    "transfer_to_id"=> null,
+    "representative_identity_id"=> null,
+    "has_representative"=> false
+]);
+
 
 Identity::create([
 	"id" => 3,
