@@ -31,13 +31,13 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'       => "The  Property Lot the transfer file relates to.",
             ],
 
-            'ownership_from_id' => [
+            'old_ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\ownership\Ownership'
             ],
 
-            'ownership_to_id' => [
+            'new_ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\ownership\Ownership'

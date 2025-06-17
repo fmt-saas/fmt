@@ -14,6 +14,36 @@
                 "type": "parent",
                 "children": [
                     {
+                        "id": "item.allocations",
+                        "label": "Allocations",
+                        "description": "",
+                        "icon": "call_split",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "apportionments",
+                                "type": "entry",
+                                "label": "Apportionments",
+                                "icon": "account_tree",
+                                "description": "",
+                                "context": {
+                                    "entity": "realestate\\property\\Apportionment",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "item.config.lot_natures",
+                                "type": "entry",
+                                "label": "Lot natures",
+                                "icon": "domain_add",
+                                "description": "",
+                                "context": {
+                                    "entity": "realestate\\property\\PropertyLotNature"
+                                }
+                            }
+                        ]
+                    },
+                    {
                         "id": "condominiums",
                         "type": "entry",
                         "label": "Condominiums",
@@ -67,40 +97,20 @@
                             "entity": "realestate\\funding\\FundRequest",
                             "view": "list.default"
                         }
-                    }
-                ]
-            },
-            {
-                "id": "item.allocations",
-                "label": "Allocations",
-                "description": "",
-                "icon": "call_split",
-                "type": "parent",
-                "children": [
-                    {
-                        "id": "apportionments",
-                        "type": "entry",
-                        "label": "Apportionments",
-                        "icon": "account_tree",
-                        "description": "",
-                        "context": {
-                            "entity": "realestate\\property\\Apportionment",
-                            "view": "list.default"
-                        }
                     },
                     {
-                        "id": "item.config.lot_natures",
+                        "id": "ownership_transfers",
                         "type": "entry",
-                        "label": "Lot natures",
-                        "icon": "domain_add",
+                        "label": "Ownership Transfers",
+                        "icon": "swap_horiz",
                         "description": "",
                         "context": {
-                            "entity": "realestate\\property\\PropertyLotNature"
+                            "entity": "realestate\\ownership\\OwnershipTransfer",
+                            "view": "list.default"
                         }
                     }
                 ]
             },
-
             {
                 "id": "item.hr",
                 "label": "HR",

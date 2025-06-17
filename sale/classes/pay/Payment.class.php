@@ -83,13 +83,6 @@ class Payment extends Model {
                 'default'           => 'cash'
             ],
 
-            'operation_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'sale\pos\Operation',
-                'description'       => 'The operation the payment relates to.',
-                'visible'           => ['payment_origin', '=', 'cashdesk']
-            ],
-
             'statement_line_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankStatementLine',
@@ -207,7 +200,6 @@ class Payment extends Model {
                     break;
                 case 'bank':
                     $result['payment_method'] = 'cash';
-                    $result['operation_id'] = null;
                     $result['voucher_ref'] = null;
                     break;
             }
