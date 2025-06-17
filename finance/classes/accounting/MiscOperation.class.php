@@ -137,6 +137,7 @@ class MiscOperation extends Model {
                 'transitions' => [
                     'publish' => [
                         'description' => 'Update the document to `proforma`.',
+                        'help'        => 'Entities inheriting from MiscOperation may create Fundings at this stage.',
                         'status'      => 'proforma'
                     ]
                 ]

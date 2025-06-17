@@ -56,9 +56,10 @@ $tests = [
                 },
             'assert'            => function() use($providers) {
                     $bankAccount = CondominiumBankAccount::search([['condo_id', '=', 1], ['bank_account_type', '=', 'bank_savings']])
-                        ->read(['available_balance'])
+                        ->read(['current_balance'])
                         ->first();
-                    return $bankAccount && $bankAccount['available_balance'] == 5000;
+
+                    return $bankAccount && $bankAccount['current_balance'] == 5000;
                 },
             'rollback'          => function() use($providers) {
                 }
@@ -92,8 +93,7 @@ $tests = [
                 },
             'act'               => function($moneyTransfer) use($providers) {
                     MoneyTransfer::id($moneyTransfer['id'])
-                        ->transition('publish')
-                        ->transition('post');
+                        ->transition('publish');
                 },
             'assert'            => function() use($providers) {
                     $bankAccount = CondominiumBankAccount::search([['condo_id', '=', 1], ['bank_account_type', '=', 'bank_savings']])
