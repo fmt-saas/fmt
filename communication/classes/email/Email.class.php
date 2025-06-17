@@ -48,20 +48,16 @@ class Email extends Model {
                 'description'       => 'Optional link to the related case file (incident, quote, etc.).',
             ],
 
+            'date' => [
+                'type'              => 'datetime',
+                'description'       => 'Date and time of the email message.',
+                'default'           => 'time'
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'relation'          => ['subject']
-            ],
-
-            'status' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'pending',
-                    'processed'
-                ],
-                'default'           => 'pending',
-                'description'       => 'Sending status of the mail.'
             ],
 
             'direction' => [
@@ -82,6 +78,11 @@ class Email extends Model {
                 'type'              => 'string',
                 'usage'             => 'email',
                 'required'          => true
+            ],
+
+            'from' => [
+                'type'              => 'string',
+                'usage'             => 'email'
             ],
 
             'reply_to' => [
@@ -142,12 +143,22 @@ class Email extends Model {
                 'description'       => 'SMTP response returned at sending.',
                 'default'           => '',
                 'visible'           => [['direction', '=', 'outgoing'], ['status', '<>', 'pending']]
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'pending',
+                    'processed'
+                ],
+                'default'           => 'pending',
+                'description'       => 'Sending status of the mail.'
             ]
 
         ];
     }
 
-    public static function calcHasError($self) {
+    protected static function calcHasError($self) {
         $result = [];
         $self->read(['response_status']);
         foreach($self as $id => $email) {
@@ -158,7 +169,7 @@ class Email extends Model {
         return $result;
     }
 
-    public static function calcThreadHash($self) {
+    protected static function calcThreadHash($self) {
         $result = [];
         $self->read(['subject']);
         foreach($self as $id => $email) {
@@ -169,8 +180,6 @@ class Email extends Model {
         }
         return $result;
     }
-
-
 
 
 

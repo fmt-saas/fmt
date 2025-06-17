@@ -428,6 +428,17 @@
                 "type": "parent",
                 "children": [
                     {
+                        "id": "item.documents.email",
+                        "type": "entry",
+                        "label": "Emails",
+                        "icon": "email",
+                        "description": "",
+                        "context": {
+                            "entity": "communication\\email\\Email",
+                            "view": "list.default"
+                        }
+                    },
+                    {
                         "id": "item.documents.folders",
                         "type": "entry",
                         "label": "Folders",

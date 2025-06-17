@@ -1,0 +1,33 @@
+{
+    "name": "Emails",
+    "description": "List of received emails.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "date",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "from",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "subject",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "date_to",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "20%"
+            }
+        ]
+    }
+}

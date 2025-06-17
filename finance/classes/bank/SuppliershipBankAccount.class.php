@@ -81,6 +81,7 @@ class SuppliershipBankAccount extends Model {
                 'help'              => 'The IBAN number is a unique identifier for the bank account. Example: BE54000000000097',
                 'relation'          => ['bank_account_id' => ['bank_account_iban']],
                 'store'             => true,
+                'instant'           => true,
                 'readonly'          => true
             ],
 

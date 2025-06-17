@@ -15,6 +15,7 @@ use finance\bank\BankAccount;
 use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
 use finance\bank\CondominiumBankAccount;
+use finance\bank\SuppliershipBankAccount;
 use hr\role\Role;
 use hr\role\RoleAssignment;
 use purchase\supplier\Supplier;
@@ -728,7 +729,8 @@ class DocumentProcess extends Model {
             }
 
             if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
-                $bankAccount = BankAccount::search(['bank_account_iban', '=', $data['payment']['iban']])->first();
+                $bankAccount = SuppliershipBankAccount::search([['suppliership_id', '=', $suppliership['id']], ['bank_account_iban', '=', $data['payment']['iban']]])->first();
+
                 // create invoice
                 $invoice = Invoice::create([
                         'condo_id'                      => $documentProcess['condo_id'],

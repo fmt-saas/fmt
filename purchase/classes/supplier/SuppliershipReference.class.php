@@ -42,6 +42,12 @@ class SuppliershipReference extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'is_unique' => [
+                'type'              => 'boolean',
+                'description'       => "Flag marking the reference as unique.",
+                'default'           => false
+            ],
+
             'reference_type' => [
                 'type'              => 'string',
                 'selection'         => [
