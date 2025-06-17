@@ -91,6 +91,12 @@
                                                 "label": "Primary",
                                                 "value": "is_primary",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Primary",
+                                                "value": "is_primary_reserve",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

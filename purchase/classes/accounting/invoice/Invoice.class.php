@@ -303,7 +303,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
     /**
      * Create the fundings for paying the invoice.
      */
-    public static function doCreateFunding($self) {
+    protected static function doCreateFunding($self) {
         $self->read(['id', 'price', 'payment_reference', 'due_date', 'funding_id']);
 
         foreach($self as $invoice) {
@@ -326,7 +326,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
     /**
      * Create the accounting entries according tp invoices lines.
      */
-    public static function doGenerateAccountingEntries($self) {
+    protected static function doGenerateAccountingEntries($self) {
         $self->read(['id', 'organisation_id', 'accounting_entries_ids']);
         foreach($self as $id => $invoice) {
             try {

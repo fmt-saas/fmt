@@ -572,27 +572,27 @@ class DocumentProcess extends Model {
             if(!isset($documentProcess['document_id'])) {
                 // missing document
                 $result[$id] = [
-                    'invalid_document' => 'Missing document'
+                    'invalid_document' => 'Missing document.'
                 ];
             }
             if(!isset($documentProcess['document_type_id'])) {
                 // missing document type
                 $result[$id] = [
-                    'invalid_document' => 'Missing document type'
+                    'invalid_document' => 'Missing document type.'
                 ];
                 continue;
             }
             if(!isset($documentProcess['document_type_id']['json_schema'])) {
                 // missing document schema
                 $result[$id] = [
-                    'invalid_document_type' => 'Missing document schema'
+                    'invalid_document_type' => 'Missing document schema.'
                 ];
                 continue;
             }
             if(!isset($documentProcess['document_id']['document_json'])) {
                 // missing document json
                 $result[$id] = [
-                    'invalid_document' => 'Missing document JSON payload'
+                    'invalid_document' => 'Missing document JSON payload.'
                 ];
                 continue;
             }
@@ -601,7 +601,7 @@ class DocumentProcess extends Model {
                 $data = \eQual::run('get', 'json-validate', ['json' => $documentProcess['document_id']['document_json'], 'schema_id' => $documentProcess['document_type_id']['json_schema']]);
                 if(isset($data['errors']) && count($data['errors'])) {
                     $result[$id] = [
-                        'invalid_document' => $data['errors_string']
+                        'invalid_document' => $data['errors']
                     ];
                     continue;
                 }
@@ -739,6 +739,7 @@ class DocumentProcess extends Model {
                         'suppliership_bank_account_id'  => $bankAccount['id'],
                         'payment_reference'             => $data['payment']['payment_id'],
                         'emission_date'                 => strtotime($data['issue_date']),
+                        'posting_date'                  => strtotime($data['issue_date']),
                         'due_date'                      => strtotime($data['due_date']),
                         'has_fund_usage'                => false,
                         'has_instant_reinvoice'         => false,
@@ -950,6 +951,22 @@ class DocumentProcess extends Model {
     public static function doUpdateDocumentJson($self, $values) {
         $self->read(['status', 'document_id' => ['has_document_json', 'document_json']]);
 
+        function recursiveUpdate(array &$data, array $updates) {
+            foreach($updates as $key => $value) {
+                if(!array_key_exists($key, $data)) {
+                    trigger_error("APP::property $key does not exist in document JSON", E_USER_WARNING);
+                    throw new \Exception('invalid_document_json_field', EQ_ERROR_INVALID_PARAM);
+                }
+
+                if(is_array($value) && is_array($data[$key])) {
+                    recursiveUpdate($data[$key], $value);
+                }
+                else {
+                    $data[$key] = $value;
+                }
+            }
+        }
+
         foreach($self as $id => $documentProcess) {
             if($documentProcess['status'] !== 'created') {
                 trigger_error("APP::Attempting to update a document process already encoded.", EQ_REPORT_WARNING);
@@ -963,13 +980,12 @@ class DocumentProcess extends Model {
             }
             $data = json_decode($documentProcess['document_id']['document_json'], true);
 
-            foreach($values as $field => $value) {
-                if(!isset($data[$field])) {
-                    trigger_error("APP::property $field does not exist in document JSON", EQ_REPORT_WARNING);
-                    throw new \Exception('invalid_document_json_field', EQ_ERROR_INVALID_PARAM);
-                }
-                $data[$field] = $value;
+            if(!is_array($data)) {
+                throw new \Exception('invalid_document_json', EQ_ERROR_INVALID_PARAM);
             }
+
+            recursiveUpdate($data, $values);
+
             Document::id($documentProcess['document_id']['id'])->update(['document_json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)]);
         }
     }

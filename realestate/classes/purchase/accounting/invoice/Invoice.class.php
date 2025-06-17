@@ -171,7 +171,8 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                             'can_be_invoiced',
                             'can_be_allocated'
                         ],
-                        'onbefore'  => 'onbeforeInvoice',
+                        'onbefore'  => 'onbeforePost',
+                        'onbefore'  => 'onafterPost',
                         'status'    => 'posted',
                     ]
                 ],
@@ -394,13 +395,25 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         return $result;
     }
 
-    public static function onbeforeInvoice($self) {
+    protected static function onbeforePost($self) {
         $self
             ->do('generate_accounting_entries')
             ->do('assign_invoice_number')
             ->do('validate_accounting_entries');
     }
 
+    protected static function onafterPost($self) {
+        $self->read(['document_process_id']);
+        foreach($self as $id => $invoice) {
+            if($invoice['document_process_id']) {
+                DocumentProcess::id($invoice['document_process_id'])
+                    // bypass all stages
+                    ->update(['status' => 'confirmed'])
+                    // mark DocumentProcess as integrated
+                    ->transition('integrate');
+            }
+        }
+    }
 
     /**
      * Generates the initial accounting entry.
@@ -409,7 +422,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
      *
      *
      */
-    public static function doGenerateAccountingEntries($self) {
+    protected static function doGenerateAccountingEntries($self) {
         $self->read([
                 'id', 'condo_id', 'price', 'description',
                 'posting_date', 'has_date_range', 'date_from', 'date_to',
@@ -890,11 +903,13 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
             if(!$invoice['document_process_id']) {
                 continue;
             }
+
             $fields = [];
 
             if(isset($values['suppliership_bank_account_id'])) {
-                $bankAccount = BankAccount::id($values['suppliership_bank_account_id'])->read(['bank_account_iban'])->first();
+                $bankAccount = BankAccount::id($values['suppliership_bank_account_id'])->read(['bank_account_iban', 'bank_account_bic'])->first();
                 $fields['payment']['iban'] = $bankAccount['bank_account_iban'];
+                $fields['payment']['bic'] = $bankAccount['bank_account_bic'];
             }
 
             if(isset($values['suppliership_id'])) {
@@ -926,6 +941,10 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
             if(isset($values['payment_reference'])) {
                 $fields['payment']['payment_id'] = $values['payment_reference'];
             }
+
+            // #memo - 30 = Bank transfer (credit transfer); 48 = Direct debit (withdrawal)
+            // #todo - handle SEPA based on active contract with supplier, if any
+            // $fields['payment']['payment_means_code'] = 30;
 
             // #todo - ce champ ne change jamais : il est calculé via les lignes
             if(isset($values['price'])) {

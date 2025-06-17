@@ -61,6 +61,13 @@ class CondominiumBankAccount extends BankAccount {
                 'function'          => 'calcAvailableBalance',
             ],
 
+            'is_primary_reserve' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the account as primary reserve funds account.',
+                'default'           => false,
+                'visible'           => ['bank_account_type', '=', 'bank_savings']
+            ],
+
             'owner_identity_id' => [
                 'type'              => 'many2one',
                 'description'       => "The Identity the bank account in attached to.",

@@ -10,7 +10,7 @@
             "visible": [["state", "=", "instance"], ["status", "=", "proforma"]],
             "params": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
-                "transition": "validate",
+                "transition": "post",
                 "ids": []
             }
         },
@@ -39,7 +39,18 @@
                 "view": "form.import",
                 "mode": "edit",
                 "domain": [["id", "=", "object.id"]]
-            }
+            },
+            "visible": ["document_id", "=", null]
+        },
+        {
+            "id": "item.view_invoice",
+            "label": "View Document",
+            "description": "",
+            "icon": "open_in_new",
+            "route": "/?get=documents_document&id=object.document_id",
+            "target": "_blank",
+            "absolute": true,
+            "visible": ["document_id", "<>", null]
         }
     ],
     "layout": {
@@ -53,11 +64,16 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "status",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_id",
                                                 "visible": false
                                             },
                                             {
@@ -177,25 +193,10 @@
                                                         "layout": "inline",
                                                         "actions": {
                                                             "ACTION.SELECT": false,
-                                                            "ACTION.CREATE": true
+                                                            "ACTION.CREATE": false
                                                         }
                                                     },
                                                     "domain": ["condo_id", "=", "object.condo_id"]
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "visible": ["document_id", "is not", null],
-                                        "width": "50%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "document_link",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "type": "pdf",
-                                                    "height": "1100"
                                                 }
                                             }
                                         ]
