@@ -88,17 +88,6 @@
                         }
                     },
                     {
-                        "id": "fund_requests",
-                        "type": "entry",
-                        "label": "Fund requests",
-                        "icon": "savings",
-                        "description": "",
-                        "context": {
-                            "entity": "realestate\\funding\\FundRequest",
-                            "view": "list.default"
-                        }
-                    },
-                    {
                         "id": "ownership_transfers",
                         "type": "entry",
                         "label": "Ownership Transfers",
@@ -225,6 +214,17 @@
                             "entity": "sale\\accounting\\invoice\\Invoice",
                             "view": "list.default",
                             "domain": ["invoice_type", "=", "invoice"]
+                        }
+                    },
+                    {
+                        "id": "fund_requests",
+                        "type": "entry",
+                        "label": "Fund requests",
+                        "icon": "savings",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\funding\\FundRequest",
+                            "view": "list.default"
                         }
                     },
                     {

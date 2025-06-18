@@ -114,6 +114,14 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'help'              => "Purchase invoices might be subject to several accounting entries."
             ],
 
+            'fundings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\sale\pay\Funding',
+                'foreign_field'     => 'invoice_id',
+                'domain'            => ['funding_type', '=', 'invoice'],
+                'description'       => 'Fundings created from the invoice.'
+            ],
+
             'emission_date' => [
                 'type'              => 'date',
                 'description'       => 'Date at which the invoice was emitted.',
@@ -174,7 +182,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                             'can_be_allocated'
                         ],
                         'onbefore'  => 'onbeforePost',
-                        'onbefore'  => 'onafterPost',
+                        'onafter'   => 'onafterPost',
                         'status'    => 'posted',
                     ]
                 ],
@@ -206,7 +214,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'function'      => 'doCreateFunding'
             ],
             'update_document_json' => [
-                'description'   => 'Generate fundings for each involved ownership.',
+                'description'   => 'Update the document data JSON with the newly provided data.',
                 'policies'      => [],
                 'function'      => 'doUpdateDocumentJson'
             ]
@@ -225,15 +233,16 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
     protected static function doCreateFunding($self) {
         $self->read(['condo_id', 'price', 'suppliership_id', 'payment_reference', 'due_date', 'funding_id']);
 
-        foreach($self as $invoice) {
+        foreach($self as $id => $invoice) {
             // retrieve the condo's current account
             $bankAccount = CondominiumBankAccount::search([['condo_id', '=', $invoice['condo_id']], ['bank_account_type', '=', 'bank_current']])
                 ->read(['current_balance'])
                 ->first();
 
             $funding = Funding::create([
+                    'condo_id'                      => $invoice['condo_id'],
                     'description'                   => 'Purchase Invoice',
-                    'invoice_id'                    => $invoice['id'],
+                    'invoice_id'                    => $id,
                     'bank_account_id'               => $bankAccount['id'],
                     'suppliership_id'               => $invoice['suppliership_id'],
                     'counterpart_bank_account_id'   => $invoice['suppliership_bank_account_id'],

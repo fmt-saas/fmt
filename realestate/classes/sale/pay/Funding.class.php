@@ -100,7 +100,7 @@ class Funding extends \sale\pay\Funding {
 
             'invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'realestate\sale\accounting\invoice\Invoice',
+                'foreign_object'    => 'realestate\purchase\accounting\invoice\Invoice',
                 'description'       => 'The invoice targeted by the funding, if any.',
                 'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).',
                 'readonly'          => true,
@@ -109,7 +109,7 @@ class Funding extends \sale\pay\Funding {
 
             'money_transfer_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\MiscOperation',
+                'foreign_object'    => 'realestate\finance\accounting\MoneyTransfer',
                 'description'       => 'Miscellaneous operation targeted by the funding, if any.',
                 'help'              => 'Money transfer is a particular case of misc operation.',
                 'readonly'          => true,

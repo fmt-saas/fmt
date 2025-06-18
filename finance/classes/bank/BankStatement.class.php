@@ -201,6 +201,7 @@ class BankStatement extends Model {
             }
             catch(\Exception $e) {
                 // ignore already published payments
+                trigger_error("APP::BankStatement::onafterPost - Failed to post payment: {$e->getMessage()}", EQ_REPORT_ERROR);
             }
             if($bankStatement['document_process_id']) {
                 DocumentProcess::id($bankStatement['document_process_id'])

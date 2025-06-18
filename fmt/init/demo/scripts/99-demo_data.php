@@ -17,6 +17,11 @@ use finance\accounting\Account;
 use finance\accounting\AccountChart;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
+use finance\accounting\MiscOperation;
+use finance\accounting\MiscOperationLine;
+use finance\bank\BankStatement;
+use finance\bank\BankStatementImport;
+use realestate\finance\accounting\MoneyTransfer;
 use hr\employee\Employee;
 use hr\role\RoleAssignment;
 use identity\Identity;
@@ -245,3 +250,64 @@ $purchaseInvoice = PurchaseInvoice::create([
         'suppliership_bank_account_id'  => current($suppliership['supplier_id']['identity_id']['bank_accounts_ids'] ?? [])
     ])
     ->first();
+
+
+// * créer misc opération : mettre montant sur le compte épargne
+
+
+$miscOperation = MiscOperation::create([
+        'condo_id'          => 1,
+        'name'              => 'Reprise compte épargne',
+        'description'       => 'Reprise compte épargne',
+        'posting_date'      => strtotime('2024-01-01T00:00:00Z'),
+        'amount'            => 5000.00,
+        'journal_id'        => 5
+    ])
+    ->first();
+
+
+MiscOperationLine::create([
+        'condo_id'          => 1,
+        'misc_operation_id' => $miscOperation['id'],
+        'account_id'        => 312,
+        'journal_id'        => 5,
+        'credit'            => 5000.00,
+        'debit'             => 0.0
+    ]);
+
+MiscOperationLine::create([
+        'condo_id'          => 1,
+        'misc_operation_id' => $miscOperation['id'],
+        'account_id'        => 104,
+        'journal_id'        => 5,
+        'debit'             => 5000.00,
+        'credit'            => 0.0
+    ]);
+
+MiscOperation::id($miscOperation['id'])
+    ->transition('publish')
+    ->transition('post');
+
+// * mouvement bancaire : déplacer montant vers compte à vue
+$moneyTransfer = MoneyTransfer::create([
+        'condo_id' => 1,
+        'posting_date' => time(),
+        'description' => 'Money transfer',
+        'amount' => 5000,
+        'bank_account_id' => 138,
+        'counterpart_bank_account_id' => 137
+    ])
+    ->transition('publish')
+    ->transition('send');
+
+// * charger un extrait bancaire, le valider, et conster la variation sur le compte concerné
+
+$data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_isabel_demo.xlsx');
+
+BankStatementImport::create()
+    ->update(['name' => 'Bank statement import'])
+    ->update(['data' => $data]);
+
+BankStatement::search(['condo_id', '=', 1], ['sort' => ['date' => 'desc'], 'limit' => 2])
+    ->do('attempt_reconcile')
+    ->transition('post');

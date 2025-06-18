@@ -64,12 +64,14 @@
                                             {
                                                 "type": "field",
                                                 "value": "fiscal_year_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "fiscal_period_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "visible": false
                                             }
                                         ]
                                     },

@@ -24,7 +24,8 @@ class MiscOperation extends Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the accounting journal refers to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'readonly'          => true
+                'readonly'          => true,
+                'required'          => true
             ],
 
             'name' => [
@@ -65,17 +66,25 @@ class MiscOperation extends Model {
             ],
 
             'fiscal_year_id' => [
-                'type'              => 'many2one',
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => 'Fiscal year in which the operation is recorded.',
+                'function'          => 'calcFiscalYearId',
+                'store'             => true,
+                'readonly'          => true,
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['status', 'in', ['preopen','open']] ]
             ],
 
             'fiscal_period_id' => [
-                'type'              => 'many2one',
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
                 'description'       => 'Accounting period derived from the posting date.',
                 'help'              => 'Automatically computed when the operation is validated.',
+                'function'          => 'calcFiscalPeriodId',
+                'store'             => true,
+                'readonly'          => true,
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['status', '<>', 'closed'] ]
             ],
 
@@ -83,7 +92,7 @@ class MiscOperation extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => 'Accounting journal used for this miscellaneous operation.',
-                'default'           => 'defaultJournalId',
+                'required'          => true,
                 'domain'            => [['journal_type', '=', 'MISC'], ['condo_id', '=', 'object.condo_id']]
             ],
 
@@ -201,6 +210,59 @@ class MiscOperation extends Model {
         }
         return $result;
 
+    }
+
+    private static function computeFiscalYearId($condo_id, $posting_date) {
+        $result = null;
+
+        $fiscalYear = FiscalYear::search([['condo_id', '=', $condo_id], ['date_from', '<=', $posting_date], ['date_to', '>=', $posting_date]])
+            ->read(['fiscal_periods_ids' => ['date_from', 'date_to']])
+            ->first();
+
+        if($fiscalYear) {
+            $result = $fiscalYear['id'];
+        }
+
+        return $result;
+    }
+
+    private static function computeFiscalPeriodId($condo_id, $posting_date) {
+        $result = null;
+
+        $fiscalYear = FiscalYear::search([['condo_id', '=', $condo_id], ['date_from', '<=', $posting_date], ['date_to', '>=', $posting_date]])
+            ->read(['fiscal_periods_ids' => ['date_from', 'date_to']])
+            ->first();
+
+        if(!$fiscalYear) {
+            return $result;
+        }
+
+        foreach($fiscalYear['fiscal_periods_ids'] ?? [] as $period_id => $period) {
+            if($posting_date >= $period['date_from'] && $posting_date <= $period['date_to']) {
+                $result = $period_id;
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function calcFiscalYearId($self) {
+        $result = [];
+        $self->read(['condo_id', 'posting_date']);
+        foreach($self as $id => $miscOperation) {
+            $result[$id] = self::computeFiscalYearId($miscOperation['condo_id'], $miscOperation['posting_date']);
+        }
+        return $result;
+    }
+
+    protected static function calcFiscalPeriodId($self) {
+        $result = [];
+        $self->read(['condo_id', 'posting_date']);
+        foreach($self as $id => $miscOperation) {
+            $result[$id] = self::computeFiscalPeriodId($miscOperation['condo_id'], $miscOperation['posting_date']);
+        }
+        return $result;
     }
 
     protected static function policyIsValid($self): array {
@@ -354,4 +416,13 @@ class MiscOperation extends Model {
         return $result;
     }
 
+    public static function candelete($self) {
+        $self->read(['status']);
+        foreach($self as $miscOperation) {
+            if($miscOperation['status'] === 'posted') {
+                return ['status' => ['non_removable' => 'Non-draft Document cannot be deleted.']];
+            }
+        }
+        return parent::candelete($self);
+    }
 }

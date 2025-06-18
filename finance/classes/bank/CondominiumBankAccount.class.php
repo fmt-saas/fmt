@@ -112,11 +112,11 @@ class CondominiumBankAccount extends BankAccount {
 
     protected static function calcCurrentBalance($self) {
         $result = [];
-        $self->read(['accounting_account_id', 'bank_account_type', 'condo_id' => ['current_fiscal_year_id']]);
+        $self->read(['accounting_account_id', 'bank_account_type', 'condo_id' => ['id', 'current_fiscal_year_id']]);
         foreach($self as $id => $bankAccount) {
             $balance = 0.0;
 
-            $balanceLines = CurrentBalanceLine::search([['fiscal_year_id', '=', $bankAccount['condo_id']['current_fiscal_year_id']], ['account_id', '=', $bankAccount['accounting_account_id']]])->read(['debit', 'credit']);
+            $balanceLines = CurrentBalanceLine::search([['condo_id', '=', $bankAccount['condo_id']['id']], ['fiscal_year_id', '=', $bankAccount['condo_id']['current_fiscal_year_id']], ['account_id', '=', $bankAccount['accounting_account_id']]])->read(['debit', 'credit']);
             foreach($balanceLines as $balanceLine) {
                 $balance += $balanceLine['debit'];
                 $balance -= $balanceLine['credit'];

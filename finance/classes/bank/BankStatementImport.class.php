@@ -31,11 +31,8 @@ class BankStatementImport extends Model {
         return [
 
             'name' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
+                'type'              => 'string',
                 'description'       => 'Display name of bank statement.',
-                'function'          => 'calcName',
-                'store'             => true
             ],
 
             'data' => [

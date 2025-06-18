@@ -737,7 +737,7 @@ class DocumentProcess extends Model {
                         'suppliership_id'               => $suppliership['id'],
                         'supplier_invoice_number'       => $data['invoice_number'],
                         'suppliership_bank_account_id'  => $bankAccount['id'] ?? null,
-                        'payment_reference'             => $data['payment']['payment_id'],
+                        'payment_reference'             => str_replace(['+', '/'], '', $data['payment']['payment_id']),
                         'emission_date'                 => strtotime($data['issue_date']),
                         'posting_date'                  => strtotime($data['issue_date']),
                         'due_date'                      => strtotime($data['due_date']),
@@ -778,7 +778,7 @@ class DocumentProcess extends Model {
                 self::id($id)->update(['document_invoice_id' => $invoice['id'], 'has_target_document' => true]);
             }
             elseif($documentProcess['document_type_code'] === 'bank_statement') {
-                $bankAccount = BankAccount::search([['condo_id', '=', $documentProcess['condo_id']], ['bank_account_iban', '=', $data['account_iban']]])->first();
+                $bankAccount = CondominiumBankAccount::search([['condo_id', '=', $documentProcess['condo_id']], ['bank_account_iban', '=', $data['account_iban']]])->first();
 
                 // create the BankStatement
                 $bankStatement = BankStatement::create([
@@ -848,7 +848,7 @@ class DocumentProcess extends Model {
             switch($documentProcess['document_type_code']) {
                 case 'invoice':
                     if($documentProcess['document_invoice_id']['status'] === 'proforma') {
-                        Invoice::id($documentProcess['document_invoice_id'['id']])->transition('post');
+                        Invoice::id($documentProcess['document_invoice_id']['id'])->transition('post');
                     }
                     break;
                 case 'bank_statement':

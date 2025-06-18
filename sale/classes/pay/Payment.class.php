@@ -372,7 +372,7 @@ class Payment extends Model {
             if(!$payment['condo_id']) {
                 continue;
             }
-            $journal = Journal::search([['condo_id', '=', $payment['condo_id']], ['journal_type', '=', 'BNK']])->first();
+            $journal = Journal::search([['condo_id', '=', $payment['condo_id']], ['journal_type', '=', 'CASH']])->first();
 
             if($journal) {
                 $result[$id] = $journal['id'];

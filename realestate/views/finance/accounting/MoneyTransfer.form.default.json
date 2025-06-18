@@ -25,26 +25,26 @@
             }
         },
         {
-            "id": "action.post",
-            "label": "Post",
-            "description": "Mark the transfer as posted/initiated.",
+            "id": "action.send",
+            "label": "Send",
+            "description": "Mark the transfer as completed.",
             "controller": "core_model_transition",
             "visible": [ ["status", "=", "proforma"] ],
             "params": {
                 "entity": "realestate\\finance\\accounting\\MoneyTransfer",
-                "transition": "post",
+                "transition": "send",
                 "ids": []
             }
         },
         {
-            "id": "action.complete",
-            "label": "Complete",
-            "description": "Mark the transfer as completed.",
+            "id": "action.post",
+            "label": "Post",
+            "description": "Mark the transfer as posted/initiated.",
             "controller": "core_model_transition",
-            "visible": [ ["status", "=", "posted"] ],
+            "visible": [ ["status", "=", "sent"] ],
             "params": {
                 "entity": "realestate\\finance\\accounting\\MoneyTransfer",
-                "transition": "complete",
+                "transition": "post",
                 "ids": []
             }
         }
@@ -146,7 +146,7 @@
                     {
                         "id": "section.fundings",
                         "label": "Fundings",
-                        "visible": [["state", "<>", "draft"], ["status", "in", ["proforma", "posted"]]],
+                        "visible": [["state", "<>", "draft"], ["status", "in", ["sent", "posted"]]],
                         "rows": [
                             {
                                 "columns": [

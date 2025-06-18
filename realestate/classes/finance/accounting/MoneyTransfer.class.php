@@ -8,7 +8,6 @@
 namespace realestate\finance\accounting;
 
 use finance\accounting\Account;
-use finance\accounting\CurrentBalanceLine;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
@@ -140,8 +139,8 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'selection'         => [
                     'draft',
                     'proforma',
-                    'posted',
-                    'completed'
+                    'sent',
+                    'posted'
                 ],
                 'default'           => 'draft',
                 'description'       => 'Current status of the operation.',
@@ -159,18 +158,31 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     'publish' => [
                         'description' => 'Update the document to `completed`.',
                         'policies'    => ['is_valid', 'can_transfer'],
-                        'onafter'     => 'onafterPublish',
                         'status'      => 'proforma'
                     ]
                 ]
             ],
             'proforma' => [
-                'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
-                'icon'        => 'draw',
+                'description' => 'Planned transfer waiting to be sent.',
+                'icon'        => 'send',
+                'transitions' => [
+                    'send' => [
+                        'description' => 'Update the document to `sent`.',
+                        'help'        => 'Mark the transfer as sent (SEPA ready). This transition is used to prepare the transfer for posting after a bank statement has been integrated.',
+                        'policies'    => ['is_valid'],
+                        'onafter'     => 'onafterSend',
+                        'status'      => 'sent'
+                    ]
+                ]
+            ],
+            'sent' => [
+                'description' => 'Transfer in progress waiting for confirmation from the bank.',
+                'icon'        => 'check' ,
                 'transitions' => [
                     'post' => [
                         'description' => 'Update the document to `completed`.',
-                        'policies'    => ['is_paid'],
+                        'help'        => 'This transition is used to post the money transfer, after a bank statement has been integrated. It creates the accounting entries and fundings necessary to track the transfer.',
+                        'policies'    => ['is_valid', 'can_post'],
                         'onafter'     => 'onafterPost',
                         'status'      => 'posted'
                     ]
@@ -212,7 +224,13 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             ],
             'can_transfer' => [
                 'description' => 'Verifies that the origin bank account has enough funds to transfer the amount.',
+                'help'        => 'This policy verifies the balance of the origin bank by considering pending fundings, if any.',
                 'function'    => 'policyCanTransfer'
+            ],
+            'can_post' => [
+                'description' => 'Verifies that the origin bank account has enough funds to post the transfer.',
+                'help'        => 'This policy verifies strictly the balance of the origin bank (based on current accounting entries).',
+                'function'    => 'policyCanPost'
             ]
         ]);
     }
@@ -236,9 +254,9 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     'invalid_amount' => 'Amount must be greater than zero.'
                 ];
             }
-            if(date('Ymd', $moneyTransfer['posting_date']) !== date('Ymd', time())) {
+            if(date('Ymd', $moneyTransfer['posting_date']) < date('Ymd', time())) {
                 $result[$id] = [
-                    'invalid_posting_date' => 'Posting date must be today.'
+                    'invalid_posting_date' => 'Posting date cannot be in the past.'
                 ];
             }
         }
@@ -268,7 +286,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
     protected static function policyCanTransfer($self): array {
         $result = [];
-        $self->read(['status', 'condo_id', 'amount', 'bank_account_id' => ['available_balance'], 'counterpart_bank_account_id']);
+        $self->read(['status', 'condo_id', 'amount', 'bank_account_id' => ['available_balance']]);
         foreach($self as $id => $moneyTransfer) {
 
             if($moneyTransfer['bank_account_id']['available_balance'] < $moneyTransfer['amount']) {
@@ -288,6 +306,19 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return $result;
     }
 
+    protected static function policyCanPost($self): array {
+        $result = [];
+        $self->read(['status', 'condo_id', 'amount', 'bank_account_id' => ['current_balance']]);
+        foreach($self as $id => $moneyTransfer) {
+            if($moneyTransfer['bank_account_id']['current_balance'] < $moneyTransfer['amount']) {
+                $result[$id] = [
+                    'insufficient_funds' => 'The origin account has not enough funds.'
+                ];
+            }
+        }
+        return $result;
+    }
+
     protected static function calcJournalId($self) {
         $result = [];
         $self->read(['condo_id']);
@@ -295,7 +326,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             if(!$moneyTransfer['condo_id']) {
                 continue;
             }
-            $journal = Journal::search([['condo_id', '=', $moneyTransfer['condo_id']], ['journal_type', '=', 'BNK']])->first();
+            $journal = Journal::search([['condo_id', '=', $moneyTransfer['condo_id']], ['journal_type', '=', 'CASH']])->first();
 
             if($journal) {
                 $result[$id] = $journal['id'];
@@ -422,7 +453,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             }
             catch(\Exception $e) {
                 // rollback
-                if($accountingEntry) {
+                if(isset($accountingEntry)) {
                     AccountingEntry::id($accountingEntry['id'])->delete(true);
                 }
                 trigger_error("APP:Unexpected error while creating accounting entry: ".$e->getMessage(), EQ_REPORT_WARNING);
@@ -529,7 +560,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return parent::canupdate($self);
     }
 
-    protected static function onafterPublish($self) {
+    protected static function onafterSend($self) {
         $self->do('create_fundings');
     }
 
