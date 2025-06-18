@@ -20,7 +20,7 @@
             "description": "Cancel invoice.",
             "controller": "core_model_transition",
             "confirm": true,
-            "visible": ["status", "=", "invoice"],
+            "visible": ["status", "=", "posted"],
             "params": {
                 "entity": "purchase\\accounting\\invoice\\Invoice",
                 "transition": "cancel",

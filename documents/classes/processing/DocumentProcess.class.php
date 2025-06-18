@@ -819,6 +819,7 @@ class DocumentProcess extends Model {
                     }
                     // #memo - by convention new statements have their status set to 'proforma'
                     BankStatementLine::create([
+                            'condo_id'                => $documentProcess['condo_id'],
                             'bank_statement_id'       => $bankStatement['id'],
                             'sequence_number'         => $txn['sequence_number'],
                             'date'                    => strtotime($txn['value_date']),

@@ -8,6 +8,8 @@
 namespace sale\pay;
 
 use equal\orm\Model;
+use finance\accounting\FiscalYear;
+use finance\accounting\Journal;
 use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
 class Payment extends Model {
@@ -45,19 +47,40 @@ class Payment extends Model {
             'amount' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
-                'description'       => 'Amount paid (whatever the origin).',
+                'description'       => 'Amount paid or received (whatever the origin).',
                 'dependents'        => ['funding_id' => ['is_paid', 'paid_amount']]
             ],
 
-            'communication' => [
+            'description' => [
                 'type'              => 'string',
-                'description'       => "Message from the payer.",
+                'description'       => "Description of the operation.",
+                'help'              => "This can be a message from the counterpart or a description for the accounting entry.",
             ],
 
             'receipt_date' => [
                 'type'              => 'datetime',
                 'description'       => "Time of reception of the payment.",
                 'default'           => time()
+            ],
+
+            'fiscal_year_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => 'Fiscal year in which the operation is recorded.',
+                'function'          => 'calcFiscalYearId',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'fiscal_period_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'description'       => 'Accounting period derived from the posting date.',
+                'function'          => 'calcFiscalPeriodId',
+                'store'             => true,
+                'instant'           => true
             ],
 
             'payment_origin' => [
@@ -96,11 +119,18 @@ class Payment extends Model {
                 'visible'           => [ ['payment_origin', '=', 'cashdesk'], ['payment_method', '=', 'voucher'] ]
             ],
 
+            'has_funding' => [
+                'type'              => 'boolean',
+                'description'       => 'Is the payment linked to an expected operation or not.',
+                'default'           => true
+            ],
+
             'funding_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\pay\Funding',
                 'description'       => 'The funding the payment relates to, if any.',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'visible'           => ['has_funding', '=', true]
             ],
 
             'invoice_id' => [
@@ -116,14 +146,33 @@ class Payment extends Model {
                 'default'           => false
             ],
 
+            'journal_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\Journal',
+                'description'       => 'Accounting journal used for the Money Transfer.',
+                'help'              => 'Money transfer between internal accounts is a bank operation and is always put in the BNK/FIN journal.',
+                'store'             => true,
+                'function'          => 'calcJournalId',
+                'readonly'          => true
+            ],
+
+            'accounting_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "The accounting account the payment relates to.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]],
+                'visible'           => ['has_funding', '=', false]
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
                     'proforma',
-                    'payment'
+                    'posted'
                 ],
                 'default'           => 'proforma',
-                'description'       => 'Status of the payment (depending on parent bank statement).',
+                'description'       => 'Status of the payment (updated by parent bank statement).',
             ]
 
         ];
@@ -135,9 +184,9 @@ class Payment extends Model {
                 'description' => 'Payment being created.',
                 'icon'        => 'draw',
                 'transitions' => [
-                    'publish' => [
+                    'post' => [
                         'description' => 'Update the payment status to `payment`.',
-                        'status'      => 'payment'
+                        'status'      => 'posted'
                     ]
                 ]
             ]
@@ -157,18 +206,6 @@ class Payment extends Model {
     }
 
     public static function onafterupdate($self) {
-        $self->read(['funding_id', 'statement_line_id']);
-        foreach($self as $id => $payment) {
-            if($payment['funding_id']) {
-                Funding::id($payment['funding_id'])->update(['paid_amount' => null, 'is_paid' => null]);
-            }
-            if($payment['statement_line_id']) {
-                BankStatement::id($payment['statement_line_id'])->update(['remaining_amount' => null]);
-            }
-        }
-    }
-
-    protected static function onafterPublish($self) {
         $self->read(['funding_id', 'statement_line_id']);
         foreach($self as $id => $payment) {
             if($payment['funding_id']) {
@@ -227,7 +264,6 @@ class Payment extends Model {
         return $result;
     }
 
-
     public static function canupdate($self, $values) {
         $self->read(['status', 'is_exported', 'payment_origin', 'amount', 'statement_line_id' => ['amount', 'remaining_amount']]);
         foreach($self as $payment) {
@@ -240,8 +276,11 @@ class Payment extends Model {
             }
 
             $payment_origin = $values['payment_origin'] ?? $payment['payment_origin'];
+
             if($payment_origin == 'bank' && isset($values['amount']) && (isset($values['statement_line_id']) || isset($payment['statement_line_id']))) {
+
                 $statement_line = $payment['statement_line_id'];
+
                 if(isset($values['statement_line_id'])) {
                     $statement_line = BankStatementLine::id($values['statement_line_id'])
                         ->read(['amount', 'remaining_amount'])
@@ -271,6 +310,75 @@ class Payment extends Model {
         }
 
         return parent::canupdate($self, $values);
+    }
+
+    private static function computeFiscalYearId($condo_id, $posting_date) {
+        $result = null;
+
+        $fiscalYear = FiscalYear::search([['condo_id', '=', $condo_id], ['date_from', '<=', $posting_date], ['date_to', '>=', $posting_date]])
+            ->read(['fiscal_periods_ids' => ['date_from', 'date_to']])
+            ->first();
+
+        if($fiscalYear) {
+            $result = $fiscalYear['id'];
+        }
+
+        return $result;
+    }
+
+    private static function computeFiscalPeriodId($condo_id, $posting_date) {
+        $result = null;
+
+        $fiscalYear = FiscalYear::search([['condo_id', '=', $condo_id], ['date_from', '<=', $posting_date], ['date_to', '>=', $posting_date]])
+            ->read(['fiscal_periods_ids' => ['date_from', 'date_to']])
+            ->first();
+
+        if(!$fiscalYear) {
+            return $result;
+        }
+
+        foreach($fiscalYear['fiscal_periods_ids'] ?? [] as $period_id => $period) {
+            if($posting_date >= $period['date_from'] && $posting_date <= $period['date_to']) {
+                $result = $period_id;
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function calcFiscalYearId($self) {
+        $result = [];
+        $self->read(['condo_id', 'receipt_date']);
+        foreach($self as $id => $payment) {
+            $result[$id] = self::computeFiscalYearId($payment['condo_id'], $payment['receipt_date']);
+        }
+        return $result;
+    }
+
+    protected static function calcFiscalPeriodId($self) {
+        $result = [];
+        $self->read(['condo_id', 'receipt_date']);
+        foreach($self as $id => $payment) {
+            $result[$id] = self::computeFiscalPeriodId($payment['condo_id'], $payment['receipt_date']);
+        }
+        return $result;
+    }
+
+    protected static function calcJournalId($self) {
+        $result = [];
+        $self->read(['condo_id']);
+        foreach($self as $id => $payment) {
+            if(!$payment['condo_id']) {
+                continue;
+            }
+            $journal = Journal::search([['condo_id', '=', $payment['condo_id']], ['journal_type', '=', 'BNK']])->first();
+
+            if($journal) {
+                $result[$id] = $journal['id'];
+            }
+        }
+        return $result;
     }
 
 }

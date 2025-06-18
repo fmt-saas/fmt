@@ -13,9 +13,9 @@
             "description": "Montant assigné au paiement.",
             "help": ""
         },
-        "communication": {
-            "label": "Communication",
-            "description": "Message du payeur.",
+        "description": {
+            "label": "Description",
+            "description": "Message du payeur ou description de l'opération.",
             "help": ""
         },
         "receipt_date": {
@@ -68,7 +68,7 @@
             "description": "Status du paiement",
             "selection": {
                 "proforma": "Brouillon",
-                "payment": "Payé"
+                "posted": "Payé"
             },
             "help": ""
         }

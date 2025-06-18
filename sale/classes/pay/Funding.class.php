@@ -177,7 +177,7 @@ class Funding extends Model {
         return [
             'refresh_status' => [
                 'description'   => 'Attempt to post the related accounting document.',
-                'policies'      => [/* no policies - action is allowed to fail */],
+                'policies'      => [],
                 'function'      => 'doRefreshStatus'
             ]
         ];
@@ -206,8 +206,10 @@ class Funding extends Model {
     }
 
     protected static function doRefreshStatus($self) {
-        $self->update(['is_paid' => null, 'paid_amount' => null]);
-        $self->read(['due_amount', 'paid_amount']);
+        $self
+            ->update(['is_paid' => null, 'paid_amount' => null])
+            ->read(['due_amount', 'paid_amount']);
+
         foreach($self as $id => $funding) {
             $due = round((float) $funding['due_amount'], 2);
             $paid = round((float) $funding['paid_amount'], 2);
@@ -248,7 +250,7 @@ class Funding extends Model {
         $self->read(['payments_ids' => ['status', 'amount']]);
         foreach($self as $id => $funding) {
             $result[$id] = array_reduce($funding['payments_ids']->get(true), function ($c, $a) {
-                return ($a['status'] === 'payment') ? ($c + $a['amount']) : $c;
+                return ($a['status'] === 'posted') ? ($c + $a['amount']) : $c;
             }, 0.0);
         }
         return $result;

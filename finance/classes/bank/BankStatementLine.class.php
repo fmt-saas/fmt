@@ -26,8 +26,7 @@ class BankStatementLine extends Model {
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the accounting entry refers to.",
-                'foreign_object'    => 'realestate\property\Condominium',
-                //'readonly'          => true
+                'foreign_object'    => 'realestate\property\Condominium'
             ],
 
             'name' => [
@@ -59,7 +58,7 @@ class BankStatementLine extends Model {
 
             'date' => [
                 'type'              => 'date',
-                'description'       => 'Date at which the statement was issued.',
+                'description'       => 'Date of the transaction as provided by the bank.',
                 'readonly'          => true,
                 'required'          => true
             ],

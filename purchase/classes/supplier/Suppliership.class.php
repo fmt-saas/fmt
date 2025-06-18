@@ -27,14 +27,15 @@ class Suppliership extends \equal\orm\Model {
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'required'          => true,
-                'dependents'        => ['code']
+                'dependents'        => ['code', 'name', 'suppliership_account_id']
             ],
 
             'supplier_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\supplier\Supplier',
                 'description'       => "Supplier the Suppliership relates to.",
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['name', 'code', 'suppliership_account_id'],
             ],
 
             'name' => [
@@ -53,6 +54,14 @@ class Suppliership extends \equal\orm\Model {
                 'description'       => "Code of the supplier for the Condominium.",
                 'help'              => "Code is assigned automatically and cannot be changed, and is intended to internal use.",
                 'readonly'          => true
+            ],
+
+            'suppliership_account_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'function'          => 'calcSuppliershipAccountId',
+                'store'             => true
             ],
 
             'suppliership_contracts_ids' => [
@@ -103,7 +112,7 @@ class Suppliership extends \equal\orm\Model {
         ];
     }
 
-    public static function calcName($self) {
+    protected static function calcName($self) {
         $result = [];
         $self->read(['state', 'code', 'supplier_id' => ['name']]);
         foreach($self as $id => $suppliership) {
@@ -112,6 +121,39 @@ class Suppliership extends \equal\orm\Model {
             }
             if($suppliership['supplier_id'] && strlen($suppliership['supplier_id']['name'])) {
                 $result[$id] = sprintf("%s - %s", $suppliership['code'], $suppliership['supplier_id']['name']);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Retrieve the accounting account dedicated to owner (working fund)
+     */
+    protected static function calcSuppliershipAccountId($self) {
+        $result = [];
+        $self->read(['condo_id', 'code']);
+        foreach($self as $id => $suppliership) {
+
+            // find the suppliers account based on operation_assignment
+            $account = Account::search([
+                    ['condo_id', '=', $suppliership['condo_id']],
+                    ['operation_assignment', '=', 'suppliers']
+                ])
+                ->read(['code'])
+                ->first();
+
+            if(!$account) {
+                trigger_error("APP::unable to find a match for assignment `suppliers` for suppliership {$suppliership['condo_id']}", EQ_REPORT_ERROR);
+                throw new \Exception("missing_mandatory_supplier_assignment_account", EQ_ERROR_INVALID_CONFIG);
+            }
+
+            if($account) {
+                $supplierAccount = Account::search([
+                        ['condo_id', '=', $suppliership['condo_id']],
+                        ['code', '=', $account['code'] . $suppliership['code']]
+                    ])
+                    ->first();
+                $result[$id] = $supplierAccount['id'] ?? null;
             }
         }
         return $result;

@@ -9,7 +9,6 @@ namespace realestate\sale\pay;
 
 use core\setting\Setting;
 use equal\data\DataFormatter;
-use realestate\finance\accounting\MoneyTransfer;
 
 class Funding extends \sale\pay\Funding {
 
@@ -45,20 +44,18 @@ class Funding extends \sale\pay\Funding {
 
             'bank_account_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\bank\CondominiumBankAccount',
+                'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'The Bank account the funding relates to.',
                 'help'              => 'This is the bank account to which payments are expected to be received or from which payment is expected to be made.',
-                'readonly'          => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'readonly'          => true
             ],
 
             'counterpart_bank_account_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\bank\CondominiumBankAccount',
+                'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'Counterpart bank account, when applying.',
                 'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
-                'readonly'          => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'readonly'          => true
             ],
 
             'funding_type' => [
@@ -128,6 +125,14 @@ class Funding extends \sale\pay\Funding {
                 'readonly'          => true
             ],
 
+            'suppliership_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'purchase\supplier\Suppliership',
+                'description'       => 'The supplier the funding relates to.',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'readonly'          => true
+            ],
+
             'payment_reference' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -137,34 +142,6 @@ class Funding extends \sale\pay\Funding {
             ],
 
         ];
-    }
-
-    public static function getActions() {
-        return array_merge(parent::getActions(), [
-            'attempt_posting' => [
-                'description'   => 'Attempt to post the related accounting document.',
-                'policies'      => [/* no policies - action is allowed to fail */],
-                'function'      => 'doAttemptPosting'
-            ],
-        ]);
-    }
-
-    protected static function doAttemptPosting($self) {
-        $self->read(['funding_type', 'invoice_id', 'money_transfer_id', 'fund_request_execution_id', 'expense_statement_id', 'ownership_id']);
-        foreach($self as $id => $funding) {
-            try {
-                switch($funding['funding_type']) {
-                    case 'transfer':
-                        MoneyTransfer::id($funding['money_transfer_id'])->do('attempt_posting');
-                        break;
-                    default:
-                }
-                self::id($id)->update(['status' => 'balanced']);
-            }
-            catch(\Exception $e) {
-                // error is plausible and considered as normal
-            }
-        }
     }
 
     protected static function calcName($self) {

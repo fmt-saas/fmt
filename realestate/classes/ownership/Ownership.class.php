@@ -195,7 +195,7 @@ class Ownership extends \equal\orm\Model {
     /**
      * Retrieve the accounting account dedicated to owner (working fund)
      */
-    public static function calcOwnershipAccountId($self) {
+    protected static function calcOwnershipAccountId($self) {
         $result = [];
         $self->read(['condo_id', 'code']);
         foreach($self as $id => $ownership) {
@@ -206,6 +206,7 @@ class Ownership extends \equal\orm\Model {
                 ])
                 ->read(['code'])
                 ->first();
+
             if($account) {
                 $ownerAccount = Account::search([
                         ['condo_id', '=', $ownership['condo_id']],
@@ -218,7 +219,7 @@ class Ownership extends \equal\orm\Model {
         return $result;
     }
 
-    public static function calcName($self) {
+    protected static function calcName($self) {
         $result = [];
         $self->read(['code', 'has_representative', 'representative_identity_id' => ['name'], 'owners_ids' => ['name']]);
         foreach($self as $id => $ownership) {

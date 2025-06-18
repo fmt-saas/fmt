@@ -13,11 +13,13 @@ use finance\accounting\FiscalYear;
 use finance\accounting\Account;
 use finance\accounting\Journal;
 use finance\bank\BankAccount;
+use finance\bank\CondominiumBankAccount;
 use fmt\setting\Setting;
 use purchase\supplier\Suppliership;
 use realestate\ownership\Ownership;
 use realestate\purchase\accounting\AccountingEntry;
 use realestate\purchase\accounting\AccountingEntryLine;
+use realestate\sale\pay\Funding;
 
 class Invoice extends \purchase\accounting\invoice\Invoice {
 
@@ -198,6 +200,11 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
 
     public static function getActions() {
         return array_merge(parent::getActions(), [
+            'create_funding' => [
+                'description'   => 'Create the funding according to the invoice.',
+                'policies'      => ['is_proforma'],
+                'function'      => 'doCreateFunding'
+            ],
             'update_document_json' => [
                 'description'   => 'Generate fundings for each involved ownership.',
                 'policies'      => [],
@@ -214,6 +221,35 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
             ],
         ]);
     }
+
+    protected static function doCreateFunding($self) {
+        $self->read(['condo_id', 'price', 'suppliership_id', 'payment_reference', 'due_date', 'funding_id']);
+
+        foreach($self as $invoice) {
+            // retrieve the condo's current account
+            $bankAccount = CondominiumBankAccount::search([['condo_id', '=', $invoice['condo_id']], ['bank_account_type', '=', 'bank_current']])
+                ->read(['current_balance'])
+                ->first();
+
+            $funding = Funding::create([
+                    'description'                   => 'Purchase Invoice',
+                    'invoice_id'                    => $invoice['id'],
+                    'bank_account_id'               => $bankAccount['id'],
+                    'suppliership_id'               => $invoice['suppliership_id'],
+                    'counterpart_bank_account_id'   => $invoice['suppliership_bank_account_id'],
+                    'due_amount'                    => $invoice['price'],
+                    'is_paid'                       => false,
+                    'funding_type'                  => 'invoice',
+                    'payment_reference'             => $invoice['payment_reference'],
+                    'due_date'                      => $invoice['due_date']
+                ])
+                ->first();
+
+            self::id($invoice['id'])
+                ->update(['funding_id' => $funding['id']]);
+        }
+    }
+
 
     public static function policyCanBeInvoiced($self): array {
         $result = [];
@@ -310,7 +346,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
     /**
      * Checks that if the invoice must be split, no part of it must be assigned to a non-open fiscal period (or fiscal year).
      */
-    public static function policyCanBeAllocated($self) {
+    protected static function policyCanBeAllocated($self) {
         $result = [];
         $self->read(['posting_date', 'has_date_range', 'date_from', 'date_to', 'condo_id']);
         foreach($self as $id => $invoice) {
@@ -399,7 +435,8 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         $self
             ->do('generate_accounting_entries')
             ->do('assign_invoice_number')
-            ->do('validate_accounting_entries');
+            ->do('validate_accounting_entries')
+            ->do('create_funding');
     }
 
     protected static function onafterPost($self) {
@@ -430,7 +467,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 'has_fund_usage',
                 'fiscal_year_id',
                 'suppliership_id' => [
-                    'code'
+                    'suppliership_account_id'
                 ],
                 'invoice_lines_ids' => [
                     'expense_account_id',
@@ -473,27 +510,6 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
 
             // #memo - use of the `reinvoiced_private_expense_account` has been deprecated
 
-
-            // retrieve the accounting account relating to the supplier
-            $assignmentAccount = Account::search([
-                    ['condo_id', '=', $invoice['condo_id']],
-                    ['operation_assignment', '=', 'suppliers']
-                ])
-                ->read(['code'])
-                ->first();
-
-            if(!$assignmentAccount) {
-                trigger_error("APP::unable to find a match for journal PUR for condominium {$invoice['condo_id']}", EQ_REPORT_ERROR);
-                throw new \Exception("missing_mandatory_supplier_assignment_account", EQ_ERROR_INVALID_CONFIG);
-            }
-
-            $supplier_account_code = $assignmentAccount['code'] . $invoice['suppliership_id']['code'];
-            $supplierAccount = Account::search([['code', '=', $supplier_account_code], ['condo_id', '=', $invoice['condo_id']]])->first();
-            if(!$supplierAccount) {
-                trigger_error("APP::unable to find a match for supplier code {$supplier_account_code}", EQ_REPORT_ERROR);
-                throw new \Exception("missing_mandatory_supplier_account", EQ_ERROR_INVALID_CONFIG);
-            }
-
             // create the accounting entry for the purchase invoice
             $accountingEntry = AccountingEntry::create([
                     'condo_id'              => $invoice['condo_id'],
@@ -524,7 +540,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     'condo_id'              => $invoice['condo_id'],
                     'accounting_entry_id'   => $accountingEntry['id'],
                     'name'                  => $description,
-                    'account_id'            => $supplierAccount['id'],
+                    'account_id'            => $invoice['suppliership_id']['suppliership_account_id'],
                     'debit'                 => 0.0,
                     'credit'                => $invoice['price']
                 ]);

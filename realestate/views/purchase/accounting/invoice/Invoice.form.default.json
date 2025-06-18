@@ -20,7 +20,7 @@
             "description": "Cancel invoice.",
             "controller": "core_model_transition",
             "confirm": true,
-            "visible": ["status", "=", "invoice"],
+            "visible": ["status", "=", "posted"],
             "params": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
                 "transition": "cancel",
@@ -256,7 +256,7 @@
                     {
                         "id": "section.accounting_entries",
                         "label": "Accounting Entries",
-                        "visible": ["status", "=", "invoice"],
+                        "visible": ["status", "=", "posted"],
                         "rows": [
                             {
                                 "columns": [
@@ -266,6 +266,27 @@
                                             {
                                                 "type": "field",
                                                 "value": "accounting_entries_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.fundings",
+                        "label": "Fundings",
+                        "visible": ["status", "=", "posted"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "fundings_ids",
                                                 "width": "100%"
                                             }
                                         ]

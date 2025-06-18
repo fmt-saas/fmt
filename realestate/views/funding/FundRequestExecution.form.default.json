@@ -25,7 +25,7 @@
             "label": "Cancel execution",
             "description": "Perform the fund request execution by creating and validating resulting Accounting entries and Fundings. Execution will no longer be modifiable after this operation.",
             "controller": "core_model_transition",
-            "visible": ["status", "=", "invoice"],
+            "visible": ["status", "=", "posted"],
             "params": {
                 "entity": "realestate\\funding\\FundRequestExecution",
                 "transition": "cancel",
@@ -137,7 +137,7 @@
                     {
                         "id": "section.fundings_ids",
                         "label": "Fundings",
-                        "visible": ["status", "=", "invoice"],
+                        "visible": ["status", "=", "posted"],
                         "rows": [
                             {
                                 "columns": [

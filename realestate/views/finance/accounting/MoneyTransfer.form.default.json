@@ -123,13 +123,15 @@
                                                 "type": "field",
                                                 "label": "Fiscal year",
                                                 "value": "fiscal_year_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Fiscal period",
                                                 "value": "fiscal_period_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
                                             }
                                         ]
                                     }

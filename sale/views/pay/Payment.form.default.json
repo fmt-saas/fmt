@@ -1,9 +1,6 @@
 {
     "name": "Payment",
     "description": "",
-    "access": {
-        "groups": ["sale.default.users"]
-     },
     "layout": {
         "groups": [
             {
@@ -104,7 +101,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "communication",
+                                                "value": "description",
                                                 "width": "100%"
                                             }
                                         ]

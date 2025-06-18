@@ -45,7 +45,6 @@ class ExpenseStatementOwnerLine extends \sale\accounting\invoice\InvoiceLine {
                 'description'       => 'No products are associated with statements.',
             ],
 
-
             'invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\ExpenseStatement',

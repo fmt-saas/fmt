@@ -193,10 +193,10 @@ class BankStatement extends Model {
         $self->read(['document_process_id', 'statement_lines_ids' => ['payments_ids']]);
         foreach($self as $id => $bankStatement) {
             try {
-                // mark involved payment as published
-                // #memo - this triggers a cascade event `attempt_posting` on Funding and related MisOperation (MoneyTransfer or other)
+                // mark involved payment as posted
+                // #memo - this triggers a cascade event `attempt_posting` on Funding and related MisOperation
                 foreach($bankStatement['statement_lines_ids'] as $lid => $statementLine) {
-                    Payment::ids($statementLine['payments_ids'])->transition('publish');
+                    Payment::ids($statementLine['payments_ids'])->transition('post');
                 }
             }
             catch(\Exception $e) {
@@ -209,7 +209,6 @@ class BankStatement extends Model {
                     // mark DocumentProcess as integrated
                     ->transition('integrate');
             }
-// #todo
         }
     }
 

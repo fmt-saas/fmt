@@ -101,7 +101,8 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\Journal',
-                'description'       => 'Accounting journal used for this miscellaneous operation.',
+                'description'       => 'Accounting journal used for the Money Transfer.',
+                'help'              => 'Money transfer between internal accounts is a bank operation and is always put in the BNK/FIN journal.',
                 'store'             => true,
                 'function'          => 'calcJournalId',
                 'readonly'          => true
@@ -294,7 +295,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             if(!$moneyTransfer['condo_id']) {
                 continue;
             }
-            $journal = Journal::search([['condo_id', '=', $moneyTransfer['condo_id']], ['journal_type', '=', 'MISC']])->first();
+            $journal = Journal::search([['condo_id', '=', $moneyTransfer['condo_id']], ['journal_type', '=', 'BNK']])->first();
 
             if($journal) {
                 $result[$id] = $journal['id'];
@@ -358,6 +359,11 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         }
     }
 
+
+    /**
+     * Fund transfers are a specific case for which an automatic entry must be made after the reception of bank statements, which may be deferred.
+     * This is to maintain the consistency of accounting operations (without "gaps" in the tracking of fund movements).
+     */
     protected static function doGenerateAccountingEntry($self) {
         $self->read([
                 'condo_id', 'amount', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
@@ -510,12 +516,12 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         $self->read(['amount', 'bank_account_id', 'counterpart_bank_account_id', 'account_available_balance']);
 
         foreach($self as $id => $moneyTransfer) {
-            $amount = $values['amount'] ?? $moneyTransfer['amount'];
-            $account_available_balance = $values['account_available_balance'] ?? $moneyTransfer['account_available_balance'];
+            $amount = ($values['amount'] ?? $moneyTransfer['amount']) ?? 0.0;
+            $account_available_balance = ($values['account_available_balance'] ?? $moneyTransfer['account_available_balance']) ?? 0.0;
             if($amount > $account_available_balance) {
                 return [
                     'amount' => [
-                        'invalid_amount' => 'The amount to transfer cannot be greater than the available balance of the origin bank account.'
+                        'invalid_amount' => "The amount to transfer {$amount} cannot be greater than the available balance of the origin bank account {$account_available_balance}."
                     ]
                 ];
             }

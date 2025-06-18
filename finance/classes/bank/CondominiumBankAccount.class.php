@@ -65,6 +65,13 @@ class CondominiumBankAccount extends BankAccount {
                 'description'       => 'Date of the last imported bank statement.',
             ],
 
+            'last_statement_id' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\bank\BankStatement',
+                'description'       => 'The last imported bank statement for this account.',
+                'domain'            => ['bank_account_id', '=', 'object.id'],
+            ],
+
             'bank_statements_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\bank\BankStatement',

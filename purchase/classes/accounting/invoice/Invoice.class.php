@@ -179,7 +179,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                     'post' => [
                         'description' => 'Update the invoice status based on the `invoice` field.',
                         'policies'    => [
-                            'can_be_invoiced',
+                            'is_proforma', 'can_be_invoiced',
                         ],
                         'onbefore'  => 'onbeforeInvoice',
                         'status'    => 'posted',
@@ -216,6 +216,10 @@ class Invoice extends \finance\accounting\invoice\Invoice {
             'can_be_invoiced' => [
                 'description' => 'Verifies that the proforma can be invoiced.',
                 'function'    => 'policyCanBeInvoiced'
+            ],
+            'is_proforma' => [
+                'description' => 'Verifies that the invoice is still a proforma.',
+                'function'    => 'policyIsProforma'
             ]
         ]);
     }
@@ -240,7 +244,20 @@ class Invoice extends \finance\accounting\invoice\Invoice {
         ]);
     }
 
-    public static function policyCanBeInvoiced($self): array {
+    protected static function policyIsProforma($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $invoice) {
+            if($invoice['status' !== 'proforma']) {
+                $result[$id] = [
+                    'invalid_invoice_status' => 'Invoice must be a proforma.'
+                ];
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyCanBeInvoiced($self): array {
         $result = [];
         $self->read(['invoice_lines_ids' => ['vat_rate']]);
         foreach($self as $id => $invoice) {

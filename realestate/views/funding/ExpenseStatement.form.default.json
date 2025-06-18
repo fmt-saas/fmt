@@ -176,7 +176,7 @@
                     {
                         "id": "section.accounting_entry",
                         "label": "Accounting entry",
-                        "visible": ["status", "=", "invoice"],
+                        "visible": ["status", "=", "posted"],
                         "rows": [
                             {
                                 "columns": [
@@ -197,7 +197,7 @@
                     {
                         "id": "section.fundings",
                         "label": "Payments Followup",
-                        "visible": ["status", "=", "invoice"],
+                        "visible": ["status", "=", "posted"],
                         "rows": [
                             {
                                 "columns": [

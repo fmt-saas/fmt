@@ -34,7 +34,7 @@
             "description": "Cancel invoice.",
             "controller": "sale_accounting_invoice_cancel",
             "confirm": true,
-            "visible": ["status", "=", "invoice"]
+            "visible": ["status", "=", "posted"]
         }
     ],
     "routes": [
@@ -171,7 +171,7 @@
                     {
                         "id": "section.payments",
                         "label": "Payment",
-                        "visible": ["status", "=", "invoice"],
+                        "visible": ["status", "=", "posted"],
                         "rows": [
                             {
                                 "columns": [
