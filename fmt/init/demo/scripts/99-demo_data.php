@@ -278,7 +278,7 @@ MiscOperationLine::create([
 MiscOperationLine::create([
         'condo_id'          => 1,
         'misc_operation_id' => $miscOperation['id'],
-        'account_id'        => 104,
+        'account_id'        => 468,
         'journal_id'        => 5,
         'debit'             => 5000.00,
         'credit'            => 0.0
