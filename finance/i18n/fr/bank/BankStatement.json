@@ -10,7 +10,7 @@
         },
         "date": {
             "label": "Date du relevé",
-            "description": "Date du relevé.",
+            "description": "Date de réception du relevé.",
             "help": ""
         },
         "statement_lines_ids": {

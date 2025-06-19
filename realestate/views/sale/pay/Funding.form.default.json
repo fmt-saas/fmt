@@ -132,8 +132,8 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Misc Operation",
-                                                "value": "misc_operation_id",
+                                                "label": "Money Transfer",
+                                                "value": "money_transfer_id",
                                                 "width": "50%",
                                                 "visible": ["funding_type", "=", "transfer"]
                                             }

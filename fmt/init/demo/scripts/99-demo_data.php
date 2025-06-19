@@ -290,11 +290,11 @@ MiscOperation::id($miscOperation['id'])
 
 // * mouvement bancaire : déplacer montant vers compte à vue
 $moneyTransfer = MoneyTransfer::create([
-        'condo_id' => 1,
-        'posting_date' => time(),
-        'description' => 'Money transfer',
-        'amount' => 5000,
-        'bank_account_id' => 138,
+        'condo_id'                    => 1,
+        'posting_date'                => time(),
+        'description'                 => 'Money transfer',
+        'amount'                      => 5000,
+        'bank_account_id'             => 138,
         'counterpart_bank_account_id' => 137
     ])
     ->transition('publish')

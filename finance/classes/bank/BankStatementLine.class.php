@@ -184,6 +184,7 @@ class BankStatementLine extends Model {
             }
 
             if(!$funding) {
+                trigger_error("APP::no matching funding found for bank statement line {$id} with amount {$amount} and reference {$reference}.", EQ_REPORT_DEBUG);
                 continue;
             }
 

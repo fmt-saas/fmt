@@ -148,8 +148,7 @@ class Funding extends Model {
 
             'payment_reference' => [
                 'type'              => 'string',
-                'description'       => 'Message for identifying the purpose of the transaction.',
-                'default'           => ''
+                'description'       => 'Message for identifying the purpose of the transaction.'
             ],
 
             'is_cancelled' => [

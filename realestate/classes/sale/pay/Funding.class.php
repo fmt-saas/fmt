@@ -69,6 +69,7 @@ class Funding extends \sale\pay\Funding {
                     'expense_statement'
                 ],
                 'required'          => true,
+                'dependents'        => ['payment_reference'],
                 'description'       => "Type of funding. Either an installment, a specific invoice, a fund request, or an expense statement."
             ],
 
@@ -138,6 +139,7 @@ class Funding extends \sale\pay\Funding {
                 'result_type'       => 'string',
                 'description'       => 'Message for identifying the purpose of the transaction.',
                 'store'             => true,
+                'instant'           => true,
                 'function'          => 'calcPaymentReference'
             ],
 
@@ -180,6 +182,10 @@ class Funding extends \sale\pay\Funding {
         $result = [];
         $self->read(['funding_type', 'invoice_id', 'money_transfer_id', 'condo_id' => ['code'], 'ownership_id' => 'code']);
         foreach($self as $id => $funding) {
+            if(!$funding['funding_type']) {
+                continue;
+            }
+
             $reference = str_pad('', 12, '0');
 
             if($funding['funding_type'] === 'transfer') {
@@ -191,6 +197,8 @@ class Funding extends \sale\pay\Funding {
                     substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
             }
             elseif($funding['funding_type'] === 'invoice') {
+                // #todo - confirm strategy
+                $reference = sprintf("%010s", $funding['invoice_id']);
             }
 
             $prefix = substr($reference, 0, 3);

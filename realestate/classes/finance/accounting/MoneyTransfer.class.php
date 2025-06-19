@@ -195,7 +195,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return array_merge(parent::getActions(), [
             'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
-                'policies'      => ['is_paid'],
+                'policies'      => ['is_posted'],
                 'function'      => 'doGenerateAccountingEntry'
             ],
             'create_fundings' => [
@@ -221,6 +221,10 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             'is_paid' => [
                 'description' => 'Verifies that the state of the Money Transfer allows validation.',
                 'function'    => 'policyIsPaid'
+            ],
+            'is_posted' => [
+                'description' => 'Verifies that the state of the Money Transfer allows validation.',
+                'function'    => 'policyIsPosted'
             ],
             'can_transfer' => [
                 'description' => 'Verifies that the origin bank account has enough funds to transfer the amount.',
@@ -279,6 +283,19 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     ];
                     break;
                 }
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyIsPosted($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $moneyTransfer) {
+            if($moneyTransfer['status'] !== 'posted') {
+                $result[$id] = [
+                    'invalid_status' => 'Status must be `posted`.'
+                ];
             }
         }
         return $result;
@@ -359,6 +376,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         }
         catch(\Exception $e) {
             // error is plausible and considered as normal
+            trigger_error("APP::Posting not possible for money transfer: ".$e->getMessage(), EQ_REPORT_INFO);
         }
     }
 
@@ -452,11 +470,11 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
             }
             catch(\Exception $e) {
+                trigger_error("APP::Unexpected error while creating accounting entry: " . $e->getMessage(), EQ_REPORT_WARNING);
                 // rollback
                 if(isset($accountingEntry)) {
                     AccountingEntry::id($accountingEntry['id'])->delete(true);
                 }
-                trigger_error("APP:Unexpected error while creating accounting entry: ".$e->getMessage(), EQ_REPORT_WARNING);
                 throw new \Exception('unexpected_error', EQ_ERROR_UNKNOWN);
             }
         }
@@ -544,18 +562,21 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
     }
 
     public static function canupdate($self, $values) {
-        $self->read(['amount', 'bank_account_id', 'counterpart_bank_account_id', 'account_available_balance']);
+        $self->read(['status', 'accounting_entry_id']);
 
         foreach($self as $id => $moneyTransfer) {
-            $amount = ($values['amount'] ?? $moneyTransfer['amount']) ?? 0.0;
-            $account_available_balance = ($values['account_available_balance'] ?? $moneyTransfer['account_available_balance']) ?? 0.0;
-            if($amount > $account_available_balance) {
+            if($moneyTransfer['status'] === 'posted') {
+                if(!$moneyTransfer['accounting_entry_id'] && isset($values['accounting_entry_id']) && count($values) == 1) {
+                    // allow first setting of accounting entry
+                    continue;
+                }
                 return [
-                    'amount' => [
-                        'invalid_amount' => "The amount to transfer {$amount} cannot be greater than the available balance of the origin bank account {$account_available_balance}."
+                    'status' => [
+                        'not_allowed' => "Money transfer cannot be updated once posted."
                     ]
                 ];
             }
+
         }
         return parent::canupdate($self);
     }

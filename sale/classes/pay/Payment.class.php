@@ -242,21 +242,26 @@ class Payment extends Model {
             }
         }
 
-        if(isset($event['funding_id'])) {
-            $funding = Funding::id($event['funding_id'])
-                ->read(['type', 'due_amount', 'invoice_id' => ['customer_id' => ['name']]])
-                ->first();
+        if(array_key_exists('funding_id', $event)) {
+            if(!isset($event['funding_id'])) {
+                $result['has_funding'] = false;
+            }
+            else {
+                $funding = Funding::id($event['funding_id'])
+                    ->read(['type', 'due_amount', 'invoice_id' => ['customer_id' => ['name']]])
+                    ->first();
 
-            if(!is_null($funding)) {
-                if($funding['funding_type'] == 'invoice' && isset($funding['invoice_id']['customer_id']))  {
-                    $result['customer_id'] = [
-                        'id'   => $funding['invoice_id']['customer_id']['id'],
-                        'name' => $funding['invoice_id']['customer_id']['name']
-                    ];
-                }
+                if(!is_null($funding)) {
+                    if($funding['funding_type'] == 'invoice' && isset($funding['invoice_id']['customer_id']))  {
+                        $result['customer_id'] = [
+                            'id'   => $funding['invoice_id']['customer_id']['id'],
+                            'name' => $funding['invoice_id']['customer_id']['name']
+                        ];
+                    }
 
-                if(isset($values['amount']) && $values['amount'] > $funding['due_amount']) {
-                    $result['amount'] = $funding['due_amount'];
+                    if(isset($values['amount']) && $values['amount'] > $funding['due_amount']) {
+                        $result['amount'] = $funding['due_amount'];
+                    }
                 }
             }
         }

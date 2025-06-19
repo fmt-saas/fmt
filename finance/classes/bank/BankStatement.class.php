@@ -194,7 +194,7 @@ class BankStatement extends Model {
         foreach($self as $id => $bankStatement) {
             try {
                 // mark involved payment as posted
-                // #memo - this triggers a cascade event `attempt_posting` on Funding and related MisOperation
+                // #memo - this triggers a cascade event `attempt_posting` on Funding and related documents
                 foreach($bankStatement['statement_lines_ids'] as $lid => $statementLine) {
                     Payment::ids($statementLine['payments_ids'])->transition('post');
                 }
