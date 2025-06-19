@@ -83,9 +83,9 @@ class FundRequest extends \equal\orm\Model {
 
             'request_bank_account_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\bank\BankAccount',
+                'foreign_object'    => 'finance\bank\CondominiumBankAccount',
                 'description'       => 'Bank account to use for the request.',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['bank_account_type', '=', 'bank_current']]
             ],
 
             'payment_terms_id' => [
