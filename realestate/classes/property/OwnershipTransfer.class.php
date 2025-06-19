@@ -21,13 +21,18 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             'request_date' => [
                 'type'              => 'date',
-                'description'       => "Date at which the ownership transfer took place.",
-                'required'          => true
+                'description'       => "Date at which the first request from the notary was received."
+            ],
+
+            'confirmation_date' => [
+                'type'              => 'date',
+                'description'       => "Date at which the confirmation from the notary was received."
             ],
 
             'transfer_date' => [
                 'type'              => 'date',
-                'description'       => "Date at which the ownership transfer took place (notary deed date)."
+                'description'       => "Date at which the ownership transfer is scheduled",
+                'help'              => "This date must match the notary deed date."
             ],
 
             'seller_documents_sent_date' => [
@@ -47,6 +52,13 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'       => "Description of the ownership transfer."
             ],
 
+            'property_lot_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\property\PropertyLot',
+                'description'       => 'Property Lot that is subject to the transfer.',
+                'help'              => 'This serve as first lot for creating the transfer, but can be extended with more lots later on.',
+            ],
+
             'property_lots_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\property\PropertyLot',
@@ -54,19 +66,29 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'rel_table'         => 'realestate_propertylot_rel_transfer',
                 'rel_foreign_key'   => 'lot_id',
                 'rel_local_key'     => 'transfer_id',
-                'description'       => 'Property Lots that are part of the ownership transfer.'
+                'description'       => 'Property Lots that are part of the ownership transfer.',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['active_ownership_id', '=', 'object.old_ownership_id']]
             ],
 
             'old_ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'realestate\ownership\Ownership'
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'is_existing_new_ownership' => [
+                'type'              => 'boolean',
+                'description'       => "The condominium the property lot belongs to.",
+                'default'           => false
             ],
 
             'new_ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'realestate\ownership\Ownership'
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['id', '<>', 'object.old_ownership_id']],
+                'visible'           => ['is_existing_new_ownership', '=', true]
             ],
 
             'status' => [
@@ -168,6 +190,54 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description' => 'Ownership transfer is closed, no further actions can be taken.'
             ]
         ];
+    }
+
+
+    public static function onchange($event, $values) {
+        $result = [];
+        // synchronize ownership & property lots
+        // #memo - we must be able to assign any ownership (not only active ones)
+        if(array_key_exists('old_ownership_id', $event)) {
+            if($event['old_ownership_id']) {
+                $propertyOwnerships = PropertyLotOwnership::search([['ownership_id', '=', $event['old_ownership_id']]])->read(['property_lot_id'])->get(true);
+                $property_lots_ids = array_map(function ($a) {return $a['property_lot_id'];}, $propertyOwnerships);
+                if(!$values['property_lot_id'] || !in_array($values['property_lot_id'], $property_lots_ids) ) {
+                    $result['property_lot_id'] = [
+                        'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $property_lots_ids]]
+                    ];
+                }
+                $result['property_lots_ids'] = $property_lots_ids;
+            }
+            else {
+                $result['old_ownership_id'] = [
+                    'domain' => ['condo_id', '=', $values['condo_id']]
+                ];
+                $result['property_lot_id'] = [
+                    'domain' => ['condo_id', '=', $values['condo_id']]
+                ];
+                $result['property_lots_ids'] = [];
+            }
+        }
+        if(array_key_exists('property_lot_id', $event)) {
+            if($event['property_lot_id']) {
+                $propertyOwnerships = PropertyLotOwnership::search([['property_lot_id', '=', $event['property_lot_id']]])->read(['ownership_id'])->get(true);
+                $ownerships_ids = array_map(function ($a) {return $a['ownership_id'];}, $propertyOwnerships);
+                if(!$values['old_ownership_id'] || !in_array($values['old_ownership_id'], $ownerships_ids) ) {
+                    $result['old_ownership_id'] = [
+                        'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $ownerships_ids]]
+                    ];
+                }
+            }
+            else {
+                $result['old_ownership_id'] = [
+                    'domain' => ['condo_id', '=', $values['condo_id']]
+                ];
+                $result['property_lot_id'] = [
+                    'domain' => ['condo_id', '=', $values['condo_id']]
+                ];
+            }
+        }
+        return $result;
     }
 
 }

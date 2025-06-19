@@ -90,7 +90,7 @@
                     {
                         "id": "ownership_transfers",
                         "type": "entry",
-                        "label": "Ownership Transfers",
+                        "label": "Owner Transfers",
                         "icon": "swap_horiz",
                         "description": "",
                         "context": {

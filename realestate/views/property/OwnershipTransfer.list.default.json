@@ -1,37 +1,34 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Ownership Transfer",
+    "description": "History of Ownership transfers.",
     "layout": {
         "items": [
             {
                 "type": "field",
                 "value": "condo_id",
-                "width": "16%"
-            },
-            {
-                "type": "field",
-                "value": "date",
-                "width": "16%"
+                "width": "20%"
             },
             {
                 "type": "field",
                 "value": "property_lot_id",
-                "width": "16%"
+                "width": "15%"
             },
             {
                 "type": "field",
+                "label": "Current owner",
                 "value": "old_ownership_id",
-                "width": "16%"
+                "width": "25%"
             },
             {
                 "type": "field",
+                "label": "New owner",
                 "value": "new_ownership_id",
-                "width": "16%"
+                "width": "25%"
             },
             {
                 "type": "field",
-                "value": "name",
-                "width": "16%"
+                "value": "status",
+                "width": "10%"
             }
         ]
     }

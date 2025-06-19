@@ -20,6 +20,12 @@
     "layout": {
         "items": [
             {
+                "type": "field",
+                "value": "invoice_id",
+                "width": "20%",
+                "visible": false
+            },
+            {
                 "id": "item.name",
                 "type": "field",
                 "value": "name",

@@ -1,17 +1,24 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Ownership Transfer",
+    "description": "Transfer of Ownership for one or more property lots.",
     "layout": {
         "groups": [
             {
                 "sections": [
                     {
+                        "id": "section.main",
+                        "label": "Owner & Lots",
                         "rows": [
                             {
                                 "columns": [
                                     {
                                         "width": "50%",
                                         "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "Condominium & Owner",
+                                                "width": "100%"
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
@@ -20,27 +27,108 @@
                                             {
                                                 "type": "field",
                                                 "value": "property_lot_id",
-                                                "width": "100%"
+                                                "width": "50%",
+                                                "visible": ["condo_id", "<>", null],
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Current Owner",
                                                 "value": "old_ownership_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "new_ownership_id",
-                                                "width": "100%"
+                                                "width": "50%",
+                                                "visible": ["condo_id", "<>", null],
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     },
                                     {
                                         "width": "50%",
+                                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null]],
                                         "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "Property Lots",
+                                                "width": "100%"
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "property_lots_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.SELECT": true,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.new_owner",
+                        "label": "New Owner",
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Existing Ownership",
+                                                "value": "is_existing_new_ownership"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "New Owner",
+                                                "value": "new_ownership_id",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.transfer_details",
+                        "label": "Transfer",
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["new_ownership_id", "<>", null]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "transfer_date"
                                             }
                                         ]
                                     }
