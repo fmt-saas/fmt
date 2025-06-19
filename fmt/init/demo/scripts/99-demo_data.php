@@ -252,16 +252,13 @@ $purchaseInvoice = PurchaseInvoice::create([
     ->first();
 
 
-// * créer misc opération : mettre montant sur le compte épargne
-
-
+// create a miscellaneous operation: transfer amount to the savings account
 $miscOperation = MiscOperation::create([
         'condo_id'          => 1,
         'name'              => 'Reprise compte épargne',
         'description'       => 'Reprise compte épargne',
         'posting_date'      => strtotime('2024-01-01T00:00:00Z'),
-        'amount'            => 5000.00,
-        'journal_id'        => 5
+        'journal_id'        => 11
     ])
     ->first();
 
@@ -269,8 +266,7 @@ $miscOperation = MiscOperation::create([
 MiscOperationLine::create([
         'condo_id'          => 1,
         'misc_operation_id' => $miscOperation['id'],
-        'account_id'        => 312,
-        'journal_id'        => 5,
+        'account_id'        => 676,
         'credit'            => 5000.00,
         'debit'             => 0.0
     ]);
@@ -279,7 +275,6 @@ MiscOperationLine::create([
         'condo_id'          => 1,
         'misc_operation_id' => $miscOperation['id'],
         'account_id'        => 468,
-        'journal_id'        => 5,
         'debit'             => 5000.00,
         'credit'            => 0.0
     ]);
@@ -288,7 +283,7 @@ MiscOperation::id($miscOperation['id'])
     ->transition('publish')
     ->transition('post');
 
-// * mouvement bancaire : déplacer montant vers compte à vue
+// create bank operation: move amount from savings account to current account
 $moneyTransfer = MoneyTransfer::create([
         'condo_id'                    => 1,
         'posting_date'                => time(),
@@ -300,8 +295,7 @@ $moneyTransfer = MoneyTransfer::create([
     ->transition('publish')
     ->transition('send');
 
-// * charger un extrait bancaire, le valider, et conster la variation sur le compte concerné
-
+// load a bank statement, validate it, and account for the variation on the concerned account
 $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_isabel_demo.xlsx');
 
 BankStatementImport::create()

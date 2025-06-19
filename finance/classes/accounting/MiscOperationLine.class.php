@@ -61,7 +61,8 @@ class MiscOperationLine extends Model {
                 'description'       => "Accounting journal the entry relates to.",
                 'relation'          => ['misc_operation_id' => 'journal_id'],
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['journal_type', '=', 'MISC']],
-                'store'             => true
+                'store'             => true,
+                'instant'           => true
             ],
 
             'debit' => [

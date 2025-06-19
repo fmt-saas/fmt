@@ -23,9 +23,7 @@ $tests = [
                     $miscOperation = MiscOperation::create([
                             'condo_id'          => 1,
                             'description'       => 'reprise de compte epargne',
-                            'posting_date'      => time(),
-                            'fiscal_year_id'    => 1,
-                            'fiscal_period_id'  => 1,
+                            'posting_date'      => strtotime('2024-01-01T00:00:00Z'),
                             'journal_id'        => 11,
                             'operation_type'    => 'misc'
                         ])
@@ -35,7 +33,6 @@ $tests = [
                             'condo_id'          => 1,
                             'misc_operation_id' => $miscOperation['id'],
                             'account_id'        => 676,
-                            'journal_id'        => 11,
                             'credit'            => 5000
                         ]);
 
@@ -43,7 +40,6 @@ $tests = [
                             'condo_id'          => 1,
                             'misc_operation_id' => $miscOperation['id'],
                             'account_id'        => 468,
-                            'journal_id'        => 11,
                             'debit'             => 5000
                         ]);
 
@@ -77,15 +73,12 @@ $tests = [
                         ->first();
 
                     $moneyTransfer = MoneyTransfer::create([
-                            'condo_id'          => 1,
-                            'journal_id'        => 11,
-                            'description'       => 'Money Transfer',
-                            'posting_date'      => time(),
-                            'fiscal_year_id'    => 1,
-                            'fiscal_period_id'  => 1,
-                            'amount'            => 5000,
-                            'bank_account_id'   => $savingsAccount['id'],
-                            'counterpart_bank_account_id' => $currentAccount['id']
+                            'condo_id'                      => 1,
+                            'description'                   => 'Money Transfer',
+                            'posting_date'                  => time(),
+                            'amount'                        => 5000,
+                            'bank_account_id'               => $savingsAccount['id'],
+                            'counterpart_bank_account_id'   => $currentAccount['id']
                         ])
                         ->first();
 
