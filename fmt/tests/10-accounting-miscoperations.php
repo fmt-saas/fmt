@@ -8,6 +8,8 @@
 
 use finance\accounting\MiscOperation;
 use finance\accounting\MiscOperationLine;
+use finance\bank\BankStatement;
+use finance\bank\BankStatementImport;
 use finance\bank\CondominiumBankAccount;
 use realestate\finance\accounting\MoneyTransfer;
 
@@ -94,6 +96,28 @@ $tests = [
                         ->first();
 
                     return $bankAccount && $bankAccount['available_balance'] == 0.0;
+                },
+            'rollback'          => function() use($providers) {
+                }
+        ],
+    '1103' => [
+            'description'       => "Import Bank statement with Money transfer.",
+            'help'              => "Load a bank statement, validate it, and account for the validation of the Money Transfer.",
+            'return'            => ['boolean'],
+            'arrange'           => function() use($providers) {
+                    $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_isabel_demo.xlsx');
+                    BankStatementImport::create()
+                        ->update(['name' => 'Bank statement import'])
+                        ->update(['data' => $data]);
+                },
+            'act'               => function() use($providers) {
+                    BankStatement::search(['condo_id', '=', 1], ['sort' => ['date' => 'desc'], 'limit' => 2])
+                        ->do('attempt_reconcile')
+                        ->transition('post');
+                },
+            'assert'            => function() use($providers) {
+                    $moneyTransfer = MoneyTransfer::search(['condo_id', '=', 1])->read(['status'])->first();
+                    return $moneyTransfer['status'] == 'posted';
                 },
             'rollback'          => function() use($providers) {
                 }

@@ -252,6 +252,7 @@ $purchaseInvoice = PurchaseInvoice::create([
     ->first();
 
 
+/*
 // create a miscellaneous operation: transfer amount to the savings account
 $miscOperation = MiscOperation::create([
         'condo_id'          => 1,
@@ -305,3 +306,4 @@ BankStatementImport::create()
 BankStatement::search(['condo_id', '=', 1], ['sort' => ['date' => 'desc'], 'limit' => 2])
     ->do('attempt_reconcile')
     ->transition('post');
+*/
