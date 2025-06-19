@@ -99,14 +99,14 @@ class Ownership extends \equal\orm\Model {
 
             'date_from' => [
                 'type'              => 'date',
-                'description'       => "Date from which the owners own at least one property lot.",
+                'description'       => "Date from which the owners owned at least one property lot.",
                 'required'          => true
             ],
 
             'date_to' => [
                 'type'              => 'date',
                 'description'       => "Date at which the last owned lot was sold by the owners.",
-                'help'              => "If set, targeted owners no longer own any lot in the condominium.",
+                'help'              => "If set, targeted owners no longer own any lot in the condominium. But we keep the ownership for consistency and historical purposes.",
             ],
 
             'transfer_from_id' => [
