@@ -13,7 +13,6 @@ use finance\bank\BankAccount;
 use fmt\setting\Setting;
 use hr\employee\Employee;
 use sale\customer\Customer;
-use sale\customer\Contact as CustomerContact;
 use purchase\supplier\Supplier;
 use realestate\management\ManagingAgent;
 use realestate\ownership\Owner;
@@ -348,7 +347,7 @@ class Identity extends Model {
 
             'title' => [
                 'type'              => 'string',
-                'selection'         => ['Dr' => 'Doctor', 'Ms' => 'Miss', 'Mrs' => 'Misses', 'Mr' => 'Mister', 'Pr' => 'Professor'],
+                'selection'         => ['Ms' => 'Miss', 'Mrs' => 'Misses', 'Mr' => 'Mister'],
                 'description'       => 'Reference contact title.',
                 'visible'           => ['type', '=', 'IN'],
                 'onupdate'          => 'onupdateTitle'
@@ -401,7 +400,7 @@ class Identity extends Model {
                 'type'              => 'string',
                 'description'       => 'State or region.',
                 'onupdate'          => 'onupdateAddressState',
-                'visible'           => ['country', '<>', 'BE']
+                'visible'           => ['address_country', '<>', 'BE']
             ],
 
             'address_country' => [

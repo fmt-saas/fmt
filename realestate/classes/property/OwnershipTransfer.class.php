@@ -7,9 +7,11 @@
 */
 namespace realestate\property;
 
-class OwnershipTransfer extends \equal\orm\Model {
-    public static function getColumns() {
+use fmt\setting\Setting;
 
+class OwnershipTransfer extends \equal\orm\Model {
+
+    public static function getColumns() {
         return [
 
             'condo_id' => [
@@ -89,6 +91,102 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['id', '<>', 'object.old_ownership_id']],
                 'visible'           => ['is_existing_new_ownership', '=', true]
+            ],
+
+            'identity_firstname' => [
+                'type'              => 'string',
+                'description'       => "Full name of the contact (must be a person, not a role).",
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            'identity_lastname' => [
+                'type'              => 'string',
+                'description'       => 'Reference contact surname.',
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            'identity_gender' => [
+                'type'              => 'string',
+                'selection'         => ['M' => 'Male', 'F' => 'Female', 'X' => 'Non-binary'],
+                'description'       => 'Reference contact gender.',
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            'identity_title' => [
+                'type'              => 'string',
+                'selection'         => ['Ms' => 'Miss', 'Mrs' => 'Misses', 'Mr' => 'Mister'],
+                'description'       => 'Reference contact title.',
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            'identity_date_of_birth' => [
+                'type'              => 'date',
+                'description'       => 'Date of birth.',
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            'identity_lang_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'core\Lang',
+                'description'       => "Preferred language of the identity.",
+                'default'           => Setting::get_value('identity', 'organization', 'identity_lang_default', 1),
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            /*
+                Description of the Identity address.
+                For organizations this is the official (legal) address (typically headquarters, but not necessarily)
+            */
+            'identity_address_street' => [
+                'type'              => 'string',
+                'description'       => 'Street and number.',
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            'identity_address_dispatch' => [
+                'type'              => 'string',
+                'description'       => 'Optional info for mail dispatch (apartment, box, floor, ...).',
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            'identity_address_city' => [
+                'type'              => 'string',
+                'description'       => 'City.',
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            'identity_address_zip' => [
+                'type'              => 'string',
+                'description'       => 'Postal code.',
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            'identity_address_country' => [
+                'type'              => 'string',
+                'usage'             => 'country/iso-3166:2',
+                'description'       => 'Country.',
+                'default'           => 'BE',
+                'visible'           => ['is_existing_new_ownership', '=', false],
+            ],
+
+            'identity_email' => [
+                'type'              => 'string',
+                'usage'             => 'email',
+                'description'       => "Identity main email address.",
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            'identity_phone' => [
+                'type'              => 'string',
+                'usage'             => 'phone',
+                'description'       => "Identity secondary phone number (mobile or landline).",
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            'identity_bank_account_iban' => [
+                'type'              => 'string',
+                'usage'             => 'uri/urn.iban',
+                'description'       => "Number of the bank account of the Identity, if any."
             ],
 
             'status' => [
@@ -193,7 +291,7 @@ class OwnershipTransfer extends \equal\orm\Model {
     }
 
 
-    public static function onchange($event, $values) {
+    public static function onchange($event, $values, $lang) {
         $result = [];
         // synchronize ownership & property lots
         // #memo - we must be able to assign any ownership (not only active ones)
@@ -218,6 +316,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 $result['property_lots_ids'] = [];
             }
         }
+
         if(array_key_exists('property_lot_id', $event)) {
             if($event['property_lot_id']) {
                 $propertyOwnerships = PropertyLotOwnership::search([['property_lot_id', '=', $event['property_lot_id']]])->read(['ownership_id'])->get(true);
@@ -235,6 +334,55 @@ class OwnershipTransfer extends \equal\orm\Model {
                 $result['property_lot_id'] = [
                     'domain' => ['condo_id', '=', $values['condo_id']]
                 ];
+            }
+        }
+
+        if(isset($event['identity_address_zip']) && isset($values['identity_address_country'])) {
+            $list = self::computeCitiesByZip($event['identity_address_zip'], $values['identity_address_country'], $lang);
+            if($list) {
+                $result['identity_address_city'] = [
+                    'value' => '',
+                    'selection' => $list
+                ];
+            }
+        }
+
+        if(isset($event['identity_bank_account_iban'])) {
+            $result['identity_bank_account_iban'] = preg_replace('/[^A-Z0-9]/i', '', $event['identity_bank_account_iban']);
+        }
+
+        if(isset($event['identity_phone'])) {
+            $result['identity_phone'] = preg_replace('/[^\d+]/', '', $event['identity_phone']);
+        }
+
+        if(isset($event['identity_email'])) {
+            $result['identity_email'] = trim($event['identity_email']);
+        }
+        return $result;
+    }
+
+    /**
+     * Returns cities' names based on a zip code and a country.
+     */
+    private static function computeCitiesByZip($zip, $country, $lang) {
+        $result = null;
+
+        $file = EQ_BASEDIR."/packages/identity/i18n/{$lang}/zipcodes/{$country}.json";
+
+        if(file_exists($file)) {
+            $data = file_get_contents($file);
+            $map_zip = json_decode($data, true);
+            $result = $map_zip[$zip] ?? null;
+        }
+        // fallback to english value, if defined
+        if(!$result) {
+            $file = EQ_BASEDIR."/packages/identity/i18n/en/zipcodes/{$country}.json";
+            if(file_exists($file)) {
+                $data = file_get_contents($file);
+                $map_zip = json_decode($data, true);
+                if(isset($map_zip[$zip])) {
+                    $result = $map_zip[$zip];
+                }
             }
         }
         return $result;

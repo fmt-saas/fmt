@@ -113,6 +113,82 @@
                                         ]
                                     }
                                 ]
+                            },
+                            {
+                                "visible": ["is_existing_new_ownership", "=", false],
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "firstname",
+                                                "value": "identity_firstname",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "lastname",
+                                                "value": "identity_lastname",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "gender",
+                                                "value": "identity_gender",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "title",
+                                                "value": "identity_title",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "lang",
+                                                "value": "identity_lang_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "street",
+                                                "value": "identity_address_street",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "dispatch",
+                                                "value": "identity_address_dispatch",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "zip",
+                                                "value": "identity_address_zip",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "city",
+                                                "value": "identity_address_city",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "country",
+                                                "value": "identity_address_country",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "iban",
+                                                "value": "identity_bank_account_iban",
+                                                "width": "66%"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     },

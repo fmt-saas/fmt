@@ -75,13 +75,15 @@ class Address extends Model {
 
             'address_state' => [
                 'type'              => 'string',
-                'description'       => 'State or region.'
+                'description'       => 'State or region.',
+                'visible'           => ['address_country', '<>', 'BE']
             ],
 
             'address_country' => [
                 'type'              => 'string',
                 'usage'             => 'country/iso-3166:2',
-                'description'       => 'Country.'
+                'description'       => 'Country.',
+                'default'           => 'BE'
             ]
 
         ];
