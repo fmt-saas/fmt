@@ -43,8 +43,17 @@
                 "value": "nodes_count",
                 "width": "10%",
                 "widget": {
-                    "align": "center"
-                }
+                    "align": "center",
+                    "text_align": "center",
+                    "text_width": "40px",
+                    "text_weight": "bold",
+                    "text_color": "white",
+                    "background_color": "#6346ab",
+                    "border_radius": "40px",
+                    "padding": "4px",
+                    "margin": "auto"
+                },
+                "visible": ["nodes_count", ">", 0]
             },
             {
                 "type": "field",

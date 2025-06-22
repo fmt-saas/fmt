@@ -111,7 +111,8 @@ class FundRequest extends \equal\orm\Model {
             'date_from' => [
                 'type'              => 'date',
                 'description'       => 'First day (included) of the range.',
-                'visible'           => ['has_date_range', '=', true]
+                'visible'           => ['has_date_range', '=', true],
+                'onupdate'          => 'onupdateDateFrom',
             ],
 
             'date_to' => [
@@ -277,7 +278,7 @@ class FundRequest extends \equal\orm\Model {
                 continue;
             }
             foreach($fundRequest['request_executions_ids'] as $execution_id => $requestExecution) {
-                if($requestExecution['status'] == 'invoice') {
+                if($requestExecution['status'] == 'posted') {
                     $result[$id] = [
                         'invalid_execution_status' => 'At least one execution has been invoiced.'
                     ];
@@ -344,13 +345,18 @@ class FundRequest extends \equal\orm\Model {
                         'invalid_date_interval' => 'The end date cannot be before start date.'
                     ];
                 }
+                if($fundRequest['request_date'] != $fundRequest['date_from']) {
+                    $result[$id] = [
+                        'inconsistent_request_date' => 'when set, the start date must match request date.'
+                    ];
+                }
             }
-            elseif(!$fundRequest['request_date']) {
+            // #memo - request_date must always be set (it is used for filtering)
+            if(!$fundRequest['request_date']) {
                 $result[$id] = [
                     'missing_date' => 'The date of the request is mandatory.'
                 ];
             }
-
             if(!$fundRequest['condo_id']) {
                 $result[$id] = [
                     'missing_condominium' => 'The condominium is mandatory.'
@@ -429,6 +435,20 @@ class FundRequest extends \equal\orm\Model {
         return $result;
     }
 
+    /**
+     * Make sure that the request date is updated when the date_from is changed.
+     * This is needed to ensure that the request date is always set (required for further filtering).
+     *
+     */
+    protected static function onupdateDateFrom($self) {
+        $self->read(['has_date_range', 'date_from']);
+        foreach($self as $id => $fundRequest) {
+            if($fundRequest['has_date_range'] && $fundRequest['date_from']) {
+                self::id($id)->update(['request_date' => $fundRequest['date_from']]);
+            }
+        }
+    }
+
     public static function doGenerateAllocation($self) {
         $self->read([
                 'request_date', 'has_date_range', 'date_from', 'date_to', 'request_type',
@@ -445,6 +465,7 @@ class FundRequest extends \equal\orm\Model {
 
             // remove any previously created entry & entry lot
             FundRequestLineEntry::search(['fund_request_id', '=', $id])->delete(true);
+
             foreach($fundRequest['request_lines_ids'] as $request_line_id => $requestLine) {
                 $map_property_lot_shares = [];
                 $sum_delta = 0.0;
@@ -471,6 +492,11 @@ class FundRequest extends \equal\orm\Model {
                         ->first();
 
                     foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
+
+                        // ignore property lots outside of the fund request (sold by owner at an earlier date)
+                        if($property_lot_ownership['date_to'] && $property_lot_ownership['date_to'] < $date_from) {
+                            continue;
+                        }
 
                         $property_lot_id = $property_lot_ownership['property_lot_id'];
 
@@ -601,7 +627,7 @@ class FundRequest extends \equal\orm\Model {
 
             foreach($execution_dates as $index => $execution_date) {
                 // search for existing execution at the date (there should be 0 or 1)
-                $existing_executions_ids = FundRequestExecution::search([['status', '=', 'invoice'], ['fund_request_id', '=', $id], ['posting_date', '=', $execution_date]])->ids();
+                $existing_executions_ids = FundRequestExecution::search([['status', '=', 'posted'], ['fund_request_id', '=', $id], ['posting_date', '=', $execution_date]])->ids();
                 if(count($existing_executions_ids)) {
                     unset($execution_dates[$index]);
                     $executionLines = FundRequestExecutionLine::search(['request_execution_id', 'in', $existing_executions_ids])->read(['ownership_id', 'called_amount']);
@@ -714,7 +740,14 @@ class FundRequest extends \equal\orm\Model {
 
     }
 
+    public static function oncreate($self, $values) {
+        if(isset($values['has_date_range']) && $values['has_date_range'] && isset($values['date_from'])) {
+            $self->update(['request_date' => $values['date_from']]);
+        }
+    }
+
     public static function onchange($event, $values) {
+
         $result = [];
         if(isset($event['request_type']) && $values['fiscal_year_id']) {
             $result['request_account_id'] = null;
@@ -726,6 +759,13 @@ class FundRequest extends \equal\orm\Model {
                 $result['date_to'] = $fiscalYear['date_to'];
             }
         }
+        if(isset($event['request_date'])) {
+            $result['date_from'] = $event['request_date'];
+        }
+        elseif(isset($event['date_from'])) {
+            $result['request_date'] = $event['date_from'];
+        }
+
         return $result;
     }
 }

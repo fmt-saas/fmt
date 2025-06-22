@@ -1,0 +1,101 @@
+<?php
+/*
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Original author(s): Yesbabylon SA
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
+namespace realestate\property;
+
+class OwnershipTransferAdjustmentLine extends \equal\orm\Model {
+
+    public static function getColumns() {
+
+        return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the property lot belongs to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'required'          => true
+            ],
+
+            'ownership_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the property lot belongs to.",
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'required'          => true
+            ],
+
+            'ownership_transfer_id' => [
+                'type'              => 'many2one',
+                'description'       => "The ownership transfer the line relates to .",
+                'foreign_object'    => 'realestate\property\OwnershipTransfer',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'required'          => true
+            ],
+
+            'property_lot_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\property\PropertyLot',
+                'description'       => 'Property Lot that is subject to the transfer.',
+                'help'              => 'This serve as first lot for creating the transfer, but can be extended with more lots later on.',
+                'required'          => true
+            ],
+
+            'fund_request_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\FundRequest',
+                'description'       => "Fund request the line relates to.",
+                'dependents'        => ['request_account_id', 'request_type'],
+                'required'          => true
+            ],
+
+            'request_execution_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\FundRequestExecution',
+                'description'       => 'The fund request execution (sale invoice) the line relates to.',
+                'required'          => true
+            ],
+
+            'request_account_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Accounting account the entry relates to.",
+                'relation'          => ['fund_request_id' => 'request_account_id'],
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'request_type' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Type of fund request.',
+                'relation'          => ['fund_request_id' => 'request_type'],
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'amount' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:4',
+                'description'       => 'Total tax-excluded price of the line.',
+                'required'          => true
+            ],
+
+            'adjustment_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'reimburse',
+                    'schedule'
+                ],
+                'description'       => 'Type of adjustment for the ownership transfer.',
+                'help'              => 'The adjustment type indicates whether it is a reimbursement or a scheduled adjustment.',
+                'required'          => true
+            ]
+
+        ];
+    }
+}

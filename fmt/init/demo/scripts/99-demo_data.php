@@ -197,7 +197,6 @@ $fundRequest = FundRequest::create([
         'fiscal_period_id'          => 1,
         'request_type'              => 'expense_provisions',
         'request_account_id'        => 712,
-        'request_date'              => null,
         'request_bank_account_id'   => 2,
         'payment_terms_id'          => 1,
         'has_date_range'            => true,

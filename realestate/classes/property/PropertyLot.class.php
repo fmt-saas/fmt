@@ -138,10 +138,13 @@ class PropertyLot extends \equal\orm\Model {
             ],
 
             'ownership_transfers_ids' => [
-                'type'              => 'one2many',
+                'type'              => 'many2many',
                 'foreign_object'    => 'realestate\property\OwnershipTransfer',
-                'foreign_field'     => 'property_lot_id',
-                'description'       => "The property purchase transfer file.",
+                'foreign_field'     => 'property_lots_ids',
+                'rel_table'         => 'realestate_propertylot_rel_transfer',
+                'rel_foreign_key'   => 'transfer_id',
+                'rel_local_key'     => 'lot_id',
+                'description'       => 'Property Lots that are part of the ownership transfer.'
             ],
 
             /*

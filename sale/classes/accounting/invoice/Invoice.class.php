@@ -199,7 +199,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                         ],
                         'onbefore'  => 'onbeforeInvoice',
                         'onafter'   => 'onafterInvoice',
-                        'status'    => 'invoice',
+                        'status'    => 'posted',
                     ],
                     'cancel-proforma' => [
                         'description' => 'Delete the proforma and set receivables statuses back to pending.',
@@ -208,7 +208,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                     ]
                 ],
             ],
-            'invoice' => [
+            'posted' => [
                 'description' => 'Invoice can no longer be modified and can be sent to the customer.',
                 'icon' => 'receipt_long',
                 'transitions' => [
@@ -253,7 +253,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
         $self->read(['status', 'invoice_number']);
         foreach($self as $id => $invoice) {
             // #memo - prevent generating a payment reference for a proforma
-            if($invoice['status'] == 'invoice') {
+            if($invoice['status'] == 'posted') {
                 // arbitrary value for balance (final) invoice
                 $code_ref = 500;
 
@@ -718,8 +718,8 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                         'has_invoice'   => true,
                         'invoice_id'    => $invoice_id,
                         'account_id'    => $account_id,
-                        'debit'         => ($invoice['invoice_type'] == 'credit_note')?$amount:0.0,
-                        'credit'        => ($invoice['invoice_type'] == 'invoice')?$amount:0.0
+                        'debit'         => ($invoice['invoice_type'] == 'credit_note') ? $amount : 0.0,
+                        'credit'        => ($invoice['invoice_type'] == 'invoice') ? $amount : 0.0
                     ];
             }
 
@@ -729,8 +729,8 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                     'has_invoice'   => true,
                     'invoice_id'    => $invoice_id,
                     'account_id'    => $accountTradeDebtors['id'],
-                    'debit'         => ($invoice['invoice_type'] == 'invoice')?$invoice['price']:0.0,
-                    'credit'        => ($invoice['invoice_type'] == 'credit_note')?$invoice['price']:0.0
+                    'debit'         => ($invoice['invoice_type'] == 'invoice') ? $invoice['price'] : 0.0,
+                    'credit'        => ($invoice['invoice_type'] == 'credit_note') ? $invoice['price'] : 0.0
                 ];
 
         }

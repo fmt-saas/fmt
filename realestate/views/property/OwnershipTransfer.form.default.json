@@ -1,6 +1,29 @@
 {
     "name": "Ownership Transfer",
     "description": "Transfer of Ownership for one or more property lots.",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {
+                    "id": "SAVE_AND_VIEW"
+                }
+            ]
+        }
+    },
+    "actions": [
+        {
+            "id": "action.perform_transfer",
+            "label": "Perform Transfer",
+            "description": "Generate accounting accounts.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\property\\OwnershipTransfer",
+                "action": "perform_transfer",
+                "ids": []
+            },
+            "confirm": false
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -205,6 +228,22 @@
                                             {
                                                 "type": "field",
                                                 "value": "transfer_date"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "adjustments_ids",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline"
+                                                    },
+                                                    "view": "list.transfer",
+                                                    "domain": ["adjustment_type", "=", "reimburse"]
+                                                }
                                             }
                                         ]
                                     }

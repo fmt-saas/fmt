@@ -42,7 +42,9 @@ class PropertyLotOwnership extends \equal\orm\Model {
 
             'date_from' => [
                 'type'              => 'date',
-                'description'       => "The date from which the ownership owns the property lot."
+                'description'       => "The date from which the ownership owns the property lot.",
+                'help'              => "By convention, this date must always be set. If unknown, it should be set to the date of the creation of the ownership (or 1970-01-01 if before).",
+                'default'           => 0
             ],
 
             'date_to' => [

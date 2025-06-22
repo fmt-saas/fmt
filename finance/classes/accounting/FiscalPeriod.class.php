@@ -175,7 +175,7 @@ class FiscalPeriod extends Model {
             $requestExecutions = FundRequestExecution::search([
                     ['posting_date', '>=', $fiscalPeriod['date_from']],
                     ['posting_date', '<=', $fiscalPeriod['date_to']],
-                    ['status', '=', 'invoice']
+                    ['status', '=', 'posted']
                 ])
                 ->read([
                     'fund_request_id' => ['request_type'],

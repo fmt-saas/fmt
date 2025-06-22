@@ -242,6 +242,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
         $result = [];
         $self->read(['status', 'condo_id', 'amount']);
         foreach($self as $id => $moneyRefund) {
+            // #todo
             // External ownership accounts cannot be directly validated for payment.
             // Add custom logic here if needed.
         }

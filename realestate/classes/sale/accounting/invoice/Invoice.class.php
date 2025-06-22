@@ -7,10 +7,8 @@
 namespace realestate\sale\accounting\invoice;
 
 use fmt\setting\Setting;
-use finance\accounting\Account;
 use finance\accounting\AccountingEntry;
 use finance\accounting\Journal;
-use sale\pay\Funding;
 use sale\receivable\Receivable;
 
 class Invoice extends \sale\accounting\invoice\Invoice {
@@ -54,7 +52,7 @@ class Invoice extends \sale\accounting\invoice\Invoice {
                         ],
                         'onbefore'  => 'onbeforeInvoice',
                         'onafter'   => 'onafterInvoice',
-                        'status'    => 'invoice',
+                        'status'    => 'posted',
                     ],
                     'cancel-proforma' => [
                         'description' => 'Delete the proforma and set receivables statuses back to pending.',
@@ -63,7 +61,7 @@ class Invoice extends \sale\accounting\invoice\Invoice {
                     ]
                 ],
             ],
-            'invoice' => [
+            'posted' => [
                 'description' => 'Invoice can no longer be modified and can be sent to the customer.',
                 'icon' => 'receipt_long',
                 'transitions' => [

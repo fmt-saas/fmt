@@ -1,0 +1,35 @@
+{
+    "name": "Ownership transfer adjustment line",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "label": "Property Lot",
+                "value": "property_lot_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Account",
+                "value": "request_account_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "request_type",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "amount",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "adjustment_type",
+                "width": "0%",
+                "visible": false
+            }
+        ]
+    }
+}

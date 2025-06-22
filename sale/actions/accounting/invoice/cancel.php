@@ -50,7 +50,7 @@ if(empty($params['ids'])) {
 
 $invoices_ids = Invoice::search([
     ['id', 'in', $params['ids']],
-    ['status', '=', 'invoice']
+    ['status', '=', 'posted']
 ])
     ->ids();
 

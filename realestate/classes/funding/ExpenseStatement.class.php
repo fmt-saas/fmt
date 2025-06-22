@@ -4,10 +4,8 @@
     Some Rights Reserved, FMT SRL, 2025-2026
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
-
 namespace realestate\funding;
 
-use finance\accounting\Account;
 use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\Journal;
@@ -144,11 +142,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                             'can_be_invoiced'
                         ],
                         'onbefore'  => 'onbeforeInvoice',
-                        'status'    => 'invoice',
+                        'status'    => 'posted',
                     ]
                 ],
             ],
-            'invoice' => [
+            'posted' => [
                 'description' => 'Expense statement can no longer be modified and can be sent to the customer.',
                 'icon' => 'receipt_long',
                 'transitions' => [
@@ -562,7 +560,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
             ->first();
 
         if(!$fiscalPeriod) {
-            throw new Exception('unknown_period', EQ_ERROR_INVALID_PARAM);
+            throw new \Exception('unknown_period', EQ_ERROR_INVALID_PARAM);
         }
 
         // compute number of calendar days within the period

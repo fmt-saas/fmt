@@ -108,11 +108,11 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                         'help'        => 'This is a substitute to the parent sale invoice workflow (there is a single accounting entry for a fund request execution).',
                         'policies'    => ['is_proforma', 'can_perform_execution'],
                         'onbefore'    => 'onbeforeCall',
-                        'status'      => 'invoice'
+                        'status'      => 'posted'
                     ]
                 ]
             ],
-            'invoice' => [
+            'posted' => [
                 'description' => 'Draft fund request execution, waiting to reach execution date.',
                 'icon'        => 'done',
                 'transitions' => [
