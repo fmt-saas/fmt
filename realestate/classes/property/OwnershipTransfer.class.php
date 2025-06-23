@@ -89,16 +89,37 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             'is_existing_new_ownership' => [
                 'type'              => 'boolean',
-                'description'       => "The condominium the property lot belongs to.",
+                'description'       => "The Ownership the property is transferred to.",
                 'default'           => false
             ],
 
             'new_ownership_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
+                'description'       => "The Ownership the property is being transferred to.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['id', '<>', 'object.old_ownership_id']],
-                'visible'           => ['is_existing_new_ownership', '=', true]
+                'visible'           => [[['is_existing_new_ownership', '=', true]], [['is_resolved_new_ownership', '=', true]]]
+            ],
+
+            'suggested_new_owner_identity_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the property lot belongs to.",
+                'foreign_object'    => 'identity\Identity',
+                'readonly'          => true,
+                'visible'           => [['is_existing_new_ownership', '=', false]]
+            ],
+
+            'is_accepted_identity_suggestion' => [
+                'type'              => 'boolean',
+                'description'       => "The suggested identity is accepted as new Owner.",
+                'default'           => false
+            ],
+
+            'is_resolved_new_ownership' => [
+                'type'              => 'boolean',
+                'description'       => "The identity of the new Owner has been resolved to an Ownership.",
+                'help'              => "This is set according to the status and new owner identity, either suggested or created using manually entered data.",
+                'default'           => false
             ],
 
             'identity_firstname' => [
@@ -264,7 +285,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ]
             ],
             'confirmed' => [
-                'description' => 'Validated document, waiting to be processed.',
+                'description' => 'Validated settlement, waiting to be posted to accounting system.',
                 'icon'        => 'hourglass_top',
                 'transitions' => [
                     'send' => [
@@ -320,6 +341,10 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description' => 'Verifies that a fiscal year can be opened according to user roles.',
                 'function'    => 'policyCanGenerateAdjustments'
             ],
+            'can_perform_transfer' => [
+                'description' => 'Verifies that a fiscal year can be opened according to user roles.',
+                'function'    => 'policyCanPerformTransfer'
+            ]
         ];
     }
 
@@ -327,15 +352,31 @@ class OwnershipTransfer extends \equal\orm\Model {
         return array_merge(parent::getActions(), [
             'perform_transfer' => [
                 'description'   => 'Attempt to identity document type and subtype.',
-                'policies'      => [/* 'can_perform_transfer' */],
-                'function'      => 'doPerformTransfer',
+                'policies'      => ['can_perform_transfer'],
+                'function'      => 'doPerformTransfer'
             ],
             'generate_adjustments' => [
                 'description'   => 'Generate required accounting adjustments.',
-                'policies'      => [ 'can_generate_adjustments'],
-                'function'      => 'doGenerateAdjustments',
+                'policies'      => ['can_generate_adjustments'],
+                'function'      => 'doGenerateAdjustments'
             ]
         ]);
+    }
+
+    protected static function policyCanPerformTransfer($self) {
+        $result = [];
+
+        $self->read(['status']);
+
+        foreach($self as $id => $ownershipTransfer) {
+            if($ownershipTransfer['status'] !== 'accounting_pending') {
+                $result[$id] = [
+                    'posting_not_ready' => 'Transfer can only be performed once settlement has been confirmed.'
+                ];
+            }
+        }
+
+        return $result;
     }
 
 
@@ -345,9 +386,9 @@ class OwnershipTransfer extends \equal\orm\Model {
         $self->read(['status']);
 
         foreach($self as $id => $ownershipTransfer) {
-            if($ownershipTransfer['status'] !== 'draft') {
+            if(!in_array($ownershipTransfer['status'], ['draft', 'open', 'confirmed'])) {
                 $result[$id] = [
-                    'not_allowed' => 'Adjustments can only be generated when in draft.'
+                    'generation_not_allowed' => 'Adjustments can only be generated while not sent to notary.'
                 ];
             }
         }
@@ -788,6 +829,19 @@ class OwnershipTransfer extends \equal\orm\Model {
             }
         }
         return $result;
+    }
+
+
+    /**
+     * Ordre de comparaison :
+     *
+     * 1. N° registre national (rare)
+     * 2. Email
+     * 3. Nom + prénom + adresse
+     */
+    private static function computeIdentitySuggestion($firstname, $lastname, $date_of_birth, $email, $address_street, $address_zip) {
+        // citizen_identification
+        
     }
 
 }

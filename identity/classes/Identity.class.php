@@ -140,7 +140,8 @@ class Identity extends Model {
                 'visible'           => [ ['has_parent', '=', false] ],
                 'dependents'        => ['bank_account_bic', 'bank_country', 'bank_name'],
                 'onupdate'          => 'onupdateBankAccountIban',
-                'unique'            => true
+                // for individuals, several persons might share/have a bank account in common
+                // 'unique'            => true
             ],
 
             'bank_account_bic' => [
@@ -228,6 +229,7 @@ class Identity extends Model {
                 'type'              => 'string',
                 'description'       => 'Citizen registration number, if any.',
                 'visible'           => [ ['type', '=', 'IN'] ],
+                'unique'            => true,
                 'onupdate'          => 'onupdateCitizenIdentification'
             ],
 

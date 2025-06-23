@@ -22,6 +22,18 @@
                 "ids": []
             },
             "confirm": false
+        },
+        {
+            "id": "action.open",
+            "label": "Open",
+            "description": "Validate data and start the transfer process.",
+            "controller": "core_model_transition",
+            "visible": [ ["status", "=", "draft"] ],
+            "params": {
+                "entity": "realestate\\property\\OwnershipTransfer",
+                "transition": "open",
+                "ids": []
+            }
         }
     ],
     "layout": {
@@ -145,14 +157,51 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "label": "Suggested Identity",
+                                                "value": "suggested_new_owner_identity_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Accepted?",
+                                                "value": "is_accepted_identity_suggestion",
+                                                "width": "50%",
+                                                "visible": ["suggested_new_owner_identity_id", "<>", null]
+                                            },
+                                            {
+                                                "type": "field",
                                                 "label": "firstname",
                                                 "value": "identity_firstname",
-                                                "width": "50%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "lastname",
                                                 "value": "identity_lastname",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Birthdate",
+                                                "value": "identity_date_of_birth",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Email",
+                                                "value": "identity_email",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Phone",
+                                                "value": "identity_phone",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "iban",
+                                                "value": "identity_bank_account_iban",
                                                 "width": "50%"
                                             },
                                             {
@@ -202,12 +251,6 @@
                                                 "label": "country",
                                                 "value": "identity_address_country",
                                                 "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "iban",
-                                                "value": "identity_bank_account_iban",
-                                                "width": "66%"
                                             }
                                         ]
                                     }
