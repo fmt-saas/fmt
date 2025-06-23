@@ -146,6 +146,28 @@
                                                 }
                                             }
                                         ]
+                                    },
+                                    {
+                                        "width": "16%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "visible": ["has_suggested_identity", "=", true],
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "Suggested identity",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Accept ?",
+                                                "value": "is_accepted_suggested_identity",
+                                                "width": "50%",
+                                                "visible": ["has_suggested_identity", "=", true]
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -155,19 +177,6 @@
                                     {
                                         "width": "50%",
                                         "items": [
-                                            {
-                                                "type": "field",
-                                                "label": "Suggested Identity",
-                                                "value": "suggested_new_owner_identity_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Accepted?",
-                                                "value": "is_accepted_identity_suggestion",
-                                                "width": "50%",
-                                                "visible": ["suggested_new_owner_identity_id", "<>", null]
-                                            },
                                             {
                                                 "type": "field",
                                                 "label": "firstname",
@@ -182,8 +191,8 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Birthdate",
-                                                "value": "identity_date_of_birth",
+                                                "label": "Citizen ID",
+                                                "value": "identity_citizen_identification",
                                                 "width": "33%"
                                             },
                                             {
@@ -206,33 +215,15 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "gender",
-                                                "value": "identity_gender",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "title",
-                                                "value": "identity_title",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "lang",
-                                                "value": "identity_lang_id",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "label": "street",
                                                 "value": "identity_address_street",
-                                                "width": "100%"
+                                                "width": "66%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "dispatch",
                                                 "value": "identity_address_dispatch",
-                                                "width": "100%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
@@ -251,6 +242,55 @@
                                                 "label": "country",
                                                 "value": "identity_address_country",
                                                 "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "gender",
+                                                "value": "identity_gender",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "title",
+                                                "value": "identity_title",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "lang",
+                                                "value": "identity_lang_id",
+                                                "width": "33%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "16%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "has_suggested_identity",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "suggested_identity_uuid",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Suggested Identity details",
+                                                "value": "suggested_identity_log",
+                                                "width": "100%",
+                                                "visible": ["has_suggested_identity", "=", true],
+                                                "widget": {
+                                                    "height": "500"
+                                                }
                                             }
                                         ]
                                     }
@@ -287,6 +327,26 @@
                                                     "view": "list.transfer",
                                                     "domain": ["adjustment_type", "=", "reimburse"]
                                                 }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.notary_deed",
+                        "label": "Notary Deed",
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["new_ownership_id", "<>", null], ["status", "=", "open"]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "transfer_date"
                                             }
                                         ]
                                     }

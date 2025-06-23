@@ -9,6 +9,7 @@ namespace identity;
 
 use equal\services\Container;
 use equal\orm\Model;
+use equal\text\TextTransformer;
 use finance\bank\BankAccount;
 use fmt\setting\Setting;
 use hr\employee\Employee;
@@ -377,7 +378,8 @@ class Identity extends Model {
             'address_street' => [
                 'type'              => 'string',
                 'description'       => 'Street and number.',
-                'onupdate'          => 'onupdateAddressStreet'
+                'onupdate'          => 'onupdateAddressStreet',
+                'dependents'        => ['address_hash', 'address']
             ],
 
             'address_dispatch' => [
@@ -389,13 +391,15 @@ class Identity extends Model {
             'address_city' => [
                 'type'              => 'string',
                 'description'       => 'City.',
-                'onupdate'          => 'onupdateAddressCity'
+                'onupdate'          => 'onupdateAddressCity',
+                'dependents'        => ['address_hash', 'address']
             ],
 
             'address_zip' => [
                 'type'              => 'string',
                 'description'       => 'Postal code.',
-                'onupdate'          => 'onupdateAddressZip'
+                'onupdate'          => 'onupdateAddressZip',
+                'dependents'        => ['address_hash']
             ],
 
             'address_state' => [
@@ -418,6 +422,17 @@ class Identity extends Model {
                 'result_type'       => 'string',
                 'function'          => 'calcAddress',
                 'description'       => 'Main address from related Identity.'
+            ],
+
+            'address_hash' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'text/plain:32',
+                'function'          => 'calcAddressHash',
+                'store'             => true,
+                'instant'           => true,
+                'description'       => 'Hash of the normalized version of the address.',
+                'help'              => 'This field is used to attempt retrieving matches for a given address.'
             ],
 
             /*
@@ -1371,4 +1386,54 @@ class Identity extends Model {
         ];
     }
 
+    protected static function calcAddressHash($self) {
+        $result = [];
+
+        $self->read(['address_street', 'address_zip']);
+
+        foreach($self as $id => $identity) {
+            $address = $identity['address_street'];
+
+            $address = strtolower(TextTransformer::toAscii($address));
+            $zip = $identity['address_zip'];
+
+            // remove non-alphanum chars (keep dash & space)
+            $address = preg_replace('/[^a-z0-9\-\s]/', '', $address);
+            $zip = preg_replace('/[^a-z0-9]/', '', $zip);
+
+            // remove redundant spaces
+            $address = preg_replace('/\s+/', ' ', trim($address));
+
+            // split street and number
+            /*
+                matches
+                    17-19 rue de l'Église
+                    23 Avenue Léopold 2
+            */
+            if(preg_match('/^(\d+[a-z\-0-9]*)\s+(.*)$/i', $address, $matches)) {
+                $number = $matches[1];
+                $street = $matches[2];
+            }
+            /*
+                matches
+                    Avenue Archibald 12
+                    Rue du champ, 22-24
+            */
+            elseif(preg_match('/^(.*)\s+(\d+[a-z\-0-9]*)$/i', $address, $matches)) {
+                $street = $matches[1];
+                $number = $matches[2];
+            }
+            else {
+                $street = $address;
+                $number = '';
+            }
+
+            // normalize address
+            $street = str_replace(' ', '_', trim($street));
+            $number = str_replace(' ', '', trim($number));
+
+            $result[$id] = md5("{$street}::{$number}::{$zip}");
+        }
+        return $result;
+    }
 }

@@ -7,10 +7,12 @@
 */
 namespace realestate\property;
 
+use equal\text\TextTransformer;
+use fmt\setting\Setting;
+use identity\Identity;
 use finance\accounting\Account;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
-use fmt\setting\Setting;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestExecutionLine;
@@ -41,7 +43,8 @@ class OwnershipTransfer extends \equal\orm\Model {
             'transfer_date' => [
                 'type'              => 'date',
                 'description'       => "Date at which the ownership transfer is scheduled",
-                'help'              => "This date must match the notary deed date."
+                'help'              => "This date must match the notary deed date.",
+                'default'           => function () { return time(); }
             ],
 
             'seller_documents_sent_date' => [
@@ -79,6 +82,27 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['active_ownership_id', '=', 'object.old_ownership_id']]
             ],
 
+            'property_lots_shares' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'function'          => 'calcPropertyLotsShares',
+                'description'       => 'Total shares of selected property lots over the Condominium apportionment.',
+            ],
+
+            'working_fund_balance' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'function'          => 'calcWorkingFundBalance',
+                'description'       => 'Balance of the working fund, at the transfer date.',
+            ],
+
+            'reserve_fund_balance' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'function'          => 'calcReserveFundBalance',
+                'description'       => 'Balance of the reserve fund, at the transfer date.',
+            ],
+
             'old_ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
@@ -101,17 +125,29 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'visible'           => [[['is_existing_new_ownership', '=', true]], [['is_resolved_new_ownership', '=', true]]]
             ],
 
-            'suggested_new_owner_identity_id' => [
-                'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'identity\Identity',
-                'readonly'          => true,
-                'visible'           => [['is_existing_new_ownership', '=', false]]
+            'has_suggested_identity' => [
+                'type'              => 'boolean',
+                'description'       => "The provided details resolved to a suggested identity.",
+                'default'           => false
             ],
 
-            'is_accepted_identity_suggestion' => [
+            'suggested_identity_log' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "The information about retrieved/suggested identity.",
+                'readonly'          => true,
+                'visible'           => [['is_existing_new_ownership', '=', false], ['has_suggested_identity', '=', true]]
+            ],
+
+            'suggested_identity_uuid' => [
+                'type'              => 'integer',
+                'description'       => "The global UUID of the suggested identity for the new Owner.",
+                'readonly'          => true
+            ],
+
+            'is_accepted_suggested_identity' => [
                 'type'              => 'boolean',
-                'description'       => "The suggested identity is accepted as new Owner.",
+                'description'       => "Suggested identity accepted as new Owner.",
                 'default'           => false
             ],
 
@@ -215,7 +251,14 @@ class OwnershipTransfer extends \equal\orm\Model {
             'identity_bank_account_iban' => [
                 'type'              => 'string',
                 'usage'             => 'uri/urn.iban',
-                'description'       => "Number of the bank account of the Identity, if any."
+                'description'       => "Number of the bank account of the Identity, if any.",
+                'visible'           => ['is_existing_new_ownership', '=', false]
+            ],
+
+            'identity_citizen_identification' => [
+                'type'              => 'string',
+                'description'       => 'Citizen registration number, if any.',
+                'visible'           => ['is_existing_new_ownership', '=', false]
             ],
 
             'adjustments_ids' => [
@@ -224,7 +267,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\property\OwnershipTransferAdjustmentLine',
                 'foreign_field'     => 'ownership_transfer_id',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
-                'required'          => true
+                'readonly'          => true
             ],
 
             'status' => [
@@ -232,7 +275,9 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'selection'         => [
                     'draft',
                     'open',
+                    'seller_documents_sent',
                     'confirmed',
+                    'financial_statement_sent',
                     'accounting_pending',
                     'closed'
                 ],
@@ -329,11 +374,9 @@ class OwnershipTransfer extends \equal\orm\Model {
         ];
     }
 
-
     protected static function onbeforeOpen($self) {
         $self->do('generate_adjustments');
     }
-
 
     public static function getPolicies(): array {
         return [
@@ -396,12 +439,42 @@ class OwnershipTransfer extends \equal\orm\Model {
         return $result;
     }
 
+// #todo
+    protected static function calcWorkingFundBalance($self) {
+    }
+
+    protected static function calcReserveFundBalance($self) {
+    }
+
+    protected static function calcPropertyLotsShares($self) {
+        $result = [];
+
+        $self->read(['condo_id', 'property_lots_ids']);
+
+        foreach($self as $id => $ownershipTransfer) {
+            $result[$id] = 0;
+            $apportionment = Apportionment::search([['condo_id', '=', $ownershipTransfer['condo_id']], ['is_statutory', '=', true]])->first();
+            if(!$apportionment) {
+                continue;
+            }
+            foreach($ownershipTransfer['property_lots_ids'] as $property_lot_id) {
+                $apportionmentShare = PropertyLotApportionmentShare::search([['apportionment_id', '=', $apportionment['id']], ['property_lot_id', '=', $property_lot_id]])->read(['property_lot_shares'])->first();
+                $result[$id] += $apportionmentShare['property_lot_shares'];
+            }
+        }
+
+        return $result;
+    }
+
     protected static function doPerformTransfer($self) {
         $self->read(['old_ownership_id', 'property_lots_ids', 'new_ownership_id']);
 
         foreach($self as $id => $ownershipTransfer) {
             // set the new owner_id as active for the targeted property_lots
             PropertyLot::ids($ownershipTransfer['property_lots_ids'])->update(['active_ownership_id' => $ownershipTransfer['new_ownership_id']]);
+
+            // mettre à jour les date_to des PropertyLotOwnership
+
             // creéer les écritures sur base des adjustments
             $adjustments = OwnershipTransferAdjustmentLine::search([
                     ['ownership_transfer_id', '=', $id],
@@ -411,6 +484,9 @@ class OwnershipTransfer extends \equal\orm\Model {
 // #todo
             foreach($adjustments as $adjustment) {
             }
+
+
+            // adapter les ExecutionLines sur base des adjustments
         }
     }
 
@@ -562,7 +638,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ['posting_date', '<', $ownershipTransfer['transfer_date']],
                 ['fund_request_id', 'in', $fund_requests_ids]
             ])
-            ->read(['fund_request_id']);
+            ->read(['posting_date', 'fund_request_id' => ['id', 'has_date_range', 'date_range_frequency', 'date_to']]);
 
         $map_sold_property_lots_total_reimburse = [];
 
@@ -572,6 +648,21 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             if(!$fund_request_id) {
                 $fund_request_id = $fundRequestExecution['fund_request_id'];
+            }
+
+            // compute prorata for invoiced date range
+            $prorata = 0;
+            $fund_request_date_to = $fundRequestExecution['fund_request_id']['date_to'];
+            if($fundRequestExecution['fund_request_id']['has_date_range']) {
+                $frequency = $fundRequestExecution['fund_request_id']['date_range_frequency'];
+                $fund_request_date_to = min($fund_request_date_to, strtotime("+$frequency months", $fundRequestExecution['posting_date']) - 86400);
+            }
+
+            $total_duration = $fund_request_date_to - $fundRequestExecution['posting_date'];
+            $remaining_duration = $fund_request_date_to - $ownershipTransfer['transfer_date'];
+
+            if($total_duration > 0 && $remaining_duration > 0) {
+                $prorata = $remaining_duration / $total_duration;
             }
 
             $map_sold_property_lots_total_reimburse[$fund_request_execution_id] = array_fill_keys($ownershipTransfer['property_lots_ids'], 0.0);
@@ -592,7 +683,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             // 5) calculation of the amounts to be reimbursed, by sold lot
             foreach($map_sold_property_lots_total_allocated as $property_lot_id => $sold_property_lot_total_allocated) {
                 $ratio = ($total_allocated > 0) ? ($sold_property_lot_total_allocated / $total_allocated) : 0.0;
-                $map_sold_property_lots_total_reimburse[$fund_request_execution_id][$property_lot_id] = round($total_invoiced * $ratio, 2);
+                $map_sold_property_lots_total_reimburse[$fund_request_execution_id][$property_lot_id] = round($total_invoiced * $ratio * $prorata, 2);
             }
         }
 
@@ -780,11 +871,19 @@ class OwnershipTransfer extends \equal\orm\Model {
             }
         }
 
+        if(isset($event['identity_address_street'])) {
+            $values['identity_address_street'] = $event['identity_address_street'];
+        }
+
+        if(isset($event['identity_address_zip'])) {
+            $values['identity_address_zip'] = preg_replace('/[^A-Z0-9]/i', '', $event['identity_address_zip']);
+        }
+
         if(isset($event['identity_address_zip']) && isset($values['identity_address_country'])) {
-            $list = self::computeCitiesByZip($event['identity_address_zip'], $values['identity_address_country'], $lang);
-            if($list) {
+            $list = self::computeCitiesByZip($values['identity_address_zip'], $values['identity_address_country'], $lang);
+            if($list && count($list)) {
                 $result['identity_address_city'] = [
-                    'value' => '',
+                    'value' => $list[0],
                     'selection' => $list
                 ];
             }
@@ -798,9 +897,90 @@ class OwnershipTransfer extends \equal\orm\Model {
             $result['identity_phone'] = preg_replace('/[^\d+]/', '', $event['identity_phone']);
         }
 
+        if(isset($event['identity_citizen_identification'])) {
+            $values['identity_citizen_identification'] = $event['identity_citizen_identification'];
+        }
+
         if(isset($event['identity_email'])) {
             $result['identity_email'] = trim($event['identity_email']);
+            $values['identity_email'] = $result['identity_email'];
         }
+
+        if(isset($event['is_accepted_suggested_identity']) && $event['is_accepted_suggested_identity']) {
+            if(isset($values['suggested_identity_uuid'])) {
+                // #todo - temp
+                $identity_id = $values['suggested_identity_uuid'];
+
+                $identity = Identity::id($identity_id)
+                    ->read([
+                        'name', 'firstname', 'lastname', 'citizen_identification', 'email', 'phone', 'title', 'gender',
+                        'address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_country',
+                        'bank_account_iban'
+                    ])
+                    ->first();
+
+                $result = [
+                        'identity_firstname'                 => $identity['firstname'],
+                        'identity_lastname'                  => $identity['lastname'],
+                        'identity_gender'                    => $identity['gender'],
+                        'identity_title'                     => $identity['title'],
+                        'identity_citizen_identification'    => $identity['citizen_identification'],
+                        'identity_email'                     => $identity['email'],
+                        'identity_phone'                     => $identity['phone'],
+                        'identity_address_street'            => $identity['address_street'],
+                        'identity_address_dispatch'          => $identity['address_dispatch'],
+                        'identity_address_zip'               => $identity['address_zip'],
+                        'identity_address_city'              => $identity['address_city'],
+                        'identity_address_country'           => $identity['address_country'],
+                        'identity_bank_account_iban'         => $identity['bank_account_iban']
+                    ];
+            }
+        }
+
+        if(!$values['has_suggested_identity'] || !$values['is_accepted_suggested_identity']) {
+            // #memo - attempt to retrieve matching Identity at this stage since values have been adapted/sanitized to their final (stored) format
+            // #todo - use global DB for retrieving candidate Identity
+            $identity_id = null;
+
+            if(isset($values['identity_citizen_identification']) && strlen($values['identity_citizen_identification'])) {
+                $identity_id = self::computeIdentitySuggestion(null, null, $values['identity_citizen_identification'], null, null, null);
+            }
+            elseif(isset($values['identity_email']) && strlen($values['identity_email'])) {
+                $identity_id = self::computeIdentitySuggestion(null, null, null, $values['identity_email'], null, null);
+            }
+            elseif(isset($values['identity_firstname'], $values['identity_lastname'], $values['identity_address_street'], $values['identity_address_zip'])) {
+                $identity_id = self::computeIdentitySuggestion($values['identity_firstname'], $values['identity_lastname'], null, null, $values['identity_address_street'], $values['identity_address_zip']);
+            }
+
+            // an existing identity candidate has been found
+            if($identity_id) {
+
+                // #todo - use global DB for retrieving candidate Identity
+
+                // populate with values as suggestion
+                $identity = Identity::id($identity_id)
+                    ->read([
+                        'name', 'firstname', 'lastname', 'title', 'gender', 'citizen_identification', 'email',
+                        'address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_country',
+                    ])
+                    ->first();
+
+                $result['has_suggested_identity'] = true;
+                $result['suggested_identity_uuid'] = $identity_id;
+
+                $result['suggested_identity_log'] = "
+                    <b>prenom</b>: {$identity['firstname']}
+                    <b>nom</b>: {$identity['lastname']}
+                    <b>email</b>: {$identity['email']}
+                    <b>rue</b>: {$identity['address_street']}
+                    <b>CP</b>: {$identity['address_zip']}
+                    <b>ville</b>: {$identity['address_city']}
+                    <b>pays</b>: {$identity['address_country']}
+                ";
+
+            }
+        }
+
         return $result;
     }
 
@@ -831,7 +1011,6 @@ class OwnershipTransfer extends \equal\orm\Model {
         return $result;
     }
 
-
     /**
      * Ordre de comparaison :
      *
@@ -839,9 +1018,78 @@ class OwnershipTransfer extends \equal\orm\Model {
      * 2. Email
      * 3. Nom + prénom + adresse
      */
-    private static function computeIdentitySuggestion($firstname, $lastname, $date_of_birth, $email, $address_street, $address_zip) {
+    private static function computeIdentitySuggestion($firstname, $lastname, $citizen_identification, $email, $address_street, $address_zip) {
+        $identity_id = null;
         // citizen_identification
-        
+        if($citizen_identification) {
+            $identities_ids = Identity::search(['citizen_identification', '=', $citizen_identification])->ids();
+            if(count($identities_ids) === 1) {
+                $identity_id = reset($identities_ids);
+            }
+        }
+        elseif($email) {
+            $identities_ids = Identity::search(['email', 'ilike', $email])->ids();
+            if(count($identities_ids) === 1) {
+                $identity_id = reset($identities_ids);
+            }
+        }
+        elseif(isset($firstname, $lastname, $address_street, $address_zip)) {
+            $address_hash = self::computeAddressHash($address_street, $address_zip);
+            $identities_ids = Identity::search([
+                    ['firstname', 'ilike', $firstname],
+                    ['lastname', 'ilike', $lastname],
+                    ['address_hash', '=', $address_hash],
+                ])
+                ->ids();
+            if(count($identities_ids) === 1) {
+                $identity_id = reset($identities_ids);
+            }
+        }
+        return $identity_id;
+    }
+
+    private static function computeAddressHash($address_street, $address_zip) {
+        $address = $address_street;
+
+        $address = strtolower(TextTransformer::toAscii($address));
+        $zip = $address_zip;
+
+        // remove non-alphanum chars (keep dash & space)
+        $address = preg_replace('/[^a-z0-9\-\s]/', '', $address);
+        $zip = preg_replace('/[^a-z0-9]/', '', $zip);
+
+        // remove redundant spaces
+        $address = preg_replace('/\s+/', ' ', trim($address));
+
+        // split street and number
+        /*
+            matches
+                17-19 rue de l'Église
+                23 Avenue Léopold 2
+        */
+        if(preg_match('/^(\d+[a-z\-0-9]*)\s+(.*)$/i', $address, $matches)) {
+            $number = $matches[1];
+            $street = $matches[2];
+        }
+        /*
+            matches
+                Avenue Archibald 12
+                Rue du champ, 22-24
+        */
+        elseif(preg_match('/^(.*)\s+(\d+[a-z\-0-9]*)$/i', $address, $matches)) {
+            $street = $matches[1];
+            $number = $matches[2];
+        }
+        else {
+            $street = $address;
+            $number = '';
+        }
+
+        // normalize address
+        $street = str_replace(' ', '_', trim($street));
+        $number = str_replace(' ', '', trim($number));
+
+        return md5("{$street}::{$number}::{$zip}");
     }
 
 }
