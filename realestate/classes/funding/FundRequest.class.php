@@ -592,7 +592,9 @@ class FundRequest extends \equal\orm\Model {
                 'date_to',
                 'request_amount',
                 'payment_terms_id',
-                'line_entries_ids' => ['ownership_id', 'allocated_amount']
+                'line_entries_ids' => ['ownership_id', 'allocated_amount'],
+                // #todo - replace with
+                'entry_lots_ids' => ['line_entry_id', 'ownership_id', 'property_lot_id', 'allocated_amount']
             ]);
 
         foreach($self as $id => $fundRequest) {
@@ -650,14 +652,15 @@ class FundRequest extends \equal\orm\Model {
                 continue;
             }
 
-            // keep track of the link between ownerships and request line entries
+            // keep track of the link between request line entries and execution lines (through ownerships)
             $map_ownership_line_entries = [];
-            foreach($fundRequest['line_entries_ids'] as $line_entry_id => $lineEntry) {
-                if(!isset($map_ownership_amounts[$lineEntry['ownership_id']])) {
-                    $map_ownership_amounts[$lineEntry['ownership_id']] = 0.0;
+
+            foreach($fundRequest['entry_lots_ids'] as $line_entry_lot_id => $lineEntryLot) {
+                if(!isset($map_ownership_amounts[$lineEntryLot['ownership_id']])) {
+                    $map_ownership_amounts[$lineEntryLot['ownership_id']] = 0.0;
                 }
-                $map_ownership_amounts[$lineEntry['ownership_id']] += $lineEntry['allocated_amount'];
-                $map_ownership_line_entries[$lineEntry['ownership_id']][] = $line_entry_id;
+                $map_ownership_amounts[$lineEntryLot['ownership_id']] += $lineEntryLot['allocated_amount'];
+                $map_ownership_line_entries[$lineEntryLot['ownership_id']][] = $lineEntryLot['line_entry_id'];
             }
 
             // retrieve called amount for each ownership, at each date
@@ -693,6 +696,16 @@ class FundRequest extends \equal\orm\Model {
                         ->first();
                     // link execution line and related line entries
                     FundRequestLineEntry::ids($map_ownership_line_entries[$ownership_id])->update(['execution_lines_ids' => [$executionLine['id']]]);
+
+/*
+FundRequestExecutionLine
+                    'condo_id' => [
+'fund_request_id' => [
+'request_execution_line_id' => [
+'ownership_id' => [
+'property_lot_id' => [
+'called_amount' => [
+*/
                 }
             }
         }
