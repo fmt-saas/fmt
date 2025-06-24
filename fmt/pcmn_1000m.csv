@@ -10,7 +10,7 @@
 160002;;Fonds de réserve (2);Reservefonds (2);Reserve fund (2);;;;
 160003;;Fonds de réserve (3);Reservefonds (3);Reserve fund (3);;;;
 161;1;FONDS DE RÉSERVE PARTICULIER;BIJZONDER RESERVEFONDS;SPECIAL RESERVE FUND;;;;
-161000;;Fonds de réserve particulier;Bijzonder reservefonds;Special reserve fund;work_fund_call;Appel de fonds travaux;;
+161000;;Fonds de réserve particulier;Bijzonder reservefonds;Special reserve fund;special_reserve_fund;Appel de fonds travaux;;
 17;1;DETTES À PLUS D'UN AN;SCHULDEN OP MEER DAN ÉÉN JAAR;DEBTS OVER MORE THAN ONE YEAR;;;;
 170;;Emprunts subordonnés;Achtergestelde leningen;Subordinated loans;;;;
 171;;Emprunts obligataires non subordonnés;Niet-achtergestelde obligatieleningen;Non-subordinated bond loans;;;;

@@ -30,6 +30,12 @@
                 "label": "Apportionment",
                 "value": "apportionment_id",
                 "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "fund_type",
+                "width": "0%",
+                "visible": false
             }
         ]
     }

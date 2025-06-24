@@ -9,7 +9,7 @@ namespace realestate\funding;
 use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\Journal;
-use realestate\finance\accounting\ReserveFund;
+use realestate\finance\accounting\CondoFund;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\purchase\accounting\AccountingEntry;
@@ -599,7 +599,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
         }
 
         // retrieve applicable reserve funds
-        $reserveFunds = ReserveFund::search(['condo_id', '=', $fiscalPeriod['condo_id']])->read(['expense_account_code', 'fund_account_id', 'expense_account_id', 'apportionment_id']);
+        $reserveFunds = CondoFund::search([['condo_id', '=', $fiscalPeriod['condo_id']], ['fund_type', '=', 'reserve_fund']])->read(['expense_account_code', 'fund_account_id', 'expense_account_id', 'apportionment_id']);
         $map_reserve_funds = [];
         foreach($reserveFunds as $id => $reserveFund) {
             $map_reserve_funds[$reserveFund['expense_account_code']] = $reserveFund;

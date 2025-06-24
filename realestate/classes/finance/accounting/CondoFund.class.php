@@ -10,18 +10,25 @@ namespace realestate\finance\accounting;
 use finance\accounting\Account;
 use realestate\property\Apportionment;
 
-class ReserveFund extends \equal\orm\Model {
+class CondoFund extends \equal\orm\Model {
 
     public static function getName() {
-        return 'Fund Request';
+        return 'Condominium Fund';
     }
 
     public static function getDescription() {
-        return "A Reserve Fund is used by a Condominium as a link between a reserve fund account, an utilization account and an apportionment key.";
+        return "A Condominium Fund is used a as a link between a fund account, an utilization account and an apportionment key.";
     }
 
     public static function getColumns() {
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the property lot belongs to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'required'          => true
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -31,11 +38,20 @@ class ReserveFund extends \equal\orm\Model {
                 'store'             => true
             ],
 
-            'condo_id' => [
-                'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'realestate\property\Condominium',
-                'required'          => true
+            'fund_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'working_fund',             // working capital
+                    'reserve_fund',             // reserve fund for general expense as agreed in GA
+                    'special_reserve_fund'      // special reserve fund for specific planned work
+                ],
+                'description'       => "Type of fund the entry relates to.",
+                'help'              => "There might be as many funds as necessary, for each type of fund."
+            ],
+
+            'description' => [
+                'type'              => 'string',
+                'description'       => "Short description of the request, based on fiscal year and period.",
             ],
 
             'fund_account_id' => [
@@ -75,39 +91,21 @@ class ReserveFund extends \equal\orm\Model {
         ];
     }
 
-    private static function computeExpenseAccountId($fund_account_id) {
-        $result = null;
-        $fundAccount = Account::id($fund_account_id)
-            ->read(['id', 'code', 'condo_id'])
-            ->first();
-
-        if($fundAccount) {
-            // #todo #accounting - we should not hard coding this
-            $expense_account_code = '68' . $fundAccount['code'] . '1';
-            $expenseAccount = Account::search([['condo_id', '=', $fundAccount['condo_id']], ['code', '=', $expense_account_code]])->first();
-            if($expenseAccount) {
-                $result = $expenseAccount['id'];
-            }
-        }
-
-        return $result;
-    }
-
-    public static function calcExpenseAccountId($self) {
+    protected static function calcExpenseAccountId($self) {
         $result = [];
         $self->read(['fund_account_id']);
         foreach($self as $id => $reserveFund) {
             if($reserveFund['fund_account_id']) {
-                $result[$id] = self::computeExpenseAccountId($reserveFund['fund_account_id']);
+                $result[$id] = static::computeExpenseAccountId($reserveFund['fund_account_id']);
             }
         }
         return $result;
     }
 
-    public static function onchange($event, $values) {
+    protected static function onchange($event, $values) {
         $result = [];
         if(array_key_exists('fund_account_id', $event)) {
-            $expense_account_id = self::computeExpenseAccountId($event['fund_account_id']);
+            $expense_account_id = static::computeExpenseAccountId($event['fund_account_id']);
             if($expense_account_id) {
                 $expenseAccount = Account::id($expense_account_id)->read(['id', 'name', 'apportionment_id'])->first();
 

@@ -28,7 +28,7 @@ use identity\Identity;
 use identity\User;
 use purchase\supplier\Suppliership;
 use purchase\supplier\SuppliershipReference;
-use realestate\finance\accounting\ReserveFund;
+use realestate\finance\accounting\FundReserve;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestLine;
@@ -180,7 +180,7 @@ $condominiums
 FiscalPeriod::search(['status', '=', 'pending'])
     ->read(['name']);
 
-ReserveFund::create([
+FundReserve::create([
         'name'                  => 'fonds de réserve',
         'condo_id'              => 1,
         'fund_account_id'       => 373,
