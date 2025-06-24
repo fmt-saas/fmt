@@ -119,7 +119,7 @@
                 "is_control_account": false,
                 "description": "Special reserve fund",
                 "account_chart_id": 1,
-                "operation_assignment": "work_fund_call",
+                "operation_assignment": "special_reserve_fund",
                 "tenant_share": 0,
                 "owner_share": 0
             },
