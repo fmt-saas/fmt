@@ -196,8 +196,8 @@ class Account extends Model {
                     'reserve_fund',                     // used for FundRequest
                     'rounding_adjustment',
                     'suppliers',
+                    'special_reserve_fund',
                     'work_expenses',
-                    'work_fund_call',
                     'work_provisions',                  // used for FundRequest
                     'working_fund'                      // used for FundRequest
                 ]

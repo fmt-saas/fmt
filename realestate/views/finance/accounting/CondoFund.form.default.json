@@ -1,6 +1,6 @@
 {
-    "name": "Reserve Fund",
-    "description": "A Reserve Fund is used by a Condominium as a link between a reserve fund account, an utilization account and an apportionment key.",
+    "name": "Condominium Fund",
+    "description": "A Fund is used by a Condominium as a link between a reserve fund account, an utilization account and an apportionment key.",
     "layout": {
         "groups": [
             {
@@ -15,7 +15,15 @@
                                             {
                                                 "type": "field",
                                                 "value": "name",
-                                                "width": "100%"
+                                                "width": "33%",
+                                                "widget": {
+                                                    "heading": true
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "description",
+                                                "width": "66%"
                                             },
                                             {
                                                 "type": "field",

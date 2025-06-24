@@ -91,6 +91,24 @@ class CondoFund extends \equal\orm\Model {
         ];
     }
 
+    protected static function computeExpenseAccountId($fund_account_id) {
+        $result = null;
+        $fundAccount = Account::id($fund_account_id)
+            ->read(['id', 'code', 'condo_id'])
+            ->first();
+
+        if($fundAccount) {
+            // #todo #accounting - we should not hard coding this
+            $expense_account_code = '68' . $fundAccount['code'] . '1';
+            $expenseAccount = Account::search([['condo_id', '=', $fundAccount['condo_id']], ['code', '=', $expense_account_code]])->first();
+            if($expenseAccount) {
+                $result = $expenseAccount['id'];
+            }
+        }
+
+        return $result;
+    }
+
     protected static function calcExpenseAccountId($self) {
         $result = [];
         $self->read(['fund_account_id']);

@@ -36,12 +36,12 @@
             }
         },
         {
-            "id": "item.reserve_funds",
-            "label": "Reserve Funds",
+            "id": "item.condo_funds",
+            "label": "Funds",
             "description": "",
             "icon": "savings",
             "context": {
-                "entity": "realestate\\finance\\accounting\\ReserveFund",
+                "entity": "realestate\\finance\\accounting\\CondoFund",
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
