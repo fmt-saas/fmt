@@ -348,13 +348,19 @@ class FiscalYear extends Model {
 
     public static function policyCanBeOpened($self): array {
         $result = [];
-        $self->read(['status', 'previous_fiscal_year_id', 'condo_id']);
+        $self->read(['status', 'previous_fiscal_year_id', 'date_from', 'date_to', 'condo_id']);
 
         foreach($self as $id => $fiscalYear) {
 
-            $nextFiscalYear = self::search([['status', '=', 'draft'], ['condo_id', '=', $fiscalYear['condo_id']]]);
+            $nextFiscalYear = self::search([
+                    ['id', '<>', $id],
+                    ['date_from', '>', $fiscalYear['date_to']],
+                    ['condo_id', '=', $fiscalYear['condo_id']]
+                ],
+                ['limit' => 1, 'sort'  => ['date_from' => 'asc']])
+                ->first();
 
-            if(count($nextFiscalYear) <= 0) {
+            if(!$nextFiscalYear) {
                 $result[$id] = [
                     'missing_next_fiscal_year' => 'Next fiscal year must exist.'
                 ];
