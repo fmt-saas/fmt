@@ -357,10 +357,9 @@ class FiscalYear extends Model {
                     ['date_from', '>', $fiscalYear['date_to']],
                     ['condo_id', '=', $fiscalYear['condo_id']]
                 ],
-                ['limit' => 1, 'sort'  => ['date_from' => 'asc']])
-                ->first();
+                ['limit' => 1, 'sort'  => ['date_from' => 'asc']]);
 
-            if(!$nextFiscalYear) {
+            if(!$nextFiscalYear->first()) {
                 $result[$id] = [
                     'missing_next_fiscal_year' => 'Next fiscal year must exist.'
                 ];
