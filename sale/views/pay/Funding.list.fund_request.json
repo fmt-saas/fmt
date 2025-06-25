@@ -40,7 +40,8 @@
                 "type": "field",
                 "label": "Fund request",
                 "value": "fund_request_id",
-                "width": "20%"
+                "width": "0%",
+                "visible": false
             },
             {
                 "type": "field",

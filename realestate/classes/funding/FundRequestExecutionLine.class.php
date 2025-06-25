@@ -80,6 +80,13 @@ class FundRequestExecutionLine extends \sale\accounting\invoice\InvoiceLine {
                 'description'       => "Request fund execution line the entry relates to, if any."
             ],
 
+            'execution_line_entries_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\funding\FundRequestExecutionLineEntry',
+                'foreign_field'     => 'request_execution_line_id',
+                'description'       => "Line entries of the Fund request execution."
+            ],
+
             'funding_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\sale\pay\Funding',

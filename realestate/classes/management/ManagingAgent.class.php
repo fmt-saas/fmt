@@ -34,16 +34,16 @@ class ManagingAgent extends \identity\Identity {
 
             'condominiums_ids' => [
                 'type'              => 'one2many',
-                'description'       => "Condominiums the managing agent is in charge of.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'foreign_field'     => 'managing_agent_id'
+                'foreign_field'     => 'managing_agent_id',
+                'description'       => "Condominiums the managing agent is in charge of."
             ],
 
             'management_contracts_ids' => [
                 'type'              => 'one2many',
-                'description'       => "History of management contracts with Condominiums.",
                 'foreign_object'    => 'realestate\management\ManagementContract',
-                'foreign_field'     => 'managing_agent_id'
+                'foreign_field'     => 'managing_agent_id',
+                'description'       => "History of management contracts with Condominiums."
             ]
 
         ];

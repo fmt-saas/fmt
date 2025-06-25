@@ -292,85 +292,79 @@ class OwnershipTransfer extends \equal\orm\Model {
         return [
             'draft' => [
                 'description' => 'Draft ownership transfer, not yet validated.',
-                'icon'        => 'draft',
+                'icon' => 'drafts',
                 'transitions' => [
                     'open' => [
                         'description' => 'Update the document to `pending`.',
-                        'policies'    => [],
-                        'onbefore'    => 'onbeforeOpen',
-                        'status'      => 'open'
-                    ]
-                ]
+                        'status' => 'open',
+                    ],
+                ],
             ],
             'open' => [
                 'description' => 'Validated document, waiting to be sent.',
-                'icon'        => 'hourglass_top',
+                'icon' => 'pending_actions',
                 'transitions' => [
                     'send' => [
                         'description' => 'Update the document to `processed`.',
-                        'policies'    => [],
-                        'status'      => 'seller_documents_sent'
-                    ]
-                ]
+                        'status' => 'seller_documents_sent',
+                    ],
+                ],
             ],
             'seller_documents_sent' => [
                 'description' => 'Validated document, waiting to be sent.',
-                'icon'        => 'hourglass_top',
+                'icon' => 'hourglass_empty',
                 'transitions' => [
                     'confirm' => [
                         'description' => 'Update the document to `processed`.',
-                        'policies'    => [],
-                        'status'      => 'confirmed'
+                        'status' => 'confirmed',
                     ],
                     'to_complete' => [
                         'description' => 'Some additional documents are required, step back to `open`.',
-                        'policies'    => [],
-                        'status'      => 'open'
-                    ]
-                ]
+                        'status' => 'open',
+                    ],
+                ],
             ],
             'confirmed' => [
                 'description' => 'Validated settlement, waiting to be posted to accounting system.',
-                'icon'        => 'hourglass_top',
+                'icon' => 'check',
                 'transitions' => [
                     'send' => [
                         'description' => 'Update the document to `processed`.',
-                        'policies'    => [],
-                        'status'      => 'financial_statement_sent'
-                    ]
-                ]
+                        'status' => 'financial_statement_sent',
+                    ],
+                ],
             ],
             'financial_statement_sent' => [
                 'description' => 'Documentation sent, waiting for the notary .',
-                'icon'        => 'hourglass_top',
+                'icon' => 'hourglass_empty',
                 'transitions' => [
                     'settle' => [
                         'description' => 'Mark the ownership transfer as settled.',
-                        'help'        => 'The notary deed has been signed and the notary has sent the settlement documents to the accounting department.',
-                        'policies'    => [],
-                        'status'      => 'accounting_pending'
+                        'help' => 'The notary deed has been signed and the notary has sent the settlement documents to the accounting department.',
+                        'status' => 'accounting_pending',
                     ],
                     'to_complete' => [
                         'description' => 'Some additional documents are required, step back to `confirmed`.',
-                        'policies'    => [],
-                        'status'      => 'confirmed'
-                    ]
-                ]
+                        'status' => 'confirmed',
+                    ],
+                ],
             ],
             'accounting_pending' => [
                 'description' => 'Ownership transfer is pending, waiting for the notary deed to complete accounting settlement.',
-                'icon'        => 'hourglass_top',
+                'icon' => 'hourglass_top',
                 'transitions' => [
                     'close' => [
                         'description' => 'Post accounting changes, and update the ownership transfer to `closed`.',
-                        'policies'    => [],
-                        'status'      => 'closed'
-                    ]
-                ]
+                        'status' => 'closed',
+                    ],
+                ],
             ],
             'closed' => [
-                'description' => 'Ownership transfer is closed, no further actions can be taken.'
-            ]
+                'description' => 'Ownership transfer is closed, no further actions can be taken.',
+                'icon' => 'hub',
+                'transitions' => [
+                ],
+            ],
         ];
     }
 

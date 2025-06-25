@@ -57,6 +57,15 @@ class FundRequestLineEntry extends \equal\orm\Model {
                 'description'       => 'Total amount currently requested to co-owners.'
             ],
 
+            'apportionment_shares' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'usage'             => 'amount/natural',
+                'function'          => 'calcApportionmentShares',
+                'store'             => true,
+                'description'       => "Amount of shares the owner has for related apportionment, based on property lot.",
+            ],
+
             'entry_lots_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\funding\FundRequestLineEntryLot',
@@ -75,6 +84,21 @@ class FundRequestLineEntry extends \equal\orm\Model {
             ]
 
         ];
+    }
+
+    protected static function calcApportionmentShares($self) {
+        $result = [];
+        $self->read(['entry_lots_ids' => ['apportionment_shares']]);
+        foreach($self as $id => $lineEntry) {
+            if(empty($lineEntry['entry_lots_ids'])) {
+                continue;
+            }
+            $result[$id] = 0.0;
+            foreach($lineEntry['entry_lots_ids'] as $entryLot) {
+                $result[$id] += $entryLot['apportionment_shares'];
+            }
+        }
+        return $result;
     }
 
     public static function calcAllocatedAmount($self) {

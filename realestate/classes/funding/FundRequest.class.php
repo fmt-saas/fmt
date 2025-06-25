@@ -592,9 +592,7 @@ class FundRequest extends \equal\orm\Model {
                 'date_to',
                 'request_amount',
                 'payment_terms_id',
-                'line_entries_ids' => ['ownership_id', 'allocated_amount'],
-                // #todo - replace with
-                'entry_lots_ids' => ['line_entry_id', 'ownership_id', 'property_lot_id', 'allocated_amount']
+                'line_entries_ids' => ['ownership_id', 'allocated_amount', 'entry_lots_ids' => ['property_lot_id', 'allocated_amount']]
             ]);
 
         foreach($self as $id => $fundRequest) {
@@ -655,12 +653,12 @@ class FundRequest extends \equal\orm\Model {
             // keep track of the link between request line entries and execution lines (through ownerships)
             $map_ownership_line_entries = [];
 
-            foreach($fundRequest['entry_lots_ids'] as $line_entry_lot_id => $lineEntryLot) {
-                if(!isset($map_ownership_amounts[$lineEntryLot['ownership_id']])) {
-                    $map_ownership_amounts[$lineEntryLot['ownership_id']] = 0.0;
+            foreach($fundRequest['line_entries_ids'] as $line_entry_id => $lineEntry) {
+                if(!isset($map_ownership_amounts[$lineEntry['ownership_id']])) {
+                    $map_ownership_amounts[$lineEntry['ownership_id']] = 0.0;
                 }
-                $map_ownership_amounts[$lineEntryLot['ownership_id']] += $lineEntryLot['allocated_amount'];
-                $map_ownership_line_entries[$lineEntryLot['ownership_id']][] = $lineEntryLot['line_entry_id'];
+                $map_ownership_amounts[$lineEntry['ownership_id']] += $lineEntry['allocated_amount'];
+                $map_ownership_line_entries[$lineEntry['ownership_id']][] = $line_entry_id;
             }
 
             // retrieve called amount for each ownership, at each date
@@ -697,15 +695,34 @@ class FundRequest extends \equal\orm\Model {
                     // link execution line and related line entries
                     FundRequestLineEntry::ids($map_ownership_line_entries[$ownership_id])->update(['execution_lines_ids' => [$executionLine['id']]]);
 
-/*
-FundRequestExecutionLine
-                    'condo_id' => [
-'fund_request_id' => [
-'request_execution_line_id' => [
-'ownership_id' => [
-'property_lot_id' => [
-'called_amount' => [
-*/
+                    // keep track of the part of the execution that goes to each property lot
+                    $lot_remaining = $map_amounts[$execution_date];
+
+                    foreach($fundRequest['line_entries_ids'] as $line_entry_id => $lineEntry) {
+                        if($lineEntry['ownership_id'] !== $ownership_id) {
+                            continue;
+                        }
+                        $last_entry_lot_id = array_key_last($lineEntry['entry_lots_ids']->get());
+                        foreach($lineEntry['entry_lots_ids'] as $entry_lot_id => $entryLot) {
+                            if($entry_lot_id === $last_entry_lot_id) {
+                                $lot_amount = $lot_remaining;
+                            }
+                            else {
+                                $lot_amount = $map_amounts[$execution_date] * $entryLot['allocated_amount'] / $lineEntry['allocated_amount'];
+                                $lot_amount = round($lot_amount, 2);
+                                $lot_remaining -= $lot_amount;
+                            }
+                            FundRequestExecutionLineEntry::create([
+                                    'condo_id'                  => $fundRequest['condo_id'],
+                                    'fund_request_id'           => $id,
+                                    'request_execution_line_id' => $executionLine['id'],
+                                    'ownership_id'              => $ownership_id,
+                                    'property_lot_id'           => $entryLot['property_lot_id'],
+                                    'called_amount'             => $lot_amount
+                                ]);
+                        }
+
+                    }
                 }
             }
         }
