@@ -133,7 +133,7 @@ class Apportionment extends \equal\orm\Model {
                     'validate' => [
                         'description' => 'Publish the Apportionment (this cannot be undone).',
                         'policies'    => ['can_validate'],
-                        'onafter'     => 'onafterValidate',
+                        'onbefore'    => 'onbeforeValidate',
                         'status'      => 'validated',
                     ]
                 ]
@@ -177,7 +177,7 @@ class Apportionment extends \equal\orm\Model {
         return $result;
     }
 
-    public static function canupdate($self) {
+    public static function canupdate($self, $values) {
         $self->read(['status']);
         foreach($self as $id => $apportionment) {
             if($apportionment['status'] == 'validated') {
@@ -187,7 +187,7 @@ class Apportionment extends \equal\orm\Model {
         return parent::canupdate($self);
     }
 
-    public static function onafterValidate($self) {
+    public static function onbeforeValidate($self) {
         $self->update(['code' => null, 'name' => null]);
     }
 
