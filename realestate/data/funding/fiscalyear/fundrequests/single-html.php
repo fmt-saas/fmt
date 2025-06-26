@@ -31,7 +31,11 @@ list($params, $providers) = eQual::announce([
             'foreign_object'    => 'realestate\ownership\Ownership',
             'required'          => true
         ],
-
+        'fund_request_id' => [
+            'description'       => 'Identifier of the specific fund request that must be returned.',
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\funding\FundRequest'
+        ],
         'debug' => [
             'type'        => 'boolean',
             'default'     => false
@@ -188,7 +192,14 @@ if(!$fiscalYear) {
     throw new Exception('unknown_fiscal_year', EQ_ERROR_INVALID_PARAM);
 }
 
-foreach($fiscalYear['fund_requests_ids'] as $fund_request_id) {
+// take all requests of the fiscal year under account
+$fund_requests_ids = $fiscalYear['fund_requests_ids'];
+// unless a specific one is provided
+if(isset($params['fund_request_id'])) {
+    $fund_requests_ids = [$params['fund_request_id']];
+}
+
+foreach($fund_requests_ids as $fund_request_id) {
     $fundRequest = FundRequest::id($fund_request_id)
         ->read([
             'status',

@@ -83,7 +83,7 @@
             "id": "fund_requests",
             "type": "entry",
             "label": "Fund requests",
-            "icon": "savings",
+            "icon": "assured_workload",
             "description": "",
             "context": {
                 "entity": "realestate\\funding\\FundRequest",

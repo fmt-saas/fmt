@@ -34,6 +34,16 @@
                 "transition": "open",
                 "ids": []
             }
+        },
+        {
+            "id": "action.generate_balances",
+            "label": "Compute balances",
+            "description": "Compute condominium funds balances.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\property\\OwnershipTransfer",
+                "action": "generate_fund_balance_lines"
+            }
         }
     ],
     "layout": {
@@ -94,7 +104,7 @@
                                         "items": [
                                             {
                                                 "type": "label",
-                                                "value": "Property Lots",
+                                                "value": "Selected Property Lots",
                                                 "width": "100%"
                                             },
                                             {
@@ -110,6 +120,41 @@
                                                         }
                                                     }
                                                 }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.information",
+                        "label": "Information",
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Date of the notary request",
+                                                "value": "request_date"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Condominium funds balances",
+                                                "value": "fund_balances_ids"
                                             }
                                         ]
                                     }

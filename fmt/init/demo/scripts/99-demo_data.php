@@ -52,7 +52,7 @@ ManagingAgent::id(1)->update(['condominiums_ids' => $condominiums_ids]);
 
 $condominiums
     // init condominiums (generate sequences, chart of accounts, journals, folders, ...)
-    ->do('init');
+    ->transition('validate');
 
 // activate "common expenses" apportionments
 Apportionment::search(['condo_id', '<>', null])

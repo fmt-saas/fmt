@@ -85,14 +85,15 @@
     ],
     "actions": [
         {
-            "id": "action.init",
-            "label": "Init",
+            "id": "action.validate",
+            "label": "Validate",
             "icon": "play_arrow",
             "description": "Generate mandatory configuration.",
-            "controller": "core_model_do",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "pending"],
             "params": {
                 "entity": "realestate\\property\\Condominium",
-                "action": "init",
+                "transition": "validate",
                 "ids": []
             },
             "confirm": false

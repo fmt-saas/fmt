@@ -11,12 +11,15 @@ use equal\text\TextTransformer;
 use fmt\setting\Setting;
 use identity\Identity;
 use finance\accounting\Account;
+use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
+use realestate\finance\accounting\CondoFund;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestExecutionLine;
 use realestate\funding\FundRequestLineEntryLot;
+use realestate\ownership\Ownership;
 
 class OwnershipTransfer extends \equal\orm\Model {
 
@@ -43,7 +46,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             'transfer_date' => [
                 'type'              => 'date',
                 'description'       => "Date at which the ownership transfer is scheduled",
-                'help'              => "This date must match the notary deed date.",
+                'help'              => "This date must match the notary deed date and is therefore known only at the end of the process.",
                 'default'           => function () { return time(); }
             ],
 
@@ -80,27 +83,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'rel_local_key'     => 'transfer_id',
                 'description'       => 'Property Lots that are part of the ownership transfer.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['active_ownership_id', '=', 'object.old_ownership_id']]
-            ],
-
-            'property_lots_shares' => [
-                'type'              => 'computed',
-                'result_type'       => 'integer',
-                'function'          => 'calcPropertyLotsShares',
-                'description'       => 'Total shares of selected property lots over the Condominium apportionment.',
-            ],
-
-            'working_fund_balance' => [
-                'type'              => 'computed',
-                'result_type'       => 'float',
-                'function'          => 'calcWorkingFundBalance',
-                'description'       => 'Balance of the working fund, at the transfer date.',
-            ],
-
-            'reserve_fund_balance' => [
-                'type'              => 'computed',
-                'result_type'       => 'float',
-                'function'          => 'calcReserveFundBalance',
-                'description'       => 'Balance of the reserve fund, at the transfer date.',
             ],
 
             'old_ownership_id' => [
@@ -270,6 +252,13 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'readonly'          => true
             ],
 
+            'fund_balances_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransferAdjustmentLine',
+                'foreign_field'     => 'ownership_transfer_id',
+                'description'       => 'Balances of the condominium funds with property lots shares.'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -396,6 +385,11 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'   => 'Generate required accounting adjustments.',
                 'policies'      => ['can_generate_adjustments'],
                 'function'      => 'doGenerateAdjustments'
+            ],
+            'generate_fund_balance_lines' => [
+                'description'   => 'Generate the table of condo funds balances.',
+                'policies'      => [],
+                'function'      => 'doGenerateFundBalanceLines'
             ]
         ]);
     }
@@ -433,31 +427,63 @@ class OwnershipTransfer extends \equal\orm\Model {
         return $result;
     }
 
-// #todo
-    protected static function calcWorkingFundBalance($self) {
-    }
 
-    protected static function calcReserveFundBalance($self) {
-    }
-
-    protected static function calcPropertyLotsShares($self) {
-        $result = [];
-
-        $self->read(['condo_id', 'property_lots_ids']);
-
+    protected static function doGenerateFundBalanceLines($self) {
+        $self->read(['condo_id', 'request_date', 'confirmation_date', 'transfer_date', 'status']);
         foreach($self as $id => $ownershipTransfer) {
-            $result[$id] = 0;
-            $apportionment = Apportionment::search([['condo_id', '=', $ownershipTransfer['condo_id']], ['is_statutory', '=', true]])->first();
-            if(!$apportionment) {
-                continue;
+            $date = null;
+            if(in_array($ownershipTransfer['status'], ['draft', 'open', 'seller_documents_sent'], true)) {
+                $date = $ownershipTransfer['request_date'];
             }
-            foreach($ownershipTransfer['property_lots_ids'] as $property_lot_id) {
-                $apportionmentShare = PropertyLotApportionmentShare::search([['apportionment_id', '=', $apportionment['id']], ['property_lot_id', '=', $property_lot_id]])->read(['property_lot_shares'])->first();
-                $result[$id] += $apportionmentShare['property_lot_shares'];
+            elseif(in_array($ownershipTransfer['status'], ['confirmed', 'financial_statement_sent'], true)) {
+                $date = $ownershipTransfer['confirmation_date'];
             }
-        }
+            else {
+                $date = $ownershipTransfer['transfer_date'];
+            }
 
-        return $result;
+            // retrive FicalYear
+            $fiscalYear = FiscalYear::search([
+                    ['condo_id', '=', $ownershipTransfer['condo_id']],
+                    ['date_from', '<=', $date],
+                    ['date_to', '>=', $date],
+                ])
+                ->first();
+
+            if(!$fiscalYear) {
+                throw new \Exception('missing_fiscal_year', EQ_ERROR_INVALID_PARAM);
+            }
+
+            // retrieve all funds
+            $funds = CondoFund::search(['condo_id', '=', $ownershipTransfer['condo_id']])
+                ->read(['name', 'fund_type', 'fund_account_id']);
+
+            foreach($funds as $fund_id => $fund) {
+                $balance = 0.0;
+
+                $accountingEntryLines = AccountingEntryLine::search([
+                        ['condo_id', '=', $ownershipTransfer['condo_id']],
+                        ['fiscal_year_id', '=', $fiscalYear['id']],
+                        ['account_id', '=', $fund['fund_account_id']],
+                        ['entry_date', '<=', $date]
+                    ])
+                    ->read(['credit', 'debit']);
+
+                foreach($accountingEntryLines as $entryLine) {
+                    $balance += $entryLine['credit'] - $entryLine['debit'];
+                }
+
+                if($balance !== 0.0) {
+                    OwnershipTransferFundBalanceLine::create([
+                        'condo_id' => $ownershipTransfer['condo_id'],
+                        'ownership_transfer_id' => $id,
+                        'condo_fund_id' => $fund_id,
+                        'condo_fund_balance' => $balance
+                    ]);
+                }
+            }
+
+        }
     }
 
     protected static function doPerformTransfer($self) {
@@ -845,14 +871,22 @@ class OwnershipTransfer extends \equal\orm\Model {
             if($event['property_lot_id']) {
                 $propertyOwnerships = PropertyLotOwnership::search([['property_lot_id', '=', $event['property_lot_id']]])->read(['ownership_id'])->get(true);
                 $ownerships_ids = array_map(function ($a) {return $a['ownership_id'];}, $propertyOwnerships);
-                if(!$values['old_ownership_id'] || !in_array($values['old_ownership_id'], $ownerships_ids) ) {
-                    $result['old_ownership_id'] = [
-                        'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $ownerships_ids]]
-                    ];
-                }
-                else {
-                    // $result['property_lots_ids'] = [];
-                    // property_lot_id
+                if(!isset($values['old_ownership_id']) || !in_array($values['old_ownership_id'], $ownerships_ids)) {
+                    $result['old_ownership_id'] = null;
+                    if(count($ownerships_ids) == 1) {
+                        $ownership_id = reset($ownerships_ids);
+                        $ownership = Ownership::id($ownership_id)->read(['id', 'name'])->first();
+                        $result['old_ownership_id'] = [
+                            'id'    => $ownership['id'],
+                            'name'  => $ownership['name']
+                        ];
+                    }
+                    else {
+                        $result['old_ownership_id'] = [
+                            'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $ownerships_ids]]
+                        ];
+                    }
+
                 }
             }
             else {

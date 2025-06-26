@@ -24,6 +24,12 @@ use Dompdf\Options as DompdfOptions;
             'required'          => true
         ],
 
+        'fund_request_id' => [
+            'description'       => 'Identifier of the specific fund request that must be returned.',
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\funding\FundRequest'
+        ],
+
         'debug' => [
             'type'        => 'boolean',
             'default'     => false
@@ -59,7 +65,11 @@ $context = $providers['context'];
 
 try {
 
-    $html = (string) eQual::run('get', 'realestate_funding_fiscalyear_fundrequests_single-html', ['fiscal_year_id' => $params['fiscal_year_id'], 'ownership_id' => $params['ownership_id']]);
+    $html = (string) eQual::run('get', 'realestate_funding_fiscalyear_fundrequests_single-html', [
+            'fiscal_year_id'    => $params['fiscal_year_id'],
+            'ownership_id'      => $params['ownership_id'],
+            'fund_request_id'   => $params['fund_request_id']
+        ]);
 
     /*
         Convert HTML to PDF

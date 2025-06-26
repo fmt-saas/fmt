@@ -31,8 +31,7 @@ class Journal extends Model {
             'organisation_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Organisation',
-                'description'       => "The organisation the chart belongs to.",
-                'default'           => 1
+                'description'       => "The organisation the chart belongs to."
             ],
 
             'name' => [

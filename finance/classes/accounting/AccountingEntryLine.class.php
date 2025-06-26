@@ -38,7 +38,17 @@ class AccountingEntryLine extends Model {
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
                 'description'       => "Accounting entry the line relates to.",
                 'ondelete'          => 'cascade',
-                'dependents'        => ['journal_id']
+                'dependents'        => ['journal_id', 'entry_date', 'fiscal_year_id', 'fiscal_period_id']
+            ],
+
+            'entry_date' => [
+                'type'              => 'computed',
+                'result_type'       => 'date',
+                'usage'             => 'date/plain',
+                'relation'          => ['accounting_entry_id' => 'entry_date'],
+                'description'       => 'The date on which the transaction is recorded in the accounting system and affects the fiscal period.',
+                'store'             => true,
+                'instant'           => true
             ],
 
             'account_id' => [
@@ -57,6 +67,7 @@ class AccountingEntryLine extends Model {
                 'description'       => "Code of the related accounting account.",
                 'relation'          => ['account_id' => 'code'],
                 'store'             => true,
+                'instant'           => true,
                 'readonly'          => true
             ],
 
@@ -67,6 +78,7 @@ class AccountingEntryLine extends Model {
                 'description'       => "Accounting journal the entry relates to.",
                 'relation'          => ['accounting_entry_id' => 'journal_id'],
                 'store'             => true,
+                'instant'           => true,
                 'readonly'          => true
             ],
 
@@ -77,6 +89,7 @@ class AccountingEntryLine extends Model {
                 'description'       => "Fiscal year the entry relates to.",
                 'relation'          => ['accounting_entry_id' => 'fiscal_year_id'],
                 'store'             => true,
+                'instant'           => true,
                 'readonly'          => true
             ],
 
@@ -87,6 +100,7 @@ class AccountingEntryLine extends Model {
                 'description'       => "Period of the fiscal year the entry relates to (from entry_date).",
                 'relation'          => ['accounting_entry_id' => 'fiscal_period_id'],
                 'store'             => true,
+                'instant'           => true,
                 'readonly'          => true
             ],
 

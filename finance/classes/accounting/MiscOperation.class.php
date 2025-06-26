@@ -73,7 +73,7 @@ class MiscOperation extends Model {
                 'function'          => 'calcFiscalYearId',
                 'store'             => true,
                 'readonly'          => true,
-                'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['status', 'in', ['preopen','open']] ]
+                'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['status', 'in', ['preopen','open']] ]
             ],
 
             'fiscal_period_id' => [
@@ -85,7 +85,7 @@ class MiscOperation extends Model {
                 'function'          => 'calcFiscalPeriodId',
                 'store'             => true,
                 'readonly'          => true,
-                'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['status', '<>', 'closed'] ]
+                'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['status', '<>', 'closed'] ]
             ],
 
             'journal_id' => [
@@ -93,7 +93,7 @@ class MiscOperation extends Model {
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => 'Accounting journal used for this miscellaneous operation.',
                 'required'          => true,
-                'domain'            => [['journal_type', '=', 'MISC'], ['condo_id', '=', 'object.condo_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['journal_type', '=', 'MISC']]
             ],
 
             'accounting_entry_id' => [

@@ -82,6 +82,7 @@ class Condominium extends Identity {
                 'description'       => 'List of employees assigned to the management of the condominium.'
             ],
 
+            // #todo - this does not seem useful
             'total_shares' => [
                 'type'              => 'integer',
                 'description'       => "The total number of shares of the ownership.",
@@ -251,11 +252,56 @@ class Condominium extends Identity {
                 'rel_foreign_key'   => 'supplier_id',
                 'rel_local_key'     => 'condo_id'
             ],
+
+            'condo_funds_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Funds allocated by the condominium.",
+                'foreign_object'    => 'realestate\finance\accounting\CondoFund',
+                'foreign_field'     => 'condo_id'
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'description'       => 'Current status of the Condominium.',
+                'selection'         => [
+                    'pending',
+                    'validated'
+                ],
+                'default'           => 'pending'
+            ]
+        ];
+    }
+
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Completed document, waiting to be validated.',
+                'icon'        => 'done',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Update the document to `validated`.',
+                        'policies'    => ['is_valid'],
+                        'onafter'     => 'onafterValidate',
+                        'status'      => 'validated'
+                    ]
+                ]
+            ],
+            'validated' => [
+                'description' => 'Validated document, waiting to be processed.',
+                'icon'        => 'edit',
+                'transitions' => [
+                ]
+            ]
         ];
     }
 
     public static function getPolicies(): array {
         return [
+            'is_valid' => [
+                'description' => 'Verifies that the mandatory values are present for Condominium validation.',
+                'function'    => 'policyIsValid'
+            ],
+
             'can_open_fiscal_year' => [
                 'description' => 'Verifies that a fiscal year can be opened according to user roles.',
                 'function'    => 'policyCanOpenFiscalYear'
@@ -269,11 +315,6 @@ class Condominium extends Identity {
 
     public static function getActions() {
         return array_merge(parent::getActions(), [
-            'init' => [
-                'description'   => 'Initializes a newly created Condominium.',
-                'policies'      => [],
-                'function'      => 'doInit'
-            ],
             'open_fiscal_year' => [
                 'description'   => 'Open the fiscal year.',
                 'policies'      => ['can_open_fiscal_year'],
@@ -336,6 +377,13 @@ class Condominium extends Identity {
             }
         }
         parent::doSyncFromIdentity($self, $orm);
+    }
+
+
+    protected static function policyIsValid($self) {
+        /*
+
+        */
     }
 
     protected static function policyCanOpenFiscalYear($self, $user_id) {
@@ -618,7 +666,7 @@ class Condominium extends Identity {
     /**
      * Create mandatory dependencies for new Condominium
      */
-    protected static function doInit($self) {
+    protected static function onafterValidate($self) {
         $self
             // 1 - create specific sequences for accounting entries, invoices, lots, owners, ...
             ->do('generate_sequences')

@@ -7,6 +7,7 @@
 
 namespace realestate\funding;
 
+use finance\accounting\FiscalPeriod;
 use realestate\ownership\Ownership;
 use realestate\property\PropertyLotApportionmentShare;
 use finance\accounting\FiscalYear;
@@ -42,7 +43,7 @@ class FundRequest extends \equal\orm\Model {
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "Fiscal year the fund request relates to.",
                 'default'           => 'defaultFiscalYearId',
-                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'domain'            => [['condo_id', '<>', null], ['condo_id', '=', 'object.condo_id']],
                 'required'          => true
             ],
 
@@ -51,7 +52,7 @@ class FundRequest extends \equal\orm\Model {
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
                 'description'       => "Period of the fiscal year the invoice statement relates to.",
                 'help'              => "Posting date is automatically assigned on the last day of the period.",
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '<>', null], ['condo_id', '=', 'object.condo_id'], ['fiscal_year_id', '=', 'object.fiscal_year_id']]
             ],
 
             'request_type' => [
@@ -72,7 +73,7 @@ class FundRequest extends \equal\orm\Model {
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account the entry relates to.",
                 'ondelete'          => 'null',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['operation_assignment', '=', 'object.request_type']]
+                'domain'            => [['condo_id', '<>', null], ['condo_id', '=', 'object.condo_id'], ['operation_assignment', '=', 'object.request_type']]
             ],
 
             'request_date' => [
@@ -85,7 +86,7 @@ class FundRequest extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
                 'description'       => 'Bank account to use for the request.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['bank_account_type', '=', 'bank_current']]
+                'domain'            => [['condo_id', '<>', null], ['condo_id', '=', 'object.condo_id'], ['bank_account_type', '=', 'bank_current']]
             ],
 
             'payment_terms_id' => [
@@ -764,36 +765,73 @@ class FundRequest extends \equal\orm\Model {
      * - **credit** on the account **100000** (identified by the assignment code "working")
      */
     public static function onafterActivate($self) {
-
-// non : on fait cela dans le FundRequestExecution
-
-
+        // no : this is done in FundRequestExecution
     }
 
+    /**
+     * Make sure request_date is always present and consistent with date_from
+     *
+     */
     public static function oncreate($self, $values) {
         if(isset($values['has_date_range']) && $values['has_date_range'] && isset($values['date_from'])) {
             $self->update(['request_date' => $values['date_from']]);
         }
     }
 
-    public static function onchange($event, $values) {
-
+    public static function onchange($view, $event, $values) {
         $result = [];
-        if(isset($event['request_type']) && $values['fiscal_year_id']) {
-            $result['request_account_id'] = null;
-            if($event['request_type'] == 'expense_provisions') {
-                $fiscalYear = FiscalYear::id($values['fiscal_year_id'])->read(['fiscal_period_frequency', 'date_from', 'date_to'])->first();
-                $result['has_date_range'] = true;
-                $result['date_range_frequency'] = ['A' => 12, 'S' => 6, 'T' => 4, 'Q' => 3][$fiscalYear['fiscal_period_frequency']];
-                $result['date_from'] = $fiscalYear['date_from'];
-                $result['date_to'] = $fiscalYear['date_to'];
-            }
-        }
-        if(isset($event['request_date'])) {
-            $result['date_from'] = $event['request_date'];
-        }
-        elseif(isset($event['date_from'])) {
-            $result['request_date'] = $event['date_from'];
+
+        switch($view) {
+            case 'form.default':
+                if(isset($event['request_date'])) {
+                    $result['request_date'] = $event['request_date'];
+                    $result['date_from'] = $event['request_date'];
+                }
+                elseif(isset($event['date_from'])) {
+                    $result['request_date'] = $event['date_from'];
+                }
+
+                // all values below must be consistent with a given condominium
+                if(!$values['condo_id']) {
+                    return $result;
+                }
+
+                if(isset($result['request_date'])) {
+                    $fiscalYear = null;
+                    $fiscalPeriod = FiscalPeriod::search([['condo_id', '=', $values['condo_id']], ['date_from', '<=', $result['request_date']], ['date_to', '>=', $result['request_date']]])
+                        ->read(['id', 'name', 'date_to', 'fiscal_year_id'])
+                        ->first();
+
+                    if($fiscalPeriod) {
+                        $fiscalYear = FiscalYear::id($fiscalPeriod['fiscal_year_id'])->read(['id', 'name'])->first();
+                    }
+                    if($fiscalPeriod && $fiscalYear) {
+                        $result['fiscal_period_id'] = ['id' => $fiscalPeriod['id'], 'name' => $fiscalPeriod['name']];
+                        $result['fiscal_year_id'] = ['id' => $fiscalYear['id'], 'name' => $fiscalYear['name']];
+                        $result['date_to'] = $fiscalPeriod['date_to'];
+                    }
+                }
+
+                if(isset($event['request_type']) && $values['fiscal_year_id']) {
+                    $result['request_account_id'] = null;
+                    if($event['request_type'] == 'expense_provisions') {
+                        $fiscalYear = FiscalYear::id($values['fiscal_year_id'])->read(['fiscal_period_frequency', 'date_from', 'date_to'])->first();
+                        $result['has_date_range'] = true;
+                        $result['date_range_frequency'] = ['A' => 12, 'S' => 6, 'T' => 4, 'Q' => 3][$fiscalYear['fiscal_period_frequency']];
+                        $result['date_from'] = $fiscalYear['date_from'];
+                        $result['date_to'] = $fiscalYear['date_to'];
+                    }
+                }
+
+                if(isset($event['fiscal_period_id'])) {
+                    $fiscalPeriod = FiscalPeriod::id($event['fiscal_period_id'])->read(['date_from', 'date_to'])->first();
+                    $result['date_from'] = $fiscalPeriod['date_from'];
+                    $result['date_to'] = $fiscalPeriod['date_to'];
+                    $result['request_date'] = $fiscalPeriod['date_from'];
+                }
+                break;
+            default:
+                break;
         }
 
         return $result;

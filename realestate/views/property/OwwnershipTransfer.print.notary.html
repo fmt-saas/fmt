@@ -1,0 +1,243 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<!--
+    Conventions for html templates:
+
+    * template must consist of a single file
+    * provide support for debug mode
+    * use embedded styling embedded in <style> (CSS3)
+    * avoid using `style` attribute in elements and favour classes
+    * in CSS styles use `px` as unit for font size
+    * in HTML elements, avoid using <br /> and favour blocks and inline-blocks
+    * twig format is implicit for template files: use `{entity}.print.{name}.html` as naming convention
+    * avoid assignment and computation of vars in template (when possible, compute values in controller)
+    * twig instructions should be limited to displaying values and providing conditional statements
+-->
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <title>
+        {{ title }}
+    </title>
+
+    {% include 'header.style.html.twig' %}
+    {% include 'footer.style.html.twig' %}
+
+    <style type="text/css">
+        @page {
+            margin: 1cm 1cm;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            /* margin-top must match header::height */
+            margin-top: 280px;
+            /* margin-bottom must match footer::height */
+            margin-bottom: 50px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            text-align: justify;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4 {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-size: 21px;
+        }
+
+        h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 32px;
+            border-bottom: 1px solid black;
+            padding-bottom: 4px;
+        }
+
+        h4 {
+            font-size: 14px;
+        }
+
+        h5 {
+            text-decoration: underline;
+        }
+
+        main.debug {
+            outline: solid 1px brown;
+        }
+
+        main .fiscal_year-payment-info {
+            font-size: 15px;
+            position: relative;
+            margin-top: 40px;
+            page-break-inside: avoid;
+            border: solid 2px black;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 12px;
+            margin-bottom: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #666;
+            padding: 6px 10px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f0f0f0;
+            font-weight: 600;
+        }
+
+    </style>
+</head>
+
+<body>
+    {% include 'header.html.twig' %}
+    {% include 'footer.html.twig' %}
+
+    <main class="{{ debug ? 'debug' : '' }}">
+
+        <p>
+            {today_city}, {today_date}
+        </p>
+
+        <p>
+            Maître,<br>
+            <strong>Concerne :</strong> Votre demande d’informations / Convention de cession du droit de propriété
+        </p>
+
+        <p>
+            <strong>Association des Copropriétaires :</strong><br>
+            {condominium_name}<br>
+            {condominium_address}<br>
+            {condominium_zip} – {condominium_city}
+        </p>
+
+        <p>
+            <strong>Vente par :</strong> {seller_civility} {seller_name}<br>
+            <strong>Lot(s) :</strong> {sold_lots_list}<br>
+            <strong>Quotité(s) totale(s) :</strong> {seller_quotas}
+        </p>
+
+        <p>
+            Nous accusons bonne réception de votre lettre du {receipt_date} et vous prions de bien vouloir trouver ci-dessous les informations demandées.
+        </p>
+
+
+
+        <h3>Conformément à l'article 3.94 §1</h3>
+
+        <h4>1° le montant du fonds de roulement et du fonds de réserve, au sens du § 5, alinéas 2 et 3;</h4>
+        <div>
+            {table_funds}
+        </div>
+
+        <h4>2° le montant des arriérés éventuels dus par le cédant;</h4>
+        <div>
+            {table_arrears}
+        </div>
+
+        <h4>3° la situation des appels de fonds, destinés au fonds de réserve et décidés par l'assemblée générale avant la date certaine du transfert de la propriété;</h4>
+        <div>
+            Voir fonds de réserve, fonds de roulement et budget du dernier PV de l’AG.
+        </div>
+
+        <h4>4° le cas échéant, le relevé des procédures judiciaires en cours relatives à la copropriété;</h4>
+        <div>
+            {judicial_procedure_status}
+        </div>
+
+        <h4>5° les procès-verbaux des assemblées générales ordinaires et extraordinaires des trois dernières années, ainsi que les décomptes périodiques des charges des deux dernières années;</h4>
+            Procès-verbaux des AG des 3 dernières années et décomptes de charges des 2 dernières années :
+        <div>
+            Voir annexes ci-jointes.
+        </div>
+
+        <h4>6° une copie du dernier bilan approuvé par l'assemblée générale</h4>
+        <div>
+            Voir annexes ci-jointes.
+        </div>
+
+        <h3>Conformément à l'article 3.94 §2</h3>
+
+        <h4>1° le montant des dépenses de conservation, d'entretien, de réparation et de réfection décidées par l'assemblée générale ou le syndic avant la date certaine du transfert de la propriété mais dont le paiement est demandé par le syndic postérieurement à cette date;</h4>
+        <div>
+            Voir annexes ci-jointes, dernier PV de l’AG.
+        </div>
+
+        <h4>2° un état des appels de fonds approuvés par l'assemblée générale des copropriétaires avant la date certaine du transfert de propriété et le coût des travaux urgents dont le paiement est demandé par le syndic postérieurement à cette date;</h4>
+        <div>
+            {table_fund_calls}
+        </div>
+        <div>
+            <small>Nous vous invitons à consulter PV de la dernière AGO afin de connaitre les modalités de ces appels et leurs échéances.</small>
+        </div>
+
+        <h4>3° un état des frais liés à l'acquisition de parties communes, décidés par l'assemblée générale avant la date certaine du transfert de la propriété, mais dont le paiement est demandé par le syndic postérieurement à cette date;</h4>
+        <div>
+            Veuillez-vous référer aux derniers procès-verbaux d’assemblée générale.
+        </div>
+
+        <h4>4° un état des dettes certaines dues par l'association des copropriétaires à la suite de litiges nés avant la date certaine du transfert de la propriété, mais dont le paiement est demandé par le syndic postérieurement à cette date.</h4>
+        <div>
+            Veuillez-vous référer aux derniers procès-verbaux d’assemblée générale.
+        </div>
+
+        <h4>5° le montant des arriérés éventuels dus par le cédant;</h4>
+        <div>
+            {table_arrears}
+        </div>
+        <div>
+            <small>Ces montants ne comprennent pas les majorations dues aux pénalités financières, intérêts, frais et dépens, que celles-ci résultent des statuts de la copropriété, de décisions d’assemblées générales ou de justice. Le calcul final ne pouvant être entrepris que le jour de la réception des montants dus. <br />
+        *Les provisions complémentaires sont réclamées au nom et pour compte de la copropriété en vue de s’assurer ne pas devoir réclamer un éventuel décompte de régularisation trop important au profit de la copropriété, celui-ci est calculé sur une moyenne de 3 mois de charges.</small>
+        </div>
+        <div>
+            <p>Ce montant ne tient pas compte du décompte de charge de l’exercice comptable en cours.</p>
+            <p>Tout paiement est à effectuer sur le compte de l’ACP {condominium_name} suivant : copropriete_numero_compte – copropriete_code_bic avec la référence proprio_com_vcs.</p>
+        </div>
+
+        <h4>Informations complémentaires</h4>
+
+        <h5>Emprunt(s) bancaire(s) : {status_loan}</h5>
+        <div>
+            {table_loans}
+        </div>
+
+        <h5>Dossier d’intervention ultérieure (D.I.U.) :</h5>
+        <div>
+            {status_diu}
+        </div>
+        <div>
+            <small>Nous proposons aux futurs acquéreurs, dans la mesure où cela l’intéresse et dans la mesure où ce D.I.U. existe, d’en prendre connaissance, en nos bureaux, moyennant rendez-vous préalable.</small>
+        </div>
+
+        <h5>Cuve à mazout :</h5>
+        <div>
+            {status_mazout}
+        </div>
+
+        <h3>Conformément à l'article 3.94 §3</h3>
+
+        <p>En cas de cession ou de démembrement du droit de propriété sur un lot privatif, le notaire instrumentant informe le syndic de la date de la passation de l'acte, de l'identification du lot privatif concerné, de l'identité et de l'adresse actuelle et, le cas échéant, future des personnes concernées.</p>
+
+        <p>Nous nous prions de bien vouloir nous notifier ces changements dans les meilleurs délais.</p>
+
+        <p>Espérant avoir répondu à vos questions et restant à votre disposition pour de plus amples informations, nous vous prions de croire, Maître, en l’expression de notre parfaite considération.</p>
+
+        <p>
+            Le Syndic
+        </p>
+
+
+    </main>
+</body>
+
+</html>

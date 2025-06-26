@@ -10,7 +10,7 @@
             "route": "/?get=sale_pay_Funding_sepa&id=object.id",
             "target": "_blank",
             "absolute": true,
-            "visible": ["pending", "=", "object.status"]
+            "visible": [["pending", "=", "object.status"], ["due_amount", "<", 0]]
         }
     ],
     "layout": {

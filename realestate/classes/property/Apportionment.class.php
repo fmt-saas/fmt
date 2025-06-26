@@ -114,10 +114,10 @@ class Apportionment extends \equal\orm\Model {
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'draft',
-                    'published'
+                    'pending',
+                    'validated'
                 ],
-                'default'           => 'draft',
+                'default'           => 'pending',
                 'description'       => 'Status of the Apportionment.'
             ]
 
@@ -126,17 +126,26 @@ class Apportionment extends \equal\orm\Model {
 
     public static function getWorkflow() {
         return [
-            'draft' => [
+            'pending' => [
                 'description' => 'Draft apportionment, still waiting to be completed for validation.',
                 'icon' => 'draw',
                 'transitions' => [
-                    'publish' => [
+                    'validate' => [
                         'description' => 'Publish the Apportionment (this cannot be undone).',
-                        'policies'    => [],
-                        'onafter'     => 'onafterPublish',
-                        'status'      => 'published',
+                        'policies'    => ['can_validate'],
+                        'onafter'     => 'onafterValidate',
+                        'status'      => 'validated',
                     ]
                 ]
+            ]
+        ];
+    }
+
+    public static function getPolicies(): array {
+        return [
+            'can_validate' => [
+                'description' => 'Verifies that the Apportionment can be validated.',
+                'function'    => 'policyCanValidate'
             ]
         ];
     }
@@ -152,7 +161,33 @@ class Apportionment extends \equal\orm\Model {
         ];
     }
 
-    public static function onafterPublish($self) {
+    protected static function policyCanValidate($self) {
+        $result = [];
+
+        $self->read(['status']);
+
+        foreach($self as $id => $apportionment) {
+            if($apportionment['status'] !== 'pending') {
+                $result[$id] = [
+                    'not_allowed' => 'Apportionment is already validated and active.'
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    public static function canupdate($self) {
+        $self->read(['status']);
+        foreach($self as $id => $apportionment) {
+            if($apportionment['status'] == 'validated') {
+                return ['status' => ['not_allowed' => 'Validated apportionment cannot be modified.']];
+            }
+        }
+        return parent::canupdate($self);
+    }
+
+    public static function onafterValidate($self) {
         $self->update(['code' => null, 'name' => null]);
     }
 

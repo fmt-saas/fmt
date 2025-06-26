@@ -1,17 +1,6 @@
 {
     "name": "Funding",
     "description": "",
-    "routes": [
-        {
-            "id": "route.export_sepa",
-            "label": "Export SEPA",
-            "description": "Generate a SEPA XML envelope.",
-            "icon": "print",
-            "route": "/?get=sale_pay_Funding_sepa&id=object.id",
-            "target": "_blank",
-            "absolute": true
-        }
-    ],
     "layout": {
         "groups": [
             {
