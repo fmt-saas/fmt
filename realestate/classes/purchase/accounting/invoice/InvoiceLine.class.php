@@ -54,7 +54,7 @@ class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
                 'type'              => 'many2one',
                 'description'       => "The key that the apportionment refers to.",
                 'foreign_object'    => 'realestate\property\Apportionment',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_statutory', '=', false], ['is_active', '=', true], ['status', '=', 'published']],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_statutory', '=', false], ['is_active', '=', true], ['status', '=', 'validated']],
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
                 'visible'           => ['is_private_expense', '=', false]
             ],

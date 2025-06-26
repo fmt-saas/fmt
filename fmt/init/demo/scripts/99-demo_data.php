@@ -56,14 +56,14 @@ $condominiums
 
 // activate "common expenses" apportionments
 Apportionment::search(['condo_id', '<>', null])
-    ->transition('publish');
+    ->transition('validate');
 
 // import & activate chart of accounts
 AccountChart::search(['condo_id', '<>', null])
     ->do('import_accounts', ['chart_template_id' => 1])
     ->transition('activation');
 
-$apportionments = Apportionment::search([['is_statutory', '=', false], ['status', '=', 'published']])
+$apportionments = Apportionment::search([['is_statutory', '=', false], ['status', '=', 'validated']])
     ->read(['condo_id']);
 
 // assign default apportionment to accounts

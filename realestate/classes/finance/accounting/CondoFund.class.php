@@ -85,7 +85,7 @@ class CondoFund extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'description'       => "Default apportionment to use when creating accounting entries on this account.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['status', '=', 'published']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['status', '=', 'validated']]
             ],
 
             'total_shares' => [

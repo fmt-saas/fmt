@@ -195,7 +195,7 @@ class Apportionment extends \equal\orm\Model {
         $result = [];
         $self->read(['status', 'is_statutory', 'total_shares', 'code', 'description']);
         foreach($self as $id => $apportionment) {
-            if($apportionment['status'] != 'published') {
+            if($apportionment['status'] != 'validated') {
                 continue;
             }
             if(!$apportionment['code']) {
@@ -211,7 +211,7 @@ class Apportionment extends \equal\orm\Model {
         $result = [];
         $self->read(['status', 'is_statutory', 'condo_id']);
         foreach($self as $id => $apportionment) {
-            if($apportionment['status'] != 'published') {
+            if($apportionment['status'] != 'validated') {
                 continue;
             }
             if($apportionment['is_statutory']) {
