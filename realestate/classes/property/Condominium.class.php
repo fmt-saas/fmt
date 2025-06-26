@@ -368,7 +368,7 @@ class Condominium extends Identity {
             foreach($condominium['identity_id']['bank_accounts_ids'] as $bank_account_id => $bankAccount) {
                 $bank = Bank::search(['bic', '=', $bankAccount['bank_account_bic']])->first();
                 if($bank) {
-                    // #memo - class Bank inherits from Supplier
+                    // #memo - class Bank inherits from Supplier (considered as "financial services supplier")
                     $suppliership = Suppliership::search([['condo_id', '=', $id], ['supplier_id', '=', $bank['id']]])->first();
                     if(!$suppliership) {
                         Suppliership::create(['condo_id' => $id, 'supplier_id' => $bank['id']]);
@@ -381,9 +381,11 @@ class Condominium extends Identity {
 
 
     protected static function policyIsValid($self) {
+        $result = [];
         /*
-
+            les informations de bases, obligatoires pour pouvoir considérer un Condominium comme valide
         */
+        return $result;
     }
 
     protected static function policyCanOpenFiscalYear($self, $user_id) {
@@ -665,6 +667,7 @@ class Condominium extends Identity {
 
     /**
      * Create mandatory dependencies for new Condominium
+     * This is meant to be done only once, at the Condominium validation.
      */
     protected static function onafterValidate($self) {
         $self
