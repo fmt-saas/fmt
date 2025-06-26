@@ -50,7 +50,7 @@ class RecordingRuleLine extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account the rule points to.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['account_class', '=', '06']],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false], ['account_class', '=', '06']],
                 'visible'           => ['condo_id', '<>', null]
             ],
 
@@ -66,7 +66,7 @@ class RecordingRuleLine extends Model {
                 'description'       => "The key that the apportionment refers to.",
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_statutory', '=', false] ],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_statutory', '=', false] ],
                 'visible'           => ['condo_id', '<>', null]
             ],
 

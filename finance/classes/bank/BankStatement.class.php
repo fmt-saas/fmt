@@ -108,7 +108,7 @@ class BankStatement extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\processing\DocumentProcess',
                 'description'       => 'Document Process the statement originates from, if any.',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'document_id' => [

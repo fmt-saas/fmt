@@ -96,7 +96,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "Fiscal year the fund request relates to.",
                 'default'           => 'defaultFiscalYear',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'emission_date' => [

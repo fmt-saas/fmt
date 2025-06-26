@@ -57,7 +57,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 'description'       => "Period of the fiscal year the invoice statement relates to.",
                 'help'              => "Posting date is automatically assigned on the last day of the period.",
                 'onupdate'          => 'onupdateFiscalPeriodId',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['fiscal_year_id', '=', 'object.fiscal_year_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['fiscal_year_id', '=', 'object.fiscal_year_id']]
             ],
 
             /* from sale\accounting\invoice\Invoice: */
@@ -83,7 +83,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'Bank account to use for the request.',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'statement_owners_ids' => [

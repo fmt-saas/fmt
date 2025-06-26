@@ -88,7 +88,7 @@ class BalanceLine extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\AccountingEntryLine',
                 'description'       => "Accounting entry lines impacting the account.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['fiscal_year_id', '=', 'object.fiscal_year_id'], ['account_id', '=', 'object.account_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['fiscal_year_id', '=', 'object.fiscal_year_id'], ['account_id', '=', 'object.account_id']]
             ]
 
         ];

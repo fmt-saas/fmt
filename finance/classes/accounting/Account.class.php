@@ -147,7 +147,7 @@ class Account extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountChart',
                 'description'       => "The chart of accounts the line belongs to.",
-                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'required'          => true
             ],
 

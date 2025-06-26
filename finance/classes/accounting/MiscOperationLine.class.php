@@ -42,7 +42,7 @@ class MiscOperationLine extends Model {
                 'description'       => "Accounting account the entry relates to.",
                 'required'          => true,
                 'ondelete'          => 'null',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
                 'dependents'        => ['account_code']
             ],
 
@@ -60,7 +60,7 @@ class MiscOperationLine extends Model {
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => "Accounting journal the entry relates to.",
                 'relation'          => ['misc_operation_id' => 'journal_id'],
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['journal_type', '=', 'MISC']],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['journal_type', '=', 'MISC']],
                 'store'             => true,
                 'instant'           => true
             ],

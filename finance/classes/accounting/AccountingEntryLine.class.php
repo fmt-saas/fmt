@@ -57,7 +57,7 @@ class AccountingEntryLine extends Model {
                 'description'       => "Accounting account the entry relates to.",
                 'required'          => true,
                 'ondelete'          => 'null',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
                 'dependents'        => ['account_code']
             ],
 

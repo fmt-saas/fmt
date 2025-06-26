@@ -68,7 +68,7 @@ class CondoFund extends \equal\orm\Model {
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account for fund utilization.",
                 'ondelete'          => 'null',
-                'domain'            => [['condo_id', '=', 'object.condo_id']],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'dependents'        => ['account_code']
             ],
 
@@ -85,7 +85,7 @@ class CondoFund extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'description'       => "Default apportionment to use when creating accounting entries on this account.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['status', '=', 'validated']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['status', '=', 'validated']]
             ],
 
             'total_shares' => [

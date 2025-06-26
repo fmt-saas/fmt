@@ -116,7 +116,7 @@ class Document extends Model {
                 'foreign_object'    => 'documents\navigation\Node',
                 'description'       => 'Parent Node the document-node should be linked with.',
                 'help'              => 'This is a virtual field used for creating a Node for the document when necessary (according to document_type_id).',
-                'domain'            => [['node_type', '=', 'folder'], ['condo_id', '=', 'object.condo_id']],
+                'domain'            => [['node_type', '=', 'folder'], ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'onupdate'          => 'onupdateParentNodeId'
             ],
 
@@ -124,7 +124,7 @@ class Document extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\navigation\Node',
                 'description'       => 'Node the document is linked with.',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'content_type' => [

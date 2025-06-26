@@ -47,7 +47,7 @@ class AccountingEntry extends Model {
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => "Accounting journal the entry relates to.",
                 'required'          => true,
-                'domain'            => [['code', '<>', 'LEDG'], ['condo_id', '=', 'object.condo_id']]
+                'domain'            => [['code', '<>', 'LEDG'], ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'fiscal_year_id' => [
@@ -55,7 +55,7 @@ class AccountingEntry extends Model {
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "Fiscal year the entry relates to.",
                 'required'          => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'dependents'        => ['fiscal_period_id'],
                 'default'           => 'defaultFiscalYearId'
             ],

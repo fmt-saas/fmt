@@ -129,7 +129,7 @@ class Payment extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\pay\Funding',
                 'description'       => 'The funding the payment relates to, if any.',
-                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'visible'           => ['has_funding', '=', true]
             ],
 
@@ -161,7 +161,7 @@ class Payment extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "The accounting account the payment relates to.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
                 'visible'           => ['has_funding', '=', false]
             ],
 

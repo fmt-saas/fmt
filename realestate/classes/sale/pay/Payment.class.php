@@ -24,7 +24,7 @@ class Payment extends \sale\pay\Payment {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\sale\pay\Funding',
                 'description'       => 'The funding the payment relates to, if any.',
-                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'order'             => 'issue_date',
                 'sort'              => 'asc'
             ]

@@ -12,6 +12,7 @@ use finance\accounting\CurrentBalanceLine;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
+use finance\bank\CondominiumBankAccount;
 use realestate\purchase\accounting\AccountingEntry;
 use realestate\purchase\accounting\AccountingEntryLine;
 use realestate\sale\pay\Funding;
@@ -46,7 +47,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
                 'description'       => 'The Bank account the refund originates from.',
                 'help'              => 'This is the bank account from which the refund is made.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['bank_account_type', '=', 'bank_current']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['bank_account_type', '=', 'bank_current']]
             ],
 
             'account_available_balance' => [
@@ -71,7 +72,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'description'       => 'The Bank account of the Ownership.',
                 'required'          => true,
                 'help'              => 'This is the bank account of the ownership to which the refund has to be made.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.ownership_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['ownership_id', '=', 'object.ownership_id']]
             ],
 
             'amount' => [

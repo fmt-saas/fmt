@@ -51,7 +51,7 @@ class CondominiumBankAccount extends BankAccount {
                 'foreign_object'    => 'finance\accounting\Account',
                 'function'          => 'calcAccountingAccountId',
                 'store'             => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'last_statement_balance' => [

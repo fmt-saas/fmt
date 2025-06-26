@@ -57,7 +57,7 @@ class Node extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\navigation\Node',
                 'description'       => 'Parent node of the node.',
-                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'onupdate'          => 'onupdateParentId'
             ],
 
@@ -67,7 +67,7 @@ class Node extends Model {
                 'description'       => 'targeted document of the node.',
                 'visible'           => ['node_type', '=', 'document'],
                 'onupdate'          => 'onupdateDocumentId',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'document_link' => [
@@ -86,7 +86,7 @@ class Node extends Model {
                 'foreign_object'    => 'documents\navigation\Node',
                 'foreign_field'     => 'parent_id',
                 'description'       => 'Nodes having the node as parent.',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             // #todo - this should be handled in a more generic way

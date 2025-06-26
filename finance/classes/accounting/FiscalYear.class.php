@@ -60,7 +60,7 @@ class FiscalYear extends Model {
                 'foreign_field'     => 'fiscal_year_id',
                 'description'       => "The fiscal periods related to the fiscal year.",
                 'order'             => 'code',
-                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'ondetach'          => 'delete'
             ],
 

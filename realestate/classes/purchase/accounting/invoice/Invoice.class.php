@@ -70,7 +70,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\SuppliershipBankAccount',
                 'description'       => 'The bank account of the supplier to be used.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['suppliership_id', '=', 'object.suppliership_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['suppliership_id', '=', 'object.suppliership_id']]
             ],
 
             'invoice_lines_ids' => [
