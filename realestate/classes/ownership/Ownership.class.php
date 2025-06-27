@@ -198,7 +198,8 @@ class Ownership extends \equal\orm\Model {
             ],
             'validated' => [
                 'description' => 'Validated Ownership, ready to be used.',
-                'icon'        => 'done',
+                'icon'        => 'done
+                ',
                 'transitions' => [
                     'revert' => [
                         'description' => 'Revert to `pending` to allow changes.',
@@ -236,10 +237,45 @@ class Ownership extends \equal\orm\Model {
 
     protected static function policyIsValid($self) {
         $result = [];
-        /*
-            // #todo
-            les informations de bases, obligatoires pour pouvoir considérer un Ownership comme valide
-        */
+
+        $self->read(['condo_id', 'ownership_type', 'owners_ids', 'date_from', 'has_representative', 'representative_identity_id']);
+        foreach($self as $id => $ownership) {
+
+            if(!$ownership['condo_id']) {
+                $result[$id] = [
+                    'missing_representative_id' => 'The representative identity must be provided.'
+                ];
+            }
+
+            if($ownership['ownership_type'] === 'unique')  {
+                if(count($ownership['owners_ids']) != 1)  {
+                    $result[$id] = [
+                        'invalid_owners_count' => 'For an ownership marked as unique, there should be only exactly owner.'
+                    ];
+                }
+            }
+            else {
+                if(count($ownership['owners_ids']) < 2)  {
+                    $result[$id] = [
+                        'invalid_owners_count' => 'For an ownership marked as joint, there should be more than one owner.'
+                    ];
+                }
+            }
+
+            if(!$ownership['date_from']) {
+                $result[$id] = [
+                    'missing_date_from' => 'Date from is manadatory, if not known use the date of the Condominium creation.'
+                ];
+            }
+
+            if($ownership['has_representative']) {
+                if(!$ownership['representative_identity_id']) {
+                    $result[$id] = [
+                        'missing_representative_id' => 'The representative identity must be provided.'
+                    ];
+                }
+            }
+        }
         return $result;
     }
 
