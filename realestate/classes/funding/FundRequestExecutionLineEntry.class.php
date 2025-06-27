@@ -36,6 +36,14 @@ class FundRequestExecutionLineEntry extends \equal\orm\Model {
                 'readonly'          => true
             ],
 
+            'request_execution_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\FundRequestExecution',
+                'description'       => 'The fund request execution the line relates to.',
+                'required'          => true,
+                'readonly'          => true
+            ],
+
             'request_execution_line_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\FundRequestExecutionLine',

@@ -86,6 +86,16 @@ class Suppliership extends \equal\orm\Model {
                 'foreign_field'     => 'suppliership_id',
                 'description'       => "The bank accounts of the supplier.",
                 'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'description'       => 'Current status of the Ownership.',
+                'selection'         => [
+                    'pending',
+                    'validated'
+                ],
+                'default'           => 'pending'
             ]
 
         ];
@@ -94,6 +104,35 @@ class Suppliership extends \equal\orm\Model {
     public function getUnique() {
         return [
             ['condo_id', 'supplier_id']
+        ];
+    }
+
+
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Ownership being completed, waiting to be validated.',
+                'icon'        => 'done',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Update the Ownership to `validated`.',
+                        'policies'    => ['is_valid'],
+                        'onafter'     => 'onafterValidate',
+                        'status'      => 'validated'
+                    ]
+                ]
+            ],
+            'validated' => [
+                'description' => 'Validated Ownership, ready to be used.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'revert' => [
+                        'description' => 'Revert to `pending` to allow changes.',
+                        'policies'    => [/* #todo */],
+                        'status'      => 'pending'
+                    ]
+                ]
+            ]
         ];
     }
 
@@ -110,6 +149,24 @@ class Suppliership extends \equal\orm\Model {
                 'function'      => 'doImportBankAccount'
             ]
         ];
+    }
+
+    public static function getPolicies(): array {
+        return [
+            'is_valid' => [
+                'description' => 'Verifies that the mandatory values are present for Condominium validation.',
+                'function'    => 'policyIsValid'
+            ]
+        ];
+    }
+
+    protected static function policyIsValid($self) {
+        $result = [];
+        /*
+            // #todo
+            les informations de bases, obligatoires pour pouvoir considérer un Ownership comme valide
+        */
+        return $result;
     }
 
     protected static function calcName($self) {
@@ -251,5 +308,11 @@ class Suppliership extends \equal\orm\Model {
             }
 
         }
+    }
+
+    protected static function onafterValidate($self) {
+        $self
+            ->do('generate_accounts')
+            ->do('import_bank_account');
     }
 }

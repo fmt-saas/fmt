@@ -159,16 +159,18 @@ class Funding extends \sale\pay\Funding {
 
             $result[$id] = Setting::format_number_currency($funding['due_amount']);
 
+            if($funding['payment_reference']) {
+                $result[$id] .= '  ' . DataFormatter::format($funding['payment_reference'], 'scor');
+            }
+
             if($funding['invoice_id']) {
                 $result[$id] .= '  ' . $funding['invoice_id']['name'];
             }
+
             if($funding['fund_request_execution_id']) {
                 $result[$id] .= '  ' . $funding['fund_request_execution_id']['name'];
             }
 
-            if($funding['payment_reference']) {
-                $result[$id] .= '  ' . DataFormatter::format($funding['payment_reference'], 'scor');
-            }
         }
 
         return $result;

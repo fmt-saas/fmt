@@ -19,42 +19,32 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "ownership_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "ownership_transfer_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "property_lot_id",
+                                                "value": "condo_fund_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "fund_request_id",
+                                                "value": "condo_fund_balance",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "request_execution_id",
+                                                "value": "condo_fund_shares",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "request_account_id",
+                                                "value": "property_lots_shares",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "request_type",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "amount",
+                                                "value": "property_lots_amount",
                                                 "width": "100%"
                                             }
                                         ]

@@ -12,18 +12,6 @@
     },
     "actions": [
         {
-            "id": "action.perform_transfer",
-            "label": "Perform Transfer",
-            "description": "Generate accounting accounts.",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "realestate\\property\\OwnershipTransfer",
-                "action": "perform_transfer",
-                "ids": []
-            },
-            "confirm": false
-        },
-        {
             "id": "action.open",
             "label": "Open",
             "description": "Validate data and start the transfer process.",
@@ -36,6 +24,18 @@
             }
         },
         {
+            "id": "action.confirm",
+            "label": "Confirm",
+            "description": "Validate data and start the transfer process.",
+            "controller": "core_model_transition",
+            "visible": [ ["status", "in", ["open", "seller_documents_sent"]] ],
+            "params": {
+                "entity": "realestate\\property\\OwnershipTransfer",
+                "transition": "confirm",
+                "ids": []
+            }
+        },
+        {
             "id": "action.generate_balances",
             "label": "Compute balances",
             "description": "Compute condominium funds balances.",
@@ -44,6 +44,29 @@
                 "entity": "realestate\\property\\OwnershipTransfer",
                 "action": "generate_fund_balance_lines"
             }
+        },
+        {
+            "id": "action.generate_adjustments",
+            "label": "Generate adjustments",
+            "description": "Compute accounting necessary adjustments.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\property\\OwnershipTransfer",
+                "action": "generate_adjustments"
+            }
+        },
+        {
+            "id": "action.perform_transfer",
+            "label": "Perform Transfer",
+            "description": "Generate accounting accounts.",
+            "controller": "core_model_do",
+            "visible": ["status", "in", ["confirmed", "financial_statement_sent"]],
+            "params": {
+                "entity": "realestate\\property\\OwnershipTransfer",
+                "action": "perform_transfer",
+                "ids": []
+            },
+            "confirm": false
         }
     ],
     "layout": {
@@ -128,33 +151,105 @@
                         ]
                     },
                     {
-                        "id": "section.information",
-                        "label": "Information",
-                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null]],
+                        "id": "section.information_documents",
+                        "label": "Information (3.94 §1)",
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "in", ["open", "seller_documents_sent", "confirmed", "financial_statement_sent"]]],
                         "rows": [
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "label": "Date of the notary request",
-                                                "value": "request_date"
+                                                "value": "request_date",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "Funds balances",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Condominium funds balances",
+                                                "value": "fund_balances_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "Owner arrears",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Owner arrears",
+                                                "value": "arrear_fundings_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "view": "list.arrears"
+                                                }
                                             }
                                         ]
                                     }
                                 ]
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.information_statements",
+                        "label": "Information (3.94 §2)",
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "in", ["confirmed", "financial_statement_sent"]]],
+                        "rows": [
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "label": "Condominium funds balances",
-                                                "value": "fund_balances_ids"
+                                                "label": "Date of the notary confirmation",
+                                                "value": "confirmation_date",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Adjustments",
+                                                "value": "adjustments_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }
@@ -165,7 +260,7 @@
                     {
                         "id": "section.new_owner",
                         "label": "New Owner",
-                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null]],
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "=", "accounting_pending"]],
                         "rows": [
                             {
                                 "columns": [

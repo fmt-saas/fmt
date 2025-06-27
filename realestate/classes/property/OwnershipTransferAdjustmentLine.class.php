@@ -58,6 +58,13 @@ class OwnershipTransferAdjustmentLine extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'condo_fund_id' => [
+                'type'              => 'many2one',
+                'description'       => "Funds allocated by the condominium.",
+                'foreign_object'    => 'realestate\finance\accounting\CondoFund',
+                'required'          => true
+            ],
+
             'request_account_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
@@ -82,17 +89,6 @@ class OwnershipTransferAdjustmentLine extends \equal\orm\Model {
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
                 'description'       => 'Total tax-excluded price of the line.',
-                'required'          => true
-            ],
-
-            'adjustment_type' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'reimburse',
-                    'schedule'
-                ],
-                'description'       => 'Type of adjustment for the ownership transfer.',
-                'help'              => 'The adjustment type indicates whether it is a reimbursement or a scheduled adjustment.',
                 'required'          => true
             ]
 

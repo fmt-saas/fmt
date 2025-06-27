@@ -383,6 +383,7 @@ class Condominium extends Identity {
     protected static function policyIsValid($self) {
         $result = [];
         /*
+            // #todo
             les informations de bases, obligatoires pour pouvoir considérer un Condominium comme valide
         */
         return $result;

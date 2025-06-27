@@ -93,9 +93,58 @@ class CondoFund extends \equal\orm\Model {
                 'result_type'       => 'integer',
                 'relation'          => ['apportionment_id' => 'total_shares'],
                 'description'       => "Total shares of the apportionment.",
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'description'       => 'Current status of the Condominium.',
+                'selection'         => [
+                    'pending',
+                    'validated'
+                ],
+                'default'           => 'pending'
             ]
 
         ];
+    }
+
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Fund being completed, waiting to be validated.',
+                'icon'        => 'done',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Update the fund to `validated`.',
+                        'policies'    => ['is_valid'],
+                        'onafter'     => 'onafterValidate',
+                        'status'      => 'validated'
+                    ]
+                ]
+            ],
+            'validated' => [
+                'description' => 'Validated fund, ready to be used.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'revert' => [
+                        'description' => 'Revert to `pending` to allow changes.',
+                        'policies'    => [/* #todo */],
+                        'status'      => 'pending'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    public static function canupdate($self, $values) {
+        $self->read(['status']);
+        foreach($self as $funding) {
+            if($funding['status'] == 'validated') {
+                return ['status' => ['non_editable' => 'No change is allowed once the fund has been validated.']];
+            }
+        }
+
+        return parent::canupdate($self, $values);
     }
 
     protected static function computeExpenseAccountId($fund_account_id) {

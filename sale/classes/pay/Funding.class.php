@@ -46,7 +46,7 @@ class Funding extends Model {
                 'foreign_object'    => 'sale\pay\Payment',
                 'foreign_field'     => 'funding_id',
                 'description'       => 'Customer payments of the funding.',
-                'dependents'        => ['paid_amount', 'is_paid']
+                'dependents'        => ['paid_amount', 'remaining_amount', 'is_paid']
             ],
 
             'funding_type' => [
@@ -85,6 +85,16 @@ class Funding extends Model {
                 'usage'             => 'amount/money:2',
                 'description'       => "Total amount that has been received or paid (can exceed due_amount).",
                 'function'          => 'calcPaidAmount',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'remaining_amount' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => "Total amount that is left to be received or paid.",
+                'function'          => 'calcRemainingAmount',
                 'store'             => true,
                 'instant'           => true
             ],
@@ -206,7 +216,7 @@ class Funding extends Model {
 
     protected static function doRefreshStatus($self) {
         $self
-            ->update(['is_paid' => null, 'paid_amount' => null])
+            ->update(['is_paid' => null, 'paid_amount' => null, 'remaining_amount' => null])
             ->read(['due_amount', 'paid_amount']);
 
         foreach($self as $id => $funding) {
@@ -255,6 +265,15 @@ class Funding extends Model {
         return $result;
     }
 
+    public static function calcRemainingAmount($self) {
+        $result = [];
+        $self->read(['due_amount', 'paid_amount']);
+        foreach($self as $id => $funding) {
+            $result[$id] = $funding['due_amount'] - $funding['paid_amount'];
+        }
+        return $result;
+    }
+
     protected static function calcIsPaid($self) {
         $result = [];
         $self->read(['due_amount', 'paid_amount']);
@@ -273,7 +292,6 @@ class Funding extends Model {
 
         return $result;
     }
-
 
     public static function canupdate($self, $values) {
         $self->read(['status']);

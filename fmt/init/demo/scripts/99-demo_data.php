@@ -90,7 +90,7 @@ PropertyLot::search()
 
 Ownership::search()
     ->read(['code'])
-    ->do('init');
+    ->transition('validate');
 
 
 // create supplierships
@@ -103,8 +103,7 @@ SuppliershipReference::create(['condo_id' => 1, 'suppliership_id' => $vivaquaSup
 
 Suppliership::search()
     ->read(['code'])
-    ->do('generate_accounts')
-    ->do('import_bank_account');
+    ->transition('validate');
 
 
 /*
@@ -179,6 +178,14 @@ $condominiums
 // force computing names
 FiscalPeriod::search(['status', '=', 'pending'])
     ->read(['name']);
+
+CondoFund::create([
+        'name'                  => 'fonds de roulement',
+        'condo_id'              => 1,
+        'fund_account_id'       => 369,
+        'apportionment_id'      => 2,
+        'fund_type'             => 'working_fund'
+    ]);
 
 CondoFund::create([
         'name'                  => 'fonds de réserve',

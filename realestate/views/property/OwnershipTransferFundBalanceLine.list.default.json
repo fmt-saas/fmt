@@ -1,0 +1,50 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "ownership_transfer_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Fund",
+                "value": "condo_fund_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "label": "shares",
+                "value": "property_lots_shares",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "label": "Total shares",
+                "value": "condo_fund_shares",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "label": "Fund Balance",
+                "value": "condo_fund_balance",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "label": "Owner",
+                "value": "property_lots_amount",
+                "width": "12%"
+            }
+        ]
+    }
+}

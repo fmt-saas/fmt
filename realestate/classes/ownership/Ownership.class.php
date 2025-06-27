@@ -166,18 +166,52 @@ class Ownership extends \equal\orm\Model {
                 'foreign_field'     => 'ownership_id',
                 'description'       => "The bank accounts of the ownership.",
                 'domain'            => [['ownership_id', '=', 'object.id'], ['condo_id', '=', 'object.condo_id']]
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'description'       => 'Current status of the Ownership.',
+                'selection'         => [
+                    'pending',
+                    'validated'
+                ],
+                'default'           => 'pending'
             ]
 
+
+        ];
+    }
+
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Ownership being completed, waiting to be validated.',
+                'icon'        => 'done',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Update the Ownership to `validated`.',
+                        'policies'    => ['is_valid'],
+                        'onafter'     => 'onafterValidate',
+                        'status'      => 'validated'
+                    ]
+                ]
+            ],
+            'validated' => [
+                'description' => 'Validated Ownership, ready to be used.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'revert' => [
+                        'description' => 'Revert to `pending` to allow changes.',
+                        'policies'    => [/* #todo */],
+                        'status'      => 'pending'
+                    ]
+                ]
+            ]
         ];
     }
 
     public static function getActions() {
         return [
-            'init' => [
-                'description'   => 'Initializes a newly created Ownership.',
-                'policies'      => [],
-                'function'      => 'doInit'
-            ],
             'generate_accounts' => [
                 'description'   => 'Generate mandatory accounting Accounts for Ownership.',
                 'policies'      => [],
@@ -191,6 +225,23 @@ class Ownership extends \equal\orm\Model {
         ];
     }
 
+    public static function getPolicies(): array {
+        return [
+            'is_valid' => [
+                'description' => 'Verifies that the mandatory values are present for Condominium validation.',
+                'function'    => 'policyIsValid'
+            ]
+        ];
+    }
+
+    protected static function policyIsValid($self) {
+        $result = [];
+        /*
+            // #todo
+            les informations de bases, obligatoires pour pouvoir considérer un Ownership comme valide
+        */
+        return $result;
+    }
 
     /**
      * Retrieve the accounting account dedicated to owner (working fund)
@@ -372,7 +423,7 @@ class Ownership extends \equal\orm\Model {
         }
     }
 
-    public static function doInit($self) {
+    protected static function onafterValidate($self) {
         $self
             ->do('generate_accounts')
             ->do('generate_folders');

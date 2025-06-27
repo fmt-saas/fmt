@@ -47,16 +47,6 @@
                 "type": "field",
                 "value": "amount",
                 "width": "9%"
-            },
-            {
-                "type": "field",
-                "value": "adjustment_type",
-                "width": "9%"
-            },
-            {
-                "type": "field",
-                "value": "name",
-                "width": "9%"
             }
         ]
     }

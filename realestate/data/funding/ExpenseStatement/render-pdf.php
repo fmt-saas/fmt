@@ -4,8 +4,6 @@
     Some Rights Reserved, FMT SRL, 2025-2026
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
-use Dompdf\Dompdf;
-use Dompdf\Options as DompdfOptions;
 use realestate\funding\ExpenseStatement;
 
 [$params, $providers] = eQual::announce([
@@ -51,7 +49,7 @@ use realestate\funding\ExpenseStatement;
 $context = $providers['context'];
 
 /*
-    #todo - still not sure to handle single and grouped printing
+    #todo - not sure to handle single and grouped printing
     This controller should remain synced with packages\realestate\data\funding\fiscalperiod\expensestatement\batch-pdf.php (which uses single-html & single-pdf)
 */
 

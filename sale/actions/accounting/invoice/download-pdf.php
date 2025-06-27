@@ -25,8 +25,7 @@ list($params, $providers) = eQual::announce([
         ]
     ],
     'access'        => [
-        'visibility' => 'protected',
-        'groups'     => ['sale.default.users'],
+        'visibility' => 'protected'
     ],
     'response'      => [
         'accept-origin' => '*',

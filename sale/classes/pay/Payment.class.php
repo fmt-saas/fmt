@@ -48,7 +48,7 @@ class Payment extends Model {
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => 'Amount paid or received (whatever the origin).',
-                'dependents'        => ['funding_id' => ['is_paid', 'paid_amount']]
+                'dependents'        => ['funding_id' => ['is_paid', 'paid_amount', 'remaining_amount']]
             ],
 
             'description' => [
@@ -197,7 +197,7 @@ class Payment extends Model {
         $self->read(['funding_id', 'statement_line_id']);
         foreach($self as $id => $payment) {
             if($payment['funding_id']) {
-                Funding::id($payment['funding_id'])->update(['paid_amount' => null, 'is_paid' => null]);
+                Funding::id($payment['funding_id'])->update(['paid_amount' => null, 'remaining_amount' => null, 'is_paid' => null]);
             }
             if($payment['statement_line_id']) {
                 BankStatement::id($payment['statement_line_id'])->update(['remaining_amount' => null]);
@@ -209,7 +209,7 @@ class Payment extends Model {
         $self->read(['funding_id', 'statement_line_id']);
         foreach($self as $id => $payment) {
             if($payment['funding_id']) {
-                Funding::id($payment['funding_id'])->update(['paid_amount' => null, 'is_paid' => null]);
+                Funding::id($payment['funding_id'])->update(['paid_amount' => null, 'remaining_amount' => null, 'is_paid' => null]);
             }
             if($payment['statement_line_id']) {
                 BankStatement::id($payment['statement_line_id'])->update(['remaining_amount' => null]);

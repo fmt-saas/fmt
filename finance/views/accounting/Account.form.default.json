@@ -36,43 +36,6 @@
                                                 "width": "50%"
                                             },
                                             {
-                                                "type": "field",
-                                                "value": "description",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "50%",
-                                        "items": [
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Account Chart",
-                                                "value": "account_chart_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "condo_id",
-                                                "width": "0%",
-                                                "visible": false
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "operation_assignment",
-                                                "width": "50%"
-                                            },
-                                            {
                                                 "id": "item.apportionment_id",
                                                 "type": "field",
                                                 "value": "apportionment_id",
@@ -89,6 +52,37 @@
                                                 "type": "field",
                                                 "value": "owner_share",
                                                 "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "description",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "100%",
+                                                "visible": ["condo_id", "<>", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Account Chart",
+                                                "value": "account_chart_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "operation_assignment",
+                                                "width": "100%"
                                             }
                                         ]
                                     }
