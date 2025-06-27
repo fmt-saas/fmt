@@ -38,7 +38,7 @@ Ownership::create([
     "id"=> 4,
     "description"=> "Etienne Duchemin, Sarah Duchemin, Louis Duchemin",
     "condo_id"=> 1,
-    "ownership_type"=> "unique",
+    "ownership_type"=> "joint",
     "total_shares"=> 100,
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,

@@ -243,14 +243,14 @@ class Ownership extends \equal\orm\Model {
 
             if(!$ownership['condo_id']) {
                 $result[$id] = [
-                    'missing_representative_id' => 'The representative identity must be provided.'
+                    'missing_condo_id' => 'The condominium must be provided.'
                 ];
             }
 
             if($ownership['ownership_type'] === 'unique')  {
                 if(count($ownership['owners_ids']) != 1)  {
                     $result[$id] = [
-                        'invalid_owners_count' => 'For an ownership marked as unique, there should be only exactly owner.'
+                        'invalid_owners_count' => 'For an ownership marked as unique, there should be exactly one owner.'
                     ];
                 }
             }

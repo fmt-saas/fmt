@@ -162,10 +162,22 @@ class Suppliership extends \equal\orm\Model {
 
     protected static function policyIsValid($self) {
         $result = [];
-        /*
-            // #todo
-            les informations de bases, obligatoires pour pouvoir considérer un Ownership comme valide
-        */
+
+        $self->read(['condo_id', 'supplier_id']);
+        foreach($self as $id => $suppliership) {
+
+            if(!$suppliership['condo_id']) {
+                $result[$id] = [
+                    'missing_cond_id' => 'The condominium must be provided.'
+                ];
+            }
+
+            if(!$suppliership['supplier_id']) {
+                $result[$id] = [
+                    'missing_supplier_id' => 'The supplier must be provided.'
+                ];
+            }
+        }
         return $result;
     }
 
