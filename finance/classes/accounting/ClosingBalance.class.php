@@ -49,21 +49,52 @@ class ClosingBalance extends Balance {
         ];
     }
 
-    public static function getActions() {
+    public static function getWorkflow() {
         return [
-            'init' => [
-                'description'   => 'Generate the balance lines according to the accounting entries related to the balance fiscal year.',
-                'policies'      => [],
-                'function'      => 'doInit'
+            'pending' => [
+                'description' => 'Balance being completed, waiting to be validated.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Update the Balance to `validated`.',
+                        'onafter'     => 'onafterValidate',
+                        'status'      => 'validated'
+                    ]
+                ]
+            ],
+            'validated' => [
+                'description' => 'Validated Ownership, ready to be used.',
+                'icon'        => 'done',
+                'transitions' => [
+                    'revert' => [
+                        'description' => 'Revert to `pending` to allow changes.',
+                        'status'      => 'pending'
+                    ]
+                ]
             ]
         ];
+    }
+
+    public static function getActions() {
+        return [
+            'generate_balance_lines' => [
+                'description'   => 'Generate the balance lines according to the accounting entries related to the balance fiscal year.',
+                'policies'      => [],
+                'function'      => 'doGenerateBalanceLines'
+            ]
+        ];
+    }
+
+    protected static function onafterValidate($self) {
+        $self->do('generate_balance_lines');
     }
 
     /**
      * Generate all balance lines according to accounting entries related to the fiscal period of the closing balance.
      * A closing balance is generated once and is directly set to 'closed'
+     *
      */
-    public function doInit($self) {
+    public function doGenerateBalanceLines($self) {
         $self->read(['condo_id', 'status', 'fiscal_year_id', 'is_period_balance', 'fiscal_period_id', 'accounting_entry_id' => ['entry_lines_ids' => ['account_id', 'debit', 'credit']]]);
         foreach($self as $id => $balance) {
             // ignore non-draft

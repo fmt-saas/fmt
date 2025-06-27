@@ -70,4 +70,28 @@ class Balance extends Model {
         ];
     }
 
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Balance being completed, waiting to be validated.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Update the Balance to `validated`.',
+                        'status'      => 'validated'
+                    ]
+                ]
+            ],
+            'validated' => [
+                'description' => 'Validated Ownership, ready to be used.',
+                'icon'        => 'done',
+                'transitions' => [
+                    'revert' => [
+                        'description' => 'Revert to `pending` to allow changes.',
+                        'status'      => 'pending'
+                    ]
+                ]
+            ]
+        ];
+    }
 }

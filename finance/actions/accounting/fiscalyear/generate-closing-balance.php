@@ -58,7 +58,7 @@ ClosingBalance::create([
         'fiscal_period_id'  => $params['fiscal_period_id'],
         'is_period_balance' => true
     ])
-    ->do('init');
+    ->transition('validate');
 
 $context->httpResponse()
         ->status(204)

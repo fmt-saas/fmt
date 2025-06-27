@@ -716,7 +716,7 @@ class FundRequest extends \equal\orm\Model {
                             FundRequestExecutionLineEntry::create([
                                     'condo_id'                  => $fundRequest['condo_id'],
                                     'fund_request_id'           => $id,
-                                    'request_execution_id'      => $$requestExecution['id'],
+                                    'request_execution_id'      => $requestExecution['id'],
                                     'request_execution_line_id' => $executionLine['id'],
                                     'ownership_id'              => $ownership_id,
                                     'property_lot_id'           => $entryLot['property_lot_id'],
