@@ -101,7 +101,7 @@ Suppliership::create(["condo_id" => 2, "supplier_id" => 1]);
 $vivaquaSuppliership = Suppliership::create(["condo_id" => 1, "supplier_id" => 1131])->first();
 SuppliershipReference::create(['condo_id' => 1, 'suppliership_id' => $vivaquaSuppliership['id'], 'reference_type' => 'installation_number', 'reference_value' => '4000232058']);
 
-Suppliership::search()
+Suppliership::search(['condo_id', '<>', 0])
     ->read(['code'])
     ->transition('validate');
 

@@ -370,7 +370,7 @@ class Condominium extends Identity {
                 if($bank) {
                     // #memo - class Bank inherits from Supplier (considered as "financial services supplier")
                     $suppliership = Suppliership::search([['condo_id', '=', $id], ['supplier_id', '=', $bank['id']]])->first();
-                    if($suppliership) {
+                    if(!$suppliership) {
                         Suppliership::create(['condo_id' => $id, 'supplier_id' => $bank['id']]);
                     }
                 }
