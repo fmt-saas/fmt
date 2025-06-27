@@ -174,7 +174,7 @@ class Suppliership extends \equal\orm\Model {
 
             if(!$suppliership['supplier_id']) {
                 $result[$id] = [
-                    'missing_supplier_id' => 'The supplier must be provided.'
+                    'missing_supplier_id' => "The supplier must be provided [{$id}]."
                 ];
             }
         }

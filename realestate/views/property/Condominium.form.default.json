@@ -99,19 +99,6 @@
             "confirm": false
         },
         {
-            "id": "action.open_fiscal_year",
-            "label": "Open fiscal Year",
-            "icon": "event_available",
-            "description": "Open the fiscal year. This action cannot be undone.",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "realestate\\property\\Condominium",
-                "action": "open_fiscal_year",
-                "ids": []
-            },
-            "confirm": true
-        },
-        {
             "id": "action.create_fiscal_year",
             "label": "Create draft fiscal Year",
             "icon": "edit_calendar",

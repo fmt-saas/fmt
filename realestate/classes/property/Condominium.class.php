@@ -370,7 +370,7 @@ class Condominium extends Identity {
                 if($bank) {
                     // #memo - class Bank inherits from Supplier (considered as "financial services supplier")
                     $suppliership = Suppliership::search([['condo_id', '=', $id], ['supplier_id', '=', $bank['id']]])->first();
-                    if(!$suppliership) {
+                    if($suppliership) {
                         Suppliership::create(['condo_id' => $id, 'supplier_id' => $bank['id']]);
                     }
                 }
@@ -382,10 +382,39 @@ class Condominium extends Identity {
 
     protected static function policyIsValid($self) {
         $result = [];
-        /*
-            // #todo
-            les informations de bases, obligatoires pour pouvoir considérer un Condominium comme valide
-        */
+        $self->read(['condo_id', 'supplier_id']);
+        foreach($self as $id => $condominium) {
+
+            if(!$condominium['condo_id']) {
+                $result[$id] = [
+                    'missing_cond_id' => 'The condominium must be provided.'
+                ];
+            }
+
+/*
+            'managing_agent_id' => [
+
+            'management_contracts_ids' => [
+
+            'construction_permit_date' => [
+
+            'construction_start_date' => [
+
+            'construction_compliance_date' => [
+
+            'construction_completion_date' => [
+            'condo_creation_date' => [
+            'condo_regulations_date' => [
+            'cadastral_number' => [
+            'fiscal_year_start' => [
+            'fiscal_year_end' => [
+*/
+
+            // form ?
+            // 'expense_management_mode' => [
+
+
+        }
         return $result;
     }
 

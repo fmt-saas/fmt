@@ -3,13 +3,15 @@
     "description": "A suppliership describes a relation between a supplier and a condominium.",
     "actions": [
         {
-            "id": "action.generate_accounts",
-            "label": "Generate accounts",
-            "description": "Generate accounting accounts.",
-            "controller": "core_model_do",
+            "id": "action.validate",
+            "label": "Validate",
+            "icon": "play_arrow",
+            "description": "Generate mandatory configuration.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "pending"],
             "params": {
                 "entity": "purchase\\supplier\\Suppliership",
-                "action": "generate_accounts",
+                "transition": "validate",
                 "ids": []
             },
             "confirm": false
