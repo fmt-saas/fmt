@@ -60,7 +60,7 @@ class DocumentProcess extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Targeted document of the job.',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'document_link' => [
@@ -228,7 +228,7 @@ class DocumentProcess extends Model {
             ],
             'completed' => [
                 'description' => 'Completed document, waiting to be validated.',
-                'icon'        => 'done',
+                'icon'        => 'assignment',
                 'transitions' => [
                     'validate' => [
                         'description' => 'Update the document to `validated`.',
@@ -239,7 +239,7 @@ class DocumentProcess extends Model {
             ],
             'validated' => [
                 'description' => 'Validated document, waiting to be processed.',
-                'icon'        => 'edit',
+                'icon'        => 'done',
                 'transitions' => [
                     'record' => [
                         'description' => 'Update the document to `recorded`.',
@@ -262,7 +262,7 @@ class DocumentProcess extends Model {
             ],
             'confirmed' => [
                 'description' => 'Recorded document, waiting to be integrated.',
-                'icon'        => 'edit',
+                'icon'        => 'assignment_turned_in',
                 'transitions' => [
                     'integrate' => [
                         'description' => 'Update the document to `integrated`.',

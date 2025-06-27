@@ -276,7 +276,7 @@ class Condominium extends Identity {
         return [
             'pending' => [
                 'description' => 'Completed document, waiting to be validated.',
-                'icon'        => 'done',
+                'icon'        => 'edit',
                 'transitions' => [
                     'validate' => [
                         'description' => 'Update the document to `validated`.',
@@ -288,7 +288,7 @@ class Condominium extends Identity {
             ],
             'validated' => [
                 'description' => 'Validated document, waiting to be processed.',
-                'icon'        => 'edit',
+                'icon'        => 'done',
                 'transitions' => [
                 ]
             ]

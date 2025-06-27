@@ -165,7 +165,7 @@ class BankStatement extends Model {
             ],
             'posted' => [
                 'description' => 'The Bank Statement is reconciled.',
-                'icon' => 'receipt_long',
+                'icon' => 'done',
                 'transitions' => [
                     'cancel' => [
                         'description' => '',

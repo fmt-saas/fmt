@@ -112,7 +112,7 @@ class Suppliership extends \equal\orm\Model {
         return [
             'pending' => [
                 'description' => 'Ownership being completed, waiting to be validated.',
-                'icon'        => 'done',
+                'icon'        => 'edit',
                 'transitions' => [
                     'validate' => [
                         'description' => 'Update the Ownership to `validated`.',
@@ -124,7 +124,7 @@ class Suppliership extends \equal\orm\Model {
             ],
             'validated' => [
                 'description' => 'Validated Ownership, ready to be used.',
-                'icon'        => 'edit',
+                'icon'        => 'done',
                 'transitions' => [
                     'revert' => [
                         'description' => 'Revert to `pending` to allow changes.',
