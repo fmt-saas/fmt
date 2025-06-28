@@ -62,10 +62,9 @@ class Condominium extends Identity {
 
             'managing_agent_id' => [
                 'type'              => 'many2one',
-                'description'       => "The managing agent currently managing the condominium.",
-                'help'              => "The managing agent or 'Syndic', is in charge of the condominium, and can be a single person or an agency.",
                 'foreign_object'    => 'realestate\management\ManagingAgent',
-                // 'required'          => true
+                'description'       => "The managing agent currently managing the condominium.",
+                'help'              => "The managing agent or 'Syndic', is in charge of the condominium, and can be a single person or an agency."
             ],
 
             'management_contracts_ids' => [
@@ -382,7 +381,7 @@ class Condominium extends Identity {
 
     protected static function policyIsValid($self) {
         $result = [];
-        $self->read(['condo_id', 'supplier_id']);
+        $self->read(['condo_id', 'managing_agent_id']);
         foreach($self as $id => $condominium) {
 
             if(!$condominium['condo_id']) {
@@ -391,27 +390,26 @@ class Condominium extends Identity {
                 ];
             }
 
-/*
-            'managing_agent_id' => [
+            if(!$condominium['managing_agent_id']) {
+                $result[$id] = [
+                    'missing_managing_agent_id' => 'The managing agent must be provided.'
+                ];
+            }
 
-            'management_contracts_ids' => [
+            // #todo - check which of these must be mandatory
+            /*
 
             'construction_permit_date' => [
-
             'construction_start_date' => [
-
             'construction_compliance_date' => [
-
             'construction_completion_date' => [
             'condo_creation_date' => [
             'condo_regulations_date' => [
             'cadastral_number' => [
             'fiscal_year_start' => [
             'fiscal_year_end' => [
-*/
 
-            // form ?
-            // 'expense_management_mode' => [
+            */
 
 
         }
@@ -546,8 +544,8 @@ class Condominium extends Identity {
                 ->read(['date_from', 'date_to'])
                 ->first();
 
+            // next fiscal year exists: compute date_from and date_to
             if($fiscalYear) {
-                // computed next fiscal year date_from and date_to
                 $fiscal_year_start = $fiscalYear['date_to'];
                 $fiscal_year_start = strtotime('+1 day', $fiscal_year_start);
 
@@ -562,7 +560,6 @@ class Condominium extends Identity {
                     $fiscal_year_end = strtotime(sprintf("%d-%02d-%02d", $year_end, $month_end, $day_end));
                 }
 
-                $values['previous_fiscal_year_id'] = $fiscalYear['id'];
                 $values['date_from'] = $fiscal_year_start;
                 $values['date_to'] = $fiscal_year_end;
             }
@@ -629,7 +626,7 @@ class Condominium extends Identity {
             Setting::assert_value('finance', 'accounting', 'fiscal_year', date('Y'), ['condo_id' => $id]);
             Setting::assert_value('sale', 'accounting', 'invoice.sequence_format', '%2d{year}/%02d{period}/%05d{sequence}', ['condo_id' => $id]);
             Setting::assert_value('purchase', 'accounting', 'invoice.sequence_format', '%2d{year}/%02d{period}/%05d{sequence}', ['condo_id' => $id]);
-            // #memo - sequences for sale and purchase invoices are set in FiscalYear (since depending on year and period)
+            // #memo - sequences for sale and purchase invoices & accounting entries are set in FiscalYear (since they rely on year and period)
         }
     }
 

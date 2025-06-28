@@ -1,0 +1,69 @@
+{
+    "name": "Accounting Balance Lines",
+    "controller": "finance_accounting_BalanceLine_collect",
+    "header": {
+        "actions": {
+            "ACTION.CREATE" : false
+        },
+        "advanced_search": {
+            "open": true
+        }
+    },
+    "operations": {
+        "total": {
+            "debit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "credit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "debit_balance": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "credit_balance": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "limit": 250,
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "label": "Account",
+                "value": "account_id",
+                "width": "40%"
+            },
+            {
+                "type": "field",
+                "value": "debit",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "credit",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "debit_balance",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "credit_balance",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "fiscal_year_id",
+                "width": "15%",
+                "visible": false
+            }
+        ]
+    }
+}

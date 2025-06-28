@@ -292,8 +292,9 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'icon' => 'drafts',
                 'transitions' => [
                     'open' => [
-                        'description' => 'Update the document to `pending`.',
-                        'status' => 'open',
+                        'description'   => 'Update the document to `pending`.',
+                        'onafter'       => 'onafterOpen',
+                        'status'        => 'open',
                     ],
                 ],
             ],
@@ -369,8 +370,10 @@ class OwnershipTransfer extends \equal\orm\Model {
         ];
     }
 
-    protected static function onbeforeOpen($self) {
-        $self->do('generate_adjustments');
+
+
+    protected static function onafterOpen($self) {
+        $self->do('generate_fund_balance_lines');
     }
 
     public static function getPolicies(): array {
@@ -899,6 +902,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                             'id'    => $ownership['id'],
                             'name'  => $ownership['name']
                         ];
+                        $result['property_lots_ids'] = [$event['property_lot_id']];
                     }
                     else {
                         $result['old_ownership_id'] = [

@@ -19,8 +19,8 @@
             "description": "",
             "icon": "date_range",
             "context": {
-                "entity": "finance\\accounting\\FiscalYear",
-                "view": "list.condo",
+                "entity": "realestate\\property\\Condominium",
+                "view": "form.fiscalYears",
                 "domain": [["condo_id", "=", "object.id"]]
             }
         },

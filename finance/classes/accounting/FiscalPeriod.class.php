@@ -131,7 +131,8 @@ class FiscalPeriod extends Model {
             if(!$period['date_from'] || !$period['date_to']) {
                 continue;
             }
-            $result[$id] = $period['code'] . ' - ' . date('Y-m-d', $period['date_from']) . ' - ' . date('Y-m-d', $period['date_to']) . " ({$period['condo_id']['name']})";
+            $result[$id] = (strlen($period['code']) > 0) ? ($period['code'] . ' - ') : '';
+            $result[$id] .= date('Y-m-d', $period['date_from']) . ' - ' . date('Y-m-d', $period['date_to']) . " ({$period['condo_id']['name']})";
         }
         return $result;
     }

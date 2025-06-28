@@ -117,6 +117,15 @@ class Funding extends \sale\pay\Funding {
                 'visible'           => ['funding_type', 'in', ['transfer']],
             ],
 
+            'money_refund_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\finance\accounting\MoneyRefund',
+                'description'       => 'Miscellaneous operation targeted by the funding, if any.',
+                'help'              => 'Money refund is a particular case of misc operation.',
+                'readonly'          => true,
+                'visible'           => ['funding_type', 'in', ['refund']],
+            ],
+
             'ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The ownership that the funding refers to.",

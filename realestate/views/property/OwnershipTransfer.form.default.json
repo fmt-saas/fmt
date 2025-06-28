@@ -36,16 +36,6 @@
             }
         },
         {
-            "id": "action.generate_balances",
-            "label": "Compute balances",
-            "description": "Compute condominium funds balances.",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "realestate\\property\\OwnershipTransfer",
-                "action": "generate_fund_balance_lines"
-            }
-        },
-        {
             "id": "action.generate_adjustments",
             "label": "Generate adjustments",
             "description": "Compute accounting necessary adjustments.",

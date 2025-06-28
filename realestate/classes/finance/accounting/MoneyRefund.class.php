@@ -121,12 +121,12 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'draft',
+                    'pending',
                     'proforma',
                     'posted',
                     'completed'
                 ],
-                'default'           => 'draft',
+                'default'           => 'pending',
                 'description'       => 'Current status of the operation.',
             ],
         ];
@@ -134,7 +134,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
 
     public static function getWorkflow() {
         return array_merge(parent::getWorkflow(), [
-            'draft' => [
+            'pending' => [
                 'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
                 'icon'        => 'draw',
                 'transitions' => [
@@ -179,6 +179,11 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'description'   => 'Creates accounting entries for the refund.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
                 'function'      => 'doGenerateAccountingEntryOutgoing'
+            ],
+            'create_fundings' => [
+                'description'   => 'Creates a funding for the transfer followup.',
+                'policies'      => [/* 'can_generate_fundings' */],
+                'function'      => 'doCreateFundings'
             ]
         ]);
     }
@@ -284,6 +289,26 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
         return $result;
     }
 
+
+    protected static function doCreateFundings($self) {
+        $self->read(['condo_id', 'amount', 'bank_account_id', 'counterpart_bank_account_id']);
+
+        // request an amount from the owner, to be paid on the current account
+        foreach($self as $id => $moneyRefund) {
+
+            Funding::create([
+                    'condo_id'                      => $moneyRefund['condo_id'],
+                    'money_refund_id'               => $id,
+                    'funding_type'                  => 'refund',
+                    'due_amount'                    => -$moneyRefund['amount'],
+                    'bank_account_id'               => $moneyRefund['bank_account_id'],
+                    'counterpart_bank_account_id'   => $moneyRefund['counterpart_bank_account_id'],
+                    // #todo - allow custom with setting
+                    'due_date'                      => time() + 10 * 86400
+                ]);
+        }
+    }
+
     protected static function doGenerateAccountingEntryOutgoing($self) {
         $self->read([
                 'condo_id', 'amount', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
@@ -366,7 +391,8 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
 
     protected static function onafterPost($self) {
         $self
-            ->do('generate_accounting_entry_outgoing');
+            ->do('generate_accounting_entry_outgoing')
+            ->do('generate_fundings');
     }
 
     public static function onchange($event, $values) {

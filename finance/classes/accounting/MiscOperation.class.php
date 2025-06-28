@@ -127,11 +127,11 @@ class MiscOperation extends Model {
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'draft',
+                    'pending',
                     'proforma',
                     'posted'
                 ],
-                'default'           => 'draft',
+                'default'           => 'pending',
                 'description'       => 'Current status of the operation.',
             ],
 
@@ -140,7 +140,7 @@ class MiscOperation extends Model {
 
     public static function getWorkflow() {
         return [
-            'draft' => [
+            'pending' => [
                 'description' => 'Miscellaneous operation being created.',
                 'icon'        => 'draw',
                 'transitions' => [

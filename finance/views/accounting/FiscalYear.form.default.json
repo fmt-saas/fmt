@@ -11,9 +11,17 @@
     },
     "actions": [
         {
-            "id": "action.generate_periods",
-            "label": "Generate periods",
-            "controller": "finance_accounting_fiscalyear_generate-periods",
+            "id": "action.generate_fiscal_periods",
+            "label": "Generate fiscal periods",
+            "icon": "edit_calendar",
+            "description": "Generate fiscal periods according to configuration.",
+            "controller": "core_model_do",
+            "visible": ["status", "=", "draft"],
+            "params": {
+                "entity": "finance\\accounting\\FiscalYear",
+                "action": "generate_periods",
+                "ids": []
+            },
             "confirm": true
         },
         {
@@ -122,14 +130,16 @@
                                                 "type": "field",
                                                 "label": "Organisation",
                                                 "value": "organisation_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "visible": false
                                             },
                                             {
                                                 "id": "item.condo_id",
                                                 "type": "field",
                                                 "label": "Condominium",
                                                 "value": "condo_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
@@ -176,6 +186,7 @@
                     {
                         "id": "section.balance_lines",
                         "label": "Balance",
+                        "visible": ["status", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [
@@ -191,7 +202,8 @@
                                                         "actions": {
                                                             "ACTION.CREATE": false
                                                         }
-                                                    }
+                                                    },
+                                                    "view": "list.condo"
                                                 }
                                             }
                                         ]
@@ -200,9 +212,10 @@
                             }
                         ]
                     },
-{
+                    {
                         "id": "section.closing_balances",
                         "label": "Closing Balances",
+                        "visible": ["status", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [

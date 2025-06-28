@@ -97,19 +97,6 @@
                 "ids": []
             },
             "confirm": false
-        },
-        {
-            "id": "action.create_fiscal_year",
-            "label": "Create draft fiscal Year",
-            "icon": "edit_calendar",
-            "description": "Create a new fiscal year draft. This will overwrite any existing fiscal year draft.",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "realestate\\property\\Condominium",
-                "action": "create_draft_fiscal_year",
-                "ids": []
-            },
-            "confirm": true
         }
     ],
     "layout": {

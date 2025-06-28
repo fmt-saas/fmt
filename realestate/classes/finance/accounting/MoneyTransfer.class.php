@@ -137,12 +137,12 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'draft',
+                    'pending',
                     'proforma',
                     'sent',
                     'posted'
                 ],
-                'default'           => 'draft',
+                'default'           => 'pending',
                 'description'       => 'Current status of the operation.',
             ],
 
@@ -151,7 +151,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
     public static function getWorkflow() {
         return array_merge(parent::getWorkflow(), [
-            'draft' => [
+            'pending' => [
                 'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
                 'icon'        => 'draw',
                 'transitions' => [
