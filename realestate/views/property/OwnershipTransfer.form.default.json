@@ -16,7 +16,7 @@
             "label": "Open",
             "description": "Validate data and start the transfer process.",
             "controller": "core_model_transition",
-            "visible": [ ["status", "=", "draft"] ],
+            "visible": [ ["status", "=", "pending"] ],
             "params": {
                 "entity": "realestate\\property\\OwnershipTransfer",
                 "transition": "open",
@@ -74,6 +74,17 @@
                                         "items": [
                                             {
                                                 "type": "label",
+                                                "value": "Notary Request",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Date of the notary request",
+                                                "value": "request_date",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
                                                 "value": "Condominium & Owner",
                                                 "width": "100%"
                                             },
@@ -84,7 +95,8 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "property_lot_id",
+                                                "label": "Current Owner",
+                                                "value": "old_ownership_id",
                                                 "width": "50%",
                                                 "visible": ["condo_id", "<>", null],
                                                 "widget": {
@@ -97,10 +109,9 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Current Owner",
-                                                "value": "old_ownership_id",
+                                                "value": "property_lot_id",
                                                 "width": "50%",
-                                                "visible": ["condo_id", "<>", null],
+                                                "visible": [["condo_id", "<>", null], ["status", "=", "pending"]],
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
@@ -150,12 +161,6 @@
                                     {
                                         "width": "50%",
                                         "items": [
-                                            {
-                                                "type": "field",
-                                                "label": "Date of the notary request",
-                                                "value": "request_date",
-                                                "width": "50%"
-                                            }
                                         ]
                                     },
                                     {

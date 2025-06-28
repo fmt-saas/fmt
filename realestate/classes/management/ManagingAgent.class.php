@@ -9,14 +9,10 @@ namespace realestate\management;
 
 use identity\Identity;
 
-class ManagingAgent extends \identity\Identity {
+class ManagingAgent extends \purchase\supplier\Supplier {
 
     public static function getName() {
         return 'Managing Agent';
-    }
-
-    public function getTable() {
-        return 'realestate_management_managingagent';
     }
 
     public static function getDescription() {
@@ -56,6 +52,7 @@ class ManagingAgent extends \identity\Identity {
                 Identity::id($managingAgent['identity_id'])->update(['managing_agent_id' => $id]);
             }
         }
+        parent::onupdateIdentityId($self);
     }
 
 }

@@ -31,6 +31,7 @@ Identity::create([
 Bank::create([
     "id" => 500,
     "identity_id" => 500,
+    "supplier_type_id" => 2,
     "bic" => "GKCCBEBB",
     "is_active" => true,
 ]);
@@ -59,6 +60,7 @@ Identity::create([
 Bank::create([
     "id" => 501,
     "identity_id" => 501,
+    "supplier_type_id" => 2,
     "bic" => "ARGOBEBB",
     "is_active" => true,
 ]);
@@ -87,6 +89,7 @@ Identity::create([
 Bank::create([
     "id" => 502,
     "identity_id" => 502,
+    "supplier_type_id" => 2,
     "bic" => "TRIOBEBB",
     "is_active" => true,
 ]);
@@ -115,6 +118,7 @@ Identity::create([
 Bank::create([
     "id" => 503,
     "identity_id" => 503,
+    "supplier_type_id" => 2,
     "bic" => "GEBABEBB",
     "is_active" => true,
 ]);
@@ -143,6 +147,7 @@ Identity::create([
 Bank::create([
     "id" => 504,
     "identity_id" => 504,
+    "supplier_type_id" => 2,
     "bic" => "DEUTBEBE",
     "is_active" => true,
 ]);
@@ -171,6 +176,7 @@ Identity::create([
 Bank::create([
     "id" => 505,
     "identity_id" => 505,
+    "supplier_type_id" => 2,
     "bic" => "CTBKBEBX",
     "is_active" => true,
 ]);
@@ -199,6 +205,7 @@ Identity::create([
 Bank::create([
     "id" => 506,
     "identity_id" => 506,
+    "supplier_type_id" => 2,
     "bic" => "KEYTBEBB",
     "is_active" => true,
 ]);
@@ -208,4 +215,4 @@ Bank::create([
 $orm->enableEvents($events);
 
 // sync values from Identities to Suppliers (Banks)
-Bank::search()->do('sync_from_identity');
+Bank::search(['object_class', '=', 'finance\bank\Bank'])->do('sync_from_identity');

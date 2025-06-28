@@ -108,140 +108,11 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'visible'           => [[['is_existing_new_ownership', '=', true]], [['is_resolved_new_ownership', '=', true]]]
             ],
 
-            'has_suggested_identity' => [
-                'type'              => 'boolean',
-                'description'       => "The provided details resolved to a suggested identity.",
-                'default'           => false
-            ],
-
-            'suggested_identity_log' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain.small',
-                'description'       => "The information about retrieved/suggested identity.",
-                'readonly'          => true,
-                'visible'           => [['is_existing_new_ownership', '=', false], ['has_suggested_identity', '=', true]]
-            ],
-
-            'suggested_identity_uuid' => [
-                'type'              => 'integer',
-                'description'       => "The global UUID of the suggested identity for the new Owner.",
-                'readonly'          => true
-            ],
-
-            'is_accepted_suggested_identity' => [
-                'type'              => 'boolean',
-                'description'       => "Suggested identity accepted as new Owner.",
-                'default'           => false
-            ],
-
             'is_resolved_new_ownership' => [
                 'type'              => 'boolean',
                 'description'       => "The identity of the new Owner has been resolved to an Ownership.",
                 'help'              => "This is set according to the status and new owner identity, either suggested or created using manually entered data.",
                 'default'           => false
-            ],
-
-            'identity_firstname' => [
-                'type'              => 'string',
-                'description'       => "Full name of the contact (must be a person, not a role).",
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            'identity_lastname' => [
-                'type'              => 'string',
-                'description'       => 'Reference contact surname.',
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            'identity_gender' => [
-                'type'              => 'string',
-                'selection'         => ['M' => 'Male', 'F' => 'Female', 'X' => 'Non-binary'],
-                'description'       => 'Reference contact gender.',
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            'identity_title' => [
-                'type'              => 'string',
-                'selection'         => ['Ms' => 'Miss', 'Mrs' => 'Misses', 'Mr' => 'Mister'],
-                'description'       => 'Reference contact title.',
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            'identity_date_of_birth' => [
-                'type'              => 'date',
-                'description'       => 'Date of birth.',
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            'identity_lang_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'core\Lang',
-                'description'       => "Preferred language of the identity.",
-                'default'           => Setting::get_value('identity', 'organization', 'identity_lang_default', 1),
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            /*
-                Description of the Identity address.
-                For organizations this is the official (legal) address (typically headquarters, but not necessarily)
-            */
-            'identity_address_street' => [
-                'type'              => 'string',
-                'description'       => 'Street and number.',
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            'identity_address_dispatch' => [
-                'type'              => 'string',
-                'description'       => 'Optional info for mail dispatch (apartment, box, floor, ...).',
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            'identity_address_city' => [
-                'type'              => 'string',
-                'description'       => 'City.',
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            'identity_address_zip' => [
-                'type'              => 'string',
-                'description'       => 'Postal code.',
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            'identity_address_country' => [
-                'type'              => 'string',
-                'usage'             => 'country/iso-3166:2',
-                'description'       => 'Country.',
-                'default'           => 'BE',
-                'visible'           => ['is_existing_new_ownership', '=', false],
-            ],
-
-            'identity_email' => [
-                'type'              => 'string',
-                'usage'             => 'email',
-                'description'       => "Identity main email address.",
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            'identity_phone' => [
-                'type'              => 'string',
-                'usage'             => 'phone',
-                'description'       => "Identity secondary phone number (mobile or landline).",
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            'identity_bank_account_iban' => [
-                'type'              => 'string',
-                'usage'             => 'uri/urn.iban',
-                'description'       => "Number of the bank account of the Identity, if any.",
-                'visible'           => ['is_existing_new_ownership', '=', false]
-            ],
-
-            'identity_citizen_identification' => [
-                'type'              => 'string',
-                'description'       => 'Citizen registration number, if any.',
-                'visible'           => ['is_existing_new_ownership', '=', false]
             ],
 
             'adjustments_ids' => [
@@ -270,7 +141,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'draft',
+                    'pending',
                     'open',
                     'seller_documents_sent',
                     'confirmed',
@@ -278,7 +149,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                     'accounting_pending',
                     'closed'
                 ],
-                'default'     => 'draft',
+                'default'     => 'pending',
                 'description' => 'Status of the ownership transfer.',
             ],
 
@@ -287,12 +158,13 @@ class OwnershipTransfer extends \equal\orm\Model {
 
     public static function getWorkflow() {
         return [
-            'draft' => [
+            'pending' => [
                 'description' => 'Draft ownership transfer, not yet validated.',
                 'icon' => 'drafts',
                 'transitions' => [
                     'open' => [
                         'description'   => 'Update the document to `pending`.',
+                        'policies'      => ['is_valid'],
                         'onafter'       => 'onafterOpen',
                         'status'        => 'open',
                     ],
@@ -385,6 +257,10 @@ class OwnershipTransfer extends \equal\orm\Model {
             'can_perform_transfer' => [
                 'description' => 'Verifies that a fiscal year can be opened according to user roles.',
                 'function'    => 'policyCanPerformTransfer'
+            ],
+            'is_valid' => [
+                'description' => 'Verifies that the mandatory values are present for Condominium validation.',
+                'function'    => 'policyIsValid'
             ]
         ];
     }
@@ -407,6 +283,40 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'function'      => 'doGenerateFundBalanceLines'
             ]
         ]);
+    }
+
+    protected static function policyIsValid($self) {
+        $result = [];
+
+        $self->read(['condo_id', 'old_ownership_id', 'request_date', 'property_lots_ids']);
+        foreach($self as $id => $ownershipTransfer) {
+
+            if(!$ownershipTransfer['condo_id']) {
+                $result[$id] = [
+                    'missing_condo_id' => 'The condominium must be provided.'
+                ];
+            }
+
+            if(!$ownershipTransfer['old_ownership_id']) {
+                $result[$id] = [
+                    'missing_old_ownership_id' => 'The old owner must be provided.'
+                ];
+            }
+
+            if(count($ownershipTransfer['property_lots_ids']) <= 0)  {
+                $result[$id] = [
+                    'invalid_property_lots_count' => 'There should be at least one selected property lot.'
+                ];
+            }
+
+            if(!$ownershipTransfer['request_date']) {
+                $result[$id] = [
+                    'missing_request_date' => 'Request Date is mandatory.'
+                ];
+            }
+
+        }
+        return $result;
     }
 
     protected static function policyCanPerformTransfer($self) {
@@ -448,7 +358,7 @@ class OwnershipTransfer extends \equal\orm\Model {
         foreach($self as $id => $ownershipTransfer) {
             OwnershipTransferFundBalanceLine::search(['ownership_transfer_id', '=', $id])->delete(true);
             $date = null;
-            if(in_array($ownershipTransfer['status'], ['draft', 'open', 'seller_documents_sent'], true)) {
+            if(in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'], true)) {
                 $date = $ownershipTransfer['request_date'];
             }
             elseif(in_array($ownershipTransfer['status'], ['confirmed', 'financial_statement_sent'], true)) {
@@ -922,72 +832,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             }
         }
 
-        if(isset($event['identity_address_street'])) {
-            $values['identity_address_street'] = $event['identity_address_street'];
-        }
-
-        if(isset($event['identity_address_zip'])) {
-            $values['identity_address_zip'] = preg_replace('/[^A-Z0-9]/i', '', $event['identity_address_zip']);
-        }
-
-        if(isset($event['identity_address_zip']) && isset($values['identity_address_country'])) {
-            $list = self::computeCitiesByZip($values['identity_address_zip'], $values['identity_address_country'], $lang);
-            if($list && count($list)) {
-                $result['identity_address_city'] = [
-                    'value' => $list[0],
-                    'selection' => $list
-                ];
-            }
-        }
-
-        if(isset($event['identity_bank_account_iban'])) {
-            $result['identity_bank_account_iban'] = preg_replace('/[^A-Z0-9]/i', '', $event['identity_bank_account_iban']);
-        }
-
-        if(isset($event['identity_phone'])) {
-            $result['identity_phone'] = preg_replace('/[^\d+]/', '', $event['identity_phone']);
-        }
-
-        if(isset($event['identity_citizen_identification'])) {
-            $values['identity_citizen_identification'] = $event['identity_citizen_identification'];
-        }
-
-        if(isset($event['identity_email'])) {
-            $result['identity_email'] = trim($event['identity_email']);
-            $values['identity_email'] = $result['identity_email'];
-        }
-
-        if(isset($event['is_accepted_suggested_identity']) && $event['is_accepted_suggested_identity']) {
-            if(isset($values['suggested_identity_uuid'])) {
-                // #todo - temp
-                $identity_id = $values['suggested_identity_uuid'];
-
-                $identity = Identity::id($identity_id)
-                    ->read([
-                        'name', 'firstname', 'lastname', 'citizen_identification', 'email', 'phone', 'title', 'gender',
-                        'address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_country',
-                        'bank_account_iban'
-                    ])
-                    ->first();
-
-                $result = [
-                        'identity_firstname'                 => $identity['firstname'],
-                        'identity_lastname'                  => $identity['lastname'],
-                        'identity_gender'                    => $identity['gender'],
-                        'identity_title'                     => $identity['title'],
-                        'identity_citizen_identification'    => $identity['citizen_identification'],
-                        'identity_email'                     => $identity['email'],
-                        'identity_phone'                     => $identity['phone'],
-                        'identity_address_street'            => $identity['address_street'],
-                        'identity_address_dispatch'          => $identity['address_dispatch'],
-                        'identity_address_zip'               => $identity['address_zip'],
-                        'identity_address_city'              => $identity['address_city'],
-                        'identity_address_country'           => $identity['address_country'],
-                        'identity_bank_account_iban'         => $identity['bank_account_iban']
-                    ];
-            }
-        }
-
+        /*
         if(!$values['has_suggested_identity'] || !$values['is_accepted_suggested_identity']) {
             // #memo - attempt to retrieve matching Identity at this stage since values have been adapted/sanitized to their final (stored) format
             // #todo - use global DB for retrieving candidate Identity
@@ -1031,6 +876,7 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             }
         }
+        */
 
         return $result;
     }

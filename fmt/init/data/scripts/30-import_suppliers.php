@@ -3796,4 +3796,4 @@ Identity::search()->do('refresh_bank_accounts');
 $orm->enableEvents($events);
 
 // sync values from Identities to Suppliers
-Supplier::search()->do('sync_from_identity');
+Supplier::search(['object_class', '=', 'purchase\supplier\Supplier'])->do('sync_from_identity');

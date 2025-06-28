@@ -304,9 +304,20 @@
                 "type": "parent",
                 "children": [
                     {
+                        "id": "identities",
+                        "type": "entry",
+                        "label": "Identities",
+                        "icon": "person",
+                        "description": "",
+                        "context": {
+                            "entity": "identity\\Identity",
+                            "view": "list.default"
+                        }
+                    },
+                    {
                         "id": "suppliers",
                         "type": "entry",
-                        "label": "Suppliers",
+                        "label": "All Suppliers",
                         "icon": "local_shipping",
                         "description": "",
                         "context": {
@@ -327,17 +338,6 @@
                         }
                     },
                     {
-                        "id": "identities",
-                        "type": "entry",
-                        "label": "Identities",
-                        "icon": "person",
-                        "description": "",
-                        "context": {
-                            "entity": "identity\\Identity",
-                            "view": "list.default"
-                        }
-                    },
-                    {
                         "id": "managing_agents",
                         "type": "entry",
                         "label": "Managing Agents",
@@ -345,87 +345,8 @@
                         "description": "",
                         "context": {
                             "entity": "realestate\\management\\ManagingAgent",
-                            "view": "list.default"
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "item.config",
-                "label": "Config",
-                "description": "",
-                "icon": "now_widgets",
-                "type": "parent",
-                "children": [
-                    {
-                                "id": "item.documents",
-                                "label": "Documents",
-                                "description": "",
-                                "icon": "picture_as_pdf",
-                                "type": "parent",
-                                "children": [
-                                    {
-                                        "id": "item.config.documents_types",
-                                        "type": "entry",
-                                        "label": "Document Types",
-                                        "icon": "book",
-                                        "description": "",
-                                        "context": {
-                                            "entity": "documents\\DocumentType"
-                                        }
-                                    },
-                                    {
-                                        "id": "item.config.documents_subtypes",
-                                        "type": "entry",
-                                        "label": "Document Subtypes",
-                                        "icon": "book",
-                                        "description": "",
-                                        "context": {
-                                            "entity": "documents\\DocumentSubtype"
-                                        }
-                                    },
-                                    {
-                                        "id": "item.config.documents_recording_rules",
-                                        "type": "entry",
-                                        "label": "Recording Rules",
-                                        "icon": "auto_awesome",
-                                        "description": "",
-                                        "context": {
-                                            "entity": "documents\\recording\\RecordingRule"
-                                        }
-                                    }
-                                ]
-                    },
-                    {
-                        "id": "item.config.pricelist",
-                        "type": "entry",
-                        "label": "Price list",
-                        "icon": "price_check",
-                        "description": "",
-                        "context": {
-                            "entity": "sale\\price\\PriceList",
-                            "view": "list.org",
-                            "domain": ["condo_id", "=", null]
-                        }
-                    },
-                    {
-                        "id": "item.config.payment_terms",
-                        "type": "entry",
-                        "label": "Payment terms",
-                        "icon": "payments",
-                        "description": "",
-                        "context": {
-                            "entity": "sale\\pay\\PaymentTerms"
-                        }
-                    },
-                    {
-                        "id": "item.config.supplier_types",
-                        "type": "entry",
-                        "label": "Supplier Types",
-                        "icon": "category",
-                        "description": "",
-                        "context": {
-                            "entity": "purchase\\supplier\\SupplierType"
+                            "view": "list.default",
+                            "domain": ["supplier_type_code", "=", "managing_agent"]
                         }
                     }
                 ]
@@ -547,6 +468,86 @@
                             "view": "form.import",
                             "entity": "finance\\bank\\BankStatementImport",
                             "purpose": "create"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "item.config",
+                "label": "Config",
+                "description": "",
+                "icon": "now_widgets",
+                "type": "parent",
+                "children": [
+                    {
+                                "id": "item.documents",
+                                "label": "Documents",
+                                "description": "",
+                                "icon": "picture_as_pdf",
+                                "type": "parent",
+                                "children": [
+                                    {
+                                        "id": "item.config.documents_types",
+                                        "type": "entry",
+                                        "label": "Document Types",
+                                        "icon": "book",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "documents\\DocumentType"
+                                        }
+                                    },
+                                    {
+                                        "id": "item.config.documents_subtypes",
+                                        "type": "entry",
+                                        "label": "Document Subtypes",
+                                        "icon": "book",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "documents\\DocumentSubtype"
+                                        }
+                                    },
+                                    {
+                                        "id": "item.config.documents_recording_rules",
+                                        "type": "entry",
+                                        "label": "Recording Rules",
+                                        "icon": "auto_awesome",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "documents\\recording\\RecordingRule"
+                                        }
+                                    }
+                                ]
+                    },
+                    {
+                        "id": "item.config.pricelist",
+                        "type": "entry",
+                        "label": "Price list",
+                        "icon": "price_check",
+                        "description": "",
+                        "context": {
+                            "entity": "sale\\price\\PriceList",
+                            "view": "list.org",
+                            "domain": ["condo_id", "=", null]
+                        }
+                    },
+                    {
+                        "id": "item.config.payment_terms",
+                        "type": "entry",
+                        "label": "Payment terms",
+                        "icon": "payments",
+                        "description": "",
+                        "context": {
+                            "entity": "sale\\pay\\PaymentTerms"
+                        }
+                    },
+                    {
+                        "id": "item.config.supplier_types",
+                        "type": "entry",
+                        "label": "Supplier Types",
+                        "icon": "category",
+                        "description": "",
+                        "context": {
+                            "entity": "purchase\\supplier\\SupplierType"
                         }
                     }
                 ]

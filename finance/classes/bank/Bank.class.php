@@ -21,6 +21,12 @@ class Bank extends \purchase\supplier\Supplier {
     public static function getColumns() {
 
         return [
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Class of the current Identity.',
+                'help'              => 'This is required in order to display the relational fields accordingly.',
+                'default'           => 'finance\bank\Bank'
+            ],
 
             'bic' => [
                 'type'              => 'string',
