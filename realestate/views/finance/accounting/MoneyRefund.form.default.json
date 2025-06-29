@@ -15,9 +15,9 @@
         {
             "id": "action.publish",
             "label": "Publish",
-            "description": "Publish the Money Transfer for validation.",
+            "description": "Publish the Money Refund for validation.",
             "controller": "core_model_transition",
-            "visible": [ ["status", "=", "draft"] ],
+            "visible": [ ["status", "=", "pending"] ],
             "params": {
                 "entity": "realestate\\finance\\accounting\\MoneyRefund",
                 "transition": "publish",
@@ -27,7 +27,7 @@
         {
             "id": "action.post",
             "label": "Post",
-            "description": "Mark the transfer as posted/initiated.",
+            "description": "Mark the refund as posted/initiated.",
             "controller": "core_model_transition",
             "visible": [ ["status", "=", "proforma"] ],
             "params": {
@@ -39,7 +39,7 @@
         {
             "id": "action.complete",
             "label": "Complete",
-            "description": "Mark the transfer as completed.",
+            "description": "Mark the refund as completed.",
             "controller": "core_model_transition",
             "visible": [ ["status", "=", "posted"] ],
             "params": {

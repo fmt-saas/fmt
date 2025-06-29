@@ -36,27 +36,54 @@
             }
         },
         {
-            "id": "action.generate_adjustments",
-            "label": "Generate adjustments",
-            "description": "Compute accounting necessary adjustments.",
-            "controller": "core_model_do",
+            "id": "action.settle",
+            "label": "Settle",
+            "description": "Validate data and start the transfer process.",
+            "controller": "core_model_transition",
+            "visible": [ ["status", "in", ["confirmed", "financial_statement_sent"]] ],
             "params": {
                 "entity": "realestate\\property\\OwnershipTransfer",
-                "action": "generate_adjustments"
+                "transition": "settle",
+                "ids": []
             }
+        },
+        {
+            "id": "action.generate_adjustments",
+            "label":     "Generate Adjustments",
+            "description": "Generate accounting accounts.",
+            "controller": "core_model_do",
+            "visible": ["status", "in", ["settled"]],
+            "params": {
+                "entity": "realestate\\property\\OwnershipTransfer",
+                "action": "generate_adjustments",
+                "ids": []
+            },
+            "confirm": false
         },
         {
             "id": "action.perform_transfer",
             "label": "Perform Transfer",
             "description": "Generate accounting accounts.",
             "controller": "core_model_do",
-            "visible": ["status", "in", ["confirmed", "financial_statement_sent"]],
+            "visible": ["status", "in", ["settled"]],
             "params": {
                 "entity": "realestate\\property\\OwnershipTransfer",
                 "action": "perform_transfer",
                 "ids": []
             },
             "confirm": false
+        }
+    ],
+    "routes": [
+        {
+            "id": "route.print.pdf",
+            "label": "Print mail",
+            "description": "Displays all lines but without group.",
+            "icon": "print",
+            "route": "/?get=realestate_property_OwnershipTransfer_render-pdf&id=object.id",
+            "target": "_blank",
+            "absolute": true,
+            "visible": ["status", "<>", "pending"]
         }
     ],
     "layout": {
@@ -154,7 +181,7 @@
                     {
                         "id": "section.information_documents",
                         "label": "Information (3.94 §1)",
-                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "in", ["open", "seller_documents_sent", "confirmed", "financial_statement_sent"]]],
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "in", ["open", "seller_documents_sent", "confirmed", "financial_statement_sent", "settled"]]],
                         "rows": [
                             {
                                 "columns": [
@@ -239,7 +266,7 @@
                     {
                         "id": "section.information_statements",
                         "label": "Information (3.94 §2)",
-                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "in", ["confirmed", "financial_statement_sent"]]],
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "in", ["confirmed", "financial_statement_sent", "settled"]]],
                         "rows": [
                             {
                                 "columns": [
@@ -298,9 +325,9 @@
                         ]
                     },
                     {
-                        "id": "section.new_owner",
-                        "label": "New Owner",
-                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "=", "accounting_pending"]],
+                        "id": "section.information_settlement",
+                        "label": "Information (3.94 §3)",
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "=", "settled"]],
                         "rows": [
                             {
                                 "columns": [
@@ -309,8 +336,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "label": "Existing Ownership",
-                                                "value": "is_existing_new_ownership"
+                                                "value": "transfer_date"
                                             },
                                             {
                                                 "type": "field",
@@ -320,7 +346,11 @@
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
-                                                            "ACTION.CREATE": false
+                                                            "ACTION.CREATE": [
+                                                                {
+                                                                    "view": "form.transfer_create"
+                                                                }
+                                                            ]
                                                         }
                                                     }
                                                 }
@@ -333,146 +363,7 @@
                                     },
                                     {
                                         "width": "33%",
-                                        "visible": ["has_suggested_identity", "=", true],
-                                        "items": [
-                                            {
-                                                "type": "label",
-                                                "value": "Suggested identity",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Accept ?",
-                                                "value": "is_accepted_suggested_identity",
-                                                "width": "50%",
-                                                "visible": ["has_suggested_identity", "=", true]
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "visible": ["is_existing_new_ownership", "=", false],
-                                "columns": [
-                                    {
-                                        "width": "50%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "label": "firstname",
-                                                "value": "identity_firstname",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "lastname",
-                                                "value": "identity_lastname",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Citizen ID",
-                                                "value": "identity_citizen_identification",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Email",
-                                                "value": "identity_email",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Phone",
-                                                "value": "identity_phone",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "iban",
-                                                "value": "identity_bank_account_iban",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "street",
-                                                "value": "identity_address_street",
-                                                "width": "66%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "dispatch",
-                                                "value": "identity_address_dispatch",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "zip",
-                                                "value": "identity_address_zip",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "city",
-                                                "value": "identity_address_city",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "country",
-                                                "value": "identity_address_country",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "gender",
-                                                "value": "identity_gender",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "title",
-                                                "value": "identity_title",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "lang",
-                                                "value": "identity_lang_id",
-                                                "width": "33%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "16%",
                                         "items": []
-                                    },
-                                    {
-                                        "width": "33%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "has_suggested_identity",
-                                                "width": "0%",
-                                                "visible": false
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "suggested_identity_uuid",
-                                                "width": "0%",
-                                                "visible": false
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Suggested Identity details",
-                                                "value": "suggested_identity_log",
-                                                "width": "100%",
-                                                "visible": ["has_suggested_identity", "=", true],
-                                                "widget": {
-                                                    "height": "500"
-                                                }
-                                            }
-                                        ]
                                     }
                                 ]
                             }
@@ -481,51 +372,25 @@
                     {
                         "id": "section.transfer_details",
                         "label": "Transfer",
-                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["new_ownership_id", "<>", null]],
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "=", "settled"]],
                         "rows": [
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "transfer_date"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "50%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "adjustments_ids",
                                                 "widget": {
                                                     "header": {
-                                                        "layout": "inline"
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
                                                     },
                                                     "view": "list.transfer"
                                                 }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "id": "section.notary_deed",
-                        "label": "Notary Deed",
-                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["new_ownership_id", "<>", null], ["status", "=", "open"]],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "50%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "transfer_date"
                                             }
                                         ]
                                     }

@@ -184,6 +184,7 @@
                                     {
                                         "width": "33%",
                                         "align": "left",
+                                        "visible": ["state", "<>", "draft"],
                                         "items": [
                                             {
                                                 "type": "field",
@@ -278,6 +279,7 @@
                     {
                         "label": "Bank Accounts",
                         "id": "section.bank_accounts",
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [
@@ -301,6 +303,7 @@
                     {
                         "label": "Settings",
                         "id": "section.settings",
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [
@@ -386,6 +389,7 @@
                     {
                         "label": "Other addresses",
                         "id": "section.identity_addresses",
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [
@@ -407,6 +411,7 @@
                     {
                         "label": "Contacts",
                         "id": "section.identity_contacts",
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [

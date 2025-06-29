@@ -94,25 +94,11 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
-            'is_existing_new_ownership' => [
-                'type'              => 'boolean',
-                'description'       => "The Ownership the property is transferred to.",
-                'default'           => false
-            ],
-
             'new_ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The Ownership the property is being transferred to.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['id', '<>', 'object.old_ownership_id']],
-                'visible'           => [[['is_existing_new_ownership', '=', true]], [['is_resolved_new_ownership', '=', true]]]
-            ],
-
-            'is_resolved_new_ownership' => [
-                'type'              => 'boolean',
-                'description'       => "The identity of the new Owner has been resolved to an Ownership.",
-                'help'              => "This is set according to the status and new owner identity, either suggested or created using manually entered data.",
-                'default'           => false
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['id', '<>', 'object.old_ownership_id']]
             ],
 
             'transfer_fees_ids' => [
@@ -192,7 +178,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                     'seller_documents_sent',
                     'confirmed',
                     'financial_statement_sent',
-                    'accounting_pending',
+                    'settled',
                     'closed'
                 ],
                 'default'     => 'pending',
@@ -248,6 +234,12 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description' => 'Validated settlement, waiting to be posted to accounting system.',
                 'icon' => 'check',
                 'transitions' => [
+                    'settle' => [
+                        'description' => 'Mark the ownership transfer as settled.',
+                        'help' => 'The notary deed has been signed and the notary has sent the settlement documents to the accounting department.',
+                        'onafter' => 'onafterSettle',
+                        'status' => 'settled',
+                    ],
                     'send' => [
                         'description' => 'Update the document to `processed`.',
                         'status' => 'financial_statement_sent',
@@ -255,13 +247,14 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ],
             ],
             'financial_statement_sent' => [
-                'description' => 'Documentation sent, waiting for the notary .',
+                'description' => 'Documentation sent, waiting for the notary deed to complete accounting settlement.',
                 'icon' => 'hourglass_empty',
                 'transitions' => [
                     'settle' => [
                         'description' => 'Mark the ownership transfer as settled.',
                         'help' => 'The notary deed has been signed and the notary has sent the settlement documents to the accounting department.',
-                        'status' => 'accounting_pending',
+                        'onafter' => 'onafterSettle',
+                        'status' => 'settled',
                     ],
                     'to_complete' => [
                         'description' => 'Some additional documents are required, step back to `confirmed`.',
@@ -269,12 +262,13 @@ class OwnershipTransfer extends \equal\orm\Model {
                     ],
                 ],
             ],
-            'accounting_pending' => [
-                'description' => 'Ownership transfer is pending, waiting for the notary deed to complete accounting settlement.',
+            'settled' => [
+                'description' => 'Ownership transfer is settled, the operations for the transfer accounting are pending.',
                 'icon' => 'hourglass_top',
                 'transitions' => [
                     'close' => [
                         'description' => 'Post accounting changes, and update the ownership transfer to `closed`.',
+                        'onbefore' => 'onbeforeClose',
                         'status' => 'closed',
                     ],
                 ],
@@ -289,11 +283,19 @@ class OwnershipTransfer extends \equal\orm\Model {
     }
 
 
+    protected static function onbeforeClose($self) {
+        $self->do('perform_transfer');
+    }
 
     protected static function onafterOpen($self) {
         $self
             ->do('generate_fund_balance_lines')
             ->do('generate_fund_request_lines');
+    }
+
+    protected static function onafterSettle($self) {
+        $self
+            ->do('generate_adjustments');
     }
 
     public static function getPolicies(): array {
@@ -375,14 +377,25 @@ class OwnershipTransfer extends \equal\orm\Model {
     protected static function policyCanPerformTransfer($self) {
         $result = [];
 
-        $self->read(['status']);
+        $self->read(['status', 'old_ownership_id', 'new_ownership_id']);
 
         foreach($self as $id => $ownershipTransfer) {
-            if($ownershipTransfer['status'] !== 'accounting_pending') {
+            if($ownershipTransfer['status'] !== 'settled') {
                 $result[$id] = [
                     'posting_not_ready' => 'Transfer can only be performed once settlement has been confirmed.'
                 ];
             }
+            if(!$ownershipTransfer['old_ownership_id']) {
+                $result[$id] = [
+                    'missing_old_ownership_id' => 'The old ownership must be provided.'
+                ];
+            }
+            if(!$ownershipTransfer['new_ownership_id']) {
+                $result[$id] = [
+                    'missing_new_ownership_id' => 'The new ownership must be provided.'
+                ];
+            }
+
         }
 
         return $result;
@@ -392,10 +405,15 @@ class OwnershipTransfer extends \equal\orm\Model {
     protected static function policyCanGenerateAdjustments($self) {
         $result = [];
 
-        $self->read(['status']);
+        $self->read(['status', 'transfer_date']);
 
         foreach($self as $id => $ownershipTransfer) {
-            if(!in_array($ownershipTransfer['status'], ['confirmed', 'financial_statement_sent', 'accounting_pending'])) {
+            if(!$ownershipTransfer['transfer_date']) {
+                $result[$id] = [
+                    'missing_transfer_date' => 'Precise date of the transfer is mandatory (as per notary deed).'
+                ];
+            }
+            if(!in_array($ownershipTransfer['status'], ['settled'])) {
                 $result[$id] = [
                     'generation_not_allowed' => 'Adjustments can only be generated when transfer is confirmed.'
                 ];
@@ -505,25 +523,89 @@ class OwnershipTransfer extends \equal\orm\Model {
     }
 
     protected static function doPerformTransfer($self) {
-        $self->read(['old_ownership_id', 'property_lots_ids', 'new_ownership_id']);
+        $self->read(['condo_id', 'transfer_date', 'property_lots_ids', 'old_ownership_id', 'new_ownership_id']);
 
         foreach($self as $id => $ownershipTransfer) {
             // set the new owner_id as active for the targeted property_lots
-            PropertyLot::ids($ownershipTransfer['property_lots_ids'])->update(['active_ownership_id' => $ownershipTransfer['new_ownership_id']]);
+            PropertyLot::ids($ownershipTransfer['property_lots_ids'])
+                ->update(['active_ownership_id' => $ownershipTransfer['new_ownership_id']]);
 
-            // mettre à jour les date_to des PropertyLotOwnership
+            // update existing PropertyLotOwnership (`date_to`)
+            foreach($ownershipTransfer['property_lots_ids'] as $property_lot_id) {
+                // there should be only one match
+                PropertyLotOwnership::search([
+                        ['condo_id', '=', $ownershipTransfer['condo_id']],
+                        ['ownership_id', '=', $ownershipTransfer['old_ownership_id']],
+                        ['property_lot_id', '=', $property_lot_id],
+                        ['date_to', '=', null]
+                    ])
+                    ->update(['date_to' => $ownershipTransfer['transfer_date']]);
+            }
 
-            // creéer les écritures sur base des adjustments
+            // 1-a) generate refund based on OwnershipTransferAdjustmentLine (accounting entries through MoneyRefund)
+
             $adjustments = OwnershipTransferAdjustmentLine::search([
                     ['ownership_transfer_id', '=', $id]
                 ])
                 ->read(['request_account_id', 'amount']);
-// #todo
+
             foreach($adjustments as $adjustment) {
+
+
             }
 
+            // 1-b) generate exceptional fund request(s)
 
-            // adapter les ExecutionLines sur base des adjustments
+
+            // 2) adapt the pending fund request executions: move the relevant lines to the new owner
+
+            // retrieve impacted fiscal year
+            $fiscalYear = FiscalYear::search([
+                    ['condo_id', '=', $ownershipTransfer['condo_id']],
+                    ['date_from', '<=', $ownershipTransfer['transfer_date']],
+                    ['date_to', '>=', $ownershipTransfer['transfer_date']]
+                ])
+                ->read(['id', 'fiscal_period_frequency', 'date_from', 'date_to'])
+                ->first();
+
+            if(!$fiscalYear) {
+                throw new \Exception("fiscal_year_not_found", EQ_ERROR_UNKNOWN_OBJECT);
+            }
+
+            // retrieve involved fund request executions
+            $fundRequestExecutions = FundRequestExecution::search([['fiscal_year_id', '=', $fiscalYear['id']], ['status', '=', 'proforma']])->read(['fund_request_id']);
+            // for each execution, create a new execution line
+            foreach($fundRequestExecutions as $fund_request_execution_id => $fundRequestExecution) {
+                $requestExecutionLine = FundRequestExecutionLine::create([
+                        'condo_id'              => $ownershipTransfer['condo_id'],
+                        'fund_request_id'       => $fundRequestExecution['fund_request_id'],
+                        // #memo - request_execution_id is an alias of invoice_id
+                        'invoice_id'            => $fund_request_execution_id,
+                        'ownership_id'          => $ownershipTransfer['new_ownership_id'],
+                        // 'total'                 => $map_amounts[$execution_date]
+                    ])
+                    ->first();
+
+                $amount = 0.0;
+                // retrieve all execution line entries related to one of the sold lots
+                $executionLineEntries = FundRequestExecutionLineEntry::search([
+                        ['request_execution_id', '=', $fund_request_execution_id],
+                        ['ownership_id', '=',  $ownershipTransfer['old_ownership_id']],
+                        ['property_lot_id', 'in', $ownershipTransfer['property_lots_ids']]
+                    ])
+                    ->read(['request_execution_line_id', 'called_amount']);
+
+                foreach($executionLineEntries as $execution_line_entry_id => $executionLineEntry) {
+                    $amount += $executionLineEntry['called_amount'];
+                    FundRequestExecutionLineEntry::id($execution_line_entry_id)->update([
+                            'request_execution_line_id' => $requestExecutionLine['id'],
+                            'ownership_id' => $ownershipTransfer['new_ownership_id']
+                        ]);
+                }
+                // adjust the amount of the execution line according to the sum of the concerned line entries
+                FundRequestExecutionLine::id($requestExecutionLine['id'])->update(['total' => $amount]);
+            }
+
         }
     }
 
@@ -562,7 +644,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                     'schedule' => []
                 ];
 
-            // 1) already invoiced
+            // A) already invoiced
 
             // fully reimburse, working funds based on fund balance
             $working_funds_reimbursements = self::computeWorkingFundsReimbursements($id);
@@ -582,10 +664,10 @@ class OwnershipTransfer extends \equal\orm\Model {
             }
 
             // prorata reimbursement
-            self::computeReimbursementsByRequestType($id, 'expense_provisions');
+            $expense_provisions_funds_reimbursements = self::computeReimbursementsByRequestType($id, 'expense_provisions');
             // {request_id, property_lot_id} -> amount to reimburse
 
-            foreach($working_funds_reimbursements as $fund_request_id => $reimbursements) {
+            foreach($expense_provisions_funds_reimbursements as $fund_request_id => $reimbursements) {
                 foreach($reimbursements as $property_lot_id => $amount) {
                     OwnershipTransferAdjustmentLine::create([
                         'condo_id'              => $ownershipTransfer['condo_id'],
@@ -600,10 +682,10 @@ class OwnershipTransfer extends \equal\orm\Model {
 
 
 
-            // 2) scheduled but not invoiced (adaptations - pas de remboursement)
+            // B) scheduled but not invoiced (proforma - adaptations - pas de remboursement)
 
-            // retirer les montants correspondant au RequestExecutionLineEntry chez le old_ownership, ce qui donne la liste pour créer un appel exceptionnel pour le new ownership
-            // pour chaque type de fonds, il faut créer un appel exceptionnel
+            // pour le old_ownership : retirer les montants correspondant au RequestExecutionLineEntry, ce qui donne la liste pour créer un appel exceptionnel pour le new ownership
+            // pour le new_ownership, pour chaque type de fonds, créer un appel exceptionnel
             self::computeScheduledByRequestType($id, 'working_fund');
             self::computeScheduledByRequestType($id, 'reserve_fund');
             self::computeScheduledByRequestType($id, 'expense_provisions');
@@ -638,7 +720,10 @@ class OwnershipTransfer extends \equal\orm\Model {
         }
 
         // retrieve all working funds
-        $funds = CondoFund::search([['condo_id', '=', $ownershipTransfer['condo_id'], ['fund_type', '=', 'working_fund']]])
+        $funds = CondoFund::search([
+                ['condo_id', '=', $ownershipTransfer['condo_id']],
+                ['fund_type', '=', 'working_fund']
+            ])
             ->read(['name', 'fund_account_id', 'apportionment_id']);
 
         foreach($funds as $fund_id => $fund) {
@@ -657,7 +742,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             }
 
             // compute share to reimburse for each implied property lot
-            $apportionment = Apportionment::id($fund['apportionment_id'])->read(['total_shares']);
+            $apportionment = Apportionment::id($fund['apportionment_id'])->read(['total_shares'])->first();
 
             if(!$apportionment) {
                 throw new \Exception('missing_apportionment', EQ_ERROR_INVALID_PARAM);
@@ -666,7 +751,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             $map_funds_reimbursement[$fund_id] = [];
 
             foreach($ownershipTransfer['property_lots_ids'] as $property_lot_id) {
-                $apportionmentShare = PropertyLotApportionmentShare::search([['property_lot_id', '', $property_lot_id], ['apportionment_id', '=', $apportionment['id']]])
+                $apportionmentShare = PropertyLotApportionmentShare::search([ ['property_lot_id', '=', $property_lot_id], ['apportionment_id', '=', $apportionment['id']] ])
                     ->read(['property_lot_shares'])
                     ->first();
 
@@ -717,7 +802,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ['status', '=', 'active'],
                 ['request_type', '=', $request_type],
                 ['request_date', '>=', $fiscalYear['date_from']],
-                ['request_date', '<', $fiscalYear['date_to']]
+                ['request_date', '<=', $fiscalYear['date_to']]
             ])
             ->ids();
 
@@ -732,22 +817,24 @@ class OwnershipTransfer extends \equal\orm\Model {
 
         foreach($fundRequestExecutions as $fund_request_execution_id => $fundRequestExecution) {
 
-            $fund_request_id = $fundRequestExecution['fund_request_id'];
-            $map_requests_reimbursement[$fund_request_id] = array_fill_keys($ownershipTransfer['property_lots_ids'], 0.0);
+            $fund_request_id = $fundRequestExecution['fund_request_id']['id'];
+            if(!isset($map_requests_reimbursement[$fund_request_id])) {
+                $map_requests_reimbursement[$fund_request_id] = array_fill_keys($ownershipTransfer['property_lots_ids'], 0.0);
+            }
 
             // 3) compute prorata for invoiced date range
             $prorata = 0;
-            $fund_request_date_to = $fundRequestExecution['fund_request_id']['date_to'];
+            $request_execution_date_to = $fundRequestExecution['fund_request_id']['date_to'];
             if($fundRequestExecution['fund_request_id']['has_date_range']) {
                 $frequency = $fundRequestExecution['fund_request_id']['date_range_frequency'];
-                $fund_request_date_to = min($fund_request_date_to, strtotime("+$frequency months", $fundRequestExecution['posting_date']) - 86400);
+                $request_execution_date_to = min($request_execution_date_to, strtotime("+$frequency months", $fundRequestExecution['posting_date']) - 86400);
             }
 
-            $total_duration = $fund_request_date_to - $fundRequestExecution['posting_date'];
-            $remaining_duration = $fund_request_date_to - $ownershipTransfer['transfer_date'];
+            $total_duration = $request_execution_date_to - $fundRequestExecution['posting_date'];
+            $accountable_duration = min($total_duration, $ownershipTransfer['transfer_date'] - $fundRequestExecution['posting_date']);
 
-            if($total_duration > 0 && $remaining_duration > 0) {
-                $prorata = $remaining_duration / $total_duration;
+            if($total_duration > 0 && $accountable_duration > 0) {
+                $prorata = $accountable_duration / $total_duration;
             }
 
             // 4) retrieve the breakdown of the total amount called for the concerned ownership
@@ -760,7 +847,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             // 5) calculation of the amounts to be reimbursed, by sold lot
             foreach($fundRequestExecutionEntries as $fundRequestExecutionEntry) {
                 $property_lot_id = $fundRequestExecutionEntry['property_lot_id'];
-                $map_requests_reimbursement[$fund_request_id][$property_lot_id] = round($fundRequestExecutionEntry['called_amount'] * $prorata, 2);
+                $map_requests_reimbursement[$fund_request_id][$property_lot_id] += round($fundRequestExecutionEntry['called_amount'] * $prorata, 2);
             }
         }
 
@@ -777,7 +864,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'condo_id',
                 'transfer_date',
                 'property_lots_ids',
-                'old_ownership_id' => ['id']
+                'old_ownership_id'
             ])
             ->first();
 

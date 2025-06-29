@@ -6,8 +6,9 @@
 */
 use core\setting\Setting;
 use equal\data\DataFormatter;
+use identity\Organisation;
 use realestate\property\OwnershipTransfer;
-use sale\accounting\invoice\Invoice;
+use realestate\sale\pay\Funding;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
@@ -37,7 +38,8 @@ use Twig\Extension\ExtensionInterface;
 
         'lang' =>  [
             'description' => 'Language in which labels and multilang field have to be returned (2 letters ISO 639-1).',
-            'type'        => 'string'
+            'type'        => 'string',
+            'default'     => 'fr'
         ]
     ],
     'access'        => [
@@ -66,25 +68,150 @@ $getTwigCurrency = function($equal_currency) {
     return $equal_twig_currency_map[$equal_currency] ?? $equal_currency;
 };
 
+$getOrganisationLogo = function($invoice) {
+    $result = '';
+    try {
+        if(!isset($invoice['organisation_id']['image_document_id']['type'], $invoice['organisation_id']['image_document_id']['data'])) {
+            throw new Exception('invalid_image', EQ_ERROR_INVALID_PARAM);
+        }
+        if(stripos($invoice['organisation_id']['image_document_id']['type'], 'image/') !== 0) {
+            throw new Exception('invalid_image_type', EQ_ERROR_INVALID_PARAM);
+        }
+        if(strlen( $invoice['organisation_id']['image_document_id']['data']) <= 0) {
+            throw new Exception('empty_image', EQ_ERROR_INVALID_PARAM);
+        }
+        $result = sprintf('data:%s;base64,%s',
+                $invoice['organisation_id']['image_document_id']['type'],
+                base64_encode($invoice['organisation_id']['image_document_id']['data'])
+            );
+    }
+    catch(Exception $e) {
+        // ignore
+    }
+    return $result;
+};
+
+$getLabels = function($lang) {
+    return [
+        'invoice'                        => Setting::get_value('sale', 'locale', 'label_invoice', 'Invoice', [], $lang),
+        'credit_note'                    => Setting::get_value('sale', 'locale', 'label_credit-note', 'Credit note', [], $lang),
+        'customer_name'                  => Setting::get_value('sale', 'locale', 'label_customer-name', 'Name', [], $lang),
+        'customer_address'               => Setting::get_value('sale', 'locale', 'label_customer-address', 'Address', [], $lang),
+        'registration_number'            => Setting::get_value('sale', 'locale', 'label_registration-number', 'Registration n°', [], $lang),
+        'vat_number'                     => Setting::get_value('sale', 'locale', 'label_vat-number', 'VAT n°', [], $lang),
+        'number'                         => Setting::get_value('sale', 'locale', 'label_number', 'N°', [], $lang),
+        'date'                           => Setting::get_value('sale', 'locale', 'label_date', 'Date', [], $lang),
+        'status'                         => Setting::get_value('sale', 'locale', 'label_status', 'Status', [], $lang),
+        'status_paid'                    => Setting::get_value('sale', 'locale', 'label_status-paid', 'Paid', [], $lang),
+        'status_to_pay'                  => Setting::get_value('sale', 'locale', 'label_status-to-pay', 'To pay', [], $lang),
+        'status_to_refund'               => Setting::get_value('sale', 'locale', 'label_status-to-refund', 'To refund', [], $lang),
+        'proforma_notice'                => Setting::get_value('sale', 'locale', 'label_proforma-notice', 'This is a proforma and must not be paid.', [], $lang),
+        'total_excl_vat'                 => Setting::get_value('sale', 'locale', 'label_total-ex-vat', 'Total VAT excl.', [], $lang),
+        'total_incl_vat'                 => Setting::get_value('sale', 'locale', 'label_total-inc-vat', 'Total VAT incl.', [], $lang),
+        'balance_of_must_be_paid_before' => Setting::get_value('sale', 'locale', 'label_balance-of-must-be-paid-before', 'Balance of %price% to be paid before %due_date%', [], $lang),
+        'communication'                  => Setting::get_value('sale', 'locale', 'label_communication', 'Communication', [], $lang),
+        'columns' => [
+            'product'                    => Setting::get_value('sale', 'locale', 'label_product-column', 'Product label', [], $lang),
+            'qty'                        => Setting::get_value('sale', 'locale', 'label_qty-column', 'Qty', [], $lang),
+            'free'                       => Setting::get_value('sale', 'locale', 'label_free-column', 'Free', [], $lang),
+            'unit_price'                 => Setting::get_value('sale', 'locale', 'label_unit-price-column', 'U. price', [], $lang),
+            'discount'                   => Setting::get_value('sale', 'locale', 'label_discount-column', 'Disc.', [], $lang),
+            'vat'                        => Setting::get_value('sale', 'locale', 'label_vat-column', 'VAT', [], $lang),
+            'taxes'                      => Setting::get_value('sale', 'locale', 'label_taxes-column', 'Taxes', [], $lang),
+            'price_ex_vat'               => Setting::get_value('sale', 'locale', 'label_price-ex-vat-column', 'Price ex. VAT', [], $lang),
+            'price'                      => Setting::get_value('sale', 'locale', 'label_price-column', 'Price', [], $lang)
+        ],
+        'footer' => [
+            'registration_number'        => Setting::get_value('sale', 'locale', 'label_footer-registration-number', 'Registration number', [], $lang),
+            'iban'                       => Setting::get_value('sale', 'locale', 'label_footer-iban', 'IBAN', [], $lang),
+            'email'                      => Setting::get_value('sale', 'locale', 'label_footer-email', 'Email', [], $lang),
+            'web'                        => Setting::get_value('sale', 'locale', 'label_footer-web', 'Web', [], $lang),
+            'tel'                        => Setting::get_value('sale', 'locale', 'label_footer-tel', 'Tel', [], $lang)
+        ]
+    ];
+};
+
 
 $ownershipTransfer = OwnershipTransfer::id($params['id'])
-    ->read(['condo_id'])
-    ->first();
+    ->read([
+        'request_date',
+        'has_intervention_record',
+        'has_fuel_tank',
+        'fuel_tank_capacity',
+        'condo_id' => [
+            'name', 'address_street', 'address_city', 'address_zip', 'address_city'
+        ],
+        'old_ownership_id' => ['name', 'owners_ids' => ['name']],
+        'property_lots_ids' => ['name'],
+        'fund_balances_ids' => [
+            'condo_fund_id' => ['name'],
+            'condo_fund_balance',
+            'condo_fund_shares',
+            'property_lots_shares',
+            'property_lots_amount'
+        ],
+        'fund_requests_ids' => [
+            'fund_request_id' => ['name'],
+            'condo_called_amount',
+            'condo_planned_amount',
+            'property_lots_called_amount',
+            'property_lots_planned_amount'
+        ],
+        'transfer_fees_ids' => [
+            'fee_date', 'description', 'price'
+        ]
+    ])
+    ->first(true);
 
 if(!$ownershipTransfer) {
     throw new Exception('unknown_ownership_transfer', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+$arrear_fundings = Funding::search([ ['condo_id', '=', $ownershipTransfer['condo_id']['id']], ['is_paid', '=', false], ['ownership_id', '=', $ownershipTransfer['old_ownership_id']['id']]])
+    ->read(['due_date', 'name', 'funding_type', 'remaining_amount'])
+    ->get(true);
+
+$lang = $params['lang'];
+
 // values to fetch from Condominium
 // expense_management_mode
+$organisation = Organisation::search()->read([
+        'name', 'address_street', 'address_dispatch', 'address_zip',
+        'address_city', 'address_country', 'has_vat', 'vat_number',
+        'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
+        'website', 'email', 'phone', 'has_vat', 'vat_number',
+        'image_document_id' => [
+            'type', 'data'
+        ]
+    ])
+    ->first(true);
+
+
+$organisation['bank_account_iban'] = DataFormatter::format($organisation['bank_account_iban'], 'iban');
+$organisation['phone'] = DataFormatter::format($organisation['phone'], 'phone');
+
 
 $values = [
-    'timezone'            => constant('L10N_TIMEZONE'),
-    'locale'              => constant('L10N_LOCALE'),
-    'date_format'         => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
-    'currency'            => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
-    'debug'               => $params['debug'],
-    'tax_lines'           => [],
+    'organisation'              => $organisation,
+    'condominium'               => $ownershipTransfer['condo_id'],
+    'property_lots'             => $ownershipTransfer['property_lots_ids'],
+    'funds_balances'            => $ownershipTransfer['fund_balances_ids'],
+    'funds_requests'            => $ownershipTransfer['fund_requests_ids'],
+    'arrear_fundings'           => $arrear_fundings,
+    'transfer_fees'             => $ownershipTransfer['transfer_fees_ids'],
+    'ownership'                 => $ownershipTransfer['old_ownership_id'],
+    'has_intervention_record'   => $ownershipTransfer['has_intervention_record'],
+    'has_fuel_tank'             => $ownershipTransfer['has_fuel_tank'],
+    'fuel_tank_capacity'        => $ownershipTransfer['fuel_tank_capacity'],
+    'request_date'              => $ownershipTransfer['request_date'],
+    'today_date'                => time(),
+    'timezone'                  => constant('L10N_TIMEZONE'),
+    'locale'                    => constant('L10N_LOCALE'),
+    'date_format'               => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
+    'currency'                  => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
+    'labels'                    => $getLabels($lang),
+    'debug'                     => $params['debug'],
+    'tax_lines'                 => [],
 ];
 
 

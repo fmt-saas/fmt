@@ -351,7 +351,7 @@ class Identity extends Model {
 
             'title' => [
                 'type'              => 'string',
-                'selection'         => ['Ms' => 'Miss', 'Mrs' => 'Misses', 'Mr' => 'Mister'],
+                'selection'         => ['Ms' => 'Miss', 'Mrs' => 'Misses', 'Mr' => 'Mister', 'Dr' => 'Doctor', 'Pr' => 'Professor'],
                 'description'       => 'Reference contact title.',
                 'visible'           => ['type', '=', 'IN'],
                 'onupdate'          => 'onupdateTitle'

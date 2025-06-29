@@ -20,7 +20,6 @@
         {{ title }}
     </title>
 
-    {% include 'header.style.html.twig' %}
     {% include 'footer.style.html.twig' %}
 
     <style type="text/css">
@@ -32,7 +31,7 @@
             margin: 0;
             padding: 0;
             /* margin-top must match header::height */
-            margin-top: 280px;
+            margin-top: 40px;
             /* margin-bottom must match footer::height */
             margin-bottom: 50px;
             font-family: Arial, Helvetica, sans-serif;
@@ -67,6 +66,7 @@
         }
 
         h5 {
+            font-size: 12px;
             text-decoration: underline;
         }
 
@@ -100,17 +100,23 @@
             font-weight: 600;
         }
 
+        table td {
+            vertical-align: top;
+        }
+
     </style>
 </head>
 
 <body>
-    {% include 'header.html.twig' %}
     {% include 'footer.html.twig' %}
+
+    <header>
+    </header>
 
     <main class="{{ debug ? 'debug' : '' }}">
 
-        <p>
-            {today_city}, {today_date}
+        <p style="text-align: right;">
+            {{ organisation.address_city }}, le {{ today_date | date(date_format, timezone) }}
         </p>
 
         <p>
@@ -118,21 +124,34 @@
             <strong>Concerne :</strong> Votre demande d’informations / Convention de cession du droit de propriété
         </p>
 
-        <p>
-            <strong>Association des Copropriétaires :</strong><br>
-            {condominium_name}<br>
-            {condominium_address}<br>
-            {condominium_zip} – {condominium_city}
-        </p>
+        <table style="border: none; border-collapse: collapse;">
+            <tr>
+                <td style="border: none; width: 50%;">
+                    <strong>Association des Copropriétaires :</strong><br>
+                    {{ condominium.name }}<br>
+                    {{ condominium.address_street }}<br>
+                    {{ condominium.address_zip }} – {{ condominium.address_city }}
+                </td>
+                <td style="border: none; width: 50%;">
+                    <strong>Vente par :</strong>
+                    {% for owner in ownership.owners_ids %}
+                        {{ owner.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                    <br>
+                    <strong>Lot(s) :</strong>
+                    {% for property_lot in property_lots %}
+                        {{ property_lot.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                    <br>
+                    <strong>Quotité(s) totale(s) :</strong> {seller_quotas}
+                </td>
+            </tr>
+        </table>
+
+
 
         <p>
-            <strong>Vente par :</strong> {seller_civility} {seller_name}<br>
-            <strong>Lot(s) :</strong> {sold_lots_list}<br>
-            <strong>Quotité(s) totale(s) :</strong> {seller_quotas}
-        </p>
-
-        <p>
-            Nous accusons bonne réception de votre lettre du {receipt_date} et vous prions de bien vouloir trouver ci-dessous les informations demandées.
+            Nous accusons bonne réception de votre lettre du {{ request_date | date(date_format, timezone) }} et vous prions de bien vouloir trouver ci-dessous les informations demandées.
         </p>
 
 
@@ -141,12 +160,61 @@
 
         <h4>1° le montant du fonds de roulement et du fonds de réserve, au sens du § 5, alinéas 2 et 3;</h4>
         <div>
-            {table_funds}
+            <table>
+                <tr>
+                    <th></th>
+                    <th>Quotités lot(s)</th>
+                    <th>Quotités immeuble</th>
+                    <th>Copropriété</th>
+                    <th>Quote-part copropriétaire</th>
+                </tr>
+                {% for fund_balance in funds_balances %}
+                <tr>
+                    <td>{{ fund_balance.condo_fund_id.name }}</td>
+                    <td>{{ fund_balance.property_lots_shares }}</td>
+                    <td>{{ fund_balance.condo_fund_shares }}</td>
+                    <td>{{ fund_balance.condo_fund_balance  | format_money() }}</td>
+                    <td>{{ fund_balance.property_lots_amount  | format_money() }}</td>
+                </tr>
+            {% endfor %}
+            </table>
         </div>
 
         <h4>2° le montant des arriérés éventuels dus par le cédant;</h4>
         <div>
-            {table_arrears}
+            <table>
+                <tr>
+                    <th>Date d'échéance</th>
+                    <th>Libellé</th>
+                    <th>Type</th>
+                    <th>Restant</th>
+                </tr>
+                {% for arrear_funding in arrear_fundings %}
+                <tr>
+                    <td>{{ arrear_funding.due_date | date(date_format, timezone) }}</td>
+                    <td>{{ arrear_funding.name }}</td>
+                    <td>{{ arrear_funding.funding_type }}</td>
+                    <td>{{ arrear_funding.remaining_amount  | format_money() }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <table>
+                <tr>
+                    <th>Frais de dossiers (3.94 §4)</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Montant</th>
+                </tr>
+                {% for transfer_fee in transfer_fees %}
+                <tr>
+                    <td></td>
+                    <td>{{ transfer_fee.fee_date | date(date_format, timezone) }}</td>
+                    <td>{{ transfer_fee.description }}</td>
+                    <td>{{ transfer_fee.price  | format_money() }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
         </div>
 
         <h4>3° la situation des appels de fonds, destinés au fonds de réserve et décidés par l'assemblée générale avant la date certaine du transfert de la propriété;</h4>
@@ -170,6 +238,7 @@
             Voir annexes ci-jointes.
         </div>
 
+
         <h3>Conformément à l'article 3.94 §2</h3>
 
         <h4>1° le montant des dépenses de conservation, d'entretien, de réparation et de réfection décidées par l'assemblée générale ou le syndic avant la date certaine du transfert de la propriété mais dont le paiement est demandé par le syndic postérieurement à cette date;</h4>
@@ -179,7 +248,24 @@
 
         <h4>2° un état des appels de fonds approuvés par l'assemblée générale des copropriétaires avant la date certaine du transfert de propriété et le coût des travaux urgents dont le paiement est demandé par le syndic postérieurement à cette date;</h4>
         <div>
-            {table_fund_calls}
+            <table>
+                <tr>
+                    <th>Appel</th>
+                    <th>Déjà appelé</th>
+                    <th>Planifié</th>
+                    <th>Quote-part appelée</th>
+                    <th>Quote-part planifiée</th>
+                </tr>
+                {% for fund_request in funds_requests %}
+                <tr>
+                    <td>{{ fund_request.fund_request_id.name }}</td>
+                    <td>{{ fund_request.condo_called_amount | format_money() }}</td>
+                    <td>{{ fund_request.condo_planned_amount | format_money() }}</td>
+                    <td>{{ fund_request.property_lots_called_amount  | format_money() }}</td>
+                    <td>{{ fund_request.property_lots_planned_amount  | format_money() }}</td>
+                </tr>
+            {% endfor %}
+            </table>
         </div>
         <div>
             <small>Nous vous invitons à consulter PV de la dernière AGO afin de connaitre les modalités de ces appels et leurs échéances.</small>
@@ -197,7 +283,22 @@
 
         <h4>5° le montant des arriérés éventuels dus par le cédant;</h4>
         <div>
-            {table_arrears}
+            <table>
+                <tr>
+                    <th>Date d'échéance</th>
+                    <th>Libellé</th>
+                    <th>Type</th>
+                    <th>Restant</th>
+                </tr>
+                {% for arrear_funding in arrear_fundings %}
+                <tr>
+                    <td>{{ arrear_funding.due_date }}</td>
+                    <td>{{ arrear_funding.name }}</td>
+                    <td>{{ arrear_funding.funding_type }}</td>
+                    <td>{{ arrear_funding.remaining_amount  | format_money() }}</td>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
         <div>
             <small>Ces montants ne comprennent pas les majorations dues aux pénalités financières, intérêts, frais et dépens, que celles-ci résultent des statuts de la copropriété, de décisions d’assemblées générales ou de justice. Le calcul final ne pouvant être entrepris que le jour de la réception des montants dus. <br />
@@ -205,7 +306,7 @@
         </div>
         <div>
             <p>Ce montant ne tient pas compte du décompte de charge de l’exercice comptable en cours.</p>
-            <p>Tout paiement est à effectuer sur le compte de l’ACP {condominium_name} suivant : copropriete_numero_compte – copropriete_code_bic avec la référence proprio_com_vcs.</p>
+            <p>Tout paiement est à effectuer sur le compte de l’ACP {{ condominium.name }} suivant : copropriete_numero_compte – copropriete_code_bic avec la référence proprio_com_vcs.</p>
         </div>
 
         <h4>Informations complémentaires</h4>
@@ -217,7 +318,13 @@
 
         <h5>Dossier d’intervention ultérieure (D.I.U.) :</h5>
         <div>
-            {status_diu}
+            <strong>
+            {%if has_intervention_record %}
+                Il existe un dossier D.I.U.
+            {% else %}
+                Aucun dossier n’est en possession du syndic.
+            {% endif %}
+            </strong>
         </div>
         <div>
             <small>Nous proposons aux futurs acquéreurs, dans la mesure où cela l’intéresse et dans la mesure où ce D.I.U. existe, d’en prendre connaissance, en nos bureaux, moyennant rendez-vous préalable.</small>
@@ -225,7 +332,13 @@
 
         <h5>Cuve à mazout :</h5>
         <div>
-            {status_mazout}
+            <strong>
+            {% if has_fuel_tank %}
+                Il y a une cuve (capacité estimée à +/-  {{fuel_tank_capacity}} litres)
+            {% else %}
+                Il n’y a pas de cuve à mazout
+            {% endif %}
+            </strong>
         </div>
 
         <h3>Conformément à l'article 3.94 §3</h3>

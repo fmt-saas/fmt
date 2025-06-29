@@ -134,6 +134,7 @@ class Ownership extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "Person that represents the ownership.",
                 'foreign_object'    => 'identity\Identity',
+                'domain'            => ['type_id', '=', 1],
                 'visible'           => ['has_representative', '=', true],
                 'dependents'        => ['name']
             ],

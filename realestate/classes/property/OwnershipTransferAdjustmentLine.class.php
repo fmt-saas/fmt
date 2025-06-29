@@ -48,21 +48,18 @@ class OwnershipTransferAdjustmentLine extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\funding\FundRequest',
                 'description'       => "Fund request the line relates to.",
                 'dependents'        => ['request_account_id', 'request_type'],
-                'required'          => true
             ],
 
             'request_execution_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\FundRequestExecution',
                 'description'       => 'The fund request execution (sale invoice) the line relates to.',
-                'required'          => true
             ],
 
             'condo_fund_id' => [
                 'type'              => 'many2one',
                 'description'       => "Funds allocated by the condominium.",
                 'foreign_object'    => 'realestate\finance\accounting\CondoFund',
-                'required'          => true
             ],
 
             'request_account_id' => [

@@ -686,7 +686,6 @@ class FundRequest extends \equal\orm\Model {
                             'condo_id'              => $fundRequest['condo_id'],
                             'fund_request_id'       => $id,
                             // #memo - request_execution_id is an alias of invoice_id
-                            // 'request_execution_id'  => $requestExecution['id'],
                             'invoice_id'            => $requestExecution['id'],
                             'ownership_id'          => $ownership_id,
                             // 'called_amount'         => $map_amounts[$execution_date]

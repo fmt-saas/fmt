@@ -182,7 +182,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     'post' => [
                         'description' => 'Update the document to `completed`.',
                         'help'        => 'This transition is used to post the money transfer, after a bank statement has been integrated. It creates the accounting entries and fundings necessary to track the transfer.',
-                        'policies'    => ['is_valid', 'can_post'],
+                        'policies'    => ['can_post'],
                         'onafter'     => 'onafterPost',
                         'status'      => 'posted'
                     ]

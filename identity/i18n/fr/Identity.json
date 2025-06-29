@@ -174,11 +174,8 @@
             "label": "Titre",
             "description": "Titre de civilité.",
             "selection": {
-                "Dr": "Docteur",
-                "Ms": "Mademoiselle",
                 "Mrs": "Madame",
-                "Mr": "Monsieur",
-                "Pr": "Professeur"
+                "Mr": "Monsieur"
             },
             "help": ""
         },

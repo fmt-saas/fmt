@@ -31,12 +31,46 @@
     ```
 -->
 
-    <footer class="{{ debug ? 'debug' : '' }}">
-        <!-- organisation-footer-info start -->
-        <div class="organisation-info">
-            <div>{{ organisation.legal_name }} - {{ organisation.address_street }} {{ organisation.address_zip }} {{ organisation.address_city }}</div>
-            <div>{{ labels.footer.registration_number }}: {{ organisation.registration_number }} - {{ labels.footer.iban }}: {{ organisation.bank_account_iban }}</div>
-            <div>{{ labels.footer.email }}: {{ organisation.email }} - {{ labels.footer.web }}: {{ organisation.website }} - {{ labels.footer.tel }}: {{ organisation.phone }}{% if organisation.fax %} - {{ labels.footer.fax }}: {{ organisation.fax }}{% endif %}</div>
+<footer class="{{ debug ? 'debug' : '' }}">
+    <!-- organisation-footer-info start -->
+    <div class="organisation-info">
+        {# Line 1 : legal name + address #}
+        <div>
+            {{ organisation.legal_name }}
+            {% set has_address = organisation.address_street or organisation.address_zip or organisation.address_city %}
+            {% if organisation.legal_name and has_address %} - {% endif %}
+            {{ organisation.address_street }} {{ organisation.address_zip }} {{ organisation.address_city }}
         </div>
-        <!-- organisation-footer-info end -->
-    </footer>
+
+        {# Line 2 : registration number + IBAN #}
+        <div>
+            {% if organisation.registration_number %}
+                {{ labels.footer.registration_number }}: {{ organisation.registration_number }}
+            {% endif %}
+            {% if organisation.registration_number and organisation.bank_account_iban %} - {% endif %}
+            {% if organisation.bank_account_iban %}
+                {{ labels.footer.iban }}: {{ organisation.bank_account_iban }}
+            {% endif %}
+        </div>
+
+        {# Line 3 : Email + website + phone + fax #}
+        <div>
+            {% if organisation.email %}
+                {{ labels.footer.email }}: {{ organisation.email }}
+            {% endif %}
+            {% if organisation.email and organisation.website %} - {% endif %}
+            {% if organisation.website %}
+                {{ labels.footer.web }}: {{ organisation.website }}
+            {% endif %}
+            {% if (organisation.email or organisation.website) and organisation.phone %} - {% endif %}
+            {% if organisation.phone %}
+                {{ labels.footer.tel }}: {{ organisation.phone }}
+            {% endif %}
+            {% if (organisation.email or organisation.website or organisation.phone) and organisation.fax %} - {% endif %}
+            {% if organisation.fax %}
+                {{ labels.footer.fax }}: {{ organisation.fax }}
+            {% endif %}
+        </div>
+    </div>
+    <!-- organisation-footer-info end -->
+</footer>

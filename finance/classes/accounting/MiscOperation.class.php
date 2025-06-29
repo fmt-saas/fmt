@@ -267,7 +267,7 @@ class MiscOperation extends Model {
 
     protected static function policyIsValid($self): array {
         $result = [];
-        $self->read(['status', 'posting_date', 'condo_id', 'fiscal_year_id', 'fiscal_period_id', 'journal_id']);
+        $self->read(['status', 'posting_date', 'condo_id', 'fiscal_year_id', 'fiscal_period_id', 'journal_id', 'misc_operation_lines_ids' => ['debit', 'credit']]);
         foreach($self as $id => $miscOperation) {
             if($miscOperation['posting_date'] >= strtotime('tomorrow midnight')) {
                 $result[$id] = [
@@ -292,6 +292,17 @@ class MiscOperation extends Model {
             if(!isset($miscOperation['condo_id'])) {
                 $result[$id] = [
                     'missing_condominium' => 'The target condominium must be specified.'
+                ];
+            }
+            $credit = 0.0;
+            $debit = 0.0;
+            foreach($miscOperation['misc_operation_lines_ids'] as $operation_line_id => $operationLine) {
+                $credit += $operationLine['credit'];
+                $debit += $operationLine['debit'];
+            }
+            if($debit !== $credit) {
+                $result[$id] = [
+                    'non_balances' => 'The lines of the operation are not balanced.'
                 ];
             }
         }

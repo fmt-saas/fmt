@@ -118,13 +118,28 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'instant'           => true
             ],
 
+            'accounting_entries_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'foreign_field'     => 'origin_object_id',
+                'description'       => "Accounting entry of the invoice.",
+                'domain'            => [['origin_object_class', '=', 'realestate\finance\accounting\MoneyRefund']]
+            ],
+
+            'fundings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\sale\pay\Funding',
+                'foreign_field'     => 'money_refund_id',
+                'description'       => 'The fundings related to the money transfer.'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
                     'pending',
                     'proforma',
-                    'posted',
-                    'completed'
+                    'sent',
+                    'posted'
                 ],
                 'default'           => 'pending',
                 'description'       => 'Current status of the operation.',
@@ -141,8 +156,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                     'publish' => [
                         'description' => 'Update the document to `completed`.',
                         'policies'    => ['is_valid'],
-                        'onafter'     => 'onafterPost',
-                        'status'      => 'posted'
+                        'status'      => 'proforma'
                     ]
                 ]
             ],
@@ -150,23 +164,24 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
                 'icon'        => 'draw',
                 'transitions' => [
-                    'post' => [
+                    'send' => [
                         'description' => 'Update the document to `completed`.',
-                        'policies'    => [],
-                        'onafter'     => 'onafterPost',
-                        'status'      => 'posted'
+                        'policies'    => ['is_valid'],
+                        'onafter'     => 'onafterSend',
+                        'status'      => 'sent'
                     ]
                 ]
             ],
-            'posted' => [
-                'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
-                'icon'        => 'draw',
+            'sent' => [
+                'description' => 'Transfer in progress waiting for confirmation from the bank.',
+                'icon'        => 'check' ,
                 'transitions' => [
-                    'complete' => [
+                    'post' => [
                         'description' => 'Update the document to `completed`.',
-                        'policies'    => ['is_paid'],
-                        'onafter'     => 'onafterComplete',
-                        'status'      => 'completed'
+                        'help'        => 'This transition is used to post the money transfer, after a bank statement has been integrated. It creates the accounting entries and fundings necessary to track the transfer.',
+                        'policies'    => [/*'can_post'*/],
+                        'onafter'     => 'onafterPost',
+                        'status'      => 'posted'
                     ]
                 ]
             ]
@@ -235,11 +250,14 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                     'insufficient_fund' => 'Available fund must be higher than the refund amount.'
                 ];
             }
+            /*
+            // #todo - not sure for this limitation
             if(date('Ymd', $moneyRefund['posting_date']) !== date('Ymd', time())) {
                 $result[$id] = [
                     'invalid_posting_date' => 'Posting date must be today.'
                 ];
             }
+            */
         }
         return $result;
     }
@@ -312,10 +330,12 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
     protected static function doGenerateAccountingEntryOutgoing($self) {
         $self->read([
                 'condo_id', 'amount', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
+                'ownership_id' => ['ownership_account_id'],
                 'bank_account_id' => ['accounting_account_id']
             ]);
 
         foreach($self as $id => $moneyRefund) {
+            AccountingEntry::search(['origin_object_class', '=', self::getType()], ['origin_object_id', '=', $id])->delete(true);
 
             try {
                 $accountingEntry = AccountingEntry::create([
@@ -336,7 +356,12 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                         'accounting_entry_id'   => $accountingEntry['id']
                     ]);
 
-                // External ownership accounts are not directly accessible, so no counterpart entry is created.
+                AccountingEntryLine::create([
+                        'account_id'            => $moneyRefund['ownership_id']['ownership_account_id'],
+                        'debit'                 => $moneyRefund['amount'],
+                        'credit'                => 0.0,
+                        'accounting_entry_id'   => $accountingEntry['id']
+                    ]);
 
                 // Store the created accounting entry ID back to the misc operation
                 self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
@@ -389,10 +414,12 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
         return $result;
     }
 
+    protected static function onafterSend($self) {
+        $self->do('create_fundings');
+    }
+
     protected static function onafterPost($self) {
-        $self
-            ->do('generate_accounting_entry_outgoing')
-            ->do('generate_fundings');
+        $self->do('generate_accounting_entry_outgoing');
     }
 
     public static function onchange($event, $values) {

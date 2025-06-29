@@ -51,6 +51,16 @@ class Owner extends Identity {
                 'readonly'          => true
             ],
 
+            'identity_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\Identity',
+                'description'       => 'Identity the object relates to.',
+                'help'              => 'Meant for entities that inherit from `identity\Identity` and must be synced with parent Identity. Classes that inherit from Identity must implement `onupdateIdentityId()` method.',
+                'onupdate'          => 'onupdateIdentityId',
+                'domain'            => ['type_id', '=', 1],
+                'visible'           => ['object_class', '<>', 'identity\Identity']
+            ],
+
             'owner_shares' => [
                 'type'              => 'integer',
                 'usage'             => 'amount/natural',
