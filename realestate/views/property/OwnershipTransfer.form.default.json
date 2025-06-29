@@ -161,6 +161,21 @@
                                     {
                                         "width": "50%",
                                         "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "Required Information",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_judiciary_procedures",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "judiciary_procedures_description",
+                                                "width": "100%"
+                                            }
                                         ]
                                     },
                                     {
@@ -204,6 +219,16 @@
                                                     },
                                                     "view": "list.arrears"
                                                 }
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "Transfer file fees",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "transfer_fees_ids",
+                                                "width": "100%"
                                             }
                                         ]
                                     }
@@ -222,9 +247,29 @@
                                         "width": "50%",
                                         "items": [
                                             {
+                                                "type": "label",
+                                                "value": "Notary confirmation",
+                                                "width": "100%"
+                                            },
+                                            {
                                                 "type": "field",
                                                 "label": "Date of the notary confirmation",
                                                 "value": "confirmation_date",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_intervention_record",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_fuel_tank",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fuel_tank_capacity",
                                                 "width": "50%"
                                             }
                                         ]
@@ -234,8 +279,8 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "label": "Adjustments",
-                                                "value": "adjustments_ids",
+                                                "label": "Fund requests",
+                                                "value": "fund_requests_ids",
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {
@@ -459,8 +504,7 @@
                                                     "header": {
                                                         "layout": "inline"
                                                     },
-                                                    "view": "list.transfer",
-                                                    "domain": ["adjustment_type", "=", "reimburse"]
+                                                    "view": "list.transfer"
                                                 }
                                             }
                                         ]

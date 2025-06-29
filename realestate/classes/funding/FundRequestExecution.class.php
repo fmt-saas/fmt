@@ -81,6 +81,13 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                 'description'       => "Lines of the Fund request execution."
             ],
 
+            'execution_line_entries_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\funding\FundRequestExecutionLineEntry',
+                'foreign_field'     => 'request_execution_id',
+                'description'       => "Lines of the Fund request execution."
+            ],
+
             'fundings_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\sale\pay\Funding',

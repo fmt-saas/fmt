@@ -1,0 +1,46 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "12%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "ownership_transfer_id",
+                "width": "12%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Fund Request",
+                "value": "fund_request_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "condo_called_amount",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "condo_planned_amount",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "property_lots_called_amount",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "property_lots_planned_amount",
+                "width": "12%"
+            }
+        ]
+    }
+}

@@ -228,6 +228,7 @@ class Identity extends Model {
             */
             'citizen_identification' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:30',
                 'description'       => 'Citizen registration number, if any.',
                 'visible'           => [ ['type', '=', 'IN'] ],
                 'unique'            => true,

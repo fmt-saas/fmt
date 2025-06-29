@@ -1,0 +1,54 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": [
+                {
+                    "view": false,
+                    "edit": true
+                }
+            ]
+        }
+    },
+    "operations": {
+        "total": {
+            "price": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "16%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "ownership_transfer_id",
+                "width": "16%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "fee_date",
+                "width": "33%"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "33%"
+            },
+            {
+                "type": "field",
+                "value": "price",
+                "width": "33%"
+            }
+        ]
+    }
+}

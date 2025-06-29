@@ -115,6 +115,45 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'default'           => false
             ],
 
+            'transfer_fees_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransferFee',
+                'foreign_field'     => 'ownership_transfer_id',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'description'       => 'Ownership Transfer fees for the processing of the file.'
+            ],
+
+            'has_judiciary_procedures' => [
+                'type'              => 'boolean',
+                'description'       => "Are there any pending judiciary procedures affecting the condominium?",
+                'default'           => false
+            ],
+
+            'judiciary_procedures_description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'visible'           => ['has_judiciary_procedures', '=', true]
+            ],
+
+            'has_fuel_tank' => [
+                'type'              => 'boolean',
+                'description'       => "Are there any pending judiciary procedures affecting the condominium?",
+                'default'           => false
+            ],
+
+            'fuel_tank_capacity' => [
+                'type'              => 'integer',
+                'description'       => "Capacity of the fuel tank (in liters)",
+                'visible'           => ['has_fuel_tank', '=', true]
+            ],
+
+            'has_intervention_record' => [
+                'type'              => 'boolean',
+                'description'       => "Are there any pending judiciary procedures affecting the condominium?",
+                'default'           => false
+            ],
+
             'adjustments_ids' => [
                 'type'              => 'one2many',
                 'description'       => "The ownership transfer the line relates to .",
@@ -129,6 +168,13 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\property\OwnershipTransferFundBalanceLine',
                 'foreign_field'     => 'ownership_transfer_id',
                 'description'       => 'Balances of the condominium funds with property lots shares.'
+            ],
+
+            'fund_requests_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransferFundRequestLine',
+                'foreign_field'     => 'ownership_transfer_id',
+                'description'       => 'Fund requests of the condominium funds (with property lots called amounts).'
             ],
 
             'arrear_fundings_ids' => [
@@ -245,7 +291,9 @@ class OwnershipTransfer extends \equal\orm\Model {
 
 
     protected static function onafterOpen($self) {
-        $self->do('generate_fund_balance_lines');
+        $self
+            ->do('generate_fund_balance_lines')
+            ->do('generate_fund_request_lines');
     }
 
     public static function getPolicies(): array {
@@ -281,6 +329,11 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'   => 'Generate the table of condo funds balances.',
                 'policies'      => [],
                 'function'      => 'doGenerateFundBalanceLines'
+            ],
+            'generate_fund_request_lines' => [
+                'description'   => 'Generate the table of condo funds requests.',
+                'policies'      => [],
+                'function'      => 'doGenerateFundRequestLines'
             ]
         ]);
     }
@@ -353,6 +406,45 @@ class OwnershipTransfer extends \equal\orm\Model {
     }
 
 
+    protected static function doGenerateFundRequestLines($self) {
+        $self->read(['condo_id', 'request_date', 'confirmation_date', 'transfer_date', 'status']);
+        foreach($self as $id => $ownershipTransfer) {
+            OwnershipTransferFundRequestLine::search(['ownership_transfer_id', '=', $id])->delete(true);
+            $date = null;
+            if(in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'], true)) {
+                $date = $ownershipTransfer['request_date'];
+            }
+            elseif(in_array($ownershipTransfer['status'], ['confirmed', 'financial_statement_sent'], true)) {
+                $date = $ownershipTransfer['confirmation_date'];
+            }
+            else {
+                $date = $ownershipTransfer['transfer_date'];
+            }
+            // retrieve FiscalYear
+            $fiscalYear = FiscalYear::search([
+                    ['condo_id', '=', $ownershipTransfer['condo_id']],
+                    ['date_from', '<=', $date],
+                    ['date_to', '>=', $date],
+                ])
+                ->first();
+
+            if(!$fiscalYear) {
+                throw new \Exception('missing_fiscal_year', EQ_ERROR_INVALID_PARAM);
+            }
+
+            // retrieve fund requests
+            $fund_requests_ids = FundRequest::search([['condo_id', '=', $ownershipTransfer['condo_id']], ['fiscal_year_id', '=', $fiscalYear['id']]])->ids();
+            foreach($fund_requests_ids as $fund_request_id) {
+                // #memo - most fields are computed
+                OwnershipTransferFundRequestLine::create([
+                        'condo_id' => $ownershipTransfer['condo_id'],
+                        'ownership_transfer_id' => $id,
+                        'fund_request_id' => $fund_request_id
+                    ]);
+            }
+        }
+    }
+
     protected static function doGenerateFundBalanceLines($self) {
         $self->read(['condo_id', 'request_date', 'confirmation_date', 'transfer_date', 'status']);
         foreach($self as $id => $ownershipTransfer) {
@@ -368,7 +460,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 $date = $ownershipTransfer['transfer_date'];
             }
 
-            // retrive FicalYear
+            // retrieve FiscalYear
             $fiscalYear = FiscalYear::search([
                     ['condo_id', '=', $ownershipTransfer['condo_id']],
                     ['date_from', '<=', $date],
@@ -423,8 +515,7 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             // creéer les écritures sur base des adjustments
             $adjustments = OwnershipTransferAdjustmentLine::search([
-                    ['ownership_transfer_id', '=', $id],
-                    ['adjustment_type', '=', 'reimburse']
+                    ['ownership_transfer_id', '=', $id]
                 ])
                 ->read(['request_account_id', 'amount']);
 // #todo
