@@ -55,7 +55,6 @@ class SupplierType extends Model {
                 'description'       => "Supplier items relating to the Type."
             ]
 
-
         ];
     }
 
