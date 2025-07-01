@@ -159,7 +159,27 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
         ],
         'transfer_fees_ids' => [
             'fee_date', 'description', 'price'
-        ]
+        ],
+        // 3.94.1.1
+        'fund_balances_description',
+        // 3.94.1.2
+        'seller_arrears_description',
+        // 3.94.1.3
+        'scheduled_fund_requests_description',
+        // 3.94.1.4
+        'judiciary_procedures_description',
+        // 3.94.1.5
+        'general_assembly_minutes_description',
+        // 3.94.1.6
+        'latest_balance_sheet_description',
+        // 3.94.2.1
+        'maintenance_expenses_description',
+        // 3.94.2.2
+        'fund_requests_description',
+        // 3.94.2.3
+        'commons_acquisitions_description',
+        // 3.94.2.4
+        'condominium_debts_description'
     ])
     ->first(true);
 
@@ -211,7 +231,26 @@ $values = [
     'currency'                  => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
     'labels'                    => $getLabels($lang),
     'debug'                     => $params['debug'],
-    'tax_lines'                 => [],
+    // 3.94.1.1
+    'fund_balances_description'             => $ownershipTransfer['fund_balances_description'],
+    // 3.94.1.2
+    'seller_arrears_description'            => $ownershipTransfer['seller_arrears_description'],
+    // 3.94.1.3
+    'scheduled_fund_requests_description'   => $ownershipTransfer['scheduled_fund_requests_description'],
+    // 3.94.1.4
+    'judiciary_procedures_description'      => $ownershipTransfer['judiciary_procedures_description'],
+    // 3.94.1.5
+    'general_assembly_minutes_description'  => $ownershipTransfer['general_assembly_minutes_description'],
+    // 3.94.1.6
+    'latest_balance_sheet_description'      => $ownershipTransfer['latest_balance_sheet_description'],
+    // 3.94.2.1
+    'maintenance_expenses_description'      => $ownershipTransfer['maintenance_expenses_description'],
+    // 3.94.2.2
+    'fund_requests_description'             => $ownershipTransfer['fund_requests_description'],
+    // 3.94.2.3
+    'commons_acquisitions_description'      => $ownershipTransfer['commons_acquisitions_description'],
+    // 3.94.2.4
+    'condominium_debts_description'         => $ownershipTransfer['condominium_debts_description'],
 ];
 
 

@@ -348,6 +348,18 @@
                             "view": "list.default",
                             "domain": ["supplier_type_code", "=", "managing_agent"]
                         }
+                    },
+                    {
+                        "id": "notary_offices",
+                        "type": "entry",
+                        "label": "Notary Offices",
+                        "icon": "balance",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\property\\NotaryOffice",
+                            "view": "list.default",
+                            "domain": ["supplier_type_code", "=", "notary_office"]
+                        }
                     }
                 ]
             },

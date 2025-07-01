@@ -232,6 +232,9 @@ class Document extends Model {
                 'visible'           => ['document_type_code', '=', 'bank_statement']
             ],
 
+
+            // #todo - handle general_assembly_minutes
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [

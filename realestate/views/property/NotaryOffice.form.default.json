@@ -1,0 +1,10 @@
+{
+    "name": "Notary Office",
+    "description": "A Notary Office is handled as a supplier with specific additional info.",
+    "extends": {
+        "entity": "purchase\\supplier\\Supplier",
+        "view": "form.default"
+    },
+    "layout": {
+    }
+}

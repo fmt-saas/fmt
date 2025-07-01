@@ -160,6 +160,8 @@
 
         <h4>1° le montant du fonds de roulement et du fonds de réserve, au sens du § 5, alinéas 2 et 3;</h4>
         <div>
+            {{ fund_balances_description | raw }}
+
             <table>
                 <tr>
                     <th></th>
@@ -182,6 +184,8 @@
 
         <h4>2° le montant des arriérés éventuels dus par le cédant;</h4>
         <div>
+            {{ seller_arrears_description | raw }}
+
             <table>
                 <tr>
                     <th>Date d'échéance</th>
@@ -219,23 +223,23 @@
 
         <h4>3° la situation des appels de fonds, destinés au fonds de réserve et décidés par l'assemblée générale avant la date certaine du transfert de la propriété;</h4>
         <div>
-            Voir fonds de réserve, fonds de roulement et budget du dernier PV de l’AG.
+            {{ scheduled_fund_requests_description | raw }}
         </div>
 
         <h4>4° le cas échéant, le relevé des procédures judiciaires en cours relatives à la copropriété;</h4>
         <div>
-            {judicial_procedure_status}
+            {{ judiciary_procedures_description | raw }}
         </div>
 
         <h4>5° les procès-verbaux des assemblées générales ordinaires et extraordinaires des trois dernières années, ainsi que les décomptes périodiques des charges des deux dernières années;</h4>
             Procès-verbaux des AG des 3 dernières années et décomptes de charges des 2 dernières années :
         <div>
-            Voir annexes ci-jointes.
+            {{ general_assembly_minutes_description | raw }}
         </div>
 
         <h4>6° une copie du dernier bilan approuvé par l'assemblée générale</h4>
         <div>
-            Voir annexes ci-jointes.
+            {{ latest_balance_sheet_description | raw }}
         </div>
 
 
@@ -243,11 +247,13 @@
 
         <h4>1° le montant des dépenses de conservation, d'entretien, de réparation et de réfection décidées par l'assemblée générale ou le syndic avant la date certaine du transfert de la propriété mais dont le paiement est demandé par le syndic postérieurement à cette date;</h4>
         <div>
-            Voir annexes ci-jointes, dernier PV de l’AG.
+            {{ maintenance_expenses_description | raw }}
         </div>
 
         <h4>2° un état des appels de fonds approuvés par l'assemblée générale des copropriétaires avant la date certaine du transfert de propriété et le coût des travaux urgents dont le paiement est demandé par le syndic postérieurement à cette date;</h4>
         <div>
+            {{ fund_requests_description | raw }}
+
             <table>
                 <tr>
                     <th>Appel</th>
@@ -273,12 +279,12 @@
 
         <h4>3° un état des frais liés à l'acquisition de parties communes, décidés par l'assemblée générale avant la date certaine du transfert de la propriété, mais dont le paiement est demandé par le syndic postérieurement à cette date;</h4>
         <div>
-            Veuillez-vous référer aux derniers procès-verbaux d’assemblée générale.
+            {{ commons_acquisitions_description | raw }}
         </div>
 
         <h4>4° un état des dettes certaines dues par l'association des copropriétaires à la suite de litiges nés avant la date certaine du transfert de la propriété, mais dont le paiement est demandé par le syndic postérieurement à cette date.</h4>
         <div>
-            Veuillez-vous référer aux derniers procès-verbaux d’assemblée générale.
+            {{ condominium_debts_description | raw }}
         </div>
 
         <h4>5° le montant des arriérés éventuels dus par le cédant;</h4>
@@ -292,7 +298,7 @@
                 </tr>
                 {% for arrear_funding in arrear_fundings %}
                 <tr>
-                    <td>{{ arrear_funding.due_date }}</td>
+                    <td>{{ arrear_funding.due_date | date(date_format, timezone) }}</td>
                     <td>{{ arrear_funding.name }}</td>
                     <td>{{ arrear_funding.funding_type }}</td>
                     <td>{{ arrear_funding.remaining_amount  | format_money() }}</td>
@@ -350,7 +356,7 @@
         <p>Espérant avoir répondu à vos questions et restant à votre disposition pour de plus amples informations, nous vous prions de croire, Maître, en l’expression de notre parfaite considération.</p>
 
         <p>
-            Le Syndic
+            <strong>Le Syndic</strong>
         </p>
 
 

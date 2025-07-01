@@ -42,3 +42,10 @@ SupplierType::create([
     'code'      => 'electricity',
     'category'  => 'services'
 ]);
+
+SupplierType::create([
+    'id'        => 6,
+    'name'      => 'Notary Offices',
+    'code'      => 'notary_office',
+    'category'  => 'services'
+]);

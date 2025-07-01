@@ -34,19 +34,72 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'is_notary_request' => [
+                'type'              => 'boolean',
+                'description'       => "Is the original information request made by a notary office ?",
+                'default'           => false
+            ],
+
+            'request_contact_name' => [
+                'type'              => 'string',
+                'description'       => "Contact person from whom originated the request.",
+                'visible'           => ['is_notary_request', '=', false]
+            ],
+
+            'request_contact_address_street' => [
+                'type'              => 'string',
+                'description'       => "Address of the contact person from whom originated the request.",
+                'visible'           => ['is_notary_request', '=', false]
+            ],
+
+            'request_contact_address_zip' => [
+                'type'              => 'string',
+                'description'       => "Postal code of the contact address.",
+                'visible'           => ['is_notary_request', '=', false]
+            ],
+
+            'request_contact_address_city' => [
+                'type'              => 'string',
+                'description'       => "City of the contact address.",
+                'visible'           => ['is_notary_request', '=', false]
+            ],
+
+            'request_contact_email' => [
+                'type'              => 'string',
+                'usage'             => 'email',
+                'description'       => "Contact main email address.",
+                'visible'           => ['is_notary_request', '=', false]
+            ],
+
+            'request_notary_office_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the property lot belongs to.",
+                'foreign_object'    => 'realestate\property\NotaryOffice',
+                'domain'            => ['supplier_type_code', '=', 'notary_office'],
+                'visible'           => [['is_notary_request', '=', true] ]
+            ],
+
+            'confirmation_notary_office_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the property lot belongs to.",
+                'foreign_object'    => 'realestate\property\NotaryOffice',
+                'domain'            => ['supplier_type_code', '=', 'notary_office'],
+                'required'          => true
+            ],
+
             'request_date' => [
                 'type'              => 'date',
-                'description'       => "Date at which the first request from the notary was received."
+                'description'       => "Date at which the request was sent from the notary office."
             ],
 
             'confirmation_date' => [
                 'type'              => 'date',
-                'description'       => "Date at which the confirmation from the notary was received."
+                'description'       => "Date at which the confirmation was sent from the notary."
             ],
 
             'transfer_date' => [
                 'type'              => 'date',
-                'description'       => "Date at which the ownership transfer is scheduled",
+                'description'       => "Date at which the ownership transfer took place.",
                 'help'              => "This date must match the notary deed date and is therefore known only at the end of the process.",
                 'default'           => function () { return time(); }
             ],
@@ -109,17 +162,94 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'       => 'Ownership Transfer fees for the processing of the file.'
             ],
 
-            'has_judiciary_procedures' => [
+            'fund_balances_description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'help'              => "As per 3.94.1.1"
+            ],
+
+            'has_seller_arrears' => [
                 'type'              => 'boolean',
-                'description'       => "Are there any pending judiciary procedures affecting the condominium?",
+                'description'       => "Are there any pending arrears owed by the seller?",
                 'default'           => false
+            ],
+
+            'seller_arrears_description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'help'              => "As per 3.94.1.2"
+            ],
+
+            'scheduled_fund_requests_description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'help'              => "As per 3.94.1.3"
             ],
 
             'judiciary_procedures_description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
                 'description'       => "Short description of the current procedures, along with involved amounts.",
-                'visible'           => ['has_judiciary_procedures', '=', true]
+                'help'              => "As per 3.94.1.4"
+            ],
+
+            'general_assembly_minutes_description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'help'              => "As per 3.94.1.5"
+            ],
+
+            'latest_balance_sheet_description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'help'              => "As per 3.94.1.6"
+            ],
+
+            'maintenance_expenses_description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'help'              => "As per 3.94.2.1"
+            ],
+
+            'fund_requests_description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'help'              => "As per 3.94.2.2"
+            ],
+
+            'commons_acquisitions_description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'help'              => "As per 3.94.2.3"
+            ],
+
+            'condominium_debts_description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'help'              => "As per 3.94.2.4"
+            ],
+
+            'has_seller_arrears_2' => [
+                'type'              => 'boolean',
+                'description'       => "Are there any pending arrears owed by the seller?",
+                'default'           => false
+            ],
+
+            'seller_arrears_description_2' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'help'              => "As per 3.94.2.5",
+                'visible'           => ['has_seller_arrears', '=', true]
             ],
 
             'has_fuel_tank' => [
@@ -192,7 +322,7 @@ class OwnershipTransfer extends \equal\orm\Model {
         return [
             'pending' => [
                 'description' => 'Draft ownership transfer, not yet validated.',
-                'icon' => 'drafts',
+                'icon' => 'draft',
                 'transitions' => [
                     'open' => [
                         'description'   => 'Update the document to `pending`.',
@@ -288,6 +418,30 @@ class OwnershipTransfer extends \equal\orm\Model {
     }
 
     protected static function onafterOpen($self) {
+
+        $self->update([
+            // 3.94.1.1
+            'fund_balances_description' => "Veuillez trouver la situation des différents fonds dans le récapitulatif suivant",
+            // 3.94.1.2
+            'seller_arrears_description' => "Le montant à ce jour des arriérés dus par le cédant à la copropriété;",
+            // 3.94.1.3
+            'scheduled_fund_requests_description' => "Voir les points fonds de réserve, fonds de roulement et budget du dernier PV de l’AG.",
+            // 3.94.1.4
+            'judiciary_procedures_description' => "voir le point « procédures judiciaires encours » du dernier PV de l’AG.",
+            // 3.94.1.5
+            'general_assembly_minutes_description' => "Voir annexes ci-jointes.",
+            // 3.94.1.6
+            'latest_balance_sheet_description' => "Voir annexes ci-jointes.",
+            // 3.94.2.1
+            'maintenance_expenses_description' => "Voir annexes ci-jointes, dernier PV de l’AG.",
+            // 3.94.2.2
+            'fund_requests_description' => "Voici un tableau récapitulatif des appels relatifs à l'exercice en cours (montants appelés et planifiés)",
+            // 3.94.2.3
+            'commons_acquisitions_description' => "Veuillez-vous référer aux derniers procès-verbaux d’assemblée générale.",
+            // 3.94.2.4
+            'condominium_debts_description' => "Veuillez-vous référer aux derniers procès-verbaux d’assemblée générale."
+        ]);
+
         $self
             ->do('generate_fund_balance_lines')
             ->do('generate_fund_request_lines');

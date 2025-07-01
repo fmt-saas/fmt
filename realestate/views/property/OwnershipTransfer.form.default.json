@@ -97,16 +97,16 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "label",
-                                                "value": "Notary Request",
+                                                "value": "Information request",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Date of the notary request",
+                                                "label": "Date of the information request",
                                                 "value": "request_date",
                                                 "width": "50%"
                                             },
@@ -118,13 +118,13 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "100%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Current Owner",
                                                 "value": "old_ownership_id",
-                                                "width": "50%",
+                                                "width": "25%",
                                                 "visible": ["condo_id", "<>", null],
                                                 "widget": {
                                                     "header": {
@@ -137,7 +137,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "property_lot_id",
-                                                "width": "50%",
+                                                "width": "25%",
                                                 "visible": [["condo_id", "<>", null], ["status", "=", "pending"]],
                                                 "widget": {
                                                     "header": {
@@ -148,9 +148,13 @@
                                                 }
                                             }
                                         ]
-                                    },
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "100%",
                                         "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null]],
                                         "items": [
                                             {
@@ -181,7 +185,7 @@
                     {
                         "id": "section.information_documents",
                         "label": "Information (3.94 §1)",
-                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "in", ["open", "seller_documents_sent", "confirmed", "financial_statement_sent", "settled"]]],
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "<>", "pending"]],
                         "rows": [
                             {
                                 "columns": [
@@ -190,17 +194,26 @@
                                         "items": [
                                             {
                                                 "type": "label",
-                                                "value": "Required Information",
+                                                "value": "Contact",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "is_notary_request",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "has_judiciary_procedures",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "judiciary_procedures_description",
+                                                "value": "request_notary_office_id",
                                                 "width": "100%"
                                             }
                                         ]
@@ -209,13 +222,57 @@
                                         "width": "50%",
                                         "items": [
                                             {
+                                                "type": "field",
+                                                "label": "Contact Name",
+                                                "value": "request_contact_name",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Email",
+                                                "value": "request_contact_email",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Street",
+                                                "value": "request_contact_address_street",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Zip",
+                                                "value": "request_contact_address_zip",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "City",
+                                                "value": "request_contact_address_city",
+                                                "width": "25%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
                                                 "type": "label",
-                                                "value": "Funds balances",
+                                                "value": "1° Condominium funds balances",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Condominium funds balances",
+                                                "value": "fund_balances_description",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Funds balances",
                                                 "value": "fund_balances_ids",
                                                 "width": "100%",
                                                 "widget": {
@@ -229,7 +286,17 @@
                                             },
                                             {
                                                 "type": "label",
-                                                "value": "Owner arrears",
+                                                "value": "2° Seller arrears",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_seller_arrears",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "seller_arrears_description",
                                                 "width": "100%"
                                             },
                                             {
@@ -249,12 +316,52 @@
                                             },
                                             {
                                                 "type": "label",
-                                                "value": "Transfer file fees",
+                                                "value": "2° bis Transfer file fees",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "transfer_fees_ids",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "3° Fund requests voted in GA",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "scheduled_fund_requests_description",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "4° Judiciary Procedures",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "judiciary_procedures_description",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "5° General Assembly minutes",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "general_assembly_minutes_description",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "6° Latest Balance sheet validated by General Assembly",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "latest_balance_sheet_description",
                                                 "width": "100%"
                                             }
                                         ]
@@ -274,15 +381,94 @@
                                         "width": "50%",
                                         "items": [
                                             {
-                                                "type": "label",
-                                                "value": "Notary confirmation",
-                                                "width": "100%"
-                                            },
-                                            {
                                                 "type": "field",
                                                 "label": "Date of the notary confirmation",
                                                 "value": "confirmation_date",
                                                 "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "1° Maintenance Expenses",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "maintenance_expenses_description",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "2° Fund Requests",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fund_requests_description",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Fund requests",
+                                                "value": "fund_requests_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "3° Common areas acquisitions",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "commons_acquisitions_description",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "4° Condominium debts",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "condominium_debts_description",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "5° Seller arrears debts",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_seller_arrears_2",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "seller_arrears_description_2",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "Additional information",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
@@ -298,25 +484,6 @@
                                                 "type": "field",
                                                 "value": "fuel_tank_capacity",
                                                 "width": "50%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "50%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "label": "Fund requests",
-                                                "value": "fund_requests_ids",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "header": {
-                                                        "layout": "inline",
-                                                        "actions": {
-                                                            "ACTION.CREATE": false
-                                                        }
-                                                    }
-                                                }
                                             }
                                         ]
                                     }
