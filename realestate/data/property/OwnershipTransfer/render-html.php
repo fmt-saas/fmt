@@ -7,6 +7,7 @@
 use core\setting\Setting;
 use equal\data\DataFormatter;
 use identity\Organisation;
+use realestate\property\NotaryOffice;
 use realestate\property\OwnershipTransfer;
 use realestate\sale\pay\Funding;
 use Twig\TwigFilter;
@@ -134,7 +135,17 @@ $getLabels = function($lang) {
 
 $ownershipTransfer = OwnershipTransfer::id($params['id'])
     ->read([
+        'status',
+        'ownership_shares',
+        'is_notary_request',
+        'request_contact_name',
+        'request_contact_address_street',
+        'request_contact_address_zip',
+        'request_contact_address_city',
+        'request_contact_email',
+        'request_notary_office_id',
         'request_date',
+        'confirmation_notary_office_id',
         'has_intervention_record',
         'has_fuel_tank',
         'fuel_tank_capacity',
@@ -210,6 +221,34 @@ $organisation = Organisation::search()->read([
 $organisation['bank_account_iban'] = DataFormatter::format($organisation['bank_account_iban'], 'iban');
 $organisation['phone'] = DataFormatter::format($organisation['phone'], 'phone');
 
+// compute contact details
+$request_contact_name = $ownershipTransfer['request_contact_name'];
+$request_contact_address_street = $ownershipTransfer['request_contact_address_street'];
+$request_contact_address_zip = $ownershipTransfer['request_contact_address_zip'];
+$request_contact_address_city = $ownershipTransfer['request_contact_address_city'];
+$request_contact_email = $ownershipTransfer['request_contact_email'];
+
+if(in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent']) && $ownershipTransfer['is_notary_request']) {
+    $notaryOffice = NotaryOffice::id($ownershipTransfer['request_notary_office_id'])
+        ->read(['name', 'address_street', 'address_zip', 'address_city', 'email'])
+        ->first();
+    $request_contact_name = $notaryOffice['name'];
+    $request_contact_address_street = $notaryOffice['address_street'];
+    $request_contact_address_zip = $notaryOffice['address_zip'];
+    $request_contact_address_city = $notaryOffice['address_city'];
+    $request_contact_email = $notaryOffice['email'];
+}
+elseif($ownershipTransfer['confirmation_notary_office_id']) {
+    $notaryOffice = NotaryOffice::id($ownershipTransfer['confirmation_notary_office_id'])
+        ->read(['name', 'address_street', 'address_zip', 'address_city', 'email'])
+        ->first();
+    $request_contact_name = $notaryOffice['name'];
+    $request_contact_address_street = $notaryOffice['address_street'];
+    $request_contact_address_zip = $notaryOffice['address_zip'];
+    $request_contact_address_city = $notaryOffice['address_city'];
+    $request_contact_email = $notaryOffice['email'];
+}
+
 
 $values = [
     'organisation'              => $organisation,
@@ -220,10 +259,18 @@ $values = [
     'arrear_fundings'           => $arrear_fundings,
     'transfer_fees'             => $ownershipTransfer['transfer_fees_ids'],
     'ownership'                 => $ownershipTransfer['old_ownership_id'],
+    'ownership_shares'          => $ownershipTransfer['ownership_shares'],
     'has_intervention_record'   => $ownershipTransfer['has_intervention_record'],
     'has_fuel_tank'             => $ownershipTransfer['has_fuel_tank'],
     'fuel_tank_capacity'        => $ownershipTransfer['fuel_tank_capacity'],
     'request_date'              => $ownershipTransfer['request_date'],
+
+    'request_contact_name'              => $request_contact_name,
+    'request_contact_address_street'    => $request_contact_address_street,
+    'request_contact_address_zip'       => $request_contact_address_zip,
+    'request_contact_address_city'      => $request_contact_address_city,
+    'request_contact_email'             => $request_contact_email,
+
     'today_date'                => time(),
     'timezone'                  => constant('L10N_TIMEZONE'),
     'locale'                    => constant('L10N_LOCALE'),
@@ -252,6 +299,9 @@ $values = [
     // 3.94.2.4
     'condominium_debts_description'         => $ownershipTransfer['condominium_debts_description'],
 ];
+
+
+
 
 
 try {

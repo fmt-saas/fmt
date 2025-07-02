@@ -70,8 +70,21 @@
             text-decoration: underline;
         }
 
+        header table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 12px;
+            margin-bottom: 20px;
+        }
+
+        header table th, main table td {
+            border: none;
+            padding: 6px 10px;
+            text-align: left;
+        }
+
         main.debug {
-            outline: solid 1px brown;
+            outline: solid 1px rgb(136, 76, 76);
         }
 
         main .fiscal_year-payment-info {
@@ -82,25 +95,25 @@
             border: solid 2px black;
         }
 
-        table {
+        main table {
             border-collapse: collapse;
             width: 100%;
             margin-top: 12px;
             margin-bottom: 20px;
         }
 
-        table th, table td {
+        main table th, main table td {
             border: 1px solid #666;
             padding: 6px 10px;
             text-align: left;
         }
 
-        table th {
+        main table th {
             background-color: #f0f0f0;
             font-weight: 600;
         }
 
-        table td {
+        main table td {
             vertical-align: top;
         }
 
@@ -111,6 +124,21 @@
     {% include 'footer.html.twig' %}
 
     <header>
+        <table>
+            <tr>
+                <td style="width: 50%; text-align: left;">
+
+                </td>
+                <td style="width: 50%;">
+                    <div style="margin-left: 50%; text-align: left;">
+                        <strong>{{ request_contact_name }}</strong><br />
+                        {{ request_contact_address_street }}<br />
+                        {{ request_contact_address_zip }} {{ request_contact_address_city }}<br />
+                        {{ request_contact_email }}
+                    </div>
+                </td>
+            </tr>
+        </table>
     </header>
 
     <main class="{{ debug ? 'debug' : '' }}">
@@ -120,7 +148,6 @@
         </p>
 
         <p>
-            Maître,<br>
             <strong>Concerne :</strong> Votre demande d’informations / Convention de cession du droit de propriété
         </p>
 
@@ -143,7 +170,7 @@
                         {{ property_lot.name }}{% if not loop.last %}, {% endif %}
                     {% endfor %}
                     <br>
-                    <strong>Quotité(s) totale(s) :</strong> {seller_quotas}
+                    <strong>Quotité(s) totale(s) :</strong> {{ ownership_shares }}
                 </td>
             </tr>
         </table>
@@ -312,7 +339,11 @@
         </div>
         <div>
             <p>Ce montant ne tient pas compte du décompte de charge de l’exercice comptable en cours.</p>
-            <p>Tout paiement est à effectuer sur le compte de l’ACP {{ condominium.name }} suivant : copropriete_numero_compte – copropriete_code_bic avec la référence proprio_com_vcs.</p>
+            <p>Tout paiement est à effectuer sur le compte de l’ACP <strong>{{ condominium.name }}</strong> :<br />
+                {{ organisation.bank_account_iban }}<br />
+                {{ organisation.bank_account_bic }}<br />
+                avec la référence VCS enseignée.
+            </p>
         </div>
 
         <h4>Informations complémentaires</h4>

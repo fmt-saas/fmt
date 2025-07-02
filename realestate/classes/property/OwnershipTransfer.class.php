@@ -154,6 +154,13 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['id', '<>', 'object.old_ownership_id']]
             ],
 
+            'ownership_shares' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'function'          => 'calcOwnershipShares',
+                'description'       => "The total statutory shares implied by the ownership transfer."
+            ],
+
             'transfer_fees_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\property\OwnershipTransferFee',
@@ -849,6 +856,38 @@ class OwnershipTransfer extends \equal\orm\Model {
 
         }
 
+    }
+
+    protected static function calcOwnershipShares($self) {
+        $result = [];
+
+        $self->read(['condo_id', 'property_lots_ids']);
+
+        foreach($self as $id => $ownershipTransfer) {
+            $apportionment = Apportionment::search([
+                    ['condo_id', '=', $ownershipTransfer['condo_id']],
+                    ['is_statutory', '=', true],
+                ])
+                ->first();
+
+            if(!$apportionment) {
+                continue;
+            }
+
+            $result[$id] = 0;
+
+            $apportionmentShares = PropertyLotApportionmentShare::search([
+                    [ 'property_lot_id', 'in', $ownershipTransfer['property_lots_ids'] ],
+                    [ 'apportionment_id', '=', $apportionment['id']]
+                ])
+                ->read(['property_lot_shares']);
+
+            foreach($apportionmentShares as $apportionmentShare) {
+                $result[$id] += $apportionmentShare['property_lot_shares'];
+            }
+        }
+
+        return $result;
     }
 
     private static function computeWorkingFundsReimbursements($id) {

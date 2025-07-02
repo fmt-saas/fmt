@@ -387,6 +387,17 @@
                                                 "width": "50%"
                                             }
                                         ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Contact Notary Office",
+                                                "value": "confirmation_notary_office_id",
+                                                "width": "100%"
+                                            }
+                                        ]
                                     }
                                 ]
                             },
