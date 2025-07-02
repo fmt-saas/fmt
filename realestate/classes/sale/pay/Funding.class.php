@@ -220,4 +220,7 @@ class Funding extends \sale\pay\Funding {
         return $result;
     }
 
+    protected static function oncreate($self) {
+        \eQual::run('do', 'realestate_sale_pay_Funding_check-transfer', ['ids' => $self->ids()]);
+    }
 }
