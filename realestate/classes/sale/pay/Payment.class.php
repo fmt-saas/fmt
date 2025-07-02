@@ -11,6 +11,7 @@ use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
 use finance\bank\CondominiumBankAccount;
 use purchase\supplier\Suppliership;
+use realestate\finance\accounting\MoneyRefund;
 use realestate\finance\accounting\MoneyTransfer;
 use realestate\ownership\Ownership;
 use realestate\purchase\accounting\AccountingEntry;
@@ -65,6 +66,7 @@ class Payment extends \sale\pay\Payment {
                 'funding_id' => [
                     'funding_type',
                     'money_transfer_id',
+                    'money_refund_id',
                     'ownership_id',
                     'suppliership_id',
                     'bank_account_id',
@@ -98,10 +100,15 @@ class Payment extends \sale\pay\Payment {
                     Funding::id($payment['funding_id']['id'])
                         ->do('refresh_status');
 
-                    // special case
+                    // special cases
                     if($payment['funding_id']['funding_type'] === 'transfer') {
                         // create a single accounting entry, only if transfer is complete
                         MoneyTransfer::id($payment['funding_id']['money_transfer_id'])->do('attempt_posting');
+                        continue;
+                    }
+                    elseif($payment['funding_id']['funding_type'] === 'refund') {
+                        // create a single accounting entry, only if refund is complete
+                        MoneyRefund::id($payment['funding_id']['money_refund_id'])->do('attempt_posting');
                         continue;
                     }
 

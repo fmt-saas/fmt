@@ -7,8 +7,6 @@
 
 namespace realestate\finance\accounting;
 
-use finance\accounting\Account;
-use finance\accounting\CurrentBalanceLine;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
@@ -190,15 +188,22 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
 
     public static function getActions() {
         return array_merge(parent::getActions(), [
-            'generate_accounting_entry_outgoing' => [
+            'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries for the refund.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
-                'function'      => 'doGenerateAccountingEntryOutgoing'
+                'function'      => 'doGenerateAccountingEntry'
             ],
             'create_fundings' => [
                 'description'   => 'Creates a funding for the transfer followup.',
                 'policies'      => [/* 'can_generate_fundings' */],
                 'function'      => 'doCreateFundings'
+            ],
+            'attempt_posting' => [
+                'description'   => 'Attempt to post the money transfer.',
+                'help'          => 'This action is used to attempt posting the money transfer, after a bank statement has been integrated.',
+                // #memo - action is allowed to fail
+                'policies'      => [ 'is_payable' ],
+                'function'      => 'doAttemptPosting'
             ]
         ]);
     }
@@ -209,6 +214,10 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'description' => 'Verifies that the state of the Money Refund allows validation.',
                 'function'    => 'policyIsValid'
             ],
+            'is_payable' => [
+                'description' => 'Verifies that the balance of the bank account is sufficient.',
+                'function'    => 'policyIsPayable'
+            ],
             'is_paid' => [
                 'description' => 'Verifies that the refund has been paid.',
                 'function'    => 'policyIsPaid'
@@ -216,9 +225,22 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
         ]);
     }
 
+    protected static function policyIsPayable($self): array {
+        $result = [];
+        $self->read(['amount', 'account_available_balance']);
+        foreach($self as $id => $moneyRefund) {
+            if($moneyRefund['amount'] > $moneyRefund['account_available_balance']) {
+                $result[$id] = [
+                    'insufficient_fund' => 'Available fund must be higher than the refund amount.'
+                ];
+            }
+        }
+        return $result;
+    }
+
     protected static function policyIsValid($self): array {
         $result = [];
-        $self->read(['status', 'condo_id', 'posting_date', 'amount', 'bank_account_id', 'account_available_balance', 'ownership_id', 'ownership_bank_account_id']);
+        $self->read(['status', 'condo_id', 'posting_date', 'amount', 'bank_account_id', 'ownership_id', 'ownership_bank_account_id']);
         foreach($self as $id => $moneyRefund) {
             if(!isset($moneyRefund['bank_account_id'])) {
                 $result[$id] = [
@@ -243,11 +265,6 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
             if($moneyRefund['amount'] <= 0) {
                 $result[$id] = [
                     'invalid_amount' => 'Amount must be greater than zero.'
-                ];
-            }
-            if($moneyRefund['amount'] > $moneyRefund['account_available_balance']) {
-                $result[$id] = [
-                    'insufficient_fund' => 'Available fund must be higher than the refund amount.'
                 ];
             }
             /*
@@ -308,6 +325,16 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
     }
 
 
+    protected static function doAttemptPosting($self) {
+        try {
+            $self->transition('post');
+        }
+        catch(\Exception $e) {
+            // error is plausible and considered as normal
+            trigger_error("APP::Posting not possible for money transfer: ".$e->getMessage(), EQ_REPORT_INFO);
+        }
+    }
+
     protected static function doCreateFundings($self) {
         $self->read(['condo_id', 'amount', 'bank_account_id', 'counterpart_bank_account_id']);
 
@@ -327,7 +354,11 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
         }
     }
 
-    protected static function doGenerateAccountingEntryOutgoing($self) {
+    /**
+     * Refunds are a specific case for which an automatic entry must be made after the reception of bank statements, which may be deferred.
+     * This is to maintain the consistency of accounting operations (without "gaps" in the tracking of fund movements).
+     */
+    protected static function doGenerateAccountingEntry($self) {
         $self->read([
                 'condo_id', 'amount', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
                 'ownership_id' => ['ownership_account_id'],
@@ -363,10 +394,10 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                         'accounting_entry_id'   => $accountingEntry['id']
                     ]);
 
+                AccountingEntry::id($accountingEntry['id'])->transition('validate');
+
                 // Store the created accounting entry ID back to the misc operation
                 self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
-
-                AccountingEntry::id($accountingEntry['id'])->transition('validate');
             }
             catch(\Exception $e) {
                 // rollback
@@ -419,7 +450,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
     }
 
     protected static function onafterPost($self) {
-        $self->do('generate_accounting_entry_outgoing');
+        $self->do('generate_accounting_entry');
     }
 
     public static function onchange($event, $values) {

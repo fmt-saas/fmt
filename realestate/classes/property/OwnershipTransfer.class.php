@@ -14,7 +14,10 @@ use finance\accounting\Account;
 use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
+use finance\bank\CondominiumBankAccount;
+use finance\bank\OwnershipBankAccount;
 use realestate\finance\accounting\CondoFund;
+use realestate\finance\accounting\MoneyRefund;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestExecutionLine;
@@ -683,10 +686,24 @@ class OwnershipTransfer extends \equal\orm\Model {
         }
     }
 
+
     protected static function doPerformTransfer($self) {
         $self->read(['condo_id', 'transfer_date', 'property_lots_ids', 'old_ownership_id', 'new_ownership_id']);
 
         foreach($self as $id => $ownershipTransfer) {
+            // retrieve impacted fiscal year
+            $fiscalYear = FiscalYear::search([
+                    ['condo_id', '=', $ownershipTransfer['condo_id']],
+                    ['date_from', '<=', $ownershipTransfer['transfer_date']],
+                    ['date_to', '>=', $ownershipTransfer['transfer_date']]
+                ])
+                ->read(['id', 'fiscal_period_frequency', 'date_from', 'date_to'])
+                ->first();
+
+            if(!$fiscalYear) {
+                throw new \Exception("fiscal_year_not_found", EQ_ERROR_UNKNOWN_OBJECT);
+            }
+
             // set the new owner_id as active for the targeted property_lots
             PropertyLot::ids($ownershipTransfer['property_lots_ids'])
                 ->update(['active_ownership_id' => $ownershipTransfer['new_ownership_id']]);
@@ -703,47 +720,90 @@ class OwnershipTransfer extends \equal\orm\Model {
                     ->update(['date_to' => $ownershipTransfer['transfer_date']]);
             }
 
-            // 1-a) generate refund based on OwnershipTransferAdjustmentLine (accounting entries through MoneyRefund)
-
             $adjustments = OwnershipTransferAdjustmentLine::search([
                     ['ownership_transfer_id', '=', $id]
                 ])
-                ->read(['request_account_id', 'amount']);
+                ->read([
+                        'amount',
+                        'property_lot_id',
+                        'condo_fund_id'
+                    ]);
 
+            // 1-a) generate refund based on OwnershipTransferAdjustmentLine (accounting entries through MoneyRefund)
+
+            $refund_amount = 0.0;
             foreach($adjustments as $adjustment) {
-
-
+                // refund is pending and can still be updated (sending to bank must be done manually)
+                $refund_amount += $adjustment['amount'];
             }
 
+            // retrieve condominium main bank account
+            $condoBankAccount = CondominiumBankAccount::search([
+                    ['condo_id', '=', $ownershipTransfer['condo_id']],
+                    ['bank_account_type', '=', 'bank_current']
+                ])
+                ->first();
+
+            if(!$condoBankAccount) {
+                throw new \Exception("condo_bank_account_not_found", EQ_ERROR_UNKNOWN_OBJECT);
+            }
+
+            $ownerBankAccount = OwnershipBankAccount::search([
+                    ['condo_id', '=', $ownershipTransfer['condo_id']],
+                    ['ownership_id', '=', $ownershipTransfer['old_ownership_id']]
+                ])
+                ->first();
+
+            if(!$ownerBankAccount) {
+                throw new \Exception("owner_bank_account_not_found", EQ_ERROR_UNKNOWN_OBJECT);
+            }
+
+            // #memo - refund is pending and can still be updated (sending to bank must be done manually)
+            MoneyRefund::create([
+                'bank_account_id'           => $condoBankAccount['id'],
+                'ownership_id'              => $ownershipTransfer['old_ownership_id'],
+                'ownership_bank_account_id' => $ownerBankAccount['id'],
+                'amount'                    => $refund_amount
+            ]);
+
             // 1-b) generate exceptional fund request(s)
+            // with only the new owner, for periods fully reimbursed to the old owner, for all relevant fund requests
+
+            $map_fund_property_lots = [];
+
+            foreach($adjustments as $adjustment) {
+                if(!isset($adjustment[$adjustment['condo_fund_id']][$adjustment['property_lot_id']])) {
+                    $map_fund_property_lots[$adjustment['condo_fund_id']][$adjustment['property_lot_id']] = 0.0;
+                }
+                $map_fund_property_lots[$adjustment['condo_fund_id']][$adjustment['property_lot_id']] += $adjustment['amount'];
+            }
+
+            foreach($map_fund_property_lots as $condo_fund_id => $property_lots) {
+                $condoFund = CondoFund::id($condo_fund_id)->read(['fund_type', 'fund_account_id'])->first();
+                // #memo - status is draft and the requests can still be updated manually
+                FundRequest::create([
+                        'name'               => 'Appel exceptionnel nouveau propriétaire',
+                        'condo_id'           => $ownershipTransfer['condo_id'],
+                        'fiscal_year_id'     => $fiscalYear['id'],
+                        'request_type'       => $condoFund['fund_type'],
+                        'request_account_id' => $condoFund['fund_account_id'],
+                        'request_date'       => $ownershipTransfer['transfer_date']
+                    ]);
+            }
 
 
             // 2) adapt the pending fund request executions: move the relevant lines to the new owner
 
-            // retrieve impacted fiscal year
-            $fiscalYear = FiscalYear::search([
-                    ['condo_id', '=', $ownershipTransfer['condo_id']],
-                    ['date_from', '<=', $ownershipTransfer['transfer_date']],
-                    ['date_to', '>=', $ownershipTransfer['transfer_date']]
-                ])
-                ->read(['id', 'fiscal_period_frequency', 'date_from', 'date_to'])
-                ->first();
-
-            if(!$fiscalYear) {
-                throw new \Exception("fiscal_year_not_found", EQ_ERROR_UNKNOWN_OBJECT);
-            }
-
             // retrieve involved fund request executions
             $fundRequestExecutions = FundRequestExecution::search([['fiscal_year_id', '=', $fiscalYear['id']], ['status', '=', 'proforma']])->read(['fund_request_id']);
-            // for each execution, create a new execution line
+            // for each execution, create a new execution line assigned to new owner
             foreach($fundRequestExecutions as $fund_request_execution_id => $fundRequestExecution) {
                 $requestExecutionLine = FundRequestExecutionLine::create([
                         'condo_id'              => $ownershipTransfer['condo_id'],
                         'fund_request_id'       => $fundRequestExecution['fund_request_id'],
                         // #memo - request_execution_id is an alias of invoice_id
                         'invoice_id'            => $fund_request_execution_id,
-                        'ownership_id'          => $ownershipTransfer['new_ownership_id'],
-                        // 'total'                 => $map_amounts[$execution_date]
+                        'ownership_id'          => $ownershipTransfer['new_ownership_id']
                     ])
                     ->first();
 
@@ -758,7 +818,8 @@ class OwnershipTransfer extends \equal\orm\Model {
 
                 foreach($executionLineEntries as $execution_line_entry_id => $executionLineEntry) {
                     $amount += $executionLineEntry['called_amount'];
-                    FundRequestExecutionLineEntry::id($execution_line_entry_id)->update([
+                    FundRequestExecutionLineEntry::id($execution_line_entry_id)
+                        ->update([
                             'request_execution_line_id' => $requestExecutionLine['id'],
                             'ownership_id' => $ownershipTransfer['new_ownership_id']
                         ]);
@@ -770,42 +831,16 @@ class OwnershipTransfer extends \equal\orm\Model {
         }
     }
 
+    /**
+     * Compute already invoiced amounts to be reimbursed/charged for the sold lots based on fun requests executions already posted.
+     * #memo - afterwards, user is free to discard unwanted ones, if any.
+     *
+     */
     protected static function doGenerateAdjustments($self) {
         $self->read(['condo_id', 'transfer_date', 'property_lots_ids', 'old_ownership_id', 'new_ownership_id']);
 
         foreach($self as $id => $ownershipTransfer) {
             OwnershipTransferAdjustmentLine::search(['ownership_transfer_id', '=', $id])->delete(true);
-
-            // retrieve impacted fiscal year
-            $fiscalYear = FiscalYear::search([
-                    ['condo_id', '=', $ownershipTransfer['condo_id']],
-                    ['date_from', '<=', $ownershipTransfer['transfer_date']],
-                    ['date_to', '>=', $ownershipTransfer['transfer_date']]
-                ])
-                ->read(['id', 'fiscal_period_frequency', 'date_from', 'date_to'])
-                ->first();
-
-            if(!$fiscalYear) {
-                throw new \Exception("fiscal_year_not_found", EQ_ERROR_UNKNOWN_OBJECT);
-            }
-
-            // retrieve impacted fiscal period
-            $fiscalPeriod = FiscalPeriod::search([
-                    ['condo_id', '=', $ownershipTransfer['condo_id']],
-                    ['fiscal_year_id', '=', $fiscalYear['id']],
-                    ['date_from', '<=', $ownershipTransfer['transfer_date']],
-                    ['date_to', '>=', $ownershipTransfer['transfer_date']]
-                ])
-                ->read(['id', 'date_from', 'date_to'])
-                ->first();
-
-            // 1) compute the amounts to be reimbursed/charged for the sold lots based on fun requests executions already posted
-            $adjustments = [
-                    'reimburse' => [],
-                    'schedule' => []
-                ];
-
-            // A) already invoiced
 
             // fully reimburse, working funds based on fund balance
             $working_funds_reimbursements = self::computeWorkingFundsReimbursements($id);
@@ -840,19 +875,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                     ]);
                 }
             }
-
-
-
-            // B) scheduled but not invoiced (proforma - adaptations - pas de remboursement)
-
-            // pour le old_ownership : retirer les montants correspondant au RequestExecutionLineEntry, ce qui donne la liste pour créer un appel exceptionnel pour le new ownership
-            // pour le new_ownership, pour chaque type de fonds, créer un appel exceptionnel
-            self::computeScheduledByRequestType($id, 'working_fund');
-            self::computeScheduledByRequestType($id, 'reserve_fund');
-            self::computeScheduledByRequestType($id, 'expense_provisions');
-            // {request_execution_id, property_lot_id} -> amount to move
-            // ? faire ceci en une étape sans passer par les adjustments
-
 
         }
 
@@ -1047,7 +1069,6 @@ class OwnershipTransfer extends \equal\orm\Model {
         return $map_requests_reimbursement;
     }
 
-
     private static function computeScheduledByRequestType($id, $request_type) {
         $map_requests_movement = [];
 
@@ -1120,7 +1141,6 @@ class OwnershipTransfer extends \equal\orm\Model {
 
         return $map_requests_movement;
     }
-
 
     protected static function onupdateOldOwnershipId($self) {
         // make sure no propertylots from other ownership
@@ -1203,161 +1223,8 @@ class OwnershipTransfer extends \equal\orm\Model {
             }
         }
 
-        /*
-        if(!$values['has_suggested_identity'] || !$values['is_accepted_suggested_identity']) {
-            // #memo - attempt to retrieve matching Identity at this stage since values have been adapted/sanitized to their final (stored) format
-            // #todo - use global DB for retrieving candidate Identity
-            $identity_id = null;
-
-            if(isset($values['identity_citizen_identification']) && strlen($values['identity_citizen_identification'])) {
-                $identity_id = self::computeIdentitySuggestion(null, null, $values['identity_citizen_identification'], null, null, null);
-            }
-            elseif(isset($values['identity_email']) && strlen($values['identity_email'])) {
-                $identity_id = self::computeIdentitySuggestion(null, null, null, $values['identity_email'], null, null);
-            }
-            elseif(isset($values['identity_firstname'], $values['identity_lastname'], $values['identity_address_street'], $values['identity_address_zip'])) {
-                $identity_id = self::computeIdentitySuggestion($values['identity_firstname'], $values['identity_lastname'], null, null, $values['identity_address_street'], $values['identity_address_zip']);
-            }
-
-            // an existing identity candidate has been found
-            if($identity_id) {
-
-                // #todo - use global DB for retrieving candidate Identity
-
-                // populate with values as suggestion
-                $identity = Identity::id($identity_id)
-                    ->read([
-                        'name', 'firstname', 'lastname', 'title', 'gender', 'citizen_identification', 'email',
-                        'address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_country',
-                    ])
-                    ->first();
-
-                $result['has_suggested_identity'] = true;
-                $result['suggested_identity_uuid'] = $identity_id;
-
-                $result['suggested_identity_log'] = "
-                    <b>prenom</b>: {$identity['firstname']}
-                    <b>nom</b>: {$identity['lastname']}
-                    <b>email</b>: {$identity['email']}
-                    <b>rue</b>: {$identity['address_street']}
-                    <b>CP</b>: {$identity['address_zip']}
-                    <b>ville</b>: {$identity['address_city']}
-                    <b>pays</b>: {$identity['address_country']}
-                ";
-
-            }
-        }
-        */
-
         return $result;
     }
 
-    /**
-     * Returns cities' names based on a zip code and a country.
-     */
-    private static function computeCitiesByZip($zip, $country, $lang) {
-        $result = null;
-
-        $file = EQ_BASEDIR."/packages/identity/i18n/{$lang}/zipcodes/{$country}.json";
-
-        if(file_exists($file)) {
-            $data = file_get_contents($file);
-            $map_zip = json_decode($data, true);
-            $result = $map_zip[$zip] ?? null;
-        }
-        // fallback to english value, if defined
-        if(!$result) {
-            $file = EQ_BASEDIR."/packages/identity/i18n/en/zipcodes/{$country}.json";
-            if(file_exists($file)) {
-                $data = file_get_contents($file);
-                $map_zip = json_decode($data, true);
-                if(isset($map_zip[$zip])) {
-                    $result = $map_zip[$zip];
-                }
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * Ordre de comparaison :
-     *
-     * 1. N° registre national (rare)
-     * 2. Email
-     * 3. Nom + prénom + adresse
-     */
-    private static function computeIdentitySuggestion($firstname, $lastname, $citizen_identification, $email, $address_street, $address_zip) {
-        $identity_id = null;
-        // citizen_identification
-        if($citizen_identification) {
-            $identities_ids = Identity::search(['citizen_identification', '=', $citizen_identification])->ids();
-            if(count($identities_ids) === 1) {
-                $identity_id = reset($identities_ids);
-            }
-        }
-        elseif($email) {
-            $identities_ids = Identity::search(['email', 'ilike', $email])->ids();
-            if(count($identities_ids) === 1) {
-                $identity_id = reset($identities_ids);
-            }
-        }
-        elseif(isset($firstname, $lastname, $address_street, $address_zip)) {
-            $address_hash = self::computeAddressHash($address_street, $address_zip);
-            $identities_ids = Identity::search([
-                    ['firstname', 'ilike', $firstname],
-                    ['lastname', 'ilike', $lastname],
-                    ['address_hash', '=', $address_hash],
-                ])
-                ->ids();
-            if(count($identities_ids) === 1) {
-                $identity_id = reset($identities_ids);
-            }
-        }
-        return $identity_id;
-    }
-
-    private static function computeAddressHash($address_street, $address_zip) {
-        $address = $address_street;
-
-        $address = strtolower(TextTransformer::toAscii($address));
-        $zip = $address_zip;
-
-        // remove non-alphanum chars (keep dash & space)
-        $address = preg_replace('/[^a-z0-9\-\s]/', '', $address);
-        $zip = preg_replace('/[^a-z0-9]/', '', $zip);
-
-        // remove redundant spaces
-        $address = preg_replace('/\s+/', ' ', trim($address));
-
-        // split street and number
-        /*
-            matches
-                17-19 rue de l'Église
-                23 Avenue Léopold 2
-        */
-        if(preg_match('/^(\d+[a-z\-0-9]*)\s+(.*)$/i', $address, $matches)) {
-            $number = $matches[1];
-            $street = $matches[2];
-        }
-        /*
-            matches
-                Avenue Archibald 12
-                Rue du champ, 22-24
-        */
-        elseif(preg_match('/^(.*)\s+(\d+[a-z\-0-9]*)$/i', $address, $matches)) {
-            $street = $matches[1];
-            $number = $matches[2];
-        }
-        else {
-            $street = $address;
-            $number = '';
-        }
-
-        // normalize address
-        $street = str_replace(' ', '_', trim($street));
-        $number = str_replace(' ', '', trim($number));
-
-        return md5("{$street}::{$number}::{$zip}");
-    }
 
 }
