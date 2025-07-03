@@ -40,17 +40,17 @@
                 "mode": "edit",
                 "domain": [["id", "=", "object.id"]]
             },
-            "visible": ["document_id", "=", null]
+            "visible": [null, "=", "object.document_id"]
         },
         {
             "id": "item.view_invoice",
-            "label": "View Document",
+            "label": "View Invoice",
             "description": "",
             "icon": "open_in_new",
             "route": "/?get=documents_document&id=object.document_id",
             "target": "_blank",
             "absolute": true,
-            "visible": ["document_id", "<>", null]
+            "visible": [null, "<>", "object.document_id"]
         }
     ],
     "layout": {

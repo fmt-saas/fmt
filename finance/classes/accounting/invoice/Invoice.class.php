@@ -254,7 +254,7 @@ class Invoice extends Model {
     /**
      * #memo - we need this value even if it can still change (i.e. accounting entry is not yet validated)
      */
-    public static function calcFiscalPeriodId($self) {
+    protected static function calcFiscalPeriodId($self) {
         $result = [];
         $self->read(['status', 'posting_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
         foreach($self as $id => $invoice) {

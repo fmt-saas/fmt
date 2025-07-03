@@ -416,8 +416,8 @@ class DocumentProcess extends Model {
 
     public static function candelete($self) {
         $self->read(['status']);
-        foreach($self as $fiscalYear) {
-            if($fiscalYear['status'] != 'created') {
+        foreach($self as $documentProcess) {
+            if($documentProcess['status'] != 'created') {
                 return ['status' => ['non_removable' => 'Non-draft Document cannot be deleted.']];
             }
         }
@@ -871,9 +871,12 @@ class DocumentProcess extends Model {
     public static function onupdateData($self) {
         $self->read(['name', 'data']);
         foreach($self as $id => $documentProcess) {
-            // create a new document and remove data from current object
+            // create a new document
+            // #memo - at this stage the Document remains local (no UUID), an attempt to push to EDMS instance will be performed after assignment of condo_id, if matching succeeds
             $document = Document::create(['name' => $documentProcess['name'], 'data' => $documentProcess['data']])->first();
-            self::id($id)->update([
+            // remove data from current object (to avoid data redundancy)
+            self::id($id)
+                ->update([
                     'document_id' => $document['id'],
                     'data'        => null
                 ]);

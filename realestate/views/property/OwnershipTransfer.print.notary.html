@@ -127,10 +127,21 @@
         <table>
             <tr>
                 <td style="width: 50%; text-align: left;">
-
+                    {{ organisation.legal_name }}<br />
+                    {{ organisation.address_street }}<br />
+                    {{ organisation.address_zip }} {{ organisation.address_city }}<br />
+                    {% if organisation.registration_number %}
+                        {{ labels.footer.registration_number }}: {{ organisation.registration_number }}<br />
+                    {% endif %}
+                    {% if organisation.email %}
+                        {{ organisation.email }}<br />
+                    {% endif %}
+                    {% if organisation.phone %}
+                        {{ organisation.phone }}
+                    {% endif %}
                 </td>
                 <td style="width: 50%;">
-                    <div style="margin-left: 50%; text-align: left;">
+                    <div style="margin-left: 40%; text-align: left;">
                         <strong>{{ request_contact_name }}</strong><br />
                         {{ request_contact_address_street }}<br />
                         {{ request_contact_address_zip }} {{ request_contact_address_city }}<br />
@@ -170,7 +181,7 @@
                         {{ property_lot.name }}{% if not loop.last %}, {% endif %}
                     {% endfor %}
                     <br>
-                    <strong>Quotité(s) totale(s) :</strong> {{ ownership_shares }}
+                    <strong>Quotité(s) totale(s) :</strong> {{ ownership_shares }} / {{ condo_shares }}
                 </td>
             </tr>
         </table>
@@ -342,7 +353,7 @@
             <p>Tout paiement est à effectuer sur le compte de l’ACP <strong>{{ condominium.name }}</strong> :<br />
                 {{ organisation.bank_account_iban }}<br />
                 {{ organisation.bank_account_bic }}<br />
-                avec la référence VCS enseignée.
+                avec la référence VCS renseignée.
             </p>
         </div>
 

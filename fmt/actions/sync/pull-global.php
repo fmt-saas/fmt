@@ -37,7 +37,7 @@
 
 ['orm' => $orm] = $providers;
 
-// aller rechercher les entités créées sur l'instance Globale depuis la dernière syncrho
+// aller rechercher les entités créées sur l'instance Globale depuis la dernière synchro
 $url = constant('FMT_API_URL_EDMS');
 /*
 liste des entités protégées

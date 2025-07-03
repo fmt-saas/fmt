@@ -206,6 +206,8 @@ class Document extends Model {
                 'store'             => true
             ],
 
+            /* fields below link the source the document originates from, independently from its type */
+
             'case_file_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'tracking\CaseFile',
@@ -215,8 +217,10 @@ class Document extends Model {
             'email_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'communication\email\Email',
-                'description'       => 'Received Email the document is an attachment of, if any.'
+                'description'       => 'Optional link to the received Email the document is an attachment of, if any.'
             ],
+
+            /* fields below serve as link between the document and the entity it originates from, and are mutually exclusive */
 
             'invoice_id' => [
                 'type'              => 'many2one',
@@ -232,8 +236,30 @@ class Document extends Model {
                 'visible'           => ['document_type_code', '=', 'bank_statement']
             ],
 
+            'ownership_transfer_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\property\OwnershipTransfer',
+                'description'       => 'Optional link to the related bank statement.',
+                'visible'           => ['document_type_code', '=', 'ownership_transfer_correspondence']
+            ],
 
             // #todo - handle general_assembly_minutes
+
+            /* #memo - fiscal_year_id & fiscal_period_id are mandatory in many situations for retrieving documents (e.g. specific general assembly minutes) */
+
+            'fiscal_year_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => "Fiscal year the entry relates to.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+            ],
+
+            'fiscal_period_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'description'       => "Period of the fiscal year the document relates to.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+            ],
 
             'status' => [
                 'type'              => 'string',

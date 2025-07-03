@@ -92,11 +92,27 @@ class Invoice extends \finance\accounting\invoice\Invoice {
             ],
 
             'fiscal_year_id' => [
-                'type'              => 'many2one',
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
-                'description'       => "Fiscal year the fund request relates to.",
-                'default'           => 'defaultFiscalYear',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+                'description'       => "Fiscal year the invoice relates to.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'help'              => "Fiscal Year is automatically assigned based on posting_date.",
+                'function'          => 'calcFiscalYearId',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'fiscal_period_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'description'       => "Period of the fiscal year the invoice relates to.",
+                'help'              => "Period is automatically assigned based on posting_date.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['fiscal_year_id', '=', 'object.fiscal_year_id']],
+                'function'          => 'calcFiscalPeriodId',
+                'store'             => true,
+                'instant'           => true
             ],
 
             'emission_date' => [
@@ -115,11 +131,37 @@ class Invoice extends \finance\accounting\invoice\Invoice {
         ];
     }
 
-    public static function onupdateEmissionDate($self) {
+    protected static function onupdateEmissionDate($self) {
         $self->read(['emission_date']);
         foreach($self as $id => $invoice) {
             self::id($id)->update(['posting_date' => $invoice['emission_date']]);
         }
+    }
+
+    protected static function calcFiscalYearId($self) {
+        $result = [];
+        $self->read(['status', 'condo_id', 'posting_date' => ['date_from', 'date_to']]);
+        foreach($self as $id => $invoice) {
+            $fiscalYear = FiscalYear::search([ ['condo_id', '=', $invoice['condo_id']], ['date_from', '<=', $invoice['posting_date']], ['date_to', '>=', $invoice['posting_date']] ])->first();
+            if($fiscalYear) {
+                $result[$id] = $fiscalYear['id'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcFiscalPeriodId($self) {
+        $result = [];
+        $self->read(['status', 'posting_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
+        foreach($self as $id => $invoice) {
+            foreach($invoice['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
+                if($invoice['posting_date'] >= $period['date_from'] && $invoice['posting_date'] <= $period['date_to']) {
+                    $result[$id] = $period_id;
+                    break;
+                }
+            }
+        }
+        return $result;
     }
 
     /**

@@ -76,7 +76,7 @@
         "description": "Relevés bancaires liés au compte de la copropriété"
       },
       {
-        "code": "contracts",
+        "code": "supplier_contracts",
         "node_type": "folder",
         "name": "Contrats fournisseurs",
         "description": "Contrats de prestation (nettoyage, maintenance, etc.)"
@@ -88,17 +88,24 @@
         "description": "RIB, Kbis, attestations URSSAF, etc."
       },
       {
-        "code": "internal_notes",
+        "code": "internal_memos",
         "node_type": "folder",
-        "name": "Notes internes",
-        "description": "Notes internes, PV produits par l'app ou l'équipe"
+        "name": "Procès Verbaux",
+        "description": "PV des assemblées (AGO-AGE), et des conseils de copropriété."
       },
       {
         "code": "supplier_invoices",
         "node_type": "folder",
         "name": "Factures et Notes de crédit fournisseurs",
-        "description": "Factures reçues ou à comptabiliser"
+        "description": "Factures reçues ou à comptabiliser."
+      },
+      {
+        "code": "ownership_transfers",
+        "node_type": "folder",
+        "name": "Mutations",
+        "description": "Documents et échanges relatifs aux mutations."
       }
+
     ]
   }
 ]

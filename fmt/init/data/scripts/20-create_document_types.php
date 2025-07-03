@@ -17,8 +17,8 @@ $documentType = DocumentType::create([
         'name'          => 'Facture fournisseur',
         'code'          => 'invoice',
         'folder_code'   => 'supplier_invoices',
-        'description'   => "Document comptable à comptabiliser et réconcilier",
-        'json_schema'   => 'urn:fmt:json-schema:finance:purchase-invoice'
+        'json_schema'   => 'urn:fmt:json-schema:finance:purchase-invoice',
+        'description'   => "Document comptable à comptabiliser et réconcilier"
     ])
     ->first();
 
@@ -60,7 +60,7 @@ DocumentType::create([
     'name'          => 'Devis',
     'code'          => 'quote',
     'folder_code'   => 'tender_documents',
-    'description'   => "Proposition chiffrée, rattachable à un dossier travaux ou sinistre"
+    'description'   => "Proposition chiffrée, rattachable à un dossier travaux ou sinistre."
 ]);
 
 DocumentType::create([
@@ -68,7 +68,7 @@ DocumentType::create([
     'name'          => 'Bon de commande',
     'code'          => 'purchase_order',
     'folder_code'   => 'works_and_repairs',
-    'description'   => "Validation d'engagement de dépenses"
+    'description'   => "Validation d'engagement de dépenses."
 ]);
 
 DocumentType::create([
@@ -76,7 +76,7 @@ DocumentType::create([
     'name'          => 'Bon de livraison',
     'code'          => 'delivery_note',
     'folder_code'   => 'works_and_repairs',
-    'description'   => "Justifie qu'un service ou une marchandise a été livré"
+    'description'   => "Justifie qu'un service ou une marchandise a été livré."
 ]);
 
 DocumentType::create([
@@ -84,7 +84,7 @@ DocumentType::create([
     'name'          => 'Rapports de sinistre',
     'code'          => 'incident_report',
     'folder_code'   => 'works_and_repairs',
-    'description'   => "Document décrivant un problème ou dégât"
+    'description'   => "Document décrivant un problème ou dégât."
 ]);
 
 DocumentType::create([
@@ -92,23 +92,23 @@ DocumentType::create([
     'name'          => 'Rapport d\'entretien',
     'code'          => 'maintenance_report',
     'folder_code'   => 'maintenance_logs',
-    'description'   => "Suivi régulier, ex. extincteurs, ascenseurs"
+    'description'   => "Suivi régulier, ex. extincteurs, ascenseurs."
 ]);
 
 DocumentType::create([
     'id'            => 8,
     'name'          => 'Contrat fournisseur',
     'code'          => 'contract',
-    'folder_code'   => 'contracts',
-    'description'   => "Engagement contractuel formel (nettoyage, assurance, etc.)"
+    'folder_code'   => 'supplier_contracts',
+    'description'   => "Engagement contractuel formel (nettoyage, assurance, etc.)."
 ]);
 
 DocumentType::create([
     'id'            => 9,
-    'name'          => 'Attestation',
+    'name'          => 'Certificat d\'assurance',
     'code'          => 'certificate',
     'folder_code'   => 'insurance_contracts',
-    'description'   => "Preuve de conformité, certificat de contrôle ou d'assurance"
+    'description'   => "Preuve de conformité, attestation, certificat de contrôle ou d'assurance."
 ]);
 
 DocumentType::create([
@@ -116,7 +116,7 @@ DocumentType::create([
     'name'          => 'Conditions générales',
     'code'          => 'terms_and_conditions',
     'folder_code'   => 'contracts',
-    'description'   => "Pièce annexe souvent non pertinente"
+    'description'   => "Pièce annexe souvent non pertinente."
 ]);
 
 DocumentType::create([
@@ -124,7 +124,7 @@ DocumentType::create([
     'name'          => 'Relevé de consommations',
     'code'          => 'reconciliation_report',
     'folder_code'   => 'operation_statements',
-    'description'   => "Répartition ou données de consommation (eau, gaz…)"
+    'description'   => "Répartition ou données de consommation (eau, gaz…)."
 ]);
 
 DocumentType::create([
@@ -132,7 +132,7 @@ DocumentType::create([
     'name'          => 'Appel de fonds',
     'code'          => 'fund_request',
     'folder_code'   => 'operation_statements',
-    'description'   => "Document sollicitant un paiement d'avance ou une participation"
+    'description'   => "Document sollicitant un paiement d'avance ou une participation."
 ]);
 
 DocumentType::create([
@@ -140,7 +140,7 @@ DocumentType::create([
     'name'          => 'État des dépenses',
     'code'          => 'expense_statement',
     'folder_code'   => 'operation_statements',
-    'description'   => "Détail ou synthèse des charges engagées"
+    'description'   => "Détail ou synthèse des charges engagées."
 ]);
 
 DocumentType::create([
@@ -148,8 +148,8 @@ DocumentType::create([
     'name'          => 'Relevés bancaires',
     'code'          => 'bank_statement',
     'folder_code'   => 'bank_statements',
-    'description'   => "Mouvement sur compte bancaire de l'ACP",
-    'json_schema'   => 'urn:fmt:json-schema:finance:bank-statement'
+    'json_schema'   => 'urn:fmt:json-schema:finance:bank-statement',
+    'description'   => "Mouvement sur compte bancaire de l'ACP."
 ]);
 
 DocumentType::create([
@@ -162,10 +162,10 @@ DocumentType::create([
 
 DocumentType::create([
     'id'            => 16,
-    'name'          => 'Courrier',
-    'code'          => 'correspondence',
-    'folder_code'   => 'internal_notes',
-    'description'   => "Message utile, libre ou informatif (sans pièce formelle)"
+    'name'          => 'Courriers de mutations',
+    'code'          => 'ownership_transfer_correspondence',
+    'folder_code'   => 'ownership_transfers',
+    'description'   => "Courriers relatifs aux transferts de propriété."
 ]);
 
 DocumentType::create([
@@ -176,11 +176,33 @@ DocumentType::create([
     'description'   => "RIB, Kbis, attestation URSSAF, etc."
 ]);
 
-DocumentType::create([
-    'id'            => 18,
-    'name'          => 'PV',
-    'code'          => 'internal_memo',
-    'folder_code'   => 'internal_notes',
-    'description'   => "Procès verbal d'une assemblée ou d'un conseil."
+
+
+
+$documentType = DocumentType::create([
+        'id'            => 18,
+        'name'          => 'Procès Verbaux',
+        'code'          => 'internal_memo',
+        'folder_code'   => 'internal_notes',
+        'description'   => "Procès verbal d'une assemblée ou d'un conseil."
+    ])
+    ->first();
+
+
+DocumentSubtype::create([
+    'name'              => 'PV d\'assemblées générales',
+    'code'              => 'general_assembly',
+    'document_type_id'  => $documentType['id']
 ]);
 
+DocumentSubtype::create([
+    'name'              => 'PV d\'assemblées générales extraordinaire',
+    'code'              => 'extra_general_assembly',
+    'document_type_id'  => $documentType['id']
+]);
+
+DocumentSubtype::create([
+    'name'              => 'PV de Conseils de Copropriété',
+    'code'              => 'condominium_council',
+    'document_type_id'  => $documentType['id']
+]);

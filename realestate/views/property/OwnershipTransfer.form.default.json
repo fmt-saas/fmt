@@ -76,14 +76,14 @@
     ],
     "routes": [
         {
-            "id": "route.print.pdf",
-            "label": "Print mail",
+            "id": "route.preview.pdf",
+            "label": "Preview mail",
             "description": "Displays all lines but without group.",
             "icon": "print",
             "route": "/?get=realestate_property_OwnershipTransfer_render-pdf&id=object.id",
             "target": "_blank",
             "absolute": true,
-            "visible": ["status", "<>", "pending"]
+            "visible": [["object.id", "<>", "object.id"], ["pending", "<>", "object.status"]]
         }
     ],
     "layout": {
@@ -346,7 +346,7 @@
                                             },
                                             {
                                                 "type": "label",
-                                                "value": "5° General Assembly minutes",
+                                                "value": "5° General Assembly minutes (last 3 years) & periodic expense statements (last 2 years)",
                                                 "width": "100%"
                                             },
                                             {
@@ -568,6 +568,62 @@
                                                         }
                                                     },
                                                     "view": "list.transfer"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.documents",
+                        "label": "Documents",
+                        "visible": [["status", "not in", ["pending", "open"]]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "documents_ids",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.documents",
+                        "label": "Documents",
+                        "visible": [["status", "not in", ["pending", "open"]]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "mails_ids",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
                                                 }
                                             }
                                         ]

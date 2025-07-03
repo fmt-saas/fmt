@@ -23,7 +23,6 @@ use documents\Document;
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'constants'     => ['MINDEE_API_KEY'],
     'providers'     => ['context']
 ]);
 

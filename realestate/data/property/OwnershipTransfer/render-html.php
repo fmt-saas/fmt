@@ -136,6 +136,7 @@ $getLabels = function($lang) {
 $ownershipTransfer = OwnershipTransfer::id($params['id'])
     ->read([
         'status',
+        'condo_shares',
         'ownership_shares',
         'is_notary_request',
         'request_contact_name',
@@ -260,6 +261,7 @@ $values = [
     'transfer_fees'             => $ownershipTransfer['transfer_fees_ids'],
     'ownership'                 => $ownershipTransfer['old_ownership_id'],
     'ownership_shares'          => $ownershipTransfer['ownership_shares'],
+    'condo_shares'              => $ownershipTransfer['condo_shares'],
     'has_intervention_record'   => $ownershipTransfer['has_intervention_record'],
     'has_fuel_tank'             => $ownershipTransfer['has_fuel_tank'],
     'fuel_tank_capacity'        => $ownershipTransfer['fuel_tank_capacity'],

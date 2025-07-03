@@ -156,6 +156,13 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['id', '<>', 'object.old_ownership_id']]
             ],
 
+            'condo_shares' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'function'          => 'calcCondoShares',
+                'description'       => "The total statutory shares of the involved condominium."
+            ],
+
             'ownership_shares' => [
                 'type'              => 'computed',
                 'result_type'       => 'integer',
@@ -308,6 +315,21 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_paid', '=', false], ['ownership_id', '=', 'object.old_ownership_id']],
                 'description'       => 'Balances of the condominium funds with property lots shares.'
             ],
+
+            'mails_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'core\Mail',
+                'foreign_field'     => 'object_id',
+                'domain'            => ['object_class', '=', 'realestate\property\OwnershipTransfer']
+            ],
+
+            'documents_ids' => [
+                'type'              => 'one2many',
+                'foreign_field'     => 'ownership_transfer_id',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Documents attached to the email.'
+            ],
+
 
             'status' => [
                 'type'              => 'string',
@@ -877,6 +899,28 @@ class OwnershipTransfer extends \equal\orm\Model {
 
         }
 
+    }
+
+    protected static function calcCondoShares($self) {
+        $result = [];
+
+        $self->read(['condo_id']);
+
+        foreach($self as $id => $ownershipTransfer) {
+            $apportionment = Apportionment::search([
+                    ['condo_id', '=', $ownershipTransfer['condo_id']],
+                    ['is_statutory', '=', true],
+                ])
+                ->read(['total_shares'])
+                ->first();
+
+            if(!$apportionment) {
+                continue;
+            }
+            $result[$id] = $apportionment['total_shares'];
+        }
+
+        return $result;
     }
 
     protected static function calcOwnershipShares($self) {
