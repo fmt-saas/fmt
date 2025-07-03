@@ -524,7 +524,7 @@ class DocumentProcess extends Model {
                     ->read(['document_process_id' => ['status']]);
 
                 foreach($duplicateInvoices as $duplicateInvoice) {
-                    if(isset($duplicateInvoice['document_process_id']['status']) && $duplicateInvoice['document_process_id']['status'] !== 'cancelled') {
+                    if(isset($duplicateInvoice['document_process_id']['status']) && !in_array($duplicateInvoice['document_process_id']['status'], ['proforma', 'cancelled'])) {
                         $has_duplicate = true;
                         break;
                     }
@@ -739,12 +739,15 @@ class DocumentProcess extends Model {
                         'suppliership_bank_account_id'  => $bankAccount['id'] ?? null,
                         'payment_reference'             => str_replace(['+', '/'], '', $data['payment']['payment_id']),
                         'emission_date'                 => strtotime($data['issue_date']),
-                        'posting_date'                  => strtotime($data['issue_date']),
                         'due_date'                      => strtotime($data['due_date']),
                         'has_fund_usage'                => false,
                         'has_instant_reinvoice'         => false,
                         'document_process_id'           => $id,
                         'document_id'                   => $documentProcess['document_id']['id']
+                    ])
+                    // posting_date triggers sync with fiscal year & period
+                    ->update([
+                        'posting_date'                  => strtotime($data['issue_date'])
                     ])
                     ->first();
 

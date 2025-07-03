@@ -9,6 +9,7 @@ namespace finance\bank;
 
 use documents\processing\DocumentProcess;
 use equal\orm\Model;
+use finance\accounting\FiscalYear;
 use realestate\sale\pay\Payment;
 
 class BankStatement extends Model {
@@ -49,6 +50,7 @@ class BankStatement extends Model {
             'date' => [
                 'type'              => 'date',
                 'description'       => 'Date at which the statement was received.',
+                'help'              => 'This is for information only and might not be accurate with the actual date/time at which the statement was generated.',
                 'readonly'          => true,
                 'default'           => function () {return time();}
             ],
@@ -62,7 +64,9 @@ class BankStatement extends Model {
             'opening_date' => [
                 'type'              => 'date',
                 'description'       => 'First date the statement refers to.',
-                'required'          => true
+                'help'              => 'This date is used to associate the statement with specific fiscal year and fiscal period.',
+                'required'          => true,
+                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
             ],
 
             'closing_date' => [
@@ -115,6 +119,30 @@ class BankStatement extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Received Document that the statement is issued from, if any.'
+            ],
+
+            'fiscal_year_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => "Fiscal year the statement relates to.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'help'              => "Fiscal Year is automatically assigned based on opening_date.",
+                'function'          => 'calcFiscalYearId',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'fiscal_period_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'description'       => "Period of the fiscal year the statement relates to.",
+                'help'              => "Period is automatically assigned based on opening_date.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['fiscal_year_id', '=', 'object.fiscal_year_id']],
+                'function'          => 'calcFiscalPeriodId',
+                'store'             => true,
+                'instant'           => true
             ],
 
             'is_reconciled' => [
@@ -187,6 +215,32 @@ class BankStatement extends Model {
                 'function'    => 'policyIsReconciled'
             ]
         ]);
+    }
+
+    protected static function calcFiscalYearId($self) {
+        $result = [];
+        $self->read(['condo_id', 'opening_date']);
+        foreach($self as $id => $bankStatement) {
+            $fiscalYear = FiscalYear::search([ ['condo_id', '=', $bankStatement['condo_id']], ['date_from', '<=', $bankStatement['opening_date']], ['date_to', '>=', $bankStatement['opening_date']] ])->first();
+            if($fiscalYear) {
+                $result[$id] = $fiscalYear['id'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcFiscalPeriodId($self) {
+        $result = [];
+        $self->read(['opening_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
+        foreach($self as $id => $bankStatement) {
+            foreach($bankStatement['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
+                if($bankStatement['opening_date'] >= $period['date_from'] && $bankStatement['opening_date'] <= $period['date_to']) {
+                    $result[$id] = $period_id;
+                    break;
+                }
+            }
+        }
+        return $result;
     }
 
     protected static function onafterPost($self) {

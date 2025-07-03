@@ -140,7 +140,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
 
     protected static function calcFiscalYearId($self) {
         $result = [];
-        $self->read(['status', 'condo_id', 'posting_date' => ['date_from', 'date_to']]);
+        $self->read(['condo_id', 'posting_date']);
         foreach($self as $id => $invoice) {
             $fiscalYear = FiscalYear::search([ ['condo_id', '=', $invoice['condo_id']], ['date_from', '<=', $invoice['posting_date']], ['date_to', '>=', $invoice['posting_date']] ])->first();
             if($fiscalYear) {
@@ -152,7 +152,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
 
     protected static function calcFiscalPeriodId($self) {
         $result = [];
-        $self->read(['status', 'posting_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
+        $self->read(['posting_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
         foreach($self as $id => $invoice) {
             foreach($invoice['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
                 if($invoice['posting_date'] >= $period['date_from'] && $invoice['posting_date'] <= $period['date_to']) {

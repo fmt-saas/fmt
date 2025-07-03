@@ -117,6 +117,30 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'       => "Date at which the settlement documents have been sent to the notary."
             ],
 
+            'fiscal_year_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => "Fiscal year the transfer relates to.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'help'              => "Fiscal Year is automatically assigned based on provided dates. Ultimately the transfer_date is predominant.",
+                'function'          => 'calcFiscalYearId',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'fiscal_period_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'description'       => "Period of the fiscal year the transfer relates to.",
+                'help'              => "Period is automatically assigned based on provided dates. Ultimately the transfer_date is predominant.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['fiscal_year_id', '=', 'object.fiscal_year_id']],
+                'function'          => 'calcFiscalPeriodId',
+                'store'             => true,
+                'instant'           => true
+            ],
+
             'description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain',
@@ -443,7 +467,6 @@ class OwnershipTransfer extends \equal\orm\Model {
         ];
     }
 
-
     protected static function onbeforeClose($self) {
         $self->do('perform_transfer');
     }
@@ -609,10 +632,12 @@ class OwnershipTransfer extends \equal\orm\Model {
     }
 
 
-    protected static function doGenerateFundRequestLines($self) {
+    protected static function calcFiscalYearId($self) {
+        $result = [];
+
         $self->read(['condo_id', 'request_date', 'confirmation_date', 'transfer_date', 'status']);
+
         foreach($self as $id => $ownershipTransfer) {
-            OwnershipTransferFundRequestLine::search(['ownership_transfer_id', '=', $id])->delete(true);
             $date = null;
             if(in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'], true)) {
                 $date = $ownershipTransfer['request_date'];
@@ -623,6 +648,11 @@ class OwnershipTransfer extends \equal\orm\Model {
             else {
                 $date = $ownershipTransfer['transfer_date'];
             }
+
+            if(!$date) {
+                continue;
+            }
+
             // retrieve FiscalYear
             $fiscalYear = FiscalYear::search([
                     ['condo_id', '=', $ownershipTransfer['condo_id']],
@@ -632,24 +662,63 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ->first();
 
             if(!$fiscalYear) {
-                throw new \Exception('missing_fiscal_year', EQ_ERROR_INVALID_PARAM);
+                continue;
             }
 
+            $result[$id] = $fiscalYear['id'];
+        }
+        return $result;
+    }
+
+    protected static function calcFiscalPeriodId($self) {
+        $result = [];
+        $self->read(['request_date', 'confirmation_date', 'transfer_date', 'status', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
+        foreach($self as $id => $ownershipTransfer) {
+            $date = null;
+            if(in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'], true)) {
+                $date = $ownershipTransfer['request_date'];
+            }
+            elseif(in_array($ownershipTransfer['status'], ['confirmed', 'financial_statement_sent'], true)) {
+                $date = $ownershipTransfer['confirmation_date'];
+            }
+            else {
+                $date = $ownershipTransfer['transfer_date'];
+            }
+
+            if(!$date) {
+                continue;
+            }
+
+            foreach($ownershipTransfer['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
+                if($date >= $period['date_from'] && $date <= $period['date_to']) {
+                    $result[$id] = $period_id;
+                    break;
+                }
+            }
+        }
+        return $result;
+    }
+
+    protected static function doGenerateFundRequestLines($self) {
+        $self->read(['condo_id', 'fiscal_year_id']);
+        foreach($self as $id => $ownershipTransfer) {
+            OwnershipTransferFundRequestLine::search(['ownership_transfer_id', '=', $id])->delete(true);
+
             // retrieve fund requests
-            $fund_requests_ids = FundRequest::search([['condo_id', '=', $ownershipTransfer['condo_id']], ['fiscal_year_id', '=', $fiscalYear['id']]])->ids();
+            $fund_requests_ids = FundRequest::search([['condo_id', '=', $ownershipTransfer['condo_id']], ['fiscal_year_id', '=', $ownershipTransfer['fiscal_year_id']]])->ids();
             foreach($fund_requests_ids as $fund_request_id) {
                 // #memo - most fields are computed
                 OwnershipTransferFundRequestLine::create([
-                        'condo_id' => $ownershipTransfer['condo_id'],
+                        'condo_id'              => $ownershipTransfer['condo_id'],
                         'ownership_transfer_id' => $id,
-                        'fund_request_id' => $fund_request_id
+                        'fund_request_id'       => $fund_request_id
                     ]);
             }
         }
     }
 
     protected static function doGenerateFundBalanceLines($self) {
-        $self->read(['condo_id', 'request_date', 'confirmation_date', 'transfer_date', 'status']);
+        $self->read(['condo_id', 'fiscal_year_id', 'request_date', 'confirmation_date', 'transfer_date', 'status']);
         foreach($self as $id => $ownershipTransfer) {
             OwnershipTransferFundBalanceLine::search(['ownership_transfer_id', '=', $id])->delete(true);
             $date = null;
@@ -663,18 +732,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                 $date = $ownershipTransfer['transfer_date'];
             }
 
-            // retrieve FiscalYear
-            $fiscalYear = FiscalYear::search([
-                    ['condo_id', '=', $ownershipTransfer['condo_id']],
-                    ['date_from', '<=', $date],
-                    ['date_to', '>=', $date],
-                ])
-                ->first();
-
-            if(!$fiscalYear) {
-                throw new \Exception('missing_fiscal_year', EQ_ERROR_INVALID_PARAM);
-            }
-
             // retrieve all funds
             $funds = CondoFund::search(['condo_id', '=', $ownershipTransfer['condo_id']])
                 ->read(['name', 'fund_type', 'fund_account_id']);
@@ -684,7 +741,7 @@ class OwnershipTransfer extends \equal\orm\Model {
 
                 $accountingEntryLines = AccountingEntryLine::search([
                         ['condo_id', '=', $ownershipTransfer['condo_id']],
-                        ['fiscal_year_id', '=', $fiscalYear['id']],
+                        ['fiscal_year_id', '=', $ownershipTransfer['fiscal_year_id']],
                         ['account_id', '=', $fund['fund_account_id']],
                         ['entry_date', '<=', $date]
                     ])
@@ -709,21 +766,10 @@ class OwnershipTransfer extends \equal\orm\Model {
 
 
     protected static function doPerformTransfer($self) {
-        $self->read(['condo_id', 'transfer_date', 'property_lots_ids', 'old_ownership_id', 'new_ownership_id']);
+        $self->read(['condo_id', 'fiscal_year_id', 'transfer_date', 'property_lots_ids', 'old_ownership_id', 'new_ownership_id']);
 
         foreach($self as $id => $ownershipTransfer) {
             // retrieve impacted fiscal year
-            $fiscalYear = FiscalYear::search([
-                    ['condo_id', '=', $ownershipTransfer['condo_id']],
-                    ['date_from', '<=', $ownershipTransfer['transfer_date']],
-                    ['date_to', '>=', $ownershipTransfer['transfer_date']]
-                ])
-                ->read(['id', 'fiscal_period_frequency', 'date_from', 'date_to'])
-                ->first();
-
-            if(!$fiscalYear) {
-                throw new \Exception("fiscal_year_not_found", EQ_ERROR_UNKNOWN_OBJECT);
-            }
 
             // set the new owner_id as active for the targeted property_lots
             PropertyLot::ids($ownershipTransfer['property_lots_ids'])
@@ -805,7 +851,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 FundRequest::create([
                         'name'               => 'Appel exceptionnel nouveau propriétaire',
                         'condo_id'           => $ownershipTransfer['condo_id'],
-                        'fiscal_year_id'     => $fiscalYear['id'],
+                        'fiscal_year_id'     => $ownershipTransfer['fiscal_year_id'],
                         'request_type'       => $condoFund['fund_type'],
                         'request_account_id' => $condoFund['fund_account_id'],
                         'request_date'       => $ownershipTransfer['transfer_date']
@@ -816,7 +862,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             // 2) adapt the pending fund request executions: move the relevant lines to the new owner
 
             // retrieve involved fund request executions
-            $fundRequestExecutions = FundRequestExecution::search([['fiscal_year_id', '=', $fiscalYear['id']], ['status', '=', 'proforma']])->read(['fund_request_id']);
+            $fundRequestExecutions = FundRequestExecution::search([['fiscal_year_id', '=', $ownershipTransfer['fiscal_year_id']], ['status', '=', 'proforma']])->read(['fund_request_id']);
             // for each execution, create a new execution line assigned to new owner
             foreach($fundRequestExecutions as $fund_request_execution_id => $fundRequestExecution) {
                 $requestExecutionLine = FundRequestExecutionLine::create([
@@ -958,23 +1004,10 @@ class OwnershipTransfer extends \equal\orm\Model {
     private static function computeWorkingFundsReimbursements($id) {
         $map_funds_reimbursement = [];
 
-        $ownershipTransfer = self::id($id)->read(['condo_id', 'transfer_date', 'status', 'property_lots_ids'])->first();
+        $ownershipTransfer = self::id($id)->read(['condo_id', 'fiscal_year_id', 'transfer_date', 'status', 'property_lots_ids'])->first();
 
         if(!$ownershipTransfer['transfer_date']) {
             throw new \Exception('missing_transfer_date', EQ_ERROR_INVALID_PARAM);
-        }
-
-        $date = $ownershipTransfer['transfer_date'];
-
-        $fiscalYear = FiscalYear::search([
-                ['condo_id', '=', $ownershipTransfer['condo_id']],
-                ['date_from', '<=', $date],
-                ['date_to', '>=', $date],
-            ])
-            ->first();
-
-        if(!$fiscalYear) {
-            throw new \Exception('missing_fiscal_year', EQ_ERROR_INVALID_PARAM);
         }
 
         // retrieve all working funds
@@ -989,9 +1022,9 @@ class OwnershipTransfer extends \equal\orm\Model {
             $balance = 0.0;
             $accountingEntryLines = AccountingEntryLine::search([
                     ['condo_id', '=', $ownershipTransfer['condo_id']],
-                    ['fiscal_year_id', '=', $fiscalYear['id']],
+                    ['fiscal_year_id', '=', $ownershipTransfer['fiscal_year_id']],
                     ['account_id', '=', $fund['fund_account_id']],
-                    ['entry_date', '<=', $date]
+                    ['entry_date', '<=', $ownershipTransfer['transfer_date']]
                 ])
                 ->read(['credit', 'debit']);
 
@@ -1040,27 +1073,18 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'condo_id',
                 'transfer_date',
                 'property_lots_ids',
-                'old_ownership_id'
+                'old_ownership_id',
+                'fiscal_year_id' => ['date_from', 'date_to']
             ])
             ->first();
-
-        // retrieve impacted fiscal year
-        $fiscalYear = FiscalYear::search([
-                ['condo_id', '=', $ownershipTransfer['condo_id']],
-                ['date_from', '<=', $ownershipTransfer['transfer_date']],
-                ['date_to', '>=', $ownershipTransfer['transfer_date']]
-            ])
-            ->read(['id', 'date_from', 'date_to'])
-            ->first();
-
 
         // 1) retrieve all relevant FundRequests
         $fund_requests_ids = FundRequest::search([
                 ['condo_id', '=', $ownershipTransfer['condo_id']],
                 ['status', '=', 'active'],
                 ['request_type', '=', $request_type],
-                ['request_date', '>=', $fiscalYear['date_from']],
-                ['request_date', '<=', $fiscalYear['date_to']]
+                ['request_date', '>=', $ownershipTransfer['fiscal_year_id']['date_from']],
+                ['request_date', '<=', $ownershipTransfer['fiscal_year_id']['date_to']]
             ])
             ->ids();
 
@@ -1121,27 +1145,18 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'condo_id',
                 'transfer_date',
                 'property_lots_ids',
-                'old_ownership_id'
+                'old_ownership_id',
+                'fiscal_year_id' => ['date_from', 'date_to']
             ])
             ->first();
-
-        // retrieve impacted fiscal year
-        $fiscalYear = FiscalYear::search([
-                ['condo_id', '=', $ownershipTransfer['condo_id']],
-                ['date_from', '<=', $ownershipTransfer['transfer_date']],
-                ['date_to', '>=', $ownershipTransfer['transfer_date']]
-            ])
-            ->read(['id', 'date_from', 'date_to'])
-            ->first();
-
 
         // 1) retrieve all relevant FundRequests
         $fund_requests_ids = FundRequest::search([
                 ['condo_id', '=', $ownershipTransfer['condo_id']],
                 ['status', '=', 'active'],
                 ['request_type', '=', $request_type],
-                ['request_date', '>=', $fiscalYear['date_from']],
-                ['request_date', '<', $fiscalYear['date_to']]
+                ['request_date', '>=', $ownershipTransfer['fiscal_year_id']['date_from']],
+                ['request_date', '<', $ownershipTransfer['fiscal_year_id']['date_to']]
             ])
             ->ids();
 

@@ -222,6 +222,10 @@ class Document extends Model {
 
             /* fields below serve as link between the document and the entity it originates from, and are mutually exclusive */
 
+
+            // #todo - this is probably irrelevant
+            // if we want something (e.g. minutes of a general assembly), we know which entity is targeted, and then we can find the linked document
+
             'invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\Invoice',
@@ -244,22 +248,6 @@ class Document extends Model {
             ],
 
             // #todo - handle general_assembly_minutes
-
-            /* #memo - fiscal_year_id & fiscal_period_id are mandatory in many situations for retrieving documents (e.g. specific general assembly minutes) */
-
-            'fiscal_year_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\FiscalYear',
-                'description'       => "Fiscal year the entry relates to.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
-            ],
-
-            'fiscal_period_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\FiscalPeriod',
-                'description'       => "Period of the fiscal year the document relates to.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
-            ],
 
             'status' => [
                 'type'              => 'string',
