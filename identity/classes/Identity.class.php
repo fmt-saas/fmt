@@ -1323,10 +1323,10 @@ class Identity extends Model {
                     }
                 ],
                 'too_long' => [
-                    'message'       => 'Legal name must be maximum 70 chars long.',
+                    'message'       => 'Legal name must be maximum 80 chars long.',
                     'function'      => function ($legal_name, $values) {
                         $type_id = $values['type_id'] ?? null;
-                        return $type_id == 1 || strlen($legal_name) <= 70;
+                        return $type_id == 1 || strlen($legal_name) <= 80;
                     }
                 ],
                 'invalid_chars' => [
@@ -1338,7 +1338,7 @@ class Identity extends Model {
                             return true;
                         }
                         // allowed: letters (Unicode), digits, space, comma, ', &, /, -, ., +, °
-                        return preg_match('/^[\p{L}0-9 \'&\/\-,.+°]{2,70}$/u', $legal_name);
+                        return preg_match('/^[\p{L}0-9 \'&\/\-,.+°]+$/u', $legal_name);
                     }
                 ]
             ],

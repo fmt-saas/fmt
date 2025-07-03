@@ -61,6 +61,7 @@ class FundRequest extends \equal\orm\Model {
                 'selection'          => [
                     'working_fund'        => 'Working Fund call',                       // fonds de roulement
                     'reserve_fund'        => 'Reserve Fund call',                       // fonds de réserve
+                    'special_reserve_fund'=> 'Special Reserve Fund call',               // fonds de réserve particulier
                     'expense_provisions'  => 'Expense provision call',                  // provisions pour charge
                     'work_provisions'     => 'Provision call for exceptional expense'   // provision pour charge exceptionelle
                 ],

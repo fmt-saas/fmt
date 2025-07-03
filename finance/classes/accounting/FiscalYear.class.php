@@ -363,13 +363,22 @@ class FiscalYear extends Model {
 
     protected static function policyCanBePreOpened($self): array {
         $result = [];
-        $self->read(['status']);
+        $self->read(['status', 'condo_id', 'date_to']);
 
         foreach($self as $id => $fiscalYear) {
             // status of fiscal year must be 'draft'
             if($fiscalYear['status'] != 'draft') {
                 $result[$id] = [
                     'invalid_status' => 'Fiscal year status must be draft.'
+                ];
+                continue;
+            }
+            // a preopen year cannot preceed an open year
+            $fiscalYears = FiscalYear::search([['condo_id', '=', $fiscalYear['condo_id']], ['date_from', '>', $fiscalYear['date_to']], ['id', '<>', $id]]);
+
+            if($fiscalYears->count() > 0) {
+                $result[$id] = [
+                    'invalid_status' => 'Fiscal year cannot preceed a fiscal year already open.'
                 ];
                 continue;
             }
@@ -859,8 +868,7 @@ class FiscalYear extends Model {
         }
 
 
-        // fiscal year must have at least one period
-        // #memo - do not test periods here - if missing, they will be generated in onbeforePreOpen
+        // #memo - if missing, periods will be generated in onbeforePreOpen
 
         if(count($fiscalYear['fiscal_periods_ids']) > 0) {
             // #memo - number of periods is not taken into account here, but dates must be contiguous

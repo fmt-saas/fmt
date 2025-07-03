@@ -215,7 +215,7 @@ class Document extends Model {
             'email_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'communication\email\Email',
-                'description'       => 'Email the document is an attachment of, if any.'
+                'description'       => 'Received Email the document is an attachment of, if any.'
             ],
 
             'invoice_id' => [

@@ -86,8 +86,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\NotaryOffice',
-                'domain'            => ['supplier_type_code', '=', 'notary_office'],
-                'required'          => true
+                'domain'            => ['supplier_type_code', '=', 'notary_office']
             ],
 
             'request_date' => [
