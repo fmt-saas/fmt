@@ -48,17 +48,12 @@
             }
         },
         {
-            "id": "action.generate_adjustments",
-            "label":     "Generate Adjustments",
-            "description": "Generate accounting accounts.",
-            "controller": "core_model_do",
-            "visible": ["status", "in", ["settled"]],
-            "params": {
-                "entity": "realestate\\property\\OwnershipTransfer",
-                "action": "generate_adjustments",
-                "ids": []
-            },
-            "confirm": false
+            "id": "action.send",
+            "label": "Send email",
+            "description": "Send an email with selected attachments to all contacts given in the transfer file.",
+            "controller": "realestate_property_OwnershipTransfer_send-correspondence",
+            "visible": ["status", "not in", ["pending"]],
+            "confirm": true
         },
         {
             "id": "action.perform_transfer",

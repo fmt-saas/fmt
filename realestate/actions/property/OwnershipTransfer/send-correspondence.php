@@ -28,6 +28,7 @@ use realestate\property\OwnershipTransfer;
         ]
 
     ],
+    'constants'     => ['EMAIL_SMTP_ACCOUNT_EMAIL'],
     'access'        => [
         'visibility' => 'protected'
     ],
@@ -43,7 +44,7 @@ use realestate\property\OwnershipTransfer;
 $context = $providers['context'];
 
 $ownershipTransfer = OwnershipTransfer::id($params['id'])
-    ->read(['condo_id' => ['id', 'name'], 'attached_documents_ids', 'contacts_ids' => ['email']])
+    ->read(['condo_id' => ['id', 'name'], 'old_ownership_id' => ['name'], 'status', 'attached_documents_ids', 'contacts_ids' => ['email']])
     ->first(true);
 
 if(!$ownershipTransfer) {
@@ -63,7 +64,7 @@ $data = eQual::run('get', 'realestate_property_OwnershipTransfer_render-pdf', ['
 
 // create a Document (no processing)
 $document = Document::create([
-        'name'                  => $documentProcess['name'],
+        'name'                  => 'Courrier de Mutation - ' . $ownershipTransfer['condo_id']['name'] . ' - ' . $ownershipTransfer['old_ownership_id']['name'] . ' - ' . $ownershipTransfer['status'],
         'data'                  => $data,
         'document_type_id'      => $documentType['id'],
         // link document to ownership transfer
@@ -98,6 +99,10 @@ foreach($attachment_documents_ids as $document_id) {
 $recipients_emails = array_map(function ($a) { return $a['email']; }, $ownershipTransfer['contacts_ids']);
 $recipient_email = array_shift($recipients_emails);
 
+// #todo - bypass real recipient while testing
+$recipient_email = constant('EMAIL_SMTP_ACCOUNT_EMAIL');
+$sender_email = constant('EMAIL_SMTP_ACCOUNT_EMAIL');
+
 // create message
 $message = new Email();
 $message->setTo($recipient_email)
@@ -119,11 +124,14 @@ $message->setTo($recipient_email)
             </p>
         ");
 
+/*
+// #todo - don't send while testing
 if(count($recipients_emails)) {
     foreach($recipients_emails as $email) {
         $message->addCc($email);
     }
 }
+*/
 
 // append attachments to message
 foreach($attachments as $attachment) {
