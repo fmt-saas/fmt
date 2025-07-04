@@ -89,9 +89,10 @@ foreach($attachment_documents_ids as $document_id) {
         continue;
     }
     $map_processed_documents_ids[$document_id] = true;
-    $emailAttachments[] = new EmailAttachment($document['name'], $data, 'application/pdf');
-}
 
+    $document = Document::id($document_id)->read(['name', 'data', 'content_type']);
+    $emailAttachments[] = new EmailAttachment($document['name'], $document['data'], $document['content_type']);
+}
 
 // create message
 $message = new Email();
@@ -101,7 +102,10 @@ $message->setTo($params['recipient_email'])
         ->setContentType("text/html")
         ->setBody($params['message']);
 
-$bcc = isset($booking['center_id']['center_office_id']['email_bcc'])?$booking['center_id']['center_office_id']['email_bcc']:'';
+
+// if testing, send all emails to outgoing test address
+
+$bcc = isset($booking['center_id']['center_office_id']['email_bcc']) ? $booking['center_id']['center_office_id']['email_bcc'] : '';
 
 if(strlen($bcc)) {
     $message->addBcc($bcc);

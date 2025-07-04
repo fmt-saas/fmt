@@ -135,8 +135,7 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'description'       => 'The date on which the invoice is recorded in the accounting system.',
                 'default'           => function () { return time(); },
                 'visible'           => ['has_date_range', '=', false],
-                'dependents'        => ['fiscal_year_id', 'fiscal_period_id'],
-                'onupdate'          => 'onupdatePostingDate'
+                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
             ],
 
             'due_date' => [
@@ -230,23 +229,6 @@ class Invoice extends \purchase\accounting\invoice\Invoice {
                 'function'    => 'policyCanBeAllocated'
             ],
         ]);
-    }
-
-    /**
-     * Sync Invoice with related document, if any.
-     * Make sure fiscal year and fiscal period remain consistent in target Document.
-     */
-    protected static function onupdatePostingDate($self) {
-        $self->read(['posting_date', 'document_id', 'fiscal_year_id', 'fiscal_period_id']);
-        foreach($self as $id => $invoice) {
-            if($invoice['document_id']) {
-                Document::id($invoice['document_id'])
-                    ->update([
-                            'fiscal_year_id' => $invoice['fiscal_year_id'],
-                            'fiscal_period_id' => $invoice['fiscal_period_id']
-                        ]);
-            }
-        }
     }
 
     protected static function doCreateFunding($self) {
