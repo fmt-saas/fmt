@@ -1,0 +1,36 @@
+{
+    "name": "Ownership Transfer contacts",
+    "description": "Contacts details for sending the documents related to the transfer.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": true
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "33%"
+            },
+            {
+                "type": "field",
+                "value": "email",
+                "width": "50%"
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "ownership_transfer_id",
+                "width": "25%",
+                "visible": false
+            }
+        ]
+    }
+}

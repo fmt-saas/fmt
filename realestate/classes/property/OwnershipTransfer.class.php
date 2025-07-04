@@ -71,7 +71,8 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'type'              => 'string',
                 'usage'             => 'email',
                 'description'       => "Contact main email address.",
-                'visible'           => ['is_notary_request', '=', false]
+                'visible'           => ['is_notary_request', '=', false],
+                'onupdate'          => 'onupdateRequestContactEmail'
             ],
 
             'request_notary_office_id' => [
@@ -79,14 +80,16 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\NotaryOffice',
                 'domain'            => ['supplier_type_code', '=', 'notary_office'],
-                'visible'           => [['is_notary_request', '=', true] ]
+                'visible'           => [['is_notary_request', '=', true] ],
+                'onupdate'          => 'onupdateRequestNotaryOfficeId'
             ],
 
             'confirmation_notary_office_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\NotaryOffice',
-                'domain'            => ['supplier_type_code', '=', 'notary_office']
+                'domain'            => ['supplier_type_code', '=', 'notary_office'],
+                'onupdate'          => 'onupdateConfirmationNotaryOfficeId'
             ],
 
             'request_date' => [
@@ -344,16 +347,34 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'core\Mail',
                 'foreign_field'     => 'object_id',
-                'domain'            => ['object_class', '=', 'realestate\property\OwnershipTransfer']
+                'domain'            => ['object_class', '=', 'realestate\property\OwnershipTransfer'],
+                'description'       => 'List of emails sent in the context of the transfer.'
             ],
 
-            'documents_ids' => [
-                'type'              => 'one2many',
-                'foreign_field'     => 'ownership_transfer_id',
+            'document_id' => [
+                'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
-                'description'       => 'Documents attached to the email.'
+                'description'       => 'EDMS Document linked to  the Ownership transfer.'
             ],
 
+            'attached_documents_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'documents\Document',
+                'foreign_field'     => 'ownership_transfer_ids',
+                'rel_table'         => 'realestate_ownership_transfer_rel_documents',
+                'rel_foreign_key'   => 'document_id',
+                'rel_local_key'     => 'transfer_id',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'description'       => 'Selected documents as attachment.'
+            ],
+
+            'contacts_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransferContact',
+                'foreign_field'     => 'ownership_transfer_id',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'description'       => 'Arbitrary list of contact recipients with email addresses only.',
+            ],
 
             'status' => [
                 'type'              => 'string',
@@ -465,6 +486,70 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ],
             ],
         ];
+    }
+
+    protected static function onupdateRequestNotaryOfficeId($self) {
+        $self->read(['condo_id', 'request_notary_office_id' => ['name', 'email']]);
+        foreach($self as $id => $ownershipTransfer) {
+            if($ownershipTransfer['request_notary_office_id']) {
+                $email = $ownershipTransfer['request_notary_office_id']['email'];
+                if(!$email || strlen($email) <= 0) {
+                    continue;
+                }
+                // check if email is present amongst current contacts
+                $contacts_ids = OwnershipTransferContact::search([ ['ownership_transfer_id', '=', $id], ['email', '=', $email] ])->ids();
+                if(!count($contacts_ids)) {
+                    OwnershipTransferContact::create([
+                        'condo_id'              => $ownershipTransfer['condo_id'],
+                        'ownership_transfer_id' => $id,
+                        'name'                  => $ownershipTransfer['request_notary_office_id']['name'],
+                        'email'                 => $ownershipTransfer['request_notary_office_id']['email']
+                    ]);
+                }
+                self::id($id)->update(['confirmation_notary_office_id' => $ownershipTransfer['request_notary_office_id']['id']]);
+            }
+        }
+    }
+
+    protected static function onupdateConfirmationNotaryOfficeId($self) {
+        $self->read(['condo_id', 'confirmation_notary_office_id' => ['name', 'email']]);
+        foreach($self as $id => $ownershipTransfer) {
+            if($ownershipTransfer['confirmation_notary_office_id']) {
+                $email = $ownershipTransfer['confirmation_notary_office_id']['email'];
+                if(!$email || strlen($email) <= 0) {
+                    continue;
+                }
+                // check if email is present amongst current contacts
+                $contacts_ids = OwnershipTransferContact::search([ ['ownership_transfer_id', '=', $id], ['email', '=', $email] ])->ids();
+                if(!count($contacts_ids)) {
+                    OwnershipTransferContact::create([
+                        'condo_id'              => $ownershipTransfer['condo_id'],
+                        'ownership_transfer_id' => $id,
+                        'name'                  => $ownershipTransfer['confirmation_notary_office_id']['name'],
+                        'email'                 => $ownershipTransfer['confirmation_notary_office_id']['email']
+                    ]);
+                }
+            }
+        }
+    }
+
+    protected static function onupdateRequestContactEmail($self) {
+        $self->read(['condo_id', 'request_contact_email', 'request_contact_name']);
+        foreach($self as $id => $ownershipTransfer) {
+            if($ownershipTransfer['request_contact_email'] && strlen($ownershipTransfer['request_contact_email']) > 0)  {
+                $email = $ownershipTransfer['request_contact_email'];
+                // check if email is present amongst current contacts
+                $contacts_ids = OwnershipTransferContact::search([ ['ownership_transfer_id', '=', $id], ['email', '=', $email] ])->ids();
+                if(!count($contacts_ids)) {
+                    OwnershipTransferContact::create([
+                        'condo_id'              => $ownershipTransfer['condo_id'],
+                        'ownership_transfer_id' => $id,
+                        'name'                  => $ownershipTransfer['request_contact_name'],
+                        'email'                 => $ownershipTransfer['request_contact_email']
+                    ]);
+                }
+            }
+        }
     }
 
     protected static function onbeforeClose($self) {

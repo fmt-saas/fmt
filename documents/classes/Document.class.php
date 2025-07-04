@@ -249,6 +249,17 @@ class Document extends Model {
 
             // #todo - handle general_assembly_minutes
 
+            'ownership_transfer_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransfer',
+                'foreign_field'     => 'attached_documents_ids',
+                'rel_table'         => 'realestate_ownership_transfer_rel_documents',
+                'rel_foreign_key'   => 'transfer_id',
+                'rel_local_key'     => 'document_id',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'description'       => 'Ownership transfers for which the document is selected as attachment.'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [

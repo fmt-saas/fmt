@@ -577,8 +577,36 @@
                         ]
                     },
                     {
-                        "id": "section.documents",
-                        "label": "Documents",
+                        "id": "section.contacts",
+                        "label": "Contacts",
+                        "visible": [["status", "not in", ["pending"]]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "contacts_ids",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE_INLINE": true
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.attachments",
+                        "label": "Attachments",
                         "visible": [["status", "not in", ["pending", "open"]]],
                         "rows": [
                             {
@@ -588,7 +616,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "documents_ids",
+                                                "value": "attached_documents_ids",
                                                 "widget": {
                                                     "header": {
                                                         "layout": "inline",
@@ -605,8 +633,8 @@
                         ]
                     },
                     {
-                        "id": "section.documents",
-                        "label": "Documents",
+                        "id": "section.emails",
+                        "label": "Emails",
                         "visible": [["status", "not in", ["pending", "open"]]],
                         "rows": [
                             {

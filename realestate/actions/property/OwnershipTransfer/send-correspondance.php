@@ -42,7 +42,9 @@ use realestate\property\OwnershipTransfer;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-$ownershipTransfer = OwnershipTransfer::id($params['id'])->read(['condo_id'])->first();
+$ownershipTransfer = OwnershipTransfer::id($params['id'])
+    ->read(['condo_id' => ['id', 'name'], 'attached_documents_ids', 'contacts_ids' => ['email']])
+    ->first(true);
 
 if(!$ownershipTransfer) {
     throw new Exception('unknown_ownership_transfer', EQ_ERROR_UNKNOWN_OBJECT);
@@ -61,19 +63,18 @@ $data = eQual::run('get', 'realestate_property_OwnershipTransfer_render-pdf', ['
 
 // create a Document (no processing)
 $document = Document::create([
-        'name' => $documentProcess['name'],
-        'data' => $data,
-        'document_type_id' => $documentType['id'],
+        'name'                  => $documentProcess['name'],
+        'data'                  => $data,
+        'document_type_id'      => $documentType['id'],
         // link document to ownership transfer
         'ownership_transfer_id' => $ownershipTransfer['id']
     ])
     // assign condo_id in a second pass, so that document is sent to EDMS
-    ->update(['condo_id' => $ownershipTransfer['condo_id']])
+    ->update(['condo_id' => $ownershipTransfer['condo_id']['id']])
     ->first();
 
-// generate an email for sending
 
-$attachment_documents_ids = [];
+$attachment_documents_ids = $ownershipTransfer['attached_documents_ids'];
 
 $attachment_documents_ids[] = $document['id'];
 
@@ -94,27 +95,33 @@ foreach($attachment_documents_ids as $document_id) {
     $emailAttachments[] = new EmailAttachment($document['name'], $document['data'], $document['content_type']);
 }
 
+$recipients_emails = array_map(function ($a) { return $a['email']; }, $ownershipTransfer['contacts_ids']);
+$recipient_email = array_shift($recipients_emails);
+
 // create message
 $message = new Email();
-$message->setTo($params['recipient_email'])
-        ->setReplyTo($params['sender_email'])
-        ->setSubject($params['title'])
+$message->setTo($recipient_email)
+        ->setReplyTo($sender_email)
+        ->setSubject("Demande d’informations / Convention de cession du droit de propriété")
         ->setContentType("text/html")
-        ->setBody($params['message']);
+        ->setBody("
+            <p>Bonjour,</p>
+            <p>
+                Dans le cadre de la perspective de vente d’un ou plusieurs lots situés au sein de la copropriété {$ownershipTransfer['condo_id']['name']}, vous trouverez en pièce jointe les informations disponibles à ce jour concernant la situation de la copropriété et des lots concernés.
+            </p>
+            <p>
+                Nous restons bien entendu à disposition pour toute précision complémentaire que vous jugeriez utile dans le cadre de la suite de la procédure.
+            </p>
+            <p>
+                Bien cordialement,<br />
+                <strong>L’équipe de gestion</strong><br />
+                <em>[Nom de l’organisation ou du syndic]</em><br />
+            </p>
+        ");
 
-
-// if testing, send all emails to outgoing test address
-
-$bcc = isset($booking['center_id']['center_office_id']['email_bcc']) ? $booking['center_id']['center_office_id']['email_bcc'] : '';
-
-if(strlen($bcc)) {
-    $message->addBcc($bcc);
-}
-
-if(isset($params['recipients_emails'])) {
-    $recipients_emails = array_diff($params['recipients_emails'], (array) $params['recipient_email']);
-    foreach($recipients_emails as $address) {
-        $message->addCc($address);
+if(count($recipients_emails)) {
+    foreach($recipients_emails as $email) {
+        $message->addCc($email);
     }
 }
 

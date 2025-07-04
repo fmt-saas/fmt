@@ -18,7 +18,12 @@ use realestate\funding\FundRequest;
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\funding\FundRequest',
             'required'          => true
-        ]
+        ],
+        'ownership_id' => [
+            'description'       => 'Optional identifier of a specific targeted Ownership to limit to rendering to.',
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\ownership\Ownership',
+        ],
     ],
     'access'        => [
         'visibility' => 'protected'
@@ -55,6 +60,10 @@ $output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
 try {
 
     foreach($fundRequest['condo_id']['ownerships_ids'] as $ownership_id => $ownership) {
+        if(isset($params['ownership_id']) && $params['ownership_id'] != $ownership_id) {
+            // ignore other ownerships when a specific one is given
+            continue;
+        }
         if(!($ownership['date_to']) || $ownership['date_to'] > $fundRequest['fiscal_year_id']['date_to']) {
             $pdf = eQual::run('get', 'realestate_funding_fiscalyear_fundrequests_single-pdf', [
                     'fiscal_year_id'    => $fundRequest['fiscal_year_id']['id'],
