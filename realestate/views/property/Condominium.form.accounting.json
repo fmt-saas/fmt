@@ -47,6 +47,17 @@
             }
         },
         {
+            "id": "item.condo_budget",
+            "label": "Budget",
+            "description": "",
+            "icon": "euro_symbol",
+            "context": {
+                "entity": "realestate\\finance\\budget\\CondoBudget",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
             "id": "item.expense_statements",
             "label": "Expense Statements",
             "description": "",

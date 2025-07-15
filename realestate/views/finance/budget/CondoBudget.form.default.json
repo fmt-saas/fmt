@@ -1,0 +1,102 @@
+{
+    "name": "Condominium Budget",
+    "description": "The Budget represents the expected expenses for a specific fiscal year.",
+    "actions": [
+        {
+            "id": "action.duplicate",
+            "label": "Duplicate",
+            "description": "Duplicate the budget.",
+            "controller": "core_model_do",
+            "visible": [ ["status", "<>", "pending"] ],
+            "params": {
+                "entity": "realestate\\finance\\budget\\CondoBudget",
+                "action": "duplicate_budget"
+            }
+        },
+        {
+            "id": "action.publish",
+            "label": "Publish",
+            "description": "Mark the refund as posted/initiated.",
+            "controller": "core_model_transition",
+            "visible": [ ["status", "=", "pending"] ],
+            "params": {
+                "entity": "realestate\\finance\\budget\\CondoBudget",
+                "transition": "publish"
+            }
+        }
+    ],
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "name",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "status",
+                                                "width": "100%",
+                                                "visible": false
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_year_id",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.entries",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "budget_entries_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

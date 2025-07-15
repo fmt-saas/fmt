@@ -20,7 +20,15 @@
                                             {
                                                 "type": "field",
                                                 "value": "is_private_expense",
-                                                "width": "100%"
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_instant_reinvoice",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "visible": ["is_private_expense", "=", true]
+                                                }
                                             },
                                             {
                                                 "type": "field",

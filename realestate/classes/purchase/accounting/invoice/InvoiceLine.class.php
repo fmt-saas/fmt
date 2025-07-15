@@ -40,6 +40,13 @@ class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
                 'onupdate'          => 'onupdateIsPrivateExpense'
             ],
 
+            'has_instant_reinvoice' => [
+                'type'              => 'boolean',
+                'description'       => 'Immediate reinvoicing of private expenses.',
+                'help'              => 'When enabled, private charges are automatically reinvoiced as soon as they are recorded, without waiting for the end of the period or manual grouping.',
+                'default'           => 'defaultHasInstantReinvoice',
+            ],
+
             'expense_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
@@ -90,6 +97,17 @@ class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
             ],
 
         ];
+    }
+
+    public static function defaultHasInstantReinvoice($values) {
+        $result = null;
+        if(isset($values['invoice_id'])) {
+            $invoice = Invoice::id($values['invoice_id'])->read(['has_instant_reinvoice'])->first();
+            if(isset($invoice['has_instant_reinvoice'])) {
+                $result = $invoice['has_instant_reinvoice'];
+            }
+        }
+        return $result;
     }
 
     public static function onupdateIsPrivateExpense($self) {

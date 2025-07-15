@@ -1,0 +1,59 @@
+{
+    "name": "Budget Entry",
+    "description": "Interface for model definition classes.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": [
+                {
+                    "view": false
+                }
+            ]
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "16%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Type",
+                "value": "entry_type",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Account",
+                "value": "entry_account_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "description",
+                "value": "name",
+                "width": "30%"
+            },
+            {
+                "type": "field",
+                "value": "condo_budget_id",
+                "width": "16%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "fiscal_year_id",
+                "width": "16%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "amount",
+                "width": "20%"
+            }
+        ]
+    }
+}

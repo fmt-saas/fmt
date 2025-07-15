@@ -138,7 +138,7 @@ class Account extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\Account',
                 'foreign_field'     => 'parent_account_id',
-                'description'       => "The children accounts linked to the account (next level)."
+                'description'       => "The children accounts linked to the account (all sub-levels)."
             ],
 
 

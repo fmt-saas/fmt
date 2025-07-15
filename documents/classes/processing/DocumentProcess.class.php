@@ -766,6 +766,7 @@ class DocumentProcess extends Model {
                             // #todo - use LabelingRule
                             'description'           => $line['description'] ?? '',
                             'is_private_expense'    => false,
+                            'has_instant_reinvoice' => false,
                             'expense_account_id'    => $recordingRuleLine['account_id'],
                             'apportionment_id'      => $recordingRuleLine['apportionment_id'],
                             'owner_share'           => $recordingRuleLine['owner_share'],

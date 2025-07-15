@@ -116,7 +116,7 @@ class CondoFund extends \equal\orm\Model {
                 'transitions' => [
                     'validate' => [
                         'description' => 'Update the fund to `validated`.',
-                        'policies'    => ['is_valid'],
+                        'policies'    => [/*'is_valid'*/],
                         'onafter'     => 'onafterValidate',
                         'status'      => 'validated'
                     ]

@@ -483,6 +483,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     'expense_account_id',
                     'price',
                     'is_private_expense',
+                    'has_instant_reinvoice',
                     'owner_share',
                     'tenant_share',
                     'ownership_id'
@@ -602,7 +603,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                             'credit'                => 0.0
                         ]);
 
-                    if($invoice['has_instant_reinvoice']) {
+                    if($invoiceLine['has_instant_reinvoice']) {
                         // create the debit line on the ownership account
                         AccountingEntryLine::create([
                                 'condo_id'              => $invoice['condo_id'],
