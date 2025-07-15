@@ -583,15 +583,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "contacts_ids",
-                                                "widget": {
-                                                    "header": {
-                                                        "layout": "inline",
-                                                        "actions": {
-                                                            "ACTION.CREATE_INLINE": true
-                                                        }
-                                                    }
-                                                }
+                                                "value": "contacts_ids"
                                             }
                                         ]
                                     }

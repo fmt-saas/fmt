@@ -103,9 +103,10 @@ class AccountChart extends Model {
                 'icon'        => 'draw',
                 'transitions' => [
                     'activation' => [
-                        'description' => 'Validate and make the chart active. This action is not reversible.',
-                        'policies'    => [],
-                        'status'    => 'active'
+                        'description'   => 'Validate and make the chart active. This action is not reversible.',
+                        'onbefore'      => 'onbeforeActivation',
+                        'policies'      => [],
+                        'status'        => 'active'
                     ]
                 ]
             ]
@@ -123,7 +124,7 @@ class AccountChart extends Model {
     }
 
 
-    public static function doImportAccounts($self, $values) {
+    protected static function doImportAccounts($self, $values) {
         $self->read(['condo_id']);
 
         foreach($self as $id => $accountChart) {
@@ -192,6 +193,18 @@ class AccountChart extends Model {
             }
 
         }
+    }
+
+    protected static function onbeforeActivation($self) {
+        $self->read(['condo_id']);
+        foreach($self as $id => $accountChart) {
+            $controlAccounts = Account::search([['account_chart_id', '=', $id], ['is_control_account', '=', true]])->read(['code']);
+            foreach($controlAccounts as $control_account_id => $controlAccount) {
+                Account::search([['account_chart_id', '=', $id], ['code', 'like', "{$controlAccount['code']}%"]])
+                    ->update(['parent_account_id' => $control_account_id]);
+            }
+        }
+
     }
 
 }
