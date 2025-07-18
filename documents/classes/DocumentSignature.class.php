@@ -17,7 +17,7 @@ class DocumentSignature extends Model {
                 'result_type'       => 'many2one',
                 'description'       => "The condominium the document belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'related'           => ['original_document_id' => 'condo_id'],
+                'relation'          => ['original_document_id' => 'condo_id'],
                 'store'             => true,
                 'instant'           => true
             ],
@@ -47,8 +47,8 @@ class DocumentSignature extends Model {
             ],
 
             'signature_method' => [
-                'type'              => 'enum',
-                'values'            => ['ses', 'aes', 'qes'],
+                'type'              => 'string',
+                'selection'         => ['ses', 'aes', 'qes'],
                 'required'          => true,
                 'description'       => 'eIDAS signature level (ses = drawn)'
             ],
