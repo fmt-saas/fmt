@@ -43,6 +43,7 @@
                                         "items": [
                                             {
                                                 "type": "label",
+                                                "value": "",
                                                 "width": "50%"
                                             },
                                             {

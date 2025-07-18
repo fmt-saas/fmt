@@ -1,0 +1,48 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "assembly_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "heading_text",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "closing_text",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "original_document_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "signed_document_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "12%"
+            }
+        ]
+    }
+}
