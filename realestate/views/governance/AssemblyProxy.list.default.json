@@ -1,0 +1,63 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "assembly_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "attendee_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "identity_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "ownership_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "proxy_date",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "proxy_type",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "proxy_document_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "is_valid",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "invalidity_reason",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "9%"
+            }
+        ]
+    }
+}

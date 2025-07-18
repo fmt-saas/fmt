@@ -34,9 +34,9 @@ class AssemblyMinutesEntry extends \equal\orm\Model {
             ],
 
             'comment_text' => [
-                'type'              => 'text',
-                'description'       => "Commentaires ou remarques.",
-                'required'          => false
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Optional comments for the entry."
             ],
 
             'has_vote_required' => [

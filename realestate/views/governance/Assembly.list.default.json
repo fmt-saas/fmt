@@ -1,0 +1,83 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "heading_text",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "assembly_date",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "assembly_location",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "assembly_type",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "template_id",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "assembly_minutes_id",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "session_time_start",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "session_time_end",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "is_second_session",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "has_second_session",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "related_assembly_id",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "second_session_assembly_id",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "6%"
+            }
+        ]
+    }
+}

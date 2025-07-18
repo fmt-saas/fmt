@@ -23,23 +23,19 @@ class AssemblyMinutes extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The assembly this minutes document belongs to.",
                 'foreign_object'    => 'realestate\governance\Assembly',
-                'required'          => true,
-                'unique'            => true
+                'required'          => true
             ],
 
             'heading_text' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
-                'description'       => "Heading text (type, date, time, location).",
-                'editable'          => true,
-                'computed'          => false
+                'description'       => "Heading text (type, date, time, location)."
             ],
 
             'closing_text' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
-                'description'       => "Closing text (end of session).",
-                'nullable'          => true
+                'description'       => "Closing text (end of session)."
             ],
 
             'original_document_id' => [
@@ -51,8 +47,7 @@ class AssemblyMinutes extends \equal\orm\Model {
             'signed_document_id' => [
                 'type'              => 'many2one',
                 'description'       => "Final signed version (sealed with visual signatures).",
-                'foreign_object'    => 'documents\Document',
-                'nullable'          => true
+                'foreign_object'    => 'documents\Document'
             ],
 
             // #memo - signatures are set on the original document itself

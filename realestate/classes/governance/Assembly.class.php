@@ -26,7 +26,8 @@ class Assembly extends \equal\orm\Model {
             ],
 
             'heading_text' => [
-                'type'              => 'text',
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
                 'description'       => "Text of the assembly call.",
                 'required'          => false
             ],
@@ -60,40 +61,35 @@ class Assembly extends \equal\orm\Model {
             'assembly_minutes_id' => [
                 'type'           => 'many2one',
                 'description'    => "Reference to the minutes of the assembly.",
-                'foreign_object' => 'realestate\governance\AssemblyMinutes',
-                'required'       => false
+                'foreign_object' => 'realestate\governance\AssemblyMinutes'
             ],
 
             'assembly_items_ids' => [
                 'type'           => 'one2many',
                 'description'    => "Items on the assembly agenda.",
                 'foreign_object' => 'realestate\governance\AssemblyItem',
-                'foreign_field'  => 'assembly_id',
-                'required'       => false
+                'foreign_field'  => 'assembly_id'
             ],
 
             'assembly_invitations_ids' => [
                 'type'           => 'one2many',
                 'description'    => "Invitations sent for the assembly.",
                 'foreign_object' => 'realestate\governance\AssemblyInvitation',
-                'foreign_field'  => 'assembly_id',
-                'required'       => false
+                'foreign_field'  => 'assembly_id'
             ],
 
             'assembly_votes_ids' => [
                 'type'           => 'one2many',
                 'description'    => "Votes cast during the assembly.",
                 'foreign_object' => 'realestate\governance\AssemblyVote',
-                'foreign_field'  => 'assembly_id',
-                'required'       => false
+                'foreign_field'  => 'assembly_id'
             ],
 
             'assembly_attendees_ids' => [
                 'type'           => 'one2many',
                 'description'    => "Attendees of the assembly.",
                 'foreign_object' => 'realestate\governance\AssemblyAttendee',
-                'foreign_field'  => 'assembly_id',
-                'required'       => false
+                'foreign_field'  => 'assembly_id'
             ],
 
             'session_time_start' => [
@@ -140,7 +136,7 @@ class Assembly extends \equal\orm\Model {
             'status' => [
                 'type'           => 'string',
                 'description'    => "Workflow status of the assembly.",
-                'required'       => true,
+                'default'        => 'pending',
                 'selection'      => [
                     'pending',
                     'ready',

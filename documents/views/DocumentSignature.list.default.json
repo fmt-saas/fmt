@@ -1,0 +1,73 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "original_document_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "signed_document_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "hash_sha256",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "signature_method",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "has_certificate",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "sig_drawn",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "sig_cert",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "sig_hash",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "sig_algo",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "sig_timestamp",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "signer_identity_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "7%"
+            }
+        ]
+    }
+}

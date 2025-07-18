@@ -1,0 +1,53 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "code",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "description_call",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "description_minutes",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "has_vote_required",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "majority",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "apportionment_id",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "assembly_id",
+                "width": "11%"
+            }
+        ]
+    }
+}
