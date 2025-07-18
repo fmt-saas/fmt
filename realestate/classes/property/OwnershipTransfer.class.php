@@ -208,7 +208,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             'fund_balances_description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
-                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'description'       => "Short description of the current balances of the condominium funds.",
                 'help'              => "As per 3.94.1.1"
             ],
 
@@ -232,6 +232,12 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'help'              => "As per 3.94.1.3"
             ],
 
+            'has_judiciary_procedures' => [
+                'type'              => 'boolean',
+                'description'       => "Are there any pending judiciary procedures affecting the condominium?",
+                'default'           => false
+            ],
+
             'judiciary_procedures_description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
@@ -242,42 +248,42 @@ class OwnershipTransfer extends \equal\orm\Model {
             'general_assembly_minutes_description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
-                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'description'       => "Short text introducing the General Assembly minutes.",
                 'help'              => "As per 3.94.1.5"
             ],
 
             'latest_balance_sheet_description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
-                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'description'       => "Short text introducting the latest balance sheet.",
                 'help'              => "As per 3.94.1.6"
             ],
 
             'maintenance_expenses_description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
-                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'description'       => "Short description of the current maintenance expenses.",
                 'help'              => "As per 3.94.2.1"
             ],
 
             'fund_requests_description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
-                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'description'       => "Short description of the current fund requests.",
                 'help'              => "As per 3.94.2.2"
             ],
 
             'commons_acquisitions_description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
-                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'description'       => "Short description of the current common acquisitions.",
                 'help'              => "As per 3.94.2.3"
             ],
 
             'condominium_debts_description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
-                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'description'       => "Short description of the current condominium debts.",
                 'help'              => "As per 3.94.2.4"
             ],
 
@@ -297,7 +303,7 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             'has_fuel_tank' => [
                 'type'              => 'boolean',
-                'description'       => "Are there any pending judiciary procedures affecting the condominium?",
+                'description'       => "Does the condominium have a fuel tank?",
                 'default'           => false
             ],
 
@@ -309,7 +315,7 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             'has_intervention_record' => [
                 'type'              => 'boolean',
-                'description'       => "Are there any pending judiciary procedures affecting the condominium?",
+                'description'       => "Does the Condominium have a future intervention record?",
                 'default'           => false
             ],
 
@@ -339,6 +345,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             'arrear_fundings_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\sale\pay\Funding',
+                // #memo - we do not use foreign_field here, since funding is not directly related to the transfer
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_paid', '=', false], ['ownership_id', '=', 'object.old_ownership_id']],
                 'description'       => 'Balances of the condominium funds with property lots shares.'
             ],

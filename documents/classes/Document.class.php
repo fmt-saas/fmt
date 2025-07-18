@@ -165,6 +165,15 @@ class Document extends Model {
                 'readonly'          => true
             ],
 
+            'hash' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'text/plain:32',
+                'store'             => true,
+                'function'          => 'calcHash',
+                'description'       => 'MD5 hash of the document.'
+            ],
+
             'uuid' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain:36',
@@ -258,6 +267,13 @@ class Document extends Model {
                 'rel_local_key'     => 'document_id',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'description'       => 'Ownership transfers for which the document is selected as attachment.'
+            ],
+
+            'document_signatures_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\DocumentSignature',
+                'foreign_field'     => 'original_document_id',
+                'description'       => 'Signatures for the document, if any.',
             ],
 
             'status' => [
@@ -410,7 +426,16 @@ class Document extends Model {
         }
     }
 
-    public static function calcLink($self) {
+    protected static function calcHash($self) {
+        $result = [];
+        $self->read(['data']);
+        foreach($self as $id => $document) {
+            $result[$id] = md5($document['data']);
+        }
+        return $result;
+    }
+
+    protected static function calcLink($self) {
         $result = [];
         foreach($self as $id => $document) {
             $result[$id] = '/document/' . $id;
@@ -418,7 +443,7 @@ class Document extends Model {
         return $result;
     }
 
-    public static function calcExtension($self) {
+    protected static function calcExtension($self) {
         $result = [];
         $self->read(['content_type']);
 
@@ -431,7 +456,7 @@ class Document extends Model {
         return $result;
     }
 
-    public static function calcContentSize($self) {
+    protected static function calcContentSize($self) {
         $result = [];
         $self->read(['data']);
 
@@ -444,7 +469,7 @@ class Document extends Model {
         return $result;
     }
 
-    public static function calcReadableSize($self) {
+    protected static function calcReadableSize($self) {
         $result = [];
         $self->read(['content_size']);
         $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
@@ -458,7 +483,7 @@ class Document extends Model {
         return $result;
     }
 
-    public static function calcContentType($self) {
+    protected static function calcContentType($self) {
         $result = [];
         $self->read(['data']);
 

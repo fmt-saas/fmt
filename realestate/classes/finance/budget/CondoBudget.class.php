@@ -43,7 +43,7 @@ class CondoBudget extends \equal\orm\Model {
 
             'budget_entries_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'finance\budget\CondoBudgetEntry',
+                'foreign_object'    => 'realestate\finance\budget\CondoBudgetEntry',
                 'foreign_field'     => 'condo_budget_id',
                 'description'       => 'Fiscal year in which the budget is planned.',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
@@ -54,7 +54,7 @@ class CondoBudget extends \equal\orm\Model {
                 'selection'         => [
                     'pending',
                     'published',
-                    'validated'
+                    'validated'     // The budget has been validated by a general assembly.
                 ],
                 'default'           => 'pending',
                 'description'       => 'Current status of the budget.',

@@ -10,6 +10,11 @@ use equal\orm\Model;
 
 class Partner extends Model {
 
+/**
+ * #deprecated
+ * This class is deprecated and will be removed in a future version.
+ */
+
     public static function getName() {
         return 'Partner';
     }

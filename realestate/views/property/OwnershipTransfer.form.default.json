@@ -336,6 +336,11 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "has_judiciary_procedures",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "judiciary_procedures_description",
                                                 "width": "100%"
                                             },

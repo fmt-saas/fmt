@@ -8,7 +8,7 @@
 namespace hr\employee;
 
 use identity\Identity;
-use identity\Partner;
+
 
 class Employee extends Identity {
 

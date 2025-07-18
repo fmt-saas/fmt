@@ -9,7 +9,7 @@ use documents\Document;
 
 [$params, $providers]= eQual::announce([
     'description'   => 'Return raw data (with original MIME) of a document identified by given hash.',
-    'help'          => 'This controller is meant to be used in Views for `document\Document` offering a download action.',
+    'help'          => 'This controller is meant to be used in Views for `documents\Document` offering a download action.',
     'params'        => [
         'id' =>  [
             'description'   => 'Identifier of the document to download.',

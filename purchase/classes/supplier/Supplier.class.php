@@ -110,8 +110,11 @@ class Supplier extends Identity {
             ],
 
             'contacts_ids' => [
+                'type'              => 'computed',
                 'type'              => 'one2many',
                 'foreign_object'    => 'identity\Contact',
+                // #memo - there is no direct relation, so we use domain to point `owner_identity_id` to the supplier's identity
+                // 'foreign_field'     => '',
                 'description'       => 'List of contacts related to the supplier.',
                 'domain'            => ['owner_identity_id', '=', 'object.identity_id']
             ]

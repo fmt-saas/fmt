@@ -81,11 +81,11 @@ class Condominium extends Identity {
                 'description'       => 'List of employees assigned to the management of the condominium.'
             ],
 
-            // #todo - this does not seem useful
             'total_shares' => [
-                'type'              => 'integer',
-                'description'       => "The total number of shares of the ownership.",
-                'default'           => 1000
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => "Total number of statutory shares in the condominium.",
+                'function'          => 'calcTotalShares'
             ],
 
             'construction_permit_date' => [
@@ -349,6 +349,20 @@ class Condominium extends Identity {
                 'function'      => 'doSyncFromIdentity'
             ]
         ]);
+    }
+
+    protected static function calcTotalShares($self) {
+        $result = [];
+        foreach($self as $id => $condominium) {
+            $apportionment = Apportionment::search([['condo_id', '=', $id], ['is_statutory', '=', true]])
+                ->read(['total_shares'])
+                ->first();
+            if(!$apportionment) {
+                continue;
+            }
+            $result[$id] = $apportionment['total_shares'];
+        }
+        return $result;
     }
 
     public static function onupdateIdentityId($self) {

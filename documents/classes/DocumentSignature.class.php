@@ -1,0 +1,117 @@
+<?php
+/*
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
+namespace documents;
+
+use equal\orm\Model;
+
+class DocumentSignature extends Model {
+
+    public static function getColumns() {
+        return [
+            'condo_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'description'       => "The condominium the document belongs to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'related'           => ['original_document_id' => 'condo_id'],
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'original_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'required'          => true,
+                'description'       => 'Reference version (unmodified) of the document',
+                'dependents'        => ['document_hash_sha256', 'condo_id']
+            ],
+
+            'signed_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Final version with integrated signature (signed PDF)'
+            ],
+
+            'hash_sha256' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'text/plain:64',
+                'function'          => 'calcHashSha256',
+                'description'       => 'SHA256 hash of the original document.',
+                'help'              => 'This field holds the hexadecimal value of the hash and might require a conversion to base64 for exchanges.',
+                'store'             => true
+            ],
+
+            'signature_method' => [
+                'type'              => 'enum',
+                'values'            => ['ses', 'aes', 'qes'],
+                'required'          => true,
+                'description'       => 'eIDAS signature level (ses = drawn)'
+            ],
+
+            'has_certificate' => [
+                'type'              => 'boolean',
+                'computed'          => true,
+                'description'       => 'True if a certificate is attached'
+            ],
+
+            'sig_drawn' => [
+                'type'              => 'binary',
+                'usage'             => 'image/png',
+                'description'       => 'Handwritten signature, base64 PNG if present.',
+                'visible'           => ['signature_method', '=', 'ses'],
+            ],
+
+            'sig_cert' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => 'X.509 certificate in PEM or JSON extract.'
+            ],
+
+            'sig_hash' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:144',
+                'description'       => 'Cryptographic signature (signed hash).',
+                'help'              => 'Hexadecimal value of the cryptographic signature is up to 144 chars to be compliant with ECDSA DER/ASN.1',
+                'visible'           => ['signature_method', 'in', ['aes', 'qes']],
+            ],
+
+            'sig_algo' => [
+                'type'              => 'string',
+                'description'       => 'Signature algorithm, e.g., RS256, ES256',
+                'visible'           => ['signature_method', 'in', ['aes', 'qes']]
+            ],
+
+            'sig_timestamp' => [
+                'type'              => 'datetime',
+                'description'       => 'Timestamp of the signature',
+                'visible'           => ['signature_method', 'in', ['aes', 'qes']],
+            ],
+
+            'signer_identity_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\Identity',
+                'required'          => true,
+                'description'       => 'Person or representative who signed the document.',
+                'help'              => 'In case of a AES/QES signature, the identity is used to check the sig_cert against the Signer Identity public key.'
+            ]
+
+        ];
+    }
+
+    protected static function calcHashSha256($self) {
+        $result = [];
+        $self->read(['original_document_id' => ['data']]);
+        foreach($self as $id => $documentSignature) {
+            if(isset($documentSignature['original_document_id']['data'])) {
+                $result[$id] = hash('sha256', $documentSignature['original_document_id']['data']);
+            }
+        }
+        return $result;
+    }
+
+}

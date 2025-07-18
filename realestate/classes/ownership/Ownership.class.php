@@ -132,7 +132,8 @@ class Ownership extends \equal\orm\Model {
 
             'representative_identity_id' => [
                 'type'              => 'many2one',
-                'description'       => "Person that represents the ownership.",
+                'description'       => "External person that represents the ownership.",
+                'help'              => "External person that has a mandate for representing the ownership, but is not amongst the owners.",
                 'foreign_object'    => 'identity\Identity',
                 'domain'            => ['type_id', '=', 1],
                 'visible'           => ['has_representative', '=', true],
@@ -144,6 +145,18 @@ class Ownership extends \equal\orm\Model {
                 'description'       => "Flag indicating if the ownership has a representative.",
                 'default'           => false,
                 'dependents'        => ['name']
+            ],
+
+            // #todo - not sure if this is necessary
+            'representative_owner_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'description'       => "Owner that represents the ownership.",
+                'help'              => "External person that has a mandate for representing the ownership, but is not amongst the owners.",
+                'foreign_object'    => 'realestate\ownership\Owner',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.id']],
+                'store'             => true,
+                'function'          => 'calcRepresentativeOwnerId'
             ],
 
             'fundings_ids' => [
@@ -275,6 +288,18 @@ class Ownership extends \equal\orm\Model {
                         'missing_representative_id' => 'The representative identity must be provided.'
                     ];
                 }
+            }
+        }
+        return $result;
+    }
+
+
+    protected static function calcRepresentativeOwnerId($self) {
+        $result = [];
+        $self->read(['owners_ids']);
+        foreach($self as $id => $ownership) {
+            if(count($ownership['owners_ids']) > 0) {
+                $result[$id] = current($ownership['owners_ids']);
             }
         }
         return $result;

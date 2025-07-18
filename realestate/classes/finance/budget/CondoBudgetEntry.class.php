@@ -33,7 +33,7 @@ class CondoBudgetEntry extends \equal\orm\Model {
 
             'condo_budget_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\budget\CondoBudget',
+                'foreign_object'    => 'realestate\finance\budget\CondoBudget',
                 'description'       => 'Fiscal year in which the budget is planned.',
                 'required'          => true,
                 'dependents'        => ['fiscal_year_id']
