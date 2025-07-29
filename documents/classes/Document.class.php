@@ -174,6 +174,17 @@ class Document extends Model {
                 'description'       => 'MD5 hash of the document.'
             ],
 
+            'hash_sha256' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'text/plain:64',
+                'function'          => 'calcHashSha256',
+                'description'       => 'SHA256 hash of the document.',
+                'help'              => 'This field holds the hexadecimal value of the hash and might require a conversion to base64 for exchanges.',
+                'store'             => true,
+                'readonly'          => true
+            ],
+
             'uuid' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain:36',
@@ -213,6 +224,13 @@ class Document extends Model {
                 'function'          => 'calcPreviewImage',
                 'description'       => 'Thumbnail of the document.',
                 'store'             => true
+            ],
+
+            'signed_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Final printable version of the document.',
+                'help'              => 'Optional version of the document with signatures on it, applicable for signed documents only. Has no legal value.'
             ],
 
             /* fields below link the source the document originates from, independently from its type */
@@ -274,6 +292,17 @@ class Document extends Model {
                 'foreign_object'    => 'documents\DocumentSignature',
                 'foreign_field'     => 'original_document_id',
                 'description'       => 'Signatures for the document, if any.',
+            ],
+
+            'assembly_items_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'realestate\governance\AssemblyItem',
+                'foreign_field'     => 'documents_ids',
+                'rel_table'         => 'realestate_governance_assembly_item_rel_document',
+                'rel_foreign_key'   => 'assembly_item_id',
+                'rel_local_key'     => 'document_id',
+                'description'       => "The assembly items that refer to the document.",
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'status' => [
@@ -431,6 +460,17 @@ class Document extends Model {
         $self->read(['data']);
         foreach($self as $id => $document) {
             $result[$id] = md5($document['data']);
+        }
+        return $result;
+    }
+
+    protected static function calcHashSha256($self) {
+        $result = [];
+        $self->read(['data']);
+        foreach($self as $id => $document) {
+            if(isset($document['data'])) {
+                $result[$id] = hash('sha256', $document['data']);
+            }
         }
         return $result;
     }

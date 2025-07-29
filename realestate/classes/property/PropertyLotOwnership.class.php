@@ -31,7 +31,7 @@ class PropertyLotOwnership extends \equal\orm\Model {
             'property_lot_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\PropertyLot',
-                'description'       => "The  Property Lot the transfer file relates to.",
+                'description'       => "The Property Lot the ownership file relates to.",
             ],
 
             'ownership_id' => [

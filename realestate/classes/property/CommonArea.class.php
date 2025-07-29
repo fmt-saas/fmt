@@ -33,7 +33,8 @@ class CommonArea extends \equal\orm\Model {
             ],
 
             'total_shares' => [
-                'type'              => 'integer',
+                'type'              => 'float',
+                'usage'             => 'number/real:8.6',
                 'description'       => "The total number of shares of the Area.",
                 'default'           => 100
             ],

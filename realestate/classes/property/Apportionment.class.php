@@ -64,7 +64,7 @@ class Apportionment extends \equal\orm\Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\property\PropertyLotApportionmentShare',
                 'foreign_field'     => 'apportionment_id',
-                'description'       => "The apportionment referring to the apportionment.",
+                'description'       => "The shares referring to the apportionment.",
                 "domain"            => ['condo_id', '=', 'object.condo_id']
             ],
 

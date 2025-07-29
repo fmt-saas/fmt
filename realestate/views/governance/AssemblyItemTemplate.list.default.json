@@ -1,52 +1,50 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Assembly Resolution",
+    "group_by_1": [{
+        "open": true,
+        "colspan": 3,
+        "field": "parent_group_id",
+        "order": "name"
+    }],
+    "order": "order",
+    "sort": "asc",
+    "limit": 100,
+    "domain": [
+        ["has_parent_group", "=", false]
+    ],
     "layout": {
         "items": [
             {
                 "type": "field",
-                "value": "condo_id",
-                "width": "11%"
+                "value": "order",
+                "width": "10%"
             },
             {
                 "type": "field",
                 "value": "name",
-                "width": "11%"
+                "width": "40%"
+            },
+            {
+                "type": "field",
+                "label": "Group",
+                "value": "parent_group_id",
+                "width": "11%",
+                "visible": false
             },
             {
                 "type": "field",
                 "value": "code",
-                "width": "11%"
-            },
-            {
-                "type": "field",
-                "value": "description_call",
-                "width": "11%"
-            },
-            {
-                "type": "field",
-                "value": "description_minutes",
-                "width": "11%"
+                "width": "25"
             },
             {
                 "type": "field",
                 "value": "has_vote_required",
-                "width": "11%"
+                "width": "10%"
             },
             {
                 "type": "field",
                 "value": "majority",
-                "width": "11%"
-            },
-            {
-                "type": "field",
-                "value": "apportionment_id",
-                "width": "11%"
-            },
-            {
-                "type": "field",
-                "value": "assembly_id",
-                "width": "11%"
+                "width": "15%"
             }
         ]
     }

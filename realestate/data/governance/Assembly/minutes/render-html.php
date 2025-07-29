@@ -1,0 +1,224 @@
+<?php
+/*
+    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
+    Some Rights Reserved, FMT SRL, 2025-2026
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
+use core\setting\Setting;
+use documents\DocumentSignature;
+use realestate\governance\Assembly;
+use realestate\governance\AssemblyAttendee;
+use realestate\governance\AssemblyItem;
+use realestate\ownership\Ownership;
+use realestate\property\Apportionment;
+use realestate\property\PropertyLotApportionmentShare;
+use realestate\property\PropertyLotOwnership;
+use Twig\TwigFilter;
+use Twig\Environment as TwigEnvironment;
+use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
+use Twig\Extra\Intl\IntlExtension;
+use Twig\Extension\ExtensionInterface;
+
+[$params, $providers] = eQual::announce([
+    'description'   => 'Generate an html view of the Attendance Register for a given Assembly.',
+    'params'        => [
+        'id' => [
+            'description'       => 'Identifier of the specific Assembly to consider.',
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\governance\Assembly',
+            'required'          => true
+        ],
+
+        'debug' => [
+            'type'        => 'boolean',
+            'default'     => false
+        ],
+
+        'view_id' => [
+            'description' => 'View id of the template to use.',
+            'type'        => 'string',
+            'default'     => 'print.minutes'
+        ],
+
+        'lang' =>  [
+            'description' => 'Language in which labels and multilang field have to be returned (2 letters ISO 639-1).',
+            'type'        => 'string',
+            'default'     => 'fr'
+        ]
+    ],
+    'access'        => [
+        'visibility' => 'protected'
+    ],
+    'response'      => [
+        'content-type'  => 'text/html',
+        'charset'       => 'utf-8',
+        'accept-origin' => '*'
+    ],
+    'providers'     => ['context'],
+    'constants'     => ['L10N_TIMEZONE', 'L10N_LOCALE']
+]);
+
+/** @var \equal\php\Context $context */
+$context = $providers['context'];
+
+$getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
+    $result = '';
+
+    $organisation = $object_class::id($organisation_id)->read(['image_document_id' => ['type', 'data']])->first();
+
+    if($organisation && $organisation['image_document_id']) {
+        $result = sprintf('data:%s;base64,%s',
+                $organisation['image_document_id']['type'],
+                base64_encode($organisation['image_document_id']['data'])
+            );
+    }
+    return $result;
+};
+
+
+$getLabels = function($lang) {
+    return [
+        'registration_number'            => Setting::get_value('sale', 'locale', 'label_registration-number', 'Registration n°', [], $lang),
+        'vat_number'                     => Setting::get_value('sale', 'locale', 'label_vat-number', 'VAT n°', [], $lang),
+        'number'                         => Setting::get_value('sale', 'locale', 'label_number', 'N°', [], $lang),
+        'date'                           => Setting::get_value('sale', 'locale', 'label_date', 'Date', [], $lang),
+        'status'                         => Setting::get_value('sale', 'locale', 'label_status', 'Status', [], $lang),
+        'communication'                  => Setting::get_value('sale', 'locale', 'label_communication', 'Communication', [], $lang),
+        'footer' => [
+            'registration_number'        => Setting::get_value('sale', 'locale', 'label_footer-registration-number', 'Registration number', [], $lang),
+            'iban'                       => Setting::get_value('sale', 'locale', 'label_footer-iban', 'IBAN', [], $lang),
+            'email'                      => Setting::get_value('sale', 'locale', 'label_footer-email', 'Email', [], $lang),
+            'web'                        => Setting::get_value('sale', 'locale', 'label_footer-web', 'Web', [], $lang),
+            'tel'                        => Setting::get_value('sale', 'locale', 'label_footer-tel', 'Tel', [], $lang)
+        ]
+    ];
+};
+
+
+$assembly = Assembly::id($params['id'])
+    ->read([
+        'name',
+        'condo_id',
+        'assembly_type',
+        'assembly_date',
+        'assembly_location',
+        'heading_text_minutes',
+        'closing_text_minutes',
+        'ownerships_ids' => ['name'],
+        'assembly_attendees_ids' => ['name'],
+        'assembly_items_ids' => [
+            '@domain' => ['parent_group_id', 'is', null],
+            'id',
+            'order',
+            'name',
+            'is_group',
+            'children_items_ids'
+        ],
+        'condo_id' => [
+            'name', 'address_street', 'address_city', 'address_zip', 'address_city',
+            'managing_agent_id' => [
+                'name', 'address_street', 'address_dispatch', 'address_zip',
+                'address_city', 'address_country', 'has_vat', 'vat_number',
+                'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
+                'website', 'email', 'phone', 'has_vat', 'vat_number',
+                'image_document_id' => [
+                    'type', 'data'
+                ]
+            ]
+        ],
+    ])
+    ->first();
+
+if(!$assembly) {
+    throw new Exception('unknown_ownership_transfer', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+
+$map_ownerships = [];
+foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
+    $map_ownerships[$ownership_id] = $ownership;
+}
+
+$map_attendees = [];
+foreach($assembly['assembly_attendees_ids'] as $attendee_id => $attendee) {
+    $map_attendees[$attendee_id] = $attendee;
+}
+
+$assembly_items_ids = [];
+foreach($assembly['assembly_items_ids'] as $assembly_item_id => $assemblyItem) {
+    if(!$assemblyItem['is_group']) {
+        $assembly_items_ids[] = $assembly_item_id;
+    }
+}
+
+$map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']])
+    ->read([
+        'name',
+        'order',
+        'description_minutes',
+        'has_vote_required',
+        'majority',
+        'vote_result',
+        'assembly_votes_ids' => [
+            'vote_value',
+            'assembly_attendee_id',
+            'ownership_id'
+        ]
+    ])
+    ->get();
+
+$lang = $params['lang'];
+
+
+$values = [
+    'assembly'                  => $assembly,
+    'condominium'               => $assembly['condo_id'],
+
+    'organisation'              => $assembly['condo_id']['managing_agent_id'],
+    'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id'], 'realestate\management\ManagingAgent'),
+
+    'map_ownerships'            => $map_ownerships,
+    'map_attendees'             => $map_attendees,
+    'map_assembly_items'        => $map_assembly_items,
+
+    'today_date'                => time(),
+    'timezone'                  => constant('L10N_TIMEZONE'),
+    'locale'                    => constant('L10N_LOCALE'),
+    'date_format'               => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
+
+    'labels'                    => $getLabels($lang),
+    'debug'                     => $params['debug']
+];
+
+
+try {
+    // generate HTML
+    $loader = new TwigFilesystemLoader([
+            EQ_BASEDIR.'/packages/realestate/views/_parts',
+            EQ_BASEDIR.'/packages/realestate/views/governance'
+        ]);
+
+    $twig = new TwigEnvironment($loader);
+
+    /** @var ExtensionInterface $extension **/
+    $extension  = new IntlExtension();
+    $twig->addExtension($extension);
+
+    // #todo - temp workaround against LOCALE mixups
+    $twig->addFilter(
+            new TwigFilter('format_money', function ($value) {
+                return number_format((float) $value, 2, ",", ".").' €';
+            })
+        );
+
+    $template = $twig->load('Assembly.'.$params['view_id'].'.html');
+    $html = $template->render($values);
+}
+catch(Exception $e) {
+    trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+    throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+}
+
+$context->httpResponse()
+    ->body($html)
+    ->send();

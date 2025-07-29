@@ -12,12 +12,6 @@ class AssemblyTemplate extends \equal\orm\Model {
     public static function getColumns() {
 
         return [
-            'condo_id' => [
-                'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'realestate\property\Condominium',
-                'required'          => true
-            ],
 
             'name' => [
                 'type'        => 'string',
@@ -25,16 +19,63 @@ class AssemblyTemplate extends \equal\orm\Model {
                 'required'    => true
             ],
 
+            'description' => [
+                'type'        => 'string',
+                'usage'       => 'text/plain.small',
+                'description' => "Name of the assembly template."
+            ],
+
+            'heading_text_call' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Heading text of the assembly call.",
+                'required'          => false
+            ],
+
+            'heading_text_minutes' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Heading text of the assembly minutes.",
+                'required'          => false
+            ],
+
+            'closing_text_call' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Closing text of the assembly call.",
+                'required'          => false
+            ],
+
+            'closing_text_minutes' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Closing text of the assembly minutes.",
+                'required'          => false
+            ],
+
             'organization_id' => [
                 'type'            => 'many2one',
                 'description'     => "Organization managing the assembly.",
                 'foreign_object'  => 'identity\Organisation',
-                'required'        => true
+                'default'         => 1
+            ],
+
+            'assembly_type' => [
+                'type'              => 'string',
+                'description'       => "Type of assembly.",
+                'selection'         => [
+                    'statutory',
+                    'takeover',
+                    'ordinary',
+                    'extraordinary',
+                    'partial'
+                ],
+                'required'          => true
             ],
 
             'assembly_item_templates_ids' => [
                 'type'            => 'one2many',
-                'description'     => "Templates used for this assembly.",
+                'description'     => "Templates of resolutions used for this assembly.",
                 'foreign_object'  => 'realestate\governance\AssemblyItemTemplate',
                 'foreign_field'   => 'assembly_template_id'
             ]

@@ -1,6 +1,14 @@
 {
-    "name": "Model",
+    "name": "Assembly Attendee",
     "description": "Represents an attendee at a condominium assembly, which can be an owner or a proxy (not necessarily an owner), or an owner with proxy from other owners.",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {"id": "SAVE_AND_CONTINUE"},
+                {"id": "SAVE_AND_VIEW"}
+            ]
+        }
+    },
     "layout": {
         "groups": [
             {
@@ -15,41 +23,73 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "assembly_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "identity_id",
-                                                "width": "100%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "has_mandate",
-                                                "width": "100%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "has_signed",
-                                                "width": "100%"
-                                            },
+                                                "value": "attendee_role",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "visible": [["state", "=", "instance"], ["has_mandate", "=", true]],
+                "sections": [
+                    {
+                        "id":"section.proxies",
+                        "label": "Mandates",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
                                             {
                                                 "type": "field",
-                                                "value": "shares",
+                                                "value": "assembly_proxies_ids",
                                                 "width": "100%"
-                                            },
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id":"section.owners",
+                        "label": "Owners",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
                                             {
                                                 "type": "field",
-                                                "value": "status",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "name",
+                                                "value": "assembly_representations_ids",
                                                 "width": "100%"
                                             }
                                         ]

@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<!--
+    Conventions for html templates:
+
+    * template must consist of a single file
+    * provide support for debug mode
+    * use embedded styling embedded in <style> (CSS3)
+    * avoid using `style` attribute in elements and favour classes
+    * in CSS styles use `px` as unit for font size
+    * in HTML elements, avoid using <br /> and favour blocks and inline-blocks
+    * twig format is implicit for template files: use `{entity}.print.{name}.html` as naming convention
+    * avoid assignment and computation of vars in template (when possible, compute values in controller)
+    * twig instructions should be limited to displaying values and providing conditional statements
+-->
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <title>
+        {{ title }}
+    </title>
+
+    {% include 'header.style.html.twig' %}
+    {% include 'footer.style.html.twig' %}
+
+
+    <style type="text/css">
+        @page {
+            margin: 1cm 1cm;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            /* margin-top must match header::height */
+            margin-top: 280px;
+            /* margin-bottom must match footer::height */
+            margin-bottom: 50px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            text-align: justify;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-size: 21px;
+        }
+
+        h3 {
+            font-size: 15px;
+        }
+
+        main.debug {
+            outline: solid 1px brown;
+        }
+
+        table.attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            min-width: 600px;
+        }
+
+        table.attendance-table tr.first {
+            background-color: #f4f4f4;
+
+        }
+
+        table.attendance-table td {
+            padding: 12px 15px;
+            border: 1px solid black;
+        }
+
+    </style>
+</head>
+
+<body>
+    <!--
+    <header class="{{ debug ? 'debug':'' }}">
+        <div class="condominium-info {{ debug ? 'debug' : '' }}">
+            <div style="padding-left: 10px; text-transform: uppercase;">
+                <div style="font-weight: bold;">{{ condominium.name }}</div>
+                <div>{{ condominium.address_street }}</div>
+                <div>{{ condominium.address_zip }} {{ condominium.address_city }}</div>
+            </div>
+        </div>
+
+    </header>
+    -->
+
+    {% include 'header.html.twig' %}
+    {% include 'footer.html.twig' %}
+
+    {% set assemblyTypes = {
+        'statutory': 'Assemblée Générale Statutaire',
+        'takeover': 'Assemblée Générale de Reprise de gestion',
+        'ordinary': 'Assemblée Générale Ordinaire',
+        'extraordinary': 'Assemblée Générale Extraordinaire'
+    } %}
+
+    {% set majorityLabels = {
+        'unanimity': 'Unanimité (100% des quotités)',
+        'absolute': 'Majorité absolue (> 50% des quotités)',
+        '2_3': 'Majorité des 2/3',
+        '4_5': 'Majorité des 4/5'
+    } %}
+
+    <main class="{{ debug ? 'debug' : '' }}">
+
+        <h1 style="text-align: center;">Procès-Verbal de l’{{assemblyTypes[assembly.assembly_type]}}</h1>
+
+        <p>
+            Procès verbal de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} tenue à l'adresse "{{ assembly.assembly_location }}" à la date du {{ assembly.assembly_date | date(date_format, timezone) }}.
+        </p>
+
+        <p>
+            {{ assembly.heading_text_minutes }}
+        </p>
+
+        {% for item in assembly.assembly_items_ids %}
+        <p>
+            <b><u>{{ item.order }}. {{ item.name }}</u></b><br />
+            {{ item.description_minutes }}
+            {% set assemblyItem = map_assembly_items[item.id] %}
+
+            {% if not item.is_group %}
+
+                {% if description_minutes is not empty %}
+                    {{ description_minutes }}
+                {% endif %}
+
+                {% if assemblyItem.has_vote_required %}
+                    {{ majorityLabels[assemblyItem.majority] }}
+                {% endif %}
+
+                {% set ownerships_against = [] %}
+                {% set ownerships_abstain = [] %}
+
+                {% for vote in assemblyItem.assembly_votes_ids %}
+                {{vote.vote_value}}
+                    {% if vote.vote_value == 'against' %}
+                        {% set ownerships_against = ownerships_against | merge([map_ownerships[vote.ownership_id].name]) %}
+                    {% elseif vote.vote_value == 'abstain' %}
+                        {% set ownerships_abstain = ownerships_abstain | merge([map_ownerships[vote.ownership_id].name]) %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if ownerships_against is not empty %}
+                    <p><strong>Contre :</strong>
+                        {{ ownerships_against|join(', ') }}
+                    </p>
+                {% endif %}
+
+                {% if ownerships_abstain is not empty %}
+                    <p><strong>Abstention :</strong>
+                        {{ ownerships_abstain|join(', ') }}
+                    </p>
+                {% endif %}
+
+            {% else %}
+
+                {% if description_minutes is not empty %}
+                    {{ description_minutes }}
+                {% endif %}
+                <table>
+                    <tr>
+                        <td style="width: 30px;"></td>
+                        <td>
+                            {% for subitem_id in item.children_items_ids %}
+                                {% set assemblyItem = map_assembly_items[subitem_id] %}
+                                <u>{{ item.order }}. {{ assemblyItem.order }}. {{ assemblyItem.name }} </u><br />
+                                <table>
+                                    <tr>
+                                        <td style="width: 30px;"></td>
+                                        <td>
+                                            {{ assemblyItem.description_minutes }}
+                                            {% if assemblyItem.has_vote_required %}
+                                                {{ majorityLabels[assemblyItem.majority] }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </table>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                </table>
+            {% endif %}
+        </p>
+        {% endfor %}
+
+
+        <p>
+            {{ assembly.closining_text_minutes }}
+        </p>
+
+    </main>
+</body>
+
+</html>

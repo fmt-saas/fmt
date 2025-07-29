@@ -7,9 +7,11 @@
 */
 namespace realestate\governance;
 
+use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\property\PropertyLotApportionmentShare;
 
+// #memo - `created` date could be used to prioritize the mandates in case the amount exceeds the maximum allowed number of mandates.
 class AssemblyProxy extends \equal\orm\Model {
 
     public static function getColumns() {
@@ -41,7 +43,7 @@ class AssemblyProxy extends \equal\orm\Model {
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
                 'relation'          => ['attendee_id' => 'identity_id'],
-                'description'       => "Person (natural or legal) receiving the proxy.",
+                'description'       => "Person (natural or legal) holder of the proxy.",
                 'foreign_object'    => 'identity\Identity',
                 'store'             => true
             ],
@@ -50,22 +52,21 @@ class AssemblyProxy extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The ownership that is represented by the proxy.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['proxy_shares']
             ],
 
             'proxy_date' => [
                 'type'              => 'date',
-                'description'       => "Date at which the proxy was granted (as stated on document).",
-                'required'          => true
+                'description'       => "Date for which the proxy was granted (as stated on document).",
+                'default'           => time()
             ],
 
             'proxy_type' => [
                 'type'              => 'string',
                 'selection'         => [
                     'written',
-                    'email',
-                    'mandate',
-                    'notarial'
+                    'electronic'
                 ],
                 'description'       => "Type of proxy.",
                 'default'           => 'written'
@@ -74,8 +75,25 @@ class AssemblyProxy extends \equal\orm\Model {
             'proxy_document_id' => [
                 'type'              => 'many2one',
                 'description'       => "PDF scan or eID/itsme file.",
+                'help'              => "In case of wet signature, this is a scan of the received document.
+                    For electronic signatures, this is the pre-filled mandate original document.",
                 'foreign_object'    => 'documents\Document',
-                'required'          => false
+                'required'          => false,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'proxy_shares' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'description'       => "Computed weight of the vote, based on shares and majority type (via assembly_item_id).",
+                'function'          => 'calcProxyShares',
+                'store'             => true
+            ],
+
+            'has_wet_signature' => [
+                'type'              => 'boolean',
+                'description'       => "Mark the mandate as having a handwritten signature.",
+                'default'           => false
             ],
 
             'is_valid' => [
@@ -89,11 +107,13 @@ class AssemblyProxy extends \equal\orm\Model {
                 'selection'   => [
                     'no_signature',          // Missing signature
                     'missing_or_wrong_date', // Missing or incorrect date
-                    'invalid_mandatory',     // Proxy holder not designated or not authorized
+                    'invalid_signature',     // Invalid electronic signature
                     'invalid_document',      // Incomplete or incorrect form
-                    'expired_or_mismatch',   // Proxy expired or for another assembly
+                    'expired_or_mismatch',   // Proxy expired or was issued for another assembly
                     'too_many_proxies',      // Too many proxies per proxy holder
-                    'not_owner'              // Grantor not legitimate (not owner)
+                    'duplicated_owner',      // owner has granted more than one mandate
+                    'not_owner',             // Grantor is not legitimate (not owner [anymore])
+                    'invalid_attendee'       // Other : Attendee is not valid (missing ID or attendance signature)
                 ],
                 'description' => "Reason for invalidity of the proxy (e.g. no signature, expired, too many mandates, etc.)",
                 'visible'     => ['is_valid', '=', false]
@@ -101,19 +121,45 @@ class AssemblyProxy extends \equal\orm\Model {
         ];
     }
 
-    /*
-    au moment ou on valide la procuration, on vérifie les autres procurations déjà existantes pour cette assemblée, pour le porteur de procuration (identity_id)
-        $self->read(['has_mandate', 'assembly_proxies_ids' => ['@sort' => ['proxy_date' => 'asc'], 'is_valid', 'shares']]);
+    protected static function calcProxyShares($self) {
+        $result = [];
+        $self->read(['condo_id']);
+        foreach($self as $id => $assemblyProxy) {
+            // 1) identify the lots
+            $property_lots_ids = [];
 
-**Règles métier**
+            $ownership = Ownership::id($assemblyProxy['ownership_id'])
+                ->read(['property_lot_ownerships_ids' => ['property_lot_id', 'date_to']])
+                ->first();
 
-- Un `Ownership` **ne peut donner procuration** qu’une seule fois par AG
-- Une personne physique peut recevoir **plusieurs procurations**
-- Possibilité de limiter à **3 procurations max par personne** ou, dans le cas contraire, à plafonner à un max de 10% des quotités
-- Vérification automatique du poids total (pas plus de 50 % du quorum représenté par procurations)
+            foreach($ownership['property_lot_ownerships_ids'] as $propertyLotOwnership) {
+                if(!$propertyLotOwnership['date_to'] || $propertyLotOwnership['date_to'] > $assemblyProxy['assembly_id']['assembly_date']) {
+                    $property_lots_ids[] = $propertyLotOwnership['property_lot_id'];
+                }
+            }
 
+            // 2) retrieve statutory apportionment
+            $apportionment = Apportionment::search(['is_statutory', '=', true], ['condo_id', '=', $assemblyProxy['condo_id']])->first();
 
+            if(!$apportionment) {
+                trigger_error('APP::unexpected missing statutory apportionment for condo ' . $assemblyProxy['condo_id'], EQ_REPORT_ERROR);
+                continue;
+            }
 
-    */
+            // 3) get the total shares for the targeted lots
+            $apportionmentShares = PropertyLotApportionmentShare::search([
+                    ['apportionment_id', '=', $apportionment['id']],
+                    ['property_lot_id', 'in', $property_lots_ids]
+                ])
+                ->read(['property_lot_shares']);
 
+            $shares = 0;
+            foreach($apportionmentShares as $apportionmentShare) {
+                $shares += $apportionmentShare['property_lot_shares'];
+            }
+
+            $result[$id] = $shares;
+        }
+        return $result;
+    }
 }

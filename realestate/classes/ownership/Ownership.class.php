@@ -89,11 +89,13 @@ class Ownership extends \equal\orm\Model {
                 'default'          => 'unique'
             ],
 
-            'total_shares' => [
-                'type'              => 'integer',
+            'ownership_shares' => [
+                'type'              => 'float',
+                'usage'             => 'number/real:8.6',
                 'description'       => "The total number of shares of the ownership.",
+                'help'              => "This value is meant to allow splitting the title between several owners (e.g. in case of joint ownership)",
                 'default'           => 100,
-                'visible'           => ['ownership_type' => 'joint'],
+                'visible'           => ['ownership_type', '=', 'joint'],
                 'dependents'        => ['owners_ids' => 'ownership_percentage']
             ],
 
@@ -147,15 +149,16 @@ class Ownership extends \equal\orm\Model {
                 'dependents'        => ['name']
             ],
 
-            // #todo - not sure if this is necessary
             'representative_owner_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
                 'description'       => "Owner that represents the ownership.",
-                'help'              => "External person that has a mandate for representing the ownership, but is not amongst the owners.",
+                'help'              => "Owner (amongst the owners)designated by the joint ownership for representing the ownership.",
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.id']],
+                'visible'           => ['ownership_type', '=', 'joint'],
                 'store'             => true,
+                // by default, use the first owner
                 'function'          => 'calcRepresentativeOwnerId'
             ],
 
@@ -182,6 +185,26 @@ class Ownership extends \equal\orm\Model {
                 'domain'            => [['ownership_id', '=', 'object.id'], ['condo_id', '=', 'object.condo_id']]
             ],
 
+            'assemblies_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'realestate\governance\Assembly',
+                'foreign_field'     => 'ownerships_ids',
+                'rel_table'         => 'realestate_governance_assembly_rel_ownership',
+                'rel_foreign_key'   => 'assembly_id',
+                'rel_local_key'     => 'ownership_id',
+                'description'       => "Assemblies by which the ownership have been concerned over time."
+            ],
+
+            'attendees_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'realestate\governance\AssemblyAttendee',
+                'foreign_field'     => 'ownerships_ids',
+                'rel_table'         => 'realestate_governance_attendee_rel_ownership',
+                'rel_foreign_key'   => 'attendee_id',
+                'rel_local_key'     => 'ownership_id',
+                'description'       => "Attendees that have represented the ownership represented over time."
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'description'       => 'Current status of the Ownership.',
@@ -191,7 +214,6 @@ class Ownership extends \equal\orm\Model {
                 ],
                 'default'           => 'pending'
             ]
-
 
         ];
     }
@@ -212,8 +234,7 @@ class Ownership extends \equal\orm\Model {
             ],
             'validated' => [
                 'description' => 'Validated Ownership, ready to be used.',
-                'icon'        => 'done
-                ',
+                'icon'        => 'done',
                 'transitions' => [
                     'revert' => [
                         'description' => 'Revert to `pending` to allow changes.',

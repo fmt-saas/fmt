@@ -1,6 +1,5 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Minutes Entry",
     "layout": {
         "groups": [
             {
@@ -29,7 +28,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "comment_text",
+                                                "value": "description_text",
                                                 "width": "100%"
                                             },
                                             {
@@ -45,11 +44,6 @@
                                             {
                                                 "type": "field",
                                                 "value": "vote_details",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "name",
                                                 "width": "100%"
                                             }
                                         ]

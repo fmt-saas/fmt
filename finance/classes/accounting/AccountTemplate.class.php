@@ -40,7 +40,8 @@ class AccountTemplate extends Account {
 
             'apportionment_code' => [
                 'type'              => 'string',
-                'description'       => "Code of the default apportionment key to use (implied in retrieval of related apportionment_id)."
+                'description'       => "Code of the default apportionment key to use.",
+                'help'              => "The code is mandatory and implied in retrieval of related apportionment_id."
             ],
 
         ];

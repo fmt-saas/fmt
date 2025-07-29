@@ -19,10 +19,10 @@ class AssemblyMinutesEntry extends \equal\orm\Model {
                 'required'          => true
             ],
 
-            'assembly_minutes_id' => [
+            'assembly_id' => [
                 'type'              => 'many2one',
-                'description'       => "Link to the AssemblyMinutes record.",
-                'foreign_object'    => 'realestate\governance\AssemblyMinutes',
+                'description'       => "The assembly the minute entry refers to.",
+                'foreign_object'    => 'realestate\governance\Assembly',
                 'required'          => true
             ],
 
@@ -33,7 +33,7 @@ class AssemblyMinutesEntry extends \equal\orm\Model {
                 'required'          => true
             ],
 
-            'comment_text' => [
+            'description_text' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
                 'description'       => "Optional comments for the entry."

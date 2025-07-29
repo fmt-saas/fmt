@@ -92,19 +92,24 @@
                         <table>
                             {% if document_number | length > 0 %}
                             <tr>
-                                <td style="text-transform: uppercase; padding-right: 10px;">N° DOC:</td>
+                                <td style="text-align: right; text-transform: uppercase; padding-right: 10px;">N° DOC:</td>
                                 <td style="text-align: left;">{{ document_number }}</td>
                             </tr>
                             {% endif %}
                             <tr>
-                                <td style="text-transform: uppercase; padding-right: 10px;">FAIT LE:</td>
+                                <td style="text-align: right; text-transform: uppercase; padding-right: 10px; min-width: 125px;">FAIT LE:</td>
                                 <td style="text-align: left;">{{ date | date(date_format, timezone) }}</td>
                             </tr>
+                            {% if fiscal_period is defined %}
                             <tr>
-                                <td style="text-transform: uppercase; padding-right: 10px;">PERIODE EXERICE:</td>
-                                <td>du {{ fiscal_period.date_from | date(date_format, timezone) }} au {{ fiscal_period.date_to | date(date_format, timezone) }}</td>
+                                <td style="text-align: right; text-transform: uppercase; padding-right: 10px;">
+                                    PERIODE EXERICE:
+                                </td>
+                                <td>
+                                    du {{ fiscal_period.date_from | date(date_format, timezone) }} au {{ fiscal_period.date_to | date(date_format, timezone) }}
+                                </td>
                             </tr>
-
+                            {% endif %}
                         </table>
                     </div>
                 <!-- fiscal_year-info end -->

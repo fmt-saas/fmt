@@ -1,22 +1,123 @@
 {
-    "name": "Model",
+    "name": "Assembly",
     "description": "Interface for model definition classes.",
+    "actions": [
+        {
+            "id": "action.publish",
+            "label": "Publish",
+            "description": "Open the assembly (mark as in progress).",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "transition": "publish"
+            },
+            "visible": ["status", "=", "pending"]
+        },
+        {
+            "id": "action.invite",
+            "label": "Create Invites",
+            "description": "Generate & Send invites.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "transition": "send"
+            },
+            "visible": ["status", "=", "published"]
+        },
+        {
+            "id": "action.open",
+            "label": "Open Assembly",
+            "description": "Open the assembly (mark as in progress).",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "transition": "open"
+            },
+            "visible": ["status", "=", "sent"]
+        },
+        {
+            "id": "action.close_attendance",
+            "label": "Close Attendance",
+            "description": "Close the attendance part of the session: no more attendance will be registered afterward.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "action": "close_attendance",
+                "ids": []
+            },
+            "confirm": true,
+            "visible": [ ["status", "=", "in_progress"], ["step", "=", "opening"] ]
+        },
+        {
+            "id": "action.validate_proxies",
+            "label": "Validate Mandates",
+            "description": "Validate the Attendees' mandates and step to representation validation.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "action": "validate_proxies"
+            },
+            "visible":  [ ["status", "=", "in_progress"], ["step", "=", "proxy_validation"] ]
+        },
+        {
+            "id": "action.validate_attendance",
+            "label": "Validate Attendance",
+            "description": "Step to assembly validation.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "action": "validate_representations"
+            },
+            "visible":  [ ["status", "=", "in_progress"], ["step", "=", "representation_validation"] ]
+        },
+        {
+            "id": "action.validate_assembly",
+            "label": "Validate Assembly",
+            "description": "Attempts to validate the Assembly.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "action": "validate_assembly"
+            },
+            "visible": [ ["status", "=", "in_progress"], ["step", "=", "assembly_validation"] ]
+        },
+        {
+            "id": "action.check_invites",
+            "label": "Check invites",
+            "help": "This is a temporary way to trigger the action which is intended to be automated",
+            "description": "Checks if all invites have been sent.",
+            "controller": "realestate_governance_Assembly_check-invite",
+            "visible": [ ["status", "=", "sent"] ]
+        }
+    ],
+    "routes": [
+        {
+            "id": "route.print_attendance_register",
+            "type": "entry",
+            "label": "Print Attendance register",
+            "icon": "print",
+            "description": "Print attendance register",
+            "route": "/?get=realestate_governance_Assembly_attendanceregister_render-pdf&id=object.id",
+            "target": "_blank",
+            "absolute": true,
+            "visible": ["status", "<>", "pending"]
+        }
+    ],
     "layout": {
         "groups": [
             {
                 "sections": [
                     {
+                        "id": "section.details",
+                        "label": "Details",
                         "rows": [
                             {
+                                "id": "row.0",
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "id": "column.0",
+                                        "width": "50%",
                                         "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "condo_id",
-                                                "width": "100%"
-                                            },
                                             {
                                                 "type": "field",
                                                 "value": "name",
@@ -30,7 +131,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "assembly_date",
-                                                "width": "100%"
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_type",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
@@ -39,27 +145,53 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "assembly_type",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "template_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "assembly_minutes_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "session_time_start",
-                                                "width": "100%"
+                                                "width": "50%",
+                                                "visible": ["status", "not in", ["pending", "published", "sent"]]
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "session_time_end",
+                                                "width": "50%",
+                                                "visible": ["status", "not in", ["pending", "published", "sent"]]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "status",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "step",
+                                                "width": "100%",
+                                                "visible": false
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Condominium",
+                                                "value": "condo_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Template",
+                                                "value": "assembly_template_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Minutes",
+                                                "value": "assembly_minutes_id",
                                                 "width": "100%"
                                             },
                                             {
@@ -74,17 +206,184 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "related_assembly_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "second_session_assembly_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "status",
+                                                "value": "related_assembly_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_valid",
+                                                "width": "100%",
+                                                "visible": ["step", "in", ["assembly_validation", "agenda_processing"]]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "invalidity_reason",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.resolutions",
+                        "label": "Resolutions",
+                        "rows": [
+                            {
+                                "id": "row.0",
+                                "columns": [
+                                    {
+                                        "id": "column.0",
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_items_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.owners",
+                        "label": "Owners",
+                        "visible": ["status", "<>", "pending"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "count_owners",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "count_represented_owners",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "count_shares",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "count_represented_shares",
+                                                "width": "25%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "ownerships_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.invites",
+                        "label": "Invites",
+                        "visible": ["status", "not in", ["pending", "published"]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_invitations_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.proxies",
+                        "label": "Mandates",
+                        "visible": ["status", "not in", ["pending", "published", "sent"]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_proxies_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.attendees",
+                        "label": "Attendees",
+                        "visible": ["status", "not in", ["pending", "published", "sent"]],
+                        "rows": [
+                            {
+                                "id": "row.0",
+                                "columns": [
+                                    {
+                                        "id": "column.0",
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_attendees_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.representations",
+                        "label": "Representations",
+                        "visible": ["status", "not in", ["pending", "published", "sent"]],
+                        "rows": [
+                            {
+                                "id": "row.0",
+                                "columns": [
+                                    {
+                                        "id": "column.0",
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_representations_ids",
                                                 "width": "100%"
                                             }
                                         ]

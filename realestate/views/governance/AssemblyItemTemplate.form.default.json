@@ -1,12 +1,109 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Assembly Template",
     "layout": {
         "groups": [
             {
+                "id": "group.0",
                 "sections": [
                     {
+                        "id": "section.0",
                         "rows": [
+                            {
+                                "id": "row.0",
+                                "columns": [
+                                    {
+                                        "id": "column.0",
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "name",
+                                                "width": "75%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "code",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_template_id",
+                                                "width": "25%",
+                                                "visible": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "row.1",
+                                "label": "New Row",
+                                "columns": [
+                                    {
+                                        "id": "column.1",
+                                        "label": "New Column",
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "is_group",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_parent_group",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "parent_group_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_vote_required",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "majority",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "apportionment_code",
+                                                "width": "25%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "row.2",
+                                "columns": [
+                                    {
+                                        "id": "column.1",
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "description_call",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "description_minutes",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "description_ballot",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
                             {
                                 "columns": [
                                     {
@@ -14,48 +111,11 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "condo_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "name",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "code",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "description_call",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "description_minutes",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_vote_required",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "majority",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "apportionment_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "assembly_id",
-                                                "width": "100%"
+                                                "value": "children_items_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.item"
+                                                }
                                             }
                                         ]
                                     }

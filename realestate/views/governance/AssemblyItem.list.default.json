@@ -1,52 +1,122 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Assembly Resolution",
+    "group_by_1": [{
+        "open": true,
+        "colspan": 3,
+        "field": "parent_group_id",
+        "order": "name"
+    }],
+    "order": "order",
+    "sort": "asc",
+    "limit": 100,
+    "domain": [
+        ["has_parent_group", "=", false]
+    ],
+    "actions": [
+        {
+            "id": "action.open",
+            "inline": true,
+            "label": "Open",
+            "icon": "play_arrow",
+            "description": "Open the point.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyItem",
+                "transition": "open"
+            },
+            "visible": [ ["pending", "=", "object.status"] ]
+        },
+        {
+            "id": "action.close",
+            "inline": true,
+            "label": "Close",
+            "icon": "done",
+            "description": "Close the assembly point. No more vote will be allowed. This cannot be undone.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyItem",
+                "transition": "close"
+            },
+            "visible": ["open", "=", "object.status"]
+        },
+        {
+            "id": "action.add_vote",
+            "inline": true,
+            "label": "Vote",
+            "icon": "how_to_vote",
+            "description": "Cast a vote.",
+            "controller": "realestate_governance_AssemblyItem_cast-vote",
+            "visible": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ]
+        }
+    ],
     "layout": {
         "items": [
             {
                 "type": "field",
                 "value": "condo_id",
-                "width": "11%"
-            },
-            {
-                "type": "field",
-                "value": "name",
-                "width": "11%"
-            },
-            {
-                "type": "field",
-                "value": "code",
-                "width": "11%"
-            },
-            {
-                "type": "field",
-                "value": "description_call",
-                "width": "11%"
-            },
-            {
-                "type": "field",
-                "value": "description_minutes",
-                "width": "11%"
-            },
-            {
-                "type": "field",
-                "value": "has_vote_required",
-                "width": "11%"
-            },
-            {
-                "type": "field",
-                "value": "majority",
-                "width": "11%"
-            },
-            {
-                "type": "field",
-                "value": "apportionment_id",
-                "width": "11%"
+                "width": "0%",
+                "visible": false
             },
             {
                 "type": "field",
                 "value": "assembly_id",
-                "width": "11%"
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "order",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "40%"
+            },
+            {
+                "type": "field",
+                "value": "is_group",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "has_parent_group",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Group",
+                "value": "parent_group_id",
+                "width": "11%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "code",
+                "width": "25"
+            },
+            {
+                "type": "field",
+                "label": "Vote",
+                "value": "has_vote_required",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "majority",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "vote_result",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "15%"
             }
         ]
     }

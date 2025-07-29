@@ -48,6 +48,13 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Representative Owner",
+                                                "value": "representative_owner_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "External representative",
                                                 "value": "has_representative",
                                                 "width": "50%"
                                             },

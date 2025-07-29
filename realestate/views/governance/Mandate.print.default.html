@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<!--
+    Conventions for html templates:
+
+    * template must consist of a single file
+    * provide support for debug mode
+    * use embedded styling embedded in <style> (CSS3)
+    * avoid using `style` attribute in elements and favour classes
+    * in CSS styles use `px` as unit for font size
+    * in HTML elements, avoid using <br /> and favour blocks and inline-blocks
+    * twig format is implicit for template files: use `{entity}.print.{name}.html` as naming convention
+    * avoid assignment and computation of vars in template (when possible, compute values in controller)
+    * twig instructions should be limited to displaying values and providing conditional statements
+-->
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <title>
+        {{ title }}
+    </title>
+
+    <style type="text/css">
+        @page {
+            margin: 1cm 1cm;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            /* margin-top must match header::height */
+            margin-top: 280px;
+            /* margin-bottom must match footer::height */
+            margin-bottom: 50px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            text-align: justify;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-size: 21px;
+        }
+
+        h3 {
+            font-size: 15px;
+        }
+
+        main.debug {
+            outline: solid 1px brown;
+        }
+
+    </style>
+</head>
+
+<body>
+    <main class="{{ debug ? 'debug' : '' }}">
+
+        <h1>PROCURATION</h1>
+
+        <p>Je soussigné(e), <strong>{{nom_mandant}}</strong>,</p>
+
+        <p>Propriétaire du lot n° <strong>{{numero_lot}}</strong> situé dans la copropriété <strong>{{nom_copropriete}}</strong>, dont l'adresse est : <strong>{{adresse_copropriete}}</strong>,</p>
+
+        <p>Demeurant à l’adresse suivante : <strong>{{adresse_mandant}}</strong>,</p>
+
+        <p>Donne procuration à :</p>
+
+        <p><strong>{{nom_mandataire}}</strong></p>
+
+        <p>Demeurant à : <strong>{{adresse_mandataire}}</strong>,</p>
+
+        <p>Pour me représenter à l’assemblée générale des copropriétaires qui se tiendra le <strong>{{date_ag}}</strong> à <strong>{{heure_ag}}</strong>, à <strong>{{lieu_ag}}</strong>,</p>
+
+        <p>et pour voter en mon nom sur toutes les résolutions inscrites à l'ordre du jour, ainsi que sur toutes questions pouvant être soumises à l'assemblée.</p>
+
+        <p>Fait pour valoir ce que de droit.</p>
+
+        <div class="signature-block">
+            <p>Fait à <strong>{{lieu_signature}}</strong>, le <strong>{{date_signature}}</strong></p>
+            <p>Signature du mandant :</p>
+            <br><br><br>
+            <p>______________________________</p>
+        </div>
+
+    </main>
+</body>
+
+</html>

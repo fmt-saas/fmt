@@ -6,16 +6,23 @@
             {
                 "type": "field",
                 "value": "condo_id",
-                "width": "12%"
+                "width": "12%",
+                "visible": false
             },
             {
                 "type": "field",
                 "value": "assembly_id",
-                "width": "12%"
+                "width": "12%",
+                "visible": false
             },
             {
                 "type": "field",
                 "value": "identity_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "attendee_role",
                 "width": "12%"
             },
             {
@@ -36,11 +43,6 @@
             {
                 "type": "field",
                 "value": "status",
-                "width": "12%"
-            },
-            {
-                "type": "field",
-                "value": "name",
                 "width": "12%"
             }
         ]

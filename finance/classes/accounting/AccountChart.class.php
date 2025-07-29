@@ -160,10 +160,10 @@ class AccountChart extends Model {
 
             // create apportionment map
             $map_apportionments = [];
-            $apportionments = Apportionment::search(['condo_id', '=', $accountChart['condo_id']])->read(['apportionment_code']);
+            $apportionments = Apportionment::search(['condo_id', '=', $accountChart['condo_id']])->read(['code']);
 
             foreach($apportionments as $apportionment_id => $apportionment) {
-                $map_apportionments[$apportionment['apportionment_code']] = $apportionment_id;
+                $map_apportionments[$apportionment['code']] = $apportionment_id;
             }
 
             foreach($template['accounts_ids'] as $account_id => $account) {

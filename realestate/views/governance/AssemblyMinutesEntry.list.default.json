@@ -1,6 +1,5 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Minutes entry",
     "layout": {
         "items": [
             {
@@ -15,32 +14,22 @@
             },
             {
                 "type": "field",
-                "value": "heading_text",
-                "width": "12%"
-            },
-            {
-                "type": "field",
-                "value": "closing_text",
-                "width": "12%"
-            },
-            {
-                "type": "field",
                 "value": "original_document_id",
                 "width": "12%"
             },
             {
                 "type": "field",
-                "value": "signed_document_id",
+                "value": "has_vote_required",
                 "width": "12%"
             },
             {
                 "type": "field",
-                "value": "status",
+                "value": "vote_validated",
                 "width": "12%"
             },
             {
                 "type": "field",
-                "value": "name",
+                "value": "vote_details",
                 "width": "12%"
             }
         ]

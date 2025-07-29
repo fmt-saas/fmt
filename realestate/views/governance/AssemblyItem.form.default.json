@@ -1,11 +1,36 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Assembly Item",
+    "actions": [
+        {
+            "id": "action.open",
+            "label": "Open",
+            "description": "Open the assembly point.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyItem",
+                "transition": "open"
+            },
+            "visible": ["status", "=", "pending"]
+        },
+        {
+            "id": "action.close",
+            "label": "Close",
+            "description": "Close the assembly point. No more vote will be allowed. This cannot be undone.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyItem",
+                "transition": "close"
+            },
+            "visible": ["status", "=", "open"]
+        }
+    ],
     "layout": {
         "groups": [
             {
                 "sections": [
                     {
+                        "id": "section.details",
+                        "label": "Details",
                         "rows": [
                             {
                                 "columns": [
@@ -14,47 +39,157 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "condo_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "name",
-                                                "width": "100%"
+                                                "width": "75%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "code",
-                                                "width": "100%"
+                                                "width": "25%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "is_group",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "description_call",
-                                                "width": "100%"
+                                                "value": "has_parent_group",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "description_minutes",
-                                                "width": "100%"
+                                                "value": "parent_group_id",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "has_vote_required",
-                                                "width": "100%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "majority",
-                                                "width": "100%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "apportionment_id",
+                                                "width": "25%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "count_represented_shares",
                                                 "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "description_call",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "assembly_id",
+                                                "value": "description_minutes",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "description_ballot",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "children_items_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.item"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.votes",
+                        "label": "Votes",
+                        "visible": ["has_vote_required", "=", true],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "vote_result",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_votes_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.documents",
+                        "label": "Documents",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "documents_ids",
                                                 "width": "100%"
                                             }
                                         ]

@@ -54,7 +54,12 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "name",
+                                                "value": "vote_shares",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "vote_effective_shares",
                                                 "width": "100%"
                                             }
                                         ]

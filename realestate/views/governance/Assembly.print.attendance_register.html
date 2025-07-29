@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<!--
+    Conventions for html templates:
+
+    * template must consist of a single file
+    * provide support for debug mode
+    * use embedded styling embedded in <style> (CSS3)
+    * avoid using `style` attribute in elements and favour classes
+    * in CSS styles use `px` as unit for font size
+    * in HTML elements, avoid using <br /> and favour blocks and inline-blocks
+    * twig format is implicit for template files: use `{entity}.print.{name}.html` as naming convention
+    * avoid assignment and computation of vars in template (when possible, compute values in controller)
+    * twig instructions should be limited to displaying values and providing conditional statements
+-->
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <title>
+        {{ title }}
+    </title>
+
+    {% include 'header.style.html.twig' %}
+    {% include 'footer.style.html.twig' %}
+
+
+    <style type="text/css">
+        @page {
+            margin: 1cm 1cm;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            /* margin-top must match header::height */
+            margin-top: 280px;
+            /* margin-bottom must match footer::height */
+            margin-bottom: 50px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            text-align: justify;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-size: 21px;
+        }
+
+        h3 {
+            font-size: 15px;
+        }
+
+        main.debug {
+            outline: solid 1px brown;
+        }
+
+        table.attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            min-width: 600px;
+        }
+
+        table.attendance-table tr.first {
+            background-color: #f4f4f4;
+
+        }
+
+        table.attendance-table td {
+            padding: 12px 15px;
+            border: 1px solid black;
+        }
+
+    </style>
+</head>
+
+<body>
+    <!--
+    <header class="{{ debug ? 'debug':'' }}">
+        <div class="condominium-info {{ debug ? 'debug' : '' }}">
+            <div style="padding-left: 10px; text-transform: uppercase;">
+                <div style="font-weight: bold;">{{ condominium.name }}</div>
+                <div>{{ condominium.address_street }}</div>
+                <div>{{ condominium.address_zip }} {{ condominium.address_city }}</div>
+            </div>
+        </div>
+
+    </header>
+    -->
+
+    {% include 'header.html.twig' %}
+    {% include 'footer.html.twig' %}
+
+    <main class="{{ debug ? 'debug' : '' }}">
+
+        <h1 style="text-align: center;">LISTE DES PRÉSENCES</h1>
+
+        {% set assemblyTypes = {
+            'statutory': 'Assemblée Générale Statutaire',
+            'takeover': 'Assemblée Générale de Reprise de gestion',
+            'ordinary': 'Assemblée Générale Ordinaire',
+            'extraordinary': 'Assemblée Générale Extraordinaire'
+        } %}
+        <p>
+            Liste des présences de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} tenue à l'adresse "{{ assembly.assembly_location }}" à la date du {{ assembly.assembly_date | date(date_format, timezone) }}.
+        </p>
+
+        <table class="attendance-table">
+
+            <tr class="first">
+                <td style="width: 25%;"><b>Copropriétaire</b></td>
+                <td style="width: 20%;"><b>Lots</b></td>
+                <td style="width: 10%;"><b>Quotités</b></td>
+                <td style="width: 20%;"><b>Présence</b></td>
+                <td style="width: 20%;"><b>Signature</b></td>
+            </tr>
+            {% for ownership_id, ownership in ownerships %}
+            <tr>
+                <td style="width: 25%;">
+                    {{ ownership.name }}
+                    {% if ownership.type == 'joint' %}
+                    <br />[représentant théorique: {{ ownership.representative }}]
+                    {% endif %}
+                </td>
+                <td>
+                    {% for lot in ownership.lots %}
+                        {{ lot.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>{{ ownership.shares }}</td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+    </main>
+</body>
+
+</html>

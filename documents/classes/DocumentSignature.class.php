@@ -17,46 +17,41 @@ class DocumentSignature extends Model {
                 'result_type'       => 'many2one',
                 'description'       => "The condominium the document belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'relation'          => ['original_document_id' => 'condo_id'],
+                'relation'          => ['document_id' => 'condo_id'],
                 'store'             => true,
                 'instant'           => true
             ],
 
-            'original_document_id' => [
+            'document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'required'          => true,
-                'description'       => 'Reference version (unmodified) of the document',
+                'description'       => 'Reference version of the document (immutable).',
                 'dependents'        => ['document_hash_sha256', 'condo_id']
-            ],
-
-            'signed_document_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'documents\Document',
-                'description'       => 'Final version with integrated signature (signed PDF)'
             ],
 
             'hash_sha256' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'usage'             => 'text/plain:64',
-                'function'          => 'calcHashSha256',
+                'relation'          => ['document_id' => 'hash_sha256'],
                 'description'       => 'SHA256 hash of the original document.',
                 'help'              => 'This field holds the hexadecimal value of the hash and might require a conversion to base64 for exchanges.',
-                'store'             => true
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'signature_method' => [
                 'type'              => 'string',
                 'selection'         => ['ses', 'aes', 'qes'],
                 'required'          => true,
-                'description'       => 'eIDAS signature level (ses = drawn)'
+                'description'       => 'eIDAS signature level (ses = drawn).'
             ],
 
             'has_certificate' => [
                 'type'              => 'boolean',
                 'computed'          => true,
-                'description'       => 'True if a certificate is attached'
+                'description'       => 'True if a certificate is attached.'
             ],
 
             'sig_drawn' => [
@@ -69,7 +64,7 @@ class DocumentSignature extends Model {
             'sig_cert' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
-                'description'       => 'X.509 certificate in PEM or JSON extract.'
+                'description'       => 'X.509 certificate as PEM or JSON extract.'
             ],
 
             'sig_hash' => [
@@ -101,17 +96,6 @@ class DocumentSignature extends Model {
             ]
 
         ];
-    }
-
-    protected static function calcHashSha256($self) {
-        $result = [];
-        $self->read(['original_document_id' => ['data']]);
-        foreach($self as $id => $documentSignature) {
-            if(isset($documentSignature['original_document_id']['data'])) {
-                $result[$id] = hash('sha256', $documentSignature['original_document_id']['data']);
-            }
-        }
-        return $result;
     }
 
 }

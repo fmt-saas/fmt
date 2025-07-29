@@ -103,9 +103,9 @@ class Owner extends Identity {
 
     public static function calcOwnershipPercentage($self) {
         $result = [];
-        $self->read(['owner_shares', 'ownership_id' => ['total_shares']]);
+        $self->read(['owner_shares', 'ownership_id' => ['ownership']]);
         foreach($self as $id => $owner) {
-            $result[$id] = round($owner['ownership_id']['total_shares'] / $owner['owner_shares'], 2);
+            $result[$id] = round($owner['ownership_id']['ownership'] / $owner['owner_shares'], 2);
         }
         return $result;
     }

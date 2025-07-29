@@ -6,22 +6,27 @@
             {
                 "type": "field",
                 "value": "condo_id",
-                "width": "12%"
+                "label": "Condominium",
+                "width": "12%",
+                "visible": false
             },
             {
                 "type": "field",
+                "label": "Assembly",
                 "value": "assembly_id",
                 "width": "12%"
             },
             {
                 "type": "field",
+                "label": "Owner",
                 "value": "owner_id",
                 "width": "12%"
             },
             {
                 "type": "field",
                 "value": "ownership_id",
-                "width": "12%"
+                "width": "12%",
+                "visible": false
             },
             {
                 "type": "field",
@@ -35,12 +40,12 @@
             },
             {
                 "type": "field",
-                "value": "is_acknowledged",
+                "value": "is_sent",
                 "width": "12%"
             },
             {
                 "type": "field",
-                "value": "name",
+                "value": "is_acknowledged",
                 "width": "12%"
             }
         ]

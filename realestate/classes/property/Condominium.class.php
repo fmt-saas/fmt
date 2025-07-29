@@ -60,6 +60,13 @@ class Condominium extends Identity {
                 'description'       => 'The unique code of the Condominium, for global identification.',
             ],
 
+            'assemblies_ids' => [
+                'type'              => 'one2many',
+                'description'       => "List of assemblies related to the condominium.",
+                'foreign_object'    => 'realestate\governance\Assembly',
+                'foreign_field'     => 'condo_id'
+            ],
+
             'managing_agent_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\management\ManagingAgent',
@@ -85,7 +92,8 @@ class Condominium extends Identity {
                 'type'              => 'computed',
                 'result_type'       => 'integer',
                 'description'       => "Total number of statutory shares in the condominium.",
-                'function'          => 'calcTotalShares'
+                'function'          => 'calcTotalShares',
+                'store'             => true
             ],
 
             'construction_permit_date' => [
@@ -274,7 +282,7 @@ class Condominium extends Identity {
     public static function getWorkflow() {
         return [
             'pending' => [
-                'description' => 'Completed document, waiting to be validated.',
+                'description' => 'Condominium with details being completed, waiting to be validated.',
                 'icon'        => 'edit',
                 'transitions' => [
                     'validate' => [
@@ -286,7 +294,7 @@ class Condominium extends Identity {
                 ]
             ],
             'validated' => [
-                'description' => 'Validated document, waiting to be processed.',
+                'description' => 'Validated Condominium, waiting to be processed.',
                 'icon'        => 'done',
                 'transitions' => [
                 ]
@@ -353,7 +361,11 @@ class Condominium extends Identity {
 
     protected static function calcTotalShares($self) {
         $result = [];
+        $self->read(['status']);
         foreach($self as $id => $condominium) {
+            if($condominium['status'] !== 'validated') {
+                continue;
+            }
             $apportionment = Apportionment::search([['condo_id', '=', $id], ['is_statutory', '=', true]])
                 ->read(['total_shares'])
                 ->first();

@@ -72,6 +72,17 @@
             }
         },
         {
+            "id": "item.governance",
+            "label": "Governance",
+            "description": "",
+            "icon": "how_to_vote",
+            "context": {
+                "entity": "realestate\\property\\Condominium",
+                "view": "form.governance",
+                "domain": [["id", "=", "object.id"]]
+            }
+        },
+        {
             "id": "item.admin",
             "label": "Config",
             "description": "",
