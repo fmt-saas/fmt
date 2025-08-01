@@ -1,8 +1,8 @@
 <?php
 /*
-    This file is part of FMT SaaS Software <https://github.com/fmt-saas/fmt>
-    Some Rights Reserved, FMT SRL, 2025-2026
-    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+    Developed by Yesbabylon – https://yesbabylon.com
+    (c) 2025–2026 Yesbabylon SA
+    Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
 */
 use finance\accounting\Account;
 use finance\accounting\AccountChart;
