@@ -124,6 +124,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'selection'      => [
                     'pending',
                     'open',
+                    'voted',
                     'closed'
                 ]
             ]
@@ -148,6 +149,11 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'description'   => '',
                 'icon'          => 'done',
                 'transitions'   => [
+                    'revert' => [
+                        'description'   => 'Marks the Assembly Item as open.',
+                        'policies'      => ['can_revert'],
+                        'status'        => 'pending'
+                    ],
                     'close' => [
                         'description'   => 'Marks the Assembly Item as open.',
                         'policies'      => ['can_close'],
@@ -179,6 +185,10 @@ class AssemblyItem extends AssemblyItemTemplate {
             'can_open' => [
                 'description' => 'Verifies that an assembly item can be opened.',
                 'function'    => 'policyCanOpen'
+            ],
+            'can_revert' => [
+                'description' => 'Verifies that an assembly item can be reverter to `pending`.',
+                'function'    => 'policyCanRevert'
             ],
             'can_close' => [
                 'description' => 'Verifies that an assembly item can be closed.',
@@ -256,6 +266,20 @@ class AssemblyItem extends AssemblyItemTemplate {
 
     protected static function policyCanClose($self) {
         $result = [];
+        return $result;
+    }
+
+    protected static function policyCanRevert($self) {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $assemblyItem) {
+            if($assemblyItem['status'] !== 'open') {
+                $result[$id] = [
+                        'invalid_status' => 'Assembly item cannot be reverted.'
+                    ];
+                continue;
+            }
+        }
         return $result;
     }
 

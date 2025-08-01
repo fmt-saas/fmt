@@ -62,7 +62,7 @@
         {
             "id": "action.validate_attendance",
             "label": "Validate Attendance",
-            "description": "Step to assembly validation.",
+            "description": "Step to attendance validation.",
             "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\governance\\Assembly",

@@ -32,12 +32,12 @@
             },
             {
                 "type": "field",
-                "value": "has_signed",
+                "value": "shares",
                 "width": "12%"
             },
             {
                 "type": "field",
-                "value": "shares",
+                "value": "is_valid",
                 "width": "12%"
             },
             {
