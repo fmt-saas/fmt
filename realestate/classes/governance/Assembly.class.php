@@ -24,7 +24,8 @@ class Assembly extends \equal\orm\Model {
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'required'          => true,
-                'dependents'        => ['count_shares']
+                'dependents'        => ['count_shares'],
+                'onupdate'          => 'onupdateCondoId'
             ],
 
             'name' => [
@@ -505,6 +506,20 @@ class Assembly extends \equal\orm\Model {
             ->do('send_invites');
     }
 
+    protected static function onupdateCondoId($self) {
+        $self->read(['condo_id' => ['address_street', 'address_zip', 'address_city']]);
+        foreach($self as $id => $assembly) {
+            $address = $assembly['condo_id']['address_street'];
+            if($assembly['condo_id']['address_zip']) {
+                $address .= ' ' . $assembly['condo_id']['address_zip'];
+            }
+            if($assembly['condo_id']['address_city']) {
+                $address .= ' ' . $assembly['condo_id']['address_city'];
+            }
+            self::id($id)->update(['assembly_location' => $assembly['condo_id']['address_street']]);
+        }
+    }
+
     /**
      * Create the structure of the assembly based on selected template
      *
@@ -518,7 +533,8 @@ class Assembly extends \equal\orm\Model {
                     'heading_text_minutes',
                     'closing_text_call',
                     'closing_text_minutes'
-                ]);
+                ])
+                ->first();
 
             self::id($id)->update([
                     'heading_text_call'     => $assemblyTemplate['heading_text_call'],

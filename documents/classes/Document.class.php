@@ -11,9 +11,6 @@ use documents\navigation\Node;
 use equal\http\HttpRequest;
 use equal\orm\Model;
 
-use purchase\supplier\Supplier;
-use realestate\property\Condominium;
-
 class Document extends Model {
 
     public static function getLink() {
@@ -21,7 +18,7 @@ class Document extends Model {
     }
 
     public static function constants() {
-        return ['FMT_INSTANCE_TYPE', 'FMT_API_URL_EDMS'];
+        return ['ENV_MODE', 'FMT_INSTANCE_TYPE', 'FMT_API_URL_EDMS'];
     }
 
     public static function getColumns() {
@@ -233,6 +230,13 @@ class Document extends Model {
                 'help'              => 'Optional version of the document with signatures on it, applicable for signed documents only. Has no legal value.'
             ],
 
+            'document_signatures_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\DocumentSignature',
+                'foreign_field'     => 'document_id',
+                'description'       => 'Signatures applied on the document, if any.',
+            ],
+
             /* fields below link the source the document originates from, independently from its type */
 
             'case_file_id' => [
@@ -285,13 +289,6 @@ class Document extends Model {
                 'rel_local_key'     => 'document_id',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'description'       => 'Ownership transfers for which the document is selected as attachment.'
-            ],
-
-            'document_signatures_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'documents\DocumentSignature',
-                'foreign_field'     => 'original_document_id',
-                'description'       => 'Signatures for the document, if any.',
             ],
 
             'assembly_items_ids' => [
@@ -382,8 +379,7 @@ class Document extends Model {
     }
 
     public static function onupdateData($self, $adapt) {
-        $instance_type = constant('FMT_INSTANCE_TYPE');
-        if($instance_type === 'agency') {
+        if(constant('FMT_INSTANCE_TYPE') === 'agency') {
             self::attemptToPush($self, $adapt);
         }
     }
@@ -400,15 +396,13 @@ class Document extends Model {
                 }
             }
         }
-        $instance_type = constant('FMT_INSTANCE_TYPE');
-        if($instance_type === 'agency') {
+        if(constant('FMT_INSTANCE_TYPE') === 'agency') {
             self::attemptToPush($self, $adapt);
         }
     }
 
     private static function attemptToPush($self, $adapt) {
-        $instance_type = constant('FMT_INSTANCE_TYPE');
-        if($instance_type === 'agency') {
+        if(constant('FMT_INSTANCE_TYPE') === 'agency' && constant('ENV_MODE') === 'production') {
             /** @var \equal\data\adapt\DataAdapter */
             $adapter = $adapt->get('json');
 
