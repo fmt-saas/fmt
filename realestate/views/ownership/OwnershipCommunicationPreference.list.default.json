@@ -1,0 +1,33 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "code",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "communication_method",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "ownership_id",
+                "width": "20%"
+            }
+        ]
+    }
+}

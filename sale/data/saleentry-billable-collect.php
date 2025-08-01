@@ -1,8 +1,8 @@
 <?php
 /*
-    This file is part of the Discope property management software.
-    Author: FMT SRL, 2025-2026
-    License: GNU AGPL 3 license <http://www.gnu.org/licenses/>
+    Developed by Yesbabylon – https://yesbabylon.com
+    (c) 2025–2026 Yesbabylon SA
+    Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
 */
 
 use equal\orm\Domain;
