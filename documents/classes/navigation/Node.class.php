@@ -58,6 +58,7 @@ class Node extends Model {
                 'foreign_object'    => 'documents\navigation\Node',
                 'description'       => 'Parent node of the node.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'ondelete'          => 'null',
                 'onupdate'          => 'onupdateParentId'
             ],
 
@@ -66,6 +67,7 @@ class Node extends Model {
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'targeted document of the node.',
                 'visible'           => ['node_type', '=', 'document'],
+                'ondelete'          => 'cascade',
                 'onupdate'          => 'onupdateDocumentId',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],

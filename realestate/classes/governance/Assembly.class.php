@@ -8,6 +8,7 @@
 namespace realestate\governance;
 
 use documents\Document;
+use documents\navigation\Node;
 use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
@@ -320,6 +321,11 @@ class Assembly extends \equal\orm\Model {
                 'description' => '',
                 'icon' => 'sent',
                 'transitions' => [
+                    'revert' => [
+                        'description'   => 'Revert Assembly to `pending` in order to allow changes.',
+                        'policies'      => [/**/],
+                        'status'        => 'pending'
+                    ],
                     'send' => [
                         'description'   => 'Send the invitations, and mark the Assembly as sent.',
                         'policies'      => [/**/],
@@ -361,6 +367,13 @@ class Assembly extends \equal\orm\Model {
 
     public static function getActions() {
         return [
+
+            'generate_ownerships' => [
+                'description'   => 'Generate ownerships.',
+                'help'          => 'i.e. Ownerships that are known at the current date to own at least one property lots having at least one share in the statutory apportionment. This action can be re-executed in order to refresh the list, in case a transfer took place in the meantime.',
+                'policies'      => [],
+                'function'      => 'doGenerateOwnerships'
+            ],
 
             'generate_invites' => [
                 'description'   => 'Generate invites.',
@@ -441,14 +454,16 @@ class Assembly extends \equal\orm\Model {
         ];
     }
 
-    protected static function onafterPublish($self) {
-
+    protected static function doGenerateOwnerships($self) {
         $self->read(['condo_id', 'assembly_date', 'ownerships_ids']);
 
         foreach($self as $id => $assembly) {
 
-            // 1) generate the ownerships_ids : list of expected Ownerships allowed to attend the Assembly
+            // remove any previously retrieved ownership
+            $ids_to_remove = array_map(function ($a) {return -$a;}, $assembly['ownerships_ids']);
+            self::id($id)->update(['ownerships_ids' => $ids_to_remove]);
 
+            // generate the ownerships_ids : list of expected Ownerships allowed to attend the Assembly
             $map_ownerships_ids = [];
 
             $propertyLotOwnerships = PropertyLotOwnership::search([
@@ -464,18 +479,36 @@ class Assembly extends \equal\orm\Model {
                 }
             }
             self::id($id)->update(['ownerships_ids' => array_keys($map_ownerships_ids)]);
+        }
+    }
 
-            // 2) generate the attendance document (for signatures)
+    protected static function onafterPublish($self) {
+
+        // generate the ownerships_ids : list of expected Ownerships allowed to attend the Assembly
+        $self->do('generate_ownerships');
+        $self->read(['condo_id', 'attendance_register_document_id']);
+
+        foreach($self as $id => $assembly) {
+            // generate the attendance document (required for signatures)
+
+            // remove any previous version
+            if($assembly['attendance_register_document_id']) {
+                Document::id($assembly['attendance_register_document_id'])->delete(true);
+            }
+
+            // generate a new doc
             try {
                 $data = \eQual::run('get', 'realestate_governance_Assembly_attendanceregister_render-pdf', ['id' => $id]);
+
                 $document = Document::create(['name' => 'Liste de présences', 'data' => $data])
                     ->first();
+
+                // #memo - original documents remain "invisible", only signed version should be accessible through EDMS filetree
 
                 self::id($id)
                     ->update([
                         'attendance_register_document_id' => $document['id']
                     ]);
-
             }
             catch(\Exception $e) {
                 trigger_error("APP::unable to generate signature document (attendance register) :" . $e->getMessage(), EQ_REPORT_ERROR);

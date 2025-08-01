@@ -150,16 +150,11 @@ class Ownership extends \equal\orm\Model {
             ],
 
             'representative_owner_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
+                'type'              => 'many2one',
                 'description'       => "Owner that represents the ownership.",
                 'help'              => "Owner (amongst the owners)designated by the joint ownership for representing the ownership.",
                 'foreign_object'    => 'realestate\ownership\Owner',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.id']],
-                'visible'           => ['ownership_type', '=', 'joint'],
-                'store'             => true,
-                // by default, use the first owner
-                'function'          => 'calcRepresentativeOwnerId'
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.id']]
             ],
 
             'fundings_ids' => [
@@ -248,6 +243,11 @@ class Ownership extends \equal\orm\Model {
 
     public static function getActions() {
         return [
+            'normalize_representative_owner' => [
+                'description'   => 'Generate mandatory accounting Accounts for Ownership.',
+                'policies'      => [],
+                'function'      => 'doNormalizeRepresentativeOwner'
+            ],
             'generate_accounts' => [
                 'description'   => 'Generate mandatory accounting Accounts for Ownership.',
                 'policies'      => [],
@@ -299,7 +299,7 @@ class Ownership extends \equal\orm\Model {
 
             if(!$ownership['date_from']) {
                 $result[$id] = [
-                    'missing_date_from' => 'Date from is manadatory, if not known use the date of the Condominium creation.'
+                    'missing_date_from' => 'Date from is mandatory, if not known use the date of the Condominium creation.'
                 ];
             }
 
@@ -309,18 +309,6 @@ class Ownership extends \equal\orm\Model {
                         'missing_representative_id' => 'The representative identity must be provided.'
                     ];
                 }
-            }
-        }
-        return $result;
-    }
-
-
-    protected static function calcRepresentativeOwnerId($self) {
-        $result = [];
-        $self->read(['owners_ids']);
-        foreach($self as $id => $ownership) {
-            if(count($ownership['owners_ids']) > 0) {
-                $result[$id] = current($ownership['owners_ids']);
             }
         }
         return $result;
@@ -490,6 +478,29 @@ class Ownership extends \equal\orm\Model {
         */
     }
 
+    protected static function doNormalizeRepresentativeOwner($self) {
+        $self->read(['representative_owner_id', 'owners_ids']);
+        foreach($self as $id => $ownership) {
+            if(!$ownership['representative_owner_id']) {
+                // by default, pick the first owner
+                if(count($ownership['owners_ids']) > 0) {
+                    self::id($id)->update(['representative_owner_id' => current($ownership['owners_ids'])]);
+                }
+            }
+            else {
+                // invalid/old owner
+                if(!in_array($ownership['representative_owner_id'], $ownership['owners_ids'])) {
+                    if(count($ownership['owners_ids']) > 0) {
+                        self::id($id)->update(['representative_owner_id' => current($ownership['owners_ids'])]);
+                    }
+                    else {
+                        self::id($id)->update(['representative_owner_id' => null]);
+                    }
+                }
+            }
+        }
+    }
+
     public static function onupdateCreationIdentityId($self) {
         $self->read(['owners_ids', 'creation_identity_id', 'condo_id']);
         foreach($self as $id => $ownership) {
@@ -508,6 +519,7 @@ class Ownership extends \equal\orm\Model {
 
     protected static function onafterValidate($self) {
         $self
+            ->do('normalize_representative_owner')
             ->do('generate_accounts')
             ->do('generate_folders');
     }

@@ -48,12 +48,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Representative Owner",
-                                                "value": "representative_owner_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "label": "External representative",
                                                 "value": "has_representative",
                                                 "width": "50%"
@@ -205,6 +199,27 @@
                                                         }
                                                     }
                                                 }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.communication_preferences",
+                        "label": "Communication",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Representative Owner",
+                                                "value": "representative_owner_id",
+                                                "width": "100%"
                                             }
                                         ]
                                     }
