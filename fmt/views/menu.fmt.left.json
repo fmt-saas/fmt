@@ -512,43 +512,85 @@
                 "type": "parent",
                 "children": [
                     {
-                                "id": "item.documents",
-                                "label": "Documents",
+                        "id": "security",
+                        "label": "Security",
+                        "description": "",
+                        "icon": "lock_open",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "permissions",
+                                "type": "entry",
+                                "label": "Permissions",
+                                "icon": "how_to_reg",
                                 "description": "",
-                                "icon": "picture_as_pdf",
-                                "type": "parent",
-                                "children": [
-                                    {
-                                        "id": "item.config.documents_types",
-                                        "type": "entry",
-                                        "label": "Document Types",
-                                        "icon": "book",
-                                        "description": "",
-                                        "context": {
-                                            "entity": "documents\\DocumentType"
-                                        }
-                                    },
-                                    {
-                                        "id": "item.config.documents_subtypes",
-                                        "type": "entry",
-                                        "label": "Document Subtypes",
-                                        "icon": "book",
-                                        "description": "",
-                                        "context": {
-                                            "entity": "documents\\DocumentSubtype"
-                                        }
-                                    },
-                                    {
-                                        "id": "item.config.documents_recording_rules",
-                                        "type": "entry",
-                                        "label": "Recording Rules",
-                                        "icon": "auto_awesome",
-                                        "description": "",
-                                        "context": {
-                                            "entity": "documents\\recording\\RecordingRule"
-                                        }
-                                    }
-                                ]
+                                "context": {
+                                    "entity": "core\\Permission",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "users",
+                                "type": "entry",
+                                "label": "Users",
+                                "icon": "person",
+                                "description": "",
+                                "context": {
+                                    "entity": "core\\User",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "groups",
+                                "type": "entry",
+                                "label": "Groups",
+                                "icon": "group",
+                                "description": "",
+                                "context": {
+                                    "entity": "core\\Group",
+                                    "view": "list.default"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "item.documents",
+                        "label": "Documents",
+                        "description": "",
+                        "icon": "picture_as_pdf",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "item.config.documents_types",
+                                "type": "entry",
+                                "label": "Document Types",
+                                "icon": "book",
+                                "description": "",
+                                "context": {
+                                    "entity": "documents\\DocumentType"
+                                }
+                            },
+                            {
+                                "id": "item.config.documents_subtypes",
+                                "type": "entry",
+                                "label": "Document Subtypes",
+                                "icon": "book",
+                                "description": "",
+                                "context": {
+                                    "entity": "documents\\DocumentSubtype"
+                                }
+                            },
+                            {
+                                "id": "item.config.documents_recording_rules",
+                                "type": "entry",
+                                "label": "Recording Rules",
+                                "icon": "auto_awesome",
+                                "description": "",
+                                "context": {
+                                    "entity": "documents\\recording\\RecordingRule"
+                                }
+                            }
+                        ]
                     },
                     {
                         "id": "item.config.pricelist",

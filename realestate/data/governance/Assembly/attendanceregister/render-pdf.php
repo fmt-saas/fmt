@@ -18,6 +18,11 @@ use realestate\governance\Assembly;
             'foreign_object'    => 'realestate\governance\Assembly',
             'required'          => true
         ],
+        'signed' => [
+            'description'       => 'Flag for requesting the signed version of the register.',
+            'type'              => 'boolean',
+            'default'           => false
+        ]
     ],
     'access'        => [
         'visibility' => 'protected'
@@ -43,7 +48,8 @@ if(!$assembly) {
 try {
 
     $html = (string) eQual::run('get', 'realestate_governance_Assembly_attendanceregister_render-html', [
-            'id'    => $params['id']
+            'id'        => $params['id'],
+            'signed'    => $params['signed']
         ]);
 
     /*

@@ -15,6 +15,10 @@ class Owner extends Identity {
         return 'realestate_ownership_owner';
     }
 
+    public static function getDescription() {
+        return "Individual owner from ownership.";
+    }
+
     public static function getColumns() {
 
         return [

@@ -57,7 +57,8 @@ Assembly::create([
     // trigger `onupdateAssemblyTemplateId`
     ->update([
         'assembly_template_id'  => $params['assembly_template_id'],
-    ]);
+    ])
+    ->do('auto_assign_location');
 
 $context->httpResponse()
         ->status(201)

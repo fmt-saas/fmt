@@ -80,6 +80,12 @@ class Organisation extends Identity {
                 'onupdate'          => 'onupdateBankAccountBic'
             ],
 
+            'managing_agent_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\management\ManagingAgent',
+                'description'       => "The Managing agent the Organization relates to.",
+            ]
+
         ];
     }
 

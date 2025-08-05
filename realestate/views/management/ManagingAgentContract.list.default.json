@@ -1,0 +1,53 @@
+{
+    "name": "Managing Agent Contract",
+    "description": "A managing agent is contractually in charge of the administration of a Condominium.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "managing_agent_id",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "contract_document_id",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "indexation_rate",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "date_from",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "date_to",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "max_duration",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "is_active",
+                "width": "11%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "11%"
+            }
+        ]
+    }
+}

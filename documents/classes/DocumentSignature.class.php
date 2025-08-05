@@ -22,6 +22,14 @@ class DocumentSignature extends Model {
                 'instant'           => true
             ],
 
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "The condominium the document belongs to.",
+                'function'          => 'calcName',
+                'store'             => true
+            ],
+
             'document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
@@ -51,20 +59,22 @@ class DocumentSignature extends Model {
             'has_certificate' => [
                 'type'              => 'boolean',
                 'computed'          => true,
-                'description'       => 'True if a certificate is attached.'
+                'description'       => 'True if a certificate is attached.',
+                'visible'           => ['signature_method', 'in', ['aes', 'qes']]
             ],
 
             'sig_drawn' => [
                 'type'              => 'binary',
-                'usage'             => 'image/png',
-                'description'       => 'Handwritten signature, base64 PNG if present.',
+                'usage'             => 'image/png.signature',
+                'description'       => 'Handwritten signature (PNG), if present.',
                 'visible'           => ['signature_method', '=', 'ses'],
             ],
 
             'sig_cert' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
-                'description'       => 'X.509 certificate as PEM or JSON extract.'
+                'description'       => 'X.509 certificate as PEM or JSON extract.',
+                'visible'           => ['signature_method', 'in', ['aes', 'qes']]
             ],
 
             'sig_hash' => [
@@ -84,7 +94,7 @@ class DocumentSignature extends Model {
             'sig_timestamp' => [
                 'type'              => 'datetime',
                 'description'       => 'Timestamp of the signature',
-                'visible'           => ['signature_method', 'in', ['aes', 'qes']],
+                'default'           => function () { return time(); }
             ],
 
             'signer_identity_id' => [
@@ -96,6 +106,18 @@ class DocumentSignature extends Model {
             ]
 
         ];
+    }
+
+    protected static function calcName($self) {
+        $result = [];
+        $self->read(['signer_identity_id' => ['name'], 'document_id' => ['name'], 'sig_timestamp']);
+        foreach($self as $id => $documentSignature) {
+            if(!isset($documentSignature['signer_identity_id'], $documentSignature['document_id'])) {
+                continue;
+            }
+            $result[$id] = "{$documentSignature['signer_identity_id']['name']} - {$documentSignature['document_id']['name']} - {$documentSignature['sig_timestamp']}";
+        }
+        return $result;
     }
 
 }

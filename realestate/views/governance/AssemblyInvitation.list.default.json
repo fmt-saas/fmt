@@ -25,22 +25,21 @@
             {
                 "type": "field",
                 "value": "ownership_id",
-                "width": "12%",
-                "visible": false
-            },
-            {
-                "type": "field",
-                "value": "sent_date",
                 "width": "12%"
             },
             {
                 "type": "field",
-                "value": "sent_method",
+                "value": "communication_method",
                 "width": "12%"
             },
             {
                 "type": "field",
                 "value": "is_sent",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "sent_date",
                 "width": "12%"
             },
             {

@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Managing Agent Contract",
+    "description": "A managing agent is contractually in charge of the administration of a Condominium.",
     "layout": {
         "groups": [
             {
@@ -19,32 +19,37 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "assembly_id",
+                                                "value": "managing_agent_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "owner_id",
+                                                "value": "contract_document_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "ownership_id",
+                                                "value": "indexation_rate",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "sent_date",
+                                                "value": "date_from",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "communication_method",
+                                                "value": "date_to",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "is_acknowledged",
+                                                "value": "max_duration",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_active",
                                                 "width": "100%"
                                             },
                                             {

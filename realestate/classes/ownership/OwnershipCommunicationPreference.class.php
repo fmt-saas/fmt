@@ -13,22 +13,28 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
         return [
             'condo_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
+                'description'       => "The condominium the ownership belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'required'          => true,
-                'dependents'        => ['name', 'ownership_account_id']
-            ],
-
-            'name' => [
-                'type'              => 'string',
-                'description'       => 'Name of the communication preference.',
                 'required'          => true
             ],
 
-            'code' => [
+            'name' => [
+                'type'              => 'alias',
+                'alias'             => 'communication_reason',
+                'description'       => 'Name of the communication preference.'
+            ],
+
+            'communication_reason' => [
                 'type'              => 'string',
-                'description'       => 'Unique code for identifying the kind of communication.',
-                'unique'            => true
+                'selection'         => [
+                    'general_assembly_call',
+                    'general_assembly_minutes',
+                    'expense_statement',
+                    'fund_request',
+                    'technical_communication'
+                ],
+                'description'       => "Method used to send the invitation.",
+                'required'          => true
             ],
 
             'communication_method' => [
@@ -51,6 +57,12 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'readonly'          => true
             ]
 
+        ];
+    }
+
+    public function getUnique() {
+        return [
+            [ 'ownership_id', 'communication_reason' ]
         ];
     }
 }

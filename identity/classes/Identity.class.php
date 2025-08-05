@@ -532,7 +532,8 @@ class Identity extends Model {
                 'foreign_object'    => 'realestate\property\Condominium',
                 'foreign_field'     => 'identity_id',
                 'description'       => 'Condominium associated to this identity, if any.',
-                'onupdate'          => 'onupdateCondominiumId'
+                'onupdate'          => 'onupdateCondominiumId',
+                'visible'           => [['type', '<>', 'IN']]
             ],
 
             'supplier_id' => [
@@ -540,7 +541,8 @@ class Identity extends Model {
                 'foreign_object'    => 'purchase\supplier\Supplier',
                 'foreign_field'     => 'identity_id',
                 'description'       => 'Supplier associated to this identity, if any.',
-                'onupdate'          => 'onupdateSupplierId'
+                'onupdate'          => 'onupdateSupplierId',
+                'visible'           => [['type', '<>', 'IN']]
             ],
 
             'contact_id' => [
@@ -560,31 +562,32 @@ class Identity extends Model {
             ],
 
             'organisation_id' => [
-                'type'           => 'many2one',
-                'foreign_object' => 'identity\Organisation',
-                'description'    => 'The organisation the identity refers to.',
-                'onupdate'       => 'onupdateOrganisationId'
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\Organisation',
+                'description'       => 'The organisation the identity refers to.',
+                'onupdate'          => 'onupdateOrganisationId',
+                'visible'           => [['type', '<>', 'IN']]
             ],
 
             'managing_agent_id' => [
-                'type'           => 'many2one',
-                'foreign_object' => 'realestate\management\ManagingAgent',
-                'description'    => 'The managing agent the identity refers to.',
-                'onupdate'       => 'onupdateManagingAgentId'
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\management\ManagingAgent',
+                'description'       => 'The managing agent the identity refers to.',
+                'onupdate'          => 'onupdateManagingAgentId'
             ],
 
             'owner_id' => [
-                'type'           => 'many2one',
-                'foreign_object' => 'realestate\ownership\Owner',
-                'description'    => 'The Owner the identity refers to.',
-                'onupdate'       => 'onupdateOwnerId'
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\ownership\Owner',
+                'description'       => 'The Owner the identity refers to.',
+                'onupdate'          => 'onupdateOwnerId'
             ],
 
             'tenant_id' => [
-                'type'           => 'many2one',
-                'foreign_object' => 'realestate\ownership\Owner',
-                'description'    => 'The Tenant the identity refers to.',
-                'onupdate'       => 'onupdateTenantId'
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\ownership\Owner',
+                'description'       => 'The Tenant the identity refers to.',
+                'onupdate'          => 'onupdateTenantId'
             ]
 
         ];

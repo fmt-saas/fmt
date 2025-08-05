@@ -1,0 +1,63 @@
+{
+    "name": "Managing Agent Mandate",
+    "description": "A managing agent mandate is issued during a general assembly and remains valid until revoked.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "managing_agent_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "contract_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "date_from",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "date_to",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "termination_date",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "termination_reason",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "appointment_type",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "appointment_assembly_id",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "is_active",
+                "width": "9%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "9%"
+            }
+        ]
+    }
+}

@@ -1,8 +1,12 @@
 <?php
 
 use finance\bank\BankAccount;
+use hr\employee\Employee;
+use hr\role\RoleAssignment;
 use identity\Identity;
 use identity\Organisation;
+use identity\User;
+use realestate\management\ManagingAgent;
 
 ['orm' => $orm] = eQual::inject(['orm']);
 
@@ -45,7 +49,57 @@ BankAccount::create([
         "bank_account_iban" =>  "BE23510349013565"
     ]);
 
+$managingAgent = ManagingAgent::create([
+        "id"                => 1,
+        "supplier_type_id"  => 1,
+        "identity_id"       => 1
+    ])
+    ->first();
+
+Identity::search()->do('refresh_bank_accounts');
+
+
+$identity = Identity::create([
+        "type_id" => 3,
+        "type" => "IN",
+        "firstname" => "Léon",
+        "lastname" => "Jacques",
+        "lang_id" => 2
+    ])
+    ->first();
+
+
+$user = User::create([
+        'identity_id'   => $identity['id'],
+        "login"         => 'admin@fmt.yb.run',
+        "password"      => 'safe_pass',
+        "language"      => 'fr',
+        "validated"     => true,
+        "groups_ids"    => [2]
+    ])
+    ->first();
+
+// will create related Identity
+$employee = Employee::create([
+    'identity_id'   => $identity['id'],
+    ])
+    ->first();
+
+
+User::search()->do('sync_from_identity');
+Employee::search()->do('sync_from_identity');
+
+// assign employee as manager for all condos
+RoleAssignment::create([
+        'condo_id'      => null,
+        'employee_id'   => $employee['id'],
+        'role_id'       => 1
+    ]);
+
+
+
 $orm->enableEvents($events);
 
-// sync values from Identities to Suppliers
+// sync values from Identities
 Organisation::search()->do('sync_from_identity');
+ManagingAgent::id($managingAgent['id'])->do('sync_from_identity');

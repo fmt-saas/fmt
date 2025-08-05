@@ -28,7 +28,7 @@ class AssemblyInvitation extends \equal\orm\Model {
             'owner_id' => [
                 'type'              => 'many2one',
                 'description'       => "The owner concerned by the invitation.",
-                'help'              => 'Several owners can be concerned by a same Ownership: invites are generated for each of them.',
+                'help'              => 'A single invite is generated for each Ownership (representative).',
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'required'          => true
             ],
@@ -46,9 +46,14 @@ class AssemblyInvitation extends \equal\orm\Model {
                 'help'              => 'This date is immutable (@see `canupdate`). The original date must remain the same in case of multiple generation.'
             ],
 
-            'sent_method' => [
+            'communication_method' => [
                 'type'              => 'string',
-                'selection'         => ['email', 'postal', 'postal_registered', 'postal_registered_receipt'],
+                'selection'         => [
+                    'email',
+                    'postal',
+                    'postal_registered',
+                    'postal_registered_receipt'
+                ],
                 'description'       => "Method used to send the invitation.",
                 'default'           => 'postal_registered'
             ],

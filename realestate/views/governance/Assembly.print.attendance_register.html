@@ -115,13 +115,15 @@
             <tr class="first">
                 <td style="width: 25%;"><b>Copropriétaire</b></td>
                 <td style="width: 20%;"><b>Lots</b></td>
-                <td style="width: 10%;"><b>Quotités</b></td>
+                <td style="width: 10%;"><b>Quotités statutaires</b></td>
                 <td style="width: 20%;"><b>Présence</b></td>
-                <td style="width: 20%;"><b>Signature</b></td>
+                <td style="width: 25%;"><b>Signature</b></td>
             </tr>
             {% for ownership_id, ownership in ownerships %}
             <tr>
-                <td style="width: 25%;">
+                {% set representation = representations[ownership_id] ?? null %}
+                {% set attendee = attendees[representation.attendee_id] ?? null %}
+                <td>
                     {{ ownership.name }}
                     {% if ownership.type == 'joint' %}
                     <br />[représentant théorique: {{ ownership.representative }}]
@@ -133,12 +135,45 @@
                     {% endfor %}
                 </td>
                 <td>{{ ownership.shares }}</td>
-                <td></td>
-                <td></td>
+                <td>
+                    {% if signed %}
+                        {% if representation is not null %}
+                            {% if representation.representation_type == 'owner' %}
+                                présent(e)
+                                {% if ownership.type == 'joint' %}
+                                    <br />{{ attendee.name }}
+                                {% endif %}
+                            {% else %}
+                                représenté(e) par {{ attendee.name }}
+                            {% endif %}
+                        {% else %}
+                            absent(e)
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if signed %}
+                        {% if representation is not null %}
+                            {% if attendee.document_signature_id.signature_method == 'ses' %}
+                                <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.document_signature_id.sig_drawn }}" />
+                            {% else %}
+                                Digitally signed by {{ attendee.name }} <br />
+                                Signature: {{ attendee.document_signature_id.sig_hash }}<br />
+                                Timestamp: {{ attendee.document_signature_id.sig_timestamp }}<br />
+                                Algorithm: {{ attendee.document_signature_id.sig_algo }}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
 
         </table>
+        {% if signed %}
+        <p>
+            Certifiée sincère et véritable, la feuille de présence est arrêtée à {{ representations | length }} copropriétaires présents ou représentés, totalisant ensemble {{ assembly.count_represented_shares }} parts.
+        </p>
+        {% endif %}
 
     </main>
 </body>

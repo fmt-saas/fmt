@@ -7,9 +7,12 @@
 namespace realestate\governance;
 
 use documents\Document;
+use documents\DocumentSignature;
 use documents\navigation\Node;
+use hr\role\RoleAssignment;
 use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
+use realestate\ownership\OwnershipCommunicationPreference;
 use realestate\property\Apportionment;
 use realestate\property\PropertyLotApportionmentShare;
 use realestate\property\PropertyLotOwnership;
@@ -32,6 +35,16 @@ class Assembly extends \equal\orm\Model {
                 'type'              => 'string',
                 'description'       => "Name of the assembly.",
                 'required'          => true
+            ],
+
+            'assembly_organizer_identity_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'identity\Identity',
+                'function'          => 'calcAssemblyOrganizerIdentityId',
+                'description'       => 'Managing agent representative in charge of the organization of the Assembly.',
+                'help'              => 'This identity relates directly or indirectly to the managing agent (owner or professional), and is in charge of the organization of the Assembly.',
+                'store'             => true
             ],
 
             'attendance_register_document_id' => [
@@ -367,6 +380,12 @@ class Assembly extends \equal\orm\Model {
     public static function getActions() {
         return [
 
+            'auto_assign_location' => [
+                'description'   => 'Assign location based on Condominium address.',
+                'policies'      => [],
+                'function'      => 'doAutoAssignLocation'
+            ],
+
             'generate_ownerships' => [
                 'description'   => 'Generate ownerships.',
                 'help'          => 'i.e. Ownerships that are known at the current date to own at least one property lots having at least one share in the statutory apportionment. This action can be re-executed in order to refresh the list, in case a transfer took place in the meantime.',
@@ -402,7 +421,7 @@ class Assembly extends \equal\orm\Model {
 
             'validate_proxies' => [
                 'description'   => 'Verifies the validity of the proxies and generate links with ownerships.',
-                'help'          => "This action is meant to be performed at the proxy_validation step. We check the validity conditions of each proxy. 
+                'help'          => "This action is meant to be performed at the proxy_validation step. We check the validity conditions of each proxy.
                     If a proxy is invalid, we mark it as invalid and add the reason.
                     Triggers representations generation, and step to `representation_validation`.",
                 'policies'      => [],
@@ -420,6 +439,18 @@ class Assembly extends \equal\orm\Model {
                 'help'          => ".",
                 'policies'      => [/* */],
                 'function'      => 'doValidateRepresentations'
+            ],
+
+            'generate_signable_attendance_register' => [
+                'description'   => 'Create immutable version of the register to be signed.',
+                'policies'      => [/* */],
+                'function'      => 'doGenerateSignableAttendanceRegister'
+            ],
+
+            'generate_printable_attendance_register' => [
+                'description'   => 'Create printable version of the register and store it to EDMS.',
+                'policies'      => [/* */],
+                'function'      => 'doGeneratePrintableAttendanceRegister'
             ],
 
             'validate_assembly' => [
@@ -481,16 +512,47 @@ class Assembly extends \equal\orm\Model {
         }
     }
 
-    protected static function onafterPublish($self) {
+    protected static function calcAssemblyOrganizerIdentityId($self) {
+        $result = [];
+        $self->read(['condo_id' => ['managing_agent_id' => ['identity_id', 'agent_identity_type']]]);
+        foreach($self as $id => $assembly) {
+            if(!$assembly['condo_id']) {
+                continue;
+            }
 
+            if($assembly['condo_id']['managing_agent_id']['agent_identity_type'] === 'owner') {
+                $result[$id] = $assembly['condo_id']['managing_agent_id']['identity_id'];
+            }
+            elseif($assembly['condo_id']['managing_agent_id']['agent_identity_type'] === 'professional') {
+                $assignment = RoleAssignment::search([
+                        ['condo_id', '=', $assembly['condo_id']],
+                        ['role_code', '=', 'condo_manager']
+                    ])
+                    ->read(['identity_id'])
+                    ->first();
+                if($assignment) {
+                    $result[$id] = $assignment['identity_id'];
+                }
+            }
+        }
+        return $result;
+    }
+
+    protected static function onafterPublish($self) {
         // generate the ownerships_ids : list of expected Ownerships allowed to attend the Assembly
         $self->do('generate_ownerships');
+    }
+
+
+    /**
+     * Generate the attendance document (required for signatures)
+     *
+     */
+    protected static function doGenerateSignableAttendanceRegister($self) {
         $self->read(['condo_id', 'attendance_register_document_id']);
-
         foreach($self as $id => $assembly) {
-            // generate the attendance document (required for signatures)
 
-            // remove any previous version
+            // remove previous version (there shouldn't be any)
             if($assembly['attendance_register_document_id']) {
                 Document::id($assembly['attendance_register_document_id'])->delete(true);
             }
@@ -499,33 +561,100 @@ class Assembly extends \equal\orm\Model {
             try {
                 $data = \eQual::run('get', 'realestate_governance_Assembly_attendanceregister_render-pdf', ['id' => $id]);
 
-                $document = Document::create(['name' => 'Liste de présences', 'data' => $data])
+                $document = Document::create([
+                        'name'      => 'Liste de présences',
+                        'data'      => $data,
+                        'condo_id'  => $assembly['condo_id']
+                    ])
                     ->first();
 
-                // #memo - original documents remain "invisible", only signed version should be accessible through EDMS filetree
-
+                // #memo - original documents remain "invisible", only signed version should be accessible through EDMS fs tree
                 self::id($id)
                     ->update([
                         'attendance_register_document_id' => $document['id']
                     ]);
             }
             catch(\Exception $e) {
-                trigger_error("APP::unable to generate signature document (attendance register) :" . $e->getMessage(), EQ_REPORT_ERROR);
+                trigger_error("APP::unable to generate attendance register:" . $e->getMessage(), EQ_REPORT_ERROR);
+                throw($e);
+            }
+
+        }
+    }
+
+    protected static function doGeneratePrintableAttendanceRegister($self) {
+        $self->read([
+                'condo_id',
+                'attendance_register_document_id'
+            ]);
+
+        foreach($self as $id => $assembly) {
+
+            if(!$assembly['attendance_register_document_id']) {
+                throw new \Exception('missing_mandatory_document', EQ_ERROR_INVALID_PARAM);
+            }
+
+            // generate a new doc
+            try {
+                $data = \eQual::run('get', 'realestate_governance_Assembly_attendanceregister_render-pdf', [
+                        'id'                    => $id,
+                        'signed'                => true
+                    ]);
+
+                // store document in related General Assembly folder
+                $parentNode = Node::search([
+                        ['condo_id', '=', $assembly['condo_id']],
+                        ['node_type', '=', 'folder'],
+                        ['code', '=', 'general_meetings']
+                    ])
+                    ->first();
+
+                $document = Document::create([
+                        'name'           => 'Liste de présences signée',
+                        'data'           => $data,
+                        'condo_id'       => $assembly['condo_id'],
+                    ])
+                    ->update(['parent_node_id' => $parentNode['id'] ?? null])
+                    ->first();
+
+                // link back original doc to signed doc
+                // #memo - original documents remain "invisible", only signed version should be accessible through EDMS fs tree
+                Document::id($assembly['attendance_register_document_id'])
+                    ->update(['signed_document_id' => $document['id']]);
+
+            }
+            catch(\Exception $e) {
+                trigger_error("APP::unable to generate signed attendance register:" . $e->getMessage(), EQ_REPORT_ERROR);
             }
 
         }
     }
 
     protected static function onafterOpen($self) {
-        $self->update(['session_time_start' => time()]);
+
+        $self
+            ->do('generate_signable_attendance_register')
+            ->update(['session_time_start' => time()])
+            ->read(['condo_id', 'assembly_organizer_identity_id']);
+
+        // create an special attendee as 'secretary' relating to the organizer
+        // #memo - Attendee can be manually modified afterwards
+        foreach($self as $id => $assembly) {
+            AssemblyAttendee::create([
+                    'assembly_id'   => $id,
+                    'condo_id'      => $assembly['condo_id'],
+                    'identity_id'   => $assembly['assembly_organizer_identity_id'],
+                    'attendee_role' => 'secretary'
+                ]);
+        }
     }
 
     protected static function onafterClose($self) {
         // générer le PV
         // générer un document de PV et l'associer à l'assembly
 
-// generate_minutes
-    
+// #todo - generate_minutes
+
         // faire signer le PV par le secrétaire et président + présents
         // -> il faut une trace des personnes ayant signé (ok)
 
@@ -538,18 +667,22 @@ class Assembly extends \equal\orm\Model {
             ->do('send_invites');
     }
 
-    protected static function onupdateCondoId($self) {
+    protected static function doAutoAssignLocation($self) {
         $self->read(['condo_id' => ['address_street', 'address_zip', 'address_city']]);
         foreach($self as $id => $assembly) {
-            $address = $assembly['condo_id']['address_street'];
+            $location = $assembly['condo_id']['address_street'];
             if($assembly['condo_id']['address_zip']) {
-                $address .= ' ' . $assembly['condo_id']['address_zip'];
+                $location .= ' ' . $assembly['condo_id']['address_zip'];
             }
             if($assembly['condo_id']['address_city']) {
-                $address .= ' ' . $assembly['condo_id']['address_city'];
+                $location .= ' ' . $assembly['condo_id']['address_city'];
             }
-            self::id($id)->update(['assembly_location' => $assembly['condo_id']['address_street']]);
+            self::id($id)->update(['assembly_location' => $location]);
         }
+    }
+
+    protected static function onupdateCondoId($self) {
+        $self->do('auto_assign_location');
     }
 
     /**
@@ -673,18 +806,35 @@ class Assembly extends \equal\orm\Model {
     }
 
     protected static function doGenerateInvites($self) {
-        $self->read(['condo_id', 'ownerships_ids' => ['owners_ids']]);
+        $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
         foreach($self as $id => $assembly) {
             foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
-                foreach($ownership['owners_ids'] as $owner_id) {
-                    // #todo - aller rechercher les préférences du owner pour l'envoi du courrier
-                    AssemblyInvitation::create([
-                        'condo_id'      => $assembly['condo_id'],
-                        'assembly_id'   => $id,
-                        'owner_id'      => $owner_id,
-                        'ownership_id'  => $ownership_id
-                    ]);
+                if(!$ownership['representative_owner_id']) {
+                    continue;
                 }
+                // if not requested otherwise, invite must be sent through registered postal mail
+                $communication_method = 'postal_registered';
+                // fetch Ownership communication preferences
+                $communicationPreference = OwnershipCommunicationPreference::search([
+                        ['condo_id', '=', $assembly['condo_id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['communication_reason', '=', 'general_assembly_call']
+                    ])
+                    ->read(['communication_method'])
+                    ->first();
+
+                if($communicationPreference) {
+                    $communication_method = $communicationPreference['communication_method'];
+                }
+
+                AssemblyInvitation::create([
+                    'condo_id'              => $assembly['condo_id'],
+                    'assembly_id'           => $id,
+                    'ownership_id'          => $ownership_id,
+                    'owner_id'              => $ownership['representative_owner_id'],
+                    'communication_method'  => $communication_method
+                ]);
+
             }
         }
     }
@@ -867,7 +1017,9 @@ class Assembly extends \equal\orm\Model {
     }
 
     protected static function doValidateRepresentations($self) {
-        $self->update(['step' => 'assembly_validation']);
+        $self
+            ->update(['step' => 'assembly_validation'])
+            ->do('generate_printable_attendance_register');
     }
 
     protected static function policyCanPublish($self) {
@@ -980,6 +1132,7 @@ class Assembly extends \equal\orm\Model {
                 ];
                 continue;
             }
+            /*
             if($count_secretary < 1) {
                 $result[$id] = [
                     'missing_secretary' => 'A secretary must be selected amongst attendees.'
@@ -992,6 +1145,7 @@ class Assembly extends \equal\orm\Model {
                 ];
                 continue;
             }
+            */
 
         }
         return $result;

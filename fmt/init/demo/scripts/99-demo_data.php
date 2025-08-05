@@ -93,6 +93,8 @@ Ownership::search()
 
 
 // create supplierships for managing agent
+
+// Managing Agent
 Suppliership::create(["condo_id" => 1, "supplier_id" => 1]);
 Suppliership::create(["condo_id" => 2, "supplier_id" => 1]);
 
@@ -137,32 +139,6 @@ RecordingRuleLine::create([
     ]);
 
 
-
-$user = User::id(3)
-    ->read(['firstname', 'lastname'])
-    ->first();
-
-// will create related Identity
-$employee = Employee::create()
-    ->update([
-        'firstname'     => $user['firstname'],
-        'lastname'      => $user['lastname'],
-        'lang_id'       => 2
-    ])
-    ->read(['identity_id'])
-    ->first();
-
-// link employee to user
-Identity::id($employee['identity_id'])
-    ->update(['user_id' => $user['id']]);
-
-// assign employee as manager for all condos
-RoleAssignment::create([
-        'condo_id'      => null,
-        'user_id'       => $user['id'],
-        'employee_id'   => $employee['id'],
-        'role_id'       => 1
-    ]);
 
 // create first fiscal year draft
 $condominiums

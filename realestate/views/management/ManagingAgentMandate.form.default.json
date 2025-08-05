@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Managing Agent Mandate",
+    "description": "A managing agent mandate is issued during a general assembly and remains valid until revoked.",
     "layout": {
         "groups": [
             {
@@ -19,32 +19,47 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "assembly_id",
+                                                "value": "managing_agent_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "owner_id",
+                                                "value": "contract_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "ownership_id",
+                                                "value": "date_from",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "sent_date",
+                                                "value": "date_to",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "communication_method",
+                                                "value": "termination_date",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "is_acknowledged",
+                                                "value": "termination_reason",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "appointment_type",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "appointment_assembly_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_active",
                                                 "width": "100%"
                                             },
                                             {

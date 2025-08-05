@@ -69,13 +69,13 @@ class Condominium extends Identity {
             'managing_agent_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\management\ManagingAgent',
-                'description'       => "The managing agent currently managing the condominium.",
-                'help'              => "The managing agent or 'Syndic', is in charge of the condominium, and can be a single person or an agency."
+                'description'       => "The current Managing Agent contracted by the Condominium.",
+                'help'              => "The Managing Agent ('Syndic') is in charge of the management of the condominium, and can be a single person or an agency."
             ],
 
-            'management_contracts_ids' => [
+            'managing_agent_contracts_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'realestate\management\ManagementContract',
+                'foreign_object'    => 'realestate\management\ManagingAgentContract',
                 'foreign_field'     => 'condo_id',
                 'description'       => 'List of management contracts of the condominium.'
             ],
@@ -84,7 +84,8 @@ class Condominium extends Identity {
                 'type'              => 'one2many',
                 'foreign_object'    => 'hr\role\RoleAssignment',
                 'foreign_field'     => 'condo_id',
-                'description'       => 'List of employees assigned to the management of the condominium.'
+                'description'       => 'List of employees assigned to the management of the condominium.',
+                'visible'           => ['managing_agent_id', 'is not', null]
             ],
 
             'total_shares' => [
@@ -441,15 +442,13 @@ class Condominium extends Identity {
         return $result;
     }
 
-    protected static function policyCanOpenFiscalYear($self, $user_id) {
+    protected static function policyCanOpenFiscalYear($self, $user_id, $access) {
         $result = [];
-        /** @var \fmt\access\AccessController */
 
-        #todo - find a generic way to check user against Roles
-        ['access' => $access] = \eQual::inject(['access']);
+        $authorized_roles = ['director', 'manager', 'condo_manager'];
 
         foreach($self as $id => $condominium) {
-            if(!$access->userHasCondoRole($user_id, ['manager', 'accountant'], $id)) {
+            if(!$access->userHasCondoRole($user_id, $authorized_roles, $id)) {
                 $result[$id] = [
                     'not_allowed' => 'User missing mandatory role.'
                 ];

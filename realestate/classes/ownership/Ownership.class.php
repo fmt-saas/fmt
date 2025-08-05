@@ -179,6 +179,14 @@ class Ownership extends \equal\orm\Model {
                 'domain'            => [['ownership_id', '=', 'object.id'], ['condo_id', '=', 'object.condo_id']]
             ],
 
+            'ownership_communication_preferences_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\ownership\OwnershipCommunicationPreference',
+                'foreign_field'     => 'ownership_id',
+                'description'       => "The communication preferences of the ownership.",
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'assemblies_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\governance\Assembly',

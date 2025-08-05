@@ -19,22 +19,17 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "name",
+                                                "value": "ownership_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "code",
+                                                "value": "communication_reason",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "communication_method",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "ownership_id",
                                                 "width": "100%"
                                             }
                                         ]

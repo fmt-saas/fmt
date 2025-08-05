@@ -5,29 +5,34 @@
         "data": [
             {
                 "id": 1,
-                "name": "Manager",
-                "code": "manager",
-                "description": "Agency manager."
-            },
-            {
-                "id": 2,
-                "name": "Accountant",
-                "code": "accountant",
-                "description": "Accounting management."
-            },
-            {
-                "id": 3,
                 "name": "Director",
                 "code": "director",
                 "description": "Agency director."
             },
             {
+                "id": 2,
+                "name": "Manager",
+                "code": "manager",
+                "description": "Agency manager."
+            },
+            {
+                "id": 3,
+                "name": "Accountant",
+                "code": "accountant",
+                "description": "Accounting management."
+            },
+            {
                 "id": 4,
+                "name": "Condominium manager",
+                "code": "condo_manager",
+                "description": "Condominium operational management."
+            },
+            {
+                "id": 5,
                 "name": "Assistant",
                 "code": "assistant",
                 "description": "Assistant."
             }
-
         ]
     },
     {
@@ -36,21 +41,26 @@
         "data": [
             {
                 "id": 1,
-                "name": "Manager",
-                "description": "Manager d'agence."
-            },
-            {
-                "id": 2,
-                "name": "Comptable",
-                "description": "Gestion comptable."
-            },
-            {
-                "id": 3,
                 "name": "Directeur",
                 "description": "Directeur d'agence."
             },
             {
+                "id": 2,
+                "name": "Manager",
+                "description": "Manager d'agence."
+            },
+            {
+                "id": 3,
+                "name": "Comptable",
+                "description": "Gestion comptable."
+            },
+            {
                 "id": 4,
+                "name": "Gestionnaire",
+                "description": "Gestionnaire opérationnel."
+            },
+            {
+                "id": 5,
                 "name": "Assistant",
                 "description": "Assistant."
             }

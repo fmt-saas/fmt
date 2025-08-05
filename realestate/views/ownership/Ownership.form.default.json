@@ -224,6 +224,20 @@
                                         ]
                                     }
                                 ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "ownership_communication_preferences_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     }

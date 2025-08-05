@@ -34,6 +34,15 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'attendance_register_document_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => "Original (immutable) attendance register document.",
+                'relation'          => ['assembly_id' => 'attendance_register_document_id'],
+                'store'             => true
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -74,6 +83,17 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'description'       => "Indicates whether the attendee has a mandate to represent one or more other ownerships.",
                 'help'              => "This field simply indicates whether proxies have been presented but does not guarantee their validity.",
                 'default'           => false
+            ],
+
+            'document_signature_id' => [
+                'type'              => 'many2one',
+                'description'       => "Signature made by the attendee, linked to original attendance register.",
+                'foreign_object'    => 'documents\DocumentSignature',
+                'domain'            => [
+                        ['signer_identity_id', '=', 'object.identity_id'],
+                        ['condo_id', '=', 'object.condo_id'],
+                        ['document_id', '=', 'object.attendance_register_document_id']
+                    ]
             ],
 
             'has_signed' => [

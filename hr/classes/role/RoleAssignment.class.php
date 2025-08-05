@@ -15,7 +15,8 @@ class RoleAssignment extends \equal\orm\Model {
     }
 
     public static function getDescription() {
-        return "An assignment links a user to one or more roles which, in turn, relate to specific permissions.";
+        return "An assignment links a user to one or more roles which, in turn, relate to specific permissions.
+        Assignments implicitly relate to the current Organization / Managing Agent of the current instance but can also be external to it.";
     }
 
     public static function getColumns() {
@@ -42,22 +43,51 @@ class RoleAssignment extends \equal\orm\Model {
                 'foreign_object'    => 'identity\User',
                 'description'       => 'User (internal or external) the assignment applies to.',
                 'help'              => 'The user should always be set and is used for Access Control. It is automatically retrieved from the employee_id.',
-                'ondelete'          => 'cascade'
+                'ondelete'          => 'cascade',
+                'dependents'        => ['identity_id']
+            ],
+
+            'is_external' => [
+                'type'              => 'boolean',
+                'description'       => 'The assignment is granted to an external User.',
+                'help'              => 'External Users do not relate to the Organization (not employees).',
+                'default'           => false
             ],
 
             'employee_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'hr\employee\Employee',
                 'description'       => 'Employee the assignment applies to, if any.',
-                'help'              => 'Role can bee assigned both to employees and external users. When assignment relates to an employee, corresponding user_id is automatically retrieved.',
-                'onupdate'          => 'onupdateEmployeeId'
+                'help'              => 'Role can be assigned both to employees and external users. When assignment relates to an employee, corresponding user_id is automatically retrieved.',
+                'onupdate'          => 'onupdateEmployeeId',
+                'visible'           => ['is_external', '=', false]
             ],
 
             'role_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'hr\role\Role',
                 'description'       => 'Role the assignment relates to.',
-                'ondelete'          => 'cascade'
+                'ondelete'          => 'cascade',
+                'dependents'        => ['role_code']
+            ],
+
+            'role_code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['role_id' => 'code'],
+                'description'       => 'Role the assignment relates to.',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'identity_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'relation'          => ['user_id' => 'identity_id'],
+                'foreign_object'    => 'identity\Identity',
+                'description'       => 'Targeted Identity, retrieved from User.',
+                'store'             => true,
+                'instant'           => true
             ],
 
             'is_primary' => [

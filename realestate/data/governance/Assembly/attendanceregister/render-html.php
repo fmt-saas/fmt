@@ -26,6 +26,12 @@ use Twig\Extension\ExtensionInterface;
             'required'          => true
         ],
 
+        'signed' => [
+            'description'       => 'Flag for requesting the signed version of the register.',
+            'type'              => 'boolean',
+            'default'           => false
+        ],
+
         'debug' => [
             'type'        => 'boolean',
             'default'     => false
@@ -100,7 +106,14 @@ $assembly = Assembly::id($params['id'])
         'assembly_date',
         'assembly_location',
         'attendance_register_document_id',
-        'ownerships_ids' => ['name'],
+        'count_represented_shares',
+        'assembly_attendees_ids' => [
+            '@domain' => ['is_valid', '=', true],
+            'name',
+            'document_signature_id' => ['signature_method', 'sig_drawn', 'sig_hash', 'sig_algo', 'sig_timestamp']
+        ],
+        'assembly_representations_ids' => ['attendee_id', 'ownership_id', 'representation_type'],
+        'ownerships_ids' => ['id', 'name'],
         'condo_id' => [
             'name', 'address_street', 'address_city', 'address_zip', 'address_city',
             'managing_agent_id' => [
@@ -120,6 +133,9 @@ if(!$assembly) {
     throw new Exception('unknown_ownership_transfer', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+if($params['signed'] && !$assembly['attendance_register_document_id']) {
+    throw new Exception('missing_original_document', EQ_ERROR_INVALID_PARAM);
+}
 
 // retrieve owners, lots and shares
 $property_lots_ids = [];
@@ -173,19 +189,24 @@ foreach($map_ownerships_lots as $ownership_id => $ownership) {
 }
 
 
-// pour la version originale, on n'ajoute pas les signatures (le document n'a pas encore été signé)
-// retrouver toutes les signatures sur base du document de présence
-if($assembly['attendance_register_document_id']) {
-    $signatures = DocumentSignature::search(['document_id', '=', $assembly['attendance_register_document_id']])
-        ->read(['signer_identity_id', 'signature_method', 'sig_timestamp']);
+
+// retrieve signatures from the attendance register
+// #memo - for original document, we don't handle the signatures (document not signed yet)
+
+$map_attendees = [];
+$map_ownership_representations = [];
+
+if($params['signed']) {
+    foreach($assembly['assembly_attendees_ids'] as $assemblyAttendee) {
+        if($assemblyAttendee['document_signature_id'] && $assemblyAttendee['document_signature_id']['signature_method'] == 'ses') {
+            $assemblyAttendee['document_signature_id']['sig_drawn'] = base64_encode($assemblyAttendee['document_signature_id']['sig_drawn']);
+        }
+        $map_attendees[$assemblyAttendee['id']] = $assemblyAttendee;
+    }
+    foreach($assembly['assembly_representations_ids'] as $assemblyRepresentation) {
+        $map_ownership_representations[$assemblyRepresentation['ownership_id']] = $assemblyRepresentation;
+    }
 }
-
-$map_signatures_by_identity = [];
-
-
-// mapper l'identity responsable de signer pour un ownership donné
-// part 2
-//'assembly_attendees_ids' => ['identity_id', 'ownerships_ids'],
 
 
 $lang = $params['lang'];
@@ -198,7 +219,11 @@ $values = [
     'organisation'              => $assembly['condo_id']['managing_agent_id'],
     'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id'], 'realestate\management\ManagingAgent'),
 
+    'signed'                    => $params['signed'],
+
     'ownerships'                => $map_ownerships_lots,
+    'attendees'                 => $map_attendees,
+    'representations'           => $map_ownership_representations,
 
     'today_date'                => time(),
     'timezone'                  => constant('L10N_TIMEZONE'),

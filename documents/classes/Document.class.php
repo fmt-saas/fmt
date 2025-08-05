@@ -32,7 +32,7 @@ class Document extends Model {
 
             'ownership_id' => [
                 'type'              => 'many2one',
-                'description'       => "The ownership that the owner refers to.",
+                'description'       => "The ownership that the document relates to, if any.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],

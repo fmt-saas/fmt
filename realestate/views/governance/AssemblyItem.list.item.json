@@ -8,6 +8,7 @@
     }],
     "order": "order",
     "sort": "asc",
+    "draggable": true,
     "limit": 100,
     "actions": [
         {

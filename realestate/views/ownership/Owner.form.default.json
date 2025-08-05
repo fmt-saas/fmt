@@ -1,6 +1,6 @@
 {
-    "name": "Properties",
-    "description": "Properties available.",
+    "name": "Owner",
+    "description": "Individual owner from ownership.",
     "layout": {
         "groups": [
             {

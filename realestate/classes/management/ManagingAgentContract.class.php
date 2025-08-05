@@ -6,15 +6,14 @@
 */
 namespace realestate\management;
 
-class ManagementContract extends \equal\orm\Model {
+class ManagingAgentContract extends \equal\orm\Model {
 
     public static function getName() {
         return 'Managing Agent Contract';
     }
 
-
     public static function getDescription() {
-        return 'A managing agent is contractually in charge of the administration of one or more condominiums.';
+        return 'A managing agent is contractually in charge of the administration of a Condominium.';
     }
 
     public static function getColumns() {
@@ -32,15 +31,17 @@ class ManagementContract extends \equal\orm\Model {
                 'description'       => "Managing agent the contract relates to.",
             ],
 
+            'contract_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Contract document, signed by both parties.',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+            ],
+
             'indexation_rate' => [
                 'type'              => 'float',
                 'description'       => "Rate for yearly indexation of the condominium's fees.",
                 'default'           => 0.0
-            ],
-
-            'date_elected' => [
-                'type'              => 'date',
-                'description'       => "Start of validity period.",
             ],
 
             'date_from' => [
@@ -63,11 +64,18 @@ class ManagementContract extends \equal\orm\Model {
                 'default'           => 3
             ],
 
+            'mandates_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\management\ManagingAgentMandate',
+                'foreign_field'     => 'contract_id',
+                'description'       => "List of mandates relating to the Contract.",
+            ],
+
             'is_active' => [
                 'type'              => 'boolean',
                 'description'       => "Current state of the contract.",
                 'default'           => true
-            ],
+            ]
 
         ];
     }

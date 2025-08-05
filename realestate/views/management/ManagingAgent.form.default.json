@@ -151,35 +151,6 @@
                         ]
                     },
                     {
-                        "id": "section.condominiums",
-                        "label": "Condominiums",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "condominiums_ids",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "type": "many2many",
-                                                    "header": {
-                                                        "actions": {
-                                                            "ACTION.CREATE": false,
-                                                            "ACTION.SELECT": true
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
                         "id": "section.contract",
                         "label": "Contract",
                         "rows": [

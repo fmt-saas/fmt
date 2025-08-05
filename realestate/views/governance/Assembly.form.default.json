@@ -5,13 +5,24 @@
         {
             "id": "action.publish",
             "label": "Publish",
-            "description": "Open the assembly (mark as in progress).",
+            "description": "Publish the assembly (ready for sending).",
             "controller": "core_model_transition",
             "params": {
                 "entity": "realestate\\governance\\Assembly",
                 "transition": "publish"
             },
             "visible": ["status", "=", "pending"]
+        },
+        {
+            "id": "action.revert",
+            "label": "Revert",
+            "description": "Revet assembly to draft (to allow edition).",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "transition": "revert"
+            },
+            "visible": ["status", "=", "published"]
         },
         {
             "id": "action.invite",
@@ -92,15 +103,23 @@
     ],
     "routes": [
         {
-            "id": "route.print_attendance_register",
+            "id": "route.view_attendance_register",
             "type": "entry",
-            "label": "Print Attendance register",
+            "label": "View Attendance register",
             "icon": "print",
-            "description": "Print attendance register",
-            "route": "/?get=realestate_governance_Assembly_attendanceregister_render-pdf&id=object.id",
+            "description": "View printable attendance register.",
+            "route": "/?get=realestate_governance_Assembly_attendanceregister_fetch&id=object.id",
             "target": "_blank",
             "absolute": true,
-            "visible": ["status", "<>", "pending"]
+            "visible": [
+                [
+                    ["status", "in", ["held", "adjourned"]]
+                ],
+                [
+                    ["status", "=", "in_progress"],
+                    ["step", "=", "agenda_processing"]
+                ]
+            ]
         }
     ],
     "layout": {
@@ -112,10 +131,8 @@
                         "label": "Details",
                         "rows": [
                             {
-                                "id": "row.0",
                                 "columns": [
                                     {
-                                        "id": "column.0",
                                         "width": "50%",
                                         "items": [
                                             {
@@ -141,6 +158,11 @@
                                             {
                                                 "type": "field",
                                                 "value": "assembly_location",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_organizer_identity_id",
                                                 "width": "100%"
                                             },
                                             {
@@ -352,10 +374,22 @@
                         "visible": ["status", "not in", ["pending", "published", "sent"]],
                         "rows": [
                             {
-                                "id": "row.0",
                                 "columns": [
                                     {
-                                        "id": "column.0",
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "attendance_register_document_id",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
                                         "width": "100%",
                                         "items": [
                                             {
@@ -375,10 +409,8 @@
                         "visible": ["status", "not in", ["pending", "published", "sent"]],
                         "rows": [
                             {
-                                "id": "row.0",
                                 "columns": [
                                     {
-                                        "id": "column.0",
                                         "width": "100%",
                                         "items": [
                                             {
