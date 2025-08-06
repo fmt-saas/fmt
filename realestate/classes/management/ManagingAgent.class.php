@@ -11,6 +11,8 @@ use identity\Identity;
 
 class ManagingAgent extends \purchase\supplier\Supplier {
 
+    // #memo ManagingAgent uses the same DB table as Supplier
+
     public static function getName() {
         return 'Managing Agent';
     }
@@ -43,6 +45,13 @@ class ManagingAgent extends \purchase\supplier\Supplier {
                 'type'              => 'string',
                 'description'       => 'Official number assigned by a licensing or registration authority to authorize the exercise of a regulated profession.',
                 'help'              => 'Ex. IPI number (Belgium), professional card (France), license number (other countries).',
+            ],
+
+            'condominiums_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\Condominium',
+                'foreign_field'     => 'managing_agent_id',
+                'description'       => "Condominiums the managing agent is currently in charge of."
             ],
 
             'management_contracts_ids' => [

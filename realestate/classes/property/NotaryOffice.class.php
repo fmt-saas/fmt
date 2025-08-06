@@ -10,6 +10,8 @@ use purchase\supplier\SupplierType;
 
 class NotaryOffice extends \purchase\supplier\Supplier {
 
+    // #memo NotaryOffice uses the same DB table as Supplier
+
     public static function getName() {
         return 'Notary Office';
     }

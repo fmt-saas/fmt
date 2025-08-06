@@ -19,8 +19,14 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "type",
+                                                "value": "type_id",
                                                 "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "type",
+                                                "width": "33%",
+                                                "visible": false
                                             }
                                         ]
                                     },
@@ -39,7 +45,7 @@
                                         ]
                                     }
                                 ]
-                            }                            
+                            }
                         ]
                     }
                 ]

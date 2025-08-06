@@ -46,13 +46,21 @@ class Template extends Model {
                 'required'          => true
             ],
 
-            'type' => [
-                'type'              => 'string',
-                'selection'         => [ 'quote', 'option', 'contract', 'funding', 'invoice' ],
-                'description'       => 'The context in which the template is meant to be used.',
-                'default'           => 'quote',
-                'dependents'        => ['name'],
+            'type_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'communication\template\TemplateType',
+                'description'       => "The type the template refers to.",
+                'dependents'        => ['type'],
                 'required'          => true
+            ],
+
+            'type' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'The code of the assigned type (for filtering).',
+                'relation'          => ['type_id' => 'code'],
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'parts_ids' => [

@@ -9,14 +9,14 @@ namespace communication\template;
 
 use equal\orm\Model;
 
-class TemplateCategory extends Model {
+class TemplateType extends Model {
 
     public static function getColumns() {
         return [
 
             'name' => [
                 'type'              => 'string',
-                'description'       => "Short label to ease identification of the category.",
+                'description'       => "Short label of the type.",
                 'dependents'        => ['templates_ids' => ['name']],
                 'required'          => true,
                 'multilang'         => true
@@ -24,21 +24,21 @@ class TemplateCategory extends Model {
 
             'code' => [
                 'type'              => 'string',
-                'description'       => "Unique code for identifying the category.",
+                'description'       => "Unique code for identifying the type.",
                 'required'          => true,
                 'unique'            => true
             ],
 
             'description' => [
                 'type'              => 'string',
-                'description'       => "Short description of category and intended usage.",
+                'description'       => "Short description of the type and intended usage.",
                 'multilang'         => true
             ],
 
             'templates_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'communication\template\Template',
-                'foreign_field'     => 'category_id',
+                'foreign_field'     => 'type_id',
                 'description'       => "Templates that are related to this category, if any."
             ]
 
