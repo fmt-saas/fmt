@@ -47,7 +47,7 @@ $condominiums = Condominium::search()->read(['id', 'account_chart_id']);
 $condominiums_ids = $condominiums->ids();
 
 // attach condos to default managing agent
-ManagingAgent::id(1)->update(['condominiums_ids' => $condominiums_ids]);
+$condominiums->update(['managing_agent_id' => 1]);
 
 $condominiums
     // init condominiums (generate sequences, chart of accounts, journals, folders, ...)
