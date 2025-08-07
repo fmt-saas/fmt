@@ -489,9 +489,16 @@ class Assembly extends \equal\orm\Model {
             'validate_assembly' => [
                 'description'   => 'Verifies that the double-quorum is met.',
                 'help'          => 'This action is meant to be performed at step `assembly_validation`',
-                'policies'      => [/* 'can_generate_accounting_entry' */],
+                'policies'      => [/* */],
                 'function'      => 'doValidateAssembly'
             ],
+
+            'schedule_second_session' => [
+                'description'   => 'Verifies that the double-quorum is met.',
+                'help'          => 'This action is meant to be invoked during step `assembly_validation`',
+                'policies'      => [/* */],
+                'function'      => 'doScheduleSecondSession'
+            ]
         ];
     }
 
@@ -558,7 +565,7 @@ class Assembly extends \equal\orm\Model {
             }
             elseif($assembly['condo_id']['managing_agent_id']['agent_identity_type'] === 'professional') {
                 $assignment = RoleAssignment::search([
-                        ['condo_id', '=', $assembly['condo_id']],
+                        ['condo_id', '=', $assembly['condo_id']['id']],
                         ['role_code', '=', 'condo_manager']
                     ])
                     ->read(['identity_id'])
@@ -1186,6 +1193,116 @@ class Assembly extends \equal\orm\Model {
         return $result;
     }
 
+    protected static function doScheduleSecondSession($self) {
+        $self->read([
+            'condo_id', 'name', 'assembly_type', 'assembly_template_id',
+            'assembly_date',
+            'heading_text_call',
+            'heading_text_minutes',
+            'closing_text_call',
+            'closing_text_minutes'
+        ]);
+
+        foreach($self as $id => $assembly) {
+
+            $secondSessionAssembly = Assembly::create([
+                'condo_id'              => $assembly['condo_id'],
+                'name'                  => $assembly['name'],
+                'assembly_type'         => $assembly['assembly_type'],
+                'assembly_date'         => $assembly['assembly_date'] + (15 * 86400),
+                'is_second_session'     => true,
+                'related_assembly_id'   => $id,
+                'heading_text_call'     => $assembly['heading_text_call'],
+                'heading_text_minutes'  => $assembly['heading_text_minutes'],
+                'closing_text_call'     => $assembly['closing_text_call'],
+                'closing_text_minutes'  => $assembly['closing_text_minutes']
+            ])
+            ->first();
+
+            self::id($id)->update([
+                    'has_second_session' => true,
+                    'second_session_assembly_id' => $secondSessionAssembly['id']
+                ]);
+
+            // we must perform creation in 2-pass in order to map group ids, if any
+            $map_parent_groups_ids = [];
+
+            // pass-1 - create groups
+            $assemblyItems = AssemblyItem::search([
+                    ['assembly_id', '=', $id],
+                    ['is_group', '=', true]
+                ])
+                ->read([
+                    'name',
+                    'order',
+                    'code',
+                    'is_group',
+                ]);
+
+            foreach($assemblyItems as $assembly_item_id => $assemblyItem) {
+                $groupItem = AssemblyItem::create([
+                        'condo_id'              => $assembly['condo_id'],
+                        'assembly_id'           => $id,
+                        'name'                  => $assemblyItem['name'],
+                        'code'                  => $assemblyItem['code'],
+                        'order'                 => $assemblyItem['order'],
+                        'assembly_template_id'  => $assembly['assembly_template_id'],
+                        'is_group'              => $assemblyItem['is_group']
+                    ])
+                    ->first();
+
+                $map_parent_groups_ids[$assembly_item_id] = $groupItem['id'];
+            }
+
+            // pass-2
+            $assemblyItems = AssemblyItem::search([
+                    ['assembly_id', '=', $id],
+                    ['is_group', '=', false]
+                ])
+                ->read([
+                    'name',
+                    'code',
+                    'order',
+                    'assembly_template_id',
+                    'is_group',
+                    'has_parent_group',
+                    'parent_group_id',
+                    'description_call',
+                    'description_minutes',
+                    'description_ballot',
+                    'has_vote_required',
+                    'majority',
+                    'apportionment_id'
+                ]);
+
+            foreach($assemblyItems as $assemblyItem) {
+                $parent_group_id = null;
+                if($assemblyItem['has_parent_group']) {
+                    $parent_group_id = $map_parent_groups_ids[$assemblyItem['parent_group_id']] ?? null;
+                }
+                $item = AssemblyItem::create([
+                        'condo_id'              => $assembly['condo_id'],
+                        'assembly_id'           => $id,
+                        'name'                  => $assemblyItem['name'],
+                        'code'                  => $assemblyItem['code'],
+                        'order'                 => $assemblyItem['order'],
+                        'assembly_template_id'  => $assembly['assembly_template_id'],
+                        'is_group'              => $assemblyItem['is_group'],
+                        'has_parent_group'      => $assemblyItem['has_parent_group'],
+                        'parent_group_id'       => $parent_group_id,
+                        'description_call'      => $assemblyItem['description_call'],
+                        'description_minutes'   => $assemblyItem['description_minutes'],
+                        'description_ballot'    => $assemblyItem['description_ballot'],
+                        'has_vote_required'     => $assemblyItem['has_vote_required'],
+                        'majority'              => $assemblyItem['majority'],
+                        'apportionment_id'      => $assemblyItem['apportionment_id']
+                    ])
+                    ->first();
+            }
+
+        }
+    }
+
     /**
      * At this stage, we have validated the mandates and created related ownership links.
      *
@@ -1214,6 +1331,9 @@ class Assembly extends \equal\orm\Model {
                 else {
                     throw new \Exception(serialize(['is_valid' => $inconsistencies]), EQ_ERROR_INVALID_PARAM);
                 }
+
+                self::id($id)->do('schedule_second_session');
+
                 continue;
             }
             // assembly is valid, move one step forward
@@ -1261,7 +1381,7 @@ class Assembly extends \equal\orm\Model {
         $self->read(['status', 'step', 'condo_id', 'assembly_representations_ids', 'assembly_date']);
         foreach($self as $id => $assembly) {
 
-            if(in_array($assembly['step'], ['opening', 'attendance_closure', 'proxy_validation'])) {
+            if(in_array($assembly['step'], ['opening', 'attendance_closure', 'proxy_validation', 'representation_validation'])) {
                 continue;
             }
 
@@ -1310,6 +1430,7 @@ class Assembly extends \equal\orm\Model {
 
 
     // #todo - ability to clone AG
-
+    protected static function doCloneAssembly() {
+    }
 
 }

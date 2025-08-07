@@ -25,7 +25,8 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
@@ -55,11 +56,6 @@
                                             {
                                                 "type": "field",
                                                 "value": "is_acknowledged",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "name",
                                                 "width": "100%"
                                             }
                                         ]
