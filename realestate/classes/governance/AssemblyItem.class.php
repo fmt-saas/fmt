@@ -95,7 +95,8 @@ class AssemblyItem extends AssemblyItemTemplate {
             'has_choices' => [
                 'type'              => 'boolean',
                 'description'       => "Does the item relate to a series of possible choices to pick amongst.",
-                'default'           => false
+                'default'           => false,
+                'visible'           => ['has_vote_required', '=', true]
             ],
 
             'assembly_item_choices_ids' => [
@@ -103,6 +104,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'description'       => "Choices that relate to the assembly item.",
                 'foreign_object'    => 'realestate\governance\AssemblyItemChoice',
                 'foreign_field'     => 'assembly_item_id',
+                'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['assembly_id', '=', 'object.assembly_id'] ],
                 'visible'           => ['has_choices', '=', true]
             ],
 
@@ -132,6 +134,13 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'rel_local_key'     => 'assembly_item_id',
                 'description'       => "One or more documents that relate to the point.",
                 'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'is_assembly_open' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag telling if the assembly is in progress.',
+                'help'              => 'This flag is required to apply visibility on actions and fields, and is set byt he parent assembly, upon opening.',
+                'default'           => false
             ],
 
             /**

@@ -21,7 +21,8 @@ class Team extends \equal\orm\Model {
         return [
             'name' => [
                 'type'              => 'string',
-                'description'       => 'Mnemo code assigned to the employee.'
+                'description'       => 'Mnemo code assigned to the employee.',
+                'required'          => true
             ],
 
             'employees_ids' => [
@@ -46,7 +47,7 @@ class Team extends \equal\orm\Model {
         ];
     }
 
-    public static function calcMembersCount($self) {
+    protected static function calcMembersCount($self) {
         $result = [];
         $self->read(['employees_ids']);
         foreach($self as $id => $team) {

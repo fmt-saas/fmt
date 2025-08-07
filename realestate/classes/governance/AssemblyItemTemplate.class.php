@@ -38,7 +38,7 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
 
             'is_group' => [
                 'type'              => 'boolean',
-                'description'       => "Mark the item as a group of sub-items.",
+                'description'       => 'Mark the item as a group of sub-items.',
                 'help'              => "Group items are used to organize sub-items in the assembly agenda. They can have a description, but cannot be voted on directly.",
                 'default'           => false,
                 'visible'           => ['has_parent_group', '=', false]
@@ -47,7 +47,7 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
             'has_parent_group' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
-                'description'       => "Mark the item as a group of sub-items.",
+                'description'       => 'Mark the item as a group of sub-items.',
                 'help'              => "Group items are used to organize sub-items in the assembly agenda. They can have a description, but cannot be voted on directly.",
                 'store'             => true,
                 'function'          => 'calcHasParentGroup',
@@ -56,7 +56,7 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
 
             'parent_group_id' => [
                 'type'              => 'many2one',
-                'description'       => "Parent group item for this item, if it is a sub-item.",
+                'description'       => 'Parent group item for this item, if it is a sub-item.',
                 'foreign_object'    => 'realestate\governance\AssemblyItemTemplate',
                 'visible'           => [['is_group', '=', false], ['has_parent_group', '=', true]],
                 'dependents'        => ['has_parent_group'],
@@ -74,28 +74,28 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
 
             'description_call' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
-                'description'       => "Description for the assembly call.",
+                'usage'             => 'text/html',
+                'description'       => 'Description for the assembly call.',
                 /*'visible'           => [['is_group', '=', false]],*/
             ],
 
             'description_minutes' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
-                'description'       => "Description for the assembly minutes.",
+                'usage'             => 'text/html',
+                'description'       => 'Description for the assembly minutes.',
                 /*'visible'           => [['is_group', '=', false]],*/
             ],
 
             'description_ballot' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
-                'description'       => "Description for the assembly minutes.",
+                'usage'             => 'text/html',
+                'description'       => 'Description for the assembly minutes.',
                 'visible'           => [['is_group', '=', false], ['has_vote_required', '=', true]],
             ],
 
             'has_vote_required' => [
                 'type'              => 'boolean',
-                'description'       => "Flag indicating if a vote is required for this item.",
+                'description'       => 'Flag indicating if a vote is required for this item.',
                 'default'           => false,
                 'visible'           => ['is_group', '=', false]
             ],

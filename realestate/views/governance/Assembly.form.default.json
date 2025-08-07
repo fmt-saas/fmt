@@ -14,14 +14,27 @@
             "visible": ["status", "=", "pending"]
         },
         {
-            "id": "action.revert",
-            "label": "Revert",
+            "id": "action.revert_publish",
+            "label": "Revert to draft",
             "description": "Revet assembly to draft (to allow edition).",
             "controller": "core_model_transition",
             "params": {
                 "entity": "realestate\\governance\\Assembly",
-                "transition": "revert"
+                "transition": "revert_publish"
             },
+            "visible": ["status", "=", "published"]
+        },
+        {
+            "id": "action.refresh_owners",
+            "label": "Refresh Owners",
+            "description": "Refresh Owners list, in case a transfer impacted the list in the meantime.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "action": "generate_ownerships",
+                "ids": []
+            },
+            "confirm": true,
             "visible": ["status", "=", "published"]
         },
         {
@@ -34,6 +47,17 @@
                 "transition": "send"
             },
             "visible": ["status", "=", "published"]
+        },
+        {
+            "id": "action.sent",
+            "label": "Sent",
+            "description": "Mark invitations as sent.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "transition": "sent"
+            },
+            "visible": ["status", "=", "sending"]
         },
         {
             "id": "action.open",
@@ -142,11 +166,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "heading_text",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "assembly_date",
                                                 "width": "50%"
                                             },
@@ -162,6 +181,7 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Assembly Organizer",
                                                 "value": "assembly_organizer_identity_id",
                                                 "width": "100%"
                                             },
@@ -169,13 +189,13 @@
                                                 "type": "field",
                                                 "value": "session_time_start",
                                                 "width": "50%",
-                                                "visible": ["status", "not in", ["pending", "published", "sent"]]
+                                                "visible": ["status", "not in", ["pending", "published", "sending", "sent"]]
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "session_time_end",
                                                 "width": "50%",
-                                                "visible": ["status", "not in", ["pending", "published", "sent"]]
+                                                "visible": ["status", "not in", ["pending", "published", "sending", "sent"]]
                                             },
                                             {
                                                 "type": "field",
@@ -213,7 +233,7 @@
                                             {
                                                 "type": "field",
                                                 "label": "Minutes",
-                                                "value": "assembly_minutes_id",
+                                                "value": "minutes_document_id",
                                                 "width": "100%"
                                             },
                                             {
@@ -250,7 +270,37 @@
                                         ]
                                     }
                                 ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "heading_text_call",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "closing_text_call",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "heading_text_minutes",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "closing_text_minutes",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
+
                         ]
                     },
                     {
@@ -350,7 +400,7 @@
                     {
                         "id": "section.proxies",
                         "label": "Mandates",
-                        "visible": ["status", "not in", ["pending", "published", "sent"]],
+                        "visible": ["status", "not in", ["pending", "published", "sending", "sent"]],
                         "rows": [
                             {
                                 "columns": [
@@ -371,7 +421,7 @@
                     {
                         "id": "section.attendees",
                         "label": "Attendees",
-                        "visible": ["status", "not in", ["pending", "published", "sent"]],
+                        "visible": ["status", "not in", ["pending", "published", "sending", "sent"]],
                         "rows": [
                             {
                                 "columns": [
@@ -380,8 +430,9 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "attendance_register_document_id",
-                                                "width": "50%"
+                                                "value": "signed_attendance_register_document_id",
+                                                "width": "50%",
+                                                "visible": ["signed_attendance_register_document_id", "is not", null]
                                             }
                                         ]
                                     }
@@ -406,7 +457,7 @@
                     {
                         "id": "section.representations",
                         "label": "Representations",
-                        "visible": ["status", "not in", ["pending", "published", "sent"]],
+                        "visible": ["status", "not in", ["pending", "published", "sending", "sent"]],
                         "rows": [
                             {
                                 "columns": [

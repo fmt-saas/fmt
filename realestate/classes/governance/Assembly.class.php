@@ -54,7 +54,21 @@ class Assembly extends \equal\orm\Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
+            'signed_attendance_register_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Generated document to serve as attendance register.',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+            ],
+
             'minutes_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Generated document holding the minutes of the assembly.',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+            ],
+
+            'signed_minutes_document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Generated document holding the minutes of the assembly.',
@@ -93,6 +107,12 @@ class Assembly extends \equal\orm\Model {
                 'type'              => 'datetime',
                 'description'       => "Scheduled date and time of the assembly (cannot be modified).",
                 'default'           => time()
+            ],
+
+            'assembly_invitation_date' => [
+                'type'              => 'datetime',
+                'description'       => 'Scheduled date and time of the assembly (cannot be modified).',
+                'help'              => "This date is set once, when the Assembly reaches the `sending` status."
             ],
 
             'assembly_location' => [
@@ -334,7 +354,7 @@ class Assembly extends \equal\orm\Model {
                 'description' => '',
                 'icon' => 'sent',
                 'transitions' => [
-                    'revert' => [
+                    'revert_publish' => [
                         'description'   => 'Revert Assembly to `pending` in order to allow changes.',
                         'policies'      => [/**/],
                         'status'        => 'pending'
@@ -401,7 +421,7 @@ class Assembly extends \equal\orm\Model {
 
             'generate_ownerships' => [
                 'description'   => 'Generate ownerships.',
-                'help'          => 'i.e. Ownerships that are known at the current date to own at least one property lots having at least one share in the statutory apportionment. This action can be re-executed in order to refresh the list, in case a transfer took place in the meantime.',
+                'help'          => 'i.e. Ownerships that are known, at the current date, to own at least one property lot having at least one share in the statutory apportionment. This action can be re-executed in order to refresh the list, in case a transfer took place in the meantime.',
                 'policies'      => [],
                 'function'      => 'doGenerateOwnerships'
             ],
@@ -635,6 +655,7 @@ class Assembly extends \equal\orm\Model {
                 Document::id($assembly['attendance_register_document_id'])
                     ->update(['signed_document_id' => $document['id']]);
 
+                self::id($id)->update(['signed_attendance_register_document_id' => $document['id']]);
             }
             catch(\Exception $e) {
                 trigger_error("APP::unable to generate signed attendance register:" . $e->getMessage(), EQ_REPORT_ERROR);
@@ -648,11 +669,11 @@ class Assembly extends \equal\orm\Model {
         $self
             ->do('generate_signable_attendance_register')
             ->update(['session_time_start' => time()])
-            ->read(['condo_id', 'assembly_organizer_identity_id']);
+            ->read(['condo_id', 'assembly_organizer_identity_id', 'assembly_items_ids']);
 
-        // create an special attendee as 'secretary' relating to the organizer
-        // #memo - this Attendee can be manually modified afterwards
         foreach($self as $id => $assembly) {
+            AssemblyItem::ids($assembly['assembly_items_ids'])->update(['is_assembly_open' => true]);
+            // create a special attendee as 'secretary' relating to the organizer (can be manually modified afterwards)
             AssemblyAttendee::create([
                     'assembly_id'   => $id,
                     'condo_id'      => $assembly['condo_id'],
@@ -849,6 +870,7 @@ class Assembly extends \equal\orm\Model {
                 ]);
 
             }
+            self::id($id)->update(['assembly_invitation_date' => time()]);
         }
     }
 

@@ -1,5 +1,16 @@
 {
     "name": "Assembly Invitation",
+    "routes": [
+        {
+            "id": "route.view_invitation",
+            "label": "View Invite",
+            "icon": "print",
+            "description": "View printable invite.",
+            "route": "/?get=realestate_governance_AssemblyInvitation_render-pdf&id=object.id",
+            "target": "_blank",
+            "absolute": true
+        }
+    ],
     "layout": {
         "groups": [
             {

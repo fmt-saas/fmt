@@ -68,7 +68,7 @@ if(!$assemblyItem) {
 // Only individuals who hold at least one share in the targeted allocation key are authorized to vote.
 $propertyLotOwnerships = PropertyLotOwnership::search([
         ['condo_id', '=', $assemblyItem['condo_id']],
-        ['ownership_id', '=', $assemblyItem['ownership_id']]
+        ['ownership_id', '=', $params['ownership_id']]
     ])
     ->read(['property_lot_id', 'date_to']);
 

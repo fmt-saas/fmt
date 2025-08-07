@@ -14,6 +14,11 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "is_external",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "employee_id",
                                                 "label": "Employee",
                                                 "width": "33%"

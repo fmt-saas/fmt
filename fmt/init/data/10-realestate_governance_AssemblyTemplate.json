@@ -47,9 +47,9 @@
                 "name": "Présentation du budget de l’exercice",
                 "majority": "absolute",
 				"has_vote_required": true,
-                "description_call": "Pour les copropriétés en comptes annuels : L'Assemblée Générale, après avoir examiné le projet de budget joint à la convocation et en avoir délibéré, à la majorité requise, fixe le budget de l'exercice à la somme de ... €. Elle autorise le syndic à procéder aux appels provisionnels en proportion du budget voté et des clés de répartition prévues dans l'acte de base de la copropriété. Ce budget vaut également pour les appels provisionnels de l’exercice suivant en l’absence de nouvelle décision. Pour les copropriétés en comptes trimestriels ou autres : budget présenté à titre indicatif pour le prochain exercice à la somme de ... €.",
+                "description_call": "Présentation du budget de l’exercice annuel.",
                 "description_ballot": "Approbation du budget de l'exercice et autorisation de procéder aux appels provisionnels.",
-				"description_minutes": ""
+				"description_minutes": "L'Assemblée Générale, après avoir examiné le projet de budget joint à la convocation et en avoir délibéré, à la majorité requise, fixe le budget de l'exercice à la somme de ... €.<br />Elle autorise le syndic à procéder aux appels provisionnels en proportion du budget voté et des clés de répartition prévues dans l'acte de base de la copropriété.<br />Ce budget vaut également pour les appels provisionnels de l’exercice suivant en l’absence de nouvelle décision."
             },
             {
 				"id": 5,

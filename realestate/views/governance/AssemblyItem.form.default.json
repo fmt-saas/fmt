@@ -39,6 +39,18 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "condo_id",
+                                                "width": "50%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_id",
+                                                "width": "50%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "name",
                                                 "width": "75%"
                                             },
@@ -74,7 +86,18 @@
                                             {
                                                 "type": "field",
                                                 "value": "has_vote_required",
-                                                "width": "50%"
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_choices",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "25%",
+                                                "visible": ["has_vote_required", "=", false]
                                             },
                                             {
                                                 "type": "field",
@@ -191,7 +214,15 @@
                                             {
                                                 "type": "field",
                                                 "value": "assembly_votes_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.SELECT": false,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

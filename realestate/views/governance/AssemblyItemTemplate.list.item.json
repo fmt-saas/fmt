@@ -24,6 +24,13 @@
             {
                 "type": "field",
                 "label": "Group",
+                "value": "is_group",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Parent",
                 "value": "parent_group_id",
                 "width": "11%",
                 "visible": false

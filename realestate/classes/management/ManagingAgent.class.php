@@ -38,7 +38,8 @@ class ManagingAgent extends \purchase\supplier\Supplier {
                 'selection'         => [
                     'owner',
                     'professional'
-                ]
+                ],
+                'default'           => 'professional'
             ],
 
             'professional_registration_number' => [

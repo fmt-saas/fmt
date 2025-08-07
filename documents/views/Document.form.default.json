@@ -16,6 +16,15 @@
                 "purpose": "update",
                 "domain": [["id", "=", "object.id"]]
             }
+        },
+        {
+            "id": "item.print",
+            "label": "View document",
+            "icon": "print",
+            "description": "View printable invite.",
+            "route": "/?get=documents_document&id=object.id",
+            "target": "_blank",
+            "absolute": true
         }
     ],
     "layout": {

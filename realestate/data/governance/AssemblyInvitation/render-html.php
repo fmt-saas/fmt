@@ -98,7 +98,16 @@ $getLabels = function($lang) {
 $assemblyInvitation = AssemblyInvitation::id($params['id'])
     ->read([
         'assembly_id',
-        'owner_id',
+        'owner_id' => [
+            'name',
+            'address_street',
+            'address_dispatch',
+            'address_zip',
+            'address_city',
+            'address_country',
+            'has_vat',
+            'vat_number'
+        ],
         'ownership_id'
     ])
     ->first(true);
@@ -114,6 +123,7 @@ $assembly = Assembly::id($assemblyInvitation['assembly_id'])
         'condo_id',
         'assembly_type',
         'assembly_date',
+        'assembly_invitation_date',
         'assembly_location',
         'heading_text_call',
         'closing_text_call',
@@ -150,19 +160,9 @@ $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']]
         'order',
         'description_call',
         'has_vote_required',
-        'majority',
-        'vote_result',
-        'assembly_votes_ids' => [
-            'vote_value',
-            'assembly_attendee_id',
-            'ownership_id'
-        ]
+        'majority'
     ])
     ->get();
-
-$ownership = null;
-
-
 
 
 $lang = $params['lang'];
@@ -174,7 +174,9 @@ $values = [
     'organisation'              => $assembly['condo_id']['managing_agent_id'],
     'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id'], 'realestate\management\ManagingAgent'),
 
-    'ownership'                 => $ownership,
+    'date'                      => $assembly['assembly_invitation_date'],
+    'owner'                     => $assemblyInvitation['owner_id'],
+
     'map_assembly_items'        => $map_assembly_items,
 
     // 'today_date'                => time(),

@@ -347,7 +347,7 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "500%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "label",
@@ -371,7 +371,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "management_contracts_ids",
+                                                "value": "managing_agent_contracts_ids",
                                                 "width": "100%"
                                             }
                                         ]
