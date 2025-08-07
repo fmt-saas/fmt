@@ -26,28 +26,28 @@ class AssemblyTemplate extends \equal\orm\Model {
 
             'heading_text_call' => [
                 'type'              => 'string',
-                'usage'             => 'text/html.small',
+                'usage'             => 'text/html',
                 'description'       => "Heading text of the assembly call.",
                 'required'          => false
             ],
 
             'heading_text_minutes' => [
                 'type'              => 'string',
-                'usage'             => 'text/html.small',
+                'usage'             => 'text/html',
                 'description'       => "Heading text of the assembly minutes.",
                 'required'          => false
             ],
 
             'closing_text_call' => [
                 'type'              => 'string',
-                'usage'             => 'text/html.small',
+                'usage'             => 'text/html',
                 'description'       => "Closing text of the assembly call.",
                 'required'          => false
             ],
 
             'closing_text_minutes' => [
                 'type'              => 'string',
-                'usage'             => 'text/html.small',
+                'usage'             => 'text/html',
                 'description'       => "Closing text of the assembly minutes.",
                 'required'          => false
             ],

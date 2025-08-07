@@ -96,7 +96,7 @@ $employee = Employee::create([
 User::search()->do('sync_from_identity');
 Employee::search()->do('sync_from_identity');
 
-Team::id($team['id'])->update(['employees_ids' => $employee['id']]);
+Team::id($team['id'])->update(['employees_ids' => [$employee['id']]]);
 
 // assign employee as manager for all condos
 RoleAssignment::create([

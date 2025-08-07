@@ -5,6 +5,8 @@
             {
                 "sections": [
                     {
+                        "id": "section.details",
+                        "label": "Details",
                         "rows": [
                             {
                                 "columns": [
@@ -41,6 +43,42 @@
                                     }
                                 ]
                             },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "heading_text_call",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "closing_text_call",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "heading_text_minutes",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "closing_text_minutes",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                            
+                        ]
+                    },
+                    {
+                        "id": "section.items",
+                        "label": "Items",
+                        "rows": [
                             {
                                 "columns": [
                                     {
