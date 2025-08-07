@@ -1,6 +1,5 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Assembly Invitation",
     "layout": {
         "groups": [
             {
