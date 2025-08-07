@@ -7,7 +7,7 @@
 use core\setting\Setting;
 use documents\DocumentSignature;
 use realestate\governance\Assembly;
-use realestate\governance\AssemblyAttendee;
+use realestate\governance\AssemblyInvitation;
 use realestate\governance\AssemblyItem;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
@@ -20,12 +20,12 @@ use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate an html view of the Attendance Register for a given Assembly.',
+    'description'   => 'Generate an html view of a Mandate template.',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific Assembly to consider.',
+            'description'       => 'Identifier of the specific AssemblyInvitation to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\governance\Assembly',
+            'foreign_object'    => 'realestate\governance\AssemblyInvitation',
             'required'          => true
         ],
 
@@ -37,7 +37,7 @@ use Twig\Extension\ExtensionInterface;
         'view_id' => [
             'description' => 'View id of the template to use.',
             'type'        => 'string',
-            'default'     => 'print.minutes'
+            'default'     => 'print.default'
         ],
 
         'lang' =>  [
@@ -95,17 +95,28 @@ $getLabels = function($lang) {
 };
 
 
-$assembly = Assembly::id($params['id'])
+$assemblyInvitation = AssemblyInvitation::id($params['id'])
+    ->read([
+        'assembly_id',
+        'owner_id',
+        'ownership_id'
+    ])
+    ->first(true);
+
+if(!$assemblyInvitation) {
+    throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+
+$assembly = Assembly::id($assemblyInvitation['assembly_id'])
     ->read([
         'name',
         'condo_id',
         'assembly_type',
         'assembly_date',
         'assembly_location',
-        'heading_text_minutes',
-        'closing_text_minutes',
-        'ownerships_ids' => ['name'],
-        'assembly_attendees_ids' => ['name'],
+        'heading_text_call',
+        'closing_text_call',
         'assembly_items_ids' => [
             '@domain' => ['parent_group_id', 'is', null],
             'id',
@@ -115,7 +126,7 @@ $assembly = Assembly::id($params['id'])
             'children_items_ids'
         ],
         'condo_id' => [
-            'name', 'address_street', 'address_city', 'address_zip', 'address_city',
+            'name', 'address', 'address_street', 'address_zip', 'address_city',
             'managing_agent_id' => [
                 'name', 'address_street', 'address_dispatch', 'address_zip',
                 'address_city', 'address_country', 'has_vat', 'vat_number',
@@ -127,34 +138,17 @@ $assembly = Assembly::id($params['id'])
             ]
         ],
     ])
-    ->first();
+    ->first(true);
 
 if(!$assembly) {
-    throw new Exception('unknown_ownership_transfer', EQ_ERROR_UNKNOWN_OBJECT);
-}
-
-$map_ownerships = [];
-foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
-    $map_ownerships[$ownership_id] = $ownership;
-}
-
-$map_attendees = [];
-foreach($assembly['assembly_attendees_ids'] as $attendee_id => $attendee) {
-    $map_attendees[$attendee_id] = $attendee;
-}
-
-$assembly_items_ids = [];
-foreach($assembly['assembly_items_ids'] as $assembly_item_id => $assemblyItem) {
-    if(!$assemblyItem['is_group']) {
-        $assembly_items_ids[] = $assembly_item_id;
-    }
+    throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']])
     ->read([
         'name',
         'order',
-        'description_minutes',
+        'description_call',
         'has_vote_required',
         'majority',
         'vote_result',
@@ -166,8 +160,12 @@ $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']]
     ])
     ->get();
 
-$lang = $params['lang'];
+$ownership = null;
 
+
+
+
+$lang = $params['lang'];
 
 $values = [
     'assembly'                  => $assembly,
@@ -176,11 +174,10 @@ $values = [
     'organisation'              => $assembly['condo_id']['managing_agent_id'],
     'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id'], 'realestate\management\ManagingAgent'),
 
-    'map_ownerships'            => $map_ownerships,
-    'map_attendees'             => $map_attendees,
+    'ownership'                 => $ownership,
     'map_assembly_items'        => $map_assembly_items,
 
-    'today_date'                => time(),
+    // 'today_date'                => time(),
     'timezone'                  => constant('L10N_TIMEZONE'),
     'locale'                    => constant('L10N_LOCALE'),
     'date_format'               => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
@@ -210,7 +207,7 @@ try {
             })
         );
 
-    $template = $twig->load('Assembly.'.$params['view_id'].'.html');
+    $template = $twig->load('AssemblyInvitation.'.$params['view_id'].'.html');
     $html = $template->render($values);
 }
 catch(Exception $e) {

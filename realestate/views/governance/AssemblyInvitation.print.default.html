@@ -23,7 +23,6 @@
     {% include 'header.style.html.twig' %}
     {% include 'footer.style.html.twig' %}
 
-
     <style type="text/css">
         @page {
             margin: 1cm 1cm;
@@ -59,40 +58,10 @@
             outline: solid 1px brown;
         }
 
-        table.attendance-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1.5em 0;
-            min-width: 600px;
-        }
-
-        table.attendance-table tr.first {
-            background-color: #f4f4f4;
-
-        }
-
-        table.attendance-table td {
-            padding: 12px 15px;
-            border: 1px solid black;
-        }
-
     </style>
 </head>
 
 <body>
-    <!--
-    <header class="{{ debug ? 'debug':'' }}">
-        <div class="condominium-info {{ debug ? 'debug' : '' }}">
-            <div style="padding-left: 10px; text-transform: uppercase;">
-                <div style="font-weight: bold;">{{ condominium.name }}</div>
-                <div>{{ condominium.address_street }}</div>
-                <div>{{ condominium.address_zip }} {{ condominium.address_city }}</div>
-            </div>
-        </div>
-
-    </header>
-    -->
-
     {% include 'header.html.twig' %}
     {% include 'footer.html.twig' %}
 
@@ -103,69 +72,43 @@
         'extraordinary': 'Assemblée Générale Extraordinaire'
     } %}
 
-    {% set majorityLabels = {
-        'unanimity': 'Unanimité (100% des quotités)',
-        'absolute': 'Majorité absolue (> 50% des quotités)',
-        '2_3': 'Majorité des 2/3',
-        '4_5': 'Majorité des 4/5'
-    } %}
-
     <main class="{{ debug ? 'debug' : '' }}">
 
-        <h1 style="text-align: center;">Procès-Verbal de l’{{assemblyTypes[assembly.assembly_type]}}</h1>
+        <h1>CONVOCATION</h1>
+
+
+<p>Par la présente, nous vous invitons à assister à l’{{ assemblyTypes[assembly.assembly_type] }} de votre copropriété:</p>
+
+<ul>
+    <li>Date: {{ assembly.assembly_date | format_datetime(pattern='EEEE', locale=locale) }} {{ assembly.assembly_date | date(date_format, timezone) }}</li>
+    <li>Lieu : {{ assembly.assembly_location }}</li>
+    <li>Début de séance: {{ assembly.assembly_date | date('H', timezone) }} h {{ assembly.assembly_date | date('i', timezone) }}</li>
+</ul>
+
 
         <p>
-            Procès verbal de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} tenue à l'adresse "{{ assembly.assembly_location }}" à la date du {{ assembly.assembly_date | date(date_format, timezone) }}.
-        </p>
-
-        <p>
-            {{ assembly.heading_text_minutes }}
+            {{ assembly.heading_text_call }}
         </p>
 
         {% for item in assembly.assembly_items_ids %}
         <p>
             <b><u>{{ item.order }}. {{ item.name }}</u></b><br />
-            {{ item.description_minutes }}
             {% set assemblyItem = map_assembly_items[item.id] %}
 
             {% if not item.is_group %}
 
-                {% if description_minutes is not empty %}
-                    {{ description_minutes }}
+                {% if assemblyItem.description_call is not empty %}
+                    {{ assemblyItem.description_call | raw }}
                 {% endif %}
 
                 {% if assemblyItem.has_vote_required %}
                     {{ majorityLabels[assemblyItem.majority] }}
                 {% endif %}
 
-                {% set ownerships_against = [] %}
-                {% set ownerships_abstain = [] %}
-
-                {% for vote in assemblyItem.assembly_votes_ids %}
-                {{vote.vote_value}}
-                    {% if vote.vote_value == 'against' %}
-                        {% set ownerships_against = ownerships_against | merge([map_ownerships[vote.ownership_id].name]) %}
-                    {% elseif vote.vote_value == 'abstain' %}
-                        {% set ownerships_abstain = ownerships_abstain | merge([map_ownerships[vote.ownership_id].name]) %}
-                    {% endif %}
-                {% endfor %}
-
-                {% if ownerships_against is not empty %}
-                    <p><strong>Contre :</strong>
-                        {{ ownerships_against|join(', ') }}
-                    </p>
-                {% endif %}
-
-                {% if ownerships_abstain is not empty %}
-                    <p><strong>Abstention :</strong>
-                        {{ ownerships_abstain|join(', ') }}
-                    </p>
-                {% endif %}
-
             {% else %}
 
-                {% if description_minutes is not empty %}
-                    {{ description_minutes }}
+                {% if assemblyItem.description_call is not empty %}
+                    {{ assemblyItem.description_call | raw }}
                 {% endif %}
                 <table>
                     <tr>
@@ -178,7 +121,7 @@
                                     <tr>
                                         <td style="width: 30px;"></td>
                                         <td>
-                                            {{ assemblyItem.description_minutes }}
+                                            {{ assemblyItem.description_call }}
                                             {% if assemblyItem.has_vote_required %}
                                                 {{ majorityLabels[assemblyItem.majority] }}
                                             {% endif %}
@@ -195,8 +138,39 @@
 
 
         <p>
-            {{ assembly.closing_text_minutes }}
+            {{ assembly.closing_text_call }}
         </p>
+
+
+
+
+<div style="margin-top: 40px; border: solid 1px black; padding: 10px; page-break-inside: avoid;">
+    Pour que l’assemblée générale se déroule efficacement et ne dure pas plus longtemps que nécessaire, les copropriétaires sont invités à transmettre leurs questions au syndic par écrit dès qu’ils en ont connaissance, sans attendre la réunion.
+    Cela concerne notamment les points inscrits à l’ordre du jour, y compris les décomptes et la comptabilité.
+    Cette anticipation permettra d’apporter des réponses avant l’assemblée et d’éviter les prolongations inutiles.
+</div>
+
+<div style="margin-top: 20px; border: solid 1px black; padding: 10px; page-break-inside: avoid;">
+    IMPORTANT :<br />
+    <p>
+    1) Modalité de consultation des documents relatifs aux points inscrits à l’ordre du jour :<br />
+    Les documents sont disponibles sur simple demande au bureau du Syndic.
+    </p>
+    <p>
+    2) Au cas où votre emploi du temps ne vous permettrait pas d'assister à l'assemblée générale, nous vous demandons de donner procuration à un autre copropriétaire ou une personne de votre choix pour vous représenter ; ceci afin de permettre à l’assemblée générale de se tenir valablement.<br />
+    Dans le cas où le quorum n’est pas atteint, il est alors nécessaire de convoquer une deuxième assemblée générale ce qui représente des frais pour la copropriété et dérange une nouvelle fois les propriétaires.
+    </p>
+
+    <p>
+    3) En cas de division du droit de propriété portant sur un lot privatif ou lorsque la propriété d’un lot privatif est grevée d’un droit d’emphytéose, de superficie, d’usufruit, d’usage ou d’habitation, le droit de participation aux délibérations de l’Assemblée Générale est suspendu jusqu’à ce que les intéressés désignent la personne qui sera leur mandataire.
+    </p>
+
+    <p>
+    4) Toute demande ou remarque individuelle à propos de la comptabilité doit être faite 7 jours à l'avance.
+    </p>
+
+</div>
+
 
     </main>
 </body>

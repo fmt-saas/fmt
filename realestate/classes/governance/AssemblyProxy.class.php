@@ -95,6 +95,12 @@ class AssemblyProxy extends \equal\orm\Model {
                 'default'           => false
             ],
 
+            'proxy_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => "Original (immutable) document of the mandate, or scanned version."
+            ],
+
             'is_valid' => [
                 'type'              => 'boolean',
                 'description'       => "Can be invalidated after verification.",

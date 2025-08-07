@@ -144,6 +144,27 @@
                         ]
                     },
                     {
+                        "id": "section.choices",
+                        "label": "Choices",
+                        "visible": [["has_vote_required", "=", true], ["has_choices", "=", true]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_item_choices_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "id": "section.votes",
                         "label": "Votes",
                         "visible": ["has_vote_required", "=", true],

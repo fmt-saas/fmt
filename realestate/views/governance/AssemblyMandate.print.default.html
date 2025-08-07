@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<!--
+    Conventions for html templates:
+
+    * template must consist of a single file
+    * provide support for debug mode
+    * use embedded styling embedded in <style> (CSS3)
+    * avoid using `style` attribute in elements and favour classes
+    * in CSS styles use `px` as unit for font size
+    * in HTML elements, avoid using <br /> and favour blocks and inline-blocks
+    * twig format is implicit for template files: use `{entity}.print.{name}.html` as naming convention
+    * avoid assignment and computation of vars in template (when possible, compute values in controller)
+    * twig instructions should be limited to displaying values and providing conditional statements
+-->
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <title>
+        {{ title }}
+    </title>
+
+    {% include 'header.style.html.twig' %}
+    {% include 'footer.style.html.twig' %}
+
+    <style type="text/css">
+        @page {
+            margin: 1cm 1cm;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            /* margin-top must match header::height */
+            margin-top: 280px;
+            /* margin-bottom must match footer::height */
+            margin-bottom: 50px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            text-align: justify;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-size: 21px;
+        }
+
+        h3 {
+            font-size: 15px;
+        }
+
+        main.debug {
+            outline: solid 1px brown;
+        }
+
+    </style>
+</head>
+
+<body>
+    {% include 'header.html.twig' %}
+    {% include 'footer.html.twig' %}
+
+    <main class="{{ debug ? 'debug' : '' }}">
+
+        <h1>PROCURATION</h1>
+
+        <p>Je soussigné(e), <strong>{{ ownership.representative_owner_id.name }}</strong>,</p>
+        <p>Demeurant à l’adresse suivante : <strong>{{ ownership.representative_owner_id.address }}</strong>,</p>
+
+        <p>Propriétaire du/des lot(s) suivant(s) situé(s) dans la copropriété <strong>{{ assembly.condo_id.name }}</strong>, <br />
+        dont l'adresse est : <strong>{{ assembly.condo_id.address }}</strong>,</p>
+        <!-- property lots table -->
+        <p>
+        {% for property_lot in property_lots %}
+            {{ property_lot }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+
+        </p>
+
+        <p style="margin-top: 30px;">Donne procuration à : .............................................................................................................</p>
+
+        <p>Demeurant à : .........................................................................................................................</p>
+
+        <p style="margin-top: 20px;">Pour me représenter à l’Assemblée Générale des copropriétaires qui se tiendra le <strong>{{ assembly.assembly_date | date(date_format, timezone) }}</strong>, à <strong>{{ assembly.assembly_location }}</strong>,<br />
+        et pour voter en mon nom sur toutes les résolutions inscrites à l'ordre du jour, ainsi que sur toutes questions pouvant être soumises à l'assemblée.</p>
+
+        <p style="margin-top: 20px;">Fait pour servir et valoir comme procuration.</p>
+
+        <div style="margin-top: 30px;">
+            <p>Fait à ........................................., le .............................................</p>
+            <p style="margin-top: 20px; text-decoration: underline;">Signature du mandant :</p>
+        </div>
+
+        <div style="margin-top: 100px; border: solid 1px black; padding: 10px;">
+            IMPORTANT: Rappel de l’article 3-87 §7 du code civil. <br />
+                « Nul ne peut accepter plus de trois procurations. Toutefois, un mandataire peut recevoir plus de trois procurations de vote si le total des voix dont il dispose lui-même et de celles de ses mandants n’excède pas 10% du total des voix affectées à l’ensemble des lots de la copropriété. »
+        </div>
+
+    </main>
+</body>
+
+</html>

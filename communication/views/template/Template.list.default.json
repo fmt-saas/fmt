@@ -7,19 +7,32 @@
                 "type": "field",
                 "value": "name",
                 "width": "33%",
+                "sortable": true,
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "code",
+                "width": "33%",
                 "sortable": true
             },
             {
                 "type": "field",
                 "label": "Category",
                 "value": "category_id",
-                "width": "33%",
+                "width": "20%",
                 "sortable": true
             },
             {
                 "type": "field",
                 "label": "Type",
-                "value": "type",
+                "value": "type_id",
+                "width": "20%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "description",
                 "width": "33%",
                 "sortable": true
             }

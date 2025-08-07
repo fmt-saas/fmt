@@ -42,7 +42,7 @@ class Template extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'communication\template\TemplateCategory',
                 'description'       => "The category the template belongs to.",
-                'dependents'        => ['name'],
+                'dependents'        => ['category', 'name'],
                 'required'          => true
             ],
 
@@ -50,8 +50,17 @@ class Template extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'communication\template\TemplateType',
                 'description'       => "The type the template refers to.",
-                'dependents'        => ['type'],
+                'dependents'        => ['type', 'name'],
                 'required'          => true
+            ],
+
+            'category' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'The code of the assigned category (for filtering).',
+                'relation'          => ['category_id' => 'code'],
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'type' => [
@@ -83,11 +92,10 @@ class Template extends Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['code', 'type', 'category_id' => ['name']]);
+        $self->read(['code', 'type', 'category']);
         foreach($self as $id => $template) {
-            $result[$id] = $template['category_id']['name'].'.'.$template['type'].'.'.$template['code'];
+            $result[$id] = $template['category'] . '.' . $template['type'] . '.' . $template['code'];
         }
-
         return $result;
     }
 }

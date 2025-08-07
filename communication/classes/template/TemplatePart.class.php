@@ -23,7 +23,25 @@ class TemplatePart extends Model {
             'value' => [
                 'type'              => 'string',
                 'usage'             => 'text/html',
-                'description'       => "Template body (html).",
+                'description'       => "Template content (html).",
+                'multilang'         => true,
+                'onupdate'          => 'onupdateValue',
+                'dependents'        => ['excerpt']
+            ],
+
+            'excerpt' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcExcerpt',
+                'description'       => "Template content (html).",
+                'multilang'         => true,
+                'store'             => true
+            ],
+
+            'variables' => [
+                'type'              => 'string',
+                'usage'             => 'text/json',
+                'description'       => "JSON array of the referenced variables.",
                 'multilang'         => true
             ],
 
@@ -36,5 +54,37 @@ class TemplatePart extends Model {
             ]
 
         ];
+    }
+
+    protected static function onupdateValue($self, $lang) {
+        $self->read(['value'], $lang);
+        foreach($self as $id => $templatePart) {
+            preg_match_all('/\{\{\s*([a-zA-Z0-9_\.]+)\s*\}\}/', $templatePart['value'], $matches);
+            $variables = json_encode(array_unique($matches[1]), JSON_PRETTY_PRINT);
+            self::id($id)->update(['variables' => $variables], $lang);
+        }
+    }
+
+    protected static function calcExcerpt($self, $lang) {
+        $results = [];
+        $self->read(['value'], $lang);
+
+        foreach($self as $id => $templatePart) {
+            $html = $templatePart['value'];
+
+            // strip HTML tags & normalize whitespace
+            $text = strip_tags($html ?? '');
+            $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $text = preg_replace('/\s+/', ' ', trim($text));
+
+            $max_len = 200;
+            if(mb_strlen($text, 'UTF-8') > $max_len) {
+                $text = mb_substr($text, 0, $max_len, 'UTF-8') . '…';
+            }
+
+            $results[$id] = $text;
+        }
+
+        return $results;
     }
 }

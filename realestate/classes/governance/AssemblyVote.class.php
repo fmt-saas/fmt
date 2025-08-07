@@ -34,7 +34,20 @@ class AssemblyVote extends \equal\orm\Model {
                 'description'       => "The assembly item this vote refers to.",
                 'foreign_object'    => 'realestate\governance\AssemblyItem',
                 'required'          => true,
-                'dependents'       => ['vote_weight']
+                'dependents'        => ['vote_weight']
+            ],
+
+            'is_choice' => [
+                'type'              => 'boolean',
+                'description'       => 'Does the vote relate to a choice.',
+                'default'           => false
+            ],
+
+            'assembly_item_choice_id' => [
+                'type'              => 'many2one',
+                'description'       => "The choice this vote refers to, if any.",
+                'foreign_object'    => 'realestate\governance\AssemblyItemChoice',
+                'visible'           => ['is_choice', '=', true]
             ],
 
             'assembly_attendee_id' => [

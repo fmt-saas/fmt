@@ -130,7 +130,7 @@ $assembly = Assembly::id($params['id'])
     ->first(true);
 
 if(!$assembly) {
-    throw new Exception('unknown_ownership_transfer', EQ_ERROR_UNKNOWN_OBJECT);
+    throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 if($params['signed'] && !$assembly['attendance_register_document_id']) {

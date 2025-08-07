@@ -108,11 +108,24 @@
                     {
                         "id": "settings.templates.categories",
                         "type": "entry",
-                        "label": "Categories",
+                        "label": "Template Categories",
                         "icon": "category",
                         "description": "",
                         "context": {
                             "entity": "communication\\template\\TemplateCategory",
+                            "view": "list.default",
+                            "order": "id",
+                            "sort": "asc"
+                        }
+                    },
+                    {
+                        "id": "settings.templates.types",
+                        "type": "entry",
+                        "label": "Template Types",
+                        "icon": "label",
+                        "description": "",
+                        "context": {
+                            "entity": "communication\\template\\TemplateType",
                             "view": "list.default",
                             "order": "id",
                             "sort": "asc"

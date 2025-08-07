@@ -1,0 +1,38 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "assembly_id",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "assembly_item_id",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "votes_count",
+                "width": "16%"
+            }
+        ]
+    }
+}

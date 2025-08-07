@@ -1,13 +1,18 @@
 {
     "name": "Template Parts",
-    "description": "This view is intented for displaying the list of template parts.",
+    "description": "This view is intended for displaying the list of template parts.",
     "layout": {
         "items": [
             {
                 "type": "field",
                 "value": "name",
-                "width": "100%",
+                "width": "33%",
                 "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "excerpt",
+                "width": "66%"
             }
         ]
     }

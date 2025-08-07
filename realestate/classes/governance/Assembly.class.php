@@ -304,6 +304,7 @@ class Assembly extends \equal\orm\Model {
                 'selection'      => [
                     'pending',
                     'published',
+                    'sending',
                     'sent',
                     'in_progress',
                     'held',
@@ -341,7 +342,19 @@ class Assembly extends \equal\orm\Model {
                     'send' => [
                         'description'   => 'Send the invitations, and mark the Assembly as sent.',
                         'policies'      => [/**/],
-                        'onbefore'      => 'onbeforeSend',
+                        'onbefore'      => 'onbeforeSending',
+                        'status'        => 'sending'
+                    ]
+                ]
+            ],
+            'sending' => [
+                'description' => 'Assembly calls are being sent.',
+                'icon' => 'sent',
+                'transitions' => [
+                    'sent' => [
+                        'description'   => 'Marks the Assembly invites as sent.',
+                        'help'          => 'This transition is meant to be done automatically when all invites have been marked as sent.',
+                        'policies'      => [/**/],
                         'status'        => 'sent'
                     ]
                 ]
@@ -638,7 +651,7 @@ class Assembly extends \equal\orm\Model {
             ->read(['condo_id', 'assembly_organizer_identity_id']);
 
         // create an special attendee as 'secretary' relating to the organizer
-        // #memo - Attendee can be manually modified afterwards
+        // #memo - this Attendee can be manually modified afterwards
         foreach($self as $id => $assembly) {
             AssemblyAttendee::create([
                     'assembly_id'   => $id,
@@ -660,7 +673,7 @@ class Assembly extends \equal\orm\Model {
 
     }
 
-    protected static function onbeforeSend($self) {
+    protected static function onbeforeSending($self) {
         $self
             ->do('generate_invites')
             // only owners with contact preference set as email will be handled

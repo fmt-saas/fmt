@@ -74,6 +74,38 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'visible'           => ['has_vote_required', '=', true]
             ],
 
+            'votes_count' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'function'          => 'calcVotesCount',
+                'description'       => "Number of votes casted for the item (resolution).",
+                'visible'           => ['has_vote_required', '=', true]
+            ],
+
+            'vote_result' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'approved',
+                    'rejected'
+                ],
+                'description'       => "Result of the votes at closure time, once voting is completed.",
+                'visible'           => [['has_vote_required', '=', true], ['status', '=', 'closed']],
+            ],
+
+            'has_choices' => [
+                'type'              => 'boolean',
+                'description'       => "Does the item relate to a series of possible choices to pick amongst.",
+                'default'           => false
+            ],
+
+            'assembly_item_choices_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Choices that relate to the assembly item.",
+                'foreign_object'    => 'realestate\governance\AssemblyItemChoice',
+                'foreign_field'     => 'assembly_item_id',
+                'visible'           => ['has_choices', '=', true]
+            ],
+
             'apportionment_id' => [
                 'type'              => 'many2one',
                 'description'       => "The apportionment key used for the item (statutory or not).",
@@ -100,16 +132,6 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'rel_local_key'     => 'assembly_item_id',
                 'description'       => "One or more documents that relate to the point.",
                 'domain'            => ['condo_id', '=', 'object.condo_id']
-            ],
-
-            'vote_result' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'approved',
-                    'rejected'
-                ],
-                'description'       => "Result of the votes at closure time, once voting is completed.",
-                'visible'           => [['has_vote_required', '=', true], ['status', '=', 'closed']],
             ],
 
             /**
@@ -201,6 +223,15 @@ class AssemblyItem extends AssemblyItemTemplate {
         ];
     }
 
+    protected static function calcVotesCount($self) {
+        $result = [];
+        $self->read(['assembly_votes_ids']);
+        foreach($self as $id => $assemblyItem) {
+            $result[$id] = count($assemblyItem['assembly_votes_ids']);
+        }
+        return $result;
+    }
+
     /**
      * #memo - local field `count_represented_shares` is taken under account in AssemblyVote::calcVoteWeight
      */
@@ -263,8 +294,21 @@ class AssemblyItem extends AssemblyItemTemplate {
         $self->do('refresh_order');
     }
 
+    /**
+     * If a vote is required, it must have taken place.
+     *
+     */
     protected static function policyCanClose($self) {
         $result = [];
+        $self->read(['has_vote_required', 'votes_count']);
+        foreach($self as $id => $assemblyItem) {
+            if($assemblyItem['has_vote_required'] && $assemblyItem['votes_count'] <= 0) {
+                $result[$id] = [
+                        'no_votes' => 'Assembly item requires to be voted.'
+                    ];
+                continue;
+            }
+        }
         return $result;
     }
 
@@ -274,7 +318,7 @@ class AssemblyItem extends AssemblyItemTemplate {
         foreach($self as $id => $assemblyItem) {
             if($assemblyItem['status'] !== 'open') {
                 $result[$id] = [
-                        'invalid_status' => 'Assembly item cannot be reverted.'
+                        'item_closed' => 'Assembly item cannot be reverted.'
                     ];
                 continue;
             }
@@ -282,13 +326,20 @@ class AssemblyItem extends AssemblyItemTemplate {
         return $result;
     }
 
+    /**
+     * An Assembly Item cannot be opened if:
+     *   - the assembly is not open
+     *   - the item is already open or closed
+     *   - another item is still pending (not closed).
+     *
+     */
     protected static function policyCanOpen($self) {
         $result = [];
         $self->read(['status', 'assembly_id' => ['status']]);
         foreach($self as $id => $assemblyItem) {
             if($assemblyItem['status'] !== 'pending') {
                 $result[$id] = [
-                        'invalid_status' => 'Assembly item cannot be opened (either closed or already opened).'
+                        'item_not_pending' => 'Assembly item cannot be opened (either closed or already opened).'
                     ];
                 continue;
             }
