@@ -57,7 +57,10 @@
                                             {
                                                 "type": "field",
                                                 "value": "sig_cert",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "type": "signature"
+                                                }
                                             },
                                             {
                                                 "type": "field",

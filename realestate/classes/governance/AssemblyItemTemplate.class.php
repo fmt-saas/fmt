@@ -22,6 +22,12 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
                 'description'       => "Specific code for identifying the assembly item."
             ],
 
+            'helper' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Additional information about the item and its legal basis, when relevant."
+            ],
+
             'order' => [
                 'type'              => 'integer',
                 'description'       => "Order of the item in the assembly agenda.",

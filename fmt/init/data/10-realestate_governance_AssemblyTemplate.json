@@ -6,8 +6,38 @@
             {
                 "id": 1,
                 "name": "Assemblée générale ordinaire",
-                "assembly_type": "ordinary",
-                "description": "Une Assemblée Générale Ordinaire (AGO) est une réunion régulière de l’assemblée où les questions courantes sont discutées et les décisions sont prises conformément aux statuts."
+                "assembly_type": "statutory",
+                "description": "Assemblée annuelle obligatoire, convoquée au moins une fois par an. Elle traite les points récurrents comme l’approbation des comptes, le budget, la reconduction du syndic, le rapport sur les contentieux et la désignation du commissaire aux comptes. C’est le cadre standard de gestion annuelle d’une ACP."
+            },
+            {
+                "id": 2,
+                "name": "Assemblée générale constituante",
+                "assembly_type": "constitutive",
+                "description": "Première assemblée générale d’une copropriété après l’acte de base ou la division d’un immeuble. Elle sert à rendre l’ACP opérationnelle : fixation de l’exercice comptable, désignation du syndic, approbation d’un premier budget, constitution des fonds (roulement et réserve) et adoption de règles de fonctionnement. À utiliser uniquement si l’ACP n’a jamais été formellement activée."
+            },
+            {
+                "id": 3,
+                "name": "Assemblée générale extraordinaire",
+                "assembly_type": "extraordinary",
+                "description": "Assemblée convoquée en dehors du calendrier annuel obligatoire, généralement pour traiter un ou plusieurs points urgents ou spécifiques : travaux importants, modification des statuts ou du règlement d’ordre intérieur, décisions exceptionnelles, etc. Elle suit les mêmes règles de convocation et de vote qu’une AG ordinaire."
+            },
+            {
+                "id": 4,
+                "name": "Assemblée de reprise",
+                "assembly_type": "recovery",
+                "description": "Assemblée convoquée pour relancer une copropriété bloquée ou non gérée depuis un certain temps (absence de syndic, absence d’AG depuis plusieurs années, documents perdus, etc.). Elle sert à remettre en ordre la gestion : désignation d’un syndic, reconstitution des fonds, régularisation administrative. Elle peut combiner des points typiques d'une AG constitutive et ordinaire."
+            },
+            {
+                "id": 5,
+                "name": "Réunion du Conseil de copropriété",
+                "assembly_type": "council_meeting",
+                "description": "Réunion interne du Conseil de copropriété (organe consultatif). Elle permet d’examiner des points techniques, de préparer l’ordre du jour de l’AG, d’émettre des avis ou de suivre l’exécution de certaines décisions. Aucune décision ne peut y être prise au nom de l’ACP sauf si un mandat spécifique lui a été accordé par une AG."
+            },
+            {
+                "id": 6,
+                "name": "Assemblée générale spéciale",
+                "assembly_type": "special",
+                "description": "Assemblée organisée dans un contexte atypique : AG judiciaire, AG par bâtiment ou bloc distinct (en copropriété complexe ou scindée), AG limitée à une indivision, ou AG imposée par un jugement. Utilisée lorsque la structure juridique ou fonctionnelle de la copropriété sort du cadre habituel. À manier avec précaution selon le contexte."
             }
         ]
     },
@@ -16,195 +46,318 @@
         "lang": "fr",
         "data": [
             {
-			    "id": 1,
-                "assembly_template_id": 1,
-                "name": "Constitution du bureau de séance",
-				"code": "assembly_officers_appointment",
-				"has_vote_required": true,
-                "majority": "absolute",
-                "description_call": "L’article 3.87, §5 du Code civil énonce que : « L'assemblée générale est présidée par un copropriétaire. »<br /> Proposition soumise au vote : désigner un copropriétaire comme président de l’assemblée générale des copropriétaires.<br />L’article 3.87, §10 du Code civil explique que l’assemblée générale désigne le secrétaire lors de l’ouverture de la séance.",
-				"description_ballot": "Décision à prendre en vue de désigner le/la Président(e) et le/la secrétaire de séance.",
-				"description_minutes": "Après en avoir débattu, l’Assemblée Générale décide, à la majorité requise, de nommer comme Président(e) de séance: <br/> et comme Secrétaire de séance: "
+                "id": 201,
+                "order": 1,
+                "assembly_template_id": 2,
+                "name": "Mise en place de la gouvernance",
+                "is_group": true,
+                "code": "governance_setup",
+                "helper": "Regroupe les décisions relatives à l'organisation de l'ACP : désignation du syndic, constitution du conseil de copropriété, et composition du bureau de séance.",
+                "description_call": "Section dédiée à l'organisation initiale de la copropriété.",
+                "description_minutes": "Les décisions relatives à la mise en place des organes de gestion de l’ACP ont été prises comme suit :"
             },
             {
-				"id": 2,
+                "id": 202,
+                "order": 2,
+                "assembly_template_id": 2,
+                "name": "Configuration comptable",
+                "is_group": true,
+                "code": "accounting_configuration",
+                "helper": "Permet de définir les paramètres de fonctionnement comptable de base pour la copropriété : exercice, périodicité des provisions et des décomptes, et choix du compte bancaire.",
+                "description_call": "Paramétrage initial du fonctionnement comptable de l’ACP.",
+                "description_minutes": "Les modalités de gestion comptable ont été fixées comme suit :"
+            },
+            {
+                "id": 203,
+                "order": 3,
+                "assembly_template_id": 2,
+                "name": "Approbation budgétaire initiale",
+                "is_group": true,
+                "code": "initial_budget_approval",
+                "helper": "Regroupe les décisions relatives à l’établissement du premier budget de fonctionnement et à la constitution des fonds obligatoires.",
+                "description_call": "Vote du budget initial de l’ACP et constitution des réserves financières.",
+                "description_minutes": "Les décisions suivantes ont été prises concernant le budget initial et les fonds de fonctionnement :"
+            },
+            {
+                "id": 204,
+                "order": 4,
+                "assembly_template_id": 2,
+                "name": "Cadre administratif et assurances",
+                "is_group": true,
+                "code": "administrative_setup",
+                "helper": "Contient les éléments liés à la conformité administrative : assurance, règlement d’ordre intérieur, calendrier des AG futures.",
+                "description_call": "Mise en place du cadre légal et administratif de la copropriété.",
+                "description_minutes": "Les mesures suivantes ont été adoptées concernant le cadre administratif :"
+            },
+            {
+                "id": 205,
+                "order": 5,
+                "assembly_template_id": 2,
+                "name": "Validation des informations initiales",
+                "is_group": true,
+                "code": "initial_information_validation",
+                "helper": "Présentation des données de reprise ou de lancement (créances, contrats existants, fournisseurs…). Permet de démarrer sur une base claire.",
+                "description_call": "Validation des données transmises ou identifiées à la constitution de l’ACP.",
+                "description_minutes": "Les informations suivantes ont été portées à la connaissance de l’Assemblée Générale et validées :"
+            }
+        ]
+    },
+    {
+        "name": "realestate\\governance\\AssemblyItemTemplate",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 101,
+                "order": 1,
+                "assembly_template_id": 1,
+                "name": "Constitution du bureau de séance",
+                "code": "assembly_officers_appointment",
+                "has_vote_required": true,
+                "majority": "absolute",
+                "helper": "Art. 3.87 §5 et §10 du Code civil – Désignation obligatoire d’un président et d’un secrétaire de séance.",
+                "description_call": "L’article 3.87, §5 du Code civil énonce que : « L'assemblée générale est présidée par un copropriétaire. »<br /> Proposition soumise au vote : désigner un copropriétaire comme président de l’assemblée générale des copropriétaires.<br />L’article 3.87, §10 du Code civil explique que l’assemblée générale désigne le secrétaire lors de l’ouverture de la séance.",
+                "description_ballot": "Décision à prendre en vue de désigner le/la Président(e) et le/la secrétaire de séance.",
+                "description_minutes": "Après en avoir débattu, l’Assemblée Générale décide, à la majorité requise, de nommer comme Président(e) de séance: <br/> et comme Secrétaire de séance: "
+            },
+            {
+                "id": 102,
+                "order": 2,
                 "assembly_template_id": 1,
                 "name": "Information à donner sur l’état du ou des contentieux en cours",
+                "code": "contentious_cases_info",
+                "helper": "Art. 3.87 §9 du Code civil – Le syndic rend compte de sa gestion à l’AG, y compris les contentieux en cours.",
                 "description_call": "Communication",
                 "description_minutes": "L’Assemblée Générale, après avoir entendu le rapport du syndic et obtenu toutes les explications nécessaires, à la majorité requise, prend acte des informations données par le syndic et entérine les actions entreprises pour mener à bien la/les procédure(s)."
             },
             {
-				"id": 3,
+                "id": 103,
+                "order": 3,
                 "assembly_template_id": 1,
-				"is_group": true,
+                "is_group": true,
                 "name": "Approbation des comptes arrêtés",
+                "code": "accounts_approval",
+                "helper": "Art. 3.91 §2, 1° du Code civil – L’AG statue sur l’approbation des comptes présentés par le syndic.",
                 "description_call": "Approbation des comptes arrêtés de la copropriété.",
-				"description_minutes": "L'Assemblée Générale, après avoir examiné les documents joints à la convocation et en avoir délibéré, à la majorité requise, approuve/n'approuve pas/surssoit à l'approbation des comptes présentés par le syndic arrêtés à la date du ..."
+                "description_minutes": "L'Assemblée Générale, après avoir examiné les documents joints à la convocation et en avoir délibéré, à la majorité requise, approuve/n'approuve pas/surssoit à l'approbation des comptes présentés par le syndic arrêtés à la date du ..."
             },
             {
-				"id": 4,
+                "id": 104,
+                "order": 4,
                 "assembly_template_id": 1,
                 "name": "Présentation du budget de l’exercice",
                 "majority": "absolute",
-				"has_vote_required": true,
+                "has_vote_required": true,
+                "code": "budget_approval",
+                "helper": "Art. 3.91 §2, 2° du Code civil – L’AG statue sur le budget prévisionnel annuel.",
                 "description_call": "Présentation du budget de l’exercice annuel.",
                 "description_ballot": "Approbation du budget de l'exercice et autorisation de procéder aux appels provisionnels.",
-				"description_minutes": "L'Assemblée Générale, après avoir examiné le projet de budget joint à la convocation et en avoir délibéré, à la majorité requise, fixe le budget de l'exercice à la somme de ... €.<br />Elle autorise le syndic à procéder aux appels provisionnels en proportion du budget voté et des clés de répartition prévues dans l'acte de base de la copropriété.<br />Ce budget vaut également pour les appels provisionnels de l’exercice suivant en l’absence de nouvelle décision."
+                "description_minutes": "L'Assemblée Générale, après avoir examiné le projet de budget joint à la convocation et en avoir délibéré, à la majorité requise, fixe le budget de l'exercice à la somme de ... €.<br />Elle autorise le syndic à procéder aux appels provisionnels en proportion du budget voté et des clés de répartition prévues dans l'acte de base de la copropriété.<br />Ce budget vaut également pour les appels provisionnels de l’exercice suivant en l’absence de nouvelle décision."
             },
             {
-				"id": 5,
+                "id": 105,
+                "order": 5,
                 "assembly_template_id": 1,
                 "name": "Adaptation éventuelle du fonds de roulement",
                 "majority": "absolute",
-				"has_vote_required": true,
-                "description_call": "La situation du fonds de roulement à la date de clôture des comptes est de ... €. Décision à prendre pour modifier le montant du fonds de roulement. L’Assemblée Générale décide soit :<br />1) de le maintenir au xx/yy èmes du budget voté, soit à la somme de ... €, soit une augmentation de ... € à financer par ... appel(s) trimestriel(s) à lancer au ... ;<br />2) de le maintenir à son montant actuel de ... €;<br />3) de surseoir au vote.",
-                "description_ballot": "Décision à prendre concernant l’ajustement du montant du fonds de roulement.",
-				"description_minutes": ""
+                "has_vote_required": true,
+                "code": "working_fund_adjustment",
+                "helper": "Bonne pratique – Ajustement régulier recommandé pour assurer la trésorerie de la copropriété.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 6,
+                "id": 106,
+                "order": 6,
                 "assembly_template_id": 1,
                 "name": "Nomination du(des) commissaire(s) aux comptes",
                 "majority": "absolute",
-				"has_vote_required": true,
-                "description_call": "Après appel aux candidatures et délibération, l’Assemblée Générale, à la majorité requise, désigne le(s) commissaire(s) aux comptes pour l’exercice à venir. Le contrôle des comptes sera effectué par sondage et le rapport transmis au Conseil de Copropriété au moins 30 jours avant la prochaine AG.",
-                "description_ballot": "Nomination du(des) commissaire(s) aux comptes pour l’exercice suivant.",
-				"description_minutes": ""
+                "has_vote_required": true,
+                "code": "appointment_auditors",
+                "helper": "Art. 3.91 §2, 6° du Code civil – L’AG statue sur le contrôle des comptes (obligatoire sauf dispense statutaire).",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 7,
+                "id": 107,
+                "order": 7,
                 "assembly_template_id": 1,
                 "name": "Liste des fournisseurs réguliers",
                 "majority": "absolute",
-                "description_call": "L'AG se prononce sur le maintien de ces fournisseurs.<br />* Les contrats sont disponibles sur demande.",
-                "description_ballot": "Choix pour le maintien des fournisseurs.",
-                "description_minutes": "Après délibération l'AG a statuté sur le maintien des fournisseurs actuels, à l'exception des fournisseurs suivants: "
+                "code": "supplier_list_approval",
+                "helper": "Usage courant – Recommandé pour validation et transparence sur la reconduction des prestataires habituels.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": "..."
             },
-			{
-				"id": 8,
+            {
+                "id": 108,
+                "order": 8,
                 "assembly_template_id": 1,
                 "name": "Reconduction du mandat de Syndic",
                 "majority": "absolute",
-                "description_call": "En l’absence de préavis et à la majorité requise, le contrat de syndic de La Gestion d’Immeubles S.A. est reconduit pour un an aux mêmes conditions jusqu’à la prochaine AG statutaire. Toutes ses prestations seront exécutées conformément au code de déontologie.",
-                "description_ballot": "Décision à prendre quant à la reconduction du mandat de syndic.",
-				"description_minutes": ""
+                "code": "syndic_mandate_renewal",
+                "helper": "Art. 3.88 §1 et §2 du Code civil – L’AG doit statuer sur le renouvellement ou le changement de syndic à échéance.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 9,
+                "id": 109,
+                "order": 9,
                 "assembly_template_id": 1,
                 "name": "Travaux, entretiens à prévoir et financement",
                 "majority": "absolute",
-                "description_call": "Décision à prendre concernant la réalisation de travaux imposés par la loi ou conservatoires. L’AG peut décider à la majorité simple.",
-                "description_ballot": "Approbation ou non des travaux à prévoir et de leur financement.",
-				"description_minutes": ""
+                "code": "work_decision",
+                "helper": "Art. 3.91 §2, 5° du Code civil – L’AG peut décider de travaux nécessaires ou imposés.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 10,
+                "id": 110,
+                "order": 10,
                 "assembly_template_id": 1,
                 "name": "Financement des travaux",
                 "majority": "absolute",
-                "description_call": "Option 1 : Constitution d’une provision spéciale.<br />Option 2 : Financement par prélèvement sur le fonds de réserve.<br />Option 3 : Intégration au budget ordinaire.<br />Option 4 : Financement par prêt bancaire. Décision à prendre sur base des devis et du plan de financement présenté.",
-                "description_ballot": "Choix du mode de financement des travaux parmi les options proposées.",
-				"description_minutes": ""
+                "code": "work_funding_mode",
+                "helper": "Bonne gestion – Choix du mode de financement selon le type de travaux et les liquidités disponibles.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 11,
+                "id": 111,
+                "order": 11,
                 "assembly_template_id": 1,
                 "name": "Information sur les contrats actifs",
                 "majority": "absolute",
-                "description_call": "Le syndic communique la liste des contrats actifs (eau, gaz, électricité, entretien, assurances, etc.). Les copropriétaires peuvent les consulter ou en recevoir une copie sur demande.",
-                "description_ballot": "Prise d’acte des informations données concernant les contrats actifs.",
-				"description_minutes": ""
+                "code": "active_contracts_info",
+                "helper": "Usage courant – Permet la transparence sur les engagements contractuels de la copropriété.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 12,
+                "id": 112,
+                "order": 12,
                 "assembly_template_id": 1,
                 "name": "Mandat au syndic pour modifier les contrats",
                 "majority": "absolute",
-                "description_call": "Mandat au syndic, en concertation avec le conseil de copropriété, pour souscrire, dénoncer ou remplacer tout contrat récurrent existant.",
-                "description_ballot": "Accord ou refus du mandat au syndic pour gérer les contrats récurrents.",
-				"description_minutes": ""
+                "code": "contract_modification_mandate",
+                "helper": "Usage courant – Permet d’anticiper les renouvellements ou résiliations contractuelles sans nouvelle AG.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 13,
+                "id": 113,
+                "order": 13,
                 "assembly_template_id": 1,
                 "name": "Mandat au syndic pour changer de fournisseur énergie",
                 "majority": "absolute",
-                "description_call": "En vue de meilleures conditions tarifaires, l’AG donne mandat au syndic pour changer de fournisseur d’électricité, gaz ou mazout après appel d’offres.",
-                "description_ballot": "Accord ou refus du mandat pour changer de fournisseur d’énergie.",
-				"description_minutes": ""
+                "code": "energy_supplier_mandate",
+                "helper": "Usage courant – Optimisation des coûts d’énergie pour la copropriété.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 14,
+                "id": 114,
+                "order": 14,
                 "assembly_template_id": 1,
                 "name": "Montant des marchés à partir duquel mise en concurrence est requise",
                 "majority": "2_3",
-                "description_call": "L’Assemblée Générale décide du montant à partir duquel une mise en concurrence est obligatoire, sauf exceptions prévues par la loi (article 3.89 §5, 2°).",
-                "description_ballot": "Fixation du seuil de mise en concurrence obligatoire.",
-				"description_minutes": ""
+                "code": "tender_threshold",
+                "helper": "Art. 3.89 §5, 2° du Code civil – L’AG fixe ce seuil pour encadrer les dépenses importantes.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 15,
+                "id": 115,
+                "order": 15,
                 "assembly_template_id": 1,
                 "name": "Montant des marchés/travaux avec cahier des charges",
                 "majority": "2_3",
-                "description_call": "Décision à prendre pour déterminer le seuil au-delà duquel un cahier des charges établi par un architecte ou expert est requis pour mise en concurrence.",
-                "description_ballot": "Fixation du montant au-delà duquel un cahier des charges est requis.",
-				"description_minutes": ""
+                "code": "specification_threshold",
+                "helper": "Bonne pratique – Utilisation d’un cahier des charges pour les marchés complexes ou supérieurs à un seuil.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 16,
+                "id": 116,
+                "order": 16,
                 "assembly_template_id": 1,
                 "name": "Fixation d’une quinzaine pour les prochaines AG ordinaires",
                 "majority": "absolute",
-                "description_call": "Décision à prendre afin de fixer une quinzaine durant laquelle se tiendront les prochaines AG ordinaires.",
-                "description_ballot": "Fixation de la période annuelle pour la tenue des prochaines AG ordinaires.",
-				"description_minutes": ""
+                "code": "setting_ag_period",
+                "helper": "Facilite l’organisation des prochaines AG et la régularité annuelle.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 17,
+                "id": 117,
+                "order": 17,
                 "assembly_template_id": 1,
                 "name": "Contrats dont la durée excède celle du mandat de syndic",
                 "majority": "absolute",
-                "description_call": "L’AG doit approuver tout contrat dépassant la durée du mandat du syndic. L’AG prend connaissance des conditions proposées par le syndic.",
-                "description_ballot": "Approbation ou non des contrats dépassant la durée du mandat de syndic.",
-				"description_minutes": ""
+                "code": "long_term_contracts",
+                "helper": "Art. 3.89 §4 du Code civil – L’AG doit approuver tout contrat dépassant la durée du mandat du syndic.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 18,
+                "id": 118,
+                "order": 18,
                 "assembly_template_id": 1,
                 "name": "Mise à jour du Règlement d’Ordre Intérieur",
                 "majority": "absolute",
-                "description_call": "Suite aux nouvelles dispositions de la loi du 18 juin 2018, l’AG mandate un consultant pour mettre à jour le ROI conformément à l’article 3.93 §3 du C.C.",
-                "description_ballot": "Approbation de la mission de mise à jour du ROI et du prestataire désigné.",
-				"description_minutes": ""
+                "code": "roi_update",
+                "helper": "Art. 3.93 §3 du Code civil – Obligation de mise à jour du ROI pour conformité avec la loi de 2018.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 19,
+                "id": 119,
+                "order": 19,
                 "assembly_template_id": 1,
                 "name": "Détermination des sanctions pour non-paiement des charges",
                 "majority": "absolute",
-                "description_call": "L’AG décide des clauses et sanctions applicables en cas de non-paiement des charges ou appels de provisions.",
-                "description_ballot": "Approbation ou non des sanctions applicables au non-paiement des charges.",
-				"description_minutes": ""
+                "code": "sanctions_unpaid_dues",
+                "helper": "Bonne pratique – Clause dissuasive pour retards de paiement, souvent statutaire.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 20,
+                "id": 120,
+                "order": 20,
                 "assembly_template_id": 1,
                 "name": "Points inscrits à l’ordre du jour à la demande d’un copropriétaire",
                 "majority": "absolute",
-                "description_call": "Examen des points soumis à la demande d’un ou plusieurs copropriétaires.",
-                "description_ballot": "Décision(s) à prendre sur les points inscrits par les copropriétaires.",
-				"description_minutes": ""
+                "code": "owner_proposed_items",
+                "helper": "Art. 3.87 §3 du Code civil – Tout copropriétaire peut demander l’ajout de points à l’ordre du jour.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             },
             {
-				"id": 21,
+                "id": 121,
+                "order": 21,
                 "assembly_template_id": 1,
                 "name": "Remplacement de la concierge",
                 "majority": "absolute",
-                "description_call": "Décision à prendre quant au remplacement de la concierge actuelle.",
-                "description_ballot": "Accord ou refus concernant le remplacement de la concierge.",
-				"description_minutes": ""
+                "code": "concierge_replacement",
+                "helper": "Point occasionnel lié à la gestion du personnel – soumis à vote si changement prévu.",
+                "description_call": "...",
+                "description_ballot": "...",
+                "description_minutes": ""
             }
         ]
     },
@@ -213,65 +366,79 @@
         "lang": "fr",
         "data": [
             {
-                "assembly_template_id": 1,
-				"parent_group_id": 3,
+                "assembly_template_id": 2,
+                "parent_group_id": 202,
                 "name": "Exercice comptable de la copropriété",
                 "majority": "absolute",
+                "code": "fiscal_year_definition",
+                "helper": "Bonne pratique en AG constitutive : permet de fixer officiellement les dates de l’exercice comptable.",
                 "description_call": "Il est proposé de fixer l’exercice comptable du 1er janvier au 31 décembre de chaque année et de fixer le premier exercice comptable du ... au 31 décembre",
-				"description_ballot": "Décision à prendre en vue de désigner les dates d'Exercice Comptable.",
-				"description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider les dates d'Exercice Comptable"
+                "description_ballot": "Décision à prendre en vue de désigner les dates d'Exercice Comptable.",
+                "description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider les dates d'Exercice Comptable"
             },
             {
-                "assembly_template_id": 1,
-				"parent_group_id": 3,
+                "assembly_template_id": 2,
+                "parent_group_id": 202,
                 "name": "Périodicité des décomptes",
                 "majority": "absolute",
+                "code": "statement_periodicity",
+                "helper": "Usage – permet de fixer la fréquence de communication des décomptes de charges aux copropriétaires.",
                 "description_call": "Proposition d’opter pour un décompte annuel.",
-				"description_ballot": "Décision à prendre en vue de désigner la périodicté des décomptes.",
-				"description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider la périodicité des décomptes."
+                "description_ballot": "Décision à prendre en vue de désigner la périodicté des décomptes.",
+                "description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider la périodicité des décomptes."
             },
             {
-                "assembly_template_id": 1,
-				"parent_group_id": 3,
+                "assembly_template_id": 2,
+                "parent_group_id": 202,
                 "name": "Périodicité des provisions",
                 "majority": "absolute",
+                "code": "provision_frequency",
+                "helper": "Usage – détermine la fréquence des appels de provisions : mensuelle, trimestrielle, etc.",
                 "description_call": "Proposition d’établir des provisions mensuelles.",
-				"description_ballot": "Décision à prendre en vue de désigner la périodicté des provisions.",
-				"description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider la périodicité des provisions."
+                "description_ballot": "Décision à prendre en vue de désigner la périodicté des provisions.",
+                "description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider la périodicité des provisions."
             },
             {
-                "assembly_template_id": 1,
-				"parent_group_id": 3,
+                "assembly_template_id": 2,
+                "parent_group_id": 203,
                 "name": "Budget de fonctionnement",
                 "majority": "absolute",
+                "code": "initial_operating_budget",
+                "helper": "Bonne pratique en AG constitutive – premier budget annuel proposé pour lancer la comptabilité.",
                 "description_call": "Proposition de fixer le budget de fonctionnement annuel à ... et les provisions mensuelles à ...",
-				"description_ballot": "Décision à prendre en vue de désigner la périodicté des décomptes.",
-				"description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider le budget de fonctionnement."
+                "description_ballot": "Décision à prendre en vue de désigner la périodicté des décomptes.",
+                "description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider le budget de fonctionnement."
             },
             {
-                "assembly_template_id": 1,
-				"parent_group_id": 3,
+                "assembly_template_id": 2,
+                "parent_group_id": 205,
                 "name": "Situation des débiteurs",
+                "code": "debtor_status",
+                "helper": "Art. 3.87 §9 du Code civil – Obligation pour le syndic de communiquer les dettes des copropriétaires.",
                 "description_call": "Communication",
-				"description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider le budget de fonctionnement."
+                "description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider le budget de fonctionnement."
             },
             {
-                "assembly_template_id": 1,
-				"parent_group_id": 3,
+                "assembly_template_id": 2,
+                "parent_group_id": 203,
                 "name": "Fonds de roulement",
                 "majority": "absolute",
+                "code": "working_fund_creation",
+                "helper": "Art. 3.92 §5 du Code civil – Permet la constitution initiale du fonds de roulement de la copropriété.",
                 "description_call": "Décision de répartir le solde actuel du fonds de roulement au prorata des quotités comme montant de constitution de celui-ci.",
-				"description_ballot": "Décision à prendre en vue de valider le fonds de roulement.",
-				"description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider le fonds de roulement."
+                "description_ballot": "Décision à prendre en vue de valider le fonds de roulement.",
+                "description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider le fonds de roulement."
             },
             {
-                "assembly_template_id": 1,
-				"parent_group_id": 3,
+                "assembly_template_id": 2,
+                "parent_group_id": 203,
                 "name": "Fonds de réserve",
                 "majority": "absolute",
+                "code": "reserve_fund_creation",
+                "helper": "Art. 3.92 §2 du Code civil – Fonds de réserve obligatoire, minimum 5 % du budget sauf décision contraire motivée.",
                 "description_call": "obligation légale (minimum 5% du budget).",
-				"description_ballot": "Décision à prendre en vue de valider le fonds de réserve.",
-				"description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider le fonds de réserve."
+                "description_ballot": "Décision à prendre en vue de valider le fonds de réserve.",
+                "description_minutes": "L’Assemblée Générale décide, à la majorité requise, de valider le fonds de réserve."
             }
 		]
 	}

@@ -122,15 +122,16 @@ class Assembly extends \equal\orm\Model {
 
             'assembly_type' => [
                 'type'              => 'string',
-                'description'       => "Type of assembly.",
+                'description'       => 'Type of assembly.',
                 'selection'         => [
-                    'statutory',
-                    'takeover',
-                    'ordinary',
-                    'extraordinary',
-                    'partial'
+                    'constitutive',     // First general meeting of a new condominium association – formal activation (property manager, budget, funds…)
+                    'statutory',        // Mandatory annual general meeting (art. 3.87 §1 C.C.)
+                    'extraordinary',    // Extraordinary general meeting convened outside the cycle for specific decision(s)
+                    'recovery',         // General meeting for recovery after blockage, deficiency, or change of property manager
+                    'special',          // Special cases: judicial general meeting, by block, by section, undivided ownership, etc.
+                    'council_meeting'   // Meeting of the Condominium Council (non-decisional except with mandate)
                 ],
-                'default'           => 'ordinary'
+                'default'           => 'statutory'
             ],
 
             'assembly_template_id' => [

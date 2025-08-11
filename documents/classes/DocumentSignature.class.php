@@ -72,7 +72,8 @@ class DocumentSignature extends Model {
 
             'sig_cert' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                // 'usage'             => 'text/plain.small',
+                'usage'             => 'signature',
                 'description'       => 'X.509 certificate as PEM or JSON extract.',
                 'visible'           => ['signature_method', 'in', ['aes', 'qes']]
             ],
