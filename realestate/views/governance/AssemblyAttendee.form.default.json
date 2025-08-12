@@ -58,7 +58,16 @@
                                                 "type": "field",
                                                 "label": "Signature",
                                                 "value": "document_signature_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "component": {
+                                                        "name": "createSignature",
+                                                        "data": {
+                                                            "document_id": "object.attendance_register_document_id",
+                                                            "identity_id": "object.identity_id"
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }
