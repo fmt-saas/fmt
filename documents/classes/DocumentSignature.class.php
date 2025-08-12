@@ -6,9 +6,8 @@
 */
 namespace documents;
 
-use equal\orm\Model;
 
-class DocumentSignature extends Model {
+class DocumentSignature extends \core\security\Signature {
 
     public static function getColumns() {
         return [
@@ -25,7 +24,6 @@ class DocumentSignature extends Model {
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'description'       => "The condominium the document belongs to.",
                 'function'          => 'calcName',
                 'store'             => true
             ],
@@ -35,67 +33,21 @@ class DocumentSignature extends Model {
                 'foreign_object'    => 'documents\Document',
                 'required'          => true,
                 'description'       => 'Reference version of the document (immutable).',
-                'dependents'        => ['document_hash_sha256', 'condo_id']
+                'dependents'        => ['data_digest', 'condo_id']
             ],
 
-            'hash_sha256' => [
+            'data_digest' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'usage'             => 'text/plain:64',
                 'relation'          => ['document_id' => 'hash_sha256'],
-                'description'       => 'SHA256 hash of the original document.',
-                'help'              => 'This field holds the hexadecimal value of the hash and might require a conversion to base64 for exchanges.',
+                'description'       => 'Original data signed by the signer.',
+                'help'              => 'As a convention, it is not the  full document that is signed, but only its digest.
+                    This field holds the hexadecimal representation of the value of the document hash of the document, and might require a conversion to binary.
+                    Only SHA-256 is supported for now.',
                 'store'             => true,
-                'readonly'          => true
-            ],
-
-            'signature_method' => [
-                'type'              => 'string',
-                'selection'         => ['ses', 'aes', 'qes'],
-                'required'          => true,
-                'description'       => 'eIDAS signature level (ses = drawn).'
-            ],
-
-            'has_certificate' => [
-                'type'              => 'boolean',
-                'computed'          => true,
-                'description'       => 'True if a certificate is attached.',
+                'readonly'          => true,
                 'visible'           => ['signature_method', 'in', ['aes', 'qes']]
-            ],
-
-            'sig_drawn' => [
-                'type'              => 'binary',
-                'usage'             => 'image/png.signature',
-                'description'       => 'Handwritten signature (PNG), if present.',
-                'visible'           => ['signature_method', '=', 'ses'],
-            ],
-
-            'sig_cert' => [
-                'type'              => 'string',
-                // 'usage'             => 'text/plain.small',
-                'usage'             => 'signature',
-                'description'       => 'X.509 certificate as PEM or JSON extract.',
-                'visible'           => ['signature_method', 'in', ['aes', 'qes']]
-            ],
-
-            'sig_hash' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:144',
-                'description'       => 'Cryptographic signature (signed hash).',
-                'help'              => 'Hexadecimal value of the cryptographic signature is up to 144 chars to be compliant with ECDSA DER/ASN.1',
-                'visible'           => ['signature_method', 'in', ['aes', 'qes']],
-            ],
-
-            'sig_algo' => [
-                'type'              => 'string',
-                'description'       => 'Signature algorithm, e.g., RS256, ES256',
-                'visible'           => ['signature_method', 'in', ['aes', 'qes']]
-            ],
-
-            'sig_timestamp' => [
-                'type'              => 'datetime',
-                'description'       => 'Timestamp of the signature',
-                'default'           => function () { return time(); }
             ],
 
             'signer_identity_id' => [
