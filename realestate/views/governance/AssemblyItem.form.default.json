@@ -10,7 +10,7 @@
                 "entity": "realestate\\governance\\AssemblyItem",
                 "transition": "open"
             },
-            "visible": ["status", "=", "pending"]
+            "visible": [["assembly_status", "=", "in_progress"], ["status", "=", "pending"]]
         },
         {
             "id": "action.close",
@@ -46,6 +46,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "assembly_id",
+                                                "width": "50%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_status",
                                                 "width": "50%",
                                                 "visible": false
                                             },
@@ -167,30 +173,9 @@
                         ]
                     },
                     {
-                        "id": "section.choices",
-                        "label": "Choices",
-                        "visible": [["has_vote_required", "=", true], ["has_choices", "=", true]],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "assembly_item_choices_ids",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
                         "id": "section.votes",
                         "label": "Votes",
-                        "visible": ["has_vote_required", "=", true],
+                        "visible": [["has_vote_required", "=", true], ["status", "<>", "pending"]],
                         "rows": [
                             {
                                 "columns": [
@@ -242,6 +227,27 @@
                                             {
                                                 "type": "field",
                                                 "value": "documents_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.choices",
+                        "label": "Choices",
+                        "visible": [["has_vote_required", "=", true], ["has_choices", "=", true]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_item_choices_ids",
                                                 "width": "100%"
                                             }
                                         ]

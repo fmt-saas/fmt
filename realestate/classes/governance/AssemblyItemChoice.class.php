@@ -40,7 +40,8 @@ class AssemblyItemChoice extends \equal\orm\Model {
 
             'name' => [
                 'type'              => 'string',
-                'description'       => "Value of the choice.",
+                'description'       => "Value of the choice. Must be unique for the assembly item.",
+                'help'              => 'Arbitrary value of the choice, to be displayed in the vote and in the result summary.',
                 'required'          => true
             ],
 

@@ -84,16 +84,16 @@ $getTwigCurrency = function($equal_currency) {
     return $equal_twig_currency_map[$equal_currency] ?? $equal_currency;
 };
 
-$getOrganisationLogo = function($object_id, $object_class='identity\Organisation') {
+$getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
     $result = '';
 
-    $organisation = $object_class::id($object_id)->read(['profile_image_document_id' => ['type', 'data']])->first();
+    $organisation = $object_class::id($organisation_id)->read(['profile_image_print'])->first();
 
-    if($organisation && $organisation['profile_image_document_id']) {
+    if($organisation && $organisation['profile_image_print']) {
         $result = sprintf('data:%s;base64,%s',
-                $organisation['profile_image_document_id']['type'],
-                base64_encode($organisation['profile_image_document_id']['data'])
-            );
+            'image/jpeg',
+            base64_encode($organisation['profile_image_print'])
+        );
     }
     return $result;
 };
@@ -231,7 +231,7 @@ $values = array_merge($values, [
     'title'               => 'Décompte Propriétaire',
 
     'organisation'        => $fiscalPeriod['condo_id']['managing_agent_id'],
-    'organisation_logo'   => $getOrganisationLogo($fiscalPeriod['condo_id']['managing_agent_id'], 'realestate\management\ManagingAgent'),
+    'organisation_logo'   => $getOrganisationLogo($fiscalPeriod['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
     'document_number'     => $statement['invoice_number'],
     'condominium'         => $fiscalPeriod['condo_id'],
 

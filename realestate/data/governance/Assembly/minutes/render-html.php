@@ -64,13 +64,13 @@ $context = $providers['context'];
 $getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
     $result = '';
 
-    $organisation = $object_class::id($organisation_id)->read(['profile_image_document_id' => ['content_type', 'data']])->first();
+    $organisation = $object_class::id($organisation_id)->read(['profile_image_print'])->first();
 
-    if($organisation && $organisation['profile_image_document_id']) {
+    if($organisation && $organisation['profile_image_print']) {
         $result = sprintf('data:%s;base64,%s',
-                $organisation['profile_image_document_id']['content_type'],
-                base64_encode($organisation['profile_image_document_id']['data'])
-            );
+            'image/jpeg',
+            base64_encode($organisation['profile_image_print'])
+        );
     }
     return $result;
 };
@@ -175,7 +175,7 @@ $values = [
     'condominium'               => $assembly['condo_id'],
 
     'organisation'              => $assembly['condo_id']['managing_agent_id'],
-    'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id'], 'realestate\management\ManagingAgent'),
+    'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
 
     'map_ownerships'            => $map_ownerships,
     'map_attendees'             => $map_attendees,

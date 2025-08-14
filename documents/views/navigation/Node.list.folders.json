@@ -48,7 +48,7 @@
                     "text_width": "40px",
                     "text_weight": "bold",
                     "text_color": "white",
-                    "background_color": "#6346ab",
+                    "background_color": "#3f51b5",
                     "border_radius": "40px",
                     "padding": "4px",
                     "margin": "auto"

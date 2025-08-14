@@ -34,11 +34,13 @@ class AssemblyVote extends \equal\orm\Model {
                 'description'       => "The assembly item this vote refers to.",
                 'foreign_object'    => 'realestate\governance\AssemblyItem',
                 'required'          => true,
-                'dependents'        => ['vote_weight']
+                'dependents'        => ['vote_weight', 'is_choice']
             ],
 
             'is_choice' => [
-                'type'              => 'boolean',
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'relation'          => ['assembly_item_id' => 'has_choices'],
                 'description'       => 'Does the vote relate to a choice.',
                 'default'           => false
             ],
@@ -46,6 +48,7 @@ class AssemblyVote extends \equal\orm\Model {
             'assembly_item_choice_id' => [
                 'type'              => 'many2one',
                 'description'       => "The choice this vote refers to, if any.",
+                'help'              => "By convention, a choice is always specified for votes marked with `is_choice`. In this case, the vote value is forced to 'for'.",
                 'foreign_object'    => 'realestate\governance\AssemblyItemChoice',
                 'visible'           => ['is_choice', '=', true]
             ],
@@ -193,6 +196,7 @@ class AssemblyVote extends \equal\orm\Model {
         $self->read(['vote_shares', 'assembly_item_id' => ['count_represented_shares']]);
         foreach($self as $id => $assemblyVote) {
             $shares = $assemblyVote['vote_shares'];
+            // #memo - Art. 3.87 §7 - Nul ne peut prendre part au vote, même comme mandant ou mandataire, pour un nombre de voix supérieur à la somme des voix dont disposent les autres copropriétaires présents ou représentés
             if($shares > ($assemblyVote['assembly_item_id']['count_represented_shares'] * 0.5)) {
                 $shares = (int) floor($assemblyVote['assembly_item_id']['count_represented_shares'] * 0.5);
             }
@@ -202,7 +206,7 @@ class AssemblyVote extends \equal\orm\Model {
     }
 
     /**
-     * Calculate the vote weight based on the shares of the property lots of the ownership
+     * Calculate the vote weight based on the shares of the property lots of the ownership,
      * for the the related apportionment at the moment of the assembly.
      *
      */

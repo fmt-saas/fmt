@@ -2,6 +2,11 @@
 
 use core\alert\MessageModel;
 
+/**
+ * ASSEMBLY
+ */
+
+// Incomplete sending of the invitations to an Assembly
 $model = MessageModel::create([
         'name'          => 'realestate.governance.assembly.incomplete_sending',
         'type'          => 'governance',
@@ -15,3 +20,17 @@ MessageModel::id($model['id'])->update([
         'description'   => "Au moins un propriétaire n'a pas encore été contacté.",
     ], 'fr');
 
+
+// The quorum of presence or represented shares is not reached
+$model = MessageModel::create([
+        'name'          => 'realestate.governance.assembly.invalid',
+        'type'          => 'governance',
+        'label'         => 'Quorum not reached',
+        'description'   => "The quorum of presence or represented shares is not reached."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Quorum non atteint',
+        'description'   => "Le quorum de présence ou de parts représentées n'est pas atteint.",
+    ], 'fr');

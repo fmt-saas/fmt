@@ -6,8 +6,7 @@
 */
 use core\setting\Setting;
 use realestate\governance\Assembly;
-use realestate\ownership\Ownership;
-use realestate\property\PropertyLotOwnership;
+use realestate\governance\AssemblyItem;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
@@ -15,19 +14,12 @@ use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate an html view of a Mandate template.',
+    'description'   => 'Generate a HTML preview of the Assembly invitation (final invites are generated through AssemblyInvite).',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific Assembly to consider.',
+            'description'       => 'Identifier of the specific AssemblyInvitation to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\governance\Assembly',
-            'required'          => true
-        ],
-
-        'ownership_id' => [
-            'description'       => 'Identifier of the Ownership for whom the mandate is requested.',
-            'type'              => 'many2one',
-            'foreign_object'    => 'realestate\ownership\Ownership',
+            'foreign_object'    => 'realestate\governance\AssemblyInvitation',
             'required'          => true
         ],
 
@@ -77,7 +69,6 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
     return $result;
 };
 
-
 $getLabels = function($lang) {
     return [
         'registration_number'            => Setting::get_value('sale', 'locale', 'label_registration-number', 'Registration n°', [], $lang),
@@ -103,8 +94,18 @@ $assembly = Assembly::id($params['id'])
         'condo_id',
         'assembly_type',
         'assembly_date',
+        'assembly_invitation_date',
         'assembly_location',
-        'ownerships_ids',
+        'heading_text_call',
+        'closing_text_call',
+        'assembly_items_ids' => [
+            '@domain' => ['parent_group_id', 'is', null],
+            'id',
+            'order',
+            'name',
+            'is_group',
+            'children_items_ids'
+        ],
         'condo_id' => [
             'name', 'address', 'address_street', 'address_zip', 'address_city',
             'managing_agent_id' => [
@@ -124,49 +125,30 @@ if(!$assembly) {
     throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-if(!in_array($params['ownership_id'], $assembly['ownerships_ids'])) {
-    throw new Exception('ownership_not_part_of_assembly', EQ_ERROR_INVALID_PARAM);
-}
-
-$ownership = Ownership::id($params['ownership_id'])
-    ->read(['representative_owner_id' => ['name', 'address']])
-    ->first(true);
-
-if(!$ownership) {
-    throw new Exception('unknown_ownership', EQ_ERROR_UNKNOWN_OBJECT);
-}
-
-// retrieve owners, lots and shares
-$property_lots = [];
-
-$propertyLotOwnerships = PropertyLotOwnership::search([
-        ['condo_id', '=', $assembly['condo_id']['id']],
-        ['ownership_id', '=', $ownership['id']]
-    ])
+$map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']])
     ->read([
-        'date_to',
-        'property_lot_id' => ['name', 'code', 'is_primary']
-    ]);
-
-foreach($propertyLotOwnerships as $propertyLotOwnership) {
-    if((!$propertyLotOwnership['date_to'] || $propertyLotOwnership['date_to'] > $assembly['assembly_date']) && $propertyLotOwnership['property_lot_id']['is_primary']) {
-        $property_lots[] = $propertyLotOwnership['property_lot_id']['name'];
-    }
-}
+        'name',
+        'order',
+        'description_call',
+        'has_vote_required',
+        'majority'
+    ])
+    ->get();
 
 
 $lang = $params['lang'];
 
 $values = [
-    'title'                     => 'Procuration',
+    'title'                     => 'Convocation',
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
 
     'organisation'              => $assembly['condo_id']['managing_agent_id'],
     'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
 
-    'ownership'                 => $ownership,
-    'property_lots'             => $property_lots,
+    'date'                      => $assembly['assembly_invitation_date'],
+
+    'map_assembly_items'        => $map_assembly_items,
 
     // 'today_date'                => time(),
     'timezone'                  => constant('L10N_TIMEZONE'),
@@ -198,7 +180,7 @@ try {
             })
         );
 
-    $template = $twig->load('AssemblyMandate.'.$params['view_id'].'.html');
+    $template = $twig->load('AssemblyInvitation.'.$params['view_id'].'.html');
     $html = $template->render($values);
 }
 catch(Exception $e) {

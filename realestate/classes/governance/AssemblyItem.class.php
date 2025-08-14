@@ -35,6 +35,14 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'onupdate'          => 'onupdateAssemblyId'
             ],
 
+            'assembly_status' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => "Status of the assembly.",
+                'relation'          => ['assembly_id' => 'status'],
+                'store'             => false
+            ],
+
             'assembly_template_id' => [
                 'type'              => 'many2one',
                 'description'       => "The assembly template this item come from.",
@@ -89,7 +97,14 @@ class AssemblyItem extends AssemblyItemTemplate {
                     'rejected'
                 ],
                 'description'       => "Result of the votes at closure time, once voting is completed.",
-                'visible'           => [['has_vote_required', '=', true], ['status', '=', 'closed']],
+                'visible'           => [['has_vote_required', '=', true], ['has_choices', '=', false], ['status', '=', 'closed']],
+            ],
+
+            'vote_result_choice' => [
+                'type'              => 'string',
+                'description'       => 'Result of the votes at closure time, once voting is completed.',
+                'help'              => 'This values should be amongst the names of the choices defined for the item.',
+                'visible'           => [['has_vote_required', '=', true], ['has_choices', '=', true], ['status', '=', 'closed']],
             ],
 
             'has_choices' => [
@@ -245,52 +260,77 @@ class AssemblyItem extends AssemblyItemTemplate {
      * #memo - local field `count_represented_shares` is taken under account in AssemblyVote::calcVoteWeight
      */
     protected static function doRefreshVoteResult($self) {
-        $self->read(['majority', 'assembly_id' => ['count_owners', 'count_represented_owners'], 'assembly_votes_ids' => ['vote_value', 'vote_weight']]);
+        $self->read([
+                'has_choices',
+                'majority',
+                'assembly_id' => ['count_owners', 'count_represented_owners'],
+                'assembly_votes_ids' => ['vote_weight', 'vote_value', 'assembly_item_choice_id' => ['name']]
+            ]);
 
         foreach($self as $id => $item) {
-            $result = 'rejected';
-
-            $weights = ['for' => 0.0, 'against' => 0.0, 'abstain' => 0.0];
-
-            $count_votes = $item['assembly_votes_ids']->count();
-            $unanimity = true;
-
-            foreach($item['assembly_votes_ids'] as $vote) {
-                if(!isset($vote['vote_value'], $vote['vote_weight'])) {
-                    continue;
+            if($item['has_choices']) {
+                $result = '';
+                $weights = [];
+                $map_assembly_items = [];
+                //#memo - multiple choices are not allowed for a voter attendee, and casting a vote implies that the choice is 'for'
+                foreach($item['assembly_votes_ids'] as $vote) {
+                    $assembly_item_choice_id = $vote['assembly_item_choice_id']['id'];
+                    $map_assembly_items[$assembly_item_choice_id] = $vote['assembly_item_choice_id']['name'];
+                    if(!isset($weights[$assembly_item_choice_id])) {
+                        $weights[$assembly_item_choice_id] = 0.0;
+                    }
+                    $weights[$assembly_item_choice_id] += $vote['vote_weight'];
                 }
-                if($vote['vote_value'] !== 'for') {
-                    $unanimity = false;
+                if(!empty($weights)) {
+                    $selected_choice_id = array_keys($weights, max($weights))[0];
+                    $result = $map_assembly_items[$selected_choice_id] ?? '';
                 }
-                $weights[$vote['vote_value']] += $vote['vote_weight'];
+                self::id($id)->update(['vote_result_choice' => $result]);
             }
+            else {
+                $result = 'rejected';
 
-            $majority = $item['majority'] ?? null;
+                $weights = ['for' => 0.0, 'against' => 0.0, 'abstain' => 0.0];
 
-            $epsilon = 1e-6;
-            $weights_for = $weights['for'];
+                $count_votes = $item['assembly_votes_ids']->count();
+                $unanimity = true;
 
-            if($majority === 'absolute' && $weights_for > (0.5 + $epsilon)) {
-                $result = 'approved';
-            }
-            elseif($majority === '2_3' && $weights_for >= ((2/3) + $epsilon)) {
-                $result = 'approved';
-            }
-            elseif($majority === '4_5' && $weights_for >= ((4/5) + $epsilon)) {
-                $result = 'approved';
-            }
-            elseif($majority === 'unanimity'
-                // no vote against, nor abstention
-                && $unanimity
-                // all owners are presents or represented
-                && $item['assembly_id']['count_owners'] == $item['assembly_id']['count_represented_owners']
-                // a vote have been cast for each owner
-                && $count_votes == $item['assembly_id']['count_owners']
-            ) {
-                $result = 'approved';
-            }
+                foreach($item['assembly_votes_ids'] as $vote) {
+                    if(!isset($vote['vote_value'], $vote['vote_weight'])) {
+                        continue;
+                    }
+                    if($vote['vote_value'] !== 'for') {
+                        $unanimity = false;
+                    }
+                    $weights[$vote['vote_value']] += $vote['vote_weight'];
+                }
 
-            self::id($id)->update(['vote_result' => $result]);
+                $majority = $item['majority'] ?? null;
+
+                $epsilon = 1e-6;
+
+                if($majority === 'absolute' && $weights['for'] > (0.5 + $epsilon)) {
+                    $result = 'approved';
+                }
+                elseif($majority === '2_3' && $weights['for'] >= ((2/3) + $epsilon)) {
+                    $result = 'approved';
+                }
+                elseif($majority === '4_5' && $weights['for'] >= ((4/5) + $epsilon)) {
+                    $result = 'approved';
+                }
+                elseif($majority === 'unanimity'
+                    // no vote against, nor abstention
+                    && $unanimity
+                    // all owners are presents or represented
+                    && $item['assembly_id']['count_owners'] == $item['assembly_id']['count_represented_owners']
+                    // a vote have been cast for each owner
+                    && $count_votes == $item['assembly_id']['count_owners']
+                ) {
+                    $result = 'approved';
+                }
+
+                self::id($id)->update(['vote_result' => $result]);
+            }
         }
 
     }

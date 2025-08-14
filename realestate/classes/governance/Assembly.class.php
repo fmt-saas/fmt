@@ -404,6 +404,7 @@ class Assembly extends \equal\orm\Model {
                     ],
                     'adjourn' => [
                         'description'   => '',
+                        'onafter'       => 'onafterAdjourn',
                         'status'        => 'adjourned'
                     ]
                 ]
@@ -497,7 +498,7 @@ class Assembly extends \equal\orm\Model {
             'schedule_second_session' => [
                 'description'   => 'Verifies that the double-quorum is met.',
                 'help'          => 'This action is meant to be invoked during step `assembly_validation`',
-                'policies'      => [/* */],
+                'policies'      => [ 'can_schedule_second_session' ],
                 'function'      => 'doScheduleSecondSession'
             ]
         ];
@@ -514,6 +515,11 @@ class Assembly extends \equal\orm\Model {
             'can_publish' => [
                 'description' => 'Verifies that all required info for the assembly are provided.',
                 'function'    => 'policyCanPublish'
+            ],
+
+            'can_schedule_second_session' => [
+                'description' => 'Verifies that the assembly is in a state that allows scheduling a second session.',
+                'function'    => 'policyCanScheduleSecondSession'
             ],
 
             'is_assembly_valid' => [
@@ -688,6 +694,13 @@ class Assembly extends \equal\orm\Model {
                     'identity_id'   => $assembly['assembly_organizer_identity_id'],
                     'attendee_role' => 'secretary'
                 ]);
+        }
+    }
+
+    protected static function onafterAdjourn($self, $dispatch) {
+        foreach($self as $id => $assembly) {
+            // invalidity alert is not relevant anymore
+            $dispatch->cancel('realestate.governance.assembly.invalid', 'realestate\governance\Assembly', $id);
         }
     }
 
@@ -1067,7 +1080,7 @@ class Assembly extends \equal\orm\Model {
 
     protected static function policyCanPublish($self) {
         $result = [];
-        $self->read(['assembly_location']);
+        $self->read(['assembly_location', 'assembly_organizer_identity_id']);
 
         foreach($self as $id => $assembly) {
 
@@ -1077,6 +1090,14 @@ class Assembly extends \equal\orm\Model {
                 ];
                 continue;
             }
+
+            if($assembly['assembly_organizer_identity_id']) {
+                $result[$id] = [
+                    'missing_assembly_organizer' => 'A person must be designated as the assembly organization.'
+                ];
+                continue;
+            }
+
         }
 
         return $result;
@@ -1100,6 +1121,34 @@ class Assembly extends \equal\orm\Model {
                         continue 2;
                     }
                 }
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanScheduleSecondSession($self) {
+        $result = [];
+        $self->read(['status', 'is_valid', 'has_second_session']);
+
+        foreach($self as $id => $assembly) {
+            if($assembly['has_second_session']) {
+                $result[$id] = [
+                    'assembly_already_adjourned' => 'A second session has already been scheduled.'
+                ];
+                continue;
+            }
+            if($assembly['is_valid']) {
+                $result[$id] = [
+                    'assembly_is_valid' => 'A valid assembly cannot be adjourned.'
+                ];
+                continue;
+            }
+            if($assembly['status'] !== 'adjourned') {
+                $result[$id] = [
+                    'assembly_not_adjourned' => 'Assembly must be adjourned to schedule a second session.'
+                ];
+                continue;
             }
         }
 
@@ -1308,7 +1357,7 @@ class Assembly extends \equal\orm\Model {
      * At this stage, we have validated the mandates and created related ownership links.
      *
      */
-    protected static function doValidateAssembly($self, $access) {
+    protected static function doValidateAssembly($self, $access, $dispatch) {
         $self->read(['step', 'count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']);
 
         foreach($self as $id => $assembly) {
@@ -1333,10 +1382,12 @@ class Assembly extends \equal\orm\Model {
                     throw new \Exception(serialize(['is_valid' => $inconsistencies]), EQ_ERROR_INVALID_PARAM);
                 }
 
-                self::id($id)->do('schedule_second_session');
-
+                $dispatch->dispatch('realestate.governance.assembly.invalid', 'realestate\governance\Assembly', $id, 'important');
                 continue;
             }
+
+            // remove previous alert (if any)
+            $dispatch->cancel('realestate.governance.assembly.invalid', 'realestate\governance\Assembly', $id);
             // assembly is valid, move one step forward
             self::id($id)->update(['step' => 'agenda_processing']);
         }

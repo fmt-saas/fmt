@@ -114,7 +114,29 @@
                 "entity": "realestate\\governance\\Assembly",
                 "action": "validate_assembly"
             },
-            "visible": [ ["status", "=", "in_progress"], ["step", "=", "assembly_validation"] ]
+            "visible": [ ["is_valid", "=", true], ["status", "=", "in_progress"], ["step", "=", "assembly_validation"] ]
+        },
+        {
+            "id": "action.adjourn_assembly",
+            "label": "Adjourn Assembly",
+            "description": "Close the Assembly, mark it as adjourned.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "transition": "adjourn"
+            },
+            "visible": [ ["is_valid", "=", false], ["status", "=", "in_progress"], ["step", "=", "assembly_validation"] ]
+        },
+        {
+            "id": "action.schedule_second_session",
+            "label": "Schedule second session",
+            "description": "Schedule a second session for the Assembly.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "action": "schedule_second_session"
+            },
+            "visible": [ ["is_valid", "=", false], ["status", "=", "adjourned"], ["has_second_session", "=", false] ]
         },
         {
             "id": "action.check_invites",
@@ -126,6 +148,16 @@
         }
     ],
     "routes": [
+        {
+            "id": "route.preview_invite",
+            "type": "entry",
+            "label": "Preview Invite",
+            "icon": "preview",
+            "description": "",
+            "route": "/?get=realestate_governance_Assembly_invitation_render-pdf&id=object.id",
+            "target": "_blank",
+            "absolute": true
+        },
         {
             "id": "route.view_attendance_register",
             "type": "entry",

@@ -187,25 +187,16 @@ $getTwigCurrency = function($equal_currency) {
     return $equal_twig_currency_map[$equal_currency] ?? $equal_currency;
 };
 
-$getOrganisationLogo = function($invoice) {
+$getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
     $result = '';
-    try {
-        if(!isset($invoice['organisation_id']['profile_image_document_id']['type'], $invoice['organisation_id']['profile_image_document_id']['data'])) {
-            throw new Exception('invalid_image', EQ_ERROR_INVALID_PARAM);
-        }
-        if(stripos($invoice['organisation_id']['profile_image_document_id']['type'], 'image/') !== 0) {
-            throw new Exception('invalid_image_type', EQ_ERROR_INVALID_PARAM);
-        }
-        if(strlen( $invoice['organisation_id']['profile_image_document_id']['data']) <= 0) {
-            throw new Exception('empty_image', EQ_ERROR_INVALID_PARAM);
-        }
+
+    $organisation = $object_class::id($organisation_id)->read(['profile_image_print'])->first();
+
+    if($organisation && $organisation['profile_image_print']) {
         $result = sprintf('data:%s;base64,%s',
-                $invoice['organisation_id']['profile_image_document_id']['type'],
-                base64_encode($invoice['organisation_id']['profile_image_document_id']['data'])
-            );
-    }
-    catch(Exception $e) {
-        // ignore
+            'image/jpeg',
+            base64_encode($organisation['profile_image_print'])
+        );
     }
     return $result;
 };
@@ -292,9 +283,7 @@ $invoice = Invoice::id($params['id'])
             'address_city', 'address_country', 'has_vat', 'vat_number',
             'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
             'website', 'email', 'phone', 'has_vat', 'vat_number',
-            'profile_image_document_id' => [
-                'type', 'data'
-            ]
+            'profile_image_print'
         ],
         'customer_id' => [
             'name', 'address_street', 'address_dispatch', 'address_zip',
@@ -333,7 +322,7 @@ $values = [
     'organisation'        => $invoice['organisation_id'],
     'customer'            => $invoice['customer_id'],
     'lines'               => $getInvoiceLines($invoice),
-    'organisation_logo'   => $getOrganisationLogo($invoice),
+    'organisation_logo'   => $getOrganisationLogo($invoice['organisation_id']['id'], 'realestate\management\ManagingAgent'),
     'payment_qr_code_uri' => $getInvoicePaymentQrCodeUri($invoice),
     'timezone'            => constant('L10N_TIMEZONE'),
     'locale'              => constant('L10N_LOCALE'),

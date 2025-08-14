@@ -326,7 +326,7 @@ $values = [
     'executions'          => $executions,
 
     'organisation'        => $fiscalYear['condo_id']['managing_agent_id'],
-    'organisation_logo'   => $getOrganisationLogo($fiscalYear['condo_id']['managing_agent_id'], 'realestate\management\ManagingAgent'),
+    'organisation_logo'   => $getOrganisationLogo($fiscalYear['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
 
     'condominium'         => $fiscalYear['condo_id'],
 
