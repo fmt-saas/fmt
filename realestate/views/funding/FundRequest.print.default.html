@@ -32,7 +32,7 @@
             margin: 0;
             padding: 0;
             /* margin-top must match header::height */
-            margin-top: 280px;
+            margin-top: 100px;
             /* margin-bottom must match footer::height */
             margin-bottom: 50px;
             font-family: Arial, Helvetica, sans-serif;
@@ -106,197 +106,197 @@
 
 <body>
     {% include 'header.html.twig' %}
+
+
+
+    <!-- fund_requests start -->
+
+        <div class="fiscal_year-lines">
+            <table class="inner" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: auto;">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; padding-left: 7px; width: 20%;">
+                            Nature des opérations
+                            <!-- {{ labels.columns['product'] }} -->
+                        </th>
+                        <th style="text-align: center; padding-right: 7px; width: 30%;">
+                            Clé de répartition
+                        </th>
+                        <th style="text-align: center; padding-right: 7px; width: 15%;">
+                            Montants
+                        </th>
+                        <th style="text-align: center; padding-right: 7px; width: 20%;">
+                            Quotités
+                        </th>
+                        <th style="text-align: center; padding-right: 7px; width: 15%;">
+                            Quote part
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for fund_request in fund_requests %}
+
+                    <tr>
+                        <td colspan="5" style="text-align: left;">
+                            <strong>{{ fund_request.name }}</strong>
+                        </td>
+                    </tr>
+
+                    {% for line in fund_request.lines %}
+                    <tr>
+                        <td colspan="5">
+                            {{ line.name }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <!-- {{ line.code }}<br /> -->
+                        </td>
+                        <td>
+                            {{ line.apportionment }}
+                        </td>
+                        <td style="text-align: right;">
+                            {{ line.total | format_money() }}
+                        </td>
+                        <td style="text-align: right;">
+                            {{ line.shares }}
+                        </td>
+                        <td style="text-align: right;">
+                            {{ line.amount | format_money() }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td style="border-top: solid 1px black !important;"></td>
+                        <td colspan="3" style="border-top: solid 1px black !important; text-align: right;">
+                            <strong>Total de l'appel</strong>
+                        </td>
+                        <td style="border-top: solid 1px black !important; text-align: right;"><strong>{{ fund_request.total | format_money() }}</strong></td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+            </table>
+            <!--
+            <table class="trailer" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: avoid;">
+                <tbody>
+                <tr valign="top">
+                    <td style="width: 87%; text-align: right; padding-right: 10px;">
+                        {{ labels.total_excl_vat }}
+                    </td>
+                    <td style="width: 13%; text-align: right; border-right: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">
+                        {{ item.total | format_money() }}
+                    </td>
+                </tr>
+                {% for tax_label, tax_total in tax_lines %}
+                {% if (tax_total != 0.0) %}
+                <tr>
+                    <td style="text-align: right; padding-right: 10px;">
+                        {{ tax_label }}
+                    </td>
+                    <td style="text-align: right; border-right: 1px solid black; border-left: solid 1px black; border-bottom: solid 1px black;">
+                        {{ tax_total | format_money() }}
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+                <tr>
+                    <td style="text-align: right; padding-right: 10px;">
+                        <b>{{ labels.total_incl_vat }}</b>
+                    </td>
+                    <td style="text-align: right; border-right: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">
+                        <b>{{ item.price | format_money() }}</b>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            -->
+        </div>
+
+        <div style="margin: 20px 0; font-weight: bold;">
+            Planification des versements attendus :
+        </div>
+
+        <div class="fiscal_year-lines">
+            <table class="inner" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: auto;">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; padding-left: 7px; width: 15%;">
+                            Date
+                        </th>
+                        <th style="text-align: center; padding-left: 7px; width: 15%;">
+                            Échéance
+                        </th>
+                        <th style="text-align: center; padding-right: 7px; width: 55%;">
+                            Appel
+                        </th>
+                        <th style="text-align: center; padding-right: 7px; width: 15%;">
+                            Montant
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for execution in executions %}
+                    <tr>
+                        <td style="text-align: center;">
+                            {{ execution.issue_date | date(date_format, timezone) }}<br />
+                        </td>
+                        <td style="text-align: center;">
+                            {{ execution.due_date | date(date_format, timezone) }}<br />
+                        </td>
+                        <td>
+                            {{ execution.fund_request }}
+                        </td>
+                        <td style="text-align: right;">
+                            {{ execution.amount | format_money() }}
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+
+
+
+
+
+    <!-- fund_requests end -->
+
+    <!-- payment-qr-code start -->
+
+    <!--
+    {% if item.status != 'proforma'  %}
+        <div class="fiscal_year-payment-info" style="height: 180px;">
+            <div style="padding-left: 15px; padding-top: 15px;">
+                {% set price = '<b>' ~ item.price | format_money() ~ '</b>' %}
+                {% set due_date = '<b>' ~ item.due_date | date(date_format, timezone) ~ '</b>' %}
+                {{ labels.balance_of_must_be_paid_before | replace({ '%price%': price, '%due_date%': due_date }) | raw }}
+            </div>
+
+            <div style="padding-top: 20px; padding-left: 15px;">
+                <b style="text-transform: uppercase;">{{ labels.communication }}</b><b> : {{ item.payment_reference }}</b><br/>
+                IBAN : {{ organisation.bank_account_iban }}<br/>
+                BIC : {{ organisation.bank_account_bic }}<br/>
+                <br/>
+                {{ organisation.legal_name }}<br/>
+                {{ organisation.address_street }} {{ organisation.address_zip }} {{ organisation.address_city }}<br/>
+            </div>
+
+            <div style="position: absolute; right: 10px; top: 15px;">
+                {% if (payment_qr_code_uri|length > 0) %}
+                    <img src="{{ payment_qr_code_uri }}" width= "150" height="150" alt="payment-qr-code" />
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    -->
+    <!-- payment-qr-code end -->
+
+
     {% include 'footer.html.twig' %}
-
-    <main class="{{ debug ? 'debug' : '' }}">
-        <!-- fund_requests start -->
-
-            <div class="fiscal_year-lines">
-                <table class="inner" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: auto;">
-                    <thead>
-                        <tr>
-                            <th style="text-align: center; padding-left: 7px; width: 20%;">
-                                Nature des opérations
-                                <!-- {{ labels.columns['product'] }} -->
-                            </th>
-                            <th style="text-align: center; padding-right: 7px; width: 30%;">
-                                Clé de répartition
-                            </th>
-                            <th style="text-align: center; padding-right: 7px; width: 15%;">
-                                Montants
-                            </th>
-                            <th style="text-align: center; padding-right: 7px; width: 20%;">
-                                Quotités
-                            </th>
-                            <th style="text-align: center; padding-right: 7px; width: 15%;">
-                                Quote part
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for fund_request in fund_requests %}
-
-                        <tr>
-                            <td colspan="5" style="text-align: left;">
-                                <strong>{{ fund_request.name }}</strong>
-                            </td>
-                        </tr>
-
-                        {% for line in fund_request.lines %}
-                        <tr>
-                            <td colspan="5">
-                                {{ line.name }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <!-- {{ line.code }}<br /> -->
-                            </td>
-                            <td>
-                                {{ line.apportionment }}
-                            </td>
-                            <td style="text-align: right;">
-                                {{ line.total | format_money() }}
-                            </td>
-                            <td style="text-align: right;">
-                                {{ line.shares }}
-                            </td>
-                            <td style="text-align: right;">
-                                {{ line.amount | format_money() }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        <tr>
-                            <td style="border-top: solid 1px black !important;"></td>
-                            <td colspan="3" style="border-top: solid 1px black !important; text-align: right;">
-                                <strong>Total de l'appel</strong>
-                            </td>
-                            <td style="border-top: solid 1px black !important; text-align: right;"><strong>{{ fund_request.total | format_money() }}</strong></td>
-                        </tr>
-
-                    {% endfor %}
-
-                    </tbody>
-                </table>
-                <!--
-                <table class="trailer" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: avoid;">
-                    <tbody>
-                    <tr valign="top">
-                        <td style="width: 87%; text-align: right; padding-right: 10px;">
-                            {{ labels.total_excl_vat }}
-                        </td>
-                        <td style="width: 13%; text-align: right; border-right: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">
-                            {{ item.total | format_money() }}
-                        </td>
-                    </tr>
-                    {% for tax_label, tax_total in tax_lines %}
-                    {% if (tax_total != 0.0) %}
-                    <tr>
-                        <td style="text-align: right; padding-right: 10px;">
-                            {{ tax_label }}
-                        </td>
-                        <td style="text-align: right; border-right: 1px solid black; border-left: solid 1px black; border-bottom: solid 1px black;">
-                            {{ tax_total | format_money() }}
-                        </td>
-                    </tr>
-                    {% endif %}
-                    {% endfor %}
-                    <tr>
-                        <td style="text-align: right; padding-right: 10px;">
-                            <b>{{ labels.total_incl_vat }}</b>
-                        </td>
-                        <td style="text-align: right; border-right: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">
-                            <b>{{ item.price | format_money() }}</b>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                -->
-            </div>
-
-            <div style="margin: 20px 0; font-weight: bold;">
-                Planification des versements attendus :
-            </div>
-
-            <div class="fiscal_year-lines">
-                <table class="inner" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: auto;">
-                    <thead>
-                        <tr>
-                            <th style="text-align: center; padding-left: 7px; width: 15%;">
-                                Date
-                            </th>
-                            <th style="text-align: center; padding-left: 7px; width: 15%;">
-                                Échéance
-                            </th>
-                            <th style="text-align: center; padding-right: 7px; width: 55%;">
-                                Appel
-                            </th>
-                            <th style="text-align: center; padding-right: 7px; width: 15%;">
-                                Montant
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for execution in executions %}
-                        <tr>
-                            <td style="text-align: center;">
-                                {{ execution.issue_date | date(date_format, timezone) }}<br />
-                            </td>
-                            <td style="text-align: center;">
-                                {{ execution.due_date | date(date_format, timezone) }}<br />
-                            </td>
-                            <td>
-                                {{ execution.fund_request }}
-                            </td>
-                            <td style="text-align: right;">
-                                {{ execution.amount | format_money() }}
-                            </td>
-                        </tr>
-                    {% endfor %}
-
-                    </tbody>
-                </table>
-            </div>
-
-
-
-
-
-
-        <!-- fund_requests end -->
-
-        <!-- payment-qr-code start -->
-
-        <!--
-        {% if item.status != 'proforma'  %}
-            <div class="fiscal_year-payment-info" style="height: 180px;">
-                <div style="padding-left: 15px; padding-top: 15px;">
-                    {% set price = '<b>' ~ item.price | format_money() ~ '</b>' %}
-                    {% set due_date = '<b>' ~ item.due_date | date(date_format, timezone) ~ '</b>' %}
-                    {{ labels.balance_of_must_be_paid_before | replace({ '%price%': price, '%due_date%': due_date }) | raw }}
-                </div>
-
-                <div style="padding-top: 20px; padding-left: 15px;">
-                    <b style="text-transform: uppercase;">{{ labels.communication }}</b><b> : {{ item.payment_reference }}</b><br/>
-                    IBAN : {{ organisation.bank_account_iban }}<br/>
-                    BIC : {{ organisation.bank_account_bic }}<br/>
-                    <br/>
-                    {{ organisation.legal_name }}<br/>
-                    {{ organisation.address_street }} {{ organisation.address_zip }} {{ organisation.address_city }}<br/>
-                </div>
-
-                <div style="position: absolute; right: 10px; top: 15px;">
-                    {% if (payment_qr_code_uri|length > 0) %}
-                        <img src="{{ payment_qr_code_uri }}" width= "150" height="150" alt="payment-qr-code" />
-                    {% endif %}
-                </div>
-            </div>
-        {% endif %}
-        -->
-        <!-- payment-qr-code end -->
-
-
-    </main>
 </body>
 
 </html>

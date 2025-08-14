@@ -32,7 +32,7 @@
             margin: 0;
             padding: 0;
             /* margin-top must match header::height */
-            margin-top: 280px;
+            margin-top: 100px;
             /* margin-bottom must match footer::height */
             margin-bottom: 50px;
             font-family: Arial, Helvetica, sans-serif;
@@ -120,9 +120,8 @@
 
 <body>
     {% include 'header.html.twig' %}
-    {% include 'footer.html.twig' %}
 
-    <main class="{{ debug ? 'debug' : '' }}">
+
     {% for owner in owners %}
         <!-- <h1>{{ owner.name }}</h1> -->
 
@@ -364,6 +363,9 @@
         </table>
 
     {% endfor %}
-    </main>
+
+
+    {% include 'footer.html.twig' %}
 </body>
+
 </html>

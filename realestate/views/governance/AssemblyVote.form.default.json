@@ -34,7 +34,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "has_proxy",
+                                                "value": "has_mandate",
                                                 "width": "100%"
                                             },
                                             {

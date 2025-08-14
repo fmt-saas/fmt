@@ -92,7 +92,7 @@
                 "entity": "realestate\\governance\\Assembly",
                 "action": "validate_proxies"
             },
-            "visible":  [ ["status", "=", "in_progress"], ["step", "=", "proxy_validation"] ]
+            "visible":  [ ["status", "=", "in_progress"], ["step", "=", "mandate_validation"] ]
         },
         {
             "id": "action.validate_attendance",

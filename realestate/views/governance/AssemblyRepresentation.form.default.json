@@ -39,7 +39,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "assembly_proxy_id",
+                                                "value": "assembly_mandate_id",
                                                 "width": "100%"
                                             },
                                             {

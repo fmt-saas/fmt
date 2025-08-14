@@ -70,7 +70,7 @@ class AssemblyAttendee extends \equal\orm\Model {
 
             'assembly_proxies_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'realestate\governance\AssemblyProxy',
+                'foreign_object'    => 'realestate\governance\AssemblyMandate',
                 'foreign_field'     => 'attendee_id',
                 'description'       => "Proxies held by this attendee for the assembly.",
                 'help'              => "This field is used to complete the list of ownerships based on the proxies held by the attendee.",

@@ -121,12 +121,27 @@
                 ]
             },
             {
-                "id": "item.hr",
-                "label": "HR",
+                "id": "item.organization",
+                "label": "Organization",
                 "description": "",
                 "icon": "group",
                 "type": "parent",
                 "children": [
+                    {
+                        "id": "organisation",
+                        "type": "entry",
+                        "label": "Organisation",
+                        "icon": "corporate_fare",
+                        "description": "",
+                        "context": {
+                            "entity": "identity\\Organisation",
+                            "view": "form.default",
+                            "mode": "view",
+                            "params": {
+                                "id": 1
+                            }
+                        }
+                    },
                     {
                         "id": "employees",
                         "type": "entry",

@@ -11,7 +11,7 @@ use realestate\property\Apportionment;
 use realestate\property\PropertyLotApportionmentShare;
 
 // #memo - `created` date could be used to prioritize the mandates in case the amount exceeds the maximum allowed number of mandates.
-class AssemblyProxy extends \equal\orm\Model {
+class AssemblyMandate extends \equal\orm\Model {
 
     public static function getColumns() {
 
@@ -52,16 +52,16 @@ class AssemblyProxy extends \equal\orm\Model {
                 'description'       => "The ownership that is represented by the proxy.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'required'          => true,
-                'dependents'        => ['proxy_shares']
+                'dependents'        => ['mandate_shares']
             ],
 
-            'proxy_date' => [
+            'mandate_date' => [
                 'type'              => 'date',
                 'description'       => "Date for which the proxy was granted (as stated on document).",
                 'default'           => time()
             ],
 
-            'proxy_type' => [
+            'mandate_type' => [
                 'type'              => 'string',
                 'selection'         => [
                     'written',
@@ -71,7 +71,7 @@ class AssemblyProxy extends \equal\orm\Model {
                 'default'           => 'written'
             ],
 
-            'proxy_document_id' => [
+            'mandate_document_id' => [
                 'type'              => 'many2one',
                 'description'       => "PDF scan or eID/itsme file.",
                 'help'              => "In case of wet signature, this is a scan of the received document.
@@ -81,7 +81,7 @@ class AssemblyProxy extends \equal\orm\Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
-            'proxy_shares' => [
+            'mandate_shares' => [
                 'type'              => 'computed',
                 'result_type'       => 'float',
                 'description'       => "Computed weight of the vote, based on shares and majority type (via assembly_item_id).",
@@ -95,7 +95,13 @@ class AssemblyProxy extends \equal\orm\Model {
                 'default'           => false
             ],
 
-            'proxy_document_id' => [
+            'has_voting_instructions' => [
+                'type'              => 'boolean',
+                'description'       => "Mark the mandate as having a handwritten signature.",
+                'default'           => false
+            ],
+
+            'mandate_document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => "Original (immutable) document of the mandate, or scanned version."
@@ -129,25 +135,25 @@ class AssemblyProxy extends \equal\orm\Model {
     protected static function calcProxyShares($self) {
         $result = [];
         $self->read(['condo_id']);
-        foreach($self as $id => $assemblyProxy) {
+        foreach($self as $id => $assemblyMandate) {
             // 1) identify the lots
             $property_lots_ids = [];
 
-            $ownership = Ownership::id($assemblyProxy['ownership_id'])
+            $ownership = Ownership::id($assemblyMandate['ownership_id'])
                 ->read(['property_lot_ownerships_ids' => ['property_lot_id', 'date_to']])
                 ->first();
 
             foreach($ownership['property_lot_ownerships_ids'] as $propertyLotOwnership) {
-                if(!$propertyLotOwnership['date_to'] || $propertyLotOwnership['date_to'] > $assemblyProxy['assembly_id']['assembly_date']) {
+                if(!$propertyLotOwnership['date_to'] || $propertyLotOwnership['date_to'] > $assemblyMandate['assembly_id']['assembly_date']) {
                     $property_lots_ids[] = $propertyLotOwnership['property_lot_id'];
                 }
             }
 
             // 2) retrieve statutory apportionment
-            $apportionment = Apportionment::search(['is_statutory', '=', true], ['condo_id', '=', $assemblyProxy['condo_id']])->first();
+            $apportionment = Apportionment::search(['is_statutory', '=', true], ['condo_id', '=', $assemblyMandate['condo_id']])->first();
 
             if(!$apportionment) {
-                trigger_error('APP::unexpected missing statutory apportionment for condo ' . $assemblyProxy['condo_id'], EQ_REPORT_ERROR);
+                trigger_error('APP::unexpected missing statutory apportionment for condo ' . $assemblyMandate['condo_id'], EQ_REPORT_ERROR);
                 continue;
             }
 

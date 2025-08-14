@@ -43,7 +43,7 @@ class AssemblyRepresentation extends \equal\orm\Model {
                 'description'       => "The ownership that is represented by the proxy.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'required'          => true,
-                'dependents'        => ['proxy_shares']
+                'dependents'        => ['mandate_shares']
             ],
 
             'representation_type' => [
@@ -56,9 +56,9 @@ class AssemblyRepresentation extends \equal\orm\Model {
                 'required'          => true
             ],
 
-            'assembly_proxy_id' => [
+            'assembly_mandate_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'realestate\governance\AssemblyProxy',
+                'foreign_object'    => 'realestate\governance\AssemblyMandate',
                 'description'       => "Proxy the representation originates from, if any.",
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['attendee_id', '=', 'object.attendee_id'], ['ownership_id', '=', 'object.ownership_id']],
                 'visible'           => ['representation_type', '=', 'proxy']

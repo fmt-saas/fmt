@@ -190,18 +190,18 @@ $getTwigCurrency = function($equal_currency) {
 $getOrganisationLogo = function($invoice) {
     $result = '';
     try {
-        if(!isset($invoice['organisation_id']['image_document_id']['type'], $invoice['organisation_id']['image_document_id']['data'])) {
+        if(!isset($invoice['organisation_id']['profile_image_document_id']['type'], $invoice['organisation_id']['profile_image_document_id']['data'])) {
             throw new Exception('invalid_image', EQ_ERROR_INVALID_PARAM);
         }
-        if(stripos($invoice['organisation_id']['image_document_id']['type'], 'image/') !== 0) {
+        if(stripos($invoice['organisation_id']['profile_image_document_id']['type'], 'image/') !== 0) {
             throw new Exception('invalid_image_type', EQ_ERROR_INVALID_PARAM);
         }
-        if(strlen( $invoice['organisation_id']['image_document_id']['data']) <= 0) {
+        if(strlen( $invoice['organisation_id']['profile_image_document_id']['data']) <= 0) {
             throw new Exception('empty_image', EQ_ERROR_INVALID_PARAM);
         }
         $result = sprintf('data:%s;base64,%s',
-                $invoice['organisation_id']['image_document_id']['type'],
-                base64_encode($invoice['organisation_id']['image_document_id']['data'])
+                $invoice['organisation_id']['profile_image_document_id']['type'],
+                base64_encode($invoice['organisation_id']['profile_image_document_id']['data'])
             );
     }
     catch(Exception $e) {
@@ -292,7 +292,7 @@ $invoice = Invoice::id($params['id'])
             'address_city', 'address_country', 'has_vat', 'vat_number',
             'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
             'website', 'email', 'phone', 'has_vat', 'vat_number',
-            'image_document_id' => [
+            'profile_image_document_id' => [
                 'type', 'data'
             ]
         ],

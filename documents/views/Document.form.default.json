@@ -39,6 +39,11 @@
                                         "width": "50%",
                                         "items": [
                                             {
+                                                "type": "field",
+                                                "value": "name",
+                                                "width": "100%"
+                                            },
+                                            {
                                                 "type": "label",
                                                 "value": "Document Assignment",
                                                 "width": "100%",
@@ -126,8 +131,20 @@
                                             }
                                         ]
                                     },
+{
+                                        "width": "50%",
+                                        "visible": ["state", "=", "draft"],
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "data",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    },
                                     {
                                         "width": "50%",
+                                        "visible": ["state", "<>", "draft"],
                                         "items": [
                                             {
                                                 "type": "field",

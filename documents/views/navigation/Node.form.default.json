@@ -20,7 +20,10 @@
                                             {
                                                 "type": "field",
                                                 "value": "node_type",
-                                                "width": "16%"
+                                                "width": "16%",
+                                                "widget": {
+                                                    "readonly": true
+                                                }
                                             },
                                             {
                                                 "type": "field",
@@ -35,7 +38,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "50%",
+                                                "width": "33%",
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
@@ -46,8 +49,14 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "node_visibility",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "parent folder",
                                                 "value": "parent_id",
-                                                "width": "50%",
+                                                "width": "33%",
                                                 "widget": {
                                                     "header": {
                                                         "actions": {

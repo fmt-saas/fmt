@@ -259,7 +259,7 @@ class Assembly extends \equal\orm\Model {
 
             'assembly_proxies_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'realestate\governance\AssemblyProxy',
+                'foreign_object'    => 'realestate\governance\AssemblyMandate',
                 'foreign_field'     => 'assembly_id',
                 'description'       => "The list of mandates registered for the assembly.",
             ],
@@ -310,7 +310,7 @@ class Assembly extends \equal\orm\Model {
                 'selection'      => [
                     'opening',
                     'attendance_closure',
-                    'proxy_validation',
+                    'mandate_validation',
                     'representation_validation',
                     'assembly_validation',
                     'agenda_processing'
@@ -442,7 +442,7 @@ class Assembly extends \equal\orm\Model {
 
             'close_attendance' => [
                 'description'   => 'Close the attendance step and attempt to validate proxies.',
-                'help'          => 'No more attendances can be added after this. Step to `proxy_validation`.',
+                'help'          => 'No more attendances can be added after this. Step to `mandate_validation`.',
                 'policies'      => [],
                 'function'      => 'doCloseAttendance'
             ],
@@ -455,7 +455,7 @@ class Assembly extends \equal\orm\Model {
 
             'validate_proxies' => [
                 'description'   => 'Verifies the validity of the proxies and generate links with ownerships.',
-                'help'          => "This action is meant to be performed at the proxy_validation step. We check the validity conditions of each proxy.
+                'help'          => "This action is meant to be performed at the mandate_validation step. We check the validity conditions of each proxy.
                     If a proxy is invalid, we mark it as invalid and add the reason.
                     Triggers representations generation, and step to `representation_validation`.",
                 'policies'      => [],
@@ -902,7 +902,7 @@ class Assembly extends \equal\orm\Model {
         //          - If the owner is present (representation type: OWNER) → skip
         //          - If the ownership is already represented by someone else via a valid proxy → skip
         foreach($self as $id => $assembly) {
-            if(in_array($assembly['step'], ['opening', 'attendance_closure', 'proxy_validation'])) {
+            if(in_array($assembly['step'], ['opening', 'attendance_closure', 'mandate_validation'])) {
                 continue;
             }
             $attendees = AssemblyAttendee::ids($assembly['assembly_attendees_ids'])
@@ -935,8 +935,8 @@ class Assembly extends \equal\orm\Model {
                 }
 
                 // 2) add ownerships from valid proxies
-                foreach($attendee['assembly_proxies_ids'] as $proxy_id => $assemblyProxy) {
-                    if($assemblyProxy['is_valid'] && $assemblyProxy['ownership_id']) {
+                foreach($attendee['assembly_proxies_ids'] as $mandate_id => $assemblyMandate) {
+                    if($assemblyMandate['is_valid'] && $assemblyMandate['ownership_id']) {
                         $existingRepresentations = AssemblyRepresentation::search([['assembly_id', '=', $id], ['ownership_id', '=', $ownership_id]]);
                         if($existingRepresentations->count() > 0) {
                             continue;
@@ -945,9 +945,9 @@ class Assembly extends \equal\orm\Model {
                             'condo_id'              => $assembly['condo_id'],
                             'assembly_id'           => $id,
                             'attendee_id'           => $attendee_id,
-                            'ownership_id'          => $assemblyProxy['ownership_id'],
+                            'ownership_id'          => $assemblyMandate['ownership_id'],
                             'representation_type'   => 'proxy',
-                            'assembly_proxy_id'     => $proxy_id
+                            'assembly_mandate_id'     => $mandate_id
                         ]);
                     }
                 }
@@ -958,7 +958,7 @@ class Assembly extends \equal\orm\Model {
     protected static function doCloseAttendance($self) {
         $self
             ->do('validate_attendees')
-            ->update(['step' => 'proxy_validation']);
+            ->update(['step' => 'mandate_validation']);
     }
 
     protected static function doValidateAttendees($self) {
@@ -980,7 +980,7 @@ class Assembly extends \equal\orm\Model {
                     $attendee_ownerships_ids[] = $owner['ownership_id']['id'];
                 }
 
-                $assemblyProxies = AssemblyProxy::ids($assemblyAttendee['assembly_proxies_ids']);
+                $assemblyProxies = AssemblyMandate::ids($assemblyAttendee['assembly_proxies_ids']);
 
                 // an attendee who is not owner, has no proxy and is neither president nor secretary, is invalid
                 if(
@@ -1009,34 +1009,34 @@ class Assembly extends \equal\orm\Model {
 
             foreach($assembly['assembly_attendees_ids'] as $assemblyAttendee) {
 
-                $assemblyProxies = AssemblyProxy::ids($assemblyAttendee['assembly_proxies_ids'])
-                    ->read(['proxy_shares', 'proxy_type', 'has_wet_signature', 'ownership_id', 'proxy_document_id']);
+                $assemblyProxies = AssemblyMandate::ids($assemblyAttendee['assembly_proxies_ids'])
+                    ->read(['mandate_shares', 'mandate_type', 'has_wet_signature', 'ownership_id', 'mandate_document_id']);
 
-                $count_proxy_shares = 0;
+                $count_mandate_shares = 0;
                 $count_proxies = 0;
 
-                foreach($assemblyProxies as $assembly_proxy_id => $assemblyProxy) {
+                foreach($assemblyProxies as $assembly_mandate_id => $assemblyMandate) {
                     if(!$assemblyAttendee['is_valid']) {
-                        AssemblyProxy::id($assembly_proxy_id)->update(['is_valid' => false, 'invalidity_reason' => 'invalid_attendee']);
+                        AssemblyMandate::id($assembly_mandate_id)->update(['is_valid' => false, 'invalidity_reason' => 'invalid_attendee']);
                         continue;
                     }
 
                     ++$count_proxies;
 
-                    if(!in_array($assemblyProxy['ownership_id'], $assembly['ownerships_ids'])) {
-                        AssemblyProxy::id($assembly_proxy_id)->update(['is_valid' => false, 'invalidity_reason' => 'not_owner']);
+                    if(!in_array($assemblyMandate['ownership_id'], $assembly['ownerships_ids'])) {
+                        AssemblyMandate::id($assembly_mandate_id)->update(['is_valid' => false, 'invalidity_reason' => 'not_owner']);
                         continue;
                     }
-                    $count_proxy_shares += $assemblyProxy['proxy_shares'];
-                    if($count_proxy_shares > $assembly['count_shares'] * 0.1) {
+                    $count_mandate_shares += $assemblyMandate['mandate_shares'];
+                    if($count_mandate_shares > $assembly['count_shares'] * 0.1) {
                         if($count_proxies > 3) {
-                            AssemblyProxy::id($assembly_proxy_id)->update(['is_valid' => false, 'invalidity_reason' => 'too_many_proxies']);
+                            AssemblyMandate::id($assembly_mandate_id)->update(['is_valid' => false, 'invalidity_reason' => 'too_many_proxies']);
                             continue;
                         }
                     }
-                    if($assemblyProxy['proxy_type'] === 'written') {
-                        if(!$assemblyProxy['has_wet_signature']) {
-                            AssemblyProxy::id($assembly_proxy_id)->update(['is_valid' => false, 'invalidity_reason' => 'no_signature']);
+                    if($assemblyMandate['mandate_type'] === 'written') {
+                        if(!$assemblyMandate['has_wet_signature']) {
+                            AssemblyMandate::id($assembly_mandate_id)->update(['is_valid' => false, 'invalidity_reason' => 'no_signature']);
                             continue;
                         }
                     }
@@ -1045,12 +1045,12 @@ class Assembly extends \equal\orm\Model {
                         // retrouver le doc et vérifier la signature électronique
                     }
 
-                    if(isset($map_covered_ownerships_ids[$assemblyProxy['ownership_id']])) {
-                        AssemblyProxy::id($assembly_proxy_id)->update(['is_valid' => false, 'invalidity_reason' => 'duplicated_owner']);
+                    if(isset($map_covered_ownerships_ids[$assemblyMandate['ownership_id']])) {
+                        AssemblyMandate::id($assembly_mandate_id)->update(['is_valid' => false, 'invalidity_reason' => 'duplicated_owner']);
                         continue;
                     }
 
-                    $map_covered_ownerships_ids[$assemblyProxy['ownership_id']] = true;
+                    $map_covered_ownerships_ids[$assemblyMandate['ownership_id']] = true;
                 }
             }
         }
@@ -1359,7 +1359,7 @@ class Assembly extends \equal\orm\Model {
         $self->read(['step', 'assembly_representations_ids']);
         foreach($self as $id => $assembly) {
             // compute only when all attendees have been encoded and proxies have been validated
-            if(in_array($assembly['step'], ['opening', 'attendance_closure', 'proxy_validation', 'representation_validation'])) {
+            if(in_array($assembly['step'], ['opening', 'attendance_closure', 'mandate_validation', 'representation_validation'])) {
                 continue;
             }
 
@@ -1382,7 +1382,7 @@ class Assembly extends \equal\orm\Model {
         $self->read(['status', 'step', 'condo_id', 'assembly_representations_ids', 'assembly_date']);
         foreach($self as $id => $assembly) {
 
-            if(in_array($assembly['step'], ['opening', 'attendance_closure', 'proxy_validation', 'representation_validation'])) {
+            if(in_array($assembly['step'], ['opening', 'attendance_closure', 'mandate_validation', 'representation_validation'])) {
                 continue;
             }
 

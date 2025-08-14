@@ -483,13 +483,27 @@ class Identity extends Model {
                 'onupdate'          => 'onupdateWebsite'
             ],
 
-            'image_document_id' => [
+            'profile_image_document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Logo or picture of the identity.',
                 'help'              => 'Company logo for organizations or profile image for natural person.',
                 'domain'            => ['extension', 'in', ['avif', 'jpg', 'png', 'svg', 'webp']],
-                'onupdate'          => 'onupdateImageDocumentId'
+                'onupdate'          => 'onupdateProfileImageDocumentId'
+            ],
+
+            'profile_image_avatar' => [
+                'type'              => 'binary',
+                'usage'             => 'image/jpeg',
+                'description'       => 'Avatar image for front-end display.',
+                'help'              => 'A small JPEG version of the profile image document, optimized for UI usage.',
+            ],
+
+            'profile_image_print' => [
+                'type'              => 'binary',
+                'usage'             => 'image/jpeg',
+                'description'       => 'Profile image to be used for documents generation purposes.',
+                'help'              => 'A medium-size JPEG version of the profile image document.',
             ],
 
             'is_active' => [
@@ -602,8 +616,61 @@ class Identity extends Model {
             'refresh_bank_accounts' => [
                 'description'   => 'Force sync between Identity main bank account and additional ones.',
                 'function'      => 'doRefreshBankAccounts'
+            ],
+            'generate_profile_image' => [
+                'description'   => 'Generate resized profile images based on profile image document.',
+                'function'      => 'doGenerateProfileImage'
             ]
         ];
+    }
+
+    protected static function doGenerateProfileImage($self) {
+        $self->read(['profile_image_document_id' => ['content_type', 'data']]);
+
+        foreach($self as $id => $identity) {
+            if(!$identity['profile_image_document_id']) {
+                continue;
+            }
+
+            $src_image = imagecreatefromstring($identity['profile_image_document_id']['data']);
+
+            $src_width = imageSX($src_image);
+            $src_height = imageSY($src_image);
+
+            $target_width = 400;
+            $target_height = 200;
+
+            $dst_image = imagecreatetruecolor($target_width, $target_height);
+
+            // #memo - discard transparency (not available for JPEG)
+            // fill background with white for non-transparent images
+            $white = imagecolorallocate($dst_image, 255, 255, 255);
+            imagefilledrectangle($dst_image, 0, 0, $target_width, $target_height, $white);
+
+            if( ($src_width / $src_height) < ($target_width / $target_height) ) {
+                $new_height = $target_height;
+                $new_width  = $src_width * $target_height / $src_height;
+            }
+            else {
+                $new_height = $src_height * $target_width / $src_width;
+                $new_width  = $target_width;
+            }
+
+            $offset_x  = round( ($target_width - $new_width) / 2 );
+            $offset_y  = round( ($target_height - $new_height) / 2 );
+            imagecopyresampled($dst_image, $src_image, $offset_x, $offset_y, 0, 0, $new_width, $new_height, $src_width, $src_height);
+
+            // get binary value of generated image
+            ob_start();
+            imagejpeg($dst_image, null, 80);
+            $buffer = ob_get_clean();
+
+            // free mem
+            imagedestroy($dst_image);
+            imagedestroy($src_image);
+
+            self::id($id)->update(['profile_image_print' => $buffer]);
+        }
     }
 
     public static function doSyncFromIdentity($self, $orm) {
@@ -637,7 +704,7 @@ class Identity extends Model {
                 'email_alt',
                 'phone_alt',
                 'website',
-                'image_document_id'
+                'profile_image_document_id'
             ];
 
         $self->read(['object_class', 'identity_id']);
@@ -785,7 +852,7 @@ class Identity extends Model {
     }
 
     protected static function updateField($self, $field) {
-        $self->read(['identity_id', 'user_id', 'contact_id', 'employee_id', 'customer_id', 'condominium_id', 'supplier_id', 'organisation_id', 'managing_agent_id', 'owner_id', 'tenant_id', $field]);
+        $self->read([$field, 'identity_id', 'user_id', 'contact_id', 'employee_id', 'customer_id', 'condominium_id', 'supplier_id', 'organisation_id', 'managing_agent_id', 'owner_id', 'tenant_id', ]);
         foreach($self as $id => $identity) {
 
             /* update from derived class to Identity */
@@ -947,8 +1014,9 @@ class Identity extends Model {
         self::updateField($self, 'website');
     }
 
-    public static function onupdateImageDocumentId($self) {
-        self::updateField($self, 'image_document_id');
+    public static function onupdateProfileImageDocumentId($self) {
+        self::updateField($self, 'profile_image_document_id');
+        $self->do('generate_profile_image');
     }
 
     /*

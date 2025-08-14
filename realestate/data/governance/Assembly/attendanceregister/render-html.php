@@ -67,12 +67,12 @@ $context = $providers['context'];
 $getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
     $result = '';
 
-    $organisation = $object_class::id($organisation_id)->read(['image_document_id' => ['type', 'data']])->first();
+    $organisation = $object_class::id($organisation_id)->read(['profile_image_document_id' => ['content_type', 'data']])->first();
 
-    if($organisation && $organisation['image_document_id']) {
+    if($organisation && $organisation['profile_image_document_id']) {
         $result = sprintf('data:%s;base64,%s',
-                $organisation['image_document_id']['type'],
-                base64_encode($organisation['image_document_id']['data'])
+                $organisation['profile_image_document_id']['content_type'],
+                base64_encode($organisation['profile_image_document_id']['data'])
             );
     }
     return $result;
@@ -121,7 +121,7 @@ $assembly = Assembly::id($params['id'])
                 'address_city', 'address_country', 'has_vat', 'vat_number',
                 'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
                 'website', 'email', 'phone', 'has_vat', 'vat_number',
-                'image_document_id' => [
+                'profile_image_document_id' => [
                     'type', 'data'
                 ]
             ]

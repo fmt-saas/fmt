@@ -5,7 +5,7 @@
         top: 0;
         left: 0;
         /* height must match body::margin-top */
-        height: 280px;
+        height: 100px;
         border: 0;
         margin: 0;
         padding: 0;
@@ -20,80 +20,66 @@
         outline: solid 1px blue;
     }
 
-    header .organisation-info {
-        position: absolute;
-        height: 160px;
-        width: 50%;
-        max-width: 350px;
-        z-index: 1;
+    header .condominium-info {
+        padding-left: 10px;
+        text-transform: uppercase;
     }
 
-    header .organisation-info img {
-        width: 350px;
-        height: auto;
-        /* #memo - we should keep this but it can lead to stretching the image, and object-fit is not supported*/
-        /* max-height: 100px; */
-        border: 0;
-        margin-bottom: 10px;
-    }
-
-    header .organisation-info.debug {
+    header .condominium-info.debug {
         outline: solid 1px red;
     }
 
-    header .condominium-info {
-        position: absolute;
-        top: 160px;
-        left: 0;
-        height: 120px;
-        width: 50%;
-        max-width: 350px;
-        z-index: 1;
+    header img.organisation-logo {
+        height: 100px;
+        /* #memo - we should keep this but it can lead to stretching the image, and object-fit is not supported */
+        /*max-height: 100px;*/
+        max-width: 250px;
+        border: 0;
     }
 
-    header .owner-info {
-        position: absolute;
-        top: 160px;
-        right: 0px;
-        height: 120px;
-        width: 50%;
+    header .organisation-info {
+        padding-left: 10px;
+        text-transform: uppercase;
+    }
+
+    .main-header {
+        padding-top: 30px;
+        margin-bottom: 30px;
+    }
+
+    .main-header .recipient-info {
         text-align: left;
     }
 
-    header .owner-info.debug {
+    .main-header .recipient-info.debug {
         outline: solid 1px green;
     }
 
-    header .document-info {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        height: 160px;
-        width: 50%;
+    .main-header .document-info {
+        text-align: left;
     }
 
-    header .document-info .fiscal_year-ref {
-        position: absolute;
+    .main-header .document-info .fiscal_year-ref {
         width: 100%;
-        height: 100%;
         overflow: hidden
     }
 
-    header .document-info .fiscal_year-ref.debug {
+    .main-header .document-info .fiscal_year-ref.debug {
         outline: solid 1px turquoise;
     }
 
-    header .document-info .fiscal_year-info {
-        position: absolute;
-        top: 0;
-        right: 0;
+    .main-header .document-info .fiscal_year-info {
         width: 100%;
-        height: 100%;
         text-align: left;
         overflow: hidden;
     }
 
-    header .document-info .fiscal_year-info.debug {
+    .main-header .document-info .fiscal_year-info.debug {
         outline: solid 1px yellow;
     }
+
+    main.debug {
+        outline: solid 1px brown;
+    }
+
 </style>

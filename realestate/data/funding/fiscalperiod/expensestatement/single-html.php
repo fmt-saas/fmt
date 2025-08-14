@@ -87,12 +87,12 @@ $getTwigCurrency = function($equal_currency) {
 $getOrganisationLogo = function($object_id, $object_class='identity\Organisation') {
     $result = '';
 
-    $organisation = $object_class::id($object_id)->read(['image_document_id' => ['type', 'data']])->first();
+    $organisation = $object_class::id($object_id)->read(['profile_image_document_id' => ['type', 'data']])->first();
 
-    if($organisation && $organisation['image_document_id']) {
+    if($organisation && $organisation['profile_image_document_id']) {
         $result = sprintf('data:%s;base64,%s',
-                $organisation['image_document_id']['type'],
-                base64_encode($organisation['image_document_id']['data'])
+                $organisation['profile_image_document_id']['type'],
+                base64_encode($organisation['profile_image_document_id']['data'])
             );
     }
     return $result;
@@ -150,7 +150,7 @@ $fiscalPeriod = FiscalPeriod::id($params['fiscal_period_id'])
                 'address_city', 'address_country', 'has_vat', 'vat_number',
                 'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
                 'website', 'email', 'phone', 'has_vat', 'vat_number',
-                'image_document_id' => [
+                'profile_image_document_id' => [
                     'type', 'data'
                 ]
             ]
@@ -235,7 +235,7 @@ $values = array_merge($values, [
     'document_number'     => $statement['invoice_number'],
     'condominium'         => $fiscalPeriod['condo_id'],
 
-    'owner'               => $owner['identity_id'],
+    'recipient'           => $owner['identity_id'],
 
 //    'payment_qr_code_uri' => $getPaymentQrCodeUri($invoice),
     'date'                => time(),

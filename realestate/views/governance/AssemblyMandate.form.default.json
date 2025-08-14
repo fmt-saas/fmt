@@ -36,12 +36,12 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "proxy_date",
+                                                "value": "mandate_date",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "proxy_type",
+                                                "value": "mandate_type",
                                                 "width": "100%"
                                             },
                                             {
@@ -51,7 +51,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "proxy_document_id",
+                                                "value": "mandate_document_id",
                                                 "width": "100%",
                                                 "visible": false
                                             }

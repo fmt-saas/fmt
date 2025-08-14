@@ -7,6 +7,7 @@
 
 namespace documents\navigation;
 
+use documents\Document;
 use equal\orm\Model;
 
 class Node extends Model {
@@ -91,17 +92,24 @@ class Node extends Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
-            // #todo - this should be handled in a more generic way
-            'is_visible_for_owners' => [
-                'type'              => 'boolean',
-                'description'       => 'Flag marking folder as visible for owners.',
-                'visible'           => ['node_type', '=', 'folder'],
-                'default'           => false
+            'node_visibility' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'public',       // visible to all condo owners + syndic
+                    'protected',    // visible only to syndic
+                    'private'       // visible only a single owner (to which the document is linked) + syndic
+                ],
+                'default'           => 'public',
+                'description'       => 'Defines who can see the node.',
+                'help'              => 'This field is synchronized with the node and is automatically updated when the parent node visibility changes. 
+                    If this is a child node, the `document_visibility` of the corresponding document is updated.
+                    If this is a parent node, all descendant nodes are updated (cascade).',
+                'onupdate'          => 'onupdateNodeVisibility'
             ],
 
             'is_system' => [
                 'type'              => 'boolean',
-                'description'       => 'System folders cannot be changed.',
+                'description'       => 'System folders cannot be changed (by anyone).',
                 'visible'           => ['node_type', '=', 'folder'],
                 'default'           => false
             ]
@@ -109,10 +117,58 @@ class Node extends Model {
         ];
     }
 
-    public static function calcNodesCount($self) {
+    protected static function onupdateNodeVisibility($self) {
+        $self->read(['node_visibility', 'node_type', 'document_id', 'nodes_ids']);
+        foreach($self as $id => $node) {
+            if($node['node_type'] === 'folder') {
+                // #memo - recursion is prevented by the ORM
+                $children_ids = self::computeChildrenNodesIds($id);
+                $children = self::ids($children_ids)
+                    ->update(['node_visibility' => $node['node_visibility']])
+                    ->read(['id', 'node_type', 'document_id']);
+
+                foreach($children as $child) {
+                    if($child['node_type'] === 'document' && $child['document_id']) {
+                        // update document visibility
+                        Document::id($child['document_id'])->update(['document_visibility' => $node['node_visibility']]);
+                    }
+                }
+            }
+            elseif($node['node_type'] === 'document' && $node['document_id']) {
+                // update document visibility
+                Document::id($node['document_id'])->update(['document_visibility' => $node['node_visibility']]);
+            }
+        }
+    }
+
+    private static function computeChildrenNodesIds($id) {
+        $visited = [$id => true];
+        $stack = [$id];
+
+        while(!empty($stack)) {
+            $current_id = array_pop($stack);
+
+            $node = self::id($current_id)->read(['id', 'node_type', 'nodes_ids'])->first();
+            if (!$node || $node['node_type'] === 'document') {
+                continue;
+            }
+
+            foreach ($node['nodes_ids'] ?? [] as $child_id) {
+                if($child_id && !isset($visited[$child_id])) {
+                    $visited[$child_id] = true;
+                    $stack[] = $child_id;
+                }
+            }
+        }
+        // remove the root node itself
+        unset($visited[$id]);
+        return array_keys($visited);
+    }
+
+    protected static function calcNodesCount($self) {
         $result = [];
 
-        // Load parent_id to identify root nodes
+        // load parent_id to identify root nodes
         $self->read(['id', 'parent_id']);
 
         $root_nodes_ids = [];
@@ -203,14 +259,15 @@ class Node extends Model {
 
     protected static function computeName($id) {
         $result = '';
-        $node = self::id($id)->read(['document_id' => ['name']])->first();
-        if($node) {
-            $result = $node['document_id']['name'];
+        $node = self::id($id)->read(['document_id' => ['name', 'created']])->first();
+        if($node && $node['document_id']) {
+            $result = date('Ymd', $node['document_id']['created']) . ' - ' . $node['document_id']['name'];
         }
         return $result;
     }
 
     public static function onupdateDocumentId($self) {
+        // #todo -  use translations for this mapping
         static $map_document_types_labels = [
             'invoice'               => 'Facture',
             'credit_note'           => 'Note de crédit',
@@ -219,13 +276,13 @@ class Node extends Model {
             'delivery_note'         => 'Bon de livraison',
             'incident_report'       => 'Rapport de sinistre',
             'maintenance_report'    => 'Rapport d\'entretien',
-            'contract'              => 'Contrats fournisseurs',
-            'certificate'           => 'Attestations',
+            'contract'              => 'Contrat fournisseur',
+            'certificate'           => 'Attestation',
             'terms_and_conditions'  => 'Conditions générales',
-            'reconciliation_report' => 'Relevés de consommations',
+            'reconciliation_report' => 'Relevé de consommations',
             'fund_request'          => 'Appel de fonds',
             'expense_statement'     => 'État des dépenses',
-            'bank_statement'        => 'Relevés bancaires',
+            'bank_statement'        => 'Relevé bancaire',
             'legal_document'        => 'Document juridique',
             'correspondence'        => 'Courrier',
             'supporting_document'   => 'Pièce justificative',
@@ -242,12 +299,12 @@ class Node extends Model {
                     $description .= $map_document_types_labels[$node['document_id']['document_type']];
                 }
 
-                if($node['ownership_id']) {
-                    $description .= ' - ' . $node['ownership_id']['name'];
+                if($node['document_id']['ownership_id']) {
+                    $description .= ' - ' . $node['document_id']['ownership_id']['name'];
                 }
 
-                if($node['suppliership_id']) {
-                    $description .= ' - ' . $node['suppliership_id']['name'];
+                if($node['document_id']['suppliership_id']) {
+                    $description .= ' - ' . $node['document_id']['suppliership_id']['name'];
                 }
 
                 self::id($id)->update(['name' => self::computeName($id), 'description' => $description]);

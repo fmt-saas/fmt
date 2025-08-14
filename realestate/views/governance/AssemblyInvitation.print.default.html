@@ -32,7 +32,7 @@
             margin: 0;
             padding: 0;
             /* margin-top must match header::height */
-            margin-top: 280px;
+            margin-top: 100px;
             /* margin-bottom must match footer::height */
             margin-bottom: 50px;
             font-family: Arial, Helvetica, sans-serif;
@@ -63,7 +63,6 @@
 
 <body>
     {% include 'header.html.twig' %}
-    {% include 'footer.html.twig' %}
 
     {% set assemblyTypes = {
         'statutory': 'Assemblée Générale Statutaire',
@@ -79,9 +78,8 @@
         '4_5': 'Majorité des 4/5'
     } %}
 
-    <main class="{{ debug ? 'debug' : '' }}">
 
-        <h1>CONVOCATION</h1>
+<h1>CONVOCATION</h1>
 
 
 <p>Par la présente, nous vous invitons à assister à l’{{ assemblyTypes[assembly.assembly_type] }} de votre copropriété:</p>
@@ -185,7 +183,8 @@
 </div>
 
 
-    </main>
+{% include 'footer.html.twig' %}
+
 </body>
 
 </html>

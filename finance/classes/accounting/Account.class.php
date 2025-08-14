@@ -169,10 +169,11 @@ class Account extends Model {
                 'default'           => false
             ],
 
-            'operation_assignment'  => [
+            'operation_assignment' => [
                 'type'              => 'string',
                 'description'       => "Operation the account is dedicated to.",
                 'help'              => "Specific identifier to associate the account with a configuration parameter or a specific operation.",
+                'default'           => '',
                 'selection'         => [
                     '',
                     'adjustment_account',
@@ -209,12 +210,12 @@ class Account extends Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
-            'tenant_share'          => [
+            'tenant_share' => [
                 'type'              => 'integer',
                 'description'       => "Default value, in percent, of the amount to be imputed to the tenant when using the account.",
             ],
 
-            'owner_share'           => [
+            'owner_share' => [
                 'type'              => 'integer',
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account."
             ]
@@ -271,7 +272,7 @@ class Account extends Model {
 
     /**
      * Level is used in conjunction with code to display
-     * #memo -  level cannot be directly based parent-children links, on because some levels might be missing.
+     * #memo - level cannot be directly based parent-children links, because some levels might be missing.
      */
     public static function calcLevel($self) {
         $result = [];

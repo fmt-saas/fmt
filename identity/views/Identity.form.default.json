@@ -315,7 +315,7 @@
                                             {
                                                 "type": "field",
                                                 "label": "Logo image",
-                                                "value": "image_document_id",
+                                                "value": "profile_image_document_id",
                                                 "width": "50%"
                                             },
                                             {

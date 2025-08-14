@@ -33,7 +33,7 @@
             margin: 0;
             padding: 0;
             /* margin-top must match header::height */
-            margin-top: 280px;
+            margin-top: 100px;
             /* margin-bottom must match footer::height */
             margin-bottom: 50px;
             font-family: Arial, Helvetica, sans-serif;
@@ -94,88 +94,87 @@
     -->
 
     {% include 'header.html.twig' %}
-    {% include 'footer.html.twig' %}
 
-    <main class="{{ debug ? 'debug' : '' }}">
 
-        <h1 style="text-align: center;">LISTE DES PRÉSENCES</h1>
+    <h1>LISTE DES PRÉSENCES</h1>
 
-        {% set assemblyTypes = {
-            'statutory': 'Assemblée Générale Statutaire',
-            'takeover': 'Assemblée Générale de Reprise de gestion',
-            'ordinary': 'Assemblée Générale Ordinaire',
-            'extraordinary': 'Assemblée Générale Extraordinaire'
-        } %}
-        <p>
-            Liste des présences de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} tenue à l'adresse "{{ assembly.assembly_location }}" à la date du {{ assembly.assembly_date | date(date_format, timezone) }}.
-        </p>
+    {% set assemblyTypes = {
+        'statutory': 'Assemblée Générale Statutaire',
+        'takeover': 'Assemblée Générale de Reprise de gestion',
+        'ordinary': 'Assemblée Générale Ordinaire',
+        'extraordinary': 'Assemblée Générale Extraordinaire'
+    } %}
+    <p>
+        Liste des présences de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} tenue à l'adresse "{{ assembly.assembly_location }}" à la date du {{ assembly.assembly_date | date(date_format, timezone) }}.
+    </p>
 
-        <table class="attendance-table">
+    <table class="attendance-table">
 
-            <tr class="first">
-                <td style="width: 25%;"><b>Copropriétaire</b></td>
-                <td style="width: 20%;"><b>Lots</b></td>
-                <td style="width: 10%;"><b>Quotités statutaires</b></td>
-                <td style="width: 20%;"><b>Présence</b></td>
-                <td style="width: 25%;"><b>Signature</b></td>
-            </tr>
-            {% for ownership_id, ownership in ownerships %}
-            <tr>
-                {% set representation = representations[ownership_id] ?? null %}
-                {% set attendee = attendees[representation.attendee_id] ?? null %}
-                <td>
-                    {{ ownership.name }}
-                    {% if ownership.type == 'joint' %}
-                    <br />[représentant théorique: {{ ownership.representative }}]
-                    {% endif %}
-                </td>
-                <td>
-                    {% for lot in ownership.lots %}
-                        {{ lot.name }}{% if not loop.last %}, {% endif %}
-                    {% endfor %}
-                </td>
-                <td>{{ ownership.shares }}</td>
-                <td>
-                    {% if signed %}
-                        {% if representation is not null %}
-                            {% if representation.representation_type == 'owner' %}
-                                présent(e)
-                                {% if ownership.type == 'joint' %}
-                                    <br />{{ attendee.name }}
-                                {% endif %}
-                            {% else %}
-                                représenté(e) par {{ attendee.name }}
+        <tr class="first">
+            <td style="width: 25%;"><b>Copropriétaire</b></td>
+            <td style="width: 20%;"><b>Lots</b></td>
+            <td style="width: 10%;"><b>Quotités statutaires</b></td>
+            <td style="width: 20%;"><b>Présence</b></td>
+            <td style="width: 25%;"><b>Signature</b></td>
+        </tr>
+        {% for ownership_id, ownership in ownerships %}
+        <tr>
+            {% set representation = representations[ownership_id] ?? null %}
+            {% set attendee = attendees[representation.attendee_id] ?? null %}
+            <td>
+                {{ ownership.name }}
+                {% if ownership.type == 'joint' %}
+                <br />[représentant théorique: {{ ownership.representative }}]
+                {% endif %}
+            </td>
+            <td>
+                {% for lot in ownership.lots %}
+                    {{ lot.name }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </td>
+            <td>{{ ownership.shares }}</td>
+            <td>
+                {% if signed %}
+                    {% if representation is not null %}
+                        {% if representation.representation_type == 'owner' %}
+                            présent(e)
+                            {% if ownership.type == 'joint' %}
+                                <br />{{ attendee.name }}
                             {% endif %}
                         {% else %}
-                            absent(e)
+                            représenté(e) par {{ attendee.name }}
+                        {% endif %}
+                    {% else %}
+                        absent(e)
+                    {% endif %}
+                {% endif %}
+            </td>
+            <td>
+                {% if signed %}
+                    {% if representation is not null %}
+                        {% if attendee.document_signature_id.signature_method == 'ses' %}
+                            <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.document_signature_id.sig_drawn }}" />
+                        {% else %}
+                            Digitally signed by {{ attendee.name }} <br />
+                            Signature: {{ attendee.document_signature_id.sig_hash }}<br />
+                            Timestamp: {{ attendee.document_signature_id.sig_timestamp }}<br />
+                            Algorithm: {{ attendee.document_signature_id.sig_algo }}
                         {% endif %}
                     {% endif %}
-                </td>
-                <td>
-                    {% if signed %}
-                        {% if representation is not null %}
-                            {% if attendee.document_signature_id.signature_method == 'ses' %}
-                                <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.document_signature_id.sig_drawn }}" />
-                            {% else %}
-                                Digitally signed by {{ attendee.name }} <br />
-                                Signature: {{ attendee.document_signature_id.sig_hash }}<br />
-                                Timestamp: {{ attendee.document_signature_id.sig_timestamp }}<br />
-                                Algorithm: {{ attendee.document_signature_id.sig_algo }}
-                            {% endif %}
-                        {% endif %}
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
 
-        </table>
-        {% if signed %}
-        <p>
-            Certifiée sincère et véritable, la feuille de présence est arrêtée à {{ representations | length }} copropriétaires présents ou représentés, totalisant ensemble {{ assembly.count_represented_shares }} parts.
-        </p>
-        {% endif %}
+    </table>
+    {% if signed %}
+    <p>
+        Certifiée sincère et véritable, la feuille de présence est arrêtée à {{ representations | length }} copropriétaires présents ou représentés, totalisant ensemble {{ assembly.count_represented_shares }} parts.
+    </p>
+    {% endif %}
 
-    </main>
+
+    {% include 'footer.html.twig' %}
 </body>
 
 </html>

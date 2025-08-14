@@ -3,7 +3,7 @@
     "plural": "Organisations",
     "description": "Une organisation correspond à une des entités légales utilisant le logiciel.",
     "model": {
-        "image_document_id": {
+        "profile_image_document_id": {
             "label": "Image ou Logo",
             "description": "Image de l'organisation affiché dans les en-têtes officiels.",
             "help": ""

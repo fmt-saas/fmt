@@ -89,13 +89,13 @@ $getTwigCurrency = function($equal_currency) {
 $getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
     $result = '';
 
-    $organisation = $object_class::id($organisation_id)->read(['image_document_id' => ['type', 'data']])->first();
+    $organisation = $object_class::id($organisation_id)->read(['profile_image_print'])->first();
 
-    if($organisation && $organisation['image_document_id']) {
+    if($organisation && $organisation['profile_image_print']) {
         $result = sprintf('data:%s;base64,%s',
-                $organisation['image_document_id']['type'],
-                base64_encode($organisation['image_document_id']['data'])
-            );
+            'image/jpeg',
+            base64_encode($organisation['profile_image_print'])
+        );
     }
     return $result;
 };
@@ -180,7 +180,7 @@ $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
                 'address_city', 'address_country', 'has_vat', 'vat_number',
                 'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
                 'website', 'email', 'phone', 'has_vat', 'vat_number',
-                'image_document_id' => [
+                'profile_image_document_id' => [
                     'type', 'data'
                 ]
             ]
@@ -317,8 +317,8 @@ $invoice['organisation_id']['phone'] = DataFormatter::format($invoice['organisat
 */
 
 $values = [
-    'title'               => 'Document d\'appels de fonds',
-    'fiscal_period'         => [
+    'title'               => 'Appels de fonds',
+    'fiscal_period'       => [
             'date_from'     => $fiscalYear['date_from'],
             'date_to'       => $fiscalYear['date_to'],
         ],
@@ -330,7 +330,7 @@ $values = [
 
     'condominium'         => $fiscalYear['condo_id'],
 
-    'owner'               => $owner['identity_id'],
+    'recipient'           => $owner['identity_id'],
 
 //    'payment_qr_code_uri' => $getPaymentQrCodeUri($invoice),
     'date'                => time(),

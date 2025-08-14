@@ -78,6 +78,7 @@ try {
     // instantiate and use the dompdf class
     $options = new DompdfOptions();
     $options->set('isRemoteEnabled', true);
+    $options->set('isHtml5ParserEnabled', true);
 
     $dompdf = new Dompdf($options);
     $dompdf->setPaper('A4', 'portrait');

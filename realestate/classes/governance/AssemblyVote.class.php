@@ -55,10 +55,10 @@ class AssemblyVote extends \equal\orm\Model {
                 'description'       => "The attendee who cast the vote (possibly as a proxy holder).",
                 'foreign_object'    => 'realestate\governance\AssemblyAttendee',
                 'required'          => true,
-                'dependents'        => ['has_proxy']
+                'dependents'        => ['has_mandate']
             ],
 
-            'has_proxy' => [
+            'has_mandate' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
                 'description'       => 'Mark a vote as "represented" (vote by proxy), or "present".',
@@ -257,7 +257,7 @@ class AssemblyVote extends \equal\orm\Model {
         $self->read(['assembly_id', 'ownership_id', 'assembly_attendee_id']);
 
         foreach($self as $id => $vote) {
-            $proxy = AssemblyProxy::search([
+            $proxy = AssemblyMandate::search([
                     ['assembly_id', '=', $vote['assembly_id']],
                     ['ownership_id', '=', $vote['ownership_id']],
                     ['attendee_id', '=', $vote['assembly_attendee_id']]

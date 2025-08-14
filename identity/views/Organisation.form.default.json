@@ -160,13 +160,18 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "image_document_id",
+                                                "value": "profile_image_document_id",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "label",
                                                 "value": "",
-                                                "width": "50%"
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "profile_image_print",
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",

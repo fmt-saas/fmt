@@ -32,7 +32,7 @@
             margin: 0;
             padding: 0;
             /* margin-top must match header::height */
-            margin-top: 280px;
+            margin-top: 100px;
             /* margin-bottom must match footer::height */
             margin-bottom: 50px;
             font-family: Arial, Helvetica, sans-serif;
@@ -54,54 +54,82 @@
             font-size: 15px;
         }
 
-        main.debug {
-            outline: solid 1px brown;
-        }
 
     </style>
 </head>
 
 <body>
     {% include 'header.html.twig' %}
+
+    <p>Je soussigné(e), <strong>{{ ownership.representative_owner_id.name }}</strong>,</p>
+    <p>Demeurant à l’adresse : <strong>{{ ownership.representative_owner_id.address }}</strong>,</p>
+
+    <p>Propriétaire du/des lot(s) suivant(s) au sein de la copropriété <strong>{{ assembly.condo_id.name }}</strong></p>
+    <!-- property lots table -->
+    <p style="font-size: 10px;">
+    {% for property_lot in property_lots %}
+        {{ property_lot }}{% if not loop.last %}, {% endif %}
+    {% endfor %}
+
+    </p>
+
+    <p style="margin-top: 30px;">Donne procuration à : .............................................................................................................</p>
+
+    <p>Demeurant à : .........................................................................................................................</p>
+
+    <p style="margin-top: 20px;">Pour me représenter à l’Assemblée Générale des copropriétaires qui se tiendra le <strong>{{ assembly.assembly_date | date(date_format, timezone) }}</strong>, à <strong>{{ assembly.assembly_location }}</strong>,<br />
+    et pour voter en mon nom sur toutes les résolutions inscrites à l'ordre du jour, ainsi que sur toutes questions pouvant être soumises à l'assemblée.</p>
+
+    <table style="width: 100%; margin-top: 20px;">Fait pour servir et valoir comme procuration.
+        <tr>
+            <td style="width: 50%;">
+                <div style="display:inline-block; width:12px; height:12px; border:1px solid #000;"></div> 
+                <div style="display:inline-block;">Sans consignes de vote.</div>
+            </td>
+            <td>
+                <div style="display:inline-block; width:12px; height:12px; border:1px solid #000;"></div> 
+                <div style="display:inline-block;">Avec les consignes de vote telles que définies ci-dessous.</div>
+            </td>
+        </tr>
+    </table>
+
+
+    <p style="margin-top: 30px;">Fait pour servir et valoir comme procuration.</p>
+
+    <div style="margin-top: 30px;">
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 50%;">
+                    Fait à ...................................., 
+                    le ........................................
+                </td>
+                <td>
+                    <span style="margin-top: 20px; text-decoration: underline;">Signature du mandant :</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="margin-top: 70px; border: solid 1px black; padding: 10px;">
+        IMPORTANT: Rappel de l’article 3-87 §7 du code civil. <br />
+            « Nul ne peut accepter plus de trois procurations. Toutefois, un mandataire peut recevoir plus de trois procurations de vote si le total des voix dont il dispose lui-même et de celles de ses mandants n’excède pas 10% du total des voix affectées à l’ensemble des lots de la copropriété. »
+    </div>
+
+    <div style="margin-top: 30px;">
+        <table style="width: 100%; min-height: 200px; border: solid 1px black; border-collapse: collapse; page-break-inside: avoid;">
+            <tr>
+                <td style="width: 50%; border: solid 1px black; padding-left: 20px;">Numéro de résolution (voir ordre du jour)</td>
+                <td style="width: 50%; border: solid 1px black; padding-left: 20px;">Choix (pour / contre)</td>
+            </tr>
+            <tr>
+                <td style="width: 50%; border: solid 1px black; height: 200px;"></td>
+                <td style="width: 50%;  border: solid 1px black;"></td>
+            </tr>
+        </table>
+    </div>
+
+
     {% include 'footer.html.twig' %}
-
-    <main class="{{ debug ? 'debug' : '' }}">
-
-        <h1>PROCURATION</h1>
-
-        <p>Je soussigné(e), <strong>{{ ownership.representative_owner_id.name }}</strong>,</p>
-        <p>Demeurant à l’adresse suivante : <strong>{{ ownership.representative_owner_id.address }}</strong>,</p>
-
-        <p>Propriétaire du/des lot(s) suivant(s) situé(s) dans la copropriété <strong>{{ assembly.condo_id.name }}</strong>, <br />
-        dont l'adresse est : <strong>{{ assembly.condo_id.address }}</strong>,</p>
-        <!-- property lots table -->
-        <p>
-        {% for property_lot in property_lots %}
-            {{ property_lot }}{% if not loop.last %}, {% endif %}
-        {% endfor %}
-
-        </p>
-
-        <p style="margin-top: 30px;">Donne procuration à : .............................................................................................................</p>
-
-        <p>Demeurant à : .........................................................................................................................</p>
-
-        <p style="margin-top: 20px;">Pour me représenter à l’Assemblée Générale des copropriétaires qui se tiendra le <strong>{{ assembly.assembly_date | date(date_format, timezone) }}</strong>, à <strong>{{ assembly.assembly_location }}</strong>,<br />
-        et pour voter en mon nom sur toutes les résolutions inscrites à l'ordre du jour, ainsi que sur toutes questions pouvant être soumises à l'assemblée.</p>
-
-        <p style="margin-top: 20px;">Fait pour servir et valoir comme procuration.</p>
-
-        <div style="margin-top: 30px;">
-            <p>Fait à ........................................., le .............................................</p>
-            <p style="margin-top: 20px; text-decoration: underline;">Signature du mandant :</p>
-        </div>
-
-        <div style="margin-top: 100px; border: solid 1px black; padding: 10px;">
-            IMPORTANT: Rappel de l’article 3-87 §7 du code civil. <br />
-                « Nul ne peut accepter plus de trois procurations. Toutefois, un mandataire peut recevoir plus de trois procurations de vote si le total des voix dont il dispose lui-même et de celles de ses mandants n’excède pas 10% du total des voix affectées à l’ensemble des lots de la copropriété. »
-        </div>
-
-    </main>
 </body>
 
 </html>
