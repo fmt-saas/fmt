@@ -774,7 +774,7 @@ class Assembly extends \equal\orm\Model {
                 $map_apportionments[$apportionment['code']] = $apportionment_id;
             }
 
-            // we mut perform creation in 2-pass in order to map group ids, if any
+            // we must perform creation in 2-pass in order to map group ids, if any
             $map_parent_groups_ids = [];
 
             // pass-1
@@ -787,6 +787,7 @@ class Assembly extends \equal\orm\Model {
                     'order',
                     'code',
                     'is_group',
+                    'has_parent_group'
                 ]);
 
             foreach($assemblyItemTemplates as $item_template_id => $itemTemplate) {
@@ -797,7 +798,8 @@ class Assembly extends \equal\orm\Model {
                         'code'                  => $itemTemplate['code'],
                         'order'                 => $itemTemplate['order'],
                         'assembly_template_id'  => $assembly['assembly_template_id'],
-                        'is_group'              => $itemTemplate['is_group']
+                        'is_group'              => $itemTemplate['is_group'],
+                        'has_parent_group'      => $itemTemplate['has_parent_group']
                     ])
                     ->first();
 
@@ -1091,7 +1093,7 @@ class Assembly extends \equal\orm\Model {
                 continue;
             }
 
-            if($assembly['assembly_organizer_identity_id']) {
+            if(!$assembly['assembly_organizer_identity_id']) {
                 $result[$id] = [
                     'missing_assembly_organizer' => 'A person must be designated as the assembly organization.'
                 ];

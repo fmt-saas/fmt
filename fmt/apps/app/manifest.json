@@ -1,0 +1,15 @@
+{
+    "name": "fmt",
+    "description": "FMT Immo Management.",
+    "version": "1.0",
+    "authors": ["Yesbabylon SA"],
+    "license": "LGPL-3",
+    "repository": "https://github.com/fmt-saas/apps-fmt-app.git",
+    "url": "/fmt",
+    "access": {
+        "groups": [
+            "users"
+        ]
+    },
+    "show_in_apps": true
+}

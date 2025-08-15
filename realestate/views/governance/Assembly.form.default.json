@@ -145,6 +145,20 @@
             "description": "Checks if all invites have been sent.",
             "controller": "realestate_governance_Assembly_check-invite",
             "visible": [ ["status", "=", "sent"] ]
+        },
+        {
+            "id": "action.add_attendee",
+            "label": "Add attendee",
+            "description": "Register an attendee, collect its mandates and its signature.",
+            "component": {
+                "name": "addAttendee",
+                "data": {
+                    "condo_id": "object.condo_id",
+                    "ownership_id": "object.id",
+                    "transition": "publish"
+                }
+            },
+            "visible": [ ["status", "=", "in_progress"], ["step", "=", "opening"] ]
         }
     ],
     "routes": [
@@ -340,10 +354,8 @@
                         "label": "Resolutions",
                         "rows": [
                             {
-                                "id": "row.0",
                                 "columns": [
                                     {
-                                        "id": "column.0",
                                         "width": "100%",
                                         "items": [
                                             {
