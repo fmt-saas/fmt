@@ -32,6 +32,10 @@ class Identity extends Model {
         return "An Identity is either a legal or natural person: organizations are legal persons and users, contacts and employees are natural persons. An identity might have several partners of various kind (contact, employee, provider, customer, ...).";
     }
 
+    public static function constants() {
+        return ['AUTH_SECRET_KEY'];
+    }
+
     public static function getColumns() {
         return [
 
@@ -52,6 +56,25 @@ class Identity extends Model {
                 'description'       => 'Class of the current entity.',
                 'help'              => 'This is required in order to display the relational fields accordingly.',
                 'default'           => 'identity\Identity'
+            ],
+
+            'hash_sha256' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'text/plain:64',
+                'function'          => 'calcHashSha256',
+                'description'       => 'SHA256 hash of the identity.',
+                'store'             => true,
+                'readonly'          => true
+            ],
+
+            'uuid' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:36',
+                // #memo - commented for testing
+                // #todo - uncomment for PROD
+                // 'unique'            => true,
+                'description'       => 'Unique Identity identifier.'
             ],
 
             'identity_id' => [
@@ -796,6 +819,25 @@ class Identity extends Model {
             if(count($parts)) {
                 $result[$id] = implode(' ', $parts);
             }
+        }
+        return $result;
+    }
+
+    protected static function calcHashSha256($self) {
+        $result = [];
+        $self->read(['registration_number', 'citizen_identification']);
+        foreach($self as $id => $identity) {
+            $id_number = '';
+            if($identity['registration_number'] && strlen($identity['registration_number']) > 0) {
+                $id_number = $identity['registration_number'];
+            }
+            elseif($identity['citizen_identification'] && strlen($identity['citizen_identification']) > 0) {
+                $id_number = $identity['citizen_identification'];
+            }
+            if(!strlen($id_number)) {
+                continue;
+            }
+            $result[$id] = hash('sha256', $id_number . constant('AUTH_SECRET_KEY'));
         }
         return $result;
     }
