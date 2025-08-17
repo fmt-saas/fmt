@@ -154,8 +154,7 @@
                 "name": "addAttendee",
                 "data": {
                     "condo_id": "object.condo_id",
-                    "ownership_id": "object.id",
-                    "transition": "publish"
+                    "assembly_id": "object.id"
                 }
             },
             "visible": [ ["status", "=", "in_progress"], ["step", "=", "opening"] ]
