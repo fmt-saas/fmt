@@ -110,7 +110,7 @@ $assembly = Assembly::id($params['id'])
         'assembly_attendees_ids' => [
             '@domain' => ['is_valid', '=', true],
             'name',
-            'document_signature_id' => ['signature_method', 'sig_drawn', 'sig_hash', 'sig_algo', 'sig_timestamp']
+            'document_signature_id' => ['sig_method', 'sig_drawn', 'sig_hash', 'sig_algo', 'sig_timestamp']
         ],
         'assembly_representations_ids' => ['attendee_id', 'ownership_id', 'representation_type'],
         'ownerships_ids' => ['id', 'name'],
@@ -198,7 +198,7 @@ $map_ownership_representations = [];
 
 if($params['signed']) {
     foreach($assembly['assembly_attendees_ids'] as $assemblyAttendee) {
-        if($assemblyAttendee['document_signature_id'] && $assemblyAttendee['document_signature_id']['signature_method'] == 'ses') {
+        if($assemblyAttendee['document_signature_id'] && $assemblyAttendee['document_signature_id']['sig_method'] == 'ses') {
             $assemblyAttendee['document_signature_id']['sig_drawn'] = base64_encode($assemblyAttendee['document_signature_id']['sig_drawn']);
         }
         $map_attendees[$assemblyAttendee['id']] = $assemblyAttendee;

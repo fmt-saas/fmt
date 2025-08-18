@@ -47,7 +47,7 @@ class DocumentSignature extends \core\security\Signature {
                     Only SHA-256 is supported for now.',
                 'store'             => true,
                 'readonly'          => true,
-                'visible'           => ['signature_method', 'in', ['aes', 'qes']]
+                'visible'           => ['sig_method', 'in', ['aes', 'qes']]
             ],
 
             'signer_identity_id' => [

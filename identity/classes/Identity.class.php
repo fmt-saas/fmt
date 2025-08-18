@@ -64,7 +64,9 @@ class Identity extends Model {
                 'usage'             => 'text/plain:64',
                 'function'          => 'calcHashSha256',
                 'description'       => 'SHA256 hash of the identity.',
+                'help'              => 'This hash helps to identify and prevent duplicate identities within the current instance.',
                 'store'             => true,
+                'instant'           => true,
                 'readonly'          => true
             ],
 
@@ -74,7 +76,7 @@ class Identity extends Model {
                 // #memo - commented for testing
                 // #todo - uncomment for PROD
                 // 'unique'            => true,
-                'description'       => 'Unique Identity identifier.'
+                'description'       => 'Unique Identity identifier from the Master instance.'
             ],
 
             'identity_id' => [
@@ -242,6 +244,8 @@ class Identity extends Model {
                 'type'              => 'string',
                 'description'       => 'Organization registration number (company number).',
                 'visible'           => [ ['type', '<>', 'IN'] ],
+                'unique'            => true,
+                'dependents'        => ['hash_sha256'],
                 'onupdate'          => 'onupdateRegistrationNumber'
             ],
 
@@ -254,6 +258,7 @@ class Identity extends Model {
                 'description'       => 'Citizen registration number, if any.',
                 'visible'           => [ ['type', '=', 'IN'] ],
                 'unique'            => true,
+                'dependents'        => ['hash_sha256'],
                 'onupdate'          => 'onupdateCitizenIdentification'
             ],
 

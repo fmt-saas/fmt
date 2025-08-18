@@ -152,7 +152,7 @@
             <td>
                 {% if signed %}
                     {% if representation is not null %}
-                        {% if attendee.document_signature_id.signature_method == 'ses' %}
+                        {% if attendee.document_signature_id.sig_method == 'ses' %}
                             <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.document_signature_id.sig_drawn }}" />
                         {% else %}
                             Digitally signed by {{ attendee.name }} <br />

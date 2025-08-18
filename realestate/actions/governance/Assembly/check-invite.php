@@ -7,7 +7,7 @@
 */
 use realestate\governance\Assembly;
 
-list($params, $providers) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description'   => "Checks if all owners have been invited to the target assembly.",
     'params'        => [
         'id' =>  [
