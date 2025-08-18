@@ -89,7 +89,7 @@ use realestate\governance\AssemblyAttendee;
             'type'              => 'string',
             'description'       => 'Reference contact surname.',
             'visible'           => [['is_owner', '=', true], ['sig_method', '=', 'ses']],
-        ],
+        ]
 
     ],
     'constants'     => ['AUTH_SECRET_KEY'],
@@ -175,6 +175,11 @@ else {
     }
 }
 
+if($params['is_owner']) {
+    if(!$params['owner_id']) {
+        throw new Exception("missing_owner_id", EQ_ERROR_MISSING_PARAM);
+    }
+}
 
 // 2) identity retrieval
 

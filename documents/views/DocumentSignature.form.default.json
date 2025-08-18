@@ -31,17 +31,19 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Document",
                                                 "value": "document_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Signer",
                                                 "value": "signer_identity_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "signature_method",
+                                                "value": "sig_method",
                                                 "width": "100%"
                                             },
                                             {
