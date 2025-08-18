@@ -49,30 +49,38 @@
                                             {
                                                 "type": "field",
                                                 "value": "has_certificate",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "sig_drawn",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "sig_json_cms",
+                                                "width": "100%",
+                                                "visible": ["sig_method", "<>", "ses"]
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "sig_cert",
                                                 "width": "100%",
-                                                "widget": {
-                                                    "type": "signature"
-                                                }
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "sig_hash",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "sig_algo",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
                                             }
                                         ]
                                     }
