@@ -227,6 +227,16 @@ if(!$identity_id) {
     throw new Exception("failed_linking_identity", EQ_ERROR_UNKNOWN);
 }
 
+// make sure an attendee targeting the same identity is not already registered for the assembly
+$existingAttendee = AssemblyAttendee::search([
+        ['assembly_id', '=', $params['id']],
+        ['identity_id', '=', $identity_id]
+    ])
+    ->first();
+
+if($existingAttendee) {
+    throw new Exception("attendee_already_registered", EQ_ERROR_INVALID_PARAM);
+}
 
 // 3) create document signature
 
