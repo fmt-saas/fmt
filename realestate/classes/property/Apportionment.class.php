@@ -15,7 +15,8 @@ class Apportionment extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['code']
             ],
 
             'name' => [
@@ -49,7 +50,7 @@ class Apportionment extends \equal\orm\Model {
                 'description'       => "The apportionment holds the statutory quotas.",
                 'help'              => "Apportionment describes the rights on the condominium's common areas as defined in the notary deed.",
                 'default'           => false,
-                'dependents'        => ['name']
+                'dependents'        => ['name', 'code']
             ],
 
             'common_area_id' => [
@@ -192,9 +193,9 @@ class Apportionment extends \equal\orm\Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['status', 'is_statutory', 'total_shares', 'code', 'description']);
+        $self->read(['state', 'status', 'is_statutory', 'total_shares', 'code', 'description']);
         foreach($self as $id => $apportionment) {
-            if($apportionment['status'] != 'validated') {
+            if($apportionment['state'] != 'instance') {
                 continue;
             }
             if(!$apportionment['code']) {
@@ -208,9 +209,9 @@ class Apportionment extends \equal\orm\Model {
 
     public static function calcApportionmentCode($self) {
         $result = [];
-        $self->read(['status', 'is_statutory', 'condo_id']);
+        $self->read(['state', 'status', 'is_statutory', 'condo_id']);
         foreach($self as $id => $apportionment) {
-            if($apportionment['status'] != 'validated') {
+            if($apportionment['state'] != 'instance') {
                 continue;
             }
             if($apportionment['is_statutory']) {

@@ -89,8 +89,9 @@
             {
                 "sections": [
                     {
-                        "label": "Apportionments",
-                        "id": "section.apportionments",
+                        "label": "Shares",
+                        "id": "section.apportionment_shares",
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [
