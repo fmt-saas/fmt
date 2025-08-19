@@ -138,4 +138,15 @@ class AccountingEntryLine extends Model {
         }
         return $result;
     }
+
+    public static function canupdate($self) {
+        $self->read(['accounting_entry_id' => ['status']]);
+        foreach($self as $id => $accountingEntryLine) {
+            if($accountingEntryLine['accounting_entry_id']['status'] == 'validated') {
+                return ['accounting_entry_id' => ['not_allowed' => 'Accounting entry cannot be modified once validated.']];
+            }
+        }
+        return parent::canupdate($self);
+    }
+
 }

@@ -564,4 +564,15 @@ class AccountingEntry extends Model {
         }
         return $result;
     }
+
+
+    public static function canupdate($self) {
+        $self->read(['status']);
+        foreach($self as $id => $accountingEntry) {
+            if($accountingEntry['status'] == 'validated') {
+                return ['status' => ['not_allowed' => 'Accounting entry cannot be modified once validated.']];
+            }
+        }
+        return parent::canupdate($self);
+    }
 }

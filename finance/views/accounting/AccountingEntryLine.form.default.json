@@ -13,11 +13,6 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "name",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "accounting_entry_id",
                                                 "width": "50%"
                                             },
@@ -25,6 +20,11 @@
                                                 "type": "field",
                                                 "value": "account_id",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "name",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
