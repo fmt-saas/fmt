@@ -187,6 +187,25 @@ class BankAccount extends Model {
         return $result;
     }
 
+    public static function canupdate($self, $values) {
+        $self->read(['owner_identity_id']);
+        foreach($self as $id => $bankAccount) {
+            if(isset($values['is_primary'])) {
+                $bankAccounts = self::search(['owner_identity_id', '=', $bankAccount['owner_identity_id']])
+                    ->read(['id', 'is_primary']);
+                foreach($bankAccounts as $otherBankAccount) {
+                    if($otherBankAccount['id'] == $id) {
+                        continue;
+                    }
+                    if($otherBankAccount['is_primary']) {
+                        return ['status' => ['not_allowed' => 'Only one primary account can be defined.']];
+                    }
+                }
+            }
+            return parent::canupdate($self);
+        }
+    }
+
     public static function candelete($self) {
         $self->read(['is_primary']);
         foreach($self as $bankAccount) {

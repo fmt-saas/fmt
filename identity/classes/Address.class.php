@@ -90,8 +90,11 @@ class Address extends Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['address_street', 'address_city', 'address_zip', 'address_country' ]);
+        $self->read(['state', 'address_street', 'address_city', 'address_zip', 'address_country' ]);
         foreach($self as $id => $address) {
+            if($address['state'] === 'draft') {
+                continue;
+            }
             $result[$id] = "{$address['address_street']} {$address['address_zip']} {$address['address_city']}";
         }
         return $result;

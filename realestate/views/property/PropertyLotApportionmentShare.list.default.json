@@ -34,14 +34,14 @@
             },
             {
                 "type": "field",
-                "label": "Property Lot",
-                "value": "property_lot_id",
+                "label": "Apportionment key",
+                "value": "apportionment_id",
                 "width": "20%"
             },
             {
                 "type": "field",
-                "label": "Apportionment key",
-                "value": "apportionment_id",
+                "label": "Property Lot",
+                "value": "property_lot_id",
                 "width": "20%"
             },
             {
