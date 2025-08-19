@@ -38,7 +38,8 @@ class AccountingEntry extends Model {
 
             'description' => [
                 'type'              => 'string',
-                'description'       => 'Short optional description of the entry.'
+                'description'       => 'Short optional description of the entry.',
+                'multilang'         => true
             ],
 
             'journal_id' => [

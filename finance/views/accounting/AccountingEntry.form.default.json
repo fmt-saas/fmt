@@ -76,6 +76,11 @@
                                         "width": "50%",
                                         "items": [
                                             {
+                                                "type": "field",
+                                                "value": "description",
+                                                "width": "100%"
+                                            },
+                                            {
                                                 "type": "label",
                                                 "value": "",
                                                 "width": "50%"
