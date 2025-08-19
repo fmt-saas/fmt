@@ -28,7 +28,7 @@
                 "ids": []
             },
             "confirm": false,
-            "visible": [["status", "=", "proforma"], ["is_reconciled", "=", false]]
+            "visible": [["status", "=", "proforma"], ["is_reconciled", "=", true]]
         }
     ],
     "header": {
