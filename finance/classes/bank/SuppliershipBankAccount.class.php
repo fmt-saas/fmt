@@ -15,7 +15,7 @@ class SuppliershipBankAccount extends Model {
         return [
             'condo_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the accounting entry refers to.",
+                'description'       => "The condominium the Suppliership refers to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'required'          => true
             ],
@@ -23,7 +23,7 @@ class SuppliershipBankAccount extends Model {
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'description'       => "The condominium the accounting entry refers to.",
+                'description'       => "IBAN of the targeted bank account.",
                 'relation'          => ['bank_account_id' => ['bank_account_iban']],
                 'instant'           => true,
                 'store'             => true

@@ -162,6 +162,13 @@ class AccountingEntry extends Model {
                 'ondelete'          => 'null'
             ],
 
+            // #todo - not sure if this is necessary
+            'document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Reference document, if any.'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [

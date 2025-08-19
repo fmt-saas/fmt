@@ -9,6 +9,7 @@ namespace purchase\supplier;
 use finance\accounting\Account;
 use finance\bank\SuppliershipBankAccount;
 use fmt\setting\Setting;
+use realestate\purchase\accounting\invoice\Invoice;
 
 class Suppliership extends \equal\orm\Model {
 
@@ -257,7 +258,7 @@ class Suppliership extends \equal\orm\Model {
     }
 
     public static function doImportBankAccount($self) {
-        $self->read(['condo_id', 'supplier_id' => ['identity_id' => ['bank_accounts_ids' => ['@domain' => ['is_primary', '=', true]]]]]);
+        $self->read(['condo_id', 'supplier_id' => ['identity_id' => ['bank_accounts_ids' /*=> ['@domain' => ['is_primary', '=', true]] */]]]);
         foreach($self as $id => $suppliership) {
             if(!$suppliership['supplier_id']) {
                 continue;
@@ -265,12 +266,13 @@ class Suppliership extends \equal\orm\Model {
             if(!isset($suppliership['supplier_id']['identity_id']['bank_accounts_ids']) || count($suppliership['supplier_id']['identity_id']['bank_accounts_ids']) <= 0) {
                 continue;
             }
-            $bank_account_id = current($suppliership['supplier_id']['identity_id']['bank_accounts_ids']);
-            SuppliershipBankAccount::create([
-                    'condo_id'          => $suppliership['condo_id'],
-                    'suppliership_id'   => $id,
-                    'bank_account_id'   => $bank_account_id
-                ]);
+            foreach($suppliership['supplier_id']['identity_id']['bank_accounts_ids'] as $bank_account_id) {
+                SuppliershipBankAccount::create([
+                        'condo_id'          => $suppliership['condo_id'],
+                        'suppliership_id'   => $id,
+                        'bank_account_id'   => $bank_account_id
+                    ]);
+            }
         }
     }
 
@@ -327,4 +329,15 @@ class Suppliership extends \equal\orm\Model {
             ->do('generate_accounts')
             ->do('import_bank_account');
     }
+
+    public static function candelete($self) {
+        foreach($self as $id => $suppliership) {
+            $count_invoices = Invoice::search(['suppliership_id', '=', $id])->count();
+            if($count_invoices) {
+                return ['id' => ['non_removable' => 'Supplier referenced in Accounting cannot be removed.']];
+            }
+        }
+        return parent::candelete($self);
+    }
+
 }

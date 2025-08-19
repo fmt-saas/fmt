@@ -1170,7 +1170,23 @@ class Identity extends Model {
             }
         }
 
+        if(isset($event['citizen_identification'])) {
+            // remove spacing chars
+            $result['citizen_identification'] = preg_replace('/[^0-9]/i', '', $event['citizen_identification']);
+        }
+
+        if(isset($event['vat_number'])) {
+            // remove spacing chars
+            $result['vat_number'] = preg_replace('/[^A-Z0-9]/i', '', $event['vat_number']);
+        }
+
+        if(isset($event['registration_number'])) {
+            // remove spacing chars
+            $result['registration_number'] = preg_replace('/[^0-9]/i', '', $event['registration_number']);
+        }
+
         if(isset($event['bank_account_iban'])) {
+            // remove spacing chars
             $result['bank_account_iban'] = preg_replace('/[^A-Z0-9]/i', '', $event['bank_account_iban']);
             $bank_info = self::computeBankFromIban($result['bank_account_iban']);
             if($bank_info) {
