@@ -3,20 +3,6 @@
     "description": "",
     "actions": [
         {
-            "id": "action.publish",
-            "label": "Publish",
-            "icon": "play_arrow",
-            "description": "Generate mandatory configuration.",
-            "controller": "core_model_transition",
-            "params": {
-                "entity": "finance\\bank\\BankStatement",
-                "transition": "publish",
-                "ids": []
-            },
-            "confirm": false,
-            "visible": ["status", "=", "proforma"]
-        },
-        {
             "id": "action.reconcile",
             "label": "Reconcile",
             "icon": "play_arrow",
