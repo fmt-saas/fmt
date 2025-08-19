@@ -67,7 +67,7 @@ class PropertyLotApportionmentShare extends \equal\orm\Model {
     public static function canupdate($self) {
         $self->read(['apportionment_id' => ['status']]);
         foreach($self as $id => $apportionmentShare) {
-            if($apportionmentShare['apportionment_id']['status'] != 'draft') {
+            if($apportionmentShare['apportionment_id']['status'] === 'validated') {
                 return ['status' => ['invalid' => 'Published apportionment cannot be updated.']];
             }
         }

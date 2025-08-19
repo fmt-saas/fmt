@@ -167,7 +167,7 @@ class Apportionment extends \equal\orm\Model {
         $self->read(['status', 'assigned_shares', 'total_shares']);
 
         foreach($self as $id => $apportionment) {
-            if($apportionment['status'] !== 'pending') {
+            if($apportionment['status'] === 'validated') {
                 $result[$id] = [
                     'not_allowed' => 'Apportionment is already validated and active.'
                 ];
