@@ -164,12 +164,17 @@ class Apportionment extends \equal\orm\Model {
     protected static function policyCanValidate($self) {
         $result = [];
 
-        $self->read(['status']);
+        $self->read(['status', 'assigned_shares', 'total_shares']);
 
         foreach($self as $id => $apportionment) {
             if($apportionment['status'] !== 'pending') {
                 $result[$id] = [
                     'not_allowed' => 'Apportionment is already validated and active.'
+                ];
+            }
+            if($apportionment['assigned_shares'] !== $apportionment['total_shares']) {
+                $result[$id] = [
+                    'not_balanced' => 'Assigned shares does not match apportionment total.'
                 ];
             }
         }
