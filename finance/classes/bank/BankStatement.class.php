@@ -357,9 +357,9 @@ class BankStatement extends Model {
             $delta = round($statement['closing_balance'], 2) - round($statement['opening_balance'], 2);
             $sum = 0;
             foreach($statement['statement_lines_ids'] as $statementLine) {
-                $sum += round($statementLine['amount'], 2);
+                $sum += $statementLine['amount'];
             }
-            if(round($sum - $delta) !== 0.0) {
+            if( (round($sum, 2) - $delta) !== 0.0) {
                 $result[$id] = [
                     'invalid_amount' => 'The sum of the lines does not match the delta.'
                 ];
