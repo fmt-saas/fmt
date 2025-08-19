@@ -565,7 +565,10 @@ class AccountingEntry extends Model {
         return $result;
     }
 
-
+    /**
+     * on ne check pas sur le status mais sur le entry_number (il ne peut être assigné qu'une seule fois)
+     * pour éviter un blocage au moment de la transition 'validate'
+     */
     public static function canupdate($self) {
         $self->read(['entry_number']);
         foreach($self as $id => $accountingEntry) {

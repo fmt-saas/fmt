@@ -14,7 +14,7 @@
                 "ids": []
             },
             "confirm": false,
-            "visible": ["status", "=", "draft"]
+            "visible": ["status", "=", "proforma"]
         },
         {
             "id": "action.reconcile",
