@@ -172,7 +172,7 @@ class Apportionment extends \equal\orm\Model {
                     'not_allowed' => 'Apportionment is already validated and active.'
                 ];
             }
-            if($apportionment['assigned_shares'] !== $apportionment['total_shares']) {
+            if(round($apportionment['assigned_shares'], 5) != round($apportionment['total_shares'], 5)) {
                 $result[$id] = [
                     'not_balanced' => 'Assigned shares does not match apportionment total.'
                 ];
