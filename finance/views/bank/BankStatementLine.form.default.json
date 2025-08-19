@@ -32,6 +32,12 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "condo_id",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
                                                 "label": "Bank Statement",
                                                 "value": "bank_statement_id",
                                                 "width": "66%"
