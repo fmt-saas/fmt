@@ -105,7 +105,8 @@ class BankStatement extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\bank\BankStatementLine',
                 'foreign_field'     => 'bank_statement_id',
-                'description'       => 'The lines that are assigned to the statement.'
+                'description'       => 'The lines that are assigned to the statement.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'document_process_id' => [
