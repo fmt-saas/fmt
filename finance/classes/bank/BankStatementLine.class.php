@@ -95,7 +95,7 @@ class BankStatementLine extends Model {
                 'usage'             => 'amount/money',
                 'description'       => 'Amount that still needs to be assigned to payments.',
                 'function'          => 'calcRemainingAmount',
-                'store'             => true
+                // 'store'             => true
             ],
 
             'account_iban' => [
@@ -211,10 +211,12 @@ class BankStatementLine extends Model {
         $self->read(['payments_ids', 'amount']);
         foreach($self as $id => $statementLine) {
             $sum = 0.0;
-            $payments = Payment::ids($statementLine['payments_ids'])->read(['amount']);
+            $payments = Payment::ids($statementLine['payments_ids'])->read(['status', 'amount']);
 
             foreach($payments as $pid => $payment) {
-                $sum += $payment['amount'];
+                if($payment['status'] !== 'proforma') {
+                    $sum += $payment['amount'];
+                }
             }
 
             $result[$id] = $statementLine['amount'] - $sum;
