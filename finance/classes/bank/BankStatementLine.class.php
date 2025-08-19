@@ -155,10 +155,16 @@ class BankStatementLine extends Model {
 
 
     protected static function doReconcile($self) {
-        $self->read(['is_reconciled', 'condo_id', 'bank_statement_id' => ['bank_account_iban'], 'communication', 'date', 'amount', 'account_iban']);
+        $self->read([
+            'is_reconciled', 'status', 'condo_id',
+            'communication', 'date', 'amount', 'account_iban',
+            'bank_statement_id' => ['bank_account_iban']]);
 
         foreach($self as $id => $bankStatementLine) {
             if($bankStatementLine['is_reconciled']) {
+                if($bankStatementLine['status'] !== 'pending') {
+                    self::id($id)->update(['status' => 'reconciled']);
+                }
                 continue;
             }
 
