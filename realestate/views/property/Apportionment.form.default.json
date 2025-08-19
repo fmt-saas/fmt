@@ -101,7 +101,16 @@
                                             {
                                                 "type": "field",
                                                 "value": "apportionment_shares_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": false,
+                                                            "ACTION.CREATE_INLINE": true
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }
