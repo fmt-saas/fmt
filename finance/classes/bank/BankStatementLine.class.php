@@ -53,7 +53,8 @@ class BankStatementLine extends Model {
                 'foreign_object'    => 'realestate\sale\pay\Payment',
                 'foreign_field'     => 'statement_line_id',
                 'description'       => 'The list of payments this line relates to.',
-                'ondetach'          => 'delete'
+                'ondetach'          => 'delete',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'date' => [
