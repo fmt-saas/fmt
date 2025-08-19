@@ -80,9 +80,17 @@ $prediction = $data['document']['inference']['prediction'];
 // retrieve the corresponding JSON matching schema $id purchase-invoice
 $data = eQual::run('get', 'documents_processing_Invoice_parse-mindee', ['json' => json_encode($data['document']['inference']['prediction'])]);
 
+// essayer de récupérer le vat_seller dans les lignes
+// $data[lines_ids]
+// => ['supplier']['vat_id']
+
 // attempt to enrich with additional data
 $text = eQual::run('get', 'documents_processing_dump-text', ['id' =>  $document['id']]);
 $info = eQual::run('get', 'documents_processing_Invoice_parse-text', ['text' => $text]);
+
+if(!isset($data['supplier']['vat_id']) && isset($info['seller_vat'])) {
+    $data['supplier']['vat_id'] = $info['seller_vat'];
+}
 
 if(!isset($data['customer']['customer_number']) && isset($info['customer_number'])) {
     $data['customer']['customer_number'] = $info['customer_number'];

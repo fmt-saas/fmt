@@ -135,6 +135,11 @@ $patterns = [
     'payment_id' => [
         '/(\+{3}\d{3}\/\d{4}\/\d{5}\+{3})/',
     ],
+
+    'seller_vat' => [
+        '/TVA\s*BE\s*0\d{2}[ .]?\d{3}[ .]?\d{3}/i',
+        '/\bBE\s*0\d{2}[ .]?\d{3}[ .]?\d{3}\b/i',
+    ]
 ];
 
 foreach($patterns as $field => $regexList) {

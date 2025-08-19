@@ -58,18 +58,18 @@ $formatDate = function ($date) { return $date ? $date . 'T00:00:00Z' : null; };
 $getProperty = function ($key, $default = -1) use($prediction) {
     $arr = $prediction[$key];
     if(!isset($arr['confidence'])) {
-        throw new Exception('missing_confidence_for_property_' . $key, EQ_ERROR_INVALID_PARAM);
+        // throw new Exception('missing_confidence_for_property_' . $key, EQ_ERROR_INVALID_PARAM);
     }
     if($arr['confidence'] < 0.85) {
         if($default === -1) {
-            throw new Exception('insufficient_confidence_for_property_' . $key, EQ_ERROR_INVALID_PARAM);
+            // throw new Exception('insufficient_confidence_for_property_' . $key, EQ_ERROR_INVALID_PARAM);
         }
         else {
             return $default;
         }
     }
     if(!isset($arr['value']) && $default === -1) {
-        throw new Exception('missing_mandatory_value', EQ_ERROR_INVALID_PARAM);
+        // throw new Exception('missing_mandatory_value', EQ_ERROR_INVALID_PARAM);
     }
     return $arr['value'] ?? $default;
 };
@@ -95,9 +95,12 @@ foreach($prediction['customer_company_registrations'] ?? [] as $registration) {
     }
 }
 
+/*
+#memo - this controller cannot stop the processing, and does not guarantee the completeness of the doc
 if(!isset($supplier_vat)) {
     throw new Exception('missing_mandatory_seller_vat', EQ_ERROR_INVALID_PARAM);
 }
+*/
 
 /*
     Possible values from Mindee API v4:
