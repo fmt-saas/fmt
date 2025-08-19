@@ -198,7 +198,7 @@ class BankAccount extends Model {
                         continue;
                     }
                     if($otherBankAccount['is_primary']) {
-                        return ['status' => ['not_allowed' => 'Only one primary account can be defined.']];
+                        return ['is_primary' => ['duplicate_primary' => 'Only one primary account can be defined.']];
                     }
                 }
             }
