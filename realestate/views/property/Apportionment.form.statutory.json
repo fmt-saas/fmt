@@ -11,6 +11,18 @@
                 "entity": "realestate\\property\\Apportionment",
                 "action": "duplicate"
             }
+        },
+        {
+            "id": "action.validate",
+            "label": "Validate",
+            "description": "Mark the apportionment as published.",
+            "controller": "core_model_transition",
+            "visible": [ ["status", "=", "pending"] ],
+            "params": {
+                "entity": "realestate\\property\\Apportionment",
+                "transition": "validate",
+                "ids": []
+            }
         }
     ],
     "layout": {

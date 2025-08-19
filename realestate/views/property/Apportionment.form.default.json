@@ -13,14 +13,14 @@
             }
         },
         {
-            "id": "action.publish",
-            "label": "Publish",
+            "id": "action.validate",
+            "label": "Validate",
             "description": "Mark the apportionment as published.",
             "controller": "core_model_transition",
-            "visible": [ ["status", "=", "draft"] ],
+            "visible": [ ["status", "=", "pending"] ],
             "params": {
                 "entity": "realestate\\property\\Apportionment",
-                "transition": "publish",
+                "transition": "validate",
                 "ids": []
             }
         }
