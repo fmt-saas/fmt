@@ -274,6 +274,7 @@ class BankStatement extends Model {
             try {
                 // attempt to reconcile lines
                 $bankStatement['statement_lines_ids']->do('reconcile');
+                self::id($id)->update(['is_reconciled' => null]);
             }
             catch(\Exception $e) {
                 // safely ignore errors
