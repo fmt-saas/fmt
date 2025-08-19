@@ -31,6 +31,7 @@ class PropertyLotOwnership extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\PropertyLot',
                 'description'       => "The Property Lot the ownership file relates to.",
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'ownership_id' => [

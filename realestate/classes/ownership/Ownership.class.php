@@ -101,6 +101,7 @@ class Ownership extends \equal\orm\Model {
             'date_from' => [
                 'type'              => 'date',
                 'description'       => "Date from which the owners owned at least one property lot.",
+                'help'              => 'If this value is unknown, set it to first day of first fiscal year',
                 'required'          => true
             ],
 

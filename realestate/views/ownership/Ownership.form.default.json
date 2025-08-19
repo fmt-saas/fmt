@@ -2,13 +2,13 @@
     "name": "Ownership",
     "actions": [
         {
-            "id": "action.generate_accounts",
-            "label": "Generate accounts",
-            "description": "Generate accounting accounts.",
-            "controller": "core_model_do",
+            "id": "action.validate",
+            "label": "Validate",
+            "description": "Validate & Generate accounting accounts.",
+            "controller": "core_model_transition",
             "params": {
                 "entity": "realestate\\ownership\\Ownership",
-                "action": "generate_accounts",
+                "transition": "validate",
                 "ids": []
             },
             "confirm": false

@@ -1344,6 +1344,7 @@ class Identity extends Model {
                             'address_street'    => $identity['address_street'],
                             'address_dispatch'  => $identity['address_dispatch'],
                             'address_zip'       => $identity['address_zip'],
+                            'address_city'      => $identity['address_city'],
                             'address_state'     => $identity['address_state'],
                             'address_country'   => $identity['address_country']
                         ]);

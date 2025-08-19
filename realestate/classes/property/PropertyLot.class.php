@@ -133,7 +133,8 @@ class PropertyLot extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'description'       => "Current ownership of the property lot.",
-                'dependents'        => ['name']
+                'dependents'        => ['name'],
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'ownership_transfers_ids' => [

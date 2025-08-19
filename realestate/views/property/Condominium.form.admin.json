@@ -331,7 +331,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "bank_account_ids",
+                                                "value": "bank_accounts_ids",
                                                 "width": "100%"
                                             }
                                         ]

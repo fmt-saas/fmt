@@ -99,7 +99,7 @@ class Address extends Model {
 
     /**
      * Synchronize the primary address of the identity.
-     *
+     * #memo - we have no way to determine that this is called as a result from Identity::onafterUpdate()
      */
     public static function onafterupdate($self, $values) {
         $self->read(['is_primary', 'owner_identity_id', 'address_street', 'address_dispatch', 'address_city', 'address_zip', 'address_country']);
@@ -107,11 +107,11 @@ class Address extends Model {
             if($address['is_primary']) {
                 Identity::id($address['owner_identity_id'])
                     ->update([
-                        'address_street'    => $address['bank_account_iban'],
+                        'address_street'    => $address['address_street'],
                         'address_dispatch'  => $address['address_dispatch'],
-                        'address_city'      => $address['bank_account_bic'],
-                        'address_zip'       => $address['bank_account_bic'],
-                        'address_country'   => $address['bank_account_bic']
+                        'address_city'      => $address['address_city'],
+                        'address_zip'       => $address['address_zip'],
+                        'address_country'   => $address['address_country']
                     ]);
             }
         }
