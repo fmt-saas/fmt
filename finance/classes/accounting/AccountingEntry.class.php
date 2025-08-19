@@ -567,9 +567,9 @@ class AccountingEntry extends Model {
 
 
     public static function canupdate($self) {
-        $self->read(['status']);
+        $self->read(['entry_number']);
         foreach($self as $id => $accountingEntry) {
-            if($accountingEntry['status'] == 'validated') {
+            if($accountingEntry['entry_number']) {
                 return ['status' => ['not_allowed' => 'Accounting entry cannot be modified once validated.']];
             }
         }
