@@ -173,6 +173,7 @@ class Apportionment extends \equal\orm\Model {
                 ];
             }
             if(round($apportionment['assigned_shares'], 5) != round($apportionment['total_shares'], 5)) {
+                trigger_error('APP::mismatch total_shares and assigned_shares for apportionment ' . $id . ' : ' . round($apportionment['assigned_shares'], 5) . ' ' . round($apportionment['total_shares'], 5) , EQ_REPORT_ERROR);
                 $result[$id] = [
                     'not_balanced' => 'Assigned shares does not match apportionment total.'
                 ];

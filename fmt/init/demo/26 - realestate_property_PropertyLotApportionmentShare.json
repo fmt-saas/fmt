@@ -137,7 +137,7 @@
                 "apportionment_id": 5,
                 "is_statutory": null,
                 "property_lot_id": 4,
-                "property_lot_shares": 333
+                "property_lot_shares": 25
             },
             {
                 "id": 19,
@@ -153,7 +153,7 @@
                 "apportionment_id": 5,
                 "is_statutory": false,
                 "property_lot_id": 6,
-                "property_lot_shares": 200
+                "property_lot_shares": 175
             }
         ]
     }

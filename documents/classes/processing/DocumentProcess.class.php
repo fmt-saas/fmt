@@ -122,6 +122,12 @@ class DocumentProcess extends Model {
                 'description'       => 'Human readable descriptor of the processing result.'
             ],
 
+            'is_rejected' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the document as rejected (invalid, incomplete, ...).',
+                'default'           => false
+            ],
+
             'has_warning' => [
                 'type'              => 'boolean',
                 'description'       => 'Flag marking the processing job with warning(s).',
@@ -194,7 +200,8 @@ class DocumentProcess extends Model {
             'document_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\Invoice',
-                'visible'           => ['document_type_code', '=', 'invoice']
+                'visible'           => ['document_type_code', '=', 'invoice'],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['supplier_id', '=', 'object.supplier_id']]
             ],
 
             'document_bank_statement_id' => [
@@ -230,6 +237,10 @@ class DocumentProcess extends Model {
                 'description' => 'Completed document, waiting to be validated.',
                 'icon'        => 'assignment',
                 'transitions' => [
+                    'revert' => [
+                        'description' => 'Revert the document to `created`.',
+                        'status'      => 'created'
+                    ],
                     'validate' => [
                         'description' => 'Update the document to `validated`.',
                         'policies'    => ['is_valid', 'can_validate'],
@@ -241,6 +252,10 @@ class DocumentProcess extends Model {
                 'description' => 'Validated document, waiting to be processed.',
                 'icon'        => 'done',
                 'transitions' => [
+                    'revert' => [
+                        'description' => 'Revert the document to `completed`.',
+                        'status'      => 'completed'
+                    ],
                     'record' => [
                         'description' => 'Update the document to `recorded`.',
                         'policies'    => ['can_record'],
@@ -1075,6 +1090,7 @@ class DocumentProcess extends Model {
                 }
             }
             catch(\Exception $e) {
+                // #todo - ? on arrive ici en cas d'erreur
                 // unexpected error
                 $logs[] = "Document does not match expected format.";
                 $logs[] = "For bank Statement this might be due to a list of statements instead of a single statement.";

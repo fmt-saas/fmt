@@ -137,13 +137,19 @@
                                                 "type": "field",
                                                 "label": "Invoice",
                                                 "value": "document_invoice_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "description": "il faudrait empêcher la sélection, et permettre uniquement la création"
+                                                }
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Bank Statement",
                                                 "value": "document_bank_statement_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "readonly": true
+                                                }
                                             },
                                             {
                                                 "type": "field",
