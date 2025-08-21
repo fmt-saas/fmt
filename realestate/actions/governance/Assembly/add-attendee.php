@@ -181,11 +181,14 @@ if($params['is_owner']) {
     }
 }
 else {
-    if(empty($params['firstname'])) {
-        throw new Exception("missing_firstname", EQ_ERROR_INVALID_PARAM);
-    }
-    if(empty($params['lastname'])) {
-        throw new Exception("missing_lastname", EQ_ERROR_INVALID_PARAM);
+    if($params['sig_method'] === 'ses') {
+        if(empty($params['firstname'])) {
+            throw new Exception("missing_firstname", EQ_ERROR_INVALID_PARAM);
+        }
+        if(empty($params['lastname'])) {
+            throw new Exception("missing_lastname", EQ_ERROR_INVALID_PARAM);
+        }
+
     }
 }
 
