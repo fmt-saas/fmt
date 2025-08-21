@@ -81,6 +81,12 @@
                                                 "value": "sig_algo",
                                                 "width": "100%",
                                                 "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_valid",
+                                                "width": "100%",
+                                                "readonly": true
                                             }
                                         ]
                                     }
