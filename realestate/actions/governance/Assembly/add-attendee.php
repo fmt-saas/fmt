@@ -225,7 +225,7 @@ else {
 
         // #memo - for GDPR compliance, we do not store the citizen identification number
         // #memo - pseudonymization is acceptable & proportional to the finality (validate link between signature and identity)
-        $hash  = hash('sha256', $infos['citizen_identification'] . constant('AUTH_SECRET_KEY'));
+        $hash = hash('sha256', $infos['citizen_identification'] . constant('AUTH_SECRET_KEY'));
 
         $identity = Identity::search(['hash_sha256', '=', $hash])->first();
 
