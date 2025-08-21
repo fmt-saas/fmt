@@ -10,6 +10,7 @@ namespace finance\bank;
 use documents\processing\DocumentProcess;
 use equal\orm\Model;
 use finance\accounting\FiscalYear;
+use realestate\property\Condominium;
 use realestate\sale\pay\Payment;
 
 class BankStatement extends Model {
@@ -401,18 +402,41 @@ class BankStatement extends Model {
         return trim(sprintf("BE%02d%s", $control, $account_number));
     }
 
-    public static function onchange($self, $event, $values, $lang) {
+    public static function onchange($self, $event, $values, $view, $lang) {
         $result = [];
 
-        if(isset($event['bank_account_iban'])) {
-            $event['bank_account_iban'] = trim(str_replace(' ', '', $event['bank_account_iban']));
-            $result['bank_account_iban'] = $event['bank_account_iban'];
-            $bankAccount = BankAccount::search(['bank_account_iban', '=', $event['bank_account_iban']])->read(['condo_id' => ['id', 'name']])->first();
-            if($bankAccount) {
-                $result['condo_id'] = ['id' => $bankAccount['condo_id']['id'], 'name' => $bankAccount['condo_id']['name']];
-            }
-        }
+        switch($view) {
+            case 'form.create':
+                if(isset($event['bank_account_iban'])) {
+                    $event['bank_account_iban'] = trim(str_replace(' ', '', $event['bank_account_iban']));
+                    $result['bank_account_iban'] = $event['bank_account_iban'];
+                    $bankAccount = BankAccount::search(['bank_account_iban', '=', $event['bank_account_iban']])->read(['condo_id' => ['id', 'name']])->first();
+                    if($bankAccount) {
+                        $result['condo_id'] = ['id' => $bankAccount['condo_id']['id'], 'name' => $bankAccount['condo_id']['name']];
+                    }
+                }
 
+                if(isset($event['condo_id']) || isset($values['condo_id'])) {
+                    $condo_id = $event['condo_id'] ?? $values['condo_id'];
+                    $condominium = Condominium::id($condo_id)->read(['bank_accounts_ids' => ['bank_account_iban']])->first(true);
+                    if($condominium) {
+                        $list = array_map(function($a) {return $a['bank_account_iban'];}, $condominium['bank_accounts_ids']);
+                        $result['bank_account_iban'] = [
+                            'value' => '',
+                            'selection' => $list
+                        ];
+                    }
+                }
+                if(isset($event['date'])) {
+                    if(!isset($values['opening_date'])) {
+                        $result['opening_date'] = $event['date'];
+                    }
+                    if(!isset($values['closing_date'])) {
+                        $result['closing_date'] = $event['date'];
+                    }
+                }
+                break;
+        }
         return $result;
     }
 

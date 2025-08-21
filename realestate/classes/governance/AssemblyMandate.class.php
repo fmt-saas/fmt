@@ -114,8 +114,8 @@ class AssemblyMandate extends \equal\orm\Model {
             ],
 
             'invalidity_reason' => [
-                'type'        => 'string',
-                'selection'   => [
+                'type'              => 'string',
+                'selection'         => [
                     'no_signature',          // Missing signature
                     'missing_or_wrong_date', // Missing or incorrect date
                     'invalid_signature',     // Invalid electronic signature
@@ -126,8 +126,8 @@ class AssemblyMandate extends \equal\orm\Model {
                     'not_owner',             // Grantor is not legitimate (not owner [anymore])
                     'invalid_attendee'       // Other : Attendee is not valid (missing ID or attendance signature)
                 ],
-                'description' => "Reason for invalidity of the proxy (e.g. no signature, expired, too many mandates, etc.)",
-                'visible'     => ['is_valid', '=', false]
+                'description'       => "Reason for invalidity of the proxy (e.g. no signature, expired, too many mandates, etc.)",
+                'visible'           => ['is_valid', '=', false]
             ],
         ];
     }

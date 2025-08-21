@@ -77,7 +77,7 @@ class ManagingAgentMandate extends \equal\orm\Model {
             'appointment_type' => [
                 'type'              => 'string',
                 'description'       => 'The way the managing agent was appointed.',
-                'selection' => [
+                'selection'         => [
                     'elected',
                     'court_appointed',
                     'provisional'
