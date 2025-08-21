@@ -61,8 +61,7 @@ class BankStatementLine extends Model {
                 'type'              => 'date',
                 'description'       => 'Date of the transaction as provided by the bank.',
                 'readonly'          => true,
-                'required'          => true,
-                'default'           => 'defaultDate'
+                'required'          => true
             ],
 
             'communication' => [
@@ -144,23 +143,12 @@ class BankStatementLine extends Model {
         ];
     }
 
-    public static function defaultSequenceNumber($values) {
+    protected static function defaultSequenceNumber($values) {
         $result = null;
         if(isset($values['bank_statement_id'])) {
             $statement = BankStatement::id($values['bank_statement_id'])->read(['statement_lines_ids' => ['@domain' => ['state', '=', 'instance']]])->first();
             if($statement) {
                 $result = count($statement['statement_lines_ids']) + 1;
-            }
-        }
-        return $result;
-    }
-
-    protected static function defaultDate($values) {
-        $result = null;
-        if(isset($values['bank_statement_id'])) {
-            $statement = BankStatement::id($values['bank_statement_id'])->read(['opening_date'])->first();
-            if($statement && $statement['opening_date']) {
-                $result = $statement['opening_date'];
             }
         }
         return $result;
