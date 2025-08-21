@@ -159,7 +159,7 @@ class BankStatementLine extends Model {
         $result = null;
         if(isset($values['bank_statement_id'])) {
             $statement = BankStatement::id($values['bank_statement_id'])->read(['opening_date'])->first();
-            if($statement) {
+            if($statement && $statement['opening_date']) {
                 $result = $statement['opening_date'];
             }
         }
