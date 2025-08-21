@@ -406,7 +406,7 @@ class BankStatement extends Model {
 
         switch($view) {
             case 'form.create':
-                if(isset($event['bank_account_iban']) && !isset($values['condo_id'])) {
+                if(!isset($values['condo_id']) && isset($event['bank_account_iban'])) {
                     $event['bank_account_iban'] = trim(str_replace(' ', '', $event['bank_account_iban']));
                     $result['bank_account_iban'] = $event['bank_account_iban'];
                     $bankAccount = BankAccount::search(['bank_account_iban', '=', $event['bank_account_iban']])->read(['condo_id' => ['id', 'name']])->first();
@@ -415,7 +415,7 @@ class BankStatement extends Model {
                     }
                 }
 
-                if(isset($event['condo_id']) || isset($values['condo_id'])) {
+                if(!isset($values['bank_account_iban']) && (isset($event['condo_id']) || isset($values['condo_id']))) {
                     $condo_id = $event['condo_id'] ?? $values['condo_id'];
                     $condominium = Condominium::id($condo_id)->read(['bank_accounts_ids' => ['bank_account_iban']])->first(true);
                     if($condominium) {

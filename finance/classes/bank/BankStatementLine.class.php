@@ -61,7 +61,8 @@ class BankStatementLine extends Model {
                 'type'              => 'date',
                 'description'       => 'Date of the transaction as provided by the bank.',
                 'readonly'          => true,
-                'required'          => true
+                'required'          => true,
+                'default'           => 'defaultDate'
             ],
 
             'communication' => [
@@ -154,6 +155,16 @@ class BankStatementLine extends Model {
         return $result;
     }
 
+    protected static function defaultDate($value) {
+        $result = null;
+        if(isset($values['bank_statement_id'])) {
+            $statement = BankStatement::id($values['bank_statement_id'])->read(['opening_date'])->first();
+            if($statement) {
+                $result = $statement['opening_date'];
+            }
+        }
+        return $result;
+    }
 
     protected static function doReconcile($self) {
         $self->read([
