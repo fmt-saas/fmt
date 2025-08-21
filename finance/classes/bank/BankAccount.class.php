@@ -177,10 +177,10 @@ class BankAccount extends Model {
         foreach($self as $id => $bankAccount) {
             if($bankAccount['bank_account_iban'] && strlen($bankAccount['bank_account_iban']) > 0) {
                 $parts = [];
+                $parts[] = DataFormatter::format($bankAccount['bank_account_iban'], 'iban');
                 if(strlen($bankAccount['description']) > 0) {
                     $parts[] = $bankAccount['description'];
                 }
-                $parts[] = DataFormatter::format($bankAccount['bank_account_iban'], 'iban');
                 $result[$id] = implode(' - ', $parts);
             }
         }

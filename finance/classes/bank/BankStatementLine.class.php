@@ -102,7 +102,8 @@ class BankStatementLine extends Model {
                 'type'              => 'string',
                 'usage'             => 'uri/urn.iban',
                 'description'       => 'Counterparty IBAN, if any.',
-                'required'          => true
+                'help'              => 'In theory, this field should be provided, but it might not be the case for manually encoded statements.'
+                // 'required'          => true
             ],
 
             'account_holder' => [

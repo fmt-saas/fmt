@@ -407,7 +407,7 @@ class BankStatement extends Model {
 
         switch($view) {
             case 'form.create':
-                if(isset($event['bank_account_iban'])) {
+                if(isset($event['bank_account_iban']) && !isset($values['condo_id'])) {
                     $event['bank_account_iban'] = trim(str_replace(' ', '', $event['bank_account_iban']));
                     $result['bank_account_iban'] = $event['bank_account_iban'];
                     $bankAccount = BankAccount::search(['bank_account_iban', '=', $event['bank_account_iban']])->read(['condo_id' => ['id', 'name']])->first();
@@ -427,12 +427,13 @@ class BankStatement extends Model {
                         ];
                     }
                 }
-                if(isset($event['date'])) {
+                if(isset($event['date']) || isset($values['date'])) {
+                    $date = $event['date'] ?? $values['date'];
                     if(!isset($values['opening_date'])) {
-                        $result['opening_date'] = $event['date'];
+                        $result['opening_date'] = $date;
                     }
                     if(!isset($values['closing_date'])) {
-                        $result['closing_date'] = $event['date'];
+                        $result['closing_date'] = $date;
                     }
                 }
                 break;
