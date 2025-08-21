@@ -31,7 +31,8 @@ use realestate\governance\AssemblyAttendee;
 
         'sig_cert' => [
             'type'              => 'binary',
-            'usage'             => 'text/plain.small',
+            // #todo - not supported yet by UsageFactory
+            /*'usage'             => 'application/pkix-cert',*/
             'description'       => 'X.509 certificate of the signer, as DER-encoded base64 value.',
             'visible'           => ['sig_method', 'in', ['aes', 'qes']]
         ],
@@ -109,7 +110,7 @@ use realestate\governance\AssemblyAttendee;
 
 $computeSignerInfoFromCert = function (string $cert): array {
     $pem =  "-----BEGIN CERTIFICATE-----\n"
-        . chunk_split($cert, 64, "\n")
+        . chunk_split(base64_encode($cert), 64, "\n")
         . "-----END CERTIFICATE-----\n";
 
     $parsed = openssl_x509_parse($pem, false);
