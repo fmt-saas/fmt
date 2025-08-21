@@ -79,7 +79,6 @@ $identity = Identity::create([
 $user = User::create([
         'identity_id'   => $identity['id'],
         'login'         => 'admin@fmt.yb.run',
-        'password'      => 'void',
         'language'      => 'fr',
         'validated'     => true,
         'groups_ids'    => [2]
