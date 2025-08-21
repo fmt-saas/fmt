@@ -56,19 +56,19 @@ class BankStatementImport extends Model {
         foreach($self as $id => $bankStatementImport) {
             // create a temporary import Document holding all statements
             $document = Document::create(['name' => $bankStatementImport['name'], 'data' => $bankStatementImport['data']])->first();
+            // extract data independently from the document content-type
             $data = \eQual::run('get', 'documents_processing_bankStatement_extract', ['document_id' => $document['id']]);
 
             if(!is_array($data)) {
                 throw new \Exception('invalid_data', EQ_ERROR_INVALID_PARAM);
             }
             $file_name = pathinfo($bankStatementImport['name'], PATHINFO_FILENAME);
-            $extension = pathinfo($bankStatementImport['name'], PATHINFO_EXTENSION);
 
             foreach($data as $i => $statement) {
                 $binary = self::computeXlsxBinaryFromStatement($statement);
-                // this will trigger the creation of the document and the auto processing, which should not interrupt the import even if it fails
+                // this will trigger the creation of the Document and the Document Processing, which should not interrupt the import even if it fails
                 try {
-                    DocumentProcess::create(['name' => $file_name . '(' . ($i+1) . ').' . $extension, 'document_type_id' => $documentType['id']])
+                    DocumentProcess::create(['name' => $file_name . '(' . ($i+1) . ').' . 'xlsx', 'document_type_id' => $documentType['id']])
                         ->update(['data' => $binary])
                         ->first();
                 }
@@ -76,7 +76,9 @@ class BankStatementImport extends Model {
                     // ignore (outputs are in logs)
                 }
             }
+            // remove temporary document
             Document::id($document['id'])->delete();
+            // remove current object (pointless after successful import)
             self::id($id)->delete(true);
         }
     }

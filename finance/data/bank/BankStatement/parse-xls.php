@@ -13,7 +13,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as XlsDate;
     'params'        => [
         'data' =>  [
             'type'          => 'binary',
-            'description'   => "Raw XLSX binary data to parse as statements.",
+            'description'   => "Raw XLS(X) binary data to parse as statements.",
             // 'required'      => true
         ]
     ],

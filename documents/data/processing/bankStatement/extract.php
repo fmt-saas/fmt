@@ -10,8 +10,8 @@ use documents\Document;
     'description'   => 'Performs a document analysis for a bank statement, and return the a result as a JSON descriptor.',
     'params'        => [
         'document_id' =>  [
+            'type'          => 'integer',
             'description'   => 'Identifier of the document to parse.',
-            'type'          => 'string',
             'required'      => true
         ]
     ],
@@ -45,12 +45,12 @@ if(!in_array($document['content_type'], $supported_content_types)) {
 }
 
 switch($document['content_type']) {
+    case 'application/octet-stream':
     case 'text/plain':
         $result = eQual::run('get', 'finance_bank_BankStatement_parse-coda', ['data' => $document['data']], false, true);
         break;
     case 'application/vnd.ms-excel':
     case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-
         $result = eQual::run('get', 'finance_bank_BankStatement_parse-xls', ['data' => base64_encode($document['data'])], false, true);
         break;
 }

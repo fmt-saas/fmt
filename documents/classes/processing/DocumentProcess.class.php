@@ -545,7 +545,7 @@ class DocumentProcess extends Model {
                     }
                 }
             }
-            // duplicate bank statement amongst statements of the Condominium
+            // search for duplicate bank statement amongst statements of the Condominium
             elseif($documentProcess['document_type_code'] === 'bank_statement') {
                 $documentProcess = self::id($id)->read(['document_bank_statement_id'])->first();
                 $bankStatement = BankStatement::id($documentProcess['document_bank_statement_id'])->read(['id', 'opening_date', 'closing_date', 'opening_balance', 'closing_balance'])->first();
@@ -1100,9 +1100,9 @@ class DocumentProcess extends Model {
             $values = [];
             $report_html = $documentProcess['report_html'];
             if(strlen($report_html) > 0) {
-                $report_html .= "\n";
+                $report_html .= "<br />";
             }
-            $values['report_html'] = $report_html . implode("\n", $logs);
+            $values['report_html'] = $report_html . implode("<br />", $logs);
 
             self::id($id)->update($values);
 

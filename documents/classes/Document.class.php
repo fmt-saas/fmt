@@ -570,21 +570,16 @@ class Document extends Model {
                 $content = $document['data'] ?? '';
 
                 // retrieve content_type from MIME
-                $finfo = new \finfo(FILEINFO_MIME);
+                $finfo = new \finfo(FILEINFO_MIME_TYPE);
 
                 $mime = $finfo->buffer($content);
 
-                if($mime === false) {
-                    throw new \Exception('missing_mime');
+                if(empty($mime)) {
+                    $result[$id] = 'application/octet-stream';
+                    continue;
                 }
 
-                $content_type = explode(';', $mime)[0];
-
-                if(empty($content_type)) {
-                    throw new \Exception('invalid_mime');
-                }
-
-                $result[$id] = $content_type;
+                $result[$id] = $mime;
 
             }
             catch(\Exception $e) {
