@@ -180,6 +180,14 @@ if($params['is_owner']) {
         throw new Exception("missing_owner_id", EQ_ERROR_MISSING_PARAM);
     }
 }
+else {
+    if(empty($params['firstname'])) {
+        throw new Exception("missing_firstname", EQ_ERROR_INVALID_PARAM);
+    }
+    if(empty($params['lastname'])) {
+        throw new Exception("missing_lastname", EQ_ERROR_INVALID_PARAM);
+    }
+}
 
 // 2) identity retrieval
 
@@ -193,17 +201,14 @@ if($params['is_owner']) {
     $identity_id = $owner['identity_id'];
 }
 else {
-    if(empty($params['sig_cert'])) {
-        if(empty($params['sig_drawn'])) {
-            throw new Exception("missing_signature_certificate", EQ_ERROR_INVALID_PARAM);
-        }
+    if($params['sig_method'] === 'ses') {
         // external without citizen ID (only firstname, lastname & drawn signature)
         // create a new identity
         // #memo - we have no way to avoid duplicates here
         $identity = Identity::create([
                 'type_id'       => 1,
-                'firstname'     => $infos['firstname'],
-                'lastname'      => $infos['lastname']
+                'firstname'     => $params['firstname'],
+                'lastname'      => $params['lastname']
             ])
             ->first();
 
