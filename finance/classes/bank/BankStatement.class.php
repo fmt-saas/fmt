@@ -415,7 +415,7 @@ class BankStatement extends Model {
                     }
                 }
 
-                if(!isset($values['bank_account_iban']) && (isset($event['condo_id']) || isset($values['condo_id']))) {
+                if(empty($values['bank_account_iban']) && (isset($event['condo_id']) || isset($values['condo_id']))) {
                     $condo_id = $event['condo_id'] ?? $values['condo_id'];
                     $condominium = Condominium::id($condo_id)->read(['bank_accounts_ids' => ['bank_account_iban']])->first(true);
                     if($condominium) {
