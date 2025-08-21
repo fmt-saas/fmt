@@ -406,12 +406,14 @@ class BankStatement extends Model {
 
         switch($view) {
             case 'form.create':
-                if(!isset($values['condo_id']) && isset($event['bank_account_iban'])) {
-                    $event['bank_account_iban'] = trim(str_replace(' ', '', $event['bank_account_iban']));
-                    $result['bank_account_iban'] = $event['bank_account_iban'];
-                    $bankAccount = BankAccount::search(['bank_account_iban', '=', $event['bank_account_iban']])->read(['condo_id' => ['id', 'name']])->first();
-                    if($bankAccount) {
-                        $result['condo_id'] = ['id' => $bankAccount['condo_id']['id'], 'name' => $bankAccount['condo_id']['name']];
+                if(isset($event['bank_account_iban'])) {
+                    if(!isset($values['condo_id'])) {
+                        $event['bank_account_iban'] = trim(str_replace(' ', '', $event['bank_account_iban']));
+                        $result['bank_account_iban'] = $event['bank_account_iban'];
+                        $bankAccount = BankAccount::search(['bank_account_iban', '=', $event['bank_account_iban']])->read(['condo_id' => ['id', 'name']])->first();
+                        if($bankAccount) {
+                            $result['condo_id'] = ['id' => $bankAccount['condo_id']['id'], 'name' => $bankAccount['condo_id']['name']];
+                        }
                     }
                 }
                 elseif(empty($values['bank_account_iban']) && (isset($event['condo_id']) || isset($values['condo_id']))) {
