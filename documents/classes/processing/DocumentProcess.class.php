@@ -802,6 +802,7 @@ class DocumentProcess extends Model {
                 // create the BankStatement
                 $bankStatement = BankStatement::create([
                         'condo_id'              => $documentProcess['condo_id'],
+                        'date'                  => time(),
                         'opening_date'          => strtotime($data['opening_date']),
                         'closing_date'          => strtotime($data['closing_date']),
                         'opening_balance'       => round(floatval($data['opening_balance']), 2),

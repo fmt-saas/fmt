@@ -52,8 +52,7 @@ class BankStatement extends Model {
                 'type'              => 'date',
                 'description'       => 'Date at which the statement was received.',
                 'help'              => 'This is for information only and might not be accurate with the actual date/time at which the statement was generated.',
-                'readonly'          => true,
-                'default'           => function () {return time();}
+                'readonly'          => true
             ],
 
             'statement_currency' => [
