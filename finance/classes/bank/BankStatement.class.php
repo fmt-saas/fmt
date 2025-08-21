@@ -79,14 +79,16 @@ class BankStatement extends Model {
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => 'Account balance before the transactions.',
-                'required'          => true
+                'required'          => true,
+                'default'           => 0.0
             ],
 
             'closing_balance' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => 'Account balance after the transactions.',
-                'required'          => true
+                'required'          => true,
+                'default'           => 0.0
             ],
 
             'bank_account_iban' => [
