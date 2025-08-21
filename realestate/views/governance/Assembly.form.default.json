@@ -50,7 +50,7 @@
         },
         {
             "id": "action.sent",
-            "label": "Sent",
+            "label": "Mark as Sent",
             "description": "Mark invitations as sent.",
             "controller": "core_model_transition",
             "params": {

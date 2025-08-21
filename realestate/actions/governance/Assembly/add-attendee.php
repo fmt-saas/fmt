@@ -193,33 +193,49 @@ if($params['is_owner']) {
     $identity_id = $owner['identity_id'];
 }
 else {
-    // retrieve info from the certificate
     if(empty($params['sig_cert'])) {
-        throw new Exception("missing_signature_certificate", EQ_ERROR_INVALID_PARAM);
-    }
-
-    $infos = $computeSignerInfoFromCert($params['sig_cert']);
-
-    // #memo - for GDPR compliance, we do not store the citizen identification number
-    // #memo - pseudonymization is acceptable & proportional to the finality (validate link between signature and identity)
-    $hash  = hash('sha256', $infos['citizen_identification'] . constant('AUTH_SECRET_KEY'));
-
-    $identity = Identity::search(['hash_sha256', '=', $hash])->first();
-
-    if($identity) {
-        $identity_id = $identity['id'];
-    }
-    else {
+        if(empty($params['sig_drawn'])) {
+            throw new Exception("missing_signature_certificate", EQ_ERROR_INVALID_PARAM);
+        }
+        // external without citizen ID (only firstname, lastname & drawn signature)
         // create a new identity
+        // #memo - we have no way to avoid duplicates here
         $identity = Identity::create([
-            'type_id'       => 1,
-            'firstname'     => $infos['firstname'],
-            'lastname'      => $infos['lastname'],
-            'hash_sha256'   => $hash
-        ])
-        ->first();
+                'type_id'       => 1,
+                'firstname'     => $infos['firstname'],
+                'lastname'      => $infos['lastname']
+            ])
+            ->first();
 
         $identity_id = $identity['id'];
+    }
+    // retrieve info from the certificate
+    else {
+
+        $infos = $computeSignerInfoFromCert($params['sig_cert']);
+
+        // #memo - for GDPR compliance, we do not store the citizen identification number
+        // #memo - pseudonymization is acceptable & proportional to the finality (validate link between signature and identity)
+        $hash  = hash('sha256', $infos['citizen_identification'] . constant('AUTH_SECRET_KEY'));
+
+        $identity = Identity::search(['hash_sha256', '=', $hash])->first();
+
+        if($identity) {
+            $identity_id = $identity['id'];
+        }
+        else {
+            // create a new identity
+            $identity = Identity::create([
+                    'type_id'       => 1,
+                    'firstname'     => $infos['firstname'],
+                    'lastname'      => $infos['lastname'],
+                    // #memo - manually set the computed hash, since we cannot store the citizen identification number
+                    'hash_sha256'   => $hash
+                ])
+                ->first();
+
+            $identity_id = $identity['id'];
+        }
     }
 }
 

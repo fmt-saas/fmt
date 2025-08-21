@@ -79,11 +79,12 @@ $identity = Identity::create([
 $user = User::create([
         'identity_id'   => $identity['id'],
         'login'         => 'admin@fmt.yb.run',
-        'password'      => 'safe_pass',
+        'password'      => 'void',
         'language'      => 'fr',
         'validated'     => true,
         'groups_ids'    => [2]
     ])
+    ->update(['password' => 'safe_pass'])
     ->first();
 
 // will create related Identity
