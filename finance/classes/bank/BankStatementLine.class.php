@@ -155,7 +155,7 @@ class BankStatementLine extends Model {
         return $result;
     }
 
-    protected static function defaultDate($value) {
+    protected static function defaultDate($values) {
         $result = null;
         if(isset($values['bank_statement_id'])) {
             $statement = BankStatement::id($values['bank_statement_id'])->read(['opening_date'])->first();
