@@ -12,9 +12,8 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as XlsDate;
     'description'   => "Parse a raw CODA file and returns it as a list of statement lines.",
     'params'        => [
         'data' =>  [
-            'type'          => 'string',
-            'description'   => "Raw CODA data to parse as statements.",
-            'usage'         => 'binary',
+            'type'          => 'binary',
+            'description'   => "Raw XLSX binary data to parse as statements.",
             // 'required'      => true
         ]
     ],

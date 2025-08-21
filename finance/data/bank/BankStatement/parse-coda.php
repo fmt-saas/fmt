@@ -235,7 +235,7 @@ $statements = $parser->parse($lines);
 
 $result = [];
 
-foreach ($statements as $statement) {
+foreach($statements as $statement) {
 
     $account = $statement->getAccount();
 
@@ -254,7 +254,7 @@ foreach ($statements as $statement) {
 
     $line['transactions'] = [];
 
-    foreach ($statement->getTransactions() as $transaction) {
+    foreach($statement->getTransactions() as $transaction) {
 
         $transaction_account = $transaction->getAccount();
 
@@ -276,7 +276,6 @@ foreach ($statements as $statement) {
             'bank_reference'            => '',
             'transaction_message'       => ''
         ];
-
     }
 
     $result[] = $line;

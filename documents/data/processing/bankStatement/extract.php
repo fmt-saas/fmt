@@ -44,15 +44,14 @@ if(!in_array($document['content_type'], $supported_content_types)) {
     throw new Exception('non_supported_document_type', EQ_ERROR_INVALID_PARAM);
 }
 
-$data = base64_encode($document['data']);
-
 switch($document['content_type']) {
     case 'text/plain':
-        $result = eQual::run('get', 'finance_bank_BankStatement_parse-coda', ['data' => $data], false, true);
+        $result = eQual::run('get', 'finance_bank_BankStatement_parse-coda', ['data' => $document['data']], false, true);
         break;
     case 'application/vnd.ms-excel':
     case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-        $result = eQual::run('get', 'finance_bank_BankStatement_parse-xls', ['data' => $data], false, true);
+
+        $result = eQual::run('get', 'finance_bank_BankStatement_parse-xls', ['data' => base64_encode($document['data'])], false, true);
         break;
 }
 
