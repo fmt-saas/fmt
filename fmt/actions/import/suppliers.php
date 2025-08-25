@@ -107,13 +107,10 @@ foreach($worksheet->getRowIterator() as $index => $rowIterator) {
 }
 
 
-print_r($lines);
-die();
 $events = $orm->disableEvents();
 
 
-
-for($i = 1, $n = count($lines); $i < $n; ++$i) {
+for($i = 0, $n = count($lines); $i < $n; ++$i) {
 
     $line = $lines[$i];
     $values = $mapSupplierRowToJson($line);
