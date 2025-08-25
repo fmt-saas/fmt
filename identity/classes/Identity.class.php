@@ -64,7 +64,7 @@ class Identity extends Model {
                 'usage'             => 'text/plain:64',
                 'function'          => 'calcHashSha256',
                 'description'       => 'SHA256 hash of the identity.',
-                'help'              => 'This hash helps to identify and prevent duplicate identities within the current instance.',
+                'help'              => 'This hash helps to identify and prevent duplicate identities within the current instance. It is based on registration_number and/or citizen_identification.',
                 'store'             => true,
                 'instant'           => true,
                 'readonly'          => true

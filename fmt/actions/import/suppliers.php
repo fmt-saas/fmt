@@ -22,6 +22,7 @@ use purchase\supplier\Supplier;
     'access' => [
         'visibility'        => 'public'
     ],
+    'constants'     => ['AUTH_SECRET_KEY'],
     'response'      => [
         'accept-origin' => '*',
         'content-type'  => 'application/json'
@@ -53,6 +54,15 @@ $mapSupplierRowToJson = function (array $row): array {
         "phone_alt"           => $row['fournisseur_tel_2'] ?? null
     ];
 };
+
+
+$calcHashSha256 = function ($supplier) {
+    if(!$supplier['registration_number'] || strlen($supplier['registration_number']) <= 0) {
+        return null;
+    }
+    return hash('sha256', $supplier['registration_number'] . constant('AUTH_SECRET_KEY'));
+};
+
 
 
 $lines = [];
@@ -89,13 +99,25 @@ for($i = 1, $n = count($lines); $i < $n; ++$i) {
     $line = $lines[$i];
     $values = $mapSupplierRowToJson($line);
 
-    $identity = Identity::create($values)
-        ->do('refresh_bank_accounts')
-        ->first();
+    $hash_sha256 = $calcHashSha256($values);
+    $identity = null;
+    $supplier = null;
 
-    Supplier::create([ 'identity_id' => $identity['id'] ])
-        ->do('sync_from_identity');
+    if($hash_sha256) {
+        $identity = (bool) Identity::search(['hash_sha256', '=', $hash_sha256])->first();
+        $supplier = (bool) Supplier::search(['hash_sha256', '=', $hash_sha256])->first();
+    }
 
+    if(!$identity) {
+        $identity = Identity::create($values)
+            ->do('refresh_bank_accounts')
+            ->first();
+    }
+
+    if(!$supplier) {
+        Supplier::create([ 'identity_id' => $identity['id'] ])
+            ->do('sync_from_identity');
+    }
 }
 
 $context->httpResponse()
