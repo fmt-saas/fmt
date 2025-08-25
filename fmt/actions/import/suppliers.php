@@ -84,14 +84,12 @@ catch(Exception $e) {
 }
 
 $worksheet = $spreadsheet->getActiveSheet();
-$highestDataRow = $worksheet->getHighestDataRow();
-$highestDataCol = $worksheet->getHighestDataColumn();
 
 $lines = [];
 $headers = [];
 
-foreach($worksheet->getRowIterator(1, $highestDataRow) as $index => $rowIterator) {
-    $cellIterator = $row->getCellIterator('A', $highestDataCol);
+foreach($worksheet->getRowIterator() as $index => $rowIterator) {
+    $cellIterator = $rowIterator->getCellIterator();
     $cellIterator->setIterateOnlyExistingCells(false);
 
     $cells = [];
@@ -105,23 +103,27 @@ foreach($worksheet->getRowIterator(1, $highestDataRow) as $index => $rowIterator
         continue;
     }
 
-    // Construction associative : ["fournisseur_nom" => "XYZ", ...]
+    // mapping : ["fournisseur_nom" => "XYZ", ...]
     $row = [];
     foreach($headers as $col_index => $header) {
+        if($header === 'fournisseur_nom' && (!$cells[$col_index] || strlen($cells[$col_index] <= 0))) {
+            break 2;
+        }
         $row[$header] = $cells[$col_index] ?? null;
     }
 
-    $lines[] = $row;
+    $lines[] = $mapSupplierRowToJson($row);
 }
 
+print_r($lines);
+die();
 
 $events = $orm->disableEvents();
 
 
 for($i = 0, $n = count($lines); $i < $n; ++$i) {
 
-    $line = $lines[$i];
-    $values = $mapSupplierRowToJson($line);
+    $values = $lines[$i];
 
     $hash_sha256 = $calcHashSha256($values);
     $identity = null;

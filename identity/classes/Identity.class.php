@@ -814,11 +814,11 @@ class Identity extends Model {
                 }
             }
             if(empty($parts) ) {
-                if(isset($identity['legal_name']) && strlen($identity['legal_name'])) {
-                    $parts[] = $identity['legal_name'];
-                }
-                elseif(isset($identity['short_name']) && strlen($identity['short_name'])) {
+                if(isset($identity['short_name']) && strlen($identity['short_name'])) {
                     $parts[] = $identity['short_name'];
+                }
+                elseif(isset($identity['legal_name']) && strlen($identity['legal_name'])) {
+                    $parts[] = $identity['legal_name'];
                 }
             }
             if(count($parts)) {
