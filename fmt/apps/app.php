@@ -9,6 +9,6 @@ list($params, $providers) = eQual::announce([
     'description'   => 'Redirect to `/app` public folder.',
     'params'        => [],
     'response'      => [
-        'location'      => '/app/'
+        'location'      => '/app/#/fmt/'
     ]
 ]);
