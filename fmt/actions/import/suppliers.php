@@ -64,8 +64,6 @@ $calcHashSha256 = function ($supplier) {
 };
 
 
-die('data bien recue');
-
 $lines = [];
 
 try {
