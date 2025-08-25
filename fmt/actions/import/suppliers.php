@@ -115,9 +115,6 @@ foreach($worksheet->getRowIterator() as $index => $rowIterator) {
     $lines[] = $mapSupplierRowToJson($row);
 }
 
-print_r($lines);
-die();
-
 $events = $orm->disableEvents();
 
 
