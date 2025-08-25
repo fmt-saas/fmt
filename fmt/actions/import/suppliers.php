@@ -38,7 +38,7 @@ $mapSupplierRowToJson = function (array $row): array {
         "source_type"         => "manual",
         "type_id"             => 3,
         "type"                => "CO",
-        "bank_account_iban"   => $row['fournisseur_iban_1'] ?? null,
+        "bank_account_iban"   => preg_replace('/[^A-Z0-9]/i', '', $row['fournisseur_iban_1'] ?? ''),
         "legal_name"          => $row['fournisseur_nom'],
         "has_vat"             => !empty($row['fournisseur_numero_tva']),
         "vat_number"          => preg_replace('/[^A-Z0-9]/i', '', $row['fournisseur_numero_tva'] ?? ''),
@@ -64,8 +64,6 @@ $calcHashSha256 = function ($supplier) {
 };
 
 
-$lines = [];
-
 try {
     // #todo - when PhpOffice version will support it, use memory stream instead of tmp file
     $reader = IOFactory::createReader('Xlsx');
@@ -81,13 +79,30 @@ catch(Exception $e) {
 
 $worksheet = $spreadsheet->getActiveSheet();
 
-foreach($worksheet->getRowIterator() as $rowIterator) {
-    $row = [];
-    foreach($rowIterator->getCellIterator() as $cell) {
-        $value = $cell->getValue();
-        $format = $cell->getStyle()->getNumberFormat()->getFormatCode();
-        $row[] = $value;
+$lines = [];
+$headers = [];
+
+foreach($worksheet->getRowIterator() as $index => $rowIterator) {
+    $cellIterator = $rowIterator->getCellIterator();
+    $cellIterator->setIterateOnlyExistingCells(false);
+
+    $cells = [];
+    foreach($cellIterator as $cell) {
+        $cells[] = $cell->getValue();
     }
+
+    // header line
+    if($index === 1) {
+        $headers = $cells;
+        continue;
+    }
+
+    // Construction associative : ["fournisseur_nom" => "XYZ", ...]
+    $row = [];
+    foreach($headers as $col_index => $header) {
+        $row[$header] = $cells[$col_index] ?? null;
+    }
+
     $lines[] = $row;
 }
 
@@ -96,7 +111,7 @@ print_r($lines);
 die();
 $events = $orm->disableEvents();
 
-$headers = $lines[0];
+
 
 for($i = 1, $n = count($lines); $i < $n; ++$i) {
 
