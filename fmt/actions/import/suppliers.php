@@ -38,11 +38,17 @@ $mapSupplierRowToJson = function (array $row): array {
         "source_type"         => "manual",
         "type_id"             => 3,
         "type"                => "CO",
-        "bank_account_iban"   => preg_replace('/[^A-Z0-9]/i', '', $row['fournisseur_iban_1'] ?? ''),
+        "bank_account_iban"   => isset($row['fournisseur_iban_1']) && $row['fournisseur_iban_1'] !== null
+                ? preg_replace('/[^A-Z0-9]/i', '', $row['fournisseur_iban_1'])
+                : null,
+        "vat_number" => isset($row['fournisseur_numero_tva']) && $row['fournisseur_numero_tva'] !== null
+                ? preg_replace('/[^A-Z0-9]/i', '', $row['fournisseur_numero_tva'])
+                : null,
+        "registration_number" => isset($row['fournisseur_numero_entreprise']) && $row['fournisseur_numero_entreprise'] !== null
+                ? preg_replace('/[^0-9]/i', '', $row['fournisseur_numero_entreprise'])
+                : null,
         "legal_name"          => $row['fournisseur_nom'],
         "has_vat"             => !empty($row['fournisseur_numero_tva']),
-        "vat_number"          => preg_replace('/[^A-Z0-9]/i', '', $row['fournisseur_numero_tva'] ?? ''),
-        "registration_number" => preg_replace('/[^0-9]/i', '', $row['fournisseur_numero_entreprise'] ?? ''),
         "nationality"         => strtoupper($row['fournisseur_pays'] ?? 'BE'),
         "lang_id"             => 2,
         "address_street"      => $row['fournisseur_nom_rue'] ?? null,
