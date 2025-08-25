@@ -84,12 +84,14 @@ catch(Exception $e) {
 }
 
 $worksheet = $spreadsheet->getActiveSheet();
+$highestDataRow = $worksheet->getHighestDataRow();
+$highestDataCol = $worksheet->getHighestDataColumn();
 
 $lines = [];
 $headers = [];
 
-foreach($worksheet->getRowIterator() as $index => $rowIterator) {
-    $cellIterator = $rowIterator->getCellIterator();
+foreach($worksheet->getRowIterator(1, $highestDataRow) as $index => $rowIterator) {
+    $cellIterator = $row->getCellIterator('A', $highestDataCol);
     $cellIterator->setIterateOnlyExistingCells(false);
 
     $cells = [];
@@ -126,8 +128,8 @@ for($i = 0, $n = count($lines); $i < $n; ++$i) {
     $supplier = null;
 
     if($hash_sha256) {
-        $identity = (bool) Identity::search(['hash_sha256', '=', $hash_sha256])->first();
-        $supplier = (bool) Supplier::search(['hash_sha256', '=', $hash_sha256])->first();
+        $identity = Identity::search(['hash_sha256', '=', $hash_sha256])->first();
+        $supplier = Supplier::search(['hash_sha256', '=', $hash_sha256])->first();
     }
 
     if(!$identity) {
