@@ -20,7 +20,7 @@ use purchase\supplier\Supplier;
         ]
     ],
     'access' => [
-        'visibility'        => 'public'
+        'visibility'        => 'protected'
     ],
     'constants'     => ['AUTH_SECRET_KEY'],
     'response'      => [
@@ -91,6 +91,11 @@ foreach($worksheet->getRowIterator() as $rowIterator) {
     $lines[] = $row;
 }
 
+
+print_r($lines);
+
+$events = $orm->disableEvents();
+
 $headers = $lines[0];
 
 for($i = 1, $n = count($lines); $i < $n; ++$i) {
@@ -118,6 +123,8 @@ for($i = 1, $n = count($lines); $i < $n; ++$i) {
             ->do('sync_from_identity');
     }
 }
+
+$orm->enableEvents($events);
 
 $context->httpResponse()
         ->status(201)
