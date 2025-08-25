@@ -5,6 +5,14 @@
     "access": {
         "groups": ["purchase.default.users"]
     },
+    "actions": [
+        {
+            "id": "action.import",
+            "label": "Import",
+            "description": "Import from an Xls file.",
+            "controller": "fmt_import_suppliers"
+        }
+    ],
     "header": {
         "actions": {
             "ACTION.CREATE" : [

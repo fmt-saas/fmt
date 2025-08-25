@@ -886,7 +886,9 @@ class DocumentProcess extends Model {
 
     /**
      * Handle data update (i.e. file upload).
-     * This method is used to create the document based on received data, and start the processing.
+     * This method is used to:
+     *  - create the document based on received data
+     *  - and initiate the processing.
      */
     public static function onupdateData($self) {
         $self->read(['name', 'data']);
@@ -901,6 +903,7 @@ class DocumentProcess extends Model {
                     'data'        => null
                 ]);
         }
+
         // #todo - check if completion.auto enabled
 
         try {
@@ -1018,20 +1021,42 @@ class DocumentProcess extends Model {
     }
 
     public static function doPerformIdentification($self) {
-        $self->read(['document_id']);
+        $self->read(['document_id', 'report_html']);
         foreach($self as $id => $documentProcess) {
             $identification = \eQual::run('get', 'documents_processing_identify', ['id' => $documentProcess['document_id']]);
-            if($identification['document_type_id']) {
-                self::id($id)->update($identification);
+            if(isset($identification['document_type']['id'])) {
+                $values = [];
+                $logs = [];
+
+                $values['document_type_id'] = $identification['document_type']['id'];
+                $logs[] = "Identification - Retrieved document type: " . $identification['document_type']['code'];
+
+                if(isset($identification['document_subtype']['id'])) {
+                    $values['document_subtype_id'] = $identification['document_subtype']['id'];
+                    $logs[] = "Identification - Retrieved document sub-type: " . $identification['document_subtype']['code'];
+                }
+
+                $report_html = $documentProcess['report_html'];
+                if(strlen($report_html) > 0) {
+                    $report_html .= "<br />";
+                }
+
+                $values['report_html'] = $report_html . implode("<br />", $logs);
+
+                self::id($id)->update($values);
             }
         }
     }
 
     public static function doPerformExtraction($self) {
-        $self->read(['document_type_id' => ['json_schema'], 'document_type_code', 'document_id', 'report_html']);
+        $self->read(['document_type_id' => ['code', 'json_schema'], 'document_id', 'report_html']);
 
         foreach($self as $id => $documentProcess) {
             if(!$documentProcess['document_id']) {
+                continue;
+            }
+
+            if(!$documentProcess['document_type_id']) {
                 continue;
             }
 
@@ -1039,7 +1064,7 @@ class DocumentProcess extends Model {
 
             // extract data based on document type
             try {
-                switch($documentProcess['document_type_code']) {
+                switch($documentProcess['document_type_id']['code']) {
                     case 'invoice':
                     case 'credit_note':
                         $data = \eQual::run('get', 'documents_processing_purchaseInvoice_extract', ['document_id' => $documentProcess['document_id']]);
@@ -1047,13 +1072,13 @@ class DocumentProcess extends Model {
                     case 'bank_statement':
                         $data = \eQual::run('get', 'documents_processing_bankStatement_extract', ['document_id' => $documentProcess['document_id']]);
                         if(!is_array($data)) {
-                            trigger_error("APP::unexpected bank statement returned as a non-array for process {$id} ({$documentProcess['document_type_code']})", EQ_REPORT_WARNING);
-                            throw new \Exception('unsupported_document', EQ_ERROR_INVALID_PARAM);
+                            trigger_error("APP::unexpected bank statement returned as a non-array for process {$id} ({$documentProcess['document_type_id']['code']})", EQ_REPORT_WARNING);
+                            throw new \Exception('invalid_document', EQ_ERROR_INVALID_PARAM);
                         }
                         if(count($data) > 1) {
-                            trigger_error("APP::unexpected bank statement returned with more than one statement for process {$id} ({$documentProcess['document_type_code']})", EQ_REPORT_WARNING);
+                            trigger_error("APP::unexpected bank statement returned with more than one statement for process {$id} ({$documentProcess['document_type_id']['code']})", EQ_REPORT_WARNING);
                             // #memo - file holding several bank statements
-                            throw new \Exception('unsupported_document', EQ_ERROR_INVALID_PARAM);
+                            throw new \Exception('invalid_document', EQ_ERROR_INVALID_PARAM);
                         }
                         $data = current($data);
                         break;
@@ -1073,7 +1098,8 @@ class DocumentProcess extends Model {
                         ob_start();
                         print_r($validation['errors']);
                         $out = ob_get_clean();
-                        trigger_error("APP::received validation errors for process {$id} ({$documentProcess['document_type_code']}): ".$out, EQ_REPORT_WARNING);
+                        $logs[] = "validation errors: " . $out;
+                        trigger_error("APP::received validation errors for process {$id} ({$documentProcess['document_type_id']['code']}): " . $out, EQ_REPORT_WARNING);
                         throw new \Exception('unsupported_document', EQ_ERROR_INVALID_PARAM);
                     }
 
@@ -1093,9 +1119,9 @@ class DocumentProcess extends Model {
             catch(\Exception $e) {
                 // #todo - ? on arrive ici en cas d'erreur
                 // unexpected error
-                $logs[] = "Document does not match expected format.";
-                $logs[] = "For bank Statement this might be due to a list of statements instead of a single statement.";
-                trigger_error("APP::unable to extract document for process {$id} ({$documentProcess['document_type_code']}): " . $e->getMessage(), EQ_REPORT_WARNING);
+                $logs[] = "Extraction - unexpected error : " . $e->getMessage();
+                $logs[] = "Non supported document type or Document does not match expected format.";
+                trigger_error("APP::unable to extract document for process {$id} ({$documentProcess['document_type_id']['code']}): " . $e->getMessage(), EQ_REPORT_WARNING);
             }
 
             $values = [];

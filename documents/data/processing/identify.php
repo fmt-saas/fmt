@@ -40,8 +40,8 @@ if(!$document) {
 }
 
 $result = [
-    'document_type_id'      => null,
-    'document_subtype_id'   => null
+    'document_type'      => [],
+    'document_subtype'   => []
 ];
 
 // extract data (based on content-type)
@@ -99,17 +99,32 @@ if(!$document_type) {
             'subtypes' => [
                 'advance_invoice' => [
                     'signatures' => [
-                        'acompte', 'facture intermediaire', 'facture d\'acompte', 'advance invoice', 'deposit invoice',
+                        // FR
+                        'acompte', 'facture intermediaire', 'facture d\'acompte',
+                        // EN
+                        'advance invoice', 'deposit invoice',
+                        // NL
+                        'voorschot', 'tussentijdse factuur', 'voorschotfactuur', 'waarborgfactuur'
                     ],
                 ],
                 'adjustment_invoice' => [
                     'signatures' => [
-                        'facture de regularisation', 'adjustment invoice', 'regularisation', 'rectificatif',
+                        // FR
+                        'facture de regularisation', 'regularisation', 'rectificatif',
+                        // EN
+                        'adjustment invoice',
+                        // NL
+                        'regularisatiefactuur', 'regularisatie', 'rectificatie',
                     ],
                 ],
                 'off_contract' => [
                     'signatures' => [
-                        'hors contrat', 'off contract', 'facture supplementaire',
+                        // FR
+                        'hors contrat', 'facture supplementaire',
+                        // EN
+                        'off contract',
+                        // NL
+                        'buiten contract', 'bijkomende factuur',
                     ],
                 ],
             ],
@@ -153,7 +168,10 @@ if($document_type) {
 
     foreach($documentTypes as $document_type_id => $documentType) {
         if($documentType['code'] === $document_type) {
-            $result['document_type_id'] = $document_type_id;
+            $result['document_type'] = [
+                'id'    => $document_type_id,
+                'code'  => $document_type
+            ];
             break;
         }
     }
@@ -162,7 +180,10 @@ if($document_type) {
         $documentSubtypes = DocumentSubtype::search()->read(['code'])->get();
         foreach($documentSubtypes as $document_subtype_id => $documentSubtype) {
             if($documentSubtype['code'] === $document_subtype) {
-                $result['document_subtype_id'] = $document_subtype_id;
+                $result['document_subtype'] = [
+                    'id'    => $document_subtype_id,
+                    'code'  => $document_subtype
+                ];
                 break;
             }
         }

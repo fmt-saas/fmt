@@ -306,7 +306,7 @@ class BankStatement extends Model {
             if(!isset($statement['condo_id'], $statement['bank_account_iban'], $statement['date'], $statement['opening_balance'], $statement['closing_balance'])) {
                 continue;
             }
-            $result[$id] = sprintf("%s - %s - %s - %s - %s", $statement['condo_id']['code'], $statement['bank_account_iban'], date('Ymd', $statement['date']), $statement['opening_balance'], $statement['closing_balance']);
+            $result[$id] = sprintf("%s - %s - %s  (%s - %s)", $statement['condo_id']['code'], $statement['bank_account_iban'], date('Y-m-d', $statement['date']), $statement['opening_balance'], $statement['closing_balance']);
         }
         return $result;
     }
