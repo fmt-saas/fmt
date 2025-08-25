@@ -41,9 +41,9 @@ $mapSupplierRowToJson = function (array $row): array {
         "bank_account_iban"   => $row['fournisseur_iban_1'] ?? null,
         "legal_name"          => $row['fournisseur_nom'],
         "has_vat"             => !empty($row['fournisseur_numero_tva']),
-        "vat_number"          => $row['fournisseur_numero_tva'] ?? null,
-        "registration_number" => $row['fournisseur_numero_entreprise'] ?? null,
-        "nationality"         => strtoupper($row['fournisseur_pays'] ?? "BE"),
+        "vat_number"          => preg_replace('/[^A-Z0-9]/i', '', $row['fournisseur_numero_tva'] ?? ''),
+        "registration_number" => preg_replace('/[^0-9]/i', '', $row['fournisseur_numero_entreprise'] ?? ''),
+        "nationality"         => strtoupper($row['fournisseur_pays'] ?? 'BE'),
         "lang_id"             => 2,
         "address_street"      => $row['fournisseur_nom_rue'] ?? null,
         "address_city"        => $row['fournisseur_localite'] ?? null,
@@ -93,7 +93,7 @@ foreach($worksheet->getRowIterator() as $rowIterator) {
 
 
 print_r($lines);
-
+die();
 $events = $orm->disableEvents();
 
 $headers = $lines[0];
