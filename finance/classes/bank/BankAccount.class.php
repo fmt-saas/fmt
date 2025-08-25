@@ -71,7 +71,8 @@ class BankAccount extends Model {
                 'description'       => 'The IBAN number of the bank account.',
                 'help'              => 'The IBAN number is a unique identifier for the bank account. Example: BE54000000000097',
                 'dependents'        => ['name', 'bank_country', 'bank_account_bic', 'bank_name'],
-                'unique'            => true,
+                // for individuals, several persons might share/have a bank account in common
+                // 'unique'            => true
                 'required'          => true,
                 'onupdate'          => 'onupdateBankAccountIban'
             ],
