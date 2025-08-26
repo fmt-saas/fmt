@@ -1,0 +1,62 @@
+[
+    {
+        "name": "realestate\\ownership\\Ownership",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 8,
+                "name": "00001 - Francky TIRANT",
+                "condo_id": 4,
+                "code": "00001",
+                "description": null,
+                "ownership_type": "unique",
+                "ownership_shares": 100,
+                "date_from": "2023-01-01T00:00:00+00:00",
+                "date_to": null,
+                "transfer_from_id": null,
+                "transfer_to_id": null,
+                "creation_identity_id": 1147,
+                "representative_identity_id": null,
+                "has_representative": false,
+                "representative_owner_id": 11,
+                "ownership_account_id": 1480
+            },
+            {
+                "id": 9,
+                "name": "00002 - Assam ONAISSI",
+                "condo_id": 4,
+                "code": "00002",
+                "description": null,
+                "ownership_type": "unique",
+                "ownership_shares": 100,
+                "date_from": "2023-01-01T00:00:00+00:00",
+                "date_to": null,
+                "transfer_from_id": null,
+                "transfer_to_id": null,
+                "creation_identity_id": 1146,
+                "representative_identity_id": null,
+                "has_representative": false,
+                "representative_owner_id": 12,
+                "ownership_account_id": 1482
+            },
+            {
+                "id": 10,
+                "name": "00003 - Martine COPPENS",
+                "condo_id": 4,
+                "code": "00003",
+                "description": null,
+                "ownership_type": "unique",
+                "ownership_shares": 100,
+                "date_from": "2023-01-01T00:00:00+00:00",
+                "date_to": null,
+                "transfer_from_id": null,
+                "transfer_to_id": null,
+                "creation_identity_id": 1142,
+                "representative_identity_id": null,
+                "has_representative": false,
+                "representative_owner_id": 13,
+                "ownership_account_id": 1484
+            }
+        ]
+    }
+]

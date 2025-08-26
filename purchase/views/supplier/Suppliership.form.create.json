@@ -1,0 +1,92 @@
+{
+    "name": "Supplier",
+    "description": "A suppliership describes a relation between a supplier and a condominium.",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {
+                    "id": "SAVE_AND_CONTINUE",
+                    "view": "form.default"
+                },
+                {
+                    "id": "SAVE_AND_VIEW",
+                    "view": "form.default"
+                }
+            ]
+        }
+    },
+    "actions": [
+        {
+            "id": "action.validate",
+            "label": "Validate",
+            "icon": "play_arrow",
+            "description": "Generate mandatory configuration.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "pending"],
+            "params": {
+                "entity": "purchase\\supplier\\Suppliership",
+                "transition": "validate",
+                "ids": []
+            },
+            "confirm": false
+        },
+        {
+            "id": "action.import_bank_account",
+            "label": "Import Bank account",
+            "description": "Import Supplier primary bank account.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "purchase\\supplier\\Suppliership",
+                "action": "import_bank_account",
+                "ids": []
+            },
+            "confirm": false
+        }
+    ],
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "supplier_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "code",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

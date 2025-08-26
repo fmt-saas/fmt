@@ -64,6 +64,15 @@ class User extends \core\User {
         ];
     }
 
+    public static function getActions() {
+        return [
+            'sync_from_identity' => [
+                'description'   => 'Force sync values from related identity.',
+                'function'      => 'doSyncFromIdentity'
+            ]
+        ];
+    }
+
     public static function onupdateIdentityId($self) {
         $self->read(['identity_id']);
         foreach($self as $id => $user) {
@@ -71,6 +80,41 @@ class User extends \core\User {
                 Identity::id($user['identity_id'])->update(['user_id' => $id]);
             }
         }
+    }
+
+    protected static function doSyncFromIdentity($self, $orm) {
+        static $common_fields = [
+                'firstname',
+                'lastname',
+            ];
+
+        $self->read(['identity_id']);
+        foreach($self as $id => $identity) {
+            if(!$identity['identity_id']) {
+                continue;
+            }
+
+            $orm_events = $orm->disableEvents();
+
+            $parentIdentity = Identity::id($identity['identity_id'])
+                ->read($common_fields)
+                ->first(true);
+
+            if(!$parentIdentity) {
+                continue;
+            }
+
+            $values = [];
+            foreach($common_fields as $field) {
+                if(array_key_exists($field, $parentIdentity)) {
+                    $values[$field] = $parentIdentity[$field];
+                }
+            }
+            self::id($id)->update($values);
+
+            $orm->enableEvents($orm_events);
+        }
+
     }
 
 }

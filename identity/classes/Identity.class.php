@@ -701,7 +701,7 @@ class Identity extends Model {
         }
     }
 
-    public static function doSyncFromIdentity($self, $orm) {
+    protected static function doSyncFromIdentity($self, $orm) {
         static $common_fields = [
                 'name',
                 'type_id',
@@ -1576,7 +1576,11 @@ class Identity extends Model {
             $street = str_replace(' ', '_', trim($street));
             $number = str_replace(' ', '', trim($number));
 
-            $result[$id] = md5("{$street}::{$number}::{$zip}");
+            $digest = "{$street}::{$number}::{$zip}";
+            // ignore digests with non-significant clues
+            if(strlen($digest) > 15) {
+                $result[$id] = md5($digest);
+            }
         }
         return $result;
     }

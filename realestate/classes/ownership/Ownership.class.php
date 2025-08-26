@@ -433,6 +433,7 @@ class Ownership extends \equal\orm\Model {
                     ->first();
 
                 if(!$assignmentAccount) {
+                    trigger_error("APP::Could not find account candidate for condominium {$ownership['condo_id']} for operation assignment $operation_assignment", EQ_REPORT_ERROR);
                     throw new \Exception("missing_mandatory_account", EQ_ERROR_INVALID_CONFIG);
                 }
 
