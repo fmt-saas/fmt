@@ -106,13 +106,13 @@ foreach($worksheet->getRowIterator() as $index => $rowIterator) {
     // mapping : ["fournisseur_nom" => "XYZ", ...]
     $row = [];
     foreach($headers as $col_index => $header) {
-        if($header === 'fournisseur_nom' && (!$cells[$col_index] || strlen($cells[$col_index] <= 0))) {
+        if($col_index === 0 && (!$cells[$col_index] || strlen($cells[$col_index] <= 0))) {
             break 2;
         }
         $row[$header] = $cells[$col_index] ?? null;
     }
 
-    $lines[] = $mapSupplierRowToJson($row);
+    $lines[] = $row;
 }
 
 $events = $orm->disableEvents();
@@ -120,7 +120,7 @@ $events = $orm->disableEvents();
 
 for($i = 0, $n = count($lines); $i < $n; ++$i) {
 
-    $values = $lines[$i];
+    $values = $mapSupplierRowToJson($lines[$i]);
 
     $hash_sha256 = $calcHashSha256($values);
     $identity = null;

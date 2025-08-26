@@ -1,0 +1,36 @@
+[
+    {
+        "name": "realestate\\property\\Condominium",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 4,
+                "name": "ACP HAUTE 115-117",
+                "identity_id": 1149,
+                "identity_source": "manual",
+                "source_type": "manual",
+                "type_id": 3,
+                "type": "CO",
+                "bank_account_iban": "BE82068902181768",
+                "bank_account_bic": "GKCCBEBB",
+                "bank_country": "BE",
+                "bank_name": "BELFIUS BANK",
+                "legal_name": "ACP HAUTE 115-117",
+                "has_vat": false,
+                "registration_number": "0554791203",
+                "nationality": "BE",
+                "lang_id": 2,
+                "address_street": "Rue Haute 115-117",
+                "address_city": "Bruxelles",
+                "address_zip": "1000",
+                "address_country": "BE",
+                "managing_agent_id": 1,
+                "total_shares": 1000,
+                "fiscal_year_start": "2023-10-01T00:00:00+00:00",
+                "fiscal_year_end": "2023-12-31T00:00:00+00:00",
+                "fiscal_period_frequency": "A",
+                "expense_management_mode": "provisions"
+            }
+        ]
+    }
+]
