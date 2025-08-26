@@ -13,6 +13,7 @@ class CouncilMember extends \equal\orm\Model {
         return [
             'name' => [
                 'type'              => 'computed',
+                'result_type'       => 'string',
                 'relation'          => ['owner_id' => 'name'],
                 'store'             => true,
                 'instant'           => true

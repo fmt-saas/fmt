@@ -1,36 +1,6 @@
 {
     "name": "Condominium",
     "description": "This view is intended for displaying the list of properties.",
-    "actions": [
-        {
-            "id": "action.generate_sequences",
-            "inline": true,
-            "label": "Generate sequences",
-            "icon": "play_arrow",
-            "description": "Generate mandatory sequences.",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "realestate\\property\\Condominium",
-                "action": "generate_sequences",
-                "ids": []
-            },
-            "confirm": true
-        },
-        {
-            "id": "action.open_fiscal_year",
-            "inline": true,
-            "label": "Open fiscal Year",
-            "icon": "event_available",
-            "description": "Open the fiscal year. This action cannot be undone.",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "realestate\\property\\Condominium",
-                "action": "open_fiscal_year",
-                "ids": []
-            },
-            "confirm": true
-        }
-    ],
     "layout": {
         "items": [
             {
