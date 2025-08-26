@@ -88,6 +88,13 @@ class Condominium extends Identity {
                 'visible'           => ['managing_agent_id', 'is not', null]
             ],
 
+            'council_members_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\Condominium',
+                'foreign_field'     => 'condo_id',
+                'description'       => "The Council Members of the Condominium.",
+            ],
+
             'total_shares' => [
                 'type'              => 'computed',
                 'result_type'       => 'integer',

@@ -905,9 +905,12 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         if(isset($event['document_id'])) {
             $result['document_link'] = self::computeDocumentLink($event['document_id']);
         }
-        if(isset($event['suppliership_id'])) {
-            $suppliership = Suppliership::id($event['suppliership_id'])->read(['supplier_id' => ['identity_id']])->first();
-            $result['supplier_identity_id'] = $suppliership['supplier_id']['identity_id'];
+        if(array_key_exists('suppliership_id', $event)) {
+            if(isset($event['suppliership_id'])) {
+                $suppliership = Suppliership::id($event['suppliership_id'])->read(['supplier_id' => ['identity_id']])->first();
+                $result['supplier_identity_id'] = $suppliership['supplier_id']['identity_id'];
+            }
+            $result['suppliership_bank_account_id'] = null;
         }
         return array_merge(parent::onchange($event, $values), $result);
     }

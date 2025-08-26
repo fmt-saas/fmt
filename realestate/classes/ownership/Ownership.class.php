@@ -265,6 +265,11 @@ class Ownership extends \equal\orm\Model {
                 'description'   => 'Generate folders for Ownership in Document repository.',
                 'policies'      => [],
                 'function'      => 'doGenerateFolders'
+            ],
+            'generate_communication_prefs' => [
+                'description'   => 'Generate Communication Preferences for Ownership.',
+                'policies'      => [],
+                'function'      => 'doGenerateCommunicationPrefs'
             ]
         ];
     }
@@ -457,6 +462,54 @@ class Ownership extends \equal\orm\Model {
         }
     }
 
+    /**
+     * #memo - the communication preferences apply on the entire Ownership
+     * and are used for communications with representative Owner
+     *  - no preferences can be applied directly on Owner
+     *  - only the representative can change the preferences
+     */
+    protected static function doGenerateCommunicationPrefs($self) {
+        $self->read(['condo_id', 'name']);
+
+        foreach($self as $id => $ownership) {
+
+            OwnershipCommunicationPreference::create([
+                    'condo_id'              => $ownership['condo_id'],
+                    'ownership_id'          => $id,
+                    'communication_reason'  => 'general_assembly_call',
+                    'communication_method'  => 'postal_registered'
+                ]);
+
+            OwnershipCommunicationPreference::create([
+                    'condo_id'              => $ownership['condo_id'],
+                    'ownership_id'          => $id,
+                    'communication_reason'  => 'general_assembly_minutes',
+                    'communication_method'  => 'postal'
+                ]);
+
+            OwnershipCommunicationPreference::create([
+                    'condo_id'              => $ownership['condo_id'],
+                    'ownership_id'          => $id,
+                    'communication_reason'  => 'expense_statement',
+                    'communication_method'  => 'postal'
+                ]);
+
+            OwnershipCommunicationPreference::create([
+                    'condo_id'              => $ownership['condo_id'],
+                    'ownership_id'          => $id,
+                    'communication_reason'  => 'fund_request',
+                    'communication_method'  => 'postal'
+                ]);
+
+            OwnershipCommunicationPreference::create([
+                    'condo_id'              => $ownership['condo_id'],
+                    'ownership_id'          => $id,
+                    'communication_reason'  => 'technical_communication',
+                    'communication_method'  => 'postal'
+                ]);
+        }
+    }
+
     public static function doGenerateFolders($self) {
         /*
         // #todo - unsure if necessary, not implemented for now
@@ -530,7 +583,8 @@ class Ownership extends \equal\orm\Model {
         $self
             ->do('normalize_representative_owner')
             ->do('generate_accounts')
-            ->do('generate_folders');
+            ->do('generate_folders')
+            ->do('generate_communication_prefs');
     }
 
 }

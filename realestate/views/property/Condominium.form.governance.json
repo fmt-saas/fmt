@@ -1,5 +1,5 @@
 {
-    "name": "Condominium Banking",
+    "name": "Condominium Governance",
     "description": "Details about bank accounts and related operations.",
     "routes": [
         {
@@ -20,6 +20,17 @@
             "icon": "rsvp",
             "context": {
                 "entity": "realestate\\governance\\AssemblyInvitation",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "item.council",
+            "label": "Council Members",
+            "description": "",
+            "icon": "psychology",
+            "context": {
+                "entity": "realestate\\governance\\CouncilMember",
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
