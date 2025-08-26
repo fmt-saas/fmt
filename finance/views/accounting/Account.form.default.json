@@ -38,6 +38,7 @@
                                             {
                                                 "id": "item.apportionment_id",
                                                 "type": "field",
+                                                "label": "Apportionment",
                                                 "value": "apportionment_id",
                                                 "width": "33%"
                                             },
@@ -69,6 +70,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "label": "Condominium",
                                                 "value": "condo_id",
                                                 "width": "100%",
                                                 "visible": ["condo_id", "<>", null]

@@ -305,7 +305,7 @@ class Invoice extends Model {
         return $result;
     }
 
-    public static function doValidateAccountingEntries($self) {
+    protected static function doValidateAccountingEntries($self) {
         $self->read(['accounting_entry_id' => ['status']]);
         foreach($self as $id => $invoice) {
             if($invoice['accounting_entry_id']['status'] == 'pending') {

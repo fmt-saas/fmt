@@ -31,10 +31,17 @@
                                                 "visible": false
                                             },
                                             {
-                                                "id": "item.description",
                                                 "type": "field",
-                                                "value": "description",
-                                                "width": "100%"
+                                                "label": "Condominium",
+                                                "value": "condo_id",
+                                                "width": "50%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "price",
+                                                "width": "50%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
@@ -43,9 +50,22 @@
                                                 "visible": false
                                             },
                                             {
+                                                "id": "item.description",
+                                                "type": "field",
+                                                "value": "description",
+                                                "width": "66%"
+                                            },
+                                            {
                                                 "id": "item.invoice_number",
                                                 "type": "field",
+                                                "label": "Invoice Number",
                                                 "value": "supplier_invoice_number",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Reference",
+                                                "value": "payment_reference",
                                                 "width": "33%"
                                             },
                                             {
@@ -56,7 +76,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Account",
+                                                "label": "Bank Account",
                                                 "value": "suppliership_bank_account_id",
                                                 "width": "33%"
                                             },
@@ -84,40 +104,33 @@
                                                 "type": "field",
                                                 "value": "reversed_invoice_id",
                                                 "width": "33%",
-                                                "visible": ["status", "=", "cancelled"]
+                                                "visible": ["invoice_type", "=", "credit_note"]
                                             }
                                         ]
                                     },
                                     {
+                                        "visible": ["document_id", "<>", null],
                                         "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "label": "Condominium",
-                                                "value": "condo_id",
-                                                "width": "50%",
-                                                "visible": false
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "payment_reference",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
-                                            },
+                                                "value": "document_link",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "type": "pdf",
+                                                    "height": 700
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "visible": ["document_id", "is", null],
+                                        "width": "50%",
+                                        "items": [
                                             {
                                                 "type": "field",
-                                                "value": "price",
-                                                "width": "50%",
-                                                "visible": false
+                                                "value": "document_id",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

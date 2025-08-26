@@ -838,7 +838,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         }
     }
 
-    public static function doValidateAccountingEntries($self) {
+    protected static function doValidateAccountingEntries($self) {
         $self->read(['accounting_entries_ids' => ['status']]);
         foreach($self as $id => $invoice) {
             foreach($invoice['accounting_entries_ids'] as $accounting_entry_id => $accountingEntry) {
@@ -849,12 +849,16 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         }
     }
 
-    public static function calcDocumentLink($self) {
+    private static function computeDocumentLink($document_id) {
+        return '/document/' . $document_id;
+    }
+
+    protected static function calcDocumentLink($self) {
         $result = [];
         $self->read(['document_id']);
         foreach($self as $id => $invoice) {
             if($invoice['document_id']) {
-                $result[$id] = '/document/' . $invoice['document_id'];
+                $result[$id] = self::computeDocumentLink($invoice['document_id']);
             }
         }
         return $result;
@@ -863,7 +867,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
     /**
      * This method is used to create the document based on received data, and start the processing.
      */
-    public static function onupdateDocumentData($self) {
+    protected static function onupdateDocumentData($self) {
         $self->read(['document_process_id', 'document_name', 'document_data']);
         foreach($self as $id => $invoice) {
             if(!$invoice['document_process_id']) {
@@ -897,6 +901,9 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         }
         if(isset($event['document_data']['name'])) {
             $result['document_name'] = $event['document_data']['name'];
+        }
+        if(isset($event['document_id'])) {
+            $result['document_link'] = self::computeDocumentLink($event['document_id']);
         }
         if(isset($event['suppliership_id'])) {
             $suppliership = Suppliership::id($event['suppliership_id'])->read(['supplier_id' => ['identity_id']])->first();

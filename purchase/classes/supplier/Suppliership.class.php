@@ -214,7 +214,7 @@ class Suppliership extends \equal\orm\Model {
 
             if(!$account) {
                 trigger_error("APP::unable to find a match for assignment `suppliers` for suppliership {$suppliership['condo_id']}", EQ_REPORT_ERROR);
-                throw new \Exception("missing_mandatory_supplier_assignment_account", EQ_ERROR_INVALID_CONFIG);
+                continue;
             }
 
             if($account) {
