@@ -234,12 +234,13 @@ class Suppliership extends \equal\orm\Model {
      */
     public static function calcSuppliershipCode($self) {
         $result = [];
-        $self->read(['state', 'condo_id']);
+        $self->read(['state', 'condo_id', 'supplier_id']);
         foreach($self as $id => $suppliership) {
             if($suppliership['state'] != 'instance') {
                 continue;
             }
 
+            /*
             $sequence = Setting::fetch_and_add(
                     'realestate',
                     'organization',
@@ -249,10 +250,11 @@ class Suppliership extends \equal\orm\Model {
                         'condo_id' => $suppliership['condo_id']
                     ]
                 );
-
             if($sequence) {
                 $result[$id] = sprintf("%05d", $sequence);
             }
+            */
+            $result[$id] = sprintf("%05d", $suppliership['supplier_id']);
         }
         return $result;
     }

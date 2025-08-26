@@ -16,7 +16,11 @@
     "header": {
         "layout": "inline",
         "actions": {
-            "ACTION.CREATE_INLINE": true
+            "ACTION.CREATE_INLINE": [
+                {
+                    "view": false
+                }
+            ]
         }
     },
     "limit": 100,
