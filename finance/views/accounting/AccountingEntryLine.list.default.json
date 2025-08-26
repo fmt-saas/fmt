@@ -1,5 +1,11 @@
 {
     "name": "Accounting entry line",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": true
+        }
+    },
     "operations": {
         "total": {
             "credit": {

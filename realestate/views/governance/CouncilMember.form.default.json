@@ -40,11 +40,6 @@
                                                 "type": "field",
                                                 "value": "role",
                                                 "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "name",
-                                                "width": "100%"
                                             }
                                         ]
                                     }

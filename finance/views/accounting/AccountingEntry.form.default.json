@@ -5,6 +5,7 @@
         "actions": {
             "ACTION.SAVE": [
                 {"id": "SAVE_AND_CONTINUE"},
+                {"id": "SAVE_AND_VIEW"},
                 {"id": "SAVE_AND_CLOSE"}
             ]
         }
@@ -95,13 +96,8 @@
                                                 "type": "field",
                                                 "label": "Code",
                                                 "value": "entry_number",
-                                                "width": "33%",
+                                                "width": "50%",
                                                 "visible": ["status", "=", "validated"]
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",

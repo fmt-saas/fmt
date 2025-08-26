@@ -11,6 +11,13 @@ class CouncilMember extends \equal\orm\Model {
     public static function getColumns() {
 
         return [
+            'name' => [
+                'type'              => 'computed',
+                'relation'          => ['owner_id' => 'name'],
+                'store'             => true,
+                'instant'           => true
+            ],
+
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the Council Member belongs to.",
@@ -23,7 +30,8 @@ class CouncilMember extends \equal\orm\Model {
                 'description'       => "Owner linked to the membership.",
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'domain'            => [['condo_id', '=', 'object.condo_id']],
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['name']
             ],
 
             'is_active' => [

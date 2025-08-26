@@ -39,7 +39,8 @@ class AccountingEntry extends Model {
             'description' => [
                 'type'              => 'string',
                 'description'       => 'Short optional description of the entry.',
-                'multilang'         => true
+                'multilang'         => true,
+                'onupdate'          => 'onupdateDescription'
             ],
 
             'journal_id' => [
@@ -318,7 +319,7 @@ class AccountingEntry extends Model {
         }
     }
 
-    public static function doCancel($self) {
+    protected static function doCancel($self) {
         // create and validate reverse entry
         $self->read(['condo_id', 'fiscal_year_id', 'journal_id', 'entry_date', 'entry_lines_ids' => ['account_id', 'debit', 'credit']]);
         foreach($self as $id => $accountingEntry) {
@@ -393,7 +394,7 @@ class AccountingEntry extends Model {
         return $result;
     }
 
-    public static function calcName($self) {
+    protected static function calcName($self) {
         $result = [];
         $self->read(['status', 'is_temp', 'entry_number']);
         foreach($self as $id => $accountingEntry) {
@@ -413,7 +414,7 @@ class AccountingEntry extends Model {
     /**
      * #memo - we need this value even if it can still change (i.e. accounting entry is not yet validated)
      */
-    public static function calcFiscalPeriodId($self) {
+    protected static function calcFiscalPeriodId($self) {
         $result = [];
         $self->read(['status', 'entry_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
         foreach($self as $id => $entry) {
@@ -438,7 +439,7 @@ class AccountingEntry extends Model {
         return (abs($credit - $debit) < 0.01 && round($credit, 2) != 0.00);
     }
 
-    public static function calcIsBalanced($self) {
+    protected static function calcIsBalanced($self) {
         $result = [];
         $self->read(['entry_lines_ids']);
         foreach($self as $id => $entry) {
@@ -447,7 +448,7 @@ class AccountingEntry extends Model {
         return $result;
     }
 
-    public static function calcDebit($self) {
+    protected static function calcDebit($self) {
         $result = [];
         $self->read(['status', 'entry_lines_ids' => ['debit']]);
         foreach($self as $id => $entry) {
@@ -459,7 +460,7 @@ class AccountingEntry extends Model {
         return $result;
     }
 
-    public static function calcCredit($self) {
+    protected static function calcCredit($self) {
         $result = [];
         $self->read(['status', 'entry_lines_ids' => ['credit']]);
         foreach($self as $id => $entry) {
@@ -541,6 +542,17 @@ class AccountingEntry extends Model {
             }
         }
         return parent::candelete($self);
+    }
+
+    protected static function onupdateDescription($self) {
+        $self->read(['description', 'entry_lines_ids']);
+        foreach($self as $id => $accountingEntry) {
+            if($accountingEntry['description'] && strlen($accountingEntry['description']) > 0) {
+                AccountingEntryLine::ids($accountingEntry['entry_lines_ids'])
+                    ->update(['name' => $accountingEntry['description']]);
+            }
+
+        }
     }
 
     public static function onchange($event, $values) {

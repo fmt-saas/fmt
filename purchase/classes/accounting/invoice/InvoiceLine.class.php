@@ -47,7 +47,8 @@ class InvoiceLine extends \finance\accounting\invoice\InvoiceLine {
                 'usage'             => 'amount/money:4',
                 'description'       => 'Total tax-excluded price of the line.',
                 'help'              => "For purchase invoice, total is arbitrary, so there is no strict constraint for user to encode the details about the computation (unit price and quantity).",
-                'dependents'        => ['invoice_id' => ['total', 'price']]
+                'dependents'        => ['invoice_id' => ['total', 'price']],
+                'default'           => 0.0
             ],
 
         ];

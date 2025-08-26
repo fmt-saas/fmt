@@ -29,7 +29,7 @@ class AccountingEntryLine extends Model {
 
             'name' => [
                 'type'              => 'string',
-                'description'       => 'Label for identifying the entry.',
+                'description'       => 'Label for identifying the entry line.',
             ],
 
             'accounting_entry_id' => [
