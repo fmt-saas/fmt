@@ -252,7 +252,10 @@
                                                 "type": "field",
                                                 "label": "Current Fiscal Year",
                                                 "value": "current_fiscal_year_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "readonly": true
+                                                }
                                             }
                                         ]
                                     }
