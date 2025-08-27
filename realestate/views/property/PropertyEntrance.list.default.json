@@ -1,17 +1,12 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Property Entrances",
     "layout": {
         "items": [
             {
                 "type": "field",
                 "value": "condo_id",
-                "width": "20%"
-            },
-            {
-                "type": "field",
-                "value": "name",
-                "width": "20%"
+                "width": "20%",
+                "visible": false
             },
             {
                 "type": "field",
@@ -20,12 +15,12 @@
             },
             {
                 "type": "field",
-                "value": "description",
+                "value": "address_street",
                 "width": "20%"
             },
             {
                 "type": "field",
-                "value": "address_street",
+                "value": "description",
                 "width": "20%"
             }
         ]

@@ -27,6 +27,13 @@
         "items": [
             {
                 "type": "field",
+                "label": "Condominium",
+                "value": "condo_id",
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "label": "Account",
                 "value": "account_id",
                 "width": "25%"

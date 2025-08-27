@@ -30,7 +30,8 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'foreign_object'    => 'realestate\purchase\accounting\AccountingEntryLine',
                 'foreign_field'     => 'accounting_entry_id',
                 'description'       => "Lines of the accounting entry.",
-                'dependents'        => ['debit', 'credit']
+                'dependents'        => ['debit', 'credit'],
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ]
 
         ];

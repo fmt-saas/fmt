@@ -37,7 +37,9 @@ class Account extends Model {
                 'function'          => 'calcName',
                 'multilang'         => true,
                 'description'       => "Name of the account.",
-                'store'             => true
+                'store'             => true,
+                'instant'           => true,
+                'readonly'          => true
             ],
 
             'code' => [
@@ -289,7 +291,7 @@ class Account extends Model {
         $result = [];
         $self->read(['code', 'description']);
         foreach($self as $id => $line) {
-            if(!isset($line['code'])) {
+            if(!isset($line['code']) || strlen($line['code']) <= 0) {
                 continue;
             }
             $name = $line['code'];

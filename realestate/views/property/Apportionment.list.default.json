@@ -1,6 +1,11 @@
 {
     "name": "Apportionment",
     "description": "",
+    "header": {
+        "selection": {
+            "default" : false
+        }
+    },
     "layout": {
         "items": [
             {
