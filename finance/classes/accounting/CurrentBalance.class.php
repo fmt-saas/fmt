@@ -59,6 +59,7 @@ class CurrentBalance extends Balance {
         }
         $self->read(['condo_id', 'fiscal_year_id']);
         foreach($self as $id => $balance) {
+            /** @var \equal\orm\Model **/
             $balanceLine = CurrentBalanceLine::search([['balance_id', '=', $id], ['account_id', '=', $values['account_id']]])
                 ->read(['debit', 'credit', 'debit_balance', 'credit_balance'])
                 ->first();

@@ -15,11 +15,9 @@
                 "date_to": null,
                 "transfer_from_id": null,
                 "transfer_to_id": null,
-                "creation_identity_id": 1147,
                 "representative_identity_id": null,
                 "has_representative": false,
-                "representative_owner_id": 11,
-                "ownership_account_id": 1480
+                "representative_owner_id": 11
             },
             {
                 "id": 9,
@@ -33,11 +31,9 @@
                 "date_to": null,
                 "transfer_from_id": null,
                 "transfer_to_id": null,
-                "creation_identity_id": 1146,
                 "representative_identity_id": null,
                 "has_representative": false,
-                "representative_owner_id": 12,
-                "ownership_account_id": 1482
+                "representative_owner_id": 12
             },
             {
                 "id": 10,
@@ -51,11 +47,9 @@
                 "date_to": null,
                 "transfer_from_id": null,
                 "transfer_to_id": null,
-                "creation_identity_id": 1142,
                 "representative_identity_id": null,
                 "has_representative": false,
-                "representative_owner_id": 13,
-                "ownership_account_id": 1484
+                "representative_owner_id": 13
             }
         ]
     }
