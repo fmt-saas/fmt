@@ -70,7 +70,7 @@ class InvoiceLine extends Model {
             'qty' => [
                 'type'              => 'float',
                 'description'       => 'Quantity of product.',
-                'default'           => 0
+                'default'           => 1
             ],
 
             'free_qty' => [
