@@ -541,7 +541,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
         foreach($self as $id => $invoice) {
             try {
                 // remove previously created entries, if any (there should be none)
-                AccountingEntry::search(['invoice_id', '=', $id])->delete(true);
+                AccountingEntry::search([['invoice_id', '=', $id]])->delete(true);
                 // generate accounting entries
                 $accounting_entries = self::computeAccountingEntries($id);
 

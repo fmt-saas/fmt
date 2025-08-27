@@ -298,6 +298,18 @@
                         }
                     },
                     {
+                        "id": "item.accounting.invoice_import",
+                        "type": "entry",
+                        "label": "Import Invoice",
+                        "icon": "file_upload",
+                        "description": "",
+                        "context": {
+                            "view": "form.import",
+                            "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
+                            "purpose": "edit"
+                        }
+                    },
+                    {
                         "id": "item.accounting.settings",
                         "label": "Settings",
                         "description": "",

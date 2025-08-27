@@ -31,7 +31,7 @@
     "routes": [
         {
             "id": "item.import_invoice",
-            "label": "Import Document",
+            "label": "Import Invoice",
             "description": "",
             "icon": "file_upload",
             "context": {

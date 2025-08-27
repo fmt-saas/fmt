@@ -499,7 +499,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         foreach($self as $id => $invoice) {
 
             // remove previously created entries, if any (there should be none)
-            AccountingEntry::ids($invoice['accounting_entries_ids'])->delete(true);
+            AccountingEntry::search([['origin_object_class', '=', 'realestate\purchase\accounting\invoice\Invoice'], ['origin_object_id', '=', $id]])->delete(true);
 
             $date_from = $date_to = $invoice['posting_date'];
 
