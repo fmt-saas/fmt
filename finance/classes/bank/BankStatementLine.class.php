@@ -66,8 +66,7 @@ class BankStatementLine extends Model {
 
             'communication' => [
                 'type'              => 'string',
-                'description'       => 'Message from the payer (or ref from the bank).',
-                'readonly'          => true
+                'description'       => 'Message from the payer (or ref from the bank).'
             ],
 
             'communication_type' => [
@@ -123,7 +122,7 @@ class BankStatementLine extends Model {
                 'selection'         => [
                     'pending',              // requires a review
                     'ignored',              // has been manually processed but does not relate to a booking
-                    'reconciled',            // has been processed and assigned to a payment
+                    'reconciled',           // has been processed and assigned to a payment
                     'to_refund'
                 ],
                 'description'       => 'Status of the line.',

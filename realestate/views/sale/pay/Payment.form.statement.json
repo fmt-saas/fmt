@@ -9,7 +9,7 @@
             "controller": "core_model_transition",
             "visible": ["status", "=", "proforma"],
             "params": {
-                "entity": "sale\\pay\\Payment",
+                "entity": "realestate\\sale\\pay\\Payment",
                 "transition": "post",
                 "ids": []
             },
