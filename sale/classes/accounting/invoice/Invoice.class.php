@@ -536,7 +536,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
     /**
      * Create the accounting entries according tp invoices lines.
      */
-    public static function doGenerateAccountingEntries($self) {
+    protected static function doGenerateAccountingEntries($self) {
         $self->read(['id', 'organisation_id', 'accounting_entries_ids']);
         foreach($self as $id => $invoice) {
             try {
@@ -567,7 +567,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
         }
     }
 
-    public static function doAssignInvoiceNumber($self) {
+    protected static function doAssignInvoiceNumber($self) {
         $self->read(['organisation_id', 'condo_id']);
         foreach($self as $id => $invoice) {
             $format = Setting::get_value(

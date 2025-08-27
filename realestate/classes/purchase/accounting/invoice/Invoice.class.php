@@ -476,6 +476,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 'has_instant_reinvoice',
                 'has_fund_usage',
                 'fiscal_year_id',
+                'accounting_entries_ids',
                 'suppliership_id' => [
                     'suppliership_account_id'
                 ],
@@ -496,6 +497,10 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
             ]);
 
         foreach($self as $id => $invoice) {
+
+            // remove previously created entries, if any (there should be none)
+            AccountingEntry::ids($invoice['accounting_entries_ids'])->delete(true);
+
             $date_from = $date_to = $invoice['posting_date'];
 
             if($invoice['has_date_range']) {
