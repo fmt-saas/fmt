@@ -332,20 +332,26 @@ class Ownership extends \equal\orm\Model {
      */
     protected static function calcOwnershipAccountId($self) {
         $result = [];
-        $self->read(['condo_id', 'code']);
+        $self->read(['condo_id', 'status', 'code']);
         foreach($self as $id => $ownership) {
+            if($ownership['status'] !== 'validated') {
+                continue;
+            }
+            if(!$ownership['code'] || strlen($ownership['code']) <= 0) {
+                continue;
+            }
             // find the account based on operation_assignment
-            $account = Account::search([
+            $parentAccount = Account::search([
                     ['condo_id', '=', $ownership['condo_id']],
                     ['operation_assignment', '=', 'co_owners_working_fund']
                 ])
                 ->read(['code'])
                 ->first();
 
-            if($account) {
+            if($parentAccount && strlen($parentAccount['code'] ?? '') > 0) {
                 $ownerAccount = Account::search([
                         ['condo_id', '=', $ownership['condo_id']],
-                        ['code', '=', $account['code'] . $ownership['code']]
+                        ['code', '=', $parentAccount['code'] . $ownership['code']]
                     ])
                     ->first();
                 $result[$id] = $ownerAccount['id'] ?? null;
