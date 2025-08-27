@@ -36,6 +36,18 @@
                 "visible": false
             },
             {
+                "type": "field",
+                "value": "qty",
+                "width": "20%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "unit_price",
+                "width": "20%",
+                "visible": false
+            },
+            {
                 "id": "item.name",
                 "type": "field",
                 "value": "name",

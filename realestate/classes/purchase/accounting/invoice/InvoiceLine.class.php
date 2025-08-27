@@ -126,13 +126,26 @@ class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
         }
     }
 
-    public static function onchange($event, $values) {
+    public static function onchange($event, $values, $view) {
         $result = [];
+
         // check VAT
         if(isset($event['vat_rate']) && $event['vat_rate'] >= 1) {
             $result['vat_rate'] = round($event['vat_rate'] / 100, 2);
             $event['vat_rate'] = $result['vat_rate'];
         }
+
+        switch($view) {
+            case 'list.default':
+                if(isset($event['price'])) {
+                    if(isset($event['vat_rate'])) {
+                        // #memo - qty is fixed to 1
+                        $result['unit_price'] = round($event['price'] / (1 + $event['vat_rate']), 2);
+                    }
+                }
+            break;
+        }
+
         // update price
         if(array_key_exists('vat_rate', $event) && $values['total']) {
             $result['price'] = round($values['total'] * (1 + $event['vat_rate']), 2);
