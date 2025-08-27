@@ -246,6 +246,13 @@ class Condominium extends Identity {
                 'foreign_field'     => 'condo_id'
             ],
 
+            'property_entrances_ids' => [
+                'type'              => 'one2many',
+                'description'       => "The property lots of the condominium.",
+                'foreign_object'    => 'realestate\property\PropertyEntrance',
+                'foreign_field'     => 'condo_id'
+            ],
+
             'bank_accounts_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
@@ -642,16 +649,18 @@ class Condominium extends Identity {
 
     /**
      * Upon creation of a condominium, it is necessary to create sequences for:
-     * - owners:            realestate.organization.ownership.sequence      [condo_id]
-     * - lots:              realestate.organization.property_lot.sequence   [condo_id]
-     * - apportionments:    realestate.organization.apportionment.sequence  [condo_id]
-     * - suppliers:         realestate.organization.suppliership.sequence   [condo_id]
-     * - purchase invoice:  purchase.accounting.invoice.sequence    [condo_id]
+     * - owners:            realestate.organization.ownership.sequence           [condo_id]
+     * - lots:              realestate.organization.property_lot.sequence        [condo_id]
+     * - apportionments:    realestate.organization.apportionment.sequence       [condo_id]
+     * - suppliers:         realestate.organization.suppliership.sequence        [condo_id]
+     * - entrances:         realestate.organization.property_entrance.sequence   [condo_id]
+     * - purchase invoice:  purchase.accounting.invoice.sequence                 [condo_id]
      */
     protected static function doGenerateSequences($self) {
         foreach($self as $id => $condominium) {
             Setting::assert_sequence('realestate', 'organization', 'ownership.sequence', 1, ['condo_id' => $id]);
             Setting::assert_sequence('realestate', 'organization', 'property_lot.sequence', 1, ['condo_id' => $id]);
+            Setting::assert_sequence('realestate', 'organization', 'property_entrance.sequence', 1, ['condo_id' => $id]);
             Setting::assert_sequence('realestate', 'organization', 'apportionment.sequence', 1, ['condo_id' => $id]);
             Setting::assert_sequence('realestate', 'organization', 'suppliership.sequence', 1, ['condo_id' => $id]);
             Setting::assert_value('finance', 'accounting', 'fiscal_year', date('Y'), ['condo_id' => $id]);

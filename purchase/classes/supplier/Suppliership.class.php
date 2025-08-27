@@ -53,7 +53,7 @@ class Suppliership extends \equal\orm\Model {
                 'function'          => 'calcSuppliershipCode',
                 'store'             => true,
                 'description'       => "Code of the supplier for the Condominium.",
-                'help'              => "Code is assigned automatically and cannot be changed, and is intended to internal use.",
+                'help'              => "Code is assigned automatically, cannot be changed, and is intended to internal use.",
                 'readonly'          => true
             ],
 

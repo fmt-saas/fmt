@@ -36,6 +36,17 @@
                         }
                     },
                     {
+                        "id": "property_entrances",
+                        "type": "entry",
+                        "label": "Property Entrances",
+                        "icon": "door_front",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\property\\PropertyEntrance",
+                            "view": "list.default"
+                        }
+                    },
+                    {
                         "id": "ownerships",
                         "type": "entry",
                         "label": "Owners",
