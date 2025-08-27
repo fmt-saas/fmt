@@ -15,18 +15,6 @@
                 "ids": []
             },
             "confirm": false
-        },
-        {
-            "id": "action.import_bank_account",
-            "label": "Import Bank account",
-            "description": "Import Supplier primary bank account.",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "purchase\\supplier\\Suppliership",
-                "action": "import_bank_account",
-                "ids": []
-            },
-            "confirm": false
         }
     ],
     "layout": {

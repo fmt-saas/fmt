@@ -159,6 +159,11 @@
                                                 "type": "field",
                                                 "value": "has_parent",
                                                 "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "identity_id",
+                                                "visible": false
                                             }
                                         ]
                                     }

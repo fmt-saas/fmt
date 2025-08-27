@@ -191,7 +191,7 @@ class BankAccount extends Model {
     public static function canupdate($self, $values) {
         $self->read(['owner_identity_id']);
         foreach($self as $id => $bankAccount) {
-            if(isset($values['is_primary'])) {
+            if(isset($values['is_primary']) && $values['is_primary']) {
                 $bankAccounts = self::search(['owner_identity_id', '=', $bankAccount['owner_identity_id']])
                     ->read(['id', 'is_primary']);
                 foreach($bankAccounts as $otherBankAccount) {
