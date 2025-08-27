@@ -1,6 +1,6 @@
 {
-    "name": "Ownership Bank Account",
-    "description": "Ownership bank account list.",
+    "name": "Condominium Bank Account",
+    "description": "Condominium bank account list.",
     "extends": {
         "entity": "finance\\bank\\BankAccount",
         "view": "list.default"
@@ -22,6 +22,12 @@
                         "label": "Estimated",
                         "value": "available_balance",
                         "width": "10%"
+                    },
+                    {
+                        "type": "field",
+                        "value": "condo_id",
+                        "width": "10%",
+                        "visible": false
                     }
                 ]
             }
