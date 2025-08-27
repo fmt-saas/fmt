@@ -136,10 +136,15 @@ class InvoiceLine extends \purchase\accounting\invoice\InvoiceLine {
         }
 
         if(isset($event['price'])) {
-            if(isset($event['vat_rate'])) {
+            if(isset($event['vat_rate']) || isset($values['vat_rate'])) {
+                $vat_rate = $event['vat_rate'] ?? $values['vat_rate'];
                 // #memo - qty is fixed to 1
-                $result['total'] = round($event['price'] / (1 + $event['vat_rate']), 2);
-                $result['unit_price'] = round($event['price'] / (1 + $event['vat_rate']), 2);
+                $result['total'] = round($event['price'] / (1 + $vat_rate), 2);
+                $result['unit_price'] = round($event['price'] / (1 + $vat_rate), 2);
+            }
+            else {
+                $result['total'] = $event['price'];
+                $result['unit_price'] = $event['price'];
             }
         }
 
