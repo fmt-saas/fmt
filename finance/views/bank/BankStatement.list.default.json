@@ -14,6 +14,12 @@
         "items": [
             {
                 "type": "field",
+                "value": "condo_id",
+                "width": "30%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "name",
                 "width": "30%"
             },

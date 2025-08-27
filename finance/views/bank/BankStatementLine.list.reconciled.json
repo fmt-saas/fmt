@@ -30,6 +30,18 @@
             },
             {
                 "type": "field",
+                "value": "condo_id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "bank_statement_id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "date",
                 "width": "10%"
             },

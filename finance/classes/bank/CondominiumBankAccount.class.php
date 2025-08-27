@@ -76,7 +76,8 @@ class CondominiumBankAccount extends BankAccount {
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\bank\BankStatement',
                 'foreign_field'     => 'bank_account_id',
-                'description'       => 'The lines that are assigned to the statement.'
+                'description'       => 'The lines that are assigned to the statement.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'current_balance' => [
