@@ -306,7 +306,7 @@
                         "context": {
                             "view": "form.import",
                             "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
-                            "purpose": "edit"
+                            "purpose": "create"
                         }
                     },
                     {
@@ -485,7 +485,6 @@
                             "purpose": "create"
                         }
                     }
-
                 ]
             },
             {
