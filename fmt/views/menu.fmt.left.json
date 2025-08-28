@@ -524,7 +524,7 @@
                         "description": "",
                         "context": {
                             "entity": "finance\\bank\\BankStatement",
-                            "view": "list.default"
+                            "view": "list.manual"
                         }
                     },
                     {

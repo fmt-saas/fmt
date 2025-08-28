@@ -60,8 +60,8 @@ class BankStatementLine extends Model {
             'date' => [
                 'type'              => 'date',
                 'description'       => 'Date of the transaction as provided by the bank.',
-                'readonly'          => true,
-                'required'          => true
+                'required'          => true,
+                'default'           => function() {return time();}
             ],
 
             'communication' => [
@@ -117,6 +117,15 @@ class BankStatementLine extends Model {
                 'function'          => 'calcIsReconciled'
             ],
 
+            'accounting_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Accounting account the statement line relates to.",
+                'help'              => "Accounting account to use for the counterpart movement. This is an accounting account, not to be mixed up with bank accounts.",
+                'ondelete'          => 'null',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]]
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -168,7 +177,8 @@ class BankStatementLine extends Model {
                 continue;
             }
 
-// check payments
+// #todo
+// check payments 
 
             $amount = $bankStatementLine['amount'];
 

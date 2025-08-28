@@ -22,8 +22,8 @@ use purchase\supplier\Supplier;
 use purchase\supplier\Suppliership;
 use purchase\supplier\SuppliershipReference;
 use realestate\property\Condominium;
-use realestate\purchase\accounting\invoice\Invoice;
-use realestate\purchase\accounting\invoice\InvoiceLine;
+use realestate\purchase\accounting\invoice\PurchaseInvoice;
+use realestate\purchase\accounting\invoice\PurchaseInvoiceLine;
 
 class DocumentProcess extends Model {
 
@@ -541,9 +541,9 @@ class DocumentProcess extends Model {
             if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
                 // check if there is a non-cancelled DocumentProcess concerning an invoice with the same characteristics
                 $documentProcess = self::id($id)->read(['document_invoice_id'])->first();
-                $purchaseInvoice = Invoice::id($documentProcess['document_invoice_id'])->read(['id', 'suppliership_id', 'supplier_invoice_number'])->first();
+                $purchaseInvoice = PurchaseInvoice::id($documentProcess['document_invoice_id'])->read(['id', 'suppliership_id', 'supplier_invoice_number'])->first();
                 $has_duplicate = false;
-                $duplicateInvoices = Invoice::search([
+                $duplicateInvoices = PurchaseInvoice::search([
                         ['id','<>', $purchaseInvoice['id']],
                         ['suppliership_id', '=', $purchaseInvoice['suppliership_id']],
                         ['supplier_invoice_number', '=', $purchaseInvoice['supplier_invoice_number']]
@@ -723,7 +723,7 @@ class DocumentProcess extends Model {
                 $bankAccount = SuppliershipBankAccount::search([['suppliership_id', '=', $suppliership['id']]])->first();
 
                 // create invoice
-                $invoice = Invoice::create([
+                $invoice = PurchaseInvoice::create([
                         'condo_id'                      => $documentProcess['condo_id'],
                         'suppliership_id'               => $suppliership['id'],
                         'suppliership_bank_account_id'  => $bankAccount['id'] ?? null,
@@ -830,7 +830,7 @@ class DocumentProcess extends Model {
                 $bankAccount = SuppliershipBankAccount::search([['suppliership_id', '=', $suppliership['id']], ['bank_account_iban', '=', $data['payment']['iban']]])->first();
 
                 // create invoice
-                $invoice = Invoice::create([
+                $invoice = PurchaseInvoice::create([
                         'condo_id'                      => $documentProcess['condo_id'],
                         'suppliership_id'               => $suppliership['id'],
                         'supplier_invoice_number'       => $data['invoice_number'],
@@ -873,7 +873,7 @@ class DocumentProcess extends Model {
                             'vat_rate'              => $vat_rate
                         ];
 
-                        InvoiceLine::create($values);
+                        PurchaseInvoiceLine::create($values);
                     }
                 }
 
@@ -951,7 +951,7 @@ class DocumentProcess extends Model {
             switch($documentProcess['document_type_code']) {
                 case 'invoice':
                     if($documentProcess['document_invoice_id']['status'] === 'proforma') {
-                        Invoice::id($documentProcess['document_invoice_id']['id'])->transition('post');
+                        PurchaseInvoice::id($documentProcess['document_invoice_id']['id'])->transition('post');
                     }
                     break;
                 case 'bank_statement':

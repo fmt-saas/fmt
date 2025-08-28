@@ -37,7 +37,7 @@ use realestate\property\Apportionment;
 use realestate\property\Condominium;
 use realestate\property\PropertyLot;
 
-use realestate\purchase\accounting\invoice\Invoice as PurchaseInvoice;
+use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 
 core\User::id(2)->update(['language' => 'fr']);

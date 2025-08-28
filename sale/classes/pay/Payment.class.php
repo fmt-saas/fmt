@@ -160,7 +160,8 @@ class Payment extends Model {
             'accounting_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
-                'description'       => "The accounting account the payment relates to.",
+                'description'       => 'The accounting account the payment relates to.',
+                'help'              => "This value is used for creating the accounting entry.",
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
                 'visible'           => ['has_funding', '=', false]
             ],

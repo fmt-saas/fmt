@@ -406,6 +406,7 @@ class BankStatement extends Model {
         $result = [];
 
         switch($view) {
+            case 'form.manual':
             case 'form.create':
                 if(isset($event['bank_account_iban'])) {
                     if(!isset($values['condo_id'])) {

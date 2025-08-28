@@ -9,7 +9,7 @@ namespace purchase\supplier;
 use finance\accounting\Account;
 use finance\bank\SuppliershipBankAccount;
 use fmt\setting\Setting;
-use realestate\purchase\accounting\invoice\Invoice;
+use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 class Suppliership extends \equal\orm\Model {
 
@@ -334,7 +334,7 @@ class Suppliership extends \equal\orm\Model {
 
     public static function candelete($self) {
         foreach($self as $id => $suppliership) {
-            $count_invoices = Invoice::search(['suppliership_id', '=', $id])->count();
+            $count_invoices = PurchaseInvoice::search(['suppliership_id', '=', $id])->count();
             if($count_invoices) {
                 return ['id' => ['non_removable' => 'Supplier referenced in Accounting cannot be removed.']];
             }
