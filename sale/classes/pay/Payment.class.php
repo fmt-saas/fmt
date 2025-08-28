@@ -194,7 +194,7 @@ class Payment extends Model {
         ];
     }
 
-    public static function oncreate($self) {
+    protected static function oncreate($self) {
         $self->read(['funding_id', 'statement_line_id']);
         foreach($self as $id => $payment) {
             if($payment['funding_id']) {
@@ -206,7 +206,7 @@ class Payment extends Model {
         }
     }
 
-    public static function onafterupdate($self) {
+    protected static function onafterupdate($self) {
         $self->read(['funding_id', 'statement_line_id']);
         foreach($self as $id => $payment) {
             if($payment['funding_id']) {
