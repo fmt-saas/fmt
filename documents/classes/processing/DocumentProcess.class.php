@@ -701,7 +701,7 @@ class DocumentProcess extends Model {
     }
 
     protected static function doInitDrafting($self) {
-        $self->read(['condo_id', 'supplier_id', 'document_type_code', 'document_type_id', 'document_subtype_id']);
+        $self->read(['condo_id', 'supplier_id', 'document_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'has_document_json']);
         foreach($self as $id => $documentProcess) {
 
             if(!$documentProcess['document_type_code']) {
@@ -737,6 +737,14 @@ class DocumentProcess extends Model {
                     ->first();
 
                 self::id($id)->update(['document_invoice_id' => $invoice['id'], 'has_target_object' => true]);
+
+                if(!$documentProcess['has_document_json']) {
+                    $data = \eQual::run('get', 'documents_processing_purchaseInvoice_empty', ['document_id' => $documentProcess['document_id']]);
+                    $doc_values = [
+                            'document_json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+                        ];
+                    Document::id($documentProcess['document_id'])->update($doc_values);
+                }
             }
             elseif($documentProcess['document_type_code'] === 'bank_statement') {
                 $bankAccount = CondominiumBankAccount::search([['condo_id', '=', $documentProcess['condo_id']]])->first();
@@ -754,6 +762,10 @@ class DocumentProcess extends Model {
                     ->first();
 
                 self::id($id)->update(['document_bank_statement_id' => $bankStatement['id'], 'has_target_object' => true]);
+
+                if(!$documentProcess['has_document_json']) {
+                    // #todo
+                }
             }
         }
     }
@@ -1191,7 +1203,7 @@ class DocumentProcess extends Model {
 
                     // #memo - document_json is meant to receive a JSON representation of the content, according to schema, and independent from origin (ex.: parsed Mindee, parsed UBL, ...)
                     $doc_values = [
-                            'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+                            'document_json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
                         ];
 
                     Document::id($documentProcess['document_id'])->update($doc_values);
