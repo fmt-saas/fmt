@@ -94,6 +94,13 @@ class DocumentProcess extends Model {
                 'instant'           => true
             ],
 
+            'has_document_json' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['document_id' => 'has_document_json'],
+                'store'             => false
+            ],
+
             'supplier_id' => [
                 'type'              => 'many2one',
                 'description'       => "The supplier the document originates from.",
@@ -146,7 +153,7 @@ class DocumentProcess extends Model {
                 'default'           => false
             ],
 
-            'has_target_document' => [
+            'has_target_object' => [
                 'type'              => 'boolean',
                 'description'       => 'Has the target entity been created.',
                 'help'              => 'When the target entity is created (document_invoice_id, document_bank_statement_id, ...), this flag is automatically set to true.',
@@ -193,7 +200,7 @@ class DocumentProcess extends Model {
 
             /*
                 Fields below are links to possible documents being processed, depending on DocumentTypes (associated to a valid JSON schema)
-                The information contained in document_json is used to complete this information.
+                The information contained in document_json is used to complete these objects.
                 In cases where they are not present, the user can add them manually.
             */
 
@@ -363,8 +370,13 @@ class DocumentProcess extends Model {
                 'policies'      => ['can_perform_matching'],
                 'function'      => 'doPerformMatching'
             ],
+            'init_drafting' => [
+                'description'   => 'Create an empty target Entity that derives from the uploaded Document.',
+                'policies'      => ['can_perform_drafting'],
+                'function'      => 'doInitDrafting'
+            ],
             'perform_drafting' => [
-                'description'   => 'Attempt to create the target Entity that derives from the uploaded Document.',
+                'description'   => 'Attempt to populate the target Entity with the retrieved data.',
                 'policies'      => ['can_perform_drafting'],
                 'function'      => 'doPerformDrafting'
             ],
@@ -484,10 +496,10 @@ class DocumentProcess extends Model {
 
     protected static function policyCanPerformDrafting($self): array {
         $result = [];
-        $self->read(['condo_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'has_target_document']);
+        $self->read(['condo_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'has_target_object']);
 
         foreach($self as $id => $documentProcess) {
-            if($documentProcess['has_target_document']) {
+            if($documentProcess['has_target_object']) {
                 $result[$id] = [
                     'invalid_status' => 'Target document has already been created.'
                 ];
@@ -688,11 +700,69 @@ class DocumentProcess extends Model {
     public static function onbeforeRecord($self) {
     }
 
+    protected static function doInitDrafting($self) {
+        $self->read(['condo_id', 'supplier_id', 'document_type_code', 'document_type_id', 'document_subtype_id']);
+        foreach($self as $id => $documentProcess) {
+
+            if(!$documentProcess['document_type_code']) {
+                continue;
+            }
+
+            // find suppliership
+            $suppliership = Suppliership::search([
+                    ['condo_id', '=', $documentProcess['condo_id']],
+                    ['supplier_id', '=',  $documentProcess['supplier_id']]
+                ])
+                ->first();
+
+            if(!$suppliership) {
+                throw new \Exception('missing_suppliership', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
+                $bankAccount = SuppliershipBankAccount::search([['suppliership_id', '=', $suppliership['id']]])->first();
+
+                // create invoice
+                $invoice = Invoice::create([
+                        'condo_id'                      => $documentProcess['condo_id'],
+                        'suppliership_id'               => $suppliership['id'],
+                        'suppliership_bank_account_id'  => $bankAccount['id'] ?? null,
+                        'emission_date'                 => time(),
+                        'due_date'                      => time(),
+                        'has_fund_usage'                => false,
+                        'has_instant_reinvoice'         => false,
+                        'document_process_id'           => $id,
+                        'document_id'                   => $documentProcess['document_id']['id']
+                    ])
+                    ->first();
+
+                self::id($id)->update(['document_invoice_id' => $invoice['id'], 'has_target_object' => true]);
+            }
+            elseif($documentProcess['document_type_code'] === 'bank_statement') {
+                $bankAccount = CondominiumBankAccount::search([['condo_id', '=', $documentProcess['condo_id']]])->first();
+
+                // create the BankStatement
+                $bankStatement = BankStatement::create([
+                        'condo_id'              => $documentProcess['condo_id'],
+                        'date'                  => time(),
+                        'opening_date'          => time(),
+                        'closing_date'          => time(),
+                        'bank_account_id'       => $bankAccount['id'] ?? null,
+                        'document_process_id'   => $id,
+                        'document_id'           => $documentProcess['document_id']['id']
+                    ])
+                    ->first();
+
+                self::id($id)->update(['document_bank_statement_id' => $bankStatement['id'], 'has_target_object' => true]);
+            }
+        }
+    }
+
     /**
      * Create the proforma target resource based on Document type and JSON data.
      *
      */
-    public static function doPerformDrafting($self) {
+    protected static function doPerformDrafting($self) {
         $self->read(['condo_id', 'supplier_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'document_id' => ['document_json']]);
         foreach($self as $id => $documentProcess) {
 
@@ -743,6 +813,7 @@ class DocumentProcess extends Model {
                 // throw new \Exception('missing_recording_rule', EQ_ERROR_INVALID_CONFIG);
             }
 
+// #todo - si le target existe déjà, 
             if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
                 $bankAccount = SuppliershipBankAccount::search([['suppliership_id', '=', $suppliership['id']], ['bank_account_iban', '=', $data['payment']['iban']]])->first();
 
@@ -794,7 +865,7 @@ class DocumentProcess extends Model {
                     }
                 }
 
-                self::id($id)->update(['document_invoice_id' => $invoice['id'], 'has_target_document' => true]);
+                self::id($id)->update(['document_invoice_id' => $invoice['id'], 'has_target_object' => true]);
             }
             elseif($documentProcess['document_type_code'] === 'bank_statement') {
                 $bankAccount = CondominiumBankAccount::search([['condo_id', '=', $documentProcess['condo_id']], ['bank_account_iban', '=', $data['account_iban']]])->first();
@@ -852,7 +923,7 @@ class DocumentProcess extends Model {
                         ]);
                 }
 
-                self::id($id)->update(['document_bank_statement_id' => $bankStatement['id'], 'has_target_document' => true]);
+                self::id($id)->update(['document_bank_statement_id' => $bankStatement['id'], 'has_target_object' => true]);
             }
         }
     }
@@ -915,6 +986,7 @@ class DocumentProcess extends Model {
         }
         catch(\Exception $e) {
             // do not interrupt - Documents might not be automatically analyzed
+            // at early stage, user is allowed to manually encode data
             trigger_error("APP::issue in automated tasks" . $e->getMessage(), EQ_REPORT_WARNING);
         }
     }
@@ -932,8 +1004,15 @@ class DocumentProcess extends Model {
         $self->read(['document_type_id', 'document_id']);
         foreach($self as $id => $documentProcess) {
             if(isset($documentProcess['document_id'])) {
-                Document::id($documentProcess['document_id'])->update(['document_type_id' => $documentProcess['document_type_id']]);
+                Document::id($documentProcess['document_id'])
+                    ->update(['document_type_id' => $documentProcess['document_type_id']]);
             }
+        }
+        try {
+            // document_type has changed, re-attempt to extract data
+            $self->do('perform_extraction');
+        }
+        catch(\Exception $d) {
         }
     }
 
@@ -978,6 +1057,9 @@ class DocumentProcess extends Model {
         return $result;
     }
 
+    /**
+     * This method is called from the targeted objects, providing a map of values updates.
+     */
     public static function doUpdateDocumentJson($self, $values) {
         $self->read(['status', 'document_id' => ['has_document_json', 'document_json']]);
 
@@ -1103,13 +1185,12 @@ class DocumentProcess extends Model {
                         throw new \Exception('unsupported_document', EQ_ERROR_INVALID_PARAM);
                     }
 
+                    // log extraction result
                     $schema = \eQual::run('get', 'json-schema', ['id' => $documentProcess['document_type_id']['json_schema']]);
-
                     $logs = array_merge(['Data retrieved from document analysis:'], self::computeLogsFromSchema($schema['properties'] ?? [], $data));
 
-                    // #memo - document_json is meant to receive a final content according to schema and independent from origin (ex.: parsed Mindee, parsed UBL, ...)
+                    // #memo - document_json is meant to receive a JSON representation of the content, according to schema, and independent from origin (ex.: parsed Mindee, parsed UBL, ...)
                     $doc_values = [
-                            'has_document_json' => true,
                             'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
                         ];
 
@@ -1139,6 +1220,10 @@ class DocumentProcess extends Model {
 
     /**
      * Attempts auto-linking to other entities according to document meta data.
+     *
+     *
+     * For Document         -> condo_id
+     * For DocumentProcess  -> condo_id, supplier_id
      *
      */
     public static function doPerformMatching($self) {

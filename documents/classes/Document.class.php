@@ -76,7 +76,8 @@ class Document extends Model {
                 'type'              => 'string',
                 'usage'             => 'text/plain.medium',
                 'description'       => 'Standard JSON descriptor of the document, using a schema matching the document_type_id.',
-                'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and is used at the `completion` step for validating the completeness of the document.'
+                'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and is used at the `completion` step for validating the completeness of the document.',
+                'onupdate'          => 'onupdateDocumentJson'
             ],
 
             'has_analysis_json' => [
@@ -589,6 +590,15 @@ class Document extends Model {
         }
 
         return $result;
+    }
+
+    protected static function onupdateDocumentJson($self) {
+        $self->read(['document_json']);
+        foreach($self as $id => $document) {
+            if($document['document_json'] && strlen($document['document_json'])) {
+                self::id($id)->update(['has_document_json' => true]);
+            }
+        }
     }
 
     /**

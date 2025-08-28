@@ -94,8 +94,7 @@ class BankStatement extends Model {
             'bank_account_iban' => [
                 'type'              => 'string',
                 'usage'             => 'uri/urn.iban',
-                'description'       => 'IBAN representation of the account number.',
-                'required'          => true
+                'description'       => 'IBAN representation of the account number.'
             ],
 
             'bank_account_bic' => [
