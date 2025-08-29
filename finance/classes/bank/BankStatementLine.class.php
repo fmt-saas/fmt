@@ -66,7 +66,8 @@ class BankStatementLine extends Model {
 
             'communication' => [
                 'type'              => 'string',
-                'description'       => 'Message from the payer (or ref from the bank).'
+                'description'       => 'Message from the payer (or ref from the bank).',
+                'help'              => "A single communication is handled, since this is implied by the SEPA format (despite some bank allow both free and structured communication on a statement line)."
             ],
 
             'communication_type' => [
@@ -130,9 +131,7 @@ class BankStatementLine extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'pending',              // requires a review
-                    'ignored',              // has been manually processed but does not relate to a booking
-                    'reconciled',           // has been processed and assigned to a payment
-                    'to_refund'
+                    'reconciled'            // has been processed and assigned to a payment
                 ],
                 'description'       => 'Status of the line.',
                 'default'           => 'pending'

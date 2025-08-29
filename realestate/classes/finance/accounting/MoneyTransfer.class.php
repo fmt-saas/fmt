@@ -392,7 +392,8 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     'bank_account_id'               => $moneyTransfer['bank_account_id'],
                     'counterpart_bank_account_id'   => $moneyTransfer['counterpart_bank_account_id'],
                     // #todo - allow custom with setting
-                    'due_date'                      => time() + 10 * 86400
+                    'due_date'                      => time() + 10 * 86400,
+                    // #memo - payment_reference is a computed field
                 ]);
 
             Funding::create([
@@ -403,7 +404,8 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     'bank_account_id'               => $moneyTransfer['counterpart_bank_account_id'],
                     'counterpart_bank_account_id'   => $moneyTransfer['bank_account_id'],
                     // #todo - allow custom with setting
-                    'due_date'                      => time() + 10 * 86400
+                    'due_date'                      => time() + 10 * 86400,
+                    // #memo - payment_reference is a computed field
                 ]);
         }
     }

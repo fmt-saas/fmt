@@ -66,7 +66,8 @@ class Funding extends \sale\pay\Funding {
                     'transfer',
                     'invoice',
                     'fund_request',
-                    'expense_statement'
+                    'expense_statement',
+                    'misc'
                 ],
                 'required'          => true,
                 'dependents'        => ['payment_reference'],
@@ -101,8 +102,8 @@ class Funding extends \sale\pay\Funding {
 
             'invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'realestate\purchase\accounting\invoice\Invoice',
-                'description'       => 'The invoice targeted by the funding, if any.',
+                'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
+                'description'       => 'The purchase invoice targeted by the funding, if any.',
                 'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).',
                 'readonly'          => true,
                 'visible'           => ['funding_type', 'in', ['installment', 'invoice']],
@@ -124,6 +125,15 @@ class Funding extends \sale\pay\Funding {
                 'help'              => 'Money refund is a particular case of misc operation.',
                 'readonly'          => true,
                 'visible'           => ['funding_type', 'in', ['refund']],
+            ],
+
+            'misc_operation_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\MiscOperation',
+                'description'       => 'Miscellaneous operation targeted by the funding, if any.',
+                'help'              => 'This is for the unexpected movements, for which the Funding was created at bank statement line reconcile.',
+                'readonly'          => true,
+                'visible'           => ['funding_type', 'in', ['misc']],
             ],
 
             'ownership_id' => [
@@ -189,7 +199,7 @@ class Funding extends \sale\pay\Funding {
      * Generate payment reference according to SCOR/VCS logic
      *
      */
-    public static function calcPaymentReference($self) {
+    protected static function calcPaymentReference($self) {
         $result = [];
         $self->read(['funding_type', 'invoice_id', 'money_transfer_id', 'condo_id' => ['code'], 'ownership_id' => 'code']);
         foreach($self as $id => $funding) {
@@ -220,7 +230,13 @@ class Funding extends \sale\pay\Funding {
         return $result;
     }
 
+    /**
+     * Check if the Funding relates to an Ownership for which a property transfer is in progress,
+     * and dispatch `sale.pay.funding.ownership_transfer` if it is the case.
+     *
+     */
     protected static function oncreate($self) {
         \eQual::run('do', 'realestate_sale_pay_Funding_check-transfer', ['ids' => $self->ids()]);
     }
+
 }

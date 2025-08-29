@@ -20,7 +20,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
         return [
             'invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'realestate\purchase\accounting\invoice\Invoice',
+                'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
                 'description'       => 'Invoice the entry relates to.',
                 'ondelete'          => 'null'
             ],

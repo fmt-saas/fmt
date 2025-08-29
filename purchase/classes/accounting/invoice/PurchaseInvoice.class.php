@@ -463,6 +463,7 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                     ]
                 ]);
 
+            // #todo - purchase invoice should not imply an internal catalog with Suppliers prices
             foreach($lines as $lid => $line) {
 
                 if(!isset($line['price_id'])) {

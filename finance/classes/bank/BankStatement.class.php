@@ -9,9 +9,12 @@ namespace finance\bank;
 
 use documents\processing\DocumentProcess;
 use equal\orm\Model;
+use finance\accounting\Account;
+use finance\accounting\AccountingEntry;
+use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
 use realestate\property\Condominium;
-use realestate\sale\pay\Payment;
+use sale\pay\Payment;
 
 class BankStatement extends Model {
 
@@ -215,6 +218,9 @@ class BankStatement extends Model {
             'is_reconciled' => [
                 'description' => 'Verifies that all statement lines have been processed.',
                 'function'    => 'policyIsReconciled'
+            ],
+            'can_generate_accounting_entry' => [
+                'function'    => 'policyCanGenerateAccountingEntry'
             ]
         ]);
     }
@@ -279,6 +285,170 @@ class BankStatement extends Model {
             }
             catch(\Exception $e) {
                 // safely ignore errors
+            }
+        }
+    }
+
+    /**
+     * Generate accounting entries for reconciled statement lines.
+     * One entry per BankStatementLine.
+     */
+    protected static function doGenerateAccountingEntry($self) {
+        // Lire le contexte du relevé + infos nécessaires
+        $self->read([
+            'condo_id',
+            'opening_date',
+            'fiscal_year_id',
+            'fiscal_period_id',
+            // on récupère le compte comptable lié au compte bancaire de copropriété
+            'bank_account_id' => ['accounting_account_id'],
+            'statement_lines_ids' => [
+                'id',
+                'amount',
+                'status',
+                'communication',
+                // contrepartie éventuelle fixée manuellement sur la ligne
+                'accounting_account_id',
+                'payments_ids'
+            ]
+        ]);
+
+        foreach($self as $sid => $statement) {
+
+            if(!$statement['condo_id'] || !$statement['fiscal_year_id'] || !$statement['fiscal_period_id']) {
+                throw new \Exception('missing_accounting_context', EQ_ERROR_INVALID_PARAM);
+            }
+
+            // Compte banque (obligatoire)
+            $bankAccountingId = $statement['bank_account_id']['accounting_account_id'] ?? null;
+            if(empty($bankAccountingId)) {
+                throw new \Exception('missing_bank_accounting_account', EQ_ERROR_INVALID_PARAM);
+            }
+
+            // Compte clients (fallback)
+            $defaultTradeDebtors = Account::search([
+                    ['condo_id', '=', $statement['condo_id']],
+                    ['operation_assignment', '=', 'trade_debtors']
+                ])
+                ->first();
+
+            foreach($statement['statement_lines_ids'] as $lineId => $line) {
+                // 1) Ne traiter que les lignes conciliées et non encore comptabilisées
+                // on ne devrait pas avoir ce cas : il doit être testé dans la policy can_generate_accounting_entry
+                if(($line['status'] ?? 'pending') !== 'reconciled') {
+                    continue;
+                }
+                // Si un champ accounting_entry_id existe dans le modèle, on saute la ligne déjà comptabilisée.
+                if(!empty($line['accounting_entry_id'])) {
+                    continue;
+                }
+
+                // 2) Déterminer la contrepartie
+                // Utilise d'abord une contrepartie explicite sur la ligne (accounting_account_id)
+                $counterpart_id = $line['accounting_account_id'] ?? null;
+
+                if(empty($counterpart_id) && !empty($line['payments_ids'])) {
+                    // Essayer de déduire depuis un Payment "sans funding" (accounting_account_id sur le Payment)
+                    $payments = Payment::ids($line['payments_ids'])
+                        ->read(['accounting_account_id'])
+                        ->get();
+                    foreach ($payments as $p) {
+                        if (!empty($p['accounting_account_id'])) {
+                            $counterpart_id = $p['accounting_account_id'];
+                            break;
+                        }
+                    }
+                }
+
+                if(empty($counterpart_id)) {
+                    // fallback client
+                    if (empty($defaultTradeDebtors)) {
+                        throw new \Exception('missing_counterpart_account', EQ_ERROR_INVALID_PARAM);
+                    }
+                    $counterpart_id = $defaultTradeDebtors['id'];
+                }
+
+                // 3) Montant & signe
+                $amt = round((float)($line['amount'] ?? 0.0), 2);
+                if ($amt == 0.0) {
+                    // Rien à comptabiliser
+                    continue;
+                }
+
+                // 4) Créer l’écriture
+                try {
+                    $entry = \finance\accounting\AccountingEntry::create([
+                            'condo_id'            => $statement['condo_id'],
+                            // à défaut d'une date sur la ligne, utiliser l'ouverture du relevé
+                            'entry_date'          => $statement['opening_date'],
+                            'origin_object_class' => self::getType(),
+                            'origin_object_id'    => $sid,
+                            'journal_id'          => null, // journal à résoudre au besoin
+                            'fiscal_year_id'      => $statement['fiscal_year_id'],
+                            'fiscal_period_id'    => $statement['fiscal_period_id'],
+                            'description'         => $line['communication'] ?? null
+                        ])
+                        ->first();
+
+                    if(!$entry) {
+                        throw new \Exception('accounting_entry_create_failed', EQ_ERROR_UNKNOWN);
+                    }
+
+                    // 5) Lignes d'écriture
+                    if($amt > 0) {
+                        // Encaissement : Débit Banque, Crédit Contrepartie
+                        \finance\accounting\AccountingEntryLine::create([
+                            'account_id'          => $bankAccountingId,
+                            'debit'               => $amt,
+                            'credit'              => 0.0,
+                            'accounting_entry_id' => $entry['id']
+                        ]);
+
+                        \finance\accounting\AccountingEntryLine::create([
+                            'account_id'          => $counterpart_id,
+                            'debit'               => 0.0,
+                            'credit'              => $amt,
+                            'accounting_entry_id' => $entry['id']
+                        ]);
+                    }
+                    else {
+                        // Décaissement (montant négatif) : Débit Contrepartie, Crédit Banque
+                        $abs = abs($amt);
+
+                        AccountingEntryLine::create([
+                            'account_id'          => $counterpart_id,
+                            'debit'               => $abs,
+                            'credit'              => 0.0,
+                            'accounting_entry_id' => $entry['id']
+                        ]);
+
+                        AccountingEntryLine::create([
+                            'account_id'          => $bankAccountingId,
+                            'debit'               => 0.0,
+                            'credit'              => $abs,
+                            'accounting_entry_id' => $entry['id']
+                        ]);
+                    }
+
+                    // 6) Valider l’écriture
+                    AccountingEntry::id($entry['id'])->transition('validate');
+
+                    // 7) Lier la ligne (si le champ existe)
+                    try {
+                        BankStatementLine::id($lineId)->update(['accounting_entry_id' => $entry['id']]);
+                    }
+                    catch(\Exception $ignored) {
+                        // ok si le champ n'existe pas
+                    }
+
+                }
+                catch(\Exception $e) {
+                    trigger_error("APP::BankStatement::doGenerateAccountingEntry - {$e->getMessage()}", EQ_REPORT_WARNING);
+                    if(isset($entry)) {
+                        AccountingEntry::id($entry['id'])->delete(true);
+                    }
+                    throw $e;
+                }
             }
         }
     }

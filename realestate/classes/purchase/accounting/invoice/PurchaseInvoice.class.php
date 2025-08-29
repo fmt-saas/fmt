@@ -76,7 +76,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             'invoice_lines_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'realestate\purchase\accounting\invoice\InvoiceLine',
+                'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoiceLine',
                 'foreign_field'     => 'invoice_id',
                 'description'       => 'Detailed lines of the invoice.',
                 'ondetach'          => 'delete',
@@ -110,7 +110,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\purchase\accounting\AccountingEntry',
                 'foreign_field'     => 'origin_object_id',
-                'domain'            => ['origin_object_class', '=', 'realestate\purchase\accounting\invoice\Invoice'],
+                'domain'            => ['origin_object_class', '=', 'realestate\purchase\accounting\invoice\PurchaseInvoice'],
                 'description'       => 'Accounting entries relating to the invoice.',
                 'help'              => "Purchase invoices might be subject to several accounting entries."
             ],
@@ -240,16 +240,18 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 ->read(['current_balance'])
                 ->first();
 
+            // #todo - handle payment_reference generation if none provided by supplier
+
             $funding = Funding::create([
                     'condo_id'                      => $invoice['condo_id'],
                     'description'                   => 'Purchase Invoice',
+                    'funding_type'                  => 'invoice',
                     'invoice_id'                    => $id,
                     'bank_account_id'               => $bankAccount['id'],
                     'suppliership_id'               => $invoice['suppliership_id'],
                     'counterpart_bank_account_id'   => $invoice['suppliership_bank_account_id'],
                     'due_amount'                    => $invoice['price'],
                     'is_paid'                       => false,
-                    'funding_type'                  => 'invoice',
                     'payment_reference'             => $invoice['payment_reference'],
                     'due_date'                      => $invoice['due_date']
                 ])
@@ -499,7 +501,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         foreach($self as $id => $invoice) {
 
             // remove previously created entries, if any (there should be none)
-            AccountingEntry::search([['origin_object_class', '=', 'realestate\purchase\accounting\invoice\Invoice'], ['origin_object_id', '=', $id]])->delete(true);
+            AccountingEntry::search([['origin_object_class', '=', 'realestate\purchase\accounting\invoice\PurchaseInvoice'], ['origin_object_id', '=', $id]])->delete(true);
 
             $date_from = $date_to = $invoice['posting_date'];
 

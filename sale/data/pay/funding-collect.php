@@ -20,12 +20,12 @@ list($params, $providers) = eQual::announce([
         'customer_id' => [
             'type'              => 'many2one',
             'foreign_object'    => 'sale\customer\Customer',
-            'description'       => 'The costumer to which the funding relates to.',
+            'description'       => 'The customer to which the funding relates to.',
         ],
         'invoice_id' => [
             'type'              => 'many2one',
             'foreign_object'    => 'sale\accounting\invoice\Invoice',
-            'description'       => 'The costumer to which the funding relates to.',
+            'description'       => 'The invoice to which the funding relates to.',
         ],
         'due_amount_min' => [
             'type'              => 'integer',

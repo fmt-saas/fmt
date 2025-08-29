@@ -8,6 +8,9 @@
 namespace sale\pay;
 
 use equal\orm\Model;
+use finance\accounting\Account;
+use finance\accounting\AccountingEntry;
+use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 use finance\bank\BankStatement;
@@ -201,7 +204,7 @@ class Payment extends Model {
                 Funding::id($payment['funding_id'])->update(['paid_amount' => null, 'remaining_amount' => null, 'is_paid' => null]);
             }
             if($payment['statement_line_id']) {
-                BankStatement::id($payment['statement_line_id'])->update(['remaining_amount' => null]);
+                BankStatementLine::id($payment['statement_line_id'])->update(['remaining_amount' => null]);
             }
         }
     }

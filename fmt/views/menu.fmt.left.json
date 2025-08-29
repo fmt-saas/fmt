@@ -7,6 +7,26 @@
     "layout": {
         "items": [
             {
+                "id": "item.followup",
+                "label": "Followup",
+                "description": "",
+                "icon": "rss_feed",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "payments_followups",
+                        "type": "entry",
+                        "label": "Payments followups",
+                        "icon": "euro_symbol",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\sale\\pay\\Funding",
+                            "view": "list.default"
+                        }
+                    }
+                ]
+            },
+            {
                 "id": "item.properties",
                 "label": "Properties",
                 "description": "",
@@ -251,18 +271,6 @@
                         }
                     },
                     {
-                        "id": "item.accounting.invoices",
-                        "type": "entry",
-                        "label": "Invoices",
-                        "icon": "receipt_long",
-                        "description": "",
-                        "context": {
-                            "entity": "sale\\accounting\\invoice\\Invoice",
-                            "view": "list.default",
-                            "domain": ["invoice_type", "=", "invoice"]
-                        }
-                    },
-                    {
                         "id": "fund_requests",
                         "type": "entry",
                         "label": "Fund requests",
@@ -292,7 +300,7 @@
                         "icon": "receipt_long",
                         "description": "",
                         "context": {
-                            "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
+                            "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                             "view": "list.default",
                             "domain": ["invoice_type", "=", "invoice"]
                         }
@@ -302,10 +310,11 @@
                         "type": "entry",
                         "label": "Import Invoice",
                         "icon": "file_upload",
-                        "description": "",
+                        "description": "#todo - this does not seem to work - to review",
+                        "visible": false,
                         "context": {
                             "view": "form.import",
-                            "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
+                            "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                             "purpose": "create"
                         }
                     },

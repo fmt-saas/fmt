@@ -206,7 +206,7 @@ class DocumentProcess extends Model {
 
             'document_invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'realestate\purchase\accounting\invoice\Invoice',
+                'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
                 'visible'           => ['document_type_code', '=', 'invoice'],
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['supplier_id', '=', 'object.supplier_id']]
             ],

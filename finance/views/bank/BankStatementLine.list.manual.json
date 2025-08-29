@@ -1,0 +1,68 @@
+{
+    "name": "Bank Statement Lines",
+    "description": "This view is intended for displaying the list of bank statement lines.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": [
+                {
+                    "view": false
+                }
+            ]
+        }
+    },
+    "operations": {
+        "total": {
+            "amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "bank_statement_id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "sequence",
+                "value": "sequence_number",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "date",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "Account",
+                "value": "accounting_account_id",
+                "width": "40%",
+                "widget": {
+                    "controller": "finance_accounting_Account_collect"
+                }
+            },
+            {
+                "type": "field",
+                "value": "communication",
+                "width": "30%"
+            },
+            {
+                "type": "field",
+                "value": "amount",
+                "width": "10%"
+            }
+        ]
+    }
+}

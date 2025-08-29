@@ -37,7 +37,7 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
 
             'invoice_line_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'realestate\purchase\accounting\invoice\InvoiceLine',
+                'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoiceLine',
                 'description'       => 'Detailed lines of the invoice.',
                 'help'              => 'This is necessary for retrieving the invoice line corresponding to the entry line and, further, the apportionment and ratio to use for owner statement.',
                 'readonly'          => true

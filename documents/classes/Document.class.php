@@ -283,7 +283,7 @@ class Document extends Model {
 
             'invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'realestate\purchase\accounting\invoice\Invoice',
+                'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
                 'description'       => 'Optional link to the related purchase invoice.',
                 'visible'           => ['document_type_code', '=', 'invoice']
             ],

@@ -126,11 +126,11 @@ class Payment extends \sale\pay\Payment {
                     switch($payment['funding_id']['funding_type']) {
                         case 'installment':
                             // #todo
-                            throw new \Exception('missing_funding_type', EQ_ERROR_INVALID_PARAM);
+                            throw new \Exception('non_supported_funding_type', EQ_ERROR_INVALID_PARAM);
                             break;
                         case 'refund':
                             // #todo
-                            throw new \Exception('missing_funding_type', EQ_ERROR_INVALID_PARAM);
+                            throw new \Exception('non_supported_funding_type', EQ_ERROR_INVALID_PARAM);
                             break;
                         case 'invoice':
                             // payment to the supplier

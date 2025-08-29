@@ -13,12 +13,12 @@ use Digitick\Sepa\TransferInformation\CustomerCreditTransferInformation;
 use sale\pay\Funding;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Advanced search for the Funding: returns a collection of Reports according to extra paramaters.',
+    'description'   => 'Generates a SEPA xml doc for a given Funding.',
     'params'        => [
         'id' => [
             'type'              => 'many2one',
             'foreign_object'    => 'sale\pay\Funding',
-            'description'       => 'The costumer to which the funding relates to.',
+            'description'       => 'The Funding for which the SEPA is requested.',
         ]
     ],
     'response'      => [
