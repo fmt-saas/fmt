@@ -16,6 +16,7 @@ use fmt\setting\Setting;
 use realestate\sale\pay\Funding;
 use sale\pay\Payment;
 
+#memo - Fund requests executions are handled as sales invoices
 class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
 
     public static function getName() {

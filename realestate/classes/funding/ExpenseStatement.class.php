@@ -16,6 +16,7 @@ use realestate\purchase\accounting\AccountingEntry;
 use realestate\purchase\accounting\invoice\PurchaseInvoiceLine;
 use realestate\sale\pay\Funding;
 
+#memo - Expense statements are handled as sales invoices
 class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
 
     public static function getName() {
@@ -46,7 +47,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
 
             'invoice_type' => [
                 'type'              => 'string',
-                'description'       => 'Document type (fund requests are handled as sale invoices).',
+                'description'       => 'Document type (expense statements handled as sale invoices).',
                 'default'           => 'expense_statement',
                 'readonly'          => true
             ],

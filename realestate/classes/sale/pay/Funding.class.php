@@ -46,8 +46,9 @@ class Funding extends \sale\pay\Funding {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'The Bank account the funding relates to.',
-                'help'              => 'This is the bank account to which payments are expected to be received or from which payment is expected to be made.',
-                'readonly'          => true
+                'help'              => 'This is the bank account to which payment is expected to be received, or from which payment is expected to be made.',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'counterpart_bank_account_id' => [
@@ -201,7 +202,12 @@ class Funding extends \sale\pay\Funding {
      */
     protected static function calcPaymentReference($self) {
         $result = [];
-        $self->read(['funding_type', 'invoice_id', 'money_transfer_id', 'condo_id' => ['code'], 'ownership_id' => 'code']);
+        $self->read([
+                'funding_type',
+                'invoice_id', 'money_transfer_id', 'money_refund_id', 'misc_operation_id',
+                'condo_id' => ['code'],
+                'ownership_id' => ['code']
+            ]);
         foreach($self as $id => $funding) {
             if(!$funding['funding_type']) {
                 continue;
@@ -209,17 +215,29 @@ class Funding extends \sale\pay\Funding {
 
             $reference = str_pad('', 12, '0');
 
-            if($funding['funding_type'] === 'transfer') {
-                $reference = sprintf("%010s", $funding['money_transfer_id']);
-            }
-            elseif(in_array($funding['funding_type'], ['fund_request', 'expense_statement'], true)) {
-                $reference =
-                    substr(str_pad((int) $funding['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
-                    substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
-            }
-            elseif($funding['funding_type'] === 'invoice') {
-                // #todo - confirm strategy
-                $reference = sprintf("%010s", $funding['invoice_id']);
+            switch($funding['funding_type']) {
+                case 'refund':
+                    $reference = sprintf("%010d", $funding['money_refund_id']);
+                    break;
+                case 'transfer':
+                    $reference = sprintf("%010d", $funding['money_transfer_id']);
+                    break;
+                case 'fund_request':
+                case 'expense_statement':
+                    $reference =
+                        substr(str_pad((int) $funding['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
+                        substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+                    break;
+                case 'invoice':
+                    // for purchase invoices, use invoice id to generate a unique reference (VCS compliant)
+                    $reference = sprintf("%010d", $funding['invoice_id']);
+                    break;
+                case 'misc':
+                    $reference = sprintf("%010d", $funding['misc_operation_id']);
+                    break;
+                case 'installment':
+                    // #todo
+                    break;
             }
 
             $prefix = substr($reference, 0, 3);

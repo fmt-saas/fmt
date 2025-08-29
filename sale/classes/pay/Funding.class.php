@@ -185,7 +185,7 @@ class Funding extends Model {
     public static function getActions() {
         return [
             'refresh_status' => [
-                'description'   => 'Attempt to post the related accounting document.',
+                'description'   => 'Update status according to currently paid amount.',
                 'policies'      => [],
                 'function'      => 'doRefreshStatus'
             ]
@@ -217,7 +217,7 @@ class Funding extends Model {
     protected static function doRefreshStatus($self) {
         $self
             ->update(['is_paid' => null, 'paid_amount' => null, 'remaining_amount' => null])
-            ->read(['due_amount', 'paid_amount']);
+            ->read(['due_amount', 'is_paid', 'paid_amount', 'remaining_amount']);
 
         foreach($self as $id => $funding) {
             $due = round((float) $funding['due_amount'], 2);
@@ -269,7 +269,7 @@ class Funding extends Model {
         $result = [];
         $self->read(['due_amount', 'paid_amount']);
         foreach($self as $id => $funding) {
-            $result[$id] = $funding['due_amount'] - $funding['paid_amount'];
+            $result[$id] = round($funding['due_amount'] - $funding['paid_amount'], 2);
         }
         return $result;
     }
@@ -345,10 +345,10 @@ class Funding extends Model {
      * Compute a Structured Reference using belgian SCOR (StructuredCommunicationReference) reference format.
      *
      * Note:
-     *  format is aaa-bbbbbbb-XX
-     *  where Xaaa is the prefix, bbbbbbb is the suffix, and XX is the control number, that must verify (aaa * 10000000 + bbbbbbb) % 97
-     *  as 10000000 % 97 = 76
-     *  we do (aaa * 76 + bbbbbbb) % 97
+     *   format is aaa-bbbbbbb-XX and is displayed +++aaa/bbbb/bbbXX+++
+     *   where Xaaa is the prefix, bbbbbbb is the suffix, and XX is the control number, that must verify (aaa * 10000000 + bbbbbbb) % 97
+     *      since 10000000 % 97 = 76
+     *      we do (aaa * 76 + bbbbbbb) % 97
      */
     protected static function computePaymentReference($prefix, $suffix) {
         $a = intval($prefix);

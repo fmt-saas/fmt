@@ -106,13 +106,13 @@ class Payment extends Model {
                 ],
                 'description'       => "The method used for payment at the cashdesk.",
                 'visible'           => ['payment_origin', '=', 'cashdesk'],
-                'default'           => 'cash'
+                'default'           => 'wire_transfer'
             ],
 
             'statement_line_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankStatementLine',
-                'description'       => 'The bank statement line the payment relates to.',
+                'description'       => 'The bank statement line the payment originates from.',
                 'visible'           => ['payment_origin', '=', 'bank']
             ],
 
@@ -221,16 +221,6 @@ class Payment extends Model {
         }
     }
 
-    public static function candelete($self) {
-        $self->read(['status']);
-        foreach($self as $payment) {
-            if($payment['status'] != 'proforma') {
-                return ['status' => ['non_editable' => 'Non-proforma payments cannot be deleted manually.']];
-            }
-        }
-        return parent::candelete($self);
-    }
-
     public static function onchange($event, $values) {
         $result = [];
 
@@ -271,6 +261,16 @@ class Payment extends Model {
         }
 
         return $result;
+    }
+
+    public static function candelete($self) {
+        $self->read(['status']);
+        foreach($self as $payment) {
+            if($payment['status'] != 'proforma') {
+                return ['status' => ['non_removable' => 'Non-proforma payments cannot be deleted manually.']];
+            }
+        }
+        return parent::candelete($self);
     }
 
     public static function canupdate($self, $values) {

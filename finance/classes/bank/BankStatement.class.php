@@ -40,7 +40,8 @@ class BankStatement extends Model {
             'bank_account_id' => [
                 'type'              => 'many2one',
                 'description'       => "The bank account the statement refers to.",
-                'foreign_object'    => 'finance\bank\BankAccount'
+                'foreign_object'    => 'finance\bank\BankAccount',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'name' => [
@@ -97,7 +98,8 @@ class BankStatement extends Model {
             'bank_account_iban' => [
                 'type'              => 'string',
                 'usage'             => 'uri/urn.iban',
-                'description'       => 'IBAN representation of the account number.'
+                'description'       => 'IBAN representation of the account number.',
+                'onupdate'          => 'onupdateBankAccountIban'
             ],
 
             'bank_account_bic' => [
@@ -153,8 +155,10 @@ class BankStatement extends Model {
             'is_reconciled' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
-                'description'       => 'A statement is balanced if all its lines are reconciled or ignored.',
-                'function'          => 'calcIsReconciled'
+                'description'       => 'A statement is reconciled if all its lines are reconciled.',
+                'function'          => 'calcIsReconciled',
+                'store'             => true,
+                'instant'           => true
             ],
 
             'status' => [
@@ -251,6 +255,16 @@ class BankStatement extends Model {
         return $result;
     }
 
+    protected static function onupdateBankAccountIban($self) {
+        $self->read(['bank_account_iban', 'condo_id']);
+        foreach($self as $id => $bankStatement) {
+            $bankAccount = CondominiumBankAccount::search(['bank_account_iban', '=', $bankStatement['bank_account_iban']])->read(['condo_id'])->first();
+            if($bankAccount) {
+                self::id($id)->update(['bank_account_id' => $bankAccount['id']]);
+            }
+        }
+    }
+
     protected static function onafterPost($self) {
         $self->read(['document_process_id', 'statement_lines_ids' => ['payments_ids']]);
         foreach($self as $id => $bankStatement) {
@@ -280,7 +294,7 @@ class BankStatement extends Model {
         foreach($self as $id => $bankStatement) {
             try {
                 // attempt to reconcile lines
-                $bankStatement['statement_lines_ids']->do('reconcile');
+                $bankStatement['statement_lines_ids']->do('attempt_reconcile');
                 self::id($id)->update(['is_reconciled' => null]);
             }
             catch(\Exception $e) {
@@ -289,177 +303,13 @@ class BankStatement extends Model {
         }
     }
 
-    /**
-     * Generate accounting entries for reconciled statement lines.
-     * One entry per BankStatementLine.
-     */
-    protected static function doGenerateAccountingEntry($self) {
-        // Lire le contexte du relevé + infos nécessaires
-        $self->read([
-            'condo_id',
-            'opening_date',
-            'fiscal_year_id',
-            'fiscal_period_id',
-            // on récupère le compte comptable lié au compte bancaire de copropriété
-            'bank_account_id' => ['accounting_account_id'],
-            'statement_lines_ids' => [
-                'id',
-                'amount',
-                'status',
-                'communication',
-                // contrepartie éventuelle fixée manuellement sur la ligne
-                'accounting_account_id',
-                'payments_ids'
-            ]
-        ]);
-
-        foreach($self as $sid => $statement) {
-
-            if(!$statement['condo_id'] || !$statement['fiscal_year_id'] || !$statement['fiscal_period_id']) {
-                throw new \Exception('missing_accounting_context', EQ_ERROR_INVALID_PARAM);
-            }
-
-            // Compte banque (obligatoire)
-            $bankAccountingId = $statement['bank_account_id']['accounting_account_id'] ?? null;
-            if(empty($bankAccountingId)) {
-                throw new \Exception('missing_bank_accounting_account', EQ_ERROR_INVALID_PARAM);
-            }
-
-            // Compte clients (fallback)
-            $defaultTradeDebtors = Account::search([
-                    ['condo_id', '=', $statement['condo_id']],
-                    ['operation_assignment', '=', 'trade_debtors']
-                ])
-                ->first();
-
-            foreach($statement['statement_lines_ids'] as $lineId => $line) {
-                // 1) Ne traiter que les lignes conciliées et non encore comptabilisées
-                // on ne devrait pas avoir ce cas : il doit être testé dans la policy can_generate_accounting_entry
-                if(($line['status'] ?? 'pending') !== 'reconciled') {
-                    continue;
-                }
-                // Si un champ accounting_entry_id existe dans le modèle, on saute la ligne déjà comptabilisée.
-                if(!empty($line['accounting_entry_id'])) {
-                    continue;
-                }
-
-                // 2) Déterminer la contrepartie
-                // Utilise d'abord une contrepartie explicite sur la ligne (accounting_account_id)
-                $counterpart_id = $line['accounting_account_id'] ?? null;
-
-                if(empty($counterpart_id) && !empty($line['payments_ids'])) {
-                    // Essayer de déduire depuis un Payment "sans funding" (accounting_account_id sur le Payment)
-                    $payments = Payment::ids($line['payments_ids'])
-                        ->read(['accounting_account_id'])
-                        ->get();
-                    foreach ($payments as $p) {
-                        if (!empty($p['accounting_account_id'])) {
-                            $counterpart_id = $p['accounting_account_id'];
-                            break;
-                        }
-                    }
-                }
-
-                if(empty($counterpart_id)) {
-                    // fallback client
-                    if (empty($defaultTradeDebtors)) {
-                        throw new \Exception('missing_counterpart_account', EQ_ERROR_INVALID_PARAM);
-                    }
-                    $counterpart_id = $defaultTradeDebtors['id'];
-                }
-
-                // 3) Montant & signe
-                $amt = round((float)($line['amount'] ?? 0.0), 2);
-                if ($amt == 0.0) {
-                    // Rien à comptabiliser
-                    continue;
-                }
-
-                // 4) Créer l’écriture
-                try {
-                    $entry = \finance\accounting\AccountingEntry::create([
-                            'condo_id'            => $statement['condo_id'],
-                            // à défaut d'une date sur la ligne, utiliser l'ouverture du relevé
-                            'entry_date'          => $statement['opening_date'],
-                            'origin_object_class' => self::getType(),
-                            'origin_object_id'    => $sid,
-                            'journal_id'          => null, // journal à résoudre au besoin
-                            'fiscal_year_id'      => $statement['fiscal_year_id'],
-                            'fiscal_period_id'    => $statement['fiscal_period_id'],
-                            'description'         => $line['communication'] ?? null
-                        ])
-                        ->first();
-
-                    if(!$entry) {
-                        throw new \Exception('accounting_entry_create_failed', EQ_ERROR_UNKNOWN);
-                    }
-
-                    // 5) Lignes d'écriture
-                    if($amt > 0) {
-                        // Encaissement : Débit Banque, Crédit Contrepartie
-                        \finance\accounting\AccountingEntryLine::create([
-                            'account_id'          => $bankAccountingId,
-                            'debit'               => $amt,
-                            'credit'              => 0.0,
-                            'accounting_entry_id' => $entry['id']
-                        ]);
-
-                        \finance\accounting\AccountingEntryLine::create([
-                            'account_id'          => $counterpart_id,
-                            'debit'               => 0.0,
-                            'credit'              => $amt,
-                            'accounting_entry_id' => $entry['id']
-                        ]);
-                    }
-                    else {
-                        // Décaissement (montant négatif) : Débit Contrepartie, Crédit Banque
-                        $abs = abs($amt);
-
-                        AccountingEntryLine::create([
-                            'account_id'          => $counterpart_id,
-                            'debit'               => $abs,
-                            'credit'              => 0.0,
-                            'accounting_entry_id' => $entry['id']
-                        ]);
-
-                        AccountingEntryLine::create([
-                            'account_id'          => $bankAccountingId,
-                            'debit'               => 0.0,
-                            'credit'              => $abs,
-                            'accounting_entry_id' => $entry['id']
-                        ]);
-                    }
-
-                    // 6) Valider l’écriture
-                    AccountingEntry::id($entry['id'])->transition('validate');
-
-                    // 7) Lier la ligne (si le champ existe)
-                    try {
-                        BankStatementLine::id($lineId)->update(['accounting_entry_id' => $entry['id']]);
-                    }
-                    catch(\Exception $ignored) {
-                        // ok si le champ n'existe pas
-                    }
-
-                }
-                catch(\Exception $e) {
-                    trigger_error("APP::BankStatement::doGenerateAccountingEntry - {$e->getMessage()}", EQ_REPORT_WARNING);
-                    if(isset($entry)) {
-                        AccountingEntry::id($entry['id'])->delete(true);
-                    }
-                    throw $e;
-                }
-            }
-        }
-    }
-
     protected static function calcIsReconciled($self) {
         $result = [];
-        $self->read(['statement_lines_ids' => ['status']]);
+        $self->read(['statement_lines_ids' => ['is_reconciled']]);
         foreach($self as $id => $bankStatement) {
             $result[$id] = true;
             foreach($bankStatement['statement_lines_ids'] as $bankStatementLine) {
-                if($bankStatementLine['status'] === 'pending') {
+                if(!$bankStatementLine['is_reconciled']) {
                     $result[$id] = false;
                     break;
                 }
@@ -486,25 +336,6 @@ class BankStatement extends Model {
 
         foreach($statements as $id => $statement) {
             $result[$id] = self::convertBbanToIban($statement['bank_account_iban']);
-        }
-        return $result;
-    }
-
-    public static function calcStatus($self) {
-        $result = [];
-        $self->read(['statement_lines_ids' => 'status']);
-        foreach($self as $id => $statement) {
-            $is_reconciled = false;
-            if(count($statement['statement_lines_ids'])) {
-                $is_reconciled = true;
-                foreach($statement['statement_lines_ids'] as $line_id => $line) {
-                    if( !in_array($line['status'], ['reconciled', 'ignored']) ) {
-                        $is_reconciled = false;
-                        break;
-                    }
-                }
-            }
-            $result[$id] = ($is_reconciled) ? 'reconciled' : 'pending';
         }
         return $result;
     }
@@ -582,7 +413,7 @@ class BankStatement extends Model {
                     if(!isset($values['condo_id'])) {
                         $event['bank_account_iban'] = trim(str_replace(' ', '', $event['bank_account_iban']));
                         $result['bank_account_iban'] = $event['bank_account_iban'];
-                        $bankAccount = BankAccount::search(['bank_account_iban', '=', $event['bank_account_iban']])->read(['condo_id' => ['id', 'name']])->first();
+                        $bankAccount = CondominiumBankAccount::search(['bank_account_iban', '=', $event['bank_account_iban']])->read(['condo_id' => ['id', 'name']])->first();
                         if($bankAccount) {
                             $result['condo_id'] = ['id' => $bankAccount['condo_id']['id'], 'name' => $bankAccount['condo_id']['name']];
                         }

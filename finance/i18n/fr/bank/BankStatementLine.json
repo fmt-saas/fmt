@@ -41,7 +41,8 @@
                 "pending": "à traiter",
                 "ignored": "ignorée",
                 "reconciled": "réconciliée",
-                "to_refund": "à rembourser"
+                "to_refund": "à rembourser",
+                "posted": "enregistrée"
             }
         },
         "communication_type": {

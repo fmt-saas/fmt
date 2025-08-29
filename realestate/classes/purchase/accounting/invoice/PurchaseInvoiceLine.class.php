@@ -54,7 +54,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'required'          => true,
                 'ondelete'          => 'null',
                 // #todo - limit to supplier assigned accounts
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['account_class', '=', '06']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false], ['account_class', '=', '06']]
             ],
 
             'apportionment_id' => [

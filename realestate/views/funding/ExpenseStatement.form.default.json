@@ -67,6 +67,11 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "condo_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "fiscal_year_id",
                                                 "width": "100%"
                                             },
@@ -74,12 +79,6 @@
                                                 "type": "field",
                                                 "value": "fiscal_period_id",
                                                 "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "condo_id",
-                                                "width": "100%",
-                                                "visible": false
                                             },
                                             {
                                                 "type": "field",

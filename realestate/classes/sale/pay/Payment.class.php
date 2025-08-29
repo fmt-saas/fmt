@@ -94,13 +94,20 @@ class Payment extends \sale\pay\Payment {
 
                 $bankAccount = CondominiumBankAccount::id($bankStatement['bank_account_id'])->read(['accounting_account_id'])->first();
 
+                if(!$bankAccount) {
+                    throw new \Exception("non_matching_bank_account_with_condominium", EQ_ERROR_INVALID_CONFIG);
+                }
+
                 // #memo - there may be Payments without Funding (e.g. bank fees)
                 if($payment['has_funding']) {
 
                     Funding::id($payment['funding_id']['id'])
                         ->do('refresh_status');
 
-                    // special cases
+                    /*
+                        special cases : "atomic" accounting entry
+                    */
+
                     if($payment['funding_id']['funding_type'] === 'transfer') {
                         // create a single accounting entry, only if transfer is complete
                         MoneyTransfer::id($payment['funding_id']['money_transfer_id'])->do('attempt_posting');
@@ -111,6 +118,10 @@ class Payment extends \sale\pay\Payment {
                         MoneyRefund::id($payment['funding_id']['money_refund_id'])->do('attempt_posting');
                         continue;
                     }
+
+                    /*
+                        generic case
+                    */
 
                     $accountingEntry = AccountingEntry::create([
                             'condo_id'              => $payment['condo_id'],
@@ -124,19 +135,25 @@ class Payment extends \sale\pay\Payment {
                         ->first();
 
                     switch($payment['funding_id']['funding_type']) {
+                        case 'transfer':
+                        case 'refund':
+                            // #memo - we should not end up here : refund & transfer are handled as special cases
+                            break;
                         case 'installment':
-                            // #todo
+                            // #todo - invoiced installment are a specific type of invoice (deposit)
+                            // #memo - non-invoiced downpayment should not generate an accounting entry (received amount should be placed in temp account)
                             throw new \Exception('non_supported_funding_type', EQ_ERROR_INVALID_PARAM);
                             break;
-                        case 'refund':
+                        case 'misc':
                             // #todo
-                            throw new \Exception('non_supported_funding_type', EQ_ERROR_INVALID_PARAM);
                             break;
                         case 'invoice':
-                            // payment to the supplier
+                            // purchase invoice : payment to the supplier
                             $suppliership = Suppliership::id($payment['funding_id']['suppliership_id'])->read(['suppliership_account_id'])->first();
                             $debit_account_id = $suppliership['suppliership_account_id'];
-                            $credit_account_id = $payment['funding_id']['bank_account_id'];
+                            // #memo - the source of truth is the bank statement, not the funding
+                            // $credit_account_id = $payment['funding_id']['bank_account_id'];
+                            $credit_account_id = $bankAccount['accounting_account_id'];
                             break;
                         case 'fund_request':
                             // payment from the owner(ship)
@@ -172,6 +189,8 @@ class Payment extends \sale\pay\Payment {
 
                 }
                 // accounting entry without Funding
+                /*
+                // on abandonne ceci : on garantit en amont que 1 Payment a toujours 1 Funding
                 else {
                     $accountingEntry = AccountingEntry::create([
                             'condo_id'              => $payment['condo_id'],
@@ -217,6 +236,7 @@ class Payment extends \sale\pay\Payment {
                             ]);
                     }
                 }
+                */
             }
             catch(\Exception $e) {
                 trigger_error("APP::onafterPost: Error while creating accounting entries for payment #{$id} : " . $e->getMessage(), EQ_REPORT_ERROR);

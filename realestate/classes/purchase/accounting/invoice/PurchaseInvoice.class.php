@@ -232,7 +232,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function doCreateFunding($self) {
-        $self->read(['condo_id', 'price', 'suppliership_id', 'payment_reference', 'due_date', 'funding_id']);
+        $self->read([
+                'condo_id', 'price', 'suppliership_id', 'payment_reference', 'due_date', 'funding_id',
+                'suppliership_bank_account_id' => ['bank_account_id']
+            ]);
 
         foreach($self as $id => $invoice) {
             // retrieve the condo's current account
@@ -240,22 +243,25 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 ->read(['current_balance'])
                 ->first();
 
-            // #todo - handle payment_reference generation if none provided by supplier
 
-            $funding = Funding::create([
+            $values = [
                     'condo_id'                      => $invoice['condo_id'],
                     'description'                   => 'Purchase Invoice',
                     'funding_type'                  => 'invoice',
                     'invoice_id'                    => $id,
                     'bank_account_id'               => $bankAccount['id'],
                     'suppliership_id'               => $invoice['suppliership_id'],
-                    'counterpart_bank_account_id'   => $invoice['suppliership_bank_account_id'],
+                    'counterpart_bank_account_id'   => $invoice['suppliership_bank_account_id']['bank_account_id'],
                     'due_amount'                    => $invoice['price'],
                     'is_paid'                       => false,
-                    'payment_reference'             => $invoice['payment_reference'],
                     'due_date'                      => $invoice['due_date']
-                ])
-                ->first();
+                ];
+
+            if($invoice['payment_reference'] && strlen($invoice['payment_reference']) > 0) {
+                $values['payment_reference'] = $invoice['payment_reference'];
+            }
+
+            $funding = Funding::create($values)->first();
 
             self::id($invoice['id'])
                 ->update(['funding_id' => $funding['id']]);

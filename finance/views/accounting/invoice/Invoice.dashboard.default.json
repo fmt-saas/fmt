@@ -31,7 +31,7 @@
                                                 "width": "50%",
                                                 "entity": "finance\\accounting\\invoice\\Invoice",
                                                 "view": "list.dashboard",
-                                                "domain": ["status", "=", "reconciled"]
+                                                "domain": ["status", "=", "posted"]
                                             }
 
                                         ]

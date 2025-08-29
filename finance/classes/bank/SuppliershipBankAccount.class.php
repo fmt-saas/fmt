@@ -8,6 +8,7 @@ namespace finance\bank;
 
 use equal\orm\Model;
 
+// #memo - since a same supplier and a same account can be used across several Condominiums, this class does not inherit from `finance\bank\BankAccount` but has a dedicated field `bank_account_id`
 class SuppliershipBankAccount extends Model {
 
     public static function getColumns() {

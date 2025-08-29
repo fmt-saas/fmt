@@ -98,7 +98,7 @@ class AccountingEntry extends Model {
             'origin_object_class' => [
                 'type'              => 'string',
                 'description'       => 'Entity class that the entry originates from.',
-                'help'              => 'An accounting entry can originate from an Invoice, a Fund Request, ... But can also be a Misc entry (not related to a document).',
+                'help'              => 'An accounting entry can originate from. Possible classes are: PurchaseInvoice, FundRequestExecution, ExpenseStatement, BankStatementLine, MiscOperation (virtual document).',
             ],
 
             'origin_object_id' => [
