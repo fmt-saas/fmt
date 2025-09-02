@@ -1076,7 +1076,7 @@ class DocumentProcess extends Model {
     protected static function doUpdateDocumentJson($self, $values) {
         $self->read(['status', 'document_id' => ['has_document_json', 'document_json']]);
 
-        function recursiveUpdate(array &$data, array $updates) {
+        $recursiveUpdate = function(array &$data, array $updates) use (&$recursiveUpdate) {
             foreach($updates as $key => $value) {
                 if(!array_key_exists($key, $data)) {
                     trigger_error("APP::property $key does not exist in document JSON", E_USER_WARNING);
@@ -1084,13 +1084,13 @@ class DocumentProcess extends Model {
                 }
 
                 if(is_array($value) && is_array($data[$key])) {
-                    recursiveUpdate($data[$key], $value);
+                    $recursiveUpdate($data[$key], $value);
                 }
                 else {
                     $data[$key] = $value;
                 }
             }
-        }
+        };
 
         foreach($self as $id => $documentProcess) {
             if($documentProcess['status'] !== 'created') {
@@ -1109,7 +1109,7 @@ class DocumentProcess extends Model {
                 throw new \Exception('invalid_document_json', EQ_ERROR_INVALID_PARAM);
             }
 
-            recursiveUpdate($data, $values);
+            $recursiveUpdate($data, $values);
 
             Document::id($documentProcess['document_id']['id'])->update(['document_json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)]);
         }

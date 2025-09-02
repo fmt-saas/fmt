@@ -7,6 +7,8 @@
 
 namespace finance\bank;
 
+use documents\Document;
+use documents\DocumentType;
 use documents\processing\DocumentProcess;
 use equal\orm\Model;
 use finance\accounting\Account;
@@ -189,6 +191,11 @@ class BankStatement extends Model {
                 'policies'      => [/* 'can_generate_accounting_entry' */],
                 'function'      => 'doAttemptReconcile'
             ],
+            'update_document_json' => [
+                'description'   => 'Update the document data JSON with the newly provided data.',
+                'policies'      => [],
+                'function'      => 'doUpdateDocumentJson'
+            ]
         ];
     }
 
@@ -461,7 +468,39 @@ class BankStatement extends Model {
         }
     }
 
-    public static function onafterupdate($self) {
+    protected static function onafterupdate($self) {
+        $self->read(['state', 'document_id', 'condo_id']);
+        foreach($self as $id => $bankStatement) {
+            if($bankStatement['state'] === 'instance' && !$bankStatement['document_id']) {
+                $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
+                $data = \eQual::run('get', 'documents_processing_bankStatement_empty');
+
+                $document = Document::create([
+                        'condo_id'          => $bankStatement['condo_id'],
+                        'name'              => sprintf("%s %06d", 'extrait bancaire', $id),
+                        'bank_statement_id' => $id,
+                        'document_type_id'  => $documentType['id'],
+                        'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+                    ])
+                    ->first();
+
+                $documentProcess = DocumentProcess::create([
+                        'condo_id'                      => $bankStatement['condo_id'],
+                        'name'                          => sprintf("%s %06d", 'extrait bancaire', $id),
+                        'description'                   => 'extrait bancaire - encodage manuel',
+                        'document_id'                   => $document['id'],
+                        'document_bank_statement_id'    => $id,
+                        'document_type_id'              => $documentType['id'],
+                        'document_source'               => 'manual'
+                    ])
+                    ->first();
+
+                self::id($id)->update([
+                        'document_id'           => $document['id'],
+                        'document_process_id'   => $documentProcess['id']
+                    ]);
+            }
+        }
         $self->do('update_document_json');
     }
 
@@ -469,7 +508,7 @@ class BankStatement extends Model {
         $result = [];
         $self->read(['statement_lines_ids' => ['is_reconciled']]);
         foreach($self as $id => $bankStatement) {
-            $result[$id] = true;
+            $result[$id] = ($bankStatement['statement_lines_ids']->count() > 0);
             foreach($bankStatement['statement_lines_ids'] as $bankStatementLine) {
                 if(!$bankStatementLine['is_reconciled']) {
                     $result[$id] = false;
@@ -492,7 +531,7 @@ class BankStatement extends Model {
         return $result;
     }
 
-    public static function calcBankAccountIban($om, $ids, $lang) {
+    protected static function calcBankAccountIban($om, $ids, $lang) {
         $result = [];
         $statements = $om->read(self::getType(), $ids, ['bank_account_iban', 'bank_account_bic']);
 
@@ -608,7 +647,7 @@ class BankStatement extends Model {
 
     public function getUnique() {
         return [
-            ['bank_account_iban', 'opening_date', 'opening_balance', 'closing_balance']
+            ['bank_account_iban', 'opening_date', 'opening_balance', 'closing_date', 'closing_balance']
         ];
     }
 }

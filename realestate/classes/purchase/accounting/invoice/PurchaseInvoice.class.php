@@ -8,6 +8,7 @@
 namespace realestate\purchase\accounting\invoice;
 
 use documents\Document;
+use documents\DocumentType;
 use documents\processing\DocumentProcess;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
@@ -1049,7 +1050,39 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         }
     }
 
-    public static function onafterupdate($self) {
+    protected static function onafterupdate($self) {
+        $self->read(['state', 'document_id', 'condo_id']);
+        foreach($self as $id => $purchaseInvoice) {
+            if($purchaseInvoice['state'] === 'instance' && !$purchaseInvoice['document_id']) {
+                $documentType = DocumentType::search(['code', '=', 'invoice'])->first();
+                $data = \eQual::run('get', 'documents_processing_purchaseInvoice_empty');
+
+                $document = Document::create([
+                        'condo_id'          => $purchaseInvoice['condo_id'],
+                        'name'              => sprintf("%s %06d", 'facture d\'achat', $id),
+                        'invoice_id'        => $id,
+                        'document_type_id'  => $documentType['id'],
+                        'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+                    ])
+                    ->first();
+
+                $documentProcess = DocumentProcess::create([
+                        'condo_id'              => $purchaseInvoice['condo_id'],
+                        'name'                  => sprintf("%s %06d", 'facture d\'achat', $id),
+                        'description'           => 'facture d\'achat - encodage manuel',
+                        'document_id'           => $document['id'],
+                        'document_invoice_id'   => $id,
+                        'document_type_id'      => $documentType['id'],
+                        'document_source'       => 'manual'
+                    ])
+                    ->first();
+
+                self::id($id)->update([
+                        'document_id'           => $document['id'],
+                        'document_process_id'   => $documentProcess['id']
+                    ]);
+            }
+        }
         $self->do('update_document_json');
     }
 

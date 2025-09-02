@@ -1,6 +1,6 @@
 {
     "name": "Bank Statement",
-    "description": "",
+    "description": "Form for Bank Statement manual encoding.",
     "header": {
         "actions": {
             "ACTION.SAVE": [

@@ -67,17 +67,18 @@ class Document extends Model {
             ],
 
             'has_document_json' => [
-                'type'              => 'boolean',
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
                 'description'       => 'Does the document have a JSON version of its content.',
-                'default'           => false
+                'store'             => false,
+                'function'          => 'calcHasDocumentJson'
             ],
 
             'document_json' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.medium',
                 'description'       => 'Standard JSON descriptor of the document, using a schema matching the document_type_id.',
-                'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and is used at the `completion` step for validating the completeness of the document.',
-                'onupdate'          => 'onupdateDocumentJson'
+                'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and is used at the `completion` step for validating the completeness of the document.'
             ],
 
             'has_analysis_json' => [
@@ -592,11 +593,13 @@ class Document extends Model {
         return $result;
     }
 
-    protected static function onupdateDocumentJson($self) {
+    protected static function calcHasDocumentJson($self) {
+        $result = [];
         $self->read(['document_json']);
         foreach($self as $id => $document) {
-            self::id($id)->update(['has_document_json' => ($document['document_json'] && strlen($document['document_json']))]);
+            $result[$id] = ($document['document_json'] && strlen($document['document_json']));
         }
+        return $result;
     }
 
     /**
