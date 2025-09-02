@@ -944,10 +944,24 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
     }
 
     /**
-     * Sync back manually encoded values to the JSON structure of the document.
+     * Sync back manually encoded values to the JSON structure of the linked document, if any (`urn:fmt:json-schema:finance:purchase-invoice`).
+     *
      */
-    public static function doUpdateDocumentJson($self, $values) {
-        $self->read(['document_process_id']);
+    protected static function doUpdateDocumentJson($self) {
+        $self->read([
+                'document_process_id',
+                'invoice_lines_ids',
+                'suppliership_id',
+                'suppliership_bank_account_id',
+                'supplier_invoice_number',
+                'invoice_type',
+                'due_date',
+                'emission_date',
+                'payment_reference',
+                'price',
+                'date_from',
+                'date_to'
+            ]);
 
         foreach($self as $id => $invoice) {
             if(!$invoice['document_process_id']) {
@@ -956,14 +970,14 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
 
             $fields = [];
 
-            if(isset($values['suppliership_bank_account_id'])) {
-                $bankAccount = BankAccount::id($values['suppliership_bank_account_id'])->read(['bank_account_iban', 'bank_account_bic'])->first();
+            if(isset($invoice['suppliership_bank_account_id'])) {
+                $bankAccount = BankAccount::id($invoice['suppliership_bank_account_id'])->read(['bank_account_iban', 'bank_account_bic'])->first();
                 $fields['payment']['iban'] = $bankAccount['bank_account_iban'];
                 $fields['payment']['bic'] = $bankAccount['bank_account_bic'];
             }
 
-            if(isset($values['suppliership_id'])) {
-                $suppliership = Suppliership::id($values['suppliership_id'])->read(['supplier_id' => ['name', 'vat_number', 'address_street', 'address_city', 'address_zip', 'address_country']])->first();
+            if(isset($invoice['suppliership_id'])) {
+                $suppliership = Suppliership::id($invoice['suppliership_id'])->read(['supplier_id' => ['name', 'vat_number', 'address_street', 'address_city', 'address_zip', 'address_country']])->first();
                 $fields['supplier']['name'] = $suppliership['supplier_id']['name'];
                 $fields['supplier']['vat_id'] = $suppliership['supplier_id']['vat_number'];
                 $fields['supplier']['address']['street'] = $suppliership['supplier_id']['address_street'];
@@ -972,50 +986,49 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 $fields['supplier']['address']['country'] = $suppliership['supplier_id']['address_country'];
             }
 
-            if(isset($values['invoice_type'])) {
-                $fields['invoice_type'] = $values['invoice_type'];
+            if(isset($invoice['invoice_type'])) {
+                $fields['invoice_type'] = $invoice['invoice_type'];
             }
 
-            if(isset($values['supplier_invoice_number'])) {
-                $fields['invoice_number'] = $values['supplier_invoice_number'];
+            if(isset($invoice['supplier_invoice_number'])) {
+                $fields['invoice_number'] = $invoice['supplier_invoice_number'];
             }
 
-            if(isset($values['due_date'])) {
-                $fields['due_date'] = date('c', $values['due_date']);
+            if(isset($invoice['due_date'])) {
+                $fields['due_date'] = date('c', $invoice['due_date']);
             }
 
-            if(isset($values['emission_date'])) {
-                $fields['issue_date'] = date('c', $values['emission_date']);
+            if(isset($invoice['emission_date'])) {
+                $fields['issue_date'] = date('c', $invoice['emission_date']);
             }
 
-            if(isset($values['payment_reference'])) {
-                $fields['payment']['payment_id'] = $values['payment_reference'];
+            if(isset($invoice['payment_reference'])) {
+                $fields['payment']['payment_id'] = $invoice['payment_reference'];
             }
 
             // #memo - 30 = Bank transfer (credit transfer); 48 = Direct debit (withdrawal)
             // #todo - handle SEPA based on active contract with supplier, if any
             // $fields['payment']['payment_means_code'] = 30;
 
-            // #todo - ce champ ne change jamais : il est calculé via les lignes
-            if(isset($values['price'])) {
-                $fields['totals']['total_incl_tax'] = $values['price'];
-                $fields['totals']['payable_amount'] = $values['price'];
+            // #memo - this field never changes : it is computed through the lines
+            if(isset($invoice['price'])) {
+                $fields['totals']['total_incl_tax'] = $invoice['price'];
+                $fields['totals']['payable_amount'] = $invoice['price'];
             }
 
-            if(isset($values['date_from'], $values['date_to'])) {
-                $fields['invoice_period']['start_date'] = date('c', $values['date_from']);
-                $fields['invoice_period']['end_date'] = date('c', $values['date_to']);
+            if(isset($invoice['date_from'], $invoice['date_to'])) {
+                $fields['invoice_period']['start_date'] = date('c', $invoice['date_from']);
+                $fields['invoice_period']['end_date'] = date('c', $invoice['date_to']);
             }
 
-            // values relayed from InvoiceLine::onafterupdate (1 line at a time)
-            if(isset($values['lines'])) {
+            if(count($invoice['invoice_lines_ids'])) {
                 // re-sync all lines
-                $invoiceLines = PurchaseInvoiceLine::search(['invoice_id', '=', $id])->read(['description', 'qty', 'unit_price', 'vat_rate', 'total']);
+                $invoiceLines = PurchaseInvoiceLine::ids($invoice['invoice_lines_ids'])->read(['description', 'qty', 'unit_price', 'vat_rate', 'total']);
                 $line_index = 1;
                 $fields['lines'] = [];
                 foreach($invoiceLines as $invoiceLine) {
                     $line = [
-                        'id'            => $line_index++,
+                        'id'            => (string) ($line_index++),
                         'description'   => $invoiceLine['description'],
                         'quantity'      => $invoiceLine['qty'],
                         'unit_price'    => $invoiceLine['unit_price'],
@@ -1032,14 +1045,12 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 }
             }
 
-            if(count($fields)) {
-                DocumentProcess::id($invoice['document_process_id'])->do('update_document_json', $fields);
-            }
+            DocumentProcess::id($invoice['document_process_id'])->do('update_document_json', $fields);
         }
     }
 
-    public static function onafterupdate($self, $values) {
-        $self->do('update_document_json', $values);
+    public static function onafterupdate($self) {
+        $self->do('update_document_json');
     }
 
 }

@@ -39,7 +39,8 @@ class BankStatement extends Model {
 
             'bank_account_id' => [
                 'type'              => 'many2one',
-                'description'       => "The bank account the statement refers to.",
+                'description'       => 'The bank account the statement refers to.',
+                'help'              => 'This field is set automatically upon update of the `bank_account_iban` field',
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
@@ -57,6 +58,12 @@ class BankStatement extends Model {
                 'description'       => 'Date at which the statement was received.',
                 'help'              => 'This is for information only and might not be accurate with the actual date/time at which the statement was generated.',
                 'readonly'          => true
+            ],
+
+            'statement_number' => [
+                'type'              => 'string',
+                'description'       => 'Arbitrary number of the statement, provided by the bank.',
+                'help'              => 'This field can be left unknown for manually encoded statements.'
             ],
 
             'statement_currency' => [
@@ -119,6 +126,7 @@ class BankStatement extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\processing\DocumentProcess',
                 'description'       => 'Document Process the statement originates from, if any.',
+                'help'              => 'This field is optional and is used for the document digestor processing.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
@@ -301,6 +309,160 @@ class BankStatement extends Model {
                 // safely ignore errors
             }
         }
+    }
+
+    /**
+     * Sync back manually encoded values to the JSON structure of the linked document, if any (`urn:fmt:json-schema:finance:bank-statement`).
+     *
+     */
+    protected static function doUpdateDocumentJson($self) {
+        /*
+        * [
+        *   {
+        *     "account_iban": "BE71 0961 2345 6789",                // IBAN of the account
+        *     "statement_number": "0000123456",                     // Unique statement identifier
+        *     "opening_balance": 1000.00,                           // Balance at the beginning of the statement period
+        *     "opening_date": "2024-05-01",                         // Date when the statement period starts
+        *     "closing_balance": 1200.00,                           // Balance at the end of the statement period
+        *     "closing_date": "2024-05-10",                         // Date when the statement period ends
+        *     "statement_currency": "EUR",                          // Currency used for all amounts
+        *     "bank_bic": "CREGBEBB",                               // BIC (Bank Identifier Code) of the issuing bank
+        *     "account_holder": "FMT solutions",                    // Name of the account holder
+        *     "account_type": "current",                            // Type of account (e.g. current, savings)
+        *     "transactions": [                                     // List of transactions included in the statement
+        *       {
+        *         "entry_date": "2024-05-05",                       // Date the transaction was recorded
+        *         "value_date": "2024-05-05",                       // Date the transaction becomes effective
+        *         "amount": -150.00,                                // Transaction amount (negative = debit, positive = credit)
+        *         "currency": "EUR",                                // Currency of the transaction
+        *         "transaction_type": "sepa_direct_debit",          // Transaction type (e.g. SEPA direct debit, transfer)
+        *         "sequence_number": 123,                           // Internal transaction sequence number
+        *         "received_at": "2024-05-05T10:45:00Z",            // Timestamp when the transaction was received (UTC)
+        *         "mandate_id": "MANDATE-2023-XYZ",                 // Mandate identifier for SEPA direct debit
+        *         "client_reference": "Facture 2024-87",            // Reference provided by the client
+        *         "structured_reference": "+++123/4567/89012+++",   // Structured communication reference
+        *         "bank_reference": "987654321",                    // Reference provided by the bank
+        *         "unstructured_reference": "Paiement facture mai", // Free-text communication
+        *         "counterparty_name": "EDF Luminus",               // Name of the transaction counterparty
+        *         "counterparty_iban": "BE23 0910 1111 2222",       // IBAN of the transaction counterparty
+        *         "counterparty_bic": "GEBA BE BB",                 // BIC of the transaction counterparty
+        *         "counterparty_details": "Rue de l'Énergie, Liège",// Additional counterparty details (e.g. address)
+        *         "transaction_message": "Paiement automatique"     // Message or label associated with the transaction
+        *       }
+        *     ]
+        *   }
+        * ]
+        *
+        */
+        $self->read([
+                'document_process_id',
+                'statement_lines_ids',
+                'bank_account_id',
+                'opening_date',
+                'closing_date',
+                'opening_balance',
+                'closing_balance',
+                'statement_number',
+                'statement_currency'
+            ]);
+
+        foreach($self as $id => $bankStatement) {
+            if(!$bankStatement['document_process_id']) {
+                continue;
+            }
+
+            $fields = [];
+
+            if(isset($bankStatement['bank_account_id'])) {
+                $bankAccount = BankAccount::id($bankStatement['bank_account_id'])->read([
+                        'bank_account_iban',
+                        'bank_account_bic',
+                        'bank_account_type',
+                        'owner_identity_id' => ['legal_name']
+                    ])
+                    ->first();
+
+                $fields['account_iban'] = $bankAccount['bank_account_iban'];
+                $fields['bank_bic'] = $bankAccount['bank_account_bic'];
+                $fields['account_type'] = $bankAccount['bank_account_type'];
+                $fields['account_holder'] = $bankAccount['owner_identity_id']['legal_name'];
+            }
+
+            if(isset($bankStatement['statement_number'])) {
+                $fields['statement_number'] = $bankStatement['statement_number'];
+            }
+
+            if(isset($bankStatement['opening_date'])) {
+                $fields['opening_date'] = date('c', $bankStatement['opening_date']);
+            }
+
+            if(isset($bankStatement['closing_date'])) {
+                $fields['closing_date'] = date('c', $bankStatement['closing_date']);
+            }
+
+            if(isset($bankStatement['opening_balance'])) {
+                $fields['opening_balance'] = $bankStatement['opening_balance'];
+            }
+
+            if(isset($bankStatement['closing_balance'])) {
+                $fields['closing_balance'] = $bankStatement['closing_balance'];
+            }
+
+            if(isset($bankStatement['statement_currency'])) {
+                $fields['statement_currency'] = $bankAccount['statement_currency'];
+            }
+
+            if(count($bankStatement['statement_lines_ids'])) {
+                // re-sync all lines
+                $bankStatementLines = BankStatementLine::ids($bankStatement['statement_lines_ids'])
+                    ->read([
+                        'sequence_number',
+                        'created',
+                        'date',
+                        'communication',
+                        'communication_type',
+                        'amount',
+                        'amount_currency',
+                        'account_iban',
+                        'account_holder',
+                        'account_bic',
+                        'transaction_type',
+                        'mandate_identifier'
+                    ]);
+
+                $fields['transactions'] = [];
+                foreach($bankStatementLines as $bankStatementLine) {
+                    $line = [
+                        'sequence_number'        => $bankStatementLine['sequence_number'],
+                        'entry_date'             => date('c', $bankStatementLine['created']),
+                        'value_date'             => date('c', $bankStatementLine['date']),
+                        'amount'                 => $bankStatementLine['amount'],
+                        'currency'               => $bankStatementLine['amount_currency'],
+                        'transaction_type'       => $bankStatementLine['transaction_type'],
+                        'counterparty_name'      => $bankStatementLine['account_holder'],
+                        'counterparty_iban'      => $bankStatementLine['account_iban'],
+                        'counterparty_bic'       => $bankStatementLine['account_bic'],
+                        'structured_reference'   => ($bankStatementLine['communication_type'] !== 'free') ? $bankStatementLine['communication'] : '',
+                        'unstructured_reference' => ($bankStatementLine['communication_type'] === 'free') ? $bankStatementLine['communication'] : '',
+                        'client_reference'       => '',
+                        'bank_reference'         => '',
+                        'received_at'            => null,               // Timestamp when the transaction was received (UTC)
+                        'counterparty_details'   => '',                 // Additional counterparty details (e.g. address)
+                        'transaction_message'    => '',                  // Message or label associated with the transaction
+                        // #todo
+                        'mandate_id'             => '',                 // Mandate identifier for SEPA direct debit
+                    ];
+
+                    $fields['transactions'][] = $line;
+                }
+            }
+
+            DocumentProcess::id($bankStatement['document_process_id'])->do('update_document_json', $fields);
+        }
+    }
+
+    public static function onafterupdate($self) {
+        $self->do('update_document_json');
     }
 
     protected static function calcIsReconciled($self) {

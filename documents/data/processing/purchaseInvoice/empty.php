@@ -5,16 +5,8 @@
     Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
 */
 [$params, $providers] = eQual::announce([
-    'description'   => 'Return an empty purchase-invoice JSON descriptor.',
-    'help'          => "Detailed Mindee API response values here: https://developers.mindee.com/docs/invoice-ocr#api-response",
-    'params'        => [
-        'json' =>  [
-            'type'              => 'string',
-            'usage'             => 'text/json',
-            'description'       => 'JSON `prediction` as returned from Mindee API service.',
-            'required'          => true
-        ],
-    ],
+    'description'   => 'Return an empty purchase-invoice JSON descriptor compliant with `urn:fmt:json-schema:finance:purchase-invoice`.',
+    'params'        => [],
     'access' => [
         'visibility'        => 'protected'
     ],

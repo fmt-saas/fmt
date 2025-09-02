@@ -383,7 +383,7 @@ class DocumentProcess extends Model {
             'update_document_json' => [
                 'description'   => 'Update the JSON representation of the target document.',
                 'help'          => 'This is used for handling arbitrary changes to one or more fields (according to JSON schema) when encoding targeted documents (e.g. purchase invoice).',
-                // #todo - add policy
+                // #todo - add policy - can only be performed while document is at 'completion' stage
                 'policies'      => [],
                 'function'      => 'doUpdateDocumentJson'
             ]
@@ -1071,8 +1071,9 @@ class DocumentProcess extends Model {
 
     /**
      * This method is called from the targeted objects, providing a map of values updates.
+     * No consistency check is performed here.
      */
-    public static function doUpdateDocumentJson($self, $values) {
+    protected static function doUpdateDocumentJson($self, $values) {
         $self->read(['status', 'document_id' => ['has_document_json', 'document_json']]);
 
         function recursiveUpdate(array &$data, array $updates) {

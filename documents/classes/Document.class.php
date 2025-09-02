@@ -595,9 +595,7 @@ class Document extends Model {
     protected static function onupdateDocumentJson($self) {
         $self->read(['document_json']);
         foreach($self as $id => $document) {
-            if($document['document_json'] && strlen($document['document_json'])) {
-                self::id($id)->update(['has_document_json' => true]);
-            }
+            self::id($id)->update(['has_document_json' => ($document['document_json'] && strlen($document['document_json']))]);
         }
     }
 

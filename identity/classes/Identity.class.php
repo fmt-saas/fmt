@@ -910,7 +910,7 @@ class Identity extends Model {
                 continue;
             }
 
-            /* update from Identity to derived class */
+            /* update from Identity to derived classes */
 
             if($identity['user_id']) {
                 User::id($identity['user_id'])->update([$field => $identity[$field]]);
@@ -958,11 +958,25 @@ class Identity extends Model {
     }
 
     public static function onupdateFirstname($self) {
+        $self->read(['firstname', 'lastname', 'type']);
         self::updateField($self, 'firstname');
+        // for individuals: sync legal name
+        foreach($self as $id => $identity) {
+            if($identity['type'] === 'IN') {
+                self::id($id)->update(['legal_name' => $identity['firstname'] . ' ' . mb_strtoupper($identity['lastname'])]);
+            }
+        }
     }
 
     public static function onupdateLastname($self) {
+        $self->read(['firstname', 'lastname', 'type']);
         self::updateField($self, 'lastname');
+        // for individuals: sync legal name
+        foreach($self as $id => $identity) {
+            if($identity['type'] === 'IN') {
+                self::id($id)->update(['legal_name' => $identity['firstname'] . ' ' . mb_strtoupper($identity['lastname'])]);
+            }
+        }
     }
 
     public static function onupdateHasVat($self) {

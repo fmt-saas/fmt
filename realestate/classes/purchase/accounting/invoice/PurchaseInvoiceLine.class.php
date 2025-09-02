@@ -253,13 +253,13 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
         }
     }
 
-    public static function onafterupdate($self, $values) {
+    public static function onafterupdate($self) {
         $self->read(['invoice_id']);
         $map_invoices_ids = [];
         foreach($self as $id => $invoiceLine) {
             $map_invoices_ids[$invoiceLine['invoice_id']] = true;
         }
-        PurchaseInvoice::ids(array_keys($map_invoices_ids))->do('update_document_json', ['lines' => $values]);
+        PurchaseInvoice::ids(array_keys($map_invoices_ids))->do('update_document_json');
     }
 }
 

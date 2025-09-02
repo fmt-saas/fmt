@@ -10,6 +10,14 @@ use equal\orm\Model;
 use finance\accounting\Account;
 use realestate\sale\pay\Funding;
 use realestate\sale\pay\Payment;
+use finance\bank\BankStatement;
+use finance\bank\CondominiumBankAccount;
+use purchase\supplier\Suppliership;
+use realestate\finance\accounting\MoneyRefund;
+use realestate\finance\accounting\MoneyTransfer;
+use realestate\ownership\Ownership;
+use realestate\purchase\accounting\AccountingEntry;
+use realestate\purchase\accounting\AccountingEntryLine;
 
 class BankStatementLine extends Model {
 
@@ -37,7 +45,7 @@ class BankStatementLine extends Model {
 
             'sequence_number' => [
                 'type'              => 'integer',
-                'description'       => 'Structured message, if any.',
+                'description'       => 'Sequence number of the line.',
                 'default'           => 'defaultSequenceNumber',
                 'required'          => true
             ],
@@ -83,11 +91,29 @@ class BankStatementLine extends Model {
                 'readonly'          => true
             ],
 
+            // #todo - handle recurring payments (SEPA mandates)
+            'mandate_identifier' => [
+                'type'              => 'string',
+                'description'       => 'Mandate identifier for SEPA direct debit.'
+            ],
+
             'amount' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => 'Amount of the transaction.',
                 'required'          => true
+            ],
+
+            'amount_currency' => [
+                'type'              => 'string',
+                'description'       => 'Currency of the statement.',
+                'default'           => 'EUR'
+            ],
+
+            'transaction_type' => [
+                'type'              => 'string',
+                'description'       => 'Type of transaction of the line.',
+                'default'           => 'sepa_direct_debit'
             ],
 
             'remaining_amount' => [
@@ -103,7 +129,14 @@ class BankStatementLine extends Model {
                 'type'              => 'string',
                 'usage'             => 'uri/urn.iban',
                 'description'       => 'Counterparty IBAN, if any.',
-                'help'              => 'In theory, this field should be provided, but it might not be the case for manually encoded statements.'
+                'help'              => 'In theory, this field should be provided, but it might be missing for manually encoded statements.'
+                // 'required'          => true
+            ],
+
+            'account_bic' => [
+                'type'              => 'string',
+                'description'       => 'Counterparty IBAN, if any.',
+                'help'              => 'In theory, this field should be provided, but it might be missing for manually encoded statements.'
                 // 'required'          => true
             ],
 
@@ -124,7 +157,7 @@ class BankStatementLine extends Model {
             'accounting_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
-                'description'       => "Accounting account the statement line relates to.",
+                'description'       => 'Accounting account the statement line relates to.',
                 'help'              => "This value can only be set manually and targets the accounting account to use for the counterpart movement. This is an accounting account, not to be mixed up with bank accounts.",
                 'ondelete'          => 'null',
                 'dependents'        => ['accounting_account_code', 'is_misc'],
@@ -142,7 +175,7 @@ class BankStatementLine extends Model {
 
             'is_misc' => [
                 'type'              => 'computed',
-                'result_type'       => 'string',
+                'result_type'       => 'boolean',
                 'description'       => "Accounting account the statement line relates to.",
                 'function'          => 'calcIsMisc',
                 'store'             => true,
@@ -203,6 +236,20 @@ class BankStatementLine extends Model {
                 'policies'      => [/* 'can_generate_accounting_entry' */],
                 'function'      => 'doAttemptReconcile'
             ],
+            'generate_accounting_entry' => [
+                'description'   => 'Creates accounting entries according to operation lines.',
+                'policies'      => [ 'can_generate_accounting_entry' ],
+                'function'      => 'doGenerateAccountingEntry'
+            ]
+        ];
+    }
+
+    public static function getPolicies(): array {
+        return [
+            'can_generate_accounting_entry' => [
+                'description' => 'Verifies that the proforma can be invoiced.',
+                'function'    => 'policyCanGenerateAccountingEntry'
+            ]
         ];
     }
 
@@ -347,7 +394,6 @@ class BankStatementLine extends Model {
         return $result;
     }
 
-
     protected static function isMisc($self) {
         $result = [];
         $self->read(['accounting_account_id', 'accounting_account_code']);
@@ -379,6 +425,15 @@ class BankStatementLine extends Model {
         return $result;
     }
 
+    protected static function calcIsMisc($self) {
+        $result = [];
+        $self->read(['accounting_account_id']);
+        foreach($self as $id => $bankStatementLine) {
+            $result[$id] = isset($bankStatementLine['accounting_account_id']);
+        }
+        return $result;
+    }
+
     public static function onchange($event, $values, $view) {
         $result = [];
         if(isset($event['accounting_account_id']) && $event['accounting_account_id']) {
@@ -388,6 +443,10 @@ class BankStatementLine extends Model {
                     $result['accounting_account_code'] = $account['code'];
                 }
             }
+        }
+
+        // #todo - handle account_iban change and update account_bic
+        if(isset($event['accounting_account_id']) && $event['accounting_account_id']) {
         }
         return $result;
     }
@@ -403,5 +462,185 @@ class BankStatementLine extends Model {
 
         return parent::canupdate($self);
     }
+
+    protected static function policyCanGenerateAccountingEntry($self) {
+        $result = [];
+        $self->read([
+                'bank_statement_id',
+                'payments_ids' => ['funding_id']
+            ]);
+        foreach($self as $id => $bankStatementLine) {
+            foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
+                if(!$payment['funding_id']) {
+                    $result[$id] = [
+                        'payment_with_no_funding' => 'Unexpected statement line payment not linked to any funding.'
+                    ];
+                    continue 2;
+                }
+            }
+
+            $bankStatement = BankStatement::id($bankStatementLine['bank_statement_id'])
+                ->read(['bank_account_id'])
+                ->first();
+
+            $bankAccount = CondominiumBankAccount::id($bankStatement['bank_account_id'])->read(['accounting_account_id'])->first();
+
+            if(!$bankAccount) {
+                $result[$id] = [
+                    'mismatch_bank_account_with_condominium' => 'Bank Statement IBAN not amongst targeted Condominium accounts.'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Unlike invoices, Accounting Entries related to bank statement are made on the children objects (lines) to allow accurate reconciliation 
+     * while allowing progressive processing of a given statement (i.e. not having to reconciling all lines before posting bank movements).
+     *
+     */
+    protected static function doGenerateAccountingEntry($self) {
+        $self->read([
+                'condo_id',
+                'bank_statement_id',
+                'payments_ids' => [
+                    'amount',
+                    'journal_id',
+                    'receipt_date',
+                    'fiscal_year_id',
+                    'fiscal_period_id',
+                    'accounting_account_id',
+                    'has_funding',
+                    'funding_id' => [
+                        'funding_type',
+                        'money_transfer_id',
+                        'money_refund_id',
+                        'ownership_id',
+                        'suppliership_id',
+                        'bank_account_id',
+                        'counterpart_bank_account_id'
+                    ]
+                ]
+            ]);
+
+        foreach($self as $id => $bankStatementLine) {
+            BankStatementLine::id($id)->update(['remaining_amount' => null]);
+            $bankStatement = BankStatement::id($bankStatementLine['bank_statement_id'])
+                ->read(['bank_account_id'])
+                ->first();
+
+            $bankAccount = CondominiumBankAccount::id($bankStatement['bank_account_id'])->read(['accounting_account_id'])->first();
+
+            foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
+
+                try {
+
+                    // #memo -  on garantit en amont que 1 Payment a toujours 1 Funding
+
+
+                    /*
+                        special cases : "atomic" accounting entry
+                    */
+
+                    if($payment['funding_id']['funding_type'] === 'transfer') {
+                        // create a single accounting entry, only if transfer is complete
+                        MoneyTransfer::id($payment['funding_id']['money_transfer_id'])->do('attempt_posting');
+                        continue;
+                    }
+                    elseif($payment['funding_id']['funding_type'] === 'refund') {
+                        // create a single accounting entry, only if refund is complete
+                        MoneyRefund::id($payment['funding_id']['money_refund_id'])->do('attempt_posting');
+                        continue;
+                    }
+
+                    /*
+                        generic case
+                    */
+
+                    $accountingEntry = AccountingEntry::create([
+                            'condo_id'              => $payment['condo_id'],
+                            'entry_date'            => $payment['receipt_date'],
+                            'origin_object_class'   => self::getType(),
+                            'origin_object_id'      => $id,
+                            'journal_id'            => $payment['journal_id'],
+                            'fiscal_year_id'        => $payment['fiscal_year_id'],
+                            'fiscal_period_id'      => $payment['fiscal_period_id']
+                        ])
+                        ->first();
+
+                    switch($payment['funding_id']['funding_type']) {
+                        case 'transfer':
+                        case 'refund':
+                            // #memo - we should not end up here : refund & transfer are handled as special cases
+                            break;
+                        case 'installment':
+                            // #todo - invoiced installment are a specific type of invoice (deposit)
+                            // #memo - non-invoiced downpayment should not generate an accounting entry (received amount should be placed in temp account)
+                            throw new \Exception('non_supported_funding_type', EQ_ERROR_INVALID_PARAM);
+                            break;
+                        case 'misc':
+                            // #todo
+                            break;
+                        case 'invoice':
+                            // purchase invoice : payment to the supplier
+                            $suppliership = Suppliership::id($payment['funding_id']['suppliership_id'])->read(['suppliership_account_id'])->first();
+                            $debit_account_id = $suppliership['suppliership_account_id'];
+                            // #memo - the source of truth is the bank statement, not the funding
+                            // $credit_account_id = $payment['funding_id']['bank_account_id'];
+                            $credit_account_id = $bankAccount['accounting_account_id'];
+                            break;
+                        case 'fund_request':
+                            // payment from the owner(ship)
+                            $ownership = Ownership::id($payment['funding_id']['ownership_id'])->read(['ownership_account_id'])->first();
+                            $debit_account_id = $bankAccount['accounting_account_id'];
+                            $credit_account_id = $ownership['ownership_account_id'];
+                            break;
+                        case 'expense_statement':
+                            // payment from the owner(ship)
+                            $ownership = Ownership::id($payment['funding_id']['ownership_id'])->read(['ownership_account_id'])->first();
+                            $debit_account_id = $bankAccount['accounting_account_id'];
+                            $credit_account_id = $ownership['ownership_account_id'];
+                            break;
+                        default:
+                            throw new \Exception('invalid_funding_type', EQ_ERROR_INVALID_PARAM);
+                    }
+
+                    // debit line
+                    AccountingEntryLine::create([
+                                'account_id'            => $debit_account_id,
+                                'debit'                 => abs(round($payment['amount'], 2)),
+                                'credit'                => 0.0,
+                                'accounting_entry_id'   => $accountingEntry['id']
+                            ]);
+
+                    // credit line
+                    AccountingEntryLine::create([
+                                'account_id'            => $credit_account_id,
+                                'debit'                 => 0.0,
+                                'credit'                => abs(round($payment['amount'], 2)),
+                                'accounting_entry_id'   => $accountingEntry['id']
+                            ]);
+
+                    Funding::id($payment['funding_id']['id'])->do('refresh_status');
+
+                }
+                catch(\Exception $e) {
+                    trigger_error("APP::onafterPost: Error while creating accounting entries for payment #{$id} : " . $e->getMessage(), EQ_REPORT_ERROR);
+                }
+            }
+        }
+
+    }
+
+    public static function onafterupdate($self) {
+        $self->read(['bank_statement_id']);
+        $map_statements_ids = [];
+        foreach($self as $id => $bankStatementLine) {
+            $map_statements_ids[$bankStatementLine['bank_statement_id']] = true;
+        }
+        BankStatement::ids(array_keys($map_statements_ids))->do('update_document_json');
+    }
+
 
 }

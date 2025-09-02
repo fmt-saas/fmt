@@ -53,7 +53,8 @@ class BankAccount extends Model {
             'organisation_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Organisation',
-                'description'       => 'The organization that owns the bank account.',
+                'description'       => 'The organization that owns the bank account (if internal).',
+                'help'              => 'This field is the symmetrical field of `Organisation::bank_account_ids`.',
                 'dependents'        => ['name'],
                 'ondelete'          => 'cascade',
                 'visible'           => ['condo_id', '=', null]
@@ -61,7 +62,7 @@ class BankAccount extends Model {
 
             'owner_identity_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the accounting entry refers to.",
+                'description'       => "The Identity that owns the bank account.",
                 'foreign_object'    => 'identity\Identity'
             ],
 

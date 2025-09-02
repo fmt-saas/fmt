@@ -29,7 +29,8 @@ class Payment extends Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the payment relates to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'readonly'          => true
+                'readonly'          => true,
+                'dependents'        => ['journal_id']
             ],
 
             'ownership_id' => [
@@ -147,6 +148,20 @@ class Payment extends Model {
                 'type'              => 'boolean',
                 'description'       => 'Mark the payment as exported (part of an export to elsewhere).',
                 'default'           => false
+            ],
+
+            'journal_code' => [
+                'type'              => 'string',
+                'description'       => 'Code of the Accounting journal the payment relates to.',
+                'selection'         => [
+                    'SAL',
+                    'PUR',
+                    'BNK',
+                    'OPB',
+                    'MISC'
+                ],
+                'default'           => 'BNK',
+                'dependents'        => ['journal_id']
             ],
 
             'journal_id' => [
@@ -376,12 +391,12 @@ class Payment extends Model {
 
     protected static function calcJournalId($self) {
         $result = [];
-        $self->read(['condo_id']);
+        $self->read(['condo_id', 'journal_code']);
         foreach($self as $id => $payment) {
             if(!$payment['condo_id']) {
                 continue;
             }
-            $journal = Journal::search([['condo_id', '=', $payment['condo_id']], ['journal_type', '=', 'CASH']])->first();
+            $journal = Journal::search([['condo_id', '=', $payment['condo_id']], ['journal_code', '=', $payment['journal_code']]])->first();
 
             if($journal) {
                 $result[$id] = $journal['id'];
