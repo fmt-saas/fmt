@@ -5,15 +5,15 @@
     },
     "routes": [
         {
-            "id": "item.edit",
-            "label": "Edit meta data",
+            "id": "item.meta_data",
+            "label": "Meta data",
             "description": "",
-            "icon": "edit",
+            "icon": "data_object",
             "context": {
                 "entity": "documents\\Document",
-                "view": "form.edit",
+                "view": "form.meta",
                 "mode": "view",
-                "purpose": "update",
+                "purpose": "view",
                 "domain": [["id", "=", "object.id"]]
             }
         },

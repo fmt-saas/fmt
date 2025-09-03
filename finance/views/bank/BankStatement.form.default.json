@@ -14,7 +14,7 @@
                 "ids": []
             },
             "confirm": false,
-            "visible": [["status", "=", "proforma"], ["is_reconciled", "=", false]]
+            "visible": [["status", "=", "pending"], ["is_reconciled", "=", false]]
         },
         {
             "id": "action.post",
@@ -28,7 +28,7 @@
                 "ids": []
             },
             "confirm": false,
-            "visible": [["status", "=", "proforma"], ["is_reconciled", "=", true]]
+            "visible": [["status", "=", "pending"], ["is_reconciled", "=", true]]
         }
     ],
     "header": {

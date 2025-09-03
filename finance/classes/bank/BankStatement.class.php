@@ -174,10 +174,11 @@ class BankStatement extends Model {
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'proforma',
-                    'posted'
+                    'pending',
+                    'posted',
+                    'cancelled'
                 ],
-                'default'           => 'proforma',
+                'default'           => 'pending',
                 'description'       => 'Status of the statement (depending on lines).'
             ]
 
@@ -187,12 +188,13 @@ class BankStatement extends Model {
     public static function getActions() {
         return [
             'attempt_reconcile' => [
-                'description'   => 'Attempt to reconcile the statement and its lines and invoke the creation of subsequent accounting entries.',
+                'description'   => 'Attempt to reconcile the statement and its lines, and invoke the creation of subsequent accounting entries.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
                 'function'      => 'doAttemptReconcile'
             ],
             'update_document_json' => [
                 'description'   => 'Update the document data JSON with the newly provided data.',
+                'help'          => 'This action is called when a manual change have been made that implies a sync with the descriptor of the linked document.',
                 'policies'      => [],
                 'function'      => 'doUpdateDocumentJson'
             ]
@@ -201,7 +203,7 @@ class BankStatement extends Model {
 
     public static function getWorkflow() {
         return [
-            'proforma' => [
+            'pending' => [
                 'description' => 'Bank Statement being created.',
                 'icon' => 'edit',
                 'transitions' => [
@@ -216,10 +218,11 @@ class BankStatement extends Model {
                 ],
             ],
             'posted' => [
-                'description' => 'The Bank Statement is reconciled.',
+                'description' => 'The Bank Statement is reconciled and all its line have been posted to the accounting system.',
                 'icon' => 'done',
                 'transitions' => [
                     'cancel' => [
+                        // #todo
                         'description' => '',
                         'status' => 'cancelled',
                     ]
@@ -391,7 +394,7 @@ class BankStatement extends Model {
 
                 $fields['account_iban'] = $bankAccount['bank_account_iban'];
                 $fields['bank_bic'] = $bankAccount['bank_account_bic'];
-                $fields['account_type'] = $bankAccount['bank_account_type'];
+                $fields['account_type'] = preg_replace('/^bank_/', '', $bankAccount['bank_account_type']);
                 $fields['account_holder'] = $bankAccount['owner_identity_id']['legal_name'];
             }
 
@@ -416,7 +419,7 @@ class BankStatement extends Model {
             }
 
             if(isset($bankStatement['statement_currency'])) {
-                $fields['statement_currency'] = $bankAccount['statement_currency'];
+                $fields['statement_currency'] = $bankStatement['statement_currency'];
             }
 
             if(count($bankStatement['statement_lines_ids'])) {
@@ -491,7 +494,8 @@ class BankStatement extends Model {
                         'document_id'                   => $document['id'],
                         'document_bank_statement_id'    => $id,
                         'document_type_id'              => $documentType['id'],
-                        'document_source'               => 'manual'
+                        'document_source'               => 'manual',
+                        'has_target_object'             => true
                     ])
                     ->first();
 

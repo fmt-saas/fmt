@@ -1,0 +1,34 @@
+{
+    "name": "Bank",
+    "description": "A Bank is handled as a supplier with specific additional info.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "identity_id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "address",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "is_active",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "bic",
+                "width": "15%"
+            }
+        ]
+    }
+}

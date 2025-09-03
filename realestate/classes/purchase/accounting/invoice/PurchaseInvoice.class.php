@@ -1073,7 +1073,8 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                         'document_id'           => $document['id'],
                         'document_invoice_id'   => $id,
                         'document_type_id'      => $documentType['id'],
-                        'document_source'       => 'manual'
+                        'document_source'       => 'manual',
+                        'has_target_object'             => true
                     ])
                     ->first();
 

@@ -37,7 +37,8 @@ class BankAccount extends Model {
                 'help'              => 'Identifiers of this list should match the operation_assignment codes used in the chart of Accounts.',
                 'selection'         => [
                     'bank_current',
-                    'bank_savings'
+                    'bank_savings',
+                    'bank_loan'
                 ],
                 'default'           => 'bank_current'
             ],

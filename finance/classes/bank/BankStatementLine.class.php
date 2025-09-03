@@ -88,7 +88,7 @@ class BankStatementLine extends Model {
                     'VCS'
                 ],
                 'description'       => 'Message from the payer (or ref from the bank).',
-                'readonly'          => true
+                'default'           => 'free'
             ],
 
             // #todo - handle recurring payments (SEPA mandates)

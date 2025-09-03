@@ -24,23 +24,15 @@
             "visible": [ ["state", "=", "instance"], ["status", "=", "created"], ["has_analysis", "=", false] ]
         },
         {
-            "id": "action.complete",
-            "label": "Complete",
-            "description": "Mark the document as completed.",
-            "controller": "core_model_transition",
-            "visible": [ ["status", "=", "created"], ["has_document_json", "=", true] ],
-            "params": {
-                "entity": "documents\\processing\\DocumentProcess",
-                "transition": "complete",
-                "ids": []
-            }
-        },
-        {
             "id": "action.perform_extraction",
             "label": "Extract",
             "description": "Attempt to extract data from the Attachment.",
             "controller": "core_model_do",
-            "visible": [ ["status", "=", "created"], ["document_type_id", "<>", null], ["has_document_json", "=", false] ],
+            "visible": [
+                ["status", "=", "created"],
+                ["document_type_id", "<>", null],
+                ["has_document_json", "=", false]
+            ],
             "params": {
                 "entity": "documents\\processing\\DocumentProcess",
                 "action": "perform_extraction",
@@ -48,20 +40,35 @@
             }
         },
         {
-            "id": "action.init_drafting",
-            "label": "Manual drafting",
+            "id": "action.perform_drafting",
+            "label": "Draft target",
             "description": "Attempt to extract data from the Attachment.",
             "controller": "core_model_do",
             "visible": [
                 ["status", "=", "created"],
                 ["has_target_object", "=", false],
                 ["document_type_id", "<>", null],
-                ["condo_id", "<>", null],
-                ["supplier_id", "<>", null]
+                ["condo_id", "<>", null]
             ],
             "params": {
                 "entity": "documents\\processing\\DocumentProcess",
-                "action": "init_drafting",
+                "action": "perform_drafting",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.complete",
+            "label": "Mark as Complete",
+            "description": "Mark the document as completed.",
+            "controller": "core_model_transition",
+            "visible": [
+                ["status", "=", "created"],
+                ["has_target_object", "=", true],
+                ["has_document_json", "=", true]
+            ],
+            "params": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "transition": "complete",
                 "ids": []
             }
         },

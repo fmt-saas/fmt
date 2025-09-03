@@ -110,7 +110,8 @@ class Document extends Model {
             'document_subtype_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentSubtype',
-                'description'       => 'Document subtype associated with the document.'
+                'description'       => 'Document subtype associated with the document.',
+                'domain'            => ['document_type_id', '=', 'object.document_type_id']
             ],
 
             'document_type_code' => [
@@ -597,7 +598,7 @@ class Document extends Model {
         $result = [];
         $self->read(['document_json']);
         foreach($self as $id => $document) {
-            $result[$id] = ($document['document_json'] && strlen($document['document_json']));
+            $result[$id] = ($document['document_json'] && strlen($document['document_json']) > 0);
         }
         return $result;
     }
