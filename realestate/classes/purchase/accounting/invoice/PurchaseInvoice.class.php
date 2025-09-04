@@ -511,6 +511,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
     protected static function doGenerateAccountingEntries($self) {
         $self->read([
                 'id', 'condo_id', 'price', 'description',
+                'invoice_type',
                 'posting_date', 'has_date_range', 'date_from', 'date_to',
                 'has_instant_reinvoice',
                 'has_fund_usage',
@@ -635,6 +636,8 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 if($invoiceLine['is_private_expense']) {
 
                     $ownership = Ownership::id($invoiceLine['ownership_id'])->read(['ownership_account_id'])->first();
+
+// #todo - handle invoice_type
 
                     // create the debit line on the private expense account
                     AccountingEntryLine::create([
