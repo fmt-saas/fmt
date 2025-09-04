@@ -982,6 +982,24 @@ class DocumentProcess extends Model {
 
                     Document::id($documentProcess['document_id'])->update($doc_values);
                 }
+                else {
+                    // extraction failed : populat with empty document_json descriptor
+                    switch($documentProcess['document_type_id']['code']) {
+                        case 'invoice':
+                        case 'credit_note':
+                            $data = \eQual::run('get', 'documents_processing_purchaseInvoice_empty');
+                            break;
+                        case 'bank_statement':
+                            $data = \eQual::run('get', 'documents_processing_bankStatement_empty');
+                    }
+
+                    // #memo - document_json is meant to receive a JSON representation of the content, according to schema, and independent from origin (ex.: parsed Mindee, parsed UBL, ...)
+                    $doc_values = [
+                            'document_json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+                        ];
+
+                    Document::id($documentProcess['document_id'])->update($doc_values);
+                }
             }
             catch(\Exception $e) {
                 // unexpected error
