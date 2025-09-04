@@ -3,17 +3,6 @@
     "description": "Form holding basic information about an Organisation.",
     "routes": [
         {
-            "id": "item.accounts_chart",
-            "label": "Chart of Accounts",
-            "description": "",
-            "icon": "menu_book",
-            "context": {
-                "entity": "finance\\accounting\\AccountChart",
-                "view": "form.condo",
-                "domain": [["id", "=", "object.account_chart_id"], ["condo_id", "=", "object.id"]]
-            }
-        },
-        {
             "id": "item.fiscal_year",
             "label": "Fiscal years",
             "description": "",
@@ -21,17 +10,6 @@
             "context": {
                 "entity": "realestate\\property\\Condominium",
                 "view": "form.fiscalYears",
-                "domain": [["condo_id", "=", "object.id"]]
-            }
-        },
-        {
-            "id": "item.accounting_journals",
-            "label": "Accounting journals",
-            "description": "",
-            "icon": "auto_stories",
-            "context": {
-                "entity": "finance\\accounting\\Journal",
-                "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
         },
@@ -112,6 +90,39 @@
                 "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+    {
+            "id": "item.transfers",
+            "label": "Money Transfers",
+            "description": "",
+            "icon": "add_card",
+            "context": {
+                "entity": "realestate\\finance\\accounting\\MoneyTransfer",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"], ["operation_type", "=", "transfer"]]
+            }
+        },
+        {
+            "id": "item.refunds",
+            "label": "Money Refunds",
+            "description": "",
+            "icon": "credit_card_off",
+            "context": {
+                "entity": "realestate\\finance\\accounting\\MoneyRefund",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"], ["operation_type", "=", "refund"]]
+            }
+        },
+        {
+            "id": "item.fundings",
+            "label": "Fundings",
+            "description": "",
+            "icon": "payments",
+            "context": {
+                "entity": "realestate\\sale\\pay\\Funding",
+                "view": "list.default",
+                "domain": ["condo_id", "=", "object.id"]
             }
         }
     ],

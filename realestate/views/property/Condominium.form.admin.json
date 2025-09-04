@@ -23,6 +23,28 @@
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"], ["is_statutory", "=", false]]
             }
+        },
+        {
+            "id": "item.accounts_chart",
+            "label": "Chart of Accounts",
+            "description": "",
+            "icon": "menu_book",
+            "context": {
+                "entity": "finance\\accounting\\AccountChart",
+                "view": "form.condo",
+                "domain": [["id", "=", "object.account_chart_id"], ["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "item.accounting_journals",
+            "label": "Accounting journals",
+            "description": "",
+            "icon": "auto_stories",
+            "context": {
+                "entity": "finance\\accounting\\Journal",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
         }
     ],
     "layout": {

@@ -48,18 +48,6 @@
             }
         },
         {
-            "id": "bank_accounts",
-            "type": "entry",
-            "label": "Bank Accounts",
-            "icon": "account_balance",
-            "description": "",
-            "context": {
-                "entity": "realestate\\property\\Condominium",
-                "view": "form.banking",
-                "domain": [["id", "=", "object.id"]]
-            }
-        },
-        {
             "id": "suppliers",
             "type": "entry",
             "label": "Suppliers",
