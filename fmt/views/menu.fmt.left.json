@@ -533,7 +533,7 @@
                         "description": "",
                         "context": {
                             "entity": "finance\\bank\\BankStatement",
-                            "view": "list.manual"
+                            "view": "list.default"
                         }
                     },
                     {

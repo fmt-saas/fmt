@@ -169,7 +169,8 @@ class Ownership extends \equal\orm\Model {
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
                 'function'          => 'calcOwnershipAccountId',
-                'store'             => true
+                'store'             => true,
+                'instant'           => true
             ],
 
             'ownership_bank_accounts_ids' => [
@@ -454,6 +455,7 @@ class Ownership extends \equal\orm\Model {
                     Account::create([
                             'code'                  => $assignmentAccount['code'] . $ownership['code'],
                             'condo_id'              => $ownership['condo_id'],
+                            'ownership_id'          => $id,
                             'parent_account_id'     => $assignmentAccount['id'],
                             'account_chart_id'      => $assignmentAccount['account_chart_id'],
                             'account_category'      => $assignmentAccount['account_category'],

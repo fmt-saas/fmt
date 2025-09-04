@@ -571,6 +571,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
         // on peut le faire par groupe de lots (si un lot est marqué avec primary_lot_id, il peut être ignoré pour les calculs)
 
         // fetch relevant accounting entries that apply to the chosen period
+        // #todo - plutot que filtrer sur invoice_id, on doit sans doute plutot regarder dans des journaux spécifiques (PUR, BNK)
         $accountingEntries = AccountingEntry::search([
                 ['fiscal_period_id', '=', $fiscalPeriod['id']],
                 ['status', '=', 'validated'],
@@ -669,12 +670,14 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 */
                 // #memo - consider both debit and credit lines here (to void already reinvoiced private expenses)
                 if(substr($accountingEntryLine['account_code'], 0, 3) === '643') {
-                    //skip private expense that have been reinvoiced
+                    // skip private expense that have been reinvoiced
                     // ceci ne fonctionne pas dans le cas d'aller-retours multiples (annuler, recréeer)
                     if(isset($map_private_expenses[$accountingEntryLine['invoice_line_id']])) {
                         continue;
                     }
-                    // #todo - pour les consommations on n'a pas d'invoice line, mais il faut un lien avec des lignes de relevés (format compatible avec InvoiceLine ? ConsumptionLine)
+                    // #todo - pour les consommations on n'a pas d'invoice line,
+                    //     mais il faut un lien avec des lignes de relevés (format compatible avec InvoiceLine ? ConsumptionLine)
+                    // #todo - prendre en compte les bank statement lines (en deux passes ?)
                     $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['invoice_line_id'])->read([
                             'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
                             'invoice_id' => ['posting_date']

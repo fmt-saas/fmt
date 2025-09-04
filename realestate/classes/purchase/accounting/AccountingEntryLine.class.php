@@ -38,10 +38,19 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
             'invoice_line_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoiceLine',
-                'description'       => 'Detailed lines of the invoice.',
+                'description'       => 'Invoice line the entry line relates to, if any.',
                 'help'              => 'This is necessary for retrieving the invoice line corresponding to the entry line and, further, the apportionment and ratio to use for owner statement.',
-                'readonly'          => true
-            ]
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'bank_statement_line_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankStatementLine',
+                'description'       => 'Bank Statement line the entry line relates to, if any.',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
 
         ];
     }

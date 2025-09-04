@@ -48,7 +48,7 @@
             "description": "Indicateur d'assignation de l'extrait aux paiements.",
             "help": "",
             "selection": {
-                "draft": "à traiter",
+                "pending": "à traiter",
                 "proforma": "proforma",
                 "posted": "encodé"
             }

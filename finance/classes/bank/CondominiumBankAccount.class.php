@@ -135,7 +135,13 @@ class CondominiumBankAccount extends BankAccount {
             $balance = $bankAccount['current_balance'] ?? 0.0;
 
             $fundings = Funding::search([
-                    [ ['condo_id', '=', $bankAccount['condo_id']], ['status', '<>', 'balanced'], ['funding_type', '=', 'transfer'], ['due_amount', '<', 0.0], ['bank_account_id', '=', $id] ],
+                    [
+                        ['condo_id', '=', $bankAccount['condo_id']],
+                        ['status', '<>', 'balanced'],
+                        ['funding_type', '=', 'transfer'],
+                        ['due_amount', '<', 0.0],
+                        ['bank_account_id', '=', $id]
+                    ]
                 ])
                 ->read(['due_amount', 'paid_amount']);
 
@@ -148,9 +154,11 @@ class CondominiumBankAccount extends BankAccount {
         return $result;
     }
 
+    // #todo - add support for multiple accounts of the same type
+    // #memo - for now, only a single account is handled for each account type (current, saving, loan)
     protected static function calcAccountingAccountId($self) {
         $result = [];
-        $self->read(['bank_account_type', 'condo_id']);
+        $self->read(['bank_account_type', 'bank_account_iban', 'condo_id']);
         foreach($self as $id => $bankAccount) {
             if($bankAccount['condo_id'] && $bankAccount['bank_account_type']) {
                 $account = self::computeAccountingAccount($bankAccount['bank_account_type'], $bankAccount['condo_id']);

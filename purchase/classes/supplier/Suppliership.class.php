@@ -62,7 +62,8 @@ class Suppliership extends \equal\orm\Model {
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
                 'function'          => 'calcSuppliershipAccountId',
-                'store'             => true
+                'store'             => true,
+                'instant'           => true
             ],
 
             'suppliership_contracts_ids' => [
@@ -311,6 +312,7 @@ class Suppliership extends \equal\orm\Model {
                     Account::create([
                             'code'                  => $assignmentAccount['code'] . $suppliership['code'],
                             'condo_id'              => $suppliership['condo_id'],
+                            'suppliership_id'       => $id,
                             'parent_account_id'     => $assignmentAccount['id'],
                             'account_chart_id'      => $assignmentAccount['account_chart_id'],
                             'account_category'      => $assignmentAccount['account_category'],

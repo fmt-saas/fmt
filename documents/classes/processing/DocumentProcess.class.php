@@ -477,11 +477,11 @@ class DocumentProcess extends Model {
 
     public static function policyCanPerformMatching($self): array {
         $result = [];
-        $self->read(['status', 'has_analysis']);
+        $self->read(['status']);
         foreach($self as $id => $documentProcess) {
-            if($documentProcess['status'] != 'created' || $documentProcess['has_analysis']) {
+            if($documentProcess['status'] != 'created') {
                 $result[$id] = [
-                    'invalid_status' => 'Document type has already been analyzed.'
+                    'invalid_status' => 'Document has cannot be automatically modified anymore.'
                 ];
                 continue;
             }
@@ -853,7 +853,7 @@ class DocumentProcess extends Model {
 
         foreach($self as $id => $documentProcess) {
             if($documentProcess['status'] !== 'created') {
-                trigger_error("APP::Attempting to update a document process already encoded.", EQ_REPORT_WARNING);
+                trigger_error("APP::Update skipped for document process already encoded.", EQ_REPORT_WARNING);
                 continue;
             }
             if(!$documentProcess['document_id']) {

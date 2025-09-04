@@ -1,6 +1,17 @@
 {
     "name": "Bank Statement Lines",
     "description": "This view is intended for displaying the list of bank statement lines.",
+    "order": "created",
+    "sort": "desc",
+    "actions": [
+        {
+            "id": "action.import",
+            "label": "Import",
+            "description": "Import from a Bank Statements file.",
+            "controller": "lodging_payments_import",
+            "confirm": true
+        }
+    ],
     "header": {
         "layout": "inline",
         "actions": {
@@ -9,14 +20,6 @@
                     "view": false
                 }
             ]
-        }
-    },
-    "operations": {
-        "total": {
-            "amount": {
-                "operation": "SUM",
-                "usage": "amount/money:2"
-            }
         }
     },
     "layout": {
@@ -35,9 +38,8 @@
             },
             {
                 "type": "field",
-                "label": "sequence",
                 "value": "sequence_number",
-                "width": "15%"
+                "width": "10%"
             },
             {
                 "type": "field",
@@ -46,27 +48,27 @@
             },
             {
                 "type": "field",
-                "label": "Account",
-                "value": "accounting_account_id",
-                "width": "40%",
-                "widget": {
-                    "controller": "finance_accounting_Account_collect"
-                }
+                "value": "amount",
+                "width": "10%"
             },
             {
                 "type": "field",
-                "value": "accounting_account_code",
-                "width": "10%",
-                "visible": false
+                "value": "account_holder",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "account_iban",
+                "width": "15%"
             },
             {
                 "type": "field",
                 "value": "communication",
-                "width": "30%"
+                "width": "20%"
             },
             {
                 "type": "field",
-                "value": "amount",
+                "value": "status",
                 "width": "10%"
             }
         ]

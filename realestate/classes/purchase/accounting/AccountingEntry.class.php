@@ -21,8 +21,9 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             'invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
-                'description'       => 'Invoice the entry relates to.',
-                'ondelete'          => 'null'
+                'description'       => 'Invoice the entry relates to, if any.',
+                'ondelete'          => 'null',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'entry_lines_ids' => [

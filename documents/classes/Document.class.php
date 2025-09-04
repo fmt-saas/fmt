@@ -76,7 +76,7 @@ class Document extends Model {
 
             'document_json' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.medium',
+                'usage'             => 'text/json.medium',
                 'description'       => 'Standard JSON descriptor of the document, using a schema matching the document_type_id.',
                 'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and is used at the `completion` step for validating the completeness of the document.'
             ],

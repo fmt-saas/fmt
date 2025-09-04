@@ -220,8 +220,23 @@ class Account extends Model {
             'owner_share' => [
                 'type'              => 'integer',
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account."
-            ]
+            ],
 
+            'ownership_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'ondelete'          => 'null',
+                'description'       => "The ownership that the account refers to, if any.",
+                'domain'            => [['condo_id', '=', 'object.condo_id']]
+            ],
+
+            'suppliership_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'purchase\supplier\Suppliership',
+                'ondelete'          => 'null',
+                'description'       => 'The supplier the account relates to, if any.',
+                'domain'            => [['condo_id', '=', 'object.condo_id']]
+            ]
         ];
     }
 

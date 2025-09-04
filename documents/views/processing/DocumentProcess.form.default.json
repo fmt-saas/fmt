@@ -13,15 +13,19 @@
     },
     "actions": [
         {
-            "id": "action.perform_analysis",
+            "id": "action.perform_identification",
             "label": "Analyze",
-            "description": "Attempt to analyze the content of the document.",
+            "description": "Attempt to identify the type of document base on its content.",
             "controller": "core_model_do",
             "params": {
                 "entity": "documents\\processing\\DocumentProcess",
-                "action": "perform_analysis"
+                "action": "perform_identification"
             },
-            "visible": [ ["state", "=", "instance"], ["status", "=", "created"], ["has_analysis", "=", false] ]
+            "visible": [
+                ["state", "=", "instance"],
+                ["status", "=", "created"],
+                ["document_type_id", "=", null]
+            ]
         },
         {
             "id": "action.perform_extraction",
@@ -36,6 +40,31 @@
             "params": {
                 "entity": "documents\\processing\\DocumentProcess",
                 "action": "perform_extraction",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.perform_matching",
+            "label": "Attempt auto-match",
+            "description": "Attempt to identify condominium & supplier.",
+            "controller": "core_model_do",
+            "visible": [
+                [
+                    ["status", "=", "created"],
+                    ["document_type_id", "<>", null],
+                    ["has_document_json", "=", true],
+                    ["condo_id", "=", null]
+                ],
+                [
+                    ["status", "=", "created"],
+                    ["document_type_id", "<>", null],
+                    ["has_document_json", "=", true],
+                    ["supplier_id", "=", null]
+                ]
+            ],
+            "params": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "action": "perform_matching",
                 "ids": []
             }
         },

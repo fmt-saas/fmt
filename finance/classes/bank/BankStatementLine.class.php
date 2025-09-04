@@ -8,6 +8,9 @@ namespace finance\bank;
 
 use equal\orm\Model;
 use finance\accounting\Account;
+use finance\accounting\Journal;
+use finance\accounting\MiscOperation;
+use finance\accounting\MiscOperationLine;
 use realestate\sale\pay\Funding;
 use realestate\sale\pay\Payment;
 use finance\bank\BankStatement;
@@ -160,7 +163,7 @@ class BankStatementLine extends Model {
                 'description'       => 'Accounting account the statement line relates to.',
                 'help'              => "This value can only be set manually and targets the accounting account to use for the counterpart movement. This is an accounting account, not to be mixed up with bank accounts.",
                 'ondelete'          => 'null',
-                'dependents'        => ['accounting_account_code', 'is_misc'],
+                'dependents'        => ['accounting_account_code', 'is_misc', 'is_expense', 'is_supplier', 'is_owner', 'ownership_id', 'suppliership_id'],
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]]
             ],
 
@@ -176,8 +179,39 @@ class BankStatementLine extends Model {
             'is_misc' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
-                'description'       => "Accounting account the statement line relates to.",
+                'description'       => 'Flag marking the line as being an unexpected expense or income.',
+                'help'              => "This field depends on the selected accounting account. When set to true, the line implies the creation of a stand alone miscellaneous operation.",
                 'function'          => 'calcIsMisc',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'is_expense' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'Flag marking the line as an unexpected expense or income.',
+                'help'              => "When set to true, the line implies a Miscellaneous Operation.",
+                'function'          => 'calcIsExpense',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'is_supplier' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'Flag marking the line as a payment from/to a supplier.',
+                'help'              => "When set to true, the line implies a link with a Funding.",
+                'function'          => 'calcIsSupplier',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'is_owner' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'Flag marking the line as a payment from/to an owner(ship).',
+                'help'              => "When set to true, the line implies a link with a Funding.",
+                'function'          => 'calcIsOwner',
                 'store'             => true,
                 'instant'           => true
             ],
@@ -186,9 +220,9 @@ class BankStatementLine extends Model {
                 'type'              => 'many2one',
                 'description'       => "The key that the apportionment refers to.",
                 'foreign_object'    => 'realestate\property\Apportionment',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_statutory', '=', false], ['is_active', '=', true], ['status', '=', 'validated']],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_statutory', '=', false], ['is_active', '=', true], ['status', '=', 'validated']],
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
-                'visible'           => [['accounting_account_id', '<>', null], ['is_misc', '=', false]]
+                'visible'           => [['accounting_account_id', '<>', null], ['is_expense', '=', true]]
             ],
 
             'owner_share'           => [
@@ -196,7 +230,7 @@ class BankStatementLine extends Model {
                 'default'           => 100,
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
-                'visible'           => [['accounting_account_id', '<>', null], ['is_misc', '=', false]]
+                'visible'           => [['accounting_account_id', '<>', null], ['is_expense', '=', true]]
             ],
 
             'tenant_share'          => [
@@ -204,7 +238,7 @@ class BankStatementLine extends Model {
                 'default'           => 0,
                 'description'       => "Default value, in percent, of the amount to be imputed to the tenant when using the account.",
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
-                'visible'           => [['accounting_account_id', '<>', null], ['is_misc', '=', false]]
+                'visible'           => [['accounting_account_id', '<>', null], ['is_expense', '=', true]]
             ],
 
             'vat_rate' => [
@@ -212,7 +246,32 @@ class BankStatementLine extends Model {
                 'usage'             => 'amount/rate',
                 'description'       => 'VAT rate to be applied.',
                 'default'           => 0.0,
-                'visible'           => [['accounting_account_id', '<>', null], ['is_misc', '=', false]]
+                'visible'           => [['accounting_account_id', '<>', null], ['is_expense', '=', true]]
+            ],
+
+            'ownership_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'function'          => 'calcOwnershipId',
+                'store'             => true,
+                'instant'           => true,
+                'description'       => "The ownership that the funding refers to.",
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'ondelete'          => 'cascade',
+                'domain'            => [['condo_id', '=', 'object.condo_id']],
+                'visible'           => [['is_owner', '=', true]]
+            ],
+
+            'suppliership_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'function'          => 'calcSuppliershipId',
+                'store'             => true,
+                'instant'           => true,
+                'foreign_object'    => 'purchase\supplier\Suppliership',
+                'description'       => 'The supplier the funding relates to.',
+                'domain'            => [['condo_id', '=', 'object.condo_id']],
+                'visible'           => [['is_supplier', '=', true]]
             ],
 
             'status' => [
@@ -275,7 +334,11 @@ class BankStatementLine extends Model {
                 'accounting_account_id',
                 'accounting_account_code',
                 'payments_ids' => ['amount', 'status'],
-                'bank_statement_id' => ['bank_account_iban']
+                'bank_statement_id' => ['bank_account_iban', 'bank_account_id' => ['accounting_account_id']],
+                'is_misc',
+                'is_expense',
+                'is_owner',
+                'is_supplier'
             ]);
 
         foreach($self as $id => $bankStatementLine) {
@@ -290,122 +353,255 @@ class BankStatementLine extends Model {
                 continue;
             }
 
-            // if statement line has been manually assigned to a specific account
-            /*
-            // #todo - not sure about this
-            if($bankStatementLine['accounting_account_id']) {
-                // expense
-                if(substr($bankStatementLine['accounting_account_code'], 0, 1) === '6') {
-                }
-                // income
-                elseif(substr($bankStatementLine['accounting_account_code'], 0, 1) === '7') {
-                }
-                // supplier
-                elseif(substr($bankStatementLine['accounting_account_code'], 0, 2) === '44') {
-                }
-                // ownership
-                elseif(substr($bankStatementLine['accounting_account_code'], 0, 2) === '41') {
-                }
-            }
-            */
-
-            $amount = $bankStatementLine['amount'];
-
-            $reference = trim(str_replace(['+', '/', ' '], '', $bankStatementLine['communication'] ?? ''));
-
-            // ignore attempt if no reference is provided
-            if(strlen($reference) <= 0) {
-                continue;
-            }
-
-            // #memo - amount can be positive or negative
-            $domain = [
-                ['is_cancelled', '=', false],
-                ['status', '<>', 'balanced'],
-                // ['remaining_amount', '=', $amount],
-                ['bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']],
-                // #memo - funding payment reference is computed (depends on funding_type)
-                ['payment_reference', '=', $reference]
-            ];
-
-            // #memo - this is not relevant for filtering, but must be checked, depending on the found Funding(s)
-            // $funding = Funding::search(array_merge($domain, [['counterpart_bank_account_iban', '=', $bankStatementLine['account_iban']]]))->first();
-
-            // pass-1 - preliminary match
-            $candidateFundings = Funding::search($domain, ['sort' => ['due_date' => 'asc']])->read(['funding_type', 'counterpart_bank_account_iban', 'remaining_amount']);
-
             $selected_funding_id = 0;
 
-            // pass-2 - validate candidates based on remaining amount and counterpart_bank_account_iban, when mandatory
-            foreach($candidateFundings as $funding_id => $funding) {
-                $valid = false;
-                if($amount < 0) {
-                    $valid = ($funding['remaining_amount'] <= $amount);
-                }
-                else {
-                    $valid = ($funding['remaining_amount'] >= $amount);
-                }
-                if($valid) {
-                    if(in_array($funding['funding_type'], ['refund','transfer','invoice'], true)) {
-                        // #memo - counterpart_bank_account_iban is computed from counterpart_bank_account_id
-                        if($funding['counterpart_bank_account_iban'] <> $bankStatementLine['account_iban']) {
-                            $valid = false;
+            $amount = $bankStatementLine['amount'];
+            $reference = trim(str_replace(['+', '/', ' '], '', $bankStatementLine['communication'] ?? ''));
+
+            // attempt to match with an existing Funding
+            if(strlen($reference) > 0) {
+                // #memo - amount can be positive or negative
+                $domain = [
+                    ['is_cancelled', '=', false],
+                    ['status', '<>', 'balanced'],
+                    // ['remaining_amount', '=', $amount],
+                    ['bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']],
+                    // #memo - funding payment reference is computed (depends on funding_type)
+                    ['payment_reference', '=', $reference]
+                ];
+
+                // #memo - this is not relevant for filtering, but must be checked, depending on the found Funding(s)
+                // $funding = Funding::search(array_merge($domain, [['counterpart_bank_account_iban', '=', $bankStatementLine['account_iban']]]))->first();
+
+                // pass-1 - preliminary match
+                $candidateFundings = Funding::search($domain, ['sort' => ['due_date' => 'asc']])->read(['funding_type', 'counterpart_bank_account_iban', 'remaining_amount']);
+
+                // pass-2 - validate candidates based on remaining amount and counterpart_bank_account_iban, when mandatory
+                foreach($candidateFundings as $funding_id => $funding) {
+                    $valid = false;
+                    if($amount < 0) {
+                        $valid = ($funding['remaining_amount'] <= $amount);
+                    }
+                    else {
+                        $valid = ($funding['remaining_amount'] >= $amount);
+                    }
+                    if($valid) {
+                        if(in_array($funding['funding_type'], ['refund','transfer','invoice'], true)) {
+                            // #memo - counterpart_bank_account_iban is computed from counterpart_bank_account_id
+                            if($funding['counterpart_bank_account_iban'] <> $bankStatementLine['account_iban']) {
+                                $valid = false;
+                            }
                         }
                     }
+                    if($valid) {
+                        $selected_funding_id = $funding_id;
+                        break;
+                    }
                 }
-                if($valid) {
-                    $selected_funding_id = $funding_id;
-                    break;
+
+            }
+
+            if(!$selected_funding_id) {
+                // retrieve the BANK accounting journal
+                $journal = Journal::search([['code', '=', 'BNK'], ['condo_id', '=', $bankStatementLine['condo_id']]])->first();
+
+                if($bankStatementLine['is_misc']) {
+                    // 1) create a Misc Operation
+                    $bank_account_accounting_account_id = $bankStatementLine['bank_statement_id']['bank_account_id']['accounting_account_id'];
+
+                    $miscOperation = MiscOperation::create([
+                            'condo_id'          => $bankStatementLine['condo_id'],
+                            'description'       => 'reprise de compte epargne',
+                            'posting_date'      => time(),
+                            'journal_id'        => $journal['id'],
+                            'operation_type'    => 'misc'
+                        ])
+                        ->first();
+
+                    MiscOperationLine::create([
+                            'condo_id'          => $bankStatementLine['condo_id'],
+                            'misc_operation_id' => $miscOperation['id'],
+                            'account_id'        => $bank_account_accounting_account_id,
+                            'debit'             => $amount > 0 ? abs($amount) : 0,
+                            'credit'            => $amount < 0 ? abs($amount) : 0,
+                        ]);
+
+                    MiscOperationLine::create([
+                            'condo_id'          => $bankStatementLine['condo_id'],
+                            'misc_operation_id' => $miscOperation['id'],
+                            'account_id'        => $bankStatementLine['accounting_account_id'],
+                            'debit'             => $amount < 0 ? abs($amount) : 0,
+                            'credit'            => $amount > 0 ? abs($amount) : 0,
+                        ]);
+
+                    // 2) create a Funding for this Misc Op
+                    $funding = Funding::create([
+                            'condo_id'                      => $bankStatementLine['condo_id'],
+                            'misc_operation_id'             => $miscOperation['id'],
+                            'funding_type'                  => 'misc',
+                            'due_amount'                    => $amount,
+                            'bank_account_id'               => $bankStatementLine['bank_statement_id']['bank_account_id']['id']
+                            // #memo - payment_reference is a computed field
+                        ])
+                        ->first();
+
+                    $selected_funding_id = $funding['id'];
+                }
+                elseif($bankStatementLine['is_expense']) {
+
+                    // il faut créer une OD + répartir les charges entre les copropriétaires
+                    // si montant < 0 -> comme une facture d'achat
+                    // si montant > 0 -> comme une facture de vente
                 }
             }
+
 
             if($selected_funding_id) {
-                trigger_error("APP::no matching funding found for bank statement line {$id} with reference {$reference}.", EQ_REPORT_DEBUG);
-                continue;
+                trigger_error("APP::matching funding ({$selected_funding_id}) found for bank statement line {$id} with reference {$reference}.", EQ_REPORT_DEBUG);
+                Payment::create([
+                        'condo_id'          => $bankStatementLine['condo_id'],
+                        'amount'            => $bankStatementLine['amount'],
+                        'communication'     => $bankStatementLine['communication'],
+                        'receipt_date'      => $bankStatementLine['date'],
+                        'payment_origin'    => 'bank',
+                        'payment_method'    => 'wire_transfer',
+                        'statement_line_id' => $id,
+                        'funding_id'        => $selected_funding_id
+                    ]);
+
+                self::id($id)->update(['is_reconciled' => null]);
             }
 
-            Payment::create([
-                    'condo_id'          => $bankStatementLine['condo_id'],
-                    'amount'            => $bankStatementLine['amount'],
-                    'communication'     => $bankStatementLine['communication'],
-                    'receipt_date'      => $bankStatementLine['date'],
-                    'payment_origin'    => 'bank',
-                    'payment_method'    => 'wire_transfer',
-                    'statement_line_id' => $id,
-                    'funding_id'        => $selected_funding_id
-                ]);
 
-            self::id($id)->update(['is_reconciled' => null]);
+
         }
     }
 
     protected static function calcRemainingAmount($self) {
         $result = [];
         $self->read(['payments_ids' => ['amount'], 'amount']);
-        foreach($self as $id => $statementLine) {
+        foreach($self as $id => $bankStatementLine) {
             $sum = 0.0;
 
-            foreach($statementLine['payments_ids'] as $payment_id => $payment) {
+            foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
                 $sum += $payment['amount'];
             }
 
-            $result[$id] = round($statementLine['amount'] - $sum, 2);
+            $result[$id] = round($bankStatementLine['amount'] - $sum, 2);
         }
         return $result;
     }
 
-    protected static function isMisc($self) {
+    protected static function calcOwnershipId($self) {
         $result = [];
-        $self->read(['accounting_account_id', 'accounting_account_code']);
+        $self->read(['condo_id', 'is_owner', 'accounting_account_id' => ['ownership_id']]);
         foreach($self as $id => $bankStatementLine) {
-            $result[$id] =  false;
-            if($bankStatementLine['accounting_account_id']) {
-                $account_class_digit = substr($bankStatementLine['accounting_account_code'], 0, 1);
-                // expense or income
-                if($account_class_digit === '6' || $account_class_digit === '7') {
-                    $result[$id] = true;
-                }
+            if(!$bankStatementLine['is_owner']) {
+                continue;
             }
+            $result[$id] = $bankStatementLine['accounting_account_id']['ownership_id'];
+        }
+        return $result;
+    }
+
+    protected static function calcSuppliershipId($self) {
+        $result = [];
+        $self->read(['condo_id', 'is_supplier', 'accounting_account_id' => ['suppliership_id']]);
+        foreach($self as $id => $bankStatementLine) {
+            if(!$bankStatementLine['is_supplier']) {
+                continue;
+            }
+            $result[$id] = $bankStatementLine['accounting_account_id']['suppliership_id'];
+        }
+        return $result;
+    }
+
+    private static function computeIsMisc($accounting_account_id) {
+        $result = false;
+        if($accounting_account_id) {
+            $account = Account::id($accounting_account_id)->read(['code'])->first();
+            if($account) {
+                $account_class_digits_one = substr($account['code'], 0, 1);
+                $account_class_digits_two = substr($account['code'], 0, 2);
+                // expense or income
+                $result = (
+                        $account_class_digits_one !== '6' && $account_class_digits_one !== '7' &&
+                        $account_class_digits_two !== '41' && $account_class_digits_one !== '44'
+                    );
+            }
+        }
+        return $result;
+    }
+
+    private static function computeIsExpense($accounting_account_id) {
+        $result = false;
+        if($accounting_account_id) {
+            $account = Account::id($accounting_account_id)->read(['code'])->first();
+            if($account) {
+                $account_class_digit = substr($account['code'], 0, 1);
+                // expense or income
+                $result = ($account_class_digit === '6' || $account_class_digit === '7');
+            }
+        }
+        return $result;
+    }
+
+    private static function computeIsSupplier($accounting_account_id) {
+        $result = false;
+        if($accounting_account_id) {
+            $account = Account::id($accounting_account_id)->read(['code'])->first();
+            if($account) {
+                $account_class_digits_two = substr($account['code'], 0, 2);
+                $result = ($account_class_digits_two === '44');
+            }
+        }
+        return $result;
+    }
+
+    private static function computeIsOwner($accounting_account_id) {
+        $result = false;
+        if($accounting_account_id) {
+            $account = Account::id($accounting_account_id)->read(['code'])->first();
+            if($account) {
+                $account_class_digits_two = substr($account['code'], 0, 2);
+                $result = ($account_class_digits_two === '41');
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcIsMisc($self) {
+        $result = [];
+        $self->read(['accounting_account_id']);
+        foreach($self as $id => $bankStatementLine) {
+            $result[$id] = self::computeIsMisc($bankStatementLine['accounting_account_id']);
+        }
+        return $result;
+    }
+
+    protected static function calcIsExpense($self) {
+        $result = [];
+        $self->read(['accounting_account_id']);
+        foreach($self as $id => $bankStatementLine) {
+            $result[$id] = self::computeIsExpense($bankStatementLine['accounting_account_id']);
+        }
+        return $result;
+    }
+
+    protected static function calcIsSupplier($self) {
+        $result = [];
+        $self->read(['accounting_account_id']);
+        foreach($self as $id => $bankStatementLine) {
+            $result[$id] = self::computeIsSupplier($bankStatementLine['accounting_account_id']);
+        }
+        return $result;
+    }
+
+    protected static function calcIsOwner($self) {
+        $result = [];
+        $self->read(['accounting_account_id']);
+        foreach($self as $id => $bankStatementLine) {
+            $result[$id] = self::computeIsOwner($bankStatementLine['accounting_account_id']);
         }
         return $result;
     }
@@ -425,29 +621,26 @@ class BankStatementLine extends Model {
         return $result;
     }
 
-    protected static function calcIsMisc($self) {
-        $result = [];
-        $self->read(['accounting_account_id']);
-        foreach($self as $id => $bankStatementLine) {
-            $result[$id] = isset($bankStatementLine['accounting_account_id']);
-        }
-        return $result;
-    }
-
     public static function onchange($event, $values, $view) {
         $result = [];
+
+        // check VAT
+        if(isset($event['vat_rate']) && $event['vat_rate'] >= 1) {
+            $result['vat_rate'] = round($event['vat_rate'] / 100, 2);
+            $event['vat_rate'] = $result['vat_rate'];
+        }
+
         if(isset($event['accounting_account_id']) && $event['accounting_account_id']) {
-            if(isset($values['condo_id'])) {
-                $account = Account::search([['condo_id', '=', $values['condo_id']], ['id', '=', $event['accounting_account_id']]])->read(['code'])->first();
-                if($account) {
-                    $result['accounting_account_code'] = $account['code'];
-                }
+            $account = Account::id($event['accounting_account_id'])->read(['code'])->first();
+            if($account) {
+                $result['accounting_account_code'] = $account['code'];
+                $result['is_expense'] = self::computeIsExpense($event['accounting_account_id']);
+                $result['is_misc'] = self::computeIsMisc($event['accounting_account_id']);
+                $result['is_owner'] = self::computeIsOwner($event['accounting_account_id']);
+                $result['is_supplier'] = self::computeIsSupplier($event['accounting_account_id']);
             }
         }
 
-        // #todo - handle account_iban change and update account_bic
-        if(isset($event['accounting_account_id']) && $event['accounting_account_id']) {
-        }
         return $result;
     }
 
