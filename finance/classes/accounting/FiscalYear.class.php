@@ -179,7 +179,7 @@ class FiscalYear extends Model {
             if(strcmp($year_from, $year_to) !== 0) {
                 $name .= '-'.$year_to;
             }
-            $result[$id] = $name . " ({$year['condo_id']['name']})";
+            $result[$id] = $name;
         }
         return $result;
     }

@@ -27,6 +27,11 @@
             },
             {
                 "type": "field",
+                "value": "condo_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
                 "label": "Journal",
                 "value": "journal_id",
                 "width": "35%"

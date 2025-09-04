@@ -119,26 +119,26 @@
                                                 "id": "item.emission_date",
                                                 "type": "field",
                                                 "value": "emission_date",
-                                                "width": "25%"
+                                                "width": "16%"
                                             },
                                             {
                                                 "id": "item.due_date",
                                                 "type": "field",
                                                 "value": "due_date",
-                                                "width": "25%",
+                                                "width": "16%",
                                                 "visible": ["status", "<>", "cancelled"]
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Fiscal Year",
                                                 "value": "fiscal_year_id",
-                                                "width": "25%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Fiscal Period",
                                                 "value": "fiscal_period_id",
-                                                "width": "25%"
+                                                "width": "33%"
                                             },
 
                                             {
@@ -190,30 +190,25 @@
                                                 "type": "field",
                                                 "label": "Date range",
                                                 "value": "has_date_range",
-                                                "width": "25%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "posting_date",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "posting_date",
-                                                "width": "50%",
+                                                "width": "33%",
                                                 "visible": ["has_date_range", "=", false]
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Posting from",
                                                 "value": "date_from",
-                                                "width": "25%"
+                                                "width": "16%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Posting to",
                                                 "value": "date_to",
-                                                "width": "25%"
+                                                "width": "16%"
                                             },
 
                                             {
