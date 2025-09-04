@@ -232,11 +232,6 @@
                                                 "type": "field",
                                                 "value": "expense_management_mode",
                                                 "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "fiscal_years_ids",
-                                                "width": "100%"
                                             }
                                         ]
                                     },
@@ -256,6 +251,20 @@
                                                 "widget": {
                                                     "readonly": true
                                                 }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_years_ids",
+                                                "width": "100%"
                                             }
                                         ]
                                     }
