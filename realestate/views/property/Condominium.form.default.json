@@ -361,6 +361,65 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "label": "Accounting",
+                        "id": "section.accounting",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_year_start",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_year_end",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_period_frequency",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "expense_management_mode",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Current Fiscal Year",
+                                                "value": "current_fiscal_year_id",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "readonly": true
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }
