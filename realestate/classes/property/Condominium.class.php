@@ -655,6 +655,15 @@ class Condominium extends Identity {
             $result['fiscal_year_start'] = strtotime('+1 day', $date_from);
         }
 
+        if(isset($event['fiscal_period_frequency'])) {
+            if($event['fiscal_period_frequency'] !== 'A') {
+                $result['expense_management_mode'] = 'real_expenses';
+            }
+            else {
+                $result['expense_management_mode'] = 'provisions';
+            }
+        }
+
         return $result;
     }
 

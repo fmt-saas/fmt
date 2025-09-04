@@ -229,14 +229,14 @@
                                                 "width": "50%"
                                             },
                                             {
-                                                "type": "label",
-                                                "value": "",
+                                                "type": "field",
+                                                "value": "expense_management_mode",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "expense_management_mode",
-                                                "width": "50%"
+                                                "value": "fiscal_years_ids",
+                                                "width": "100%"
                                             }
                                         ]
                                     },

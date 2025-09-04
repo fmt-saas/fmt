@@ -176,6 +176,9 @@ DocumentType::create([
 ]);
 
 
+// #todo - ajouter Attestation de conformité de citerne à mazout
+// #todo - ajouter Attestation de neutralisation  de citerne à mazout
+
 
 
 $documentType = DocumentType::create([
