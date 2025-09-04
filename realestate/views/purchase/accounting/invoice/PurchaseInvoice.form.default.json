@@ -9,7 +9,7 @@
             "controller": "core_model_transition",
             "visible": [["state", "=", "instance"], ["status", "=", "proforma"]],
             "params": {
-                "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                 "transition": "post",
                 "ids": []
             }
@@ -22,7 +22,7 @@
             "confirm": true,
             "visible": ["status", "=", "posted"],
             "params": {
-                "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                 "transition": "cancel",
                 "ids": []
             }
@@ -35,7 +35,7 @@
             "description": "",
             "icon": "file_upload",
             "context": {
-                "entity": "realestate\\purchase\\accounting\\invoice\\Invoice",
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                 "view": "form.import",
                 "mode": "edit",
                 "domain": [["id", "=", "object.id"]]
