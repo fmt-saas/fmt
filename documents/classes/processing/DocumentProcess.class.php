@@ -983,29 +983,31 @@ class DocumentProcess extends Model {
                     Document::id($documentProcess['document_id'])->update($doc_values);
                 }
                 else {
-                    // extraction failed : populat with empty document_json descriptor
-                    switch($documentProcess['document_type_id']['code']) {
-                        case 'invoice':
-                        case 'credit_note':
-                            $data = \eQual::run('get', 'documents_processing_purchaseInvoice_empty');
-                            break;
-                        case 'bank_statement':
-                            $data = \eQual::run('get', 'documents_processing_bankStatement_empty');
-                    }
-
-                    // #memo - document_json is meant to receive a JSON representation of the content, according to schema, and independent from origin (ex.: parsed Mindee, parsed UBL, ...)
-                    $doc_values = [
-                            'document_json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
-                        ];
-
-                    Document::id($documentProcess['document_id'])->update($doc_values);
+                    throw new \Exception('empty_document_descriptor', EQ_ERROR_UNKNOWN);
                 }
             }
             catch(\Exception $e) {
                 // unexpected error
                 $logs[] = "Extraction error : " . $e->getMessage();
-                $logs[] = "Non supported document type or Document does not match expected format.";
+                $logs[] = "Non supported document type  ({$documentProcess['document_type_id']['code']}) or Document does not match expected format.";
                 trigger_error("APP::unable to extract document for process {$id} ({$documentProcess['document_type_id']['code']}): " . $e->getMessage(), EQ_REPORT_WARNING);
+                $logs[] = "Attempting to fall back to default document descriptor.";
+                // extraction failed : populat with empty document_json descriptor
+                switch($documentProcess['document_type_id']['code']) {
+                    case 'invoice':
+                    case 'credit_note':
+                        $data = \eQual::run('get', 'documents_processing_purchaseInvoice_empty');
+                        break;
+                    case 'bank_statement':
+                        $data = \eQual::run('get', 'documents_processing_bankStatement_empty');
+                }
+
+                // #memo - document_json is meant to receive a JSON representation of the content, according to schema, and independent from origin (ex.: parsed Mindee, parsed UBL, ...)
+                $doc_values = [
+                        'document_json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+                    ];
+
+                Document::id($documentProcess['document_id'])->update($doc_values);
             }
 
             $report_html = $documentProcess['report_html'];
