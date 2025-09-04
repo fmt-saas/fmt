@@ -11,6 +11,7 @@ use finance\accounting\AccountChart;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 use finance\bank\Bank;
+use finance\bank\CondominiumBankAccount;
 use fmt\setting\Setting;
 use identity\Identity;
 use purchase\supplier\Suppliership;
@@ -405,6 +406,9 @@ class Condominium extends Identity {
         $self->read(['identity_id' => ['bank_accounts_ids' => ['bank_account_bic']]]);
         foreach($self as $id => $condominium) {
             foreach($condominium['identity_id']['bank_accounts_ids'] as $bank_account_id => $bankAccount) {
+                // sync condo_id
+                CondominiumBankAccount::id($bank_account_id)->update(['condo_id' => $id]);
+
                 $bank = Bank::search(['bic', '=', $bankAccount['bank_account_bic']])->first();
                 if($bank) {
                     // #memo - class Bank inherits from Supplier (considered as "financial services supplier")

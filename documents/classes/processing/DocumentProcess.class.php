@@ -511,6 +511,8 @@ class DocumentProcess extends Model {
             $is_recording_rule_mandatory = in_array($documentProcess['document_type_code'], ['invoice', 'credit_note']);
 
             // #memo - recording rules might not be mandatory
+            /*
+            // #todo - a recording rule might be missing
             if($is_recording_rule_mandatory) {
                 $rules_ids = RecordingRule::search([['condo_id', '=', $documentProcess['condo_id']], ['document_type_id', '=', $documentProcess['document_type_id']]])->ids();
                 if(count($rules_ids) <= 0) {
@@ -520,6 +522,7 @@ class DocumentProcess extends Model {
                     continue;
                 }
             }
+            */
 
         }
         return $result;
