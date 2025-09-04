@@ -3,17 +3,6 @@
     "description": "Form holding basic information about an Organisation.",
     "routes": [
         {
-            "id": "item.role_assignments",
-            "label": "Roles Assignments",
-            "description": "",
-            "icon": "library_books",
-            "context": {
-                "entity": "hr\\role\\RoleAssignment",
-                "view": "list.default",
-                "domain": ["condo_id", "=", "object.id"]
-            }
-        },
-        {
             "id": "item.statutory_quotas",
             "label": "Statutory Quotas",
             "description": "",
