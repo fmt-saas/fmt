@@ -100,6 +100,24 @@
                                             },
 
                                             {
+                                                "type": "field",
+                                                "label": "Supplier",
+                                                "value": "suppliership_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Bank Account",
+                                                "value": "suppliership_bank_account_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "33%"
+                                            },
+
+                                            {
                                                 "id": "item.emission_date",
                                                 "type": "field",
                                                 "value": "emission_date",
@@ -120,18 +138,7 @@
                                                 "width": "33%"
                                             },
 
-                                            {
-                                                "type": "field",
-                                                "label": "Supplier",
-                                                "value": "suppliership_id",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Bank Account",
-                                                "value": "suppliership_bank_account_id",
-                                                "width": "33%"
-                                            },
+                                            
 
                                             {
                                                 "id": "item.invoice_number",
