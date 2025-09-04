@@ -119,26 +119,26 @@
                                                 "id": "item.emission_date",
                                                 "type": "field",
                                                 "value": "emission_date",
-                                                "width": "16%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "id": "item.due_date",
                                                 "type": "field",
                                                 "value": "due_date",
-                                                "width": "16%",
+                                                "width": "25%",
                                                 "visible": ["status", "<>", "cancelled"]
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Fiscal Year",
                                                 "value": "fiscal_year_id",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Fiscal Period",
                                                 "value": "fiscal_period_id",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
 
                                             {
