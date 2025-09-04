@@ -119,24 +119,28 @@
                                                 "id": "item.emission_date",
                                                 "type": "field",
                                                 "value": "emission_date",
-                                                "width": "33%"
+                                                "width": "16%"
                                             },
                                             {
                                                 "id": "item.due_date",
                                                 "type": "field",
                                                 "value": "due_date",
-                                                "width": "33%",
+                                                "width": "16%",
                                                 "visible": ["status", "<>", "cancelled"]
                                             },
-
                                             {
                                                 "type": "field",
                                                 "label": "Fiscal Year",
                                                 "value": "fiscal_year_id",
                                                 "width": "33%"
                                             },
+                                            {
+                                                "type": "field",
+                                                "label": "Fiscal Year",
+                                                "value": "fiscal_period_id",
+                                                "width": "33%"
+                                            },
 
-                                            
 
                                             {
                                                 "id": "item.invoice_number",
