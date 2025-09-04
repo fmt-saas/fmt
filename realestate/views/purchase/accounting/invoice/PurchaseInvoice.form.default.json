@@ -58,8 +58,6 @@
             {
                 "sections": [
                     {
-                        "id": "section.encoding",
-                        "label": "Encoding",
                         "rows": [
                             {
                                 "columns": [
@@ -258,7 +256,7 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "type": "pdf",
-                                                    "height": 700
+                                                    "height": 800
                                                 }
                                             }
                                         ]
