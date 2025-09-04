@@ -168,20 +168,6 @@
                                         ]
                                     }
                                 ]
-                            },
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "ownerships_ids",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
                             }
                         ]
                     }
