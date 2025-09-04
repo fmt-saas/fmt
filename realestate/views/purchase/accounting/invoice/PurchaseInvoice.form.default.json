@@ -184,6 +184,12 @@
                                                 "value": "on_hold_description",
                                                 "width": "33%"
                                             },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "33%",
+                                                "visible": ["has_payment_on_hold", "=", true]
+                                            },
 
 
                                             {
@@ -266,7 +272,7 @@
                 ]
             },
             {
-                "section": [
+                "sections": [
                     {
                         "id": "section.fund_usage_lines",
                         "label": "Fund usages",

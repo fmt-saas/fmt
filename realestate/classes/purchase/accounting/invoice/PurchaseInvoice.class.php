@@ -194,6 +194,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             'on_hold_description' => [
                 'type'              => 'string',
                 'description'       => 'Short description explaining the reason of holding back the payment.',
+                'visible'           => ['has_payment_on_hold', '=', true]
             ]
 
         ];
