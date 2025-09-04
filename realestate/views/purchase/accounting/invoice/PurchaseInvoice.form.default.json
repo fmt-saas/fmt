@@ -64,7 +64,7 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "60%",
                                         "items": [
                                             {
                                                 "type": "field",
@@ -197,7 +197,7 @@
                                     },
                                     {
                                         "visible": ["document_id", "<>", null],
-                                        "width": "50%",
+                                        "width": "40%",
                                         "items": [
                                             {
                                                 "type": "field",
