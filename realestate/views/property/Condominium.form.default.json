@@ -170,11 +170,7 @@
                                 ]
                             }
                         ]
-                    }
-                ]
-            },
-            {
-                "sections": [
+                    },
                     {
                         "label": "Owners",
                         "id": "section.owners",

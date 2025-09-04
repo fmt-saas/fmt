@@ -3,28 +3,6 @@
     "description": "Form holding basic information about an Organisation.",
     "routes": [
         {
-            "id": "item.ownerships",
-            "label": "Owners",
-            "description": "",
-            "icon": "group",
-            "context": {
-                "entity": "realestate\\ownership\\Ownership",
-                "view": "list.default",
-                "domain": ["condo_id", "=", "object.id"]
-            }
-        },
-        {
-            "id": "item.property_lots",
-            "label": "Property Lots",
-            "description": "",
-            "icon": "apartment",
-            "context": {
-                "entity": "realestate\\property\\PropertyLot",
-                "view": "list.default",
-                "domain": ["condo_id", "=", "object.id"]
-            }
-        },
-        {
             "id": "item.role_assignments",
             "label": "Roles Assignments",
             "description": "",
