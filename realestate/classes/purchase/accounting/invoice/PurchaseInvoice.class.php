@@ -75,6 +75,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['suppliership_id', '=', 'object.suppliership_id']]
             ],
 
+            'condo_bank_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\CondominiumBankAccount',
+                'description'       => 'The bank account of the supplier to be used.',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+            ],
+
             'invoice_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoiceLine',
@@ -91,6 +98,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'default'           => false
             ],
 
+            // #memo - this info is not relevant for the whole invoice and is mostly (exclusively ?) used at line level
             'has_instant_reinvoice' => [
                 'type'              => 'boolean',
                 'description'       => 'Immediate reinvoicing of private charges.',
@@ -166,6 +174,27 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'function'          => 'calcDocumentLink',
             ],
 
+            'price_control' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => 'Expected Final tax-included invoiced amount.',
+                'help'              => 'This field is used to compare with sum of invoice lines prices.'
+            ],
+
+            'has_mandate' => [
+                'type'              => 'boolean',
+                'description'       => 'Payment will be made through SEPA mandate.',
+            ],
+
+            'has_payment_on_hold' => [
+                'type'              => 'boolean',
+                'description'       => 'Payment will be made through SEPA mandate.',
+            ],
+
+            'on_hold_description' => [
+                'type'              => 'string',
+                'description'       => 'Short description explaining the reason of holding back the payment.',
+            ]
 
         ];
     }

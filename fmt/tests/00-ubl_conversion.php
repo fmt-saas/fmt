@@ -334,6 +334,14 @@ function convertJsonToUbl(string $json): string {
      * - 57  => "Mobile payment"                     // E.g. Apple Pay, Google Pay, Payconiq
      * - 58  => "Creditor’s invoicing portal"        // Paid through a supplier's web portal
      * - 97  => "Not applicable"                     // No payment method, e.g. proforma invoice
+     *
+     *
+     *   <cac:PaymentMandate>
+     *        <cbc:ID>MANDATE-2023-001</cbc:ID> <!-- Mandate ID (obligatoire pour SEPA) -->
+     *            <cac:PayerFinancialAccount>
+     *            <cbc:ID>BE98765432109876</cbc:ID> <!-- IBAN du débiteur (optionnel selon profil) -->
+     *            </cac:PayerFinancialAccount>
+     *   </cac:PaymentMandate>
      */
     if (!empty($data['payment'])) {
         $paymentMeans = $cac('PaymentMeans');

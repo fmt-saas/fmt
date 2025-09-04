@@ -76,19 +76,63 @@
                                                 "value": "document_id",
                                                 "visible": false
                                             },
+
                                             {
                                                 "type": "field",
                                                 "label": "Condominium",
                                                 "value": "condo_id",
-                                                "width": "50%",
-                                                "visible": false
+                                                "width": "33%",
+                                                "visible": true
                                             },
                                             {
-                                                "id": "item.description",
                                                 "type": "field",
-                                                "value": "description",
-                                                "width": "66%"
+                                                "label": "Bank Account",
+                                                "value": "condo_bank_account_id",
+                                                "width": "33%"
                                             },
+
+                                            {
+                                                "id": "item.invoice_type",
+                                                "type": "field",
+                                                "label": "Type",
+                                                "value": "invoice_type",
+                                                "width": "33%"
+                                            },
+
+                                            {
+                                                "id": "item.emission_date",
+                                                "type": "field",
+                                                "value": "emission_date",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "id": "item.due_date",
+                                                "type": "field",
+                                                "value": "due_date",
+                                                "width": "33%",
+                                                "visible": ["status", "<>", "cancelled"]
+                                            },
+
+                                            {
+                                                "type": "field",
+                                                "label": "Fiscal Year",
+                                                "value": "fiscal_year_id",
+                                                "width": "33%"
+                                            },
+
+                                            {
+                                                "type": "field",
+                                                "label": "Supplier",
+                                                "value": "suppliership_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Bank Account",
+                                                "value": "suppliership_bank_account_id",
+                                                "width": "33%"
+                                            },
+
                                             {
                                                 "id": "item.invoice_number",
                                                 "label": "number",
@@ -103,43 +147,37 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Supplier",
-                                                "value": "suppliership_id",
-                                                "width": "33%"
+                                                "value": "price_control",
+                                                "width": "25%",
+                                                "visible": true
                                             },
-                                            {
-                                                "type": "field",
-                                                "label": "Bank Account",
-                                                "value": "suppliership_bank_account_id",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "id": "item.invoice_type",
-                                                "type": "field",
-                                                "label": "Type",
-                                                "value": "invoice_type",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "id": "item.emission_date",
-                                                "type": "field",
-                                                "value": "emission_date",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "id": "item.due_date",
-                                                "type": "field",
-                                                "value": "due_date",
-                                                "width": "33%",
-                                                "visible": ["status", "<>", "cancelled"]
-                                            },
+
                                             {
                                                 "type": "field",
                                                 "value": "price",
                                                 "width": "25%",
-                                                "readonly": true,
                                                 "visible": false
                                             },
+
+                                            {
+                                                "type": "field",
+                                                "value": "has_mandate",
+                                                "width": "33%"
+                                            },
+
+                                            {
+                                                "type": "field",
+                                                "value": "has_payment_on_hold",
+                                                "width": "33%"
+                                            },
+
+                                            {
+                                                "type": "field",
+                                                "value": "on_hold_description",
+                                                "width": "33%"
+                                            },
+
+
                                             {
                                                 "type": "field",
                                                 "label": "Date range",
@@ -169,13 +207,21 @@
                                                 "value": "date_to",
                                                 "width": "25%"
                                             },
+
+                                            {
+                                                "id": "item.description",
+                                                "type": "field",
+                                                "value": "description",
+                                                "width": "66%"
+                                            },
+
                                             {
                                                 "type": "field",
-                                                "label": "Fiscal Year",
-                                                "value": "fiscal_year_id",
-                                                "width": "25%",
-                                                "visible": false
+                                                "label": "Use reserve fund(s)",
+                                                "value": "has_fund_usage",
+                                                "width": "33%"
                                             },
+
                                             {
                                                 "id": "item.invoice_lines_ids",
                                                 "type": "field",
@@ -213,34 +259,11 @@
                                 ]
                             }
                         ]
-                    },
-                    {
-                        "id": "section.advanced",
-                        "label": "Advanced",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "label": "Use reserve fund(s)",
-                                                "value": "has_fund_usage",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Immediate reinvoicing",
-                                                "value": "has_instant_reinvoice",
-                                                "width": "25%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
+                    }
+                ]
+            },
+            {
+                "section": [
                     {
                         "id": "section.fund_usage_lines",
                         "label": "Fund usages",
