@@ -78,8 +78,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             'condo_bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
-                'description'       => 'The bank account of the supplier to be used.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+                'description'       => 'The bank account of the condominium to be used.',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['bank_account_type', '=', 'bank_current']]
             ],
 
             'invoice_lines_ids' => [
