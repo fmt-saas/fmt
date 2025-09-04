@@ -202,13 +202,13 @@
                                                 "type": "field",
                                                 "label": "Posting from",
                                                 "value": "date_from",
-                                                "width": "16%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Posting to",
                                                 "value": "date_to",
-                                                "width": "16%"
+                                                "width": "33%"
                                             },
 
                                             {
