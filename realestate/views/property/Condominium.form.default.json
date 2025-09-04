@@ -168,15 +168,8 @@
                                         ]
                                     }
                                 ]
-                            }
-                        ]
-                    },
-                    {
-                        "label": "Owners",
-                        "id": "section.owners",
-                        "rows": [
+                            },
                             {
-
                                 "columns": [
                                     {
                                         "width": "100%",
