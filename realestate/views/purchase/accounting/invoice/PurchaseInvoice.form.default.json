@@ -136,11 +136,10 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Fiscal Year",
+                                                "label": "Fiscal Period",
                                                 "value": "fiscal_period_id",
                                                 "width": "33%"
                                             },
-
 
                                             {
                                                 "id": "item.invoice_number",
