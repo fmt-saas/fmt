@@ -188,7 +188,7 @@
                                                 "type": "label",
                                                 "value": "",
                                                 "width": "33%",
-                                                "visible": ["has_payment_on_hold", "=", true]
+                                                "visible": ["has_payment_on_hold", "=", false]
                                             },
 
 
