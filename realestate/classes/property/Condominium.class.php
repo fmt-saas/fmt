@@ -101,7 +101,8 @@ class Condominium extends Identity {
                 'result_type'       => 'integer',
                 'description'       => "Total number of statutory shares in the condominium.",
                 'function'          => 'calcTotalShares',
-                'store'             => true
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'construction_permit_date' => [

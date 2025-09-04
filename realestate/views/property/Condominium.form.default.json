@@ -269,11 +269,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "total_shares",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "label": "Creation date",
                                                 "value": "condo_creation_date",
                                                 "width": "100%"

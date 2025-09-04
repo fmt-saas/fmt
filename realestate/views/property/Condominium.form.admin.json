@@ -137,6 +137,26 @@
                         ]
                     },
                     {
+                        "label": "Roles Assignments",
+                        "id": "section.roles_assignments",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "role_assignments_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "label": "Sequences",
                         "id": "section.sequences",
                         "rows": [
