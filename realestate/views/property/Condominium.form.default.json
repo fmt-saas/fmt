@@ -118,7 +118,7 @@
                         "rows": [
                             {
                                 "columns": [
-{
+                                    {
                                         "width": "50%",
                                         "items": [
                                             {
@@ -220,29 +220,6 @@
                                                 "type": "label",
                                                 "value": "Infos administratives",
                                                 "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "registration_number",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "cadastral_number",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_vat",
-                                                "width": "100%",
-                                                "label": "Subject to VAT",
-                                                "help": "Do the company have a VAT number?"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "vat_number",
-                                                "width": "100%",
-                                                "visible": ["has_vat", "=", true]
                                             }
                                         ]
                                     },
