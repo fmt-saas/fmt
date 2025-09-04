@@ -135,6 +135,12 @@ class Condominium extends Identity {
                 'description'       => 'Date of the latest update of the condominium regulations.'
             ],
 
+            'general_assembly_date' => [
+                'type'              => 'date',
+                'description'       => 'Date of the next general assembly.',
+                'help'              => 'This is the date of the first day of the period during which the next general assembly has to be scheduled.'
+            ],
+
             'cadastral_number' => [
                 'type'              => 'string',
                 'description'       => 'Number of the cadastral register of the property.',

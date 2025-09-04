@@ -205,8 +205,8 @@
             {
                 "sections": [
                     {
-                        "label": "Signalétique",
-                        "description": "Signalétique",
+                        "label": "Infos",
+                        "description": "Infos",
                         "id": "section.main_info",
                         "rows": [
                             {
@@ -277,6 +277,12 @@
                                                 "type": "field",
                                                 "label": "Latest update",
                                                 "value": "condo_regulations_date",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Next general assembly",
+                                                "value": "general_assembly_date",
                                                 "width": "100%"
                                             }
                                         ]
