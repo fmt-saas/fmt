@@ -840,10 +840,13 @@ class DocumentProcess extends Model {
 
         $recursiveUpdate = function(array &$data, array $updates) use (&$recursiveUpdate) {
             foreach($updates as $key => $value) {
+                // #memo - we don't check validity at this point
+                /*
                 if(!array_key_exists($key, $data)) {
                     trigger_error("APP::property $key does not exist in document JSON", E_USER_WARNING);
                     throw new \Exception('invalid_document_json_field', EQ_ERROR_INVALID_PARAM);
                 }
+                */
 
                 if(is_array($value) && is_array($data[$key])) {
                     $recursiveUpdate($data[$key], $value);
