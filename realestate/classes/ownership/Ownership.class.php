@@ -30,7 +30,7 @@ class Ownership extends \equal\orm\Model {
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 // 'required'          => true,
-                'dependents'        => ['name', 'ownership_account_id']
+                'dependents'        => ['name']
             ],
 
             'code' => [
@@ -162,15 +162,6 @@ class Ownership extends \equal\orm\Model {
                 'foreign_object'    => 'sale\pay\Funding',
                 'foreign_field'     => 'ownership_id',
                 'description'       => 'The fundings that relate to the ownership.'
-            ],
-
-            'ownership_account_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'foreign_object'    => 'finance\accounting\Account',
-                'function'          => 'calcOwnershipAccountId',
-                'store'             => true,
-                'instant'           => true
             ],
 
             'ownership_bank_accounts_ids' => [
@@ -328,39 +319,6 @@ class Ownership extends \equal\orm\Model {
         return $result;
     }
 
-    /**
-     * Retrieve the accounting account dedicated to owner (working fund)
-     */
-    protected static function calcOwnershipAccountId($self) {
-        $result = [];
-        $self->read(['condo_id', 'status', 'code']);
-        foreach($self as $id => $ownership) {
-            if($ownership['status'] !== 'validated') {
-                continue;
-            }
-            if(!$ownership['code'] || strlen($ownership['code']) <= 0) {
-                continue;
-            }
-            // find the account based on operation_assignment
-            $parentAccount = Account::search([
-                    ['condo_id', '=', $ownership['condo_id']],
-                    ['operation_assignment', '=', 'co_owners_working_fund']
-                ])
-                ->read(['code'])
-                ->first();
-
-            if($parentAccount && strlen($parentAccount['code'] ?? '') > 0) {
-                $ownerAccount = Account::search([
-                        ['condo_id', '=', $ownership['condo_id']],
-                        ['code', '=', $parentAccount['code'] . $ownership['code']]
-                    ])
-                    ->first();
-                $result[$id] = $ownerAccount['id'] ?? null;
-            }
-        }
-        return $result;
-    }
-
     protected static function calcName($self) {
         $result = [];
         $self->read(['code', 'has_representative', 'representative_identity_id' => ['name'], 'owners_ids' => ['name']]);
@@ -439,7 +397,8 @@ class Ownership extends \equal\orm\Model {
                 // find the account based on operation_assignment to use it as "template"
                 $assignmentAccount = Account::search([
                         ['condo_id', '=', $ownership['condo_id']],
-                        ['operation_assignment', '=', $operation_assignment]
+                        ['operation_assignment', '=', $operation_assignment],
+                        ['ownership_id', '=', null]
                     ])
                     ->read(['code', 'account_category', 'account_chart_id'])
                     ->first();
@@ -460,8 +419,8 @@ class Ownership extends \equal\orm\Model {
                             'account_chart_id'      => $assignmentAccount['account_chart_id'],
                             'account_category'      => $assignmentAccount['account_category'],
                             'description'           => $ownership['name'],
-                            // make sure the account will not be used as template
-                            'operation_assignment'  => ''
+                            'operation_assignment'  => $operation_assignment,
+                            'ownership_id'          => $id
                         ])
                         ->read(['name']);
                 }

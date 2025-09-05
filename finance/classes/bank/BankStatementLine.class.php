@@ -777,23 +777,49 @@ class BankStatementLine extends Model {
                             break;
                         case 'invoice':
                             // purchase invoice : payment to the supplier
-                            $suppliership = Suppliership::id($payment['funding_id']['suppliership_id'])->read(['suppliership_account_id'])->first();
-                            $debit_account_id = $suppliership['suppliership_account_id'];
+                            $suppliershipAccount = Account::search([
+                                    ['condo_id', '=', $payment['condo_id']],
+                                    ['suppliership_id', '=', $payment['funding_id']['suppliership_id']]
+                                ])
+                                ->first();
+                            if(!$suppliershipAccount) {
+                                throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                            }
+                            $debit_account_id = $suppliershipAccount['id'];
                             // #memo - the source of truth is the bank statement, not the funding
                             // $credit_account_id = $payment['funding_id']['bank_account_id'];
                             $credit_account_id = $bankAccount['accounting_account_id'];
                             break;
                         case 'fund_request':
                             // payment from the owner(ship)
-                            $ownership = Ownership::id($payment['funding_id']['ownership_id'])->read(['ownership_account_id'])->first();
+                            $ownershipAccount = Account::search([
+                                    ['condo_id', '=', $payment['condo_id']],
+                                    ['ownership_id', '=', $payment['funding_id']['ownership_id']],
+                                    ['operation_assignment', '=', 'co_owners_reserve_fund']
+                                ])
+                                ->first();
+
+                            if(!$ownershipAccount) {
+                                throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                            }
+
                             $debit_account_id = $bankAccount['accounting_account_id'];
-                            $credit_account_id = $ownership['ownership_account_id'];
+                            $credit_account_id = $ownershipAccount['id'];
                             break;
                         case 'expense_statement':
                             // payment from the owner(ship)
-                            $ownership = Ownership::id($payment['funding_id']['ownership_id'])->read(['ownership_account_id'])->first();
+                            $ownershipAccount = Account::search([
+                                    ['condo_id', '=', $payment['condo_id']],
+                                    ['ownership_id', '=', $payment['funding_id']['ownership_id']],
+                                    ['operation_assignment', '=', 'co_owners_working_fund']
+                                ])
+                                ->first();
+
+                            if(!$ownershipAccount) {
+                                throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                            }
                             $debit_account_id = $bankAccount['accounting_account_id'];
-                            $credit_account_id = $ownership['ownership_account_id'];
+                            $credit_account_id = $ownershipAccount['id'];
                             break;
                         default:
                             throw new \Exception('invalid_funding_type', EQ_ERROR_INVALID_PARAM);

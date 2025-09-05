@@ -411,33 +411,28 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
             $debit_operation_assignment = $map_debit_operation_assignments[$requestExecution['fund_request_id']['request_type']];
             $logs[] = "Retrieved debit operation assignment {$debit_operation_assignment}";
 
-            // find the account based on operation_assignment
-            $account = Account::search([
-                    ['condo_id', '=', $requestExecution['condo_id']],
-                    ['operation_assignment', '=', $debit_operation_assignment]
-                ])
-                ->read(['code'])
-                ->first();
-
-            if(!$account) {
-                throw new \Exception('missing_mandatory_debit_account', EQ_ERROR_INVALID_CONFIG);
-            }
-
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
-                $ownership = Ownership::id($executionLine['ownership_id'])->read(['ownership_account_id'])->first();
-                $logs[] = "Fetching account for ownership {$executionLine['ownership_id']}";
 
-                if(!$ownership || !$ownership['ownership_account_id']) {
-                    throw new \Exception('missing_mandatory_owner_account', EQ_ERROR_INVALID_CONFIG);
+                // find the account based on operation_assignment
+                $logs[] = "Fetching account for ownership {$executionLine['ownership_id']}";
+                $ownershipAccount = Account::search([
+                        ['condo_id', '=', $requestExecution['condo_id']],
+                        ['ownership_id', '=', $executionLine['ownership_id']],
+                        ['operation_assignment', '=', $debit_operation_assignment]
+                    ])
+                    ->first();
+
+                if(!$ownershipAccount) {
+                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
-                $logs[] = "Retrieved owner account {$ownership['ownership_account_id']}";
+                $logs[] = "Retrieved owner account {$ownershipAccount['id']}";
 
                 AccountingEntryLine::create([
                         'condo_id'              => $requestExecution['condo_id'],
                         'accounting_entry_id'   => $accountingEntry['id'],
                         'name'                  => $requestExecution['name'],
-                        'account_id'            => $ownership['ownership_account_id'],
+                        'account_id'            => $ownershipAccount['id'],
                         'debit'                 => $executionLine['called_amount'],
                         'credit'                => 0.0
                     ]);

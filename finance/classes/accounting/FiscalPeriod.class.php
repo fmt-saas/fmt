@@ -147,10 +147,12 @@ class FiscalPeriod extends Model {
     }
 
     /**
-     * Create accounting entries for closing  the period.
+     * Create accounting entries for closing the period.
      * #todo - to be completed
      *
      * - empty account expense_provisions with owners accounts
+     *
+     *
      */
     public static function doGenerateAccountingEntries($self) {
         $self->read([
@@ -204,11 +206,17 @@ class FiscalPeriod extends Model {
                     ])
                     ->first();
 
-                $ownerships = Ownership::ids(array_keys($map_ownership_amounts))
-                    ->read(['ownership_account_id'])
-                    ->get();
-
                 foreach($map_ownership_amounts as $ownership_id => $amount) {
+                    $ownershipAccount = Account::search([
+                            ['condo_id', '=', $fiscalPeriod['condo_id']],
+                            ['ownership_id', '=', $ownership_id],
+                            ['operation_assignment', '=', 'co_owners_working_fund']
+                        ])
+                        ->first();
+
+                    if(!$ownershipAccount) {
+                        throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                    }
 
                     // debit account 701
                     AccountingEntryLine::create([
@@ -223,7 +231,7 @@ class FiscalPeriod extends Model {
                     AccountingEntryLine::create([
                             'condo_id'              => $fiscalPeriod['condo_id'],
                             'accounting_entry_id'   => $accountingEntry['id'],
-                            'account_id'            => $ownerships[$ownership_id]['ownership_account_id'],
+                            'account_id'            => $ownershipAccount['id'],
                             'debit'                 => 0.0,
                             'credit'                => $amount
                         ]);

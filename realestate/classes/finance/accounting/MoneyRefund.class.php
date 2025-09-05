@@ -7,6 +7,7 @@
 
 namespace realestate\finance\accounting;
 
+use finance\accounting\Account;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
@@ -361,7 +362,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
     protected static function doGenerateAccountingEntry($self) {
         $self->read([
                 'condo_id', 'amount', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
-                'ownership_id' => ['ownership_account_id'],
+                'ownership_id',
                 'bank_account_id' => ['accounting_account_id']
             ]);
 
@@ -369,6 +370,16 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
             AccountingEntry::search(['origin_object_class', '=', self::getType()], ['origin_object_id', '=', $id])->delete(true);
 
             try {
+                $ownershipAccount = Account::search([
+                        ['condo_id', '=', $moneyRefund['condo_id']],
+                        ['ownership_id', '=', $moneyRefund['ownership_id']],
+                        ['operation_assignment', '=', 'co_owners_working_fund']
+                    ])
+                    ->first();
+
+                if(!$ownershipAccount) {
+                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                }
                 $accountingEntry = AccountingEntry::create([
                         'condo_id'              => $moneyRefund['condo_id'],
                         'entry_date'            => $moneyRefund['posting_date'],
@@ -388,7 +399,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                     ]);
 
                 AccountingEntryLine::create([
-                        'account_id'            => $moneyRefund['ownership_id']['ownership_account_id'],
+                        'account_id'            => $ownershipAccount['id'],
                         'debit'                 => $moneyRefund['amount'],
                         'credit'                => 0.0,
                         'accounting_entry_id'   => $accountingEntry['id']

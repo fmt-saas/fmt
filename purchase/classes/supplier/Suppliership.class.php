@@ -28,7 +28,7 @@ class Suppliership extends \equal\orm\Model {
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'required'          => true,
-                'dependents'        => ['code', 'name', 'suppliership_account_id']
+                'dependents'        => ['code', 'name']
             ],
 
             'supplier_id' => [
@@ -36,7 +36,7 @@ class Suppliership extends \equal\orm\Model {
                 'foreign_object'    => 'purchase\supplier\Supplier',
                 'description'       => "Supplier the Suppliership relates to.",
                 'required'          => true,
-                'dependents'        => ['name', 'code', 'suppliership_account_id'],
+                'dependents'        => ['name', 'code'],
             ],
 
             'name' => [
@@ -55,15 +55,6 @@ class Suppliership extends \equal\orm\Model {
                 'description'       => "Code of the supplier for the Condominium.",
                 'help'              => "Code is assigned automatically, cannot be changed, and is intended to internal use.",
                 'readonly'          => true
-            ],
-
-            'suppliership_account_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'foreign_object'    => 'finance\accounting\Account',
-                'function'          => 'calcSuppliershipAccountId',
-                'store'             => true,
-                'instant'           => true
             ],
 
             'suppliership_contracts_ids' => [
@@ -198,39 +189,6 @@ class Suppliership extends \equal\orm\Model {
     }
 
     /**
-     * Retrieve the accounting account dedicated to owner (working fund)
-     */
-    protected static function calcSuppliershipAccountId($self) {
-        $result = [];
-        $self->read(['condo_id', 'code']);
-        foreach($self as $id => $suppliership) {
-
-            // find the suppliers account based on operation_assignment
-            $account = Account::search([
-                    ['condo_id', '=', $suppliership['condo_id']],
-                    ['operation_assignment', '=', 'suppliers']
-                ])
-                ->read(['code'])
-                ->first();
-
-            if(!$account) {
-                trigger_error("APP::unable to find a match for assignment `suppliers` for suppliership {$suppliership['condo_id']}", EQ_REPORT_ERROR);
-                continue;
-            }
-
-            if($account) {
-                $supplierAccount = Account::search([
-                        ['condo_id', '=', $suppliership['condo_id']],
-                        ['code', '=', $account['code'] . $suppliership['code']]
-                    ])
-                    ->first();
-                $result[$id] = $supplierAccount['id'] ?? null;
-            }
-        }
-        return $result;
-    }
-
-    /**
      * #memo - realestate.main.suppliership.sequence is initialized at Condominium creation (doGenerateSequences)
      */
     public static function calcSuppliershipCode($self) {
@@ -285,6 +243,7 @@ class Suppliership extends \equal\orm\Model {
      */
     public static function doGenerateAccounts($self) {
         $self->read(['condo_id', 'name', 'code']);
+
         foreach($self as $id => $suppliership) {
             if(!$suppliership['condo_id']) {
                 continue;
@@ -297,7 +256,8 @@ class Suppliership extends \equal\orm\Model {
                 // find the account based on operation_assignment to use it as "template"
                 $assignmentAccount = Account::search([
                         ['condo_id', '=', $suppliership['condo_id']],
-                        ['operation_assignment', '=', $operation_assignment]
+                        ['operation_assignment', '=', $operation_assignment],
+                        ['suppliership_id', '=', null]
                     ])
                     ->read(['code', 'account_category', 'account_chart_id'])
                     ->first();
@@ -317,10 +277,11 @@ class Suppliership extends \equal\orm\Model {
                             'account_chart_id'      => $assignmentAccount['account_chart_id'],
                             'account_category'      => $assignmentAccount['account_category'],
                             'description'           => $suppliership['name'],
-                            // make sure the account will not be used as template
-                            'operation_assignment'  => ''
+                            'operation_assignment'  => $operation_assignment,
+                            'suppliership_id'       => $id
                         ])
-                        ->read(['name']);
+                        ->read(['name'])
+                        ->first();
                 }
 
             }

@@ -6,6 +6,7 @@
 */
 namespace realestate\funding;
 
+use finance\accounting\Account;
 use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\Journal;
@@ -369,7 +370,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                 'fiscal_year_id',
                 'fiscal_period_id' => ['name', 'date_to'],
                 'statement_owners_ids' => [
-                    'ownership_id' => ['ownership_account_id'],
+                    'ownership_id',
                     'statement_owner_lines_ids' => [
                         'name',
                         'expense_type',
@@ -453,12 +454,23 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                         ]);
                 }
 
+                $ownershipAccount = Account::search([
+                        ['condo_id', '=', $statement['condo_id']],
+                        ['ownership_id', '=', $statementOwner['ownership_id']],
+                        ['operation_assignment', '=', 'co_owners_working_fund']
+                    ])
+                    ->first();
+
+                if(!$ownershipAccount) {
+                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                }
+
                 // create a single debit line on the ownership account
                 AccountingEntryLine::create([
                         'condo_id'              => $statement['condo_id'],
                         'accounting_entry_id'   => $accountingEntry['id'],
                         'name'                  => $description,
-                        'account_id'            => $statementOwner['ownership_id']['ownership_account_id'],
+                        'account_id'            => $ownershipAccount['id'],
                         'debit'                 => $total_ownership,
                         'credit'                => 0.0
                     ]);

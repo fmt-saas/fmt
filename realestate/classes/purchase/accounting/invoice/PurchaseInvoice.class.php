@@ -195,8 +195,19 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'string',
                 'description'       => 'Short description explaining the reason of holding back the payment.',
                 'visible'           => ['has_payment_on_hold', '=', true]
-            ]
+            ],
 
+// #todo - for now we limit this to VCS - with validation 
+            'payment_reference' => [
+                'type'              => 'string',
+                'description'       => 'Code provided by the supplier to use as reference in the wire transfer.'
+            ],
+
+            'has_date_range' => [
+                'type'              => 'boolean',
+                'description'       => 'Service delivered over a period of time.',
+                'default'           => true
+            ],
         ];
     }
 
@@ -254,6 +265,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     public static function getPolicies(): array {
+
+        // #todo - make sure VCS ['payment_reference'] is valid
         return array_merge(parent::getPolicies(), [
             'can_be_allocated' => [
                 'description' => 'Verifies that an invoice can be allocated of the posting date(s).',
@@ -517,9 +530,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 'has_fund_usage',
                 'fiscal_year_id',
                 'accounting_entries_ids',
-                'suppliership_id' => [
-                    'suppliership_account_id'
-                ],
+                'suppliership_id',
                 'invoice_lines_ids' => [
                     'expense_account_id',
                     'price',
@@ -591,12 +602,18 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 $description .= ' (' . date('Y-m-d', $date_from) . ' - ' . date('Y-m-d', $date_to) . ')';
             }
 
+            $suppliershipAccount = Account::search([
+                    ['condo_id', '=', $invoice['condo_id']],
+                    ['suppliership_id', '=', $invoice['suppliership_id']]
+                ])
+                ->first();
+
             // 1) create the credit line on the supplier account
             AccountingEntryLine::create([
                     'condo_id'              => $invoice['condo_id'],
                     'accounting_entry_id'   => $accountingEntry['id'],
                     'name'                  => $description,
-                    'account_id'            => $invoice['suppliership_id']['suppliership_account_id'],
+                    'account_id'            => $suppliershipAccount['id'],
                     'debit'                 => 0.0,
                     'credit'                => $invoice['price']
                 ]);
@@ -634,8 +651,17 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
             // #memo - in case of a private expense, only first date is used for accounting
             foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
                 if($invoiceLine['is_private_expense']) {
+                    $ownershipAccount = Account::search([
+                            ['condo_id', '=', $invoice['condo_id']],
+                            ['ownership_id', '=', $invoiceLine['ownership_id']],
+                            ['operation_assignment', '=', 'co_owners_working_fund']
+                        ])
+                        ->first();
 
-                    $ownership = Ownership::id($invoiceLine['ownership_id'])->read(['ownership_account_id'])->first();
+                    if(!$ownershipAccount) {
+                        throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                    }
+
 
 // #todo - handle invoice_type
 
@@ -656,7 +682,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                                 'condo_id'              => $invoice['condo_id'],
                                 'accounting_entry_id'   => $accountingEntry['id'],
                                 'name'                  => $invoice['description'],
-                                'account_id'            => $ownership['ownership_account_id'],
+                                'account_id'            => $ownershipAccount['id'],
                                 'invoice_line_id'       => $invoice_line_id,
                                 'debit'                 => 0.0,
                                 'credit'                => $invoiceLine['price']
@@ -958,6 +984,9 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 $result['supplier_identity_id'] = $suppliership['supplier_id']['identity_id'];
             }
             $result['suppliership_bank_account_id'] = null;
+        }
+        if(isset($event['payment_reference'])) {
+            $result['payment_reference'] = str_replace(['+', '/'], '', $event['payment_reference']);
         }
         return array_merge(parent::onchange($event, $values), $result);
     }
