@@ -107,7 +107,7 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
@@ -124,16 +124,30 @@
                                                 "value": "accounting_account_code",
                                                 "width": "20%",
                                                 "visible": false
-                                            },
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "16%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
                                             {
                                                 "type": "field",
                                                 "value": "communication",
-                                                "width": "35%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "amount",
-                                                "width": "20%"
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_reconciled",
+                                                "width": "33%"
                                             }
                                         ]
                                     }
@@ -183,6 +197,33 @@
                                                 "type": "field",
                                                 "value": "ownership_id",
                                                 "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.payments",
+                        "label": "Payments",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "payments_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.statement"
+                                                }
                                             }
                                         ]
                                     }

@@ -36,9 +36,9 @@
             "label": "Mode de paiement",
             "description": "Le mode de paiement utilisé.",
             "selection": {
-                "voucher": "Chèque cadeau (voucher)",
                 "cash": "Espèces",
                 "bank_card": "Carte bancaire",
+                "voucher": "Chèque cadeau (voucher)",
                 "wire_transfer": "Virement bancaire"
             },
             "help": ""

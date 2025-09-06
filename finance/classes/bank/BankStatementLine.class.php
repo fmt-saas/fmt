@@ -152,6 +152,7 @@ class BankStatementLine extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
                 'description'       => 'A line is reconciled if the sum of its payments matches its amount.',
+                'help'              => "This flag is used as indicator for granting the posting of the line.",
                 'function'          => 'calcIsReconciled',
                 'store'             => true,
                 'instant'           => true
@@ -278,6 +279,7 @@ class BankStatementLine extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'pending',              // requires a review
+                    // #deprecated
                     'reconciled',           // has been processed and assigned to a payment
                     'posted'                // has been posted to accounting and cannot be changed anymore
                 ],
@@ -616,7 +618,7 @@ class BankStatementLine extends Model {
                 $sum += round($payment['amount'], 2);
             }
 
-            $result[$id] = ($sum === 0.0);
+            $result[$id] = ($sum === $statementLine['amount']);
         }
         return $result;
     }
@@ -782,9 +784,11 @@ class BankStatementLine extends Model {
                                     ['suppliership_id', '=', $payment['funding_id']['suppliership_id']]
                                 ])
                                 ->first();
+
                             if(!$suppliershipAccount) {
                                 throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                             }
+
                             $debit_account_id = $suppliershipAccount['id'];
                             // #memo - the source of truth is the bank statement, not the funding
                             // $credit_account_id = $payment['funding_id']['bank_account_id'];
@@ -818,6 +822,7 @@ class BankStatementLine extends Model {
                             if(!$ownershipAccount) {
                                 throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                             }
+
                             $debit_account_id = $bankAccount['accounting_account_id'];
                             $credit_account_id = $ownershipAccount['id'];
                             break;

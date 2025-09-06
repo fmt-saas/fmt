@@ -22,9 +22,24 @@
             },
             {
                 "type": "field",
+                "value": "receipt_date",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "payment_origin",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "payment_method",
+                "width": "20%"
+            },
+            {
+                "type": "field",
                 "label": "Funding",
                 "value": "funding_id",
-                "width": "80%"
+                "width": "25%"
             },
             {
                 "type": "field",

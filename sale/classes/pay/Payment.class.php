@@ -106,7 +106,6 @@ class Payment extends Model {
                     'wire_transfer'         // transfer between bank account
                 ],
                 'description'       => "The method used for payment at the cashdesk.",
-                'visible'           => ['payment_origin', '=', 'cashdesk'],
                 'default'           => 'wire_transfer'
             ],
 

@@ -8,120 +8,105 @@
                 "condo_id": 4,
                 "supplier_id": 1136,
                 "name": "00001 - 1000 MILLIEMES",
-                "code": "00001",
-                "suppliership_account_id": 1485
+                "code": "00001"
             },
             {
                 "id": 8,
                 "condo_id": 4,
                 "supplier_id": 1137,
                 "name": "00002 - ACP CONSEIL",
-                "code": "00002",
-                "suppliership_account_id": 1486
+                "code": "00002"
             },
             {
                 "id": 9,
                 "condo_id": 4,
                 "supplier_id": 1138,
                 "name": "00003 - ADAM Olivier",
-                "code": "00003",
-                "suppliership_account_id": 1487
+                "code": "00003"
             },
             {
                 "id": 10,
                 "condo_id": 4,
                 "supplier_id": 1139,
                 "name": "00004 - DULIEU",
-                "code": "00004",
-                "suppliership_account_id": 1488
+                "code": "00004"
             },
             {
                 "id": 11,
                 "condo_id": 4,
                 "supplier_id": 1049,
                 "name": "00005 - ENGIE",
-                "code": "00005",
-                "suppliership_account_id": 1489
+                "code": "00005"
             },
             {
                 "id": 12,
                 "condo_id": 4,
                 "supplier_id": 1140,
                 "name": "00006 - ETHIAS ASSURANCES",
-                "code": "00006",
-                "suppliership_account_id": 1490
+                "code": "00006"
             },
             {
                 "id": 13,
                 "condo_id": 4,
                 "supplier_id": 1141,
                 "name": "00007 - GILLES OLIVIERS AVOCAT",
-                "code": "00007",
-                "suppliership_account_id": 1491
+                "code": "00007"
             },
             {
                 "id": 14,
                 "condo_id": 4,
                 "supplier_id": 1142,
                 "name": "00008 - HOTEL BARSEY",
-                "code": "00008",
-                "suppliership_account_id": 1492
+                "code": "00008"
             },
             {
                 "id": 15,
                 "condo_id": 4,
                 "supplier_id": 1143,
                 "name": "00009 - JV CONSULT",
-                "code": "00009",
-                "suppliership_account_id": 1493
+                "code": "00009"
             },
             {
                 "id": 16,
                 "condo_id": 4,
                 "supplier_id": 1144,
                 "name": "00010 - PIL Margaretha",
-                "code": "00010",
-                "suppliership_account_id": 1494
+                "code": "00010"
             },
             {
                 "id": 17,
                 "condo_id": 4,
                 "supplier_id": 1145,
                 "name": "00011 - MEUWESE & GULBIS",
-                "code": "00011",
-                "suppliership_account_id": 1495
+                "code": "00011"
             },
             {
                 "id": 18,
                 "condo_id": 4,
                 "supplier_id": 1146,
                 "name": "00012 - PARTENA - GUICHET D'ENTREPRISES",
-                "code": "00012",
-                "suppliership_account_id": 1496
+                "code": "00012"
             },
             {
                 "id": 19,
                 "condo_id": 4,
                 "supplier_id": 1147,
                 "name": "00013 - VERBRUGGEN ENTREPRISES",
-                "code": "00013",
-                "suppliership_account_id": 1497
+                "code": "00013"
             },
             {
                 "id": 20,
                 "condo_id": 4,
                 "supplier_id": 1126,
                 "name": "00014 - ANN VERREZEN HUISSIER",
-                "code": "00014",
-                "suppliership_account_id": 1498
+                "code": "00014"
             },
             {
                 "id": 21,
                 "condo_id": 4,
                 "supplier_id": 1131,
                 "name": "00015 - VIVAQUA",
-                "code": "00015",
-                "suppliership_account_id": 1499
+                "code": "00015"
             }
         ]
     }
