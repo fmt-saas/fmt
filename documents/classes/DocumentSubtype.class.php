@@ -52,7 +52,7 @@ class DocumentSubtype extends Model {
 
             'labeling_rules_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'documents\recording\RecordingRule',
+                'foreign_object'    => 'documents\labeling\LabelingRule',
                 'foreign_field'     => 'document_subtype_id',
                 'description'       => 'Rules matching the document subtype.'
             ],

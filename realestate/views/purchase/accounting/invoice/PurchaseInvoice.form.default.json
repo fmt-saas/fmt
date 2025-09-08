@@ -7,7 +7,9 @@
             "label": "Validate",
             "description": "To Invoice.",
             "controller": "core_model_transition",
-            "visible": [["state", "=", "instance"], ["status", "=", "proforma"]],
+            "visible": false,
+            "visible_help": "A purchase invoice should always be posted through its parent DocumentProcess.",
+            "visible1": [["state", "=", "instance"], ["status", "=", "proforma"]],
             "params": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                 "transition": "post",
@@ -50,7 +52,9 @@
             "route": "/?get=documents_document&id=object.document_id",
             "target": "_blank",
             "absolute": true,
-            "visible": [null, "<>", "object.document_id"]
+            "visible": false,
+            "visible_help": "prevent showing link to preserve space while encoding (doc already shown if present)",
+            "visible1": [null, "<>", "object.document_id"]
         }
     ],
     "layout": {
@@ -155,7 +159,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "price_control",
+                                                "value": "payable_amount",
                                                 "width": "25%",
                                                 "visible": true
                                             },

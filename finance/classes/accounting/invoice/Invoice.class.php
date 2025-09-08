@@ -158,12 +158,14 @@ class Invoice extends Model {
             'date_from' => [
                 'type'              => 'date',
                 'description'       => 'First date of the date range.',
+                'default'           => function () { return time(); },
                 'visible'           => ['has_date_range', '=', true]
             ],
 
             'date_to' => [
                 'type'              => 'date',
                 'description'       => 'Last date of the date range.',
+                'default'           => function () { return time(); },
                 'visible'           => ['has_date_range', '=', true]
             ],
 

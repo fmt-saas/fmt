@@ -10,7 +10,7 @@
             "route": "/?get=sale_pay_Funding_sepa&id=object.id",
             "target": "_blank",
             "absolute": true,
-            "visible": [["pending", "=", "object.status"], ["due_amount", "<", 0]]
+            "visible": [["pending", "=", "object.status"], ["due_amount", "<", 0], ["has_mandate", "=", false]]
         }
     ],
     "layout": {
@@ -136,6 +136,12 @@
                                                 "value": "money_transfer_id",
                                                 "width": "50%",
                                                 "visible": ["funding_type", "=", "transfer"]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Mandate",
+                                                "value": "has_mandate",
+                                                "width": "100%"
                                             }
                                         ]
                                     },

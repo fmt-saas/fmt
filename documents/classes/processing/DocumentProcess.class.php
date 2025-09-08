@@ -1068,11 +1068,11 @@ class DocumentProcess extends Model {
 
                         // attempt to retrieve supplier
                         if(!$values['supplier_id']) {
-                            if(isset($data['supplier']['name'])) {
+                            if(isset($data['supplier']['name']) && strlen($data['supplier']['name']) > 0) {
                                 $suppliers_ids = Supplier::search(['legal_name', 'ilike', $data['supplier']['name'] . '%'])->ids();
                                 if(count($suppliers_ids)) {
                                     $values['supplier_id'] = current($suppliers_ids);
-                                    $logs[] = "supplier_id retrieved from '{$data['supplier']['name']}'";
+                                    $logs[] = "supplier_id retrieved from NAME '{$data['supplier']['name']}'";
                                 }
                             }
                         }
@@ -1095,7 +1095,7 @@ class DocumentProcess extends Model {
                                 if($supplierReference) {
                                     $values['condo_id'] = $supplierReference['condo_id'];
                                     $doc_values['condo_id'] = $values['condo_id'];
-                                    $logs[] = "condo_id retrieved from '{$data['customer'][$ref]}' ($ref)";
+                                    $logs[] = "condo_id retrieved from $ref '{$data['customer'][$ref]}'";
                                     break;
                                 }
                             }
@@ -1110,7 +1110,7 @@ class DocumentProcess extends Model {
                                 if(count($condominiums_ids) === 1) {
                                     $values['condo_id'] = current($condominiums_ids);
                                     $doc_values['condo_id'] = $values['condo_id'];
-                                    $logs[] = "condo_id retrieved from '{$customer_name}'";
+                                    $logs[] = "condo_id retrieved from NAME '{$customer_name}'";
                                 }
                             }
                         }
@@ -1127,11 +1127,12 @@ class DocumentProcess extends Model {
                                 }
                             }
                         }
-                        if(isset($data['bank_bic']) && strlen($data['bank_bic'])) {
+                        if(isset($data['bank_bic']) && strlen($data['bank_bic']) > 0) {
+                            // #memo - Bank inherits from `purchase\supplier\Supplier`
                             $bank = Bank::search(['bic', '=', $data['bank_bic']])->first();
                             if($bank) {
                                 $values['supplier_id'] = $bank['id'];
-                                $logs[] = "supplier_id retrieved from '{$data['bank_bic']}'";
+                                $logs[] = "supplier_id retrieved from BIC '{$data['bank_bic']}'";
                             }
                         }
                         break;
@@ -1236,7 +1237,8 @@ class DocumentProcess extends Model {
                             'suppliership_id'               => $suppliership['id'],
                             'supplier_invoice_number'       => $data['invoice_number'],
                             'suppliership_bank_account_id'  => $bankAccount['id'] ?? null,
-                            'payment_reference'             => str_replace(['+', '/'], '', $data['payment']['payment_id']),
+                            'payment_reference'             => str_replace(['+', '/'], '', $data['payment']['payment_id'] ?? ''),
+                            'payable_amount'                => $data['totals']['payable_amount'] ?? '',
                             'emission_date'                 => strtotime($data['issue_date']),
                             'due_date'                      => strtotime($data['due_date']),
                             'has_fund_usage'                => false,
@@ -1249,6 +1251,15 @@ class DocumentProcess extends Model {
                             'posting_date'                  => strtotime($data['issue_date'])
                         ])
                         ->first();
+
+                    if(isset($data['invoice_period'], $data['invoice_period']['start_date'], $data['invoice_period']['end_date'])) {
+                        PurchaseInvoice::id($invoice['id'])
+                            ->update([
+                                'has_date_range'    => true,
+                                'date_from'         => strtotime($data['invoice_period']['start_date']),
+                                'date_to'           => strtotime($data['invoice_period']['end_date'])
+                            ]);
+                    }
 
                     foreach($recordingRuleLines as $recordingRuleLine) {
                         // add invoice lines

@@ -75,6 +75,17 @@ class Funding extends \sale\pay\Funding {
                 'description'       => "Type of funding. Either an installment, a specific invoice, a fund request, or an expense statement."
             ],
 
+            'has_mandate' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'relation'          => ['invoice_id' => 'has_mandate'],
+                'description'       => 'Mark Payment to be made through a mandate.',
+                'help'              => 'The Condominium has an active SEPA mandate for paying invoices from this supplier and payment will be made through it.',
+                'store'             => true,
+                'default'           => false,
+                'visible'           => ['invoice_id', '<>', null]
+            ],
+
             'fund_request_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\FundRequest',
@@ -107,6 +118,7 @@ class Funding extends \sale\pay\Funding {
                 'description'       => 'The purchase invoice targeted by the funding, if any.',
                 'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).',
                 'readonly'          => true,
+                'dependents'        => ['has_mandate'],
                 'visible'           => ['funding_type', 'in', ['installment', 'invoice']],
             ],
 

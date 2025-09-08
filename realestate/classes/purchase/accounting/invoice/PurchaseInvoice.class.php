@@ -19,6 +19,7 @@ use finance\bank\CondominiumBankAccount;
 use fmt\setting\Setting;
 use purchase\supplier\Suppliership;
 use realestate\ownership\Ownership;
+use realestate\property\Condominium;
 use realestate\purchase\accounting\AccountingEntry;
 use realestate\purchase\accounting\AccountingEntryLine;
 use realestate\sale\pay\Funding;
@@ -174,21 +175,17 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'function'          => 'calcDocumentLink',
             ],
 
-            'price_control' => [
+            'payable_amount' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => 'Expected Final tax-included invoiced amount.',
                 'help'              => 'This field is used to compare with sum of invoice lines prices.'
             ],
 
-            'has_mandate' => [
-                'type'              => 'boolean',
-                'description'       => 'Payment will be made through SEPA mandate.',
-            ],
-
             'has_payment_on_hold' => [
                 'type'              => 'boolean',
-                'description'       => 'Payment will be made through SEPA mandate.',
+                'description'       => 'Payment should not be made for now.',
+                'default'           => false
             ],
 
             'on_hold_description' => [
@@ -197,7 +194,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'visible'           => ['has_payment_on_hold', '=', true]
             ],
 
-// #todo - for now we limit this to VCS - with validation 
+            // #todo - for now we limit this to VCS - with validation
             'payment_reference' => [
                 'type'              => 'string',
                 'description'       => 'Code provided by the supplier to use as reference in the wire transfer.'
@@ -206,7 +203,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             'has_date_range' => [
                 'type'              => 'boolean',
                 'description'       => 'Service delivered over a period of time.',
-                'default'           => true
+                'help'              => '',
+                // #memo - if we set default to true we cannot distinct a not found invoice_period from an invoice without invoice_period
+                'default'           => false
             ],
         ];
     }
@@ -317,6 +316,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         $result = [];
         $self->read([
                 'price',
+                'payable_amount',
+                'condo_bank_account_id',
                 'suppliership_bank_account_id',
                 'invoice_lines_ids' => [
                     'total', 'price', 'vat_rate', 'owner_share', 'tenant_share'
@@ -326,6 +327,14 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 ]
             ]);
         foreach($self as $id => $invoice) {
+
+            if(!$invoice['condo_bank_account_id']) {
+                // error : missing condominium bank account
+                $result[$id] = [
+                    'missing_condominium_bank_account' => 'Missing condominium bank account.'
+                ];
+                continue;
+            }
 
             if(!$invoice['suppliership_bank_account_id']) {
                 // error : missing suppliership bank account
@@ -352,7 +361,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
                 $lines_total += $invoiceLine['price'];
             }
-            if($invoice['price'] != $lines_total) {
+            if($invoice['price'] != $lines_total || $invoice['payable_amount'] != $lines_total) {
                 // error : non matching invoice price with sum of invoice lines prices
                 $result[$id] = [
                     'non_matching_lines_total' => 'Invoice total and lines total do not match.'
@@ -1007,11 +1016,13 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
     }
 
     /**
-     * Sync back manually encoded values to the JSON structure of the linked document, if any (`urn:fmt:json-schema:finance:purchase-invoice`).
+     * Sync back manually encoded values to the JSON structure of the linked document, if any.
+     * Values are mapped according to the relevant schema : `urn:fmt:json-schema:finance:purchase-invoice`
      *
      */
     protected static function doUpdateDocumentJson($self) {
         $self->read([
+                'condo_id',
                 'document_process_id',
                 'invoice_lines_ids',
                 'suppliership_id',
@@ -1021,7 +1032,8 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 'due_date',
                 'emission_date',
                 'payment_reference',
-                'price',
+                'payable_amount',
+                'has_date_range',
                 'date_from',
                 'date_to'
             ]);
@@ -1032,6 +1044,15 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
             }
 
             $fields = [];
+
+            if(isset($invoice['condo_id'])) {
+                $condominium = Condominium::id($invoice['condo_id'])->read(['name', 'address_street', 'address_city', 'address_zip', 'address_country'])->first();
+                $fields['customer']['name'] = $condominium['name'];
+                $fields['customer']['address']['street'] = $condominium['address_street'];
+                $fields['customer']['address']['city'] = $condominium['address_city'];
+                $fields['customer']['address']['postal_code'] = $condominium['address_zip'];
+                $fields['customer']['address']['country'] = $condominium['address_country'];
+            }
 
             if(isset($invoice['suppliership_bank_account_id'])) {
                 $bankAccount = BankAccount::id($invoice['suppliership_bank_account_id'])->read(['bank_account_iban', 'bank_account_bic'])->first();
@@ -1074,12 +1095,12 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
             // $fields['payment']['payment_means_code'] = 30;
 
             // #memo - this field never changes : it is computed through the lines
-            if(isset($invoice['price'])) {
-                $fields['totals']['total_incl_tax'] = $invoice['price'];
-                $fields['totals']['payable_amount'] = $invoice['price'];
+            if(isset($invoice['payable_amount'])) {
+                $fields['totals']['total_incl_tax'] = $invoice['payable_amount'];
+                $fields['totals']['payable_amount'] = $invoice['payable_amount'];
             }
 
-            if(isset($invoice['date_from'], $invoice['date_to'])) {
+            if($invoice['has_date_range'] && isset($invoice['date_from'], $invoice['date_to'])) {
                 $fields['invoice_period']['start_date'] = date('c', $invoice['date_from']);
                 $fields['invoice_period']['end_date'] = date('c', $invoice['date_to']);
             }

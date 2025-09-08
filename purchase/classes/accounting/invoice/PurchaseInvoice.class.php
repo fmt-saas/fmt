@@ -77,6 +77,13 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                 'description'       => 'Code provided by the supplier to use as reference in the wire transfer.'
             ],
 
+            'has_mandate' => [
+                'type'              => 'boolean',
+                'description'       => 'Mark invoice as to be paid through a mandate.',
+                'help'              => 'The Condominium has an active SEPA mandate for paying invoices from this supplier and payment will be made through it.',
+                'default'           => false
+            ],
+
             'supplier_invoice_number' => [
                 'type'              => 'string',
                 'required'          => true,
@@ -186,18 +193,20 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
         if(isset($values['condo_id'])) {
             if(isset($event['emission_date'])) {
                 $result['posting_date'] = $event['emission_date'];
+                $result['date_from'] = $event['emission_date'];
+                $result['date_to'] = $event['emission_date'];
                 // force updating fiscal_year accordingly
                 $event['posting_date'] = $event['emission_date'];
             }
             if(isset($event['posting_date']) || isset($event['date_from'])) {
                 if(isset($event['posting_date'])) {
                     $fiscalYear = FiscalYear::search([['condo_id', '=', $values['condo_id']], ['date_from', '<=', $event['posting_date']], ['date_to', '>=', $event['posting_date']]])
-                        ->read(['id', 'name'])
+                        ->read(['id', 'name', 'fiscal_periods_ids' => ['name', 'date_from', 'date_to']])
                         ->first();
                 }
                 else {
                     $fiscalYear = FiscalYear::search([['condo_id', '=', $values['condo_id']], ['date_from', '<=', $event['date_from']], ['date_to', '>=', $event['date_from']]])
-                        ->read(['id', 'name'])
+                        ->read(['id', 'name', 'fiscal_periods_ids' => ['name', 'date_from', 'date_to']])
                         ->first();
                 }
                 if($fiscalYear) {
@@ -205,6 +214,18 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                         'id'    => $fiscalYear['id'],
                         'name'  => $fiscalYear['name']
                     ];
+                    if(isset($event['posting_date'])) {
+                        foreach($fiscalYear['fiscal_periods_ids'] ?? [] as $period_id => $period) {
+                            if($event['posting_date'] >= $period['date_from'] && $event['posting_date'] <= $period['date_to']) {
+                                $result['fiscal_period_id'] = [
+                                    'id'    => $period_id,
+                                    'name'  => $period['name']
+                                ];
+                                break;
+                            }
+                        }
+                    }
+
                 }
             }
         }

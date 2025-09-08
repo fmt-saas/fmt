@@ -62,9 +62,14 @@ $output = [
     ],
     'customer' => [
         'name'              => '',
-        'customer_number'   => null,
+        'customer_number'   => '',
         'vat_id'            => '',
-        'address'           => '',
+        'address'           => [
+            'street'        => '',
+            'city'          => '',
+            'postal_code'   => '',
+            'country'       => '',
+        ]
     ],
     'lines' => [],
     'totals' => [
@@ -74,8 +79,8 @@ $output = [
         'payable_amount'    => 0.0,
     ],
     'payment' => [
-        'iban'              => null,
-        'bic'               => null,
+        'iban'              => '',
+        'bic'               => '',
         'payment_id'        => null,
         'payment_means_code' => '30'
     ]

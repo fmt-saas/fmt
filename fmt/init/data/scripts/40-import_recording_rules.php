@@ -17,7 +17,8 @@ $recordingRule = RecordingRule::create([
         'is_template'           => true,
         'name'                  => 'Facture d\'acompte EAU',
         'document_type_id'      => $documentType['id'],
-        'document_subtype_id'   => $documentSubtype['id']
+        'document_subtype_id'   => $documentSubtype['id'],
+        'supplier_type_id'      => 3
     ])
     ->first();
 

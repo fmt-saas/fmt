@@ -31,7 +31,13 @@
                                                 "type": "field",
                                                 "value": "document_subtype_id",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "supplier_type_id",
+                                                "width": "50%"
                                             }
+
                                         ]
                                     }
                                 ]

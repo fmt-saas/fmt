@@ -17,6 +17,12 @@
             },
             {
                 "type": "field",
+                "label": "Type",
+                "value": "bank_account_type",
+                "width": "20%"
+            },
+            {
+                "type": "field",
                 "label": "Supplier",
                 "value": "supplier_identity_id",
                 "width": "25%"

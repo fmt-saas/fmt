@@ -39,6 +39,7 @@ class SuppliershipReference extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'purchase\supplier\Suppliership',
+                'dependents'        => ['supplier_id'],
                 'required'          => true
             ],
 
