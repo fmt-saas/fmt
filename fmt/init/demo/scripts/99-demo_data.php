@@ -126,7 +126,14 @@ foreach($recordingRules as $recordingRule) {
 }
 */
 
-$recordingRule = RecordingRule::create(['condo_id' => 1, 'name' => 'facture d\'acompte EAU', 'document_type_id' => 1, 'document_subtype_id' => 1])->first();
+$recordingRule = RecordingRule::create([
+        'condo_id'              => 1,
+        'name'                  => 'facture d\'acompte EAU',
+        'document_type_id'      => 1,
+        'document_subtype_id'   => 1,
+        'supplier_type_id'      => 3
+    ])->first();
+
 RecordingRuleLine::create([
         'name' => 'eau',
         'condo_id' => 1,
