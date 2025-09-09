@@ -308,7 +308,7 @@ class Condominium extends Identity {
                 'icon'        => 'edit',
                 'transitions' => [
                     'validate' => [
-                        'description' => 'Update the document to `validated`.',
+                        'description' => 'Update the Condominium to `validated`.',
                         'policies'    => ['is_valid'],
                         'onafter'     => 'onafterValidate',
                         'status'      => 'validated'
@@ -316,7 +316,7 @@ class Condominium extends Identity {
                 ]
             ],
             'validated' => [
-                'description' => 'Validated Condominium, waiting to be processed.',
+                'description' => 'Validated Condominium.',
                 'icon'        => 'done',
                 'transitions' => [
                 ]

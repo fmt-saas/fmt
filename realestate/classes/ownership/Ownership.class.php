@@ -98,6 +98,9 @@ class Ownership extends \equal\orm\Model {
                 'dependents'        => ['owners_ids' => 'ownership_percentage']
             ],
 
+            // #memo - a Suppliership might be linked to several Accounts of the Accounting Chart
+            // 'accounting_account_id' => [
+
             'date_from' => [
                 'type'              => 'date',
                 'description'       => "Date from which the owners owned at least one property lot.",
@@ -414,7 +417,6 @@ class Ownership extends \equal\orm\Model {
                     Account::create([
                             'code'                  => $assignmentAccount['code'] . $ownership['code'],
                             'condo_id'              => $ownership['condo_id'],
-                            'ownership_id'          => $id,
                             'parent_account_id'     => $assignmentAccount['id'],
                             'account_chart_id'      => $assignmentAccount['account_chart_id'],
                             'account_category'      => $assignmentAccount['account_category'],

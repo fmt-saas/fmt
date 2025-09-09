@@ -81,6 +81,9 @@ class Suppliership extends \equal\orm\Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            // #memo - a Suppliership might be linked to several Accounts of the Accounting Chart
+            // 'accounting_account_id' => [
+
             'status' => [
                 'type'              => 'string',
                 'description'       => 'Current status of the Ownership.',
@@ -272,7 +275,6 @@ class Suppliership extends \equal\orm\Model {
                     Account::create([
                             'code'                  => $assignmentAccount['code'] . $suppliership['code'],
                             'condo_id'              => $suppliership['condo_id'],
-                            'suppliership_id'       => $id,
                             'parent_account_id'     => $assignmentAccount['id'],
                             'account_chart_id'      => $assignmentAccount['account_chart_id'],
                             'account_category'      => $assignmentAccount['account_category'],

@@ -21,7 +21,7 @@ class CondominiumBankAccount extends BankAccount {
                 'foreign_object'    => 'realestate\property\Condominium',
                 //'readonly'          => true
                 'visible'           => ['organisation_id', '=', null],
-                'dependents'        => ['condominium_identity_id', 'accounting_account_id']
+                'dependents'        => ['condominium_identity_id']
             ],
 
             'bank_account_type' => [
@@ -32,8 +32,7 @@ class CondominiumBankAccount extends BankAccount {
                     'bank_current',
                     'bank_savings'
                 ],
-                'default'           => 'bank_current',
-                'dependents'        => ['accounting_account_id']
+                'default'           => 'bank_current'
             ],
 
             'condominium_identity_id' => [
@@ -46,12 +45,9 @@ class CondominiumBankAccount extends BankAccount {
             ],
 
             'accounting_account_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
+                'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
-                'function'          => 'calcAccountingAccountId',
-                'store'             => true,
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['operation_assignment', '=', 'object.bank_account_type']]
             ],
 
             'last_statement_balance' => [
@@ -106,9 +102,128 @@ class CondominiumBankAccount extends BankAccount {
                 'description'       => "The Identity the bank account in attached to.",
                 'foreign_object'    => 'identity\Identity',
                 'domain'            => ['id', '=', 'object.condominium_identity_id']
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'description'       => 'Current status of the Bank Account.',
+                'selection'         => [
+                    'pending',
+                    'validated'
+                ],
+                'default'           => 'pending'
             ]
 
         ];
+    }
+
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Condominium with details being completed, waiting to be validated.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Update the Bank Account to `validated`.',
+                        'policies'    => ['is_valid'],
+                        'onafter'     => 'onafterValidate',
+                        'status'      => 'validated'
+                    ]
+                ]
+            ],
+            'validated' => [
+                'description' => 'Validated Bank Account.',
+                'icon'        => 'done',
+                'transitions' => [
+                ]
+            ]
+        ];
+    }
+
+    public static function getPolicies(): array {
+        return [
+            'is_valid' => [
+                'description' => 'Verifies that the mandatory values are present for Condominium validation.',
+                'function'    => 'policyIsValid'
+            ]
+        ];
+    }
+
+    public static function getActions() {
+        return [
+            'generate_accounts' => [
+                'description'   => 'Generate mandatory accounting Accounts for Ownership.',
+                'policies'      => [],
+                'function'      => 'doGenerateAccounts'
+            ]
+        ];
+    }
+
+    protected static function onafterValidate($self) {
+        $self
+            ->do('generate_accounts');
+    }
+
+    protected static function policyIsValid($self) {
+        $result = [];
+        $self->read(['condo_id', 'managing_agent_id']);
+        foreach($self as $id => $condominium) {
+
+            if(!$condominium['condo_id']) {
+                $result[$id] = [
+                    'missing_cond_id' => 'The condominium must be provided.'
+                ];
+            }
+
+        }
+    }
+
+    protected static function doGenerateAccounts($self) {
+        $self->read(['condo_id', 'bank_account_type', 'name']);
+        foreach($self as $id => $bankAccount) {
+            if(!$bankAccount['condo_id']) {
+                continue;
+            }
+
+            // find the account based on operation_assignment to use it as "template"
+            $assignmentAccount = Account::search([
+                    ['condo_id', '=', $bankAccount['condo_id']],
+                    ['operation_assignment', '=', $bankAccount['bank_account_type']],
+                    ['condo_bank_account_id', '=', null]
+                ])
+                ->read(['code', 'account_category', 'account_chart_id'])
+                ->first();
+
+            if(!$assignmentAccount) {
+                trigger_error("APP::Could not find account candidate for condominium {$bankAccount['condo_id']} for operation assignment {$bankAccount['bank_account_type']}", EQ_REPORT_ERROR);
+                throw new \Exception("missing_mandatory_account", EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $account_exists = (bool) count(Account::search([['condo_bank_account_id', '=', $id], ['condo_id', '=', $bankAccount['condo_id'] ]])->ids());
+
+            if(!$account_exists) {
+                $index = Account::search([
+                        ['condo_id', '=', $bankAccount['condo_id']],
+                        ['operation_assignment', '=', $bankAccount['bank_account_type']],
+                        ['condo_bank_account_id', '<>', null]
+                    ])
+                    ->count();
+
+                Account::create([
+                        'code'                  => $assignmentAccount['code'] . sprintf("%02", $index + 1),
+                        'condo_id'              => $bankAccount['condo_id'],
+                        'ownership_id'          => $id,
+                        'parent_account_id'     => $assignmentAccount['id'],
+                        'account_chart_id'      => $assignmentAccount['account_chart_id'],
+                        'account_category'      => $assignmentAccount['account_category'],
+                        'description'           => $bankAccount['name'],
+                        'operation_assignment'  => $bankAccount['bank_account_type'],
+                        'condo_bank_account_id' => $id
+                    ])
+                    ->read(['name']);
+            }
+
+        }
     }
 
     protected static function calcCurrentBalance($self) {
@@ -150,22 +265,6 @@ class CondominiumBankAccount extends BankAccount {
             }
 
             $result[$id] = $balance;
-        }
-        return $result;
-    }
-
-    // #todo - add support for multiple accounts of the same type
-    // #memo - for now, only a single account is handled for each account type (current, saving, loan)
-    protected static function calcAccountingAccountId($self) {
-        $result = [];
-        $self->read(['bank_account_type', 'bank_account_iban', 'condo_id']);
-        foreach($self as $id => $bankAccount) {
-            if($bankAccount['condo_id'] && $bankAccount['bank_account_type']) {
-                $account = self::computeAccountingAccount($bankAccount['bank_account_type'], $bankAccount['condo_id']);
-                if($account) {
-                    $result[$id] = $account['id'];
-                }
-            }
         }
         return $result;
     }

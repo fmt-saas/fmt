@@ -222,12 +222,17 @@ class Account extends Model {
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account."
             ],
 
+
+            /*
+                entities the Account can possibly be linked to
+            */
+
             'ownership_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'ondelete'          => 'null',
                 'description'       => "The ownership that the account refers to, if any.",
-                'domain'            => [['condo_id', '=', 'object.condo_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'suppliership_id' => [
@@ -235,8 +240,17 @@ class Account extends Model {
                 'foreign_object'    => 'purchase\supplier\Suppliership',
                 'ondelete'          => 'null',
                 'description'       => 'The supplier the account relates to, if any.',
-                'domain'            => [['condo_id', '=', 'object.condo_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+            ],
+
+            'condo_bank_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\CondominiumBankAccount',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'ondelete'          => 'null',
+                'description'       => 'Condominium bank account the account relates to, if any.'
             ]
+
         ];
     }
 
