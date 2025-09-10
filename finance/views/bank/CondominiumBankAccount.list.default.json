@@ -13,6 +13,11 @@
                 "after": [
                     {
                         "type": "field",
+                        "value": "status",
+                        "width": "10%"
+                    },
+                    {
+                        "type": "field",
                         "label": "Balance",
                         "value": "current_balance",
                         "width": "10%"

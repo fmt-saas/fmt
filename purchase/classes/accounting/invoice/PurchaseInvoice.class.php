@@ -320,7 +320,7 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
         return $result;
     }
 
-    protected static function policyCanBeInvoiced($self): array {
+    protected static function policyCanBeInvoiced($self, $dispatch): array {
         $result = [];
         $self->read(['invoice_lines_ids' => ['vat_rate']]);
         foreach($self as $id => $invoice) {

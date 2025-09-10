@@ -1,6 +1,7 @@
 {
     "name": "Bank Account List ",
     "description": "This view is intended for displaying the bank accounts",
+    "controller": "finance_bank_BankAccount_collect",
     "layout": {
         "items": [
             {
@@ -31,12 +32,19 @@
             {
                 "type": "field",
                 "value": "bank_country",
-                "width": "15%"
+                "width": "15%",
+                "visible": false
             },
             {
                 "type": "field",
                 "value": "bank_name",
                 "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "bank_id",
+                "width": "20%",
+                "visible": false
             },
             {
                 "type": "field",

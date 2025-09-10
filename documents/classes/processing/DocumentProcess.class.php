@@ -56,6 +56,13 @@ class DocumentProcess extends Model {
                 'description'       => "Short description of the rule to serve as memo."
             ],
 
+            'assigned_employee_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'hr\employee\Employee',
+                'description'       => 'Employee currently in charge of the processing.',
+                'help'              => 'Assigned employee can evolve over time, and might depend on Role.'
+            ],
+
             'document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
@@ -141,12 +148,6 @@ class DocumentProcess extends Model {
                 'default'           => false
             ],
 
-            'has_error' => [
-                'type'              => 'boolean',
-                'description'       => 'Flag marking the processing job with error(s).',
-                'default'           => false
-            ],
-
             'has_analysis' => [
                 'type'              => 'boolean',
                 'description'       => 'Does the document have a JSON version of its content.',
@@ -160,27 +161,16 @@ class DocumentProcess extends Model {
                 'default'           => false
             ],
 
-            'document_source' => [
+            'document_origin' => [
                 'type'              => 'string',
-                'description'       => 'The source the document originated from.',
+                'description'       => 'The channel the document originates from.',
                 'selection'         => [
-                    'manual',           // manual upload
-                    'email',            // email digestor
-                    'internal',         // document produced by the software
-                    'external'          // document retrieved from an external source (API, ...)
+                    'manual',           // manual creation of the accounting document
+                    'import',           // upload, email digestor, external source
+                    // #todo - is this relevant (internal document do not require validation process / document will be directly created)
+                    'internal'          // document produced by the software
                 ],
-                'default'           => 'manual'
-            ],
-
-            'source_type' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'email',
-                    'manual'
-                ],
-                'default'           => 'manual',
-                'description'       => 'Type of source (eid, registry, manual, etc.)',
-                'help'              => 'Indicates how the document data was obtained.',
+                'default'           => 'import'
             ],
 
             'status' => [
@@ -491,7 +481,7 @@ class DocumentProcess extends Model {
 
     protected static function policyCanPerformDrafting($self): array {
         $result = [];
-        $self->read(['condo_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'has_target_object']);
+        $self->read(['condo_id', 'supplier_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'has_target_object']);
 
         foreach($self as $id => $documentProcess) {
             if($documentProcess['has_target_object']) {
@@ -507,6 +497,14 @@ class DocumentProcess extends Model {
                 continue;
             }
 
+            $suppliership = Suppliership::search([['condo_id', '=', $documentProcess['condo_id']], ['supplier_id', '=', $documentProcess['supplier_id']]])->first();
+            if(!$suppliership) {
+                $result[$id] = [
+                    'invalid_status' => 'No Suppliership set for condominium with assigned supplier.'
+                ];
+                continue;
+            }
+
             // #todo - to complete
             $is_recording_rule_mandatory = in_array($documentProcess['document_type_code'], ['invoice', 'credit_note']);
 
@@ -514,7 +512,11 @@ class DocumentProcess extends Model {
             /*
             // #todo - a recording rule might be missing
             if($is_recording_rule_mandatory) {
-                $rules_ids = RecordingRule::search([['condo_id', '=', $documentProcess['condo_id']], ['document_type_id', '=', $documentProcess['document_type_id']]])->ids();
+                $rules_ids = RecordingRule::search([
+                        ['condo_id', '=', $documentProcess['condo_id']], 
+                        ['document_type_id', '=', $documentProcess['document_type_id']]
+                    ])
+                    ->ids();
                 if(count($rules_ids) <= 0) {
                     $result[$id] = [
                         'no_rule_match' => 'No rule are available for the document type.'
@@ -588,6 +590,9 @@ class DocumentProcess extends Model {
 
     /**
      * Check that all required information in order to apply recording rules are present.
+     * We use the JSON schema associated with the document to validate data consistency and completeness.
+     *
+     * #memo - this still does not guarantee that information is accurate
      *
      */
     public static function policyIsComplete($self): array {
@@ -736,7 +741,13 @@ class DocumentProcess extends Model {
         foreach($self as $id => $documentProcess) {
             // create a new document
             // #memo - at this stage the Document remains local (no UUID), an attempt to push to EDMS instance will be performed after assignment of condo_id, if matching succeeds
-            $document = Document::create(['name' => $documentProcess['name'], 'data' => $documentProcess['data']])->first();
+            $document = Document::create([
+                    'name'      => $documentProcess['name'],
+                    'data'      => $documentProcess['data'],
+                    'is_origin' => true,
+                    'is_source' => true
+                ])
+                ->first();
             // remove data from current object (to avoid data redundancy)
             self::id($id)
                 ->update([
@@ -1168,7 +1179,7 @@ class DocumentProcess extends Model {
      *
      */
     protected static function doPerformDrafting($self) {
-        $self->read(['condo_id', 'report_html', 'has_target_object', 'supplier_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'document_id' => ['name', 'document_json']]);
+        $self->read(['condo_id', 'report_html', 'has_target_object', 'supplier_id' => ['supplier_type_id'], 'document_type_code', 'document_type_id', 'document_subtype_id', 'document_id' => ['name', 'document_json']]);
         foreach($self as $id => $documentProcess) {
             // ignore if mandatory info is missing
             if(!$documentProcess['document_type_code']) {
@@ -1193,7 +1204,7 @@ class DocumentProcess extends Model {
                 // find suppliership
                 $suppliership = Suppliership::search([
                         ['condo_id', '=', $documentProcess['condo_id']],
-                        ['supplier_id', '=',  $documentProcess['supplier_id']]
+                        ['supplier_id', '=',  $documentProcess['supplier_id']['id']]
                     ])
                     ->first();
 
@@ -1204,7 +1215,8 @@ class DocumentProcess extends Model {
                 $recordingRule = RecordingRule::search([
                         ['condo_id', '=', $documentProcess['condo_id']],
                         ['document_type_id', '=', $documentProcess['document_type_id']],
-                        ['document_subtype_id', '=', $documentProcess['document_subtype_id']]
+                        ['document_subtype_id', '=', $documentProcess['document_subtype_id']],
+                        ['supplier_type_id', '=', $documentProcess['supplier_id']['supplier_type_id']]
                     ])
                     ->first();
 
@@ -1212,6 +1224,7 @@ class DocumentProcess extends Model {
                     $recordingRule = RecordingRule::search([
                             ['condo_id', '=', $documentProcess['condo_id']],
                             ['document_type_id', '=', $documentProcess['document_type_id']],
+                            ['supplier_type_id', '=', $documentProcess['supplier_id']['supplier_type_id']]
                         ])
                         ->first();
                 }
@@ -1224,8 +1237,7 @@ class DocumentProcess extends Model {
                 }
                 else {
                     // #memo - recording rules might not apply on specific documents (e.g. bank statements)
-                    trigger_error("APP::No matching Recording Rule found for Process {$documentProcess['id']} - Document {$documentProcess['document_id']['name']} ({$documentProcess['document_id']['id']}) of type {$documentProcess['document_type_code']}/{$documentProcess['document_subtype_id']}", EQ_REPORT_WARNING);
-                    // throw new \Exception('missing_recording_rule', EQ_ERROR_INVALID_CONFIG);
+                    trigger_error("APP::No matching Recording Rule found for Process {$documentProcess['id']} - Document {$documentProcess['document_id']['name']} ({$documentProcess['document_id']['id']}) of type {$documentProcess['document_type_code']}/{$documentProcess['document_subtype_id']}", EQ_REPORT_INFO);
                 }
 
                 if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
@@ -1271,19 +1283,19 @@ class DocumentProcess extends Model {
                             }
 
                             PurchaseInvoiceLine::create([
-                                'condo_id'              => $documentProcess['condo_id'],
-                                'invoice_id'            => $invoice['id'],
-                                // #todo - use LabelingRule
-                                'description'           => $line['description'] ?? '',
-                                'is_private_expense'    => false,
-                                'has_instant_reinvoice' => false,
-                                'expense_account_id'    => $recordingRuleLine['account_id'],
-                                'apportionment_id'      => $recordingRuleLine['apportionment_id'],
-                                'owner_share'           => $recordingRuleLine['owner_share'],
-                                'tenant_share'          => $recordingRuleLine['tenant_share'],
-                                'total'                 => round(floatval($line['amount']) * $recordingRuleLine['share'], 2),
-                                'vat_rate'              => $vat_rate
-                            ]);
+                                    'condo_id'              => $documentProcess['condo_id'],
+                                    'invoice_id'            => $invoice['id'],
+                                    // #todo - use LabelingRule
+                                    'description'           => $line['description'] ?? '',
+                                    'is_private_expense'    => false,
+                                    'has_instant_reinvoice' => false,
+                                    'expense_account_id'    => $recordingRuleLine['account_id'],
+                                    'apportionment_id'      => $recordingRuleLine['apportionment_id'],
+                                    'owner_share'           => $recordingRuleLine['owner_share'],
+                                    'tenant_share'          => $recordingRuleLine['tenant_share'],
+                                    'total'                 => round(floatval($line['amount']) * $recordingRuleLine['share'], 2),
+                                    'vat_rate'              => $vat_rate
+                                ]);
                         }
                     }
 

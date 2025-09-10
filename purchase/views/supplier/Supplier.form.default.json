@@ -19,15 +19,20 @@
         }
     ],
     "layout": {
-        "remove": ["label.column_description_spacer"],
+        "remove": ["field.signature", "field.profile_image_document_id"],
         "update": {
-            "column.description": {
+            "column.signature": {
                 "prepend": [
                     {
                         "type": "field",
-                        "label": "Supplier type",
-                        "value": "supplier_type_id",
-                        "width": "50%"
+                        "label": "Supplier types",
+                        "value": "supplier_types_ids",
+                        "width": "100%",
+                        "widget": {
+                            "header": {
+                                "layout": "inline"
+                            }
+                        }
                     }
                 ]
             },

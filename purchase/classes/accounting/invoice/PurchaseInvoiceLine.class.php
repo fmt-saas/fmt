@@ -42,6 +42,12 @@ class PurchaseInvoiceLine extends \finance\accounting\invoice\InvoiceLine {
                 'store'             => true
             ],
 
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Complementary description of the line (independent from product).',
+                'multilang'         => true
+            ],
+
             'total' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',

@@ -6,7 +6,7 @@
         "actions": {
             "ACTION.CREATE_INLINE": [
                 {
-                    "view": false
+                    "view": true
                 }
             ]
         }

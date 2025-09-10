@@ -5,7 +5,7 @@
         "actions": {
             "ACTION.SAVE": [
                 {
-                    "id": "SAVE_AND_CONTINUE",
+                    "id": "SAVE_AND_CLOSE",
                     "view": "form.default"
                 },
                 {

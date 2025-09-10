@@ -57,6 +57,18 @@
             "visible1": [null, "<>", "object.document_id"]
         }
     ],
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {
+                    "id": "SAVE_AND_CONTINUE"
+                },
+                {
+                    "id": "SAVE_AND_VIEW"
+                }
+            ]
+        }
+    },
     "layout": {
         "groups": [
             {

@@ -49,10 +49,13 @@ class SupplierType extends Model {
             ],
 
             'suppliers_ids' => [
-                'type'              => 'one2many',
+                'type'              => 'many2many',
                 'foreign_object'    => 'purchase\supplier\Supplier',
-                'foreign_field'     => 'supplier_type_id',
-                'description'       => "Supplier items relating to the Type."
+                'foreign_field'     => 'supplier_types_ids',
+                'description'       => "Suppliers assigned to the Type.",
+                'rel_table'         => 'purchase_supplier_rel_suppliertype',
+                'rel_foreign_key'   => 'supplier_id',
+                'rel_local_key'     => 'type_id'
             ]
 
         ];

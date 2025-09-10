@@ -78,20 +78,15 @@ class Supplier extends Identity {
                 'description'       => "Suppliership items relating to the Supplier."
             ],
 
-            'supplier_type_id' => [
-                'type'              => 'many2one',
+            'supplier_types_ids' => [
+                'type'              => 'many2many',
                 'foreign_object'    => 'purchase\supplier\SupplierType',
-                'description'       => "Supplier type assigned to the Supplier.",
-                'dependents'        => ['supplier_type_code']
-            ],
+                'foreign_field'     => 'suppliers_ids',
+                'description'       => "Supplier types assigned to the Supplier.",
+                'rel_table'         => 'purchase_supplier_rel_suppliertype',
+                'rel_foreign_key'   => 'type_id',
+                'rel_local_key'     => 'supplier_id'
 
-            'supplier_type_code' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'relation'          => ['supplier_type_id' => 'code'],
-                'store'             => true,
-                'instant'           => true,
-                'description'       => "Code of the supplier type assigned to the supplier."
             ],
 
             // #memo - foreign_field cannot be used here, since it should be identity_id, which points back to current object's `id` instead of `identity_id`

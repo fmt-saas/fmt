@@ -207,6 +207,14 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 // #memo - if we set default to true we cannot distinct a not found invoice_period from an invoice without invoice_period
                 'default'           => false
             ],
+
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Short description of the invoice.',
+                'help'              => 'For manual encoding, this can be set manually and must be synced with lines descriptions.',
+                'multilang'         => true,
+                'onupdate'          => 'onupdateDescription'
+            ],
         ];
     }
 
@@ -312,7 +320,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
 
-    public static function policyCanBeInvoiced($self): array {
+    public static function policyCanBeInvoiced($self, $dispatch): array {
         $result = [];
         $self->read([
                 'price',
@@ -333,6 +341,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 $result[$id] = [
                     'missing_condominium_bank_account' => 'Missing condominium bank account.'
                 ];
+                $dispatch->dispatch('purchase.accounting.invoice.invalid', 'realestate\governance\Assembly', $id, 'important');
                 continue;
             }
 
@@ -341,6 +350,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 $result[$id] = [
                     'missing_suppliership_bank_account' => 'Missing suppliership bank account.'
                 ];
+                $dispatch->dispatch('purchase.accounting.invoice.invalid', 'realestate\governance\Assembly', $id, 'important');
                 continue;
             }
             $lines_total = 0.0;
@@ -410,6 +420,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 pour le trouver il faut prendre la dernière balance périodique, et ajouter tous les mouvements jusqu'à la date de facture
 
 */
+
         return $result;
     }
 
@@ -973,6 +984,20 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         }
     }
 
+    protected static function onupdateDescription($self, $lang) {
+        $self->read(['description', 'invoice_lines_ids' => ['description']]);
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['description'] || strlen($purchaseInvoice['description']) <= 0) {
+                continue;
+            }
+            foreach($purchaseInvoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
+                if(!$invoiceLine['description'] || strlen($invoiceLine['description']) <= 0) {
+                    PurchaseInvoiceLine::id($invoice_line_id)->update(['description' => $purchaseInvoice['description']], $lang);
+                }
+            }
+        }
+    }
+
     public static function onchange($event, $values) {
         $result = [];
         if(array_key_exists('invoice_lines_ids', $event)) {
@@ -1145,7 +1170,9 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                         'name'              => sprintf("%s %06d", 'facture d\'achat', $id),
                         'invoice_id'        => $id,
                         'document_type_id'  => $documentType['id'],
-                        'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+                        'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
+                        'is_origin'         => true,
+                        'is_source'         => false
                     ])
                     ->first();
 
@@ -1156,8 +1183,8 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                         'document_id'           => $document['id'],
                         'document_invoice_id'   => $id,
                         'document_type_id'      => $documentType['id'],
-                        'document_source'       => 'manual',
-                        'has_target_object'             => true
+                        'document_origin'       => 'manual',
+                        'has_target_object'     => true
                     ])
                     ->first();
 

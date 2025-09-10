@@ -70,9 +70,11 @@ $team = Team::create([
 $identity = Identity::create([
         "type_id" => 3,
         "type" => "IN",
-        "firstname" => "Jean",
-        "lastname" => "Louis",
         "lang_id" => 2
+    ])
+    ->update([
+        "firstname" => "Jean",
+        "lastname" => "Louis"
     ])
     ->first();
 

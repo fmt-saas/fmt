@@ -209,8 +209,8 @@ class CondominiumBankAccount extends BankAccount {
                     ])
                     ->count();
 
-                Account::create([
-                        'code'                  => $assignmentAccount['code'] . sprintf("%02", $index + 1),
+                $account = Account::create([
+                        'code'                  => $assignmentAccount['code'] . sprintf("%02d", $index + 1),
                         'condo_id'              => $bankAccount['condo_id'],
                         'ownership_id'          => $id,
                         'parent_account_id'     => $assignmentAccount['id'],
@@ -220,7 +220,10 @@ class CondominiumBankAccount extends BankAccount {
                         'operation_assignment'  => $bankAccount['bank_account_type'],
                         'condo_bank_account_id' => $id
                     ])
-                    ->read(['name']);
+                    ->read(['name'])
+                    ->first();
+
+                self::id($id)->update(['accounting_account_id' => $account['id']]);
             }
 
         }
@@ -232,7 +235,13 @@ class CondominiumBankAccount extends BankAccount {
         foreach($self as $id => $bankAccount) {
             $balance = 0.0;
 
-            $balanceLines = CurrentBalanceLine::search([['condo_id', '=', $bankAccount['condo_id']['id']], ['fiscal_year_id', '=', $bankAccount['condo_id']['current_fiscal_year_id']], ['account_id', '=', $bankAccount['accounting_account_id']]])->read(['debit', 'credit']);
+            $balanceLines = CurrentBalanceLine::search([
+                    ['condo_id', '=', $bankAccount['condo_id']['id']],
+                    ['fiscal_year_id', '=', $bankAccount['condo_id']['current_fiscal_year_id']],
+                    ['account_id', '=', $bankAccount['accounting_account_id']]
+                ])
+                ->read(['debit', 'credit']);
+
             foreach($balanceLines as $balanceLine) {
                 $balance += $balanceLine['debit'];
                 $balance -= $balanceLine['credit'];

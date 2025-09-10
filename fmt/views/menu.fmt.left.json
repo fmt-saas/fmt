@@ -27,6 +27,39 @@
                 ]
             },
             {
+                "id": "item.imports",
+                "label": "Import Docs",
+                "description": "",
+                "icon": "file_upload",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "item.documents.document_import",
+                        "type": "entry",
+                        "label": "Invoice",
+                        "icon": "receipt_long",
+                        "description": "",
+                        "context": {
+                            "view": "form.import",
+                            "entity": "documents\\processing\\DocumentProcess",
+                            "purpose": "create"
+                        }
+                    },
+                    {
+                        "id": "item.banks.bank_statements.import",
+                        "type": "entry",
+                        "label": "Bank Statements",
+                        "icon": "receipt",
+                        "description": "",
+                        "context": {
+                            "view": "form.import",
+                            "entity": "finance\\bank\\BankStatementImport",
+                            "purpose": "create"
+                        }
+                    }
+                ]
+            },
+            {
                 "id": "item.properties",
                 "label": "Properties",
                 "description": "",
@@ -306,19 +339,6 @@
                         }
                     },
                     {
-                        "id": "item.accounting.invoice_import",
-                        "type": "entry",
-                        "label": "Import Invoice",
-                        "icon": "file_upload",
-                        "description": "#todo - this does not seem to work - to review",
-                        "visible": false,
-                        "context": {
-                            "view": "form.import",
-                            "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
-                            "purpose": "create"
-                        }
-                    },
-                    {
                         "id": "item.accounting.settings",
                         "label": "Settings",
                         "description": "",
@@ -481,18 +501,6 @@
                             "view": "list.default",
                             "entity": "documents\\processing\\DocumentProcess"
                         }
-                    },
-                    {
-                        "id": "item.documents.document_import",
-                        "type": "entry",
-                        "label": "Import Document",
-                        "icon": "file_upload",
-                        "description": "",
-                        "context": {
-                            "view": "form.import",
-                            "entity": "documents\\processing\\DocumentProcess",
-                            "purpose": "create"
-                        }
                     }
                 ]
             },
@@ -534,18 +542,6 @@
                         "context": {
                             "entity": "finance\\bank\\BankStatement",
                             "view": "list.default"
-                        }
-                    },
-                    {
-                        "id": "item.banks.bank_statements.import",
-                        "type": "entry",
-                        "label": "Import Statements",
-                        "icon": "file_upload",
-                        "description": "",
-                        "context": {
-                            "view": "form.import",
-                            "entity": "finance\\bank\\BankStatementImport",
-                            "purpose": "create"
                         }
                     }
                 ]

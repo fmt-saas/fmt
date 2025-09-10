@@ -110,7 +110,7 @@ class Document extends Model {
             'document_subtype_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentSubtype',
-                'description'       => 'Document subtype associated with the document.',
+                'description'       => 'Document subtype associated with the document, if any.',
                 'domain'            => ['document_type_id', '=', 'object.document_type_id']
             ],
 
@@ -252,7 +252,7 @@ class Document extends Model {
             'signed_document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
-                'description'       => 'Final printable version of the document.',
+                'description'       => 'Targets the final printable version of the document.',
                 'help'              => 'Optional version of the document with signatures on it, applicable for signed documents only. Has no legal value.'
             ],
 
@@ -263,7 +263,23 @@ class Document extends Model {
                 'description'       => 'Signatures applied on the document, if any.',
             ],
 
-            /* fields below link the source the document originates from, independently from its type */
+            'is_origin' => [
+                'type'              => 'boolean',
+                'default'           => false,
+                'readonly'          => true,
+                'description'       => 'Document is the origin of the referenced accounting document.',
+                'help'              => 'Document is a primary attachment. The binary data has been imported or generated and is linked to an accounting document (invoice, bank statement, ...).',
+            ],
+
+            'is_source' => [
+                'type'              => 'boolean',
+                'default'           => false,
+                'readonly'          => true,
+                'description'       => 'Document is the source of the related accounting document.',
+                'help'              => 'The binary data was used to generate the accounting document that references it back as source.'
+            ],
+
+            /* fields below serve as link between the document and the entity it originates from, independently from its type, and are mutually exclusive */
 
             'case_file_id' => [
                 'type'              => 'many2one',
@@ -276,12 +292,6 @@ class Document extends Model {
                 'foreign_object'    => 'communication\email\Email',
                 'description'       => 'Optional link to the received Email the document is an attachment of, if any.'
             ],
-
-            /* fields below serve as link between the document and the entity it originates from, and are mutually exclusive */
-
-
-            // #todo - this is probably irrelevant
-            // if we want something (e.g. minutes of a general assembly), we know which entity is targeted, and then we can find the linked document
 
             'invoice_id' => [
                 'type'              => 'many2one',

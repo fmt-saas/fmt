@@ -63,6 +63,8 @@ CondominiumBankAccount::create([
         'bank_account_iban' => "BE04456595434922"
     ]);
 
+CondominiumBankAccount::search(['condo_id', '=', $condominium['id']])->transition('validate');
+
 
 
 // ACP Forge 43
@@ -114,6 +116,8 @@ CondominiumBankAccount::create([
         'bank_account_type' => 'bank_savings',
         'bank_account_iban' => "BE05373234451279"
     ]);
+
+CondominiumBankAccount::search(['condo_id', '=', $condominium['id']])->transition('validate');
 
 $orm->enableEvents($events);
 

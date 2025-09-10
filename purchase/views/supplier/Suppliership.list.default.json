@@ -33,6 +33,11 @@
                 "label": "Supplier",
                 "value": "supplier_id",
                 "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "15%"
             }
         ]
     }

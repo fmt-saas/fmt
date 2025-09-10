@@ -21,6 +21,14 @@ $tests = [
             'help'              => "Create an accounting entry, with 2 balanced lines. Entry balance test is expected to return true.",
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
+
+                    $bankAccount = CondominiumBankAccount::search([
+                            ['condo_id', '=', 1],
+                            ['bank_account_type', '=', 'bank_savings']
+                        ])
+                        ->read(['accounting_account_id'])
+                        ->first();
+
                     $miscOperation = MiscOperation::create([
                             'condo_id'          => 1,
                             'description'       => 'reprise de compte epargne',
@@ -40,7 +48,7 @@ $tests = [
                     MiscOperationLine::create([
                             'condo_id'          => 1,
                             'misc_operation_id' => $miscOperation['id'],
-                            'account_id'        => 468,
+                            'account_id'        => $bankAccount['accounting_account_id'],
                             'debit'             => 5000
                         ]);
 

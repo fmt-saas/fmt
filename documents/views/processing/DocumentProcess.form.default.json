@@ -11,6 +11,50 @@
             ]
         }
     },
+    "routes": [
+        {
+            "id": "item.document",
+            "label": "Document",
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "documents\\Document",
+                "view": "form.default",
+                "mode": "view",
+                "purpose": "view",
+                "domain": [["id", "=", "object.document_id"]]
+            },
+            "visible": ["document_id", "<>", null]
+        },
+        {
+            "id": "item.invoice",
+            "label": "Invoice",
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "view": "form.default",
+                "mode": "view",
+                "purpose": "view",
+                "domain": [["id", "=", "object.document_invoice_id"]]
+            },
+            "visible": ["document_invoice_id", "<>", null]
+        },
+        {
+            "id": "item.bank_statement",
+            "label": "Bank Statement",
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "finance\\bank\\BankStatement",
+                "view": "form.default",
+                "mode": "view",
+                "purpose": "view",
+                "domain": [["id", "=", "object.document_bank_statement_id"]]
+            },
+            "visible": ["document_bank_statement_id", "<>", null]
+        }
+    ],
     "actions": [
         {
             "id": "action.perform_identification",
@@ -219,7 +263,7 @@
                                                 "value": "document_invoice_id",
                                                 "width": "50%",
                                                 "widget": {
-                                                    "description": "il faudrait empêcher la sélection, et permettre uniquement la création"
+                                                    "description": "#todo - il faudrait empêcher la sélection, et permettre uniquement la création"
                                                 }
                                             },
                                             {
@@ -249,7 +293,8 @@
                                                 "value": "report_html",
                                                 "width": "100%",
                                                 "widget": {
-                                                    "height": 440
+                                                    "height": 440,
+                                                    "readonly": true
                                                 }
                                             }
                                         ]

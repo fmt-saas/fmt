@@ -72,7 +72,7 @@ class BankAccount extends Model {
                 'usage'             => 'uri/urn.iban',
                 'description'       => 'The IBAN number of the bank account.',
                 'help'              => 'The IBAN number is a unique identifier for the bank account. Example: BE54000000000097',
-                'dependents'        => ['name', 'bank_country', 'bank_account_bic', 'bank_name'],
+                'dependents'        => ['name', 'bank_country', 'bank_account_bic', 'bank_name', 'bank_id'],
                 // for individuals, several persons might share/have a bank account in common
                 // 'unique'            => true
                 'required'          => true,
@@ -104,13 +104,37 @@ class BankAccount extends Model {
                 'description'       => 'The name of the bank where the organization holds its account.',
                 'function'          => 'calcBankName',
                 'store'             => true
-            ]
+            ],
+
+            'bank_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\bank\Bank',
+                'description'       => "The Bank the account is part of.",
+                'store'             => true,
+                'instant'           => true,
+                'function'          => 'calcBankId'
+            ],
 
         ];
     }
 
 
-    public static function onupdateBankAccountIban($self) {
+    protected static function calcBankId($self) {
+        $result = [];
+        $self->read(['bank_account_bic']);
+        foreach($self as $id => $bankAccount) {
+            if(!$bankAccount['bank_account_bic']) {
+                continue;
+            }
+            $bank = Bank::search(['bic', '=', $bankAccount['bank_account_bic']])->first();
+            if($bank) {
+                $result[$id] = $bank['id'];
+            }
+        }
+        return $result;
+    }
+    protected static function onupdateBankAccountIban($self) {
         $self->read(['owner_identity_id', 'bank_account_iban', 'is_primary']);
         foreach($self as $id => $bankAccount) {
             if($bankAccount['is_primary']) {

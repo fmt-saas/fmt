@@ -4,7 +4,7 @@
     "on_error": {
         "missing": {
             "context": {
-                "entity": "finance\\bank\\BankStatement",
+                "entity": "documents\\processing\\DocumentProcess",
                 "view": "list.default"
             }
         }

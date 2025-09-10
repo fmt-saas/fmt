@@ -111,6 +111,32 @@
                                                 "width": "100%"
                                             }
                                         ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Ownership",
+                                                "value": "ownership_id",
+                                                "width": "100%",
+                                                "visible": ["ownership_id", "<>", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Suppliership",
+                                                "value": "suppliership_id",
+                                                "width": "100%",
+                                                "visible": ["suppliership_id", "<>", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Condominium Bank Account",
+                                                "value": "condo_bank_account_id",
+                                                "width": "100%",
+                                                "visible": ["condo_bank_account_id", "<>", null]
+                                            }
+                                        ]
                                     }
                                 ]
                             }

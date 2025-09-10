@@ -71,13 +71,13 @@
             }
         },
         {
-            "id": "item.admin",
+            "id": "item.config",
             "label": "Config",
             "description": "",
             "icon": "settings",
             "context": {
                 "entity": "realestate\\property\\Condominium",
-                "view": "form.admin",
+                "view": "form.config",
                 "domain": [["id", "=", "object.id"]]
             }
         }

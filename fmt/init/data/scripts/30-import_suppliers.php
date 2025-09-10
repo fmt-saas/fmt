@@ -3355,9 +3355,11 @@ Supplier::create([
         "identity_id" => 1048,
         "is_active" => true
       ]);
+// Engie
 Supplier::create([
         "id" => 1049,
         "identity_id" => 1049,
+        "supplier_types_ids" => [5],
         "is_active" => true
       ]);
 Supplier::create([

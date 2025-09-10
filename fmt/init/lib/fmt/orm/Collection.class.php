@@ -56,6 +56,7 @@ class Collection extends \equal\orm\Collection {
         if(\eQual::constant('FMT_INSTANCE_TYPE') === 'agency') {
             // #todo - adapt according to final logic
             static $map_classes = [
+                'private' => [],
                 'protected' => [
                     'core\User'                      => true,
                     'identity\Identity'              => true,

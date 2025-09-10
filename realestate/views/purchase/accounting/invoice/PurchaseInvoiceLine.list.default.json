@@ -48,12 +48,6 @@
                 "visible": false
             },
             {
-                "id": "item.name",
-                "type": "field",
-                "value": "name",
-                "width": "20%"
-            },
-            {
                 "type": "field",
                 "label": "Account",
                 "value": "expense_account_id",

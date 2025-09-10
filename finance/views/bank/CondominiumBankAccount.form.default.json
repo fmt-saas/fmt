@@ -1,6 +1,22 @@
 {
     "name": "Bank Account",
     "description": "Default form for bank account.",
+    "actions": [
+        {
+            "id": "action.validate",
+            "label": "Validate",
+            "icon": "play_arrow",
+            "description": "Generate mandatory configuration.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "pending"],
+            "params": {
+                "entity": "finance\\bank\\CondominiumBankAccount",
+                "transition": "validate",
+                "ids": []
+            },
+            "confirm": false
+        }
+    ],
     "layout": {
         "groups": [
             {

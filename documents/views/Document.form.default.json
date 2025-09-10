@@ -20,7 +20,7 @@
         {
             "id": "item.print",
             "label": "View document",
-            "icon": "print",
+            "icon": "open_in_new",
             "description": "View printable invite.",
             "route": "/?get=documents_document&id=object.id",
             "target": "_blank",
@@ -99,27 +99,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "invoicing_period",
-                                                "value": "invoice_has_period",
-                                                "width": "33%",
-                                                "visible": ["document_type_code", "=", "invoice"]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Date from",
-                                                "value": "invoice_date_from",
-                                                "width": "25%",
-                                                "visible": ["invoice_has_period", "=", true]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Date to",
-                                                "value": "invoice_date_to",
-                                                "width": "25%",
-                                                "visible": ["invoice_has_period", "=", true]
-                                            },
-                                            {
-                                                "type": "field",
                                                 "label": "Folder",
                                                 "value": "parent_node_id",
                                                 "width": "50%"
@@ -128,10 +107,40 @@
                                                 "type": "label",
                                                 "value": "",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "Document Linking",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "text_decoration": "underline"
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_origin",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_source",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Invoice",
+                                                "value": "invoice_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Bank Statement",
+                                                "value": "bank_statement_id",
+                                                "width": "50%"
                                             }
                                         ]
                                     },
-{
+                                    {
                                         "width": "50%",
                                         "visible": ["state", "=", "draft"],
                                         "items": [

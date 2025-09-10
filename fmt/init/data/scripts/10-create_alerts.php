@@ -3,7 +3,7 @@
 use core\alert\MessageModel;
 
 /**
- * ASSEMBLY
+ * GOVERNANCE
  */
 
 // Incomplete sending of the invitations to an Assembly
@@ -33,4 +33,24 @@ $model = MessageModel::create([
 MessageModel::id($model['id'])->update([
         'label'         => 'Quorum non atteint',
         'description'   => "Le quorum de présence ou de parts représentées n'est pas atteint.",
+    ], 'fr');
+
+
+
+/**
+ * ACCOUNTING
+ */
+
+// The quorum of presence or represented shares is not reached
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.invalid',
+        'type'          => 'accounting',
+        'label'         => 'Incomplete invoice',
+        'description'   => "One or more mandatory piece of information are missing."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Facture incomplète',
+        'description'   => "Une ou plusieurs informations obligatoires sont manquantes.",
     ], 'fr');

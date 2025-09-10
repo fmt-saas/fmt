@@ -33,8 +33,6 @@
             {
                 "sections": [
                     {
-                        "label": "General Info",
-                        "id": "section.accounting_rules_section",
                         "rows": [
                             {
                                 "columns": [
@@ -48,25 +46,28 @@
                                                 "widget": {
                                                     "heading": true
                                                 }
-                                            },
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
                                             {
                                                 "type": "field",
                                                 "label": "Condominium",
                                                 "value": "condo_id",
-                                                "width": "50%"
+                                                "width": "100%"
                                             }
                                         ]
                                     }
                                 ]
-                            }
-                        ]
-                    },
-                    {
-                        "label": "Accounts",
-                        "id": "section.account_chart_lines",
-                        "visible": ["state", "<>", "draft"],
-                        "rows": [
+                            },
                             {
+                                "visible": ["state", "<>", "draft"],
                                 "columns": [
                                     {
                                         "width": "100%",
@@ -78,7 +79,8 @@
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
-                                                            "ACTION.CREATE": true
+                                                            "ACTION.CREATE": false,
+                                                            "ACTION.SELECT": false
                                                         }
                                                     }
                                                 }

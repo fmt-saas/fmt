@@ -6,6 +6,7 @@
 */
 namespace hr;
 
+// #todo - remove - too complex to handle
 class Permission extends \core\Permission {
 
     public function getTable() {

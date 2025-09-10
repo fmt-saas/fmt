@@ -135,7 +135,8 @@ class BankStatement extends Model {
             'document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
-                'description'       => 'Received Document that the statement is issued from, if any.'
+                'description'       => 'Document the statement originates from.',
+                'help'              => 'This document is always present. For imported statements (is_source=true), it is the uploaded document (possibly split for holding a single statement). For manual encoding, it is automatically generated based on the Bank Statement schema.'
             ],
 
             'fiscal_year_id' => [
@@ -471,6 +472,9 @@ class BankStatement extends Model {
         }
     }
 
+    /**
+     * If not document is attached to the bank statement (handled as an accounting document), a Document and a DocumentProcess are created
+     */
     protected static function onafterupdate($self) {
         $self->read(['state', 'document_id', 'condo_id']);
         foreach($self as $id => $bankStatement) {
@@ -483,7 +487,9 @@ class BankStatement extends Model {
                         'name'              => sprintf("%s %06d", 'extrait bancaire', $id),
                         'bank_statement_id' => $id,
                         'document_type_id'  => $documentType['id'],
-                        'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+                        'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
+                        'is_origin'         => true,
+                        'is_source'         => false
                     ])
                     ->first();
 
@@ -494,7 +500,7 @@ class BankStatement extends Model {
                         'document_id'                   => $document['id'],
                         'document_bank_statement_id'    => $id,
                         'document_type_id'              => $documentType['id'],
-                        'document_source'               => 'manual',
+                        'document_origin'               => 'manual',
                         'has_target_object'             => true
                     ])
                     ->first();

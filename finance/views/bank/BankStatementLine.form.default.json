@@ -53,33 +53,8 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "is_misc",
-                                                "width": "33%",
-                                                "visible": false
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_expense",
-                                                "width": "33%",
-                                                "visible": false
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "condo_id",
-                                                "width": "33%",
-                                                "visible": false
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_owner",
-                                                "width": "33%",
-                                                "visible": false
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_supplier",
-                                                "width": "33%",
-                                                "visible": false
+                                                "width": "100%"
                                             }
                                         ]
                                     },
@@ -112,12 +87,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "date",
-                                                "width": "15%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "accounting_account_id",
-                                                "width": "30%"
+                                                "width": "75%"
                                             },
                                             {
                                                 "type": "field",
@@ -224,6 +199,41 @@
                                                 "widget": {
                                                     "view": "list.statement"
                                                 }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.details",
+                        "label": "Details",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "is_misc",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_expense",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_owner",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_supplier",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

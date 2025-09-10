@@ -37,6 +37,7 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Expense Account",
                                                 "value": "expense_account_id",
                                                 "width": "100%"
                                             },
