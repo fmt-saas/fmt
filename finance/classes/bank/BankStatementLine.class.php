@@ -478,14 +478,15 @@ class BankStatementLine extends Model {
             if($selected_funding_id) {
                 trigger_error("APP::matching funding ({$selected_funding_id}) found for bank statement line {$id} with reference {$reference}.", EQ_REPORT_DEBUG);
                 Payment::create([
-                        'condo_id'          => $bankStatementLine['condo_id'],
-                        'amount'            => $bankStatementLine['amount'],
-                        'communication'     => $bankStatementLine['communication'],
-                        'receipt_date'      => $bankStatementLine['date'],
-                        'payment_origin'    => 'bank',
-                        'payment_method'    => 'wire_transfer',
-                        'statement_line_id' => $id,
-                        'funding_id'        => $selected_funding_id
+                        'condo_id'              => $bankStatementLine['condo_id'],
+                        'amount'                => $bankStatementLine['amount'],
+                        'communication'         => $bankStatementLine['communication'],
+                        'receipt_date'          => $bankStatementLine['date'],
+                        'payment_origin'        => 'bank',
+                        'payment_method'        => 'wire_transfer',
+                        'statement_line_id'     => $id,
+                        'accounting_account_id' => $bankStatementLine['accounting_account_id'],
+                        'funding_id'            => $selected_funding_id
                     ]);
 
                 self::id($id)->update(['is_reconciled' => null]);
@@ -803,7 +804,8 @@ class BankStatementLine extends Model {
                             throw new \Exception('non_supported_funding_type', EQ_ERROR_INVALID_PARAM);
                             break;
                         case 'misc':
-                            // #todo
+                            $debit_account_id = $payment['accounting_account_id'];
+                            $credit_account_id = $bankAccount['accounting_account_id'];
                             break;
                         case 'invoice':
                             // purchase invoice : payment to the supplier
@@ -858,19 +860,23 @@ class BankStatementLine extends Model {
                             throw new \Exception('invalid_funding_type', EQ_ERROR_INVALID_PARAM);
                     }
 
+// #todo - on devrait générer les écritures sur base de l'objet lié : MiscOp, PurchaseInvoice, ...
+
+                    $amount = round($payment['amount'], 2);
+
                     // debit line
                     AccountingEntryLine::create([
                                 'account_id'            => $debit_account_id,
-                                'debit'                 => abs(round($payment['amount'], 2)),
-                                'credit'                => 0.0,
+                                'debit'                 => $amount > 0 ? abs($amount) : 0,
+                                'credit'                => $amount < 0 ? abs($amount) : 0,
                                 'accounting_entry_id'   => $accountingEntry['id']
                             ]);
 
                     // credit line
                     AccountingEntryLine::create([
                                 'account_id'            => $credit_account_id,
-                                'debit'                 => 0.0,
-                                'credit'                => abs(round($payment['amount'], 2)),
+                                'debit'                 => $amount < 0 ? abs($amount) : 0,
+                                'credit'                => $amount > 0 ? abs($amount) : 0,
                                 'accounting_entry_id'   => $accountingEntry['id']
                             ]);
 
