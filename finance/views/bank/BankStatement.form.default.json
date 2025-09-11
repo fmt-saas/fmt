@@ -53,16 +53,18 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "bank_account_iban",
-                                                "width": "50%",
-                                                "widget": {
-                                                    "heading": true
-                                                }
+                                                "value": "condo_id",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "condo_id",
-                                                "width": "50%"
+                                                "value": "bank_account_iban",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "statement_number",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",

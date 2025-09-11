@@ -1,6 +1,16 @@
 {
     "name": "Bank Statement",
     "description": "",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {
+                    "id": "SAVE_AND_CONTINUE",
+                    "view": "form.default"
+                }
+            ]
+        }
+    },
     "layout": {
         "groups": [
             {
@@ -15,7 +25,17 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "50%"
+                                                "width": "3%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "bank_account_iban",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "statement_number",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
