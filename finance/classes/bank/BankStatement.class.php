@@ -290,13 +290,13 @@ class BankStatement extends Model {
         $self->read(['document_process_id', 'statement_lines_ids']);
         foreach($self as $id => $bankStatement) {
             try {
-                // mark involved payment as posted
+                // relay post to BankStatementLines
                 // #memo - this triggers a cascade event `attempt_posting` on Funding and related documents
                 BankStatementLine::ids($bankStatement['statement_lines_ids'])->transition('post');
             }
             catch(\Exception $e) {
                 // ignore already published payments
-                trigger_error("APP::BankStatement::onafterPost - Failed to post payment: {$e->getMessage()}", EQ_REPORT_ERROR);
+                trigger_error("APP::BankStatement::onafterPost - Failed to post BankStatementLine: {$e->getMessage()}", EQ_REPORT_ERROR);
             }
 
             if($bankStatement['document_process_id']) {
