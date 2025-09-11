@@ -358,6 +358,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
 
         static $map_debit_operation_assignments = [
                 'reserve_fund'           => 'co_owners_reserve_fund',
+                'special_reserve_fund'   => 'co_owners_reserve_fund',
                 'working_fund'           => 'co_owners_working_fund',
                 'expense_provisions'     => 'co_owners_working_fund',
                 'work_provisions'        => 'co_owners_working_fund'
