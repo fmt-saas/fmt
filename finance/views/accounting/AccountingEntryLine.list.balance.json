@@ -49,7 +49,10 @@
                 "type": "field",
                 "label": "Accounting Entry",
                 "value": "accounting_entry_id",
-                "width": "25%"
+                "width": "25%",
+                "widget": {
+                    "view": "form.default"
+                }
             },
             {
                 "type": "field",
