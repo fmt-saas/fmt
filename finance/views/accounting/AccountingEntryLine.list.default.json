@@ -34,21 +34,14 @@
             },
             {
                 "type": "field",
-                "label": "Account",
-                "value": "account_id",
-                "width": "25%",
-                "visible": false
-            },
-            {
-                "type": "field",
                 "label": "Journal",
                 "value": "journal_id",
                 "width": "15%"
             },
             {
                 "type": "field",
-                "label": "Accounting Entry",
-                "value": "accounting_entry_id",
+                "label": "Account",
+                "value": "account_id",
                 "width": "25%"
             },
             {
