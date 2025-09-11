@@ -16,19 +16,6 @@
             "ACTION.CREATE_INLINE": false
         }
     },
-    "routes": [
-        {
-            "id": "item.import",
-            "label": "Import an Invoice",
-            "description": "",
-            "icon": "receipt_long",
-            "context": {
-                "entity": "documents\\processing\\DocumentProcess",
-                "view": "form.import",
-                "purpose": "create"
-            }
-        }
-    ],
     "sort": "asc",
     "limit": 100,
     "layout": {
