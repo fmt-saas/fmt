@@ -262,6 +262,10 @@ class CondominiumBankAccount extends BankAccount {
         return $result;
     }
 
+
+    /**
+     * utilisé pour donner une idée des capacités de paiement
+     */
     protected static function calcAvailableBalance($self) {
         $result = [];
         $self->read(['current_balance', 'condo_id']);
@@ -272,8 +276,8 @@ class CondominiumBankAccount extends BankAccount {
                     [
                         ['condo_id', '=', $bankAccount['condo_id']],
                         ['status', '<>', 'balanced'],
-                        // ['funding_type', '=', 'transfer'],
-                        // ['due_amount', '<', 0.0],
+                        ['funding_type', '=', 'transfer'],
+                        ['due_amount', '<', 0.0],
                         ['bank_account_id', '=', $id]
                     ]
                 ])
