@@ -181,6 +181,7 @@ class Account extends Model {
                     'adjustment_account',
                     'bank_current',
                     'bank_savings',
+                    'bank_tier',
                     'bank_transfer',
                     'co_owners',
                     'co_owners_reserve_fund',           // used for FundRequestExecution

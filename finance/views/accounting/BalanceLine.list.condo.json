@@ -29,9 +29,17 @@
             }
         }
     },
+    "order": "name",
+    "sort": "asc",
     "limit": 250,
     "layout": {
         "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "10%",
+                "visible": false
+            },
             {
                 "type": "field",
                 "label": "Account",

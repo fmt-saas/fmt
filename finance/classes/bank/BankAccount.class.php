@@ -45,8 +45,8 @@ class BankAccount extends Model {
                 'selection'         => [
                     'bank_current',
                     'bank_savings',
-                    'bank_loan',
-                    'bank_tier'
+                    'bank_tier',
+                    // 'bank_loan',
                 ],
                 'default'           => 'bank_current'
             ],
