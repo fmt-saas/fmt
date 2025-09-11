@@ -24,6 +24,14 @@ class CondominiumBankAccount extends BankAccount {
                 'dependents'        => ['condominium_identity_id']
             ],
 
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Explicit class name of the object.',
+                'help'              => 'This is necessary to distinguish between different types of bank accounts since class uses same table as BankAccount.', 
+                'readonly'          => true,
+                'default'           => 'finance\bank\CondominiumBankAccount',
+            ],
+
             'bank_account_type' => [
                 'type'              => 'string',
                 'description'       => 'Type of bank account (current of savings).',

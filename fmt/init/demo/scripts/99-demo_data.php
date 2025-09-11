@@ -20,6 +20,7 @@ use finance\accounting\MiscOperation;
 use finance\accounting\MiscOperationLine;
 use finance\bank\BankStatement;
 use finance\bank\BankStatementImport;
+use finance\bank\CondominiumBankAccount;
 use realestate\finance\accounting\MoneyTransfer;
 use hr\employee\Employee;
 use hr\role\RoleAssignment;
@@ -42,7 +43,7 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 core\User::id(2)->update(['language' => 'fr']);
 
-$condominiums = Condominium::search()->read(['id', 'account_chart_id']);
+$condominiums = Condominium::search()->read(['id', 'account_chart_id', 'bank_accounts_ids']);
 
 $condominiums_ids = $condominiums->ids();
 
@@ -50,7 +51,7 @@ $condominiums_ids = $condominiums->ids();
 $condominiums->update(['managing_agent_id' => 1]);
 
 $condominiums
-    // init condominiums (generate sequences, chart of accounts, journals, folders, ...)
+    // init condominiums (generate sequences, empty chart of accounts, journals, folders, ...)
     ->transition('validate');
 
 // activate "common expenses" apportionments
@@ -62,10 +63,16 @@ AccountChart::search(['condo_id', '<>', null])
     ->do('import_accounts', ['chart_template_id' => 1])
     ->transition('activation');
 
+// assign accounting accounts to condominium bank accounts
+foreach($condominiums as $condominium) {
+    CondominiumBankAccount::ids($condominium['bank_accounts_ids'])->transition('validate');
+}
+
+// assign default apportionment to accounts
 $apportionments = Apportionment::search([['is_statutory', '=', false], ['status', '=', 'validated']])
     ->read(['condo_id']);
 
-// assign default apportionment to accounts
+
 foreach($apportionments as $apportionment_id => $apportionment) {
     $account = Account::search([
             [
