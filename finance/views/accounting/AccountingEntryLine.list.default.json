@@ -36,6 +36,13 @@
                 "type": "field",
                 "label": "Account",
                 "value": "account_id",
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Account",
+                "value": "accounting_entry_id",
                 "width": "25%"
             },
             {

@@ -26,6 +26,14 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'bank_statement_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
+                'description'       => 'Invoice the entry relates to, if any.',
+                'ondelete'          => 'null',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'entry_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\purchase\accounting\AccountingEntryLine',
