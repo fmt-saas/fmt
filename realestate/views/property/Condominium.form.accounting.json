@@ -53,7 +53,18 @@
             "icon": "edit_note",
             "context": {
                 "entity": "finance\\accounting\\AccountingEntry",
-                "view": "list.condo",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "item.misc_operations",
+            "label": "Miscellaneous operations",
+            "description": "",
+            "icon": "edit_note",
+            "context": {
+                "entity": "finance\\accounting\\MiscOperation",
+                "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
         },

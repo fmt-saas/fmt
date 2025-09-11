@@ -5,11 +5,7 @@
     "sort": "asc",
     "header": {
         "actions": {
-            "ACTION.CREATE": [
-                {
-                    "view": "form.create"
-                }
-            ]
+            "ACTION.CREATE": false
         }
     },
     "layout": {

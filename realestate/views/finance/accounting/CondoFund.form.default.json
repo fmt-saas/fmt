@@ -18,7 +18,8 @@
                                                 "width": "33%",
                                                 "widget": {
                                                     "heading": true
-                                                }
+                                                },
+                                                "visible": ["state", "<>", "draft"]
                                             },
                                             {
                                                 "type": "field",

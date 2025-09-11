@@ -11,7 +11,7 @@
         }
     },
     "actions": [
-{
+        {
             "id": "action.publish",
             "label": "Publish",
             "icon": "play_arrow",
@@ -79,6 +79,11 @@
                                         "width": "50%",
                                         "items": [
                                             {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "33%"
+                                            },
+                                            {
                                                 "type": "field",
                                                 "value": "posting_date",
                                                 "width": "33%"
@@ -99,6 +104,16 @@
                                                 "value": "status",
                                                 "width": "0%",
                                                 "visible": false
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "66%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_balanced",
+                                                "width": "66%"
                                             }
                                         ]
                                     }

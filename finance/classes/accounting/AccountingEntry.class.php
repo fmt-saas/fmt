@@ -475,7 +475,8 @@ class AccountingEntry extends Model {
     private static function computeEntryNumber($id) {
         $result = '';
         $entry = self::id($id)
-            ->read(['status', 'is_temp', 'condo_id',
+            ->read(['status', 'is_temp',
+                'condo_id'          => ['id', 'code'],
                 'journal_id'        => ['code'],
                 'fiscal_year_id'    => ['code'],
                 'fiscal_period_id'  => ['code']
@@ -496,13 +497,14 @@ class AccountingEntry extends Model {
                 'accounting_entry.number_format',
                 '%s{journal}/%02d{year}/%02d{period}/%05d{sequence}',
                 [
-                    'condo_id' => $entry['condo_id']
+                    'condo_id' => $entry['condo_id']['id']
                 ]
             );
 
         $fiscal_year_code = $entry['fiscal_year_id']['code'];
         $fiscal_period_code = $entry['fiscal_period_id']['code'];
         $journal_code = $entry['journal_id']['code'];
+        $condo_code = $entry['condo_id']['code'];
 
         $sequence = Setting::fetch_and_add(
                 'finance',
@@ -510,7 +512,7 @@ class AccountingEntry extends Model {
                 "accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}",
                 1,
                 [
-                    'condo_id' => $entry['condo_id']
+                    'condo_id' => $entry['condo_id']['id']
                 ]
             );
 
@@ -523,6 +525,7 @@ class AccountingEntry extends Model {
                 'year'      => $fiscal_year_code,
                 'period'    => $fiscal_period_code,
                 'journal'   => $journal_code,
+                'condo'     => $condo_code,
                 'sequence'  => $sequence
             ]);
 

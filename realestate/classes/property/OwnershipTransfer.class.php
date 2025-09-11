@@ -823,6 +823,18 @@ class OwnershipTransfer extends \equal\orm\Model {
                 $date = $ownershipTransfer['transfer_date'];
             }
 
+            // whatever the status, we want to have the balances that apply for the transfer
+            // for the date, we must retrieve the first date of the latest fully open fiscal year
+            $fiscalYear = FiscalYear::search([['condo_id', '=', $ownershipTransfer['condo_id']], ['status', '=', 'open']], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
+                ->read(['date_from'])
+                ->first();
+
+            if(!$fiscalYear) {
+                $fiscalYear = FiscalYear::id($ownershipTransfer['fiscal_year_id'])->read(['date_from'])->first();
+            }
+
+            $pivot_date = $fiscalYear['date_from'];
+
             // retrieve all funds
             $funds = CondoFund::search(['condo_id', '=', $ownershipTransfer['condo_id']])
                 ->read(['name', 'fund_type', 'fund_account_id']);
@@ -832,8 +844,8 @@ class OwnershipTransfer extends \equal\orm\Model {
 
                 $accountingEntryLines = AccountingEntryLine::search([
                         ['condo_id', '=', $ownershipTransfer['condo_id']],
-                        ['fiscal_year_id', '=', $ownershipTransfer['fiscal_year_id']],
                         ['account_id', '=', $fund['fund_account_id']],
+                        ['entry_date', '>=', $pivot_date],
                         ['entry_date', '<=', $date]
                     ])
                     ->read(['credit', 'debit']);

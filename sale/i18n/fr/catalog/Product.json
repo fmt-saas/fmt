@@ -9,7 +9,7 @@
             "help": ""
         },
         "label": {
-            "label": "Libellé",
+            "label": "Nom",
             "description": "Mnémo pour identifier le produit (doublons autorisés).",
             "help": ""
         },

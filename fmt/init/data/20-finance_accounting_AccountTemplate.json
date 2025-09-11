@@ -1044,6 +1044,16 @@
                 "owner_share": 0
             },
             {
+                "id": 1106,
+                "code": "5520",
+                "is_control_account": false,
+                "description": "Tier accounts",
+                "account_chart_id": 1,
+                "operation_assignment": "bank_tier",
+                "tenant_share": 0,
+                "owner_share": 0
+            },
+            {
                 "id": 107,
                 "code": "57",
                 "is_control_account": false,

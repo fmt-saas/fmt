@@ -123,6 +123,13 @@ class MiscOperation extends Model {
                 'description'       => 'The funding related to the misc operation, if any.'
             ],
 
+            'is_balanced' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'An entry is balanced if the total debited amount equals the total credited amount.',
+                'function'          => 'calcIsBalanced'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -197,6 +204,26 @@ class MiscOperation extends Model {
                 'function'      => 'doValidateAccountingEntry'
             ]
         ];
+    }
+
+    private static function computeIsBalanced($misc_operation_lines_ids) {
+        $entry_lines = MiscOperationLine::ids($misc_operation_lines_ids)->read(['credit', 'debit']);
+        $credit = 0;
+        $debit = 0;
+        foreach($entry_lines as $line_id => $line) {
+            $credit += $line['credit'];
+            $debit += $line['debit'];
+        }
+        return (abs($credit - $debit) < 0.01 && round($credit, 2) != 0.00);
+    }
+
+    protected static function calcIsBalanced($self) {
+        $result = [];
+        $self->read(['misc_operation_lines_ids']);
+        foreach($self as $id => $miscOperation) {
+            $result[$id] = self::computeIsBalanced($miscOperation['misc_operation_lines_ids']);
+        }
+        return $result;
     }
 
     public static function defaultJournalId($values) {
@@ -331,6 +358,7 @@ class MiscOperation extends Model {
     protected static function doGenerateAccountingEntry($self) {
         $self->read([
                 'condo_id', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
+                'description',
                 'misc_operation_lines_ids' => ['account_id', 'debit', 'credit']
             ]);
         foreach ($self as $id => $miscOperation) {
@@ -348,6 +376,7 @@ class MiscOperation extends Model {
                     'entry_date'            => $miscOperation['posting_date'],
                     'origin_object_class'   => self::getType(),
                     'origin_object_id'      => $id,
+                    'description'           => $miscOperation['description'],
                     'journal_id'            => $miscOperation['journal_id'],
                     'fiscal_year_id'        => $miscOperation['fiscal_year_id'],
                     'fiscal_period_id'      => $miscOperation['fiscal_period_id']

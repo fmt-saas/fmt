@@ -103,7 +103,7 @@
 55;1;ETABLISSEMENTS DE CRÉDIT;KREDIETINSTELLINGEN;CREDIT INSTITUTIONS;;;;
 550;;Compte épargne (Réserve);Spaarrekering (Reservekapitaal);Savings account (Reserve capital);bank_savings;Banque épargne;;
 551;;Compte courant (Roulement);Zichtrekening (Werkkapitaal);Current account (Working capital);bank_current;Banque courant;;
-552;;Autres comptes;Overige rekeningen;Other accounts;;;;
+552;;Autres comptes;Overige rekeningen;Other accounts;bank_tier;;;
 57;;Caisses;Kassen;Cash registers;;;;
 58;;Virements internes;Interne overboekingen;Internal transfers;bank_transfer;Banque transfert;;
 6;1;CHARGES;KOSTEN;EXPENSES;;;;

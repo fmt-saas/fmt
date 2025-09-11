@@ -16,6 +16,13 @@ class BankAccount extends Model {
 
         return [
 
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the Bank Account refers to, if any.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'visible'           => ['organisation_id', '=', null]
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -38,7 +45,8 @@ class BankAccount extends Model {
                 'selection'         => [
                     'bank_current',
                     'bank_savings',
-                    'bank_loan'
+                    'bank_loan',
+                    'bank_tier'
                 ],
                 'default'           => 'bank_current'
             ],

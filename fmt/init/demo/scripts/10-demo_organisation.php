@@ -85,7 +85,6 @@ $user = User::create([
         'validated'     => true,
         'groups_ids'    => [2]
     ])
-    ->update(['password' => 'safe_pass'])
     ->first();
 
 // will create related Identity
@@ -108,8 +107,11 @@ RoleAssignment::create([
     ]);
 
 
-
 $orm->enableEvents($events);
+
+User::search(['login', '=', 'admin@fmt.yb.run'])
+    ->update(['password' => 'safe_pass']);
+
 
 // sync values from Identities
 Organisation::search()->do('sync_from_identity');

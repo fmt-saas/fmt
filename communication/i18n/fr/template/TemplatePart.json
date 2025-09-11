@@ -4,7 +4,7 @@
     "description": "",
     "model": {
         "name": {
-            "label": "Libellé",
+            "label": "Nom",
             "description": "Code d'identification de la partie de modèle.",
             "help": ""
         },
