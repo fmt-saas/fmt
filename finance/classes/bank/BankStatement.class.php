@@ -574,7 +574,7 @@ class BankStatement extends Model {
             foreach($statement['statement_lines_ids'] as $statementLine) {
                 $sum += round($statementLine['amount'], 2);
             }
-            if( ($sum - $delta) != 0.0) {
+            if($sum != $delta) {
                 $result[$id] = [
                     'invalid_amount' => "The sum of the lines ({$sum}) does not match the delta ({$delta})."
                 ];
