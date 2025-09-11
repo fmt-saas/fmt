@@ -76,6 +76,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['suppliership_id', '=', 'object.suppliership_id']]
             ],
 
+// #todo - dafault = compte par défaut (is_primary) du condominium
             'condo_bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
@@ -267,7 +268,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'description'   => 'Update the document data JSON with the newly provided data.',
                 'policies'      => [],
                 'function'      => 'doUpdateDocumentJson'
-            ]
+            ],
+            'assign_invoice_number' => [
+                'description'   => 'Creates accounting entries according to invoice lines.',
+                'policies'      => [],
+                'function'      => 'doAssignInvoiceNumber'
+            ],
         ]);
     }
 
@@ -895,8 +901,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         }
     }
 
-
-    public static function doAssignInvoiceNumber($self) {
+    protected static function doAssignInvoiceNumber($self) {
         $self->read(['condo_id', 'fiscal_year_id' => ['code'], 'fiscal_period_id' => ['code']]);
         foreach($self as $id => $invoice) {
             $format = Setting::get_value(
@@ -926,7 +931,10 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                         'condo'     => $invoice['condo_id'],
                         'sequence'  => $sequence
                     ]);
-                self::id($id)->update(['invoice_number' => $invoice_number]);
+                self::id($id)->update([
+                        'invoice_number' => $invoice_number,
+                        'name'           => null
+                    ]);
             }
         }
     }

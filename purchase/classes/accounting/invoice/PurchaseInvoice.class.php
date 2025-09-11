@@ -343,7 +343,7 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
             ->do('validate_accounting_entries');
     }
 
-    public static function doAssignInvoiceNumber($self) {
+    protected static function doAssignInvoiceNumber($self) {
         $self->read(['organisation_id']);
         foreach($self as $id => $invoice) {
             $format = Setting::get_value(

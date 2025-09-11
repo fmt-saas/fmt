@@ -34,7 +34,7 @@
                 "type": "parent",
                 "children": [
                     {
-                        "id": "item.documents.document_import",
+                        "id": "item.imports.invoice_import",
                         "type": "entry",
                         "label": "Invoice",
                         "icon": "receipt_long",
@@ -46,7 +46,7 @@
                         }
                     },
                     {
-                        "id": "item.banks.bank_statements.import",
+                        "id": "item.imports.bank_statements.import",
                         "type": "entry",
                         "label": "Bank Statements",
                         "icon": "receipt",
