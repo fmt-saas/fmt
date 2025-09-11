@@ -53,7 +53,8 @@ CondominiumBankAccount::create([
         'bank_account_type' => 'bank_current',
         'bank_account_iban' => "BE04233241973931",
         'is_primary'        => true
-    ]);
+    ])
+    ->transition('validate');
 
 CondominiumBankAccount::create([
         'condo_id'          => $condominium['id'],
@@ -61,10 +62,8 @@ CondominiumBankAccount::create([
         'description'       => "Compte épargne",
         'bank_account_type' => 'bank_savings',
         'bank_account_iban' => "BE04456595434922"
-    ]);
-
-CondominiumBankAccount::search(['condo_id', '=', $condominium['id']])->transition('validate');
-
+    ])
+    ->transition('validate');
 
 
 // ACP Forge 43
@@ -107,7 +106,8 @@ CondominiumBankAccount::create([
         'bank_account_type' => 'bank_current',
         'bank_account_iban' => "BE02068937205640",
         'is_primary'        => true
-    ]);
+    ])
+    ->transition('validate');
 
 CondominiumBankAccount::create([
         'condo_id'          => $condominium['id'],
@@ -115,9 +115,10 @@ CondominiumBankAccount::create([
         'description'       => "Compte épargne",
         'bank_account_type' => 'bank_savings',
         'bank_account_iban' => "BE05373234451279"
-    ]);
+    ])
+    ->transition('validate');
 
-CondominiumBankAccount::search(['condo_id', '=', $condominium['id']])->transition('validate');
+
 
 $orm->enableEvents($events);
 

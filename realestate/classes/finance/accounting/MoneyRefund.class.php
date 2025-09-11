@@ -380,6 +380,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 if(!$ownershipAccount) {
                     throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
+
                 $accountingEntry = AccountingEntry::create([
                         'condo_id'              => $moneyRefund['condo_id'],
                         'entry_date'            => $moneyRefund['posting_date'],

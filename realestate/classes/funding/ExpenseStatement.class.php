@@ -83,7 +83,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
 
             'statement_bank_account_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\bank\BankAccount',
+                'foreign_object'    => 'finance\bank\CondominiumBankAccount',
                 'description'       => 'Bank account to use for the request.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
