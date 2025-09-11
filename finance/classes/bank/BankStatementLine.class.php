@@ -755,6 +755,7 @@ class BankStatementLine extends Model {
                 ->first();
 
             $bankAccount = CondominiumBankAccount::id($bankStatement['bank_account_id'])->read(['accounting_account_id'])->first();
+            $journal = Journal::search([['code', '=', 'BNK'], ['condo_id', '=', $bankStatementLine['condo_id']]])->first();
 
             foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
 
@@ -783,11 +784,11 @@ class BankStatementLine extends Model {
                     */
 
                     $accountingEntry = AccountingEntry::create([
-                            'condo_id'              => $payment['condo_id'],
+                            'condo_id'              => $bankStatementLine['condo_id'],
                             'entry_date'            => $payment['receipt_date'],
                             'origin_object_class'   => self::getType(),
                             'origin_object_id'      => $id,
-                            'journal_id'            => $payment['journal_id'],
+                            'journal_id'            => $journal['id'],
                             'fiscal_year_id'        => $payment['fiscal_year_id'],
                             'fiscal_period_id'      => $payment['fiscal_period_id']
                         ])
@@ -804,8 +805,9 @@ class BankStatementLine extends Model {
                             throw new \Exception('non_supported_funding_type', EQ_ERROR_INVALID_PARAM);
                             break;
                         case 'misc':
-                            $debit_account_id = $payment['accounting_account_id'];
-                            $credit_account_id = $bankAccount['accounting_account_id'];
+                            // transfert manuel : on inverse le débit et le crédit
+                            $credit_account_id = $payment['accounting_account_id'];
+                            $debit_account_id  = $bankAccount['accounting_account_id'];
                             break;
                         case 'invoice':
                             // purchase invoice : payment to the supplier
@@ -866,18 +868,22 @@ class BankStatementLine extends Model {
 
                     // debit line
                     AccountingEntryLine::create([
-                                'account_id'            => $debit_account_id,
-                                'debit'                 => $amount > 0 ? abs($amount) : 0,
-                                'credit'                => $amount < 0 ? abs($amount) : 0,
-                                'accounting_entry_id'   => $accountingEntry['id']
+                                'condo_id'               => $bankStatementLine['condo_id'],
+                                'account_id'             => $debit_account_id,
+                                'debit'                  => $amount > 0 ? abs($amount) : 0,
+                                'credit'                 => $amount < 0 ? abs($amount) : 0,
+                                'accounting_entry_id'    => $accountingEntry['id'],
+                                'bank_statement_line_id' => $id,
                             ]);
 
                     // credit line
                     AccountingEntryLine::create([
-                                'account_id'            => $credit_account_id,
-                                'debit'                 => $amount < 0 ? abs($amount) : 0,
-                                'credit'                => $amount > 0 ? abs($amount) : 0,
-                                'accounting_entry_id'   => $accountingEntry['id']
+                                'condo_id'               => $bankStatementLine['condo_id'],
+                                'account_id'             => $credit_account_id,
+                                'debit'                  => $amount < 0 ? abs($amount) : 0,
+                                'credit'                 => $amount > 0 ? abs($amount) : 0,
+                                'accounting_entry_id'    => $accountingEntry['id'],
+                                'bank_statement_line_id' => $id,
                             ]);
 
                     Funding::id($payment['funding_id']['id'])->do('refresh_status');
