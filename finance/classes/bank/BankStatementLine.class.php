@@ -384,7 +384,7 @@ class BankStatementLine extends Model {
                     ['is_cancelled', '=', false],
                     ['status', '<>', 'balanced'],
                     // ['remaining_amount', '=', $amount],
-                    ['bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']],
+                    // ['bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']],
                     // #memo - funding payment reference is computed (depends on funding_type)
                     ['payment_reference', '=', $reference]
                 ];
@@ -404,7 +404,8 @@ class BankStatementLine extends Model {
                     else {
                         $valid = ($funding['remaining_amount'] >= $amount);
                     }
-                    if($valid) {
+                    // ? most of the time we don't want this, but might be reelvant for strict compliance : ['bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']],
+                    if($valid && strlen($bankStatementLine['account_iban'] ?? '') > 0) {
                         if(in_array($funding['funding_type'], ['refund','transfer','invoice'], true)) {
                             // #memo - counterpart_bank_account_iban is computed from counterpart_bank_account_id
                             if($funding['counterpart_bank_account_iban'] <> $bankStatementLine['account_iban']) {
