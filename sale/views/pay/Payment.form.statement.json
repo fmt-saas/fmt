@@ -1,21 +1,6 @@
 {
     "name": "Payment",
     "description": "",
-    "actions": [
-        {
-            "id": "action.post",
-            "label": "Post",
-            "description": "Validate the payment. This action is not reversible.",
-            "controller": "core_model_transition",
-            "visible": ["status", "=", "proforma"],
-            "params": {
-                "entity": "sale\\pay\\Payment",
-                "transition": "post",
-                "ids": []
-            },
-            "confirm": true
-        }
-    ],
     "layout": {
         "groups": [
             {

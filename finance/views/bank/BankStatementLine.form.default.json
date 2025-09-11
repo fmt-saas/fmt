@@ -18,6 +18,19 @@
                     ["status", "=", "pending"]
                 ]
             ]
+        },
+        {
+            "id": "action.post",
+            "label": "Post",
+            "description": "Post the statement line.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "proforma"],
+            "params": {
+                "entity": "finance\\bank\\BankStatementLine",
+                "transition": "post",
+                "ids": []
+            },
+            "confirm": true
         }
     ],
     "layout": {

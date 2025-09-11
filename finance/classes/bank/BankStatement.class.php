@@ -58,14 +58,16 @@ class BankStatement extends Model {
             'date' => [
                 'type'              => 'date',
                 'description'       => 'Date at which the statement was received.',
-                'help'              => 'This is for information only and might not be accurate with the actual date/time at which the statement was generated.',
+                'help'              => "This is for information only and might not be accurate with the actual date/time at which the statement was generated.
+                    By convention all banks release at maximum 1 statement per day, so this date is always at midnight (00:00:00) of the given day.",
                 'readonly'          => true
             ],
 
             'statement_number' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:3',
                 'description'       => 'Arbitrary number of the statement, provided by the bank.',
-                'help'              => 'This field can be left unknown for manually encoded statements.'
+                'help'              => 'This field can be left unknown for manually encoded statements. By convention, in Belgium only 3 digits are used (due to CODA structure).'
             ],
 
             'statement_currency' => [
@@ -285,19 +287,18 @@ class BankStatement extends Model {
     }
 
     protected static function onafterPost($self) {
-        $self->read(['document_process_id', 'statement_lines_ids' => ['payments_ids']]);
+        $self->read(['document_process_id', 'statement_lines_ids']);
         foreach($self as $id => $bankStatement) {
             try {
                 // mark involved payment as posted
                 // #memo - this triggers a cascade event `attempt_posting` on Funding and related documents
-                foreach($bankStatement['statement_lines_ids'] as $lid => $statementLine) {
-                    Payment::ids($statementLine['payments_ids'])->transition('post');
-                }
+                BankStatementLine::ids($bankStatement['statement_lines_ids'])->transition('post');
             }
             catch(\Exception $e) {
                 // ignore already published payments
                 trigger_error("APP::BankStatement::onafterPost - Failed to post payment: {$e->getMessage()}", EQ_REPORT_ERROR);
             }
+
             if($bankStatement['document_process_id']) {
                 DocumentProcess::id($bankStatement['document_process_id'])
                     // bypass all stages

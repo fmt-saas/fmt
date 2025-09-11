@@ -290,6 +290,23 @@ class BankStatementLine extends Model {
         ];
     }
 
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Payment being created.',
+                'help'        => 'Status change is triggered by the parent BankStatementLine, which also generates the subsequent accounting entries.',
+                'icon'        => 'draw',
+                'transitions' => [
+                    'post' => [
+                        'description' => 'Update the payment status to `payment`.',
+                        'onbefore'    => 'onbeforePost',
+                        'status'      => 'posted'
+                    ]
+                ]
+            ]
+        ];
+    }
+
     public static function getActions() {
         return [
             'attempt_reconcile' => [
@@ -623,6 +640,10 @@ class BankStatementLine extends Model {
         return $result;
     }
 
+    protected static function onbeforePost($self) {
+        $self->do('generate_accounting_entry');
+    }
+
     public static function onchange($event, $values, $view) {
         $result = [];
 
@@ -661,10 +682,17 @@ class BankStatementLine extends Model {
     protected static function policyCanGenerateAccountingEntry($self) {
         $result = [];
         $self->read([
+                'status',
                 'bank_statement_id',
                 'payments_ids' => ['funding_id']
             ]);
         foreach($self as $id => $bankStatementLine) {
+            if($bankStatementLine['status'] !== 'pending') {
+                $result[$id] = [
+                    'invalid_status' => 'Only pending bank statement lines can be posted.'
+                ];
+                continue;
+            }
             foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
                 if(!$payment['funding_id']) {
                     $result[$id] = [
@@ -850,7 +878,7 @@ class BankStatementLine extends Model {
 
                 }
                 catch(\Exception $e) {
-                    trigger_error("APP::onafterPost: Error while creating accounting entries for payment #{$id} : " . $e->getMessage(), EQ_REPORT_ERROR);
+                    trigger_error("APP::doGenerateAccountingEntry: Error while creating accounting entries for payment #{$id} : " . $e->getMessage(), EQ_REPORT_ERROR);
                 }
             }
         }
