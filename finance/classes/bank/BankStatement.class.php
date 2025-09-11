@@ -570,13 +570,13 @@ class BankStatement extends Model {
         $self->read(['statement_lines_ids' => ['amount'], 'opening_balance', 'closing_balance']);
         foreach($self as $id => $statement) {
             $delta = round($statement['closing_balance'], 2) - round($statement['opening_balance'], 2);
-            $sum = 0;
+            $sum = 0.0;
             foreach($statement['statement_lines_ids'] as $statementLine) {
-                $sum += $statementLine['amount'];
+                $sum += round($statementLine['amount'], 2);
             }
-            if( (round($sum, 2) - $delta) !== 0.0) {
+            if( ($sum - $delta) != 0.0) {
                 $result[$id] = [
-                    'invalid_amount' => 'The sum of the lines does not match the delta.'
+                    'invalid_amount' => "The sum of the lines ({$sum}) does not match the delta ({$delta})."
                 ];
             }
         }
