@@ -150,6 +150,7 @@ class FiscalYear extends Model {
                     'draft',
                     'preopen',
                     'open',
+                    'preclosed',
                     'closed',
                     'archived'
                 ],
@@ -333,6 +334,10 @@ class FiscalYear extends Model {
                 'description' => 'Verifies that a fiscal year can be set (or set back) to preclosed status.',
                 'function'    => 'policyCanBePreClosed'
             ],
+            'can_be_closed' => [
+                'description' => 'Verifies that a fiscal year can be closed according its configuration.',
+                'function'    => 'policyCanBeClosed'
+            ],
             'can_open_fiscal_year' => [
                 'description' => 'Verifies that a fiscal year can be opened according to user roles.',
                 'function'    => 'policyCanOpenFiscalYear'
@@ -357,6 +362,13 @@ class FiscalYear extends Model {
             }
         }
 
+        return $result;
+    }
+
+    protected static function policyCanBeClosed($self): array {
+        $result = [];
+        $self->read(['status', 'condo_id', 'date_to']);
+// il faut que les comptes de résultat soient soldés
         return $result;
     }
 
@@ -739,7 +751,9 @@ class FiscalYear extends Model {
     }
 
     public static function doGenerateClosingBalance($self) {
-        // #todo
+// #todo
+
+
     }
 
     private static function computeFiscalPeriods($fiscal_year_start, $fiscal_year_end, $fiscal_period_frequency) {

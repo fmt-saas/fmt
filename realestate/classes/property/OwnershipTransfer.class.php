@@ -812,6 +812,8 @@ class OwnershipTransfer extends \equal\orm\Model {
         $self->read(['condo_id', 'fiscal_year_id', 'request_date', 'confirmation_date', 'transfer_date', 'status']);
         foreach($self as $id => $ownershipTransfer) {
             OwnershipTransferFundBalanceLine::search(['ownership_transfer_id', '=', $id])->delete(true);
+
+            // retrieve latest date to take under account
             $date = null;
             if(in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'], true)) {
                 $date = $ownershipTransfer['request_date'];
@@ -823,14 +825,21 @@ class OwnershipTransfer extends \equal\orm\Model {
                 $date = $ownershipTransfer['transfer_date'];
             }
 
-            // whatever the status, we want to have the balances that apply for the transfer
-            // for the date, we must retrieve the first date of the latest fully open fiscal year
-            $fiscalYear = FiscalYear::search([['condo_id', '=', $ownershipTransfer['condo_id']], ['status', '=', 'open']], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
-                ->read(['date_from'])
-                ->first();
-
-            if(!$fiscalYear) {
-                $fiscalYear = FiscalYear::id($ownershipTransfer['fiscal_year_id'])->read(['date_from'])->first();
+            // retrieve pivot date
+            $fiscalYear = FiscalYear::id($ownershipTransfer['fiscal_year_id'])->read(['status', 'date_from'])->first();
+            if($fiscalYear['status'] !== 'open' && $fiscalYear['status'] !== 'preclosed') {
+                // current year might not hold some accounting entries: we must retrieve the first date of the latest fully open fiscal year
+                $canditatefiscalYear = FiscalYear::search([
+                            [['condo_id', '=', $ownershipTransfer['condo_id']], ['status', '=', 'open']],
+                            [['condo_id', '=', $ownershipTransfer['condo_id']], ['status', '=', 'preclosed']],
+                        ],
+                        ['sort' => ['date_from' => 'desc'], 'limit' => 1]
+                    )
+                    ->read(['date_from'])
+                    ->first();
+                if($canditatefiscalYear) {
+                    $fiscalYear = $canditatefiscalYear;
+                }
             }
 
             $pivot_date = $fiscalYear['date_from'];
@@ -839,6 +848,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             $funds = CondoFund::search(['condo_id', '=', $ownershipTransfer['condo_id']])
                 ->read(['name', 'fund_type', 'fund_account_id']);
 
+            // retrieve all accounting entries to consider, between pivot_date and date
             foreach($funds as $fund_id => $fund) {
                 $balance = 0.0;
 

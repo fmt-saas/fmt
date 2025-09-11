@@ -456,9 +456,9 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     trigger_error("APP::Attempting to assign (partly or full) a purchase invoice with no matching fiscal period for date " . date('Y-m-d', $date) . ".", EQ_REPORT_WARNING);
                     break;
                 }
-                if(!$fiscalPeriod['fiscal_year_id'] || !in_array($fiscalPeriod['fiscal_year_id']['status'], ['preopen', 'open'])) {
+                if(!$fiscalPeriod['fiscal_year_id'] || !in_array($fiscalPeriod['fiscal_year_id']['status'], ['preopen', 'open', 'preclosed'], true)) {
                     $result[$id] = [
-                        'invalid_allocation_fiscal_year' => 'At least one fiscal year targeted by the invoice allocated is in a non-open state.'
+                        'invalid_allocation_fiscal_year' => 'At least one fiscal year targeted by the invoice allocated is in a non-writable state.'
                     ];
                     trigger_error("APP::Attempting to assign (partly or full) a purchase invoice on non-open fiscal year {$fiscalPeriod['fiscal_year_id']['id']} for date " . date('Y-m-d', $date) . ".", EQ_REPORT_WARNING);
                     break;
@@ -591,7 +591,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 ->read(['id', 'name'])
                 ->first();
             if(!$privateExpenseAccount) {
-                trigger_error("APP::unable to find a match for private_exepense account for condominium {$invoice['condo_id']}", EQ_REPORT_ERROR);
+                trigger_error("APP::unable to find a match for private_expense account for condominium {$invoice['condo_id']}", EQ_REPORT_ERROR);
                 throw new \Exception("missing_mandatory_journal", EQ_ERROR_INVALID_CONFIG);
             }
 
@@ -1022,6 +1022,10 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         if(isset($event['payment_reference'])) {
             $result['payment_reference'] = str_replace(['+', '/'], '', $event['payment_reference']);
         }
+
+// #todo - si on change has_date_range (activation) -> assigner les date_from et date_to sur base des dates de la période comptable sélectionnée
+
+
         return array_merge(parent::onchange($event, $values), $result);
     }
 
