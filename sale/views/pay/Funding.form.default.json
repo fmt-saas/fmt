@@ -90,7 +90,7 @@
                                             {
                                                 "type": "field",
                                                 "label": "Invoice",
-                                                "value": "invoice_id",
+                                                "value": "sale_invoice_id",
                                                 "width": "50%"
                                             }
                                         ]

@@ -54,7 +54,9 @@ class Funding extends Model {
                 'selection'         => [
                     'installment',
                     'refund',
-                    'invoice'
+                    'transfer',
+                    'sale_invoice',
+                    'purchase_invoice'
                 ],
                 'required'          => true,
                 'description'       => "Type of funding. Either an installment, a specific invoice, a fund request, or an expense statement."
@@ -109,6 +111,16 @@ class Funding extends Model {
                 'instant'           => true
             ],
 
+            'counterpart_accounting_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Target accounting account that will be impacted by the movement (expected payments).",
+                'required'          => true,
+                'ondelete'          => 'null',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
+                'dependents'        => ['account_code']
+            ],
+
             'bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
@@ -147,13 +159,22 @@ class Funding extends Model {
                 'instant'           => true
             ],
 
-            'invoice_id' => [
+            'sale_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\accounting\invoice\Invoice',
                 'description'       => 'The invoice targeted by the funding, if any.',
                 'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).',
                 'readonly'          => true,
-                'visible'           => ['funding_type', 'in', ['installment', 'invoice']],
+                'visible'           => ['funding_type', 'in', ['installment', 'sale_invoice']],
+            ],
+
+            'purchase_invoice_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'purchase\accounting\invoice\Invoice',
+                'description'       => 'The invoice targeted by the funding, if any.',
+                'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).',
+                'readonly'          => true,
+                'visible'           => ['funding_type', 'in', ['installment', 'purchase_invoice']],
             ],
 
             'payment_reference' => [

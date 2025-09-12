@@ -98,7 +98,7 @@ class Ownership extends \equal\orm\Model {
                 'dependents'        => ['owners_ids' => 'ownership_percentage']
             ],
 
-            // #memo - a Suppliership might be linked to several Accounts of the Accounting Chart
+            // #memo - an Ownership might be linked to several Accounts of the Accounting Chart
             // 'accounting_account_id' => [
 
             'date_from' => [

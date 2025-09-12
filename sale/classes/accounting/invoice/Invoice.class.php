@@ -522,7 +522,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                     'invoice_id'          => $invoice['id'],
                     'due_amount'          => $invoice['price'],
                     'is_paid'             => false,
-                    'funding_type'        => 'invoice',
+                    'funding_type'        => 'sale_invoice',
                     'payment_reference'   => $invoice['payment_reference'],
                     'due_date'            => $invoice['due_date']
                 ])

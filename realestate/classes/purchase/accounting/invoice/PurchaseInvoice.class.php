@@ -130,7 +130,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\sale\pay\Funding',
                 'foreign_field'     => 'invoice_id',
-                'domain'            => ['funding_type', '=', 'invoice'],
+                'domain'            => ['funding_type', '=', 'purchase_invoice'],
                 'description'       => 'Fundings created from the invoice.'
             ],
 
@@ -290,31 +290,46 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function doCreateFunding($self) {
         $self->read([
-                'condo_id', 'price', 'suppliership_id', 'payment_reference', 'due_date', 'funding_id',
+                'condo_id', 'price', 'payment_reference', 'due_date', 'funding_id',
+                'suppliership_id',
                 'suppliership_bank_account_id' => ['bank_account_id']
             ]);
 
         foreach($self as $id => $invoice) {
             // retrieve the condo's current account
-            $bankAccount = CondominiumBankAccount::search([['condo_id', '=', $invoice['condo_id']], ['bank_account_type', '=', 'bank_current']])
-                ->read(['current_balance'])
+            $bankAccount = CondominiumBankAccount::search([
+                    ['condo_id', '=', $invoice['condo_id']],
+                    ['bank_account_type', '=', 'bank_current']
+                ])
                 ->first();
 
+            $suppliershipAccount = Account::search([
+                    ['condo_id', '=', $invoice['condo_id']],
+                    ['ownership_id', '=', $invoice['suppliership_id']],
+                    ['operation_assignment', '=', 'suppliers']
+                ])
+                ->first();
+
+            if(!$suppliershipAccount) {
+                throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+            }
 
             $values = [
-                    'condo_id'                      => $invoice['condo_id'],
-                    'description'                   => 'Purchase Invoice',
-                    'funding_type'                  => 'invoice',
-                    'invoice_id'                    => $id,
-                    'bank_account_id'               => $bankAccount['id'],
-                    'suppliership_id'               => $invoice['suppliership_id'],
-                    'counterpart_bank_account_id'   => $invoice['suppliership_bank_account_id']['bank_account_id'],
-                    'due_amount'                    => $invoice['price'],
-                    'is_paid'                       => false,
-                    'due_date'                      => $invoice['due_date']
+                    'condo_id'                          => $invoice['condo_id'],
+                    'description'                       => 'Purchase Invoice',
+                    'funding_type'                      => 'purchase_invoice',
+                    'invoice_id'                        => $id,
+                    'bank_account_id'                   => $bankAccount['id'],
+                    'suppliership_id'                   => $invoice['suppliership_id'],
+                    'counterpart_bank_account_id'       => $invoice['suppliership_bank_account_id']['bank_account_id'],
+                    'counterpart_accounting_account_id' => $suppliershipAccount['id'],
+                    'due_amount'                        => $invoice['price'],
+                    'is_paid'                           => false,
+                    'due_date'                          => $invoice['due_date']
                 ];
 
             if($invoice['payment_reference'] && strlen($invoice['payment_reference']) > 0) {
+                // #memo - if not set, payment_reference will be computed based on invoice id
                 $values['payment_reference'] = $invoice['payment_reference'];
             }
 

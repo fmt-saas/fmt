@@ -68,8 +68,8 @@ class Funding extends \sale\pay\Funding {
                     'refund',
                     // money transfer
                     'transfer',
-                    // purchase invoice
-                    'invoice',
+                    'purchase_invoice',
+                    'sale_invoice',
                     'fund_request',
                     'expense_statement',
                     'misc'
@@ -82,12 +82,12 @@ class Funding extends \sale\pay\Funding {
             'has_mandate' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
-                'relation'          => ['invoice_id' => 'has_mandate'],
+                'relation'          => ['purchase_invoice_id' => 'has_mandate'],
                 'description'       => 'Mark Payment to be made through a mandate.',
                 'help'              => 'The Condominium has an active SEPA mandate for paying invoices from this supplier and payment will be made through it.',
                 'store'             => true,
                 'default'           => false,
-                'visible'           => ['invoice_id', '<>', null]
+                'visible'           => ['purchase_invoice_id', '<>', null]
             ],
 
             'fund_request_id' => [
@@ -116,14 +116,14 @@ class Funding extends \sale\pay\Funding {
                 'readonly'          => true
             ],
 
-            'invoice_id' => [
+            'purchase_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
                 'description'       => 'The purchase invoice targeted by the funding, if any.',
                 'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).',
                 'readonly'          => true,
                 'dependents'        => ['has_mandate'],
-                'visible'           => ['funding_type', 'in', ['installment', 'invoice']],
+                'visible'           => ['funding_type', 'in', ['installment', 'purchase_invoice']],
             ],
 
             'money_transfer_id' => [
@@ -174,6 +174,7 @@ class Funding extends \sale\pay\Funding {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'description'       => 'Message for identifying the purpose of the transaction.',
+                'help'              => 'An arbitrary payment reference can be assigned at Funding creation to override the computation logic.',
                 'store'             => true,
                 'instant'           => true,
                 'function'          => 'calcPaymentReference'
@@ -184,7 +185,7 @@ class Funding extends \sale\pay\Funding {
 
     protected static function calcName($self) {
         $result = [];
-        $self->read(['state', 'due_amount', 'payment_reference', 'fund_request_execution_id' => ['name'],  'invoice_id' => ['name']]);
+        $self->read(['state', 'due_amount', 'payment_reference', 'fund_request_execution_id' => ['name'],  'purchase_invoice_id' => ['name']]);
         foreach($self as $id => $funding) {
             if($funding['state'] === 'draft') {
                 continue;
@@ -199,8 +200,8 @@ class Funding extends \sale\pay\Funding {
                 $result[$id] .= '  ' . DataFormatter::format($funding['payment_reference'], 'scor');
             }
 
-            if($funding['invoice_id']) {
-                $result[$id] .= '  ' . $funding['invoice_id']['name'];
+            if($funding['purchase_invoice_id']) {
+                $result[$id] .= '  ' . $funding['purchase_invoice_id']['name'];
             }
 
             if($funding['fund_request_execution_id']) {
@@ -220,7 +221,7 @@ class Funding extends \sale\pay\Funding {
         $result = [];
         $self->read([
                 'funding_type',
-                'invoice_id', 'money_transfer_id', 'money_refund_id', 'misc_operation_id',
+                'purchase_invoice_id', 'money_transfer_id', 'money_refund_id', 'misc_operation_id',
                 'condo_id' => ['code'],
                 'ownership_id' => ['code']
             ]);
@@ -256,7 +257,7 @@ class Funding extends \sale\pay\Funding {
                     break;
                 case 'invoice':
                     // by convention, references for purchase invoices start with '8'
-                    $reference = sprintf("8%09d", $funding['invoice_id']);
+                    $reference = sprintf("8%09d", $funding['purchase_invoice_id']);
                     break;
                 case 'misc':
                     // by convention, references for misc operations start with '9'

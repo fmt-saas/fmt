@@ -63,7 +63,7 @@ class BankStatementLine extends Model {
             'payments_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\sale\pay\Payment',
-                'foreign_field'     => 'statement_line_id',
+                'foreign_field'     => 'bank_statement_line_id',
                 'description'       => 'The list of payments this line relates to.',
                 'ondetach'          => 'delete',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
@@ -372,7 +372,7 @@ class BankStatementLine extends Model {
             }
 
             // in all situations, abort attempt if some payment have already been created
-            $payments = Payment::search(['statement_line_id', '=', $id]);
+            $payments = Payment::search(['bank_statement_line_id', '=', $id]);
 
             if($payments->count() > 0) {
                 continue;
@@ -415,13 +415,13 @@ class BankStatementLine extends Model {
                     }
 
                     if($valid && strlen($bankStatementLine['account_iban'] ?? '') > 0) {
-                        if(in_array($funding['funding_type'], ['refund','transfer','invoice'], true)) {
+                        if(in_array($funding['funding_type'], ['purchase_invoice','fund_request','expense_statement'], true)) {
                             // payment was received on another bank account than the one expected
-                            if($funding['bank_account_iban'] <> $bankStatementLine['account_iban']) {
+                            if($funding['bank_account_iban'] <> $bankStatementLine['bank_statement_id']['bank_account_iban']) {
                                 // $valid = false;
                             }
                         }
-                        if(in_array($funding['funding_type'], ['refund','transfer','invoice'], true)) {
+                        if(in_array($funding['funding_type'], ['refund','transfer'], true)) {
                             // #memo - counterpart_bank_account_iban is computed from counterpart_bank_account_id
                             // #memo - for manual encoding, statement line might not hold an account IBAN (might be unknown)
                             if($funding['counterpart_bank_account_iban'] <> $bankStatementLine['account_iban']) {
@@ -504,7 +504,7 @@ class BankStatementLine extends Model {
                         'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id']['id'],
                         'payment_origin'            => 'bank',
                         'payment_method'            => 'wire_transfer',
-                        'statement_line_id'         => $id,
+                        'bank_statement_line_id'    => $id,
                         'accounting_account_id'     => $bankStatementLine['accounting_account_id'],
                         'funding_id'                => $selected_funding_id
                     ]);
@@ -823,7 +823,7 @@ class BankStatementLine extends Model {
                             $credit_account_id = $payment['accounting_account_id'];
                             $debit_account_id  = $bankAccount['accounting_account_id'];
                             break;
-                        case 'invoice':
+                        case 'purchase_invoice':
                             // purchase invoice : payment to the supplier
                             $suppliershipAccount = Account::search([
                                     ['condo_id', '=', $payment['condo_id']],

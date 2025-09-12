@@ -381,30 +381,37 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
     }
 
     protected static function doCreateFundings($self) {
-        $self->read(['condo_id', 'amount', 'bank_account_id', 'counterpart_bank_account_id']);
-
+        $self->read([
+                'condo_id',
+                'amount',
+                'bank_account_id' => ['accounting_account_id'],
+                'counterpart_bank_account_id' => ['accounting_account_id']
+            ]);
+        // #memo - this operation will result in 2 bank statements lines on 2 distinct bank statements (one for each involved bank account)
         foreach($self as $id => $moneyTransfer) {
             Funding::create([
-                    'condo_id'                      => $moneyTransfer['condo_id'],
-                    'money_transfer_id'             => $id,
-                    'funding_type'                  => 'transfer',
-                    'due_amount'                    => -$moneyTransfer['amount'],
-                    'bank_account_id'               => $moneyTransfer['bank_account_id'],
-                    'counterpart_bank_account_id'   => $moneyTransfer['counterpart_bank_account_id'],
+                    'condo_id'                          => $moneyTransfer['condo_id'],
+                    'money_transfer_id'                 => $id,
+                    'funding_type'                      => 'transfer',
+                    'due_amount'                        => -$moneyTransfer['amount'],
+                    'bank_account_id'                   => $moneyTransfer['bank_account_id']['id'],
+                    'counterpart_bank_account_id'       => $moneyTransfer['counterpart_bank_account_id']['id'],
+                    'counterpart_accounting_account_id' => $moneyTransfer['counterpart_bank_account_id']['accounting_account_id'],
                     // #todo - allow custom with setting
-                    'due_date'                      => time() + 10 * 86400,
+                    'due_date'                          => time() + 10 * 86400,
                     // #memo - payment_reference is a computed field
                 ]);
 
             Funding::create([
-                    'condo_id'                      => $moneyTransfer['condo_id'],
-                    'money_transfer_id'             => $id,
-                    'funding_type'                  => 'transfer',
-                    'due_amount'                    => $moneyTransfer['amount'],
-                    'bank_account_id'               => $moneyTransfer['counterpart_bank_account_id'],
-                    'counterpart_bank_account_id'   => $moneyTransfer['bank_account_id'],
+                    'condo_id'                          => $moneyTransfer['condo_id'],
+                    'money_transfer_id'                 => $id,
+                    'funding_type'                      => 'transfer',
+                    'due_amount'                        => $moneyTransfer['amount'],
+                    'bank_account_id'                   => $moneyTransfer['counterpart_bank_account_id']['id'],
+                    'counterpart_bank_account_id'       => $moneyTransfer['bank_account_id']['id'],
+                    'counterpart_accounting_account_id' => $moneyTransfer['bank_account_id']['accounting_account_id'],
                     // #todo - allow custom with setting
-                    'due_date'                      => time() + 10 * 86400,
+                    'due_date'                          => time() + 10 * 86400,
                     // #memo - payment_reference is a computed field
                 ]);
         }

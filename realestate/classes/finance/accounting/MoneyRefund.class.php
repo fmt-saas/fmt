@@ -41,6 +41,16 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'description'       => "Type of operation, necessary for entities inheriting from MiscOperation."
             ],
 
+            'refund_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'owner_refund',
+                    'supplier_refund'
+                ],
+                'default'           => 'owner_refund',
+                'description'       => "Type of refund (owner or supplier), necessary for Funding creation."
+            ],
+
             'bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
@@ -61,17 +71,40 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'description'       => "Ownership to which the refund is due.",
-                'required'          => true,
-                'domain'            => [['condo_id', '=', 'object.condo_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id']],
+                'visible'           => ['refund_type', '=', 'owner_refund']
             ],
 
             'ownership_bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\OwnershipBankAccount',
-                'description'       => 'The Bank account of the Ownership.',
-                'required'          => true,
+                'description'       => 'The Bank account of the Ownership to reimburse.',
                 'help'              => 'This is the bank account of the ownership to which the refund has to be made.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['ownership_id', '=', 'object.ownership_id']]
+                'domain'            => [
+                        ['condo_id', '=', 'object.condo_id'],
+                        ['condo_id', '<>', null],
+                        ['ownership_id', '=', 'object.ownership_id']
+                    ],
+                'visible'           => [['ownership_id', '<>', null], ['refund_type', '=', 'owner_refund']]
+            ],
+
+            'suppliership_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'purchase\supplier\Suppliership',
+                'description'       => 'The supplier the funding relates to.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'suppliership_bank_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\SuppliershipBankAccount',
+                'description'       => "The bank accounts of the supplier te reimburse.",
+                'domain'            => [
+                        ['condo_id', '=', 'object.condo_id'],
+                        ['condo_id', '<>', null],
+                        ['suppliership_id', '=', 'object.suppliership_id']
+                    ],
+                'visible'           => [['ownership_id', '<>', null], ['refund_type', '=', 'owner_refund']]
             ],
 
             'amount' => [
@@ -337,20 +370,56 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
     }
 
     protected static function doCreateFundings($self) {
-        $self->read(['condo_id', 'amount', 'bank_account_id', 'counterpart_bank_account_id']);
+        $self->read([
+                'condo_id',
+                'amount',
+                'refund_type',
+                'bank_account_id',
+                'ownership_id',
+                'suppliership_id',
+                'counterpart_bank_account_id'
+            ]);
 
         // request an amount from the owner, to be paid on the current account
         foreach($self as $id => $moneyRefund) {
 
+            switch($moneyRefund['refund_type']) {
+                case 'owner_refund':
+                    $counterpartAccount = Account::search([
+                            ['condo_id', '=', $moneyRefund['condo_id']],
+                            ['ownership_id', '=', $moneyRefund['ownership_id']],
+                            ['operation_assignment', '=', 'co_owners_working_fund']
+                        ])
+                        ->first();
+
+                    if(!$counterpartAccount) {
+                        throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                    }
+                    break;
+                case 'supplier_refund':
+                    $counterpartAccount = Account::search([
+                            ['condo_id', '=', $moneyRefund['condo_id']],
+                            ['ownership_id', '=', $moneyRefund['suppliership_id']],
+                            ['operation_assignment', '=', 'suppliers']
+                        ])
+                        ->first();
+
+                    if(!$counterpartAccount) {
+                        throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                    }
+                    break;
+            }
+
             Funding::create([
-                    'condo_id'                      => $moneyRefund['condo_id'],
-                    'money_refund_id'               => $id,
-                    'funding_type'                  => 'refund',
-                    'due_amount'                    => -$moneyRefund['amount'],
-                    'bank_account_id'               => $moneyRefund['bank_account_id'],
-                    'counterpart_bank_account_id'   => $moneyRefund['counterpart_bank_account_id'],
+                    'condo_id'                          => $moneyRefund['condo_id'],
+                    'money_refund_id'                   => $id,
+                    'funding_type'                      => 'refund',
+                    'due_amount'                        => -$moneyRefund['amount'],
+                    'bank_account_id'                   => $moneyRefund['bank_account_id'],
+                    'counterpart_bank_account_id'       => $moneyRefund['counterpart_bank_account_id'],
+                    'counterpart_accounting_account_id' => $counterpartAccount['id'],
                     // #todo - allow custom with setting
-                    'due_date'                      => time() + 10 * 86400
+                    'due_date'                          => time() + 10 * 86400
                 ]);
         }
     }

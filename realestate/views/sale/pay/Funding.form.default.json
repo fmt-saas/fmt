@@ -112,9 +112,9 @@
                                             {
                                                 "type": "field",
                                                 "label": "Invoice",
-                                                "value": "invoice_id",
+                                                "value": "purchase_invoice_id",
                                                 "width": "50%",
-                                                "visible": ["funding_type", "=", "invoice"]
+                                                "visible": ["funding_type", "=", "purchase_invoice"]
                                             },
                                             {
                                                 "type": "field",

@@ -518,20 +518,32 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                     $due_amount += $ownerLine['price'];
                 }
 
+                $ownershipAccount = Account::search([
+                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['operation_assignment', '=', 'co_owners_working_fund']
+                    ])
+                    ->first();
+
+                if(!$ownershipAccount) {
+                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                }
+
                 // a funding cannot be issued nor due in the past
                 $issue_date = max(strtotime('today'), $expenseStatement['posting_date']);
                 $due_date = $expenseStatement['due_date'];
 
                 Funding::create([
-                        'condo_id'                  => $expenseStatement['condo_id']['id'],
-                        'description'               => $expenseStatement['name'],
-                        'funding_type'              => 'expense_statement',
-                        'expense_statement_id'      => $id,
-                        'ownership_id'              => $ownership_id,
-                        'bank_account_id'           => $expenseStatement['statement_bank_account_id'],
-                        'issue_date'                => $issue_date,
-                        'due_date'                  => $due_date,
-                        'due_amount'                => $due_amount
+                        'condo_id'                          => $expenseStatement['condo_id']['id'],
+                        'description'                       => $expenseStatement['name'],
+                        'funding_type'                      => 'expense_statement',
+                        'expense_statement_id'              => $id,
+                        'ownership_id'                      => $ownership_id,
+                        'bank_account_id'                   => $expenseStatement['statement_bank_account_id'],
+                        'counterpart_accounting_account_id' => $ownershipAccount['id'],
+                        'issue_date'                        => $issue_date,
+                        'due_date'                          => $due_date,
+                        'due_amount'                        => $due_amount
                     ]);
 
             }

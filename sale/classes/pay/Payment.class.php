@@ -67,24 +67,13 @@ class Payment extends Model {
                 'default'           => time()
             ],
 
-            'fiscal_year_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'foreign_object'    => 'finance\accounting\FiscalYear',
-                'description'       => 'Fiscal year in which the operation is recorded.',
-                'function'          => 'calcFiscalYearId',
-                'store'             => true,
-                'instant'           => true
-            ],
-
-            'fiscal_period_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'foreign_object'    => 'finance\accounting\FiscalPeriod',
-                'description'       => 'Accounting period derived from the posting date.',
-                'function'          => 'calcFiscalPeriodId',
-                'store'             => true,
-                'instant'           => true
+            'receipt_bank_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankAccount',
+                'description'       => 'The Bank account the payment relates to.',
+                'help'              => 'This is the bank account to which payment was actually received or sent, and might differ from the Funding banK-account_id.',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'payment_origin' => [
@@ -109,7 +98,7 @@ class Payment extends Model {
                 'default'           => 'wire_transfer'
             ],
 
-            'statement_line_id' => [
+            'bank_statement_line_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankStatementLine',
                 'description'       => 'The bank statement line the payment originates from.',
@@ -133,6 +122,7 @@ class Payment extends Model {
                 'foreign_object'    => 'sale\pay\Funding',
                 'description'       => 'The funding the payment relates to, if any.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'ondelete'          => 'null',
                 'visible'           => ['has_funding', '=', true]
             ],
 
@@ -147,37 +137,6 @@ class Payment extends Model {
                 'type'              => 'boolean',
                 'description'       => 'Mark the payment as exported (part of an export to elsewhere).',
                 'default'           => false
-            ],
-
-            'journal_type' => [
-                'type'              => 'string',
-                'description'       => 'Code of the Accounting journal the payment relates to (always BANK for payments).',
-                'selection'         => [
-                    'CASH',
-                    'BANK'
-                ],
-                'default'           => 'BANK',
-                'dependents'        => ['journal_id']
-            ],
-
-            'journal_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'foreign_object'    => 'finance\accounting\Journal',
-                'description'       => 'Accounting journal used for the Money Transfer.',
-                'help'              => 'Money transfer between internal accounts is a bank operation and is always put in the BNK/FIN journal.',
-                'store'             => true,
-                'function'          => 'calcJournalId',
-                'readonly'          => true
-            ],
-
-            'accounting_account_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\Account',
-                'description'       => 'The accounting account the payment relates to.',
-                'help'              => "This value is used for creating the accounting entry.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
-                'visible'           => ['has_funding', '=', false]
             ],
 
             'status' => [
@@ -209,25 +168,25 @@ class Payment extends Model {
     }
 
     protected static function oncreate($self) {
-        $self->read(['funding_id', 'statement_line_id']);
+        $self->read(['funding_id', 'bank_statement_line_id']);
         foreach($self as $id => $payment) {
             if($payment['funding_id']) {
                 Funding::id($payment['funding_id'])->update(['paid_amount' => null, 'remaining_amount' => null, 'is_paid' => null]);
             }
-            if($payment['statement_line_id']) {
-                BankStatementLine::id($payment['statement_line_id'])->update(['remaining_amount' => null]);
+            if($payment['bank_statement_line_id']) {
+                BankStatementLine::id($payment['bank_statement_line_id'])->update(['remaining_amount' => null]);
             }
         }
     }
 
     protected static function onafterupdate($self) {
-        $self->read(['funding_id', 'statement_line_id']);
+        $self->read(['funding_id', 'bank_statement_line_id']);
         foreach($self as $id => $payment) {
             if($payment['funding_id']) {
                 Funding::id($payment['funding_id'])->update(['paid_amount' => null, 'remaining_amount' => null, 'is_paid' => null]);
             }
-            if($payment['statement_line_id']) {
-                BankStatement::id($payment['statement_line_id'])->update(['remaining_amount' => null]);
+            if($payment['bank_statement_line_id']) {
+                BankStatement::id($payment['bank_statement_line_id'])->update(['remaining_amount' => null]);
             }
         }
     }
@@ -238,7 +197,7 @@ class Payment extends Model {
         if(isset($event['payment_origin'])) {
             switch($event['payment_origin']) {
                 case 'cashdesk':
-                    $result['statement_line_id'] = null;
+                    $result['bank_statement_line_id'] = null;
                     break;
                 case 'bank':
                     $result['payment_method'] = 'cash';
@@ -257,10 +216,10 @@ class Payment extends Model {
                     ->first();
 
                 if(!is_null($funding)) {
-                    if($funding['funding_type'] == 'invoice' && isset($funding['invoice_id']['customer_id']))  {
+                    if($funding['funding_type'] == 'sale_invoice' && isset($funding['invoice_id']['customer_id']))  {
                         $result['customer_id'] = [
-                            'id'   => $funding['invoice_id']['customer_id']['id'],
-                            'name' => $funding['invoice_id']['customer_id']['name']
+                            'id'   => $funding['sale_invoice_id']['customer_id']['id'],
+                            'name' => $funding['sale_invoice_id']['customer_id']['name']
                         ];
                     }
 
@@ -285,7 +244,7 @@ class Payment extends Model {
     }
 
     public static function canupdate($self, $values) {
-        $self->read(['status', 'is_exported', 'payment_origin', 'amount', 'statement_line_id' => ['amount', 'remaining_amount']]);
+        $self->read(['status', 'is_exported', 'payment_origin', 'amount', 'bank_statement_line_id' => ['amount', 'remaining_amount']]);
         foreach($self as $payment) {
             if($payment['is_exported']) {
                 return ['is_exported' => ['non_editable' => 'Once exported a payment can no longer be updated.']];
@@ -297,12 +256,12 @@ class Payment extends Model {
 
             $payment_origin = $values['payment_origin'] ?? $payment['payment_origin'];
 
-            if($payment_origin == 'bank' && isset($values['amount']) && (isset($values['statement_line_id']) || isset($payment['statement_line_id']))) {
+            if($payment_origin == 'bank' && isset($values['amount']) && (isset($values['bank_statement_line_id']) || isset($payment['bank_statement_line_id']))) {
 
-                $statement_line = $payment['statement_line_id'];
+                $statement_line = $payment['bank_statement_line_id'];
 
-                if(isset($values['statement_line_id'])) {
-                    $statement_line = BankStatementLine::id($values['statement_line_id'])
+                if(isset($values['bank_statement_line_id'])) {
+                    $statement_line = BankStatementLine::id($values['bank_statement_line_id'])
                         ->read(['amount', 'remaining_amount'])
                         ->first();
                 }

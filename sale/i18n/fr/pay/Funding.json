@@ -20,7 +20,8 @@
                 "installment": "acompte",
                 "refund": "remboursement",
                 "transfer": "transfert",
-                "invoice": "facture",
+                "purchase_invoice": "facture d'achat",
+                "sale_invoice": "facture de vente",
                 "fund_request": "appel de fonds",
                 "expense_statement": "décompte de charges"
             },

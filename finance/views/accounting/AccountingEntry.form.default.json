@@ -105,18 +105,7 @@
                                         ]
                                     }
                                 ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "sections": [
-                    {
-                        "id": "section.lines",
-                        "label": "Lines",
-                        "visible": ["state", "=", "instance"],
-                        "rows": [
+                            },
                             {
                                 "columns": [
                                     {

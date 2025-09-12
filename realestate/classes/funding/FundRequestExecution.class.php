@@ -19,6 +19,14 @@ use sale\pay\Payment;
 #memo - Fund requests executions are handled as sales invoices
 class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
 
+    protected const MAP_DEBIT_OPERATION_ASSIGNMENTS = [
+        'reserve_fund'         => 'co_owners_reserve_fund',
+        'special_reserve_fund' => 'co_owners_reserve_fund',
+        'working_fund'         => 'co_owners_working_fund',
+        'expense_provisions'   => 'co_owners_working_fund',
+        'work_provisions'      => 'co_owners_working_fund',
+    ];
+
     public static function getName() {
         return 'Fund Request Execution';
     }
@@ -356,14 +364,6 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
      */
     public static function doGenerateAccountingEntry($self) {
 
-        static $map_debit_operation_assignments = [
-                'reserve_fund'           => 'co_owners_reserve_fund',
-                'special_reserve_fund'   => 'co_owners_reserve_fund',
-                'working_fund'           => 'co_owners_working_fund',
-                'expense_provisions'     => 'co_owners_working_fund',
-                'work_provisions'        => 'co_owners_working_fund'
-            ];
-
         $self->read([
                 'name',
                 'fiscal_year_id',
@@ -409,7 +409,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                 ]);
 
             //create the debit lines
-            $debit_operation_assignment = $map_debit_operation_assignments[$requestExecution['fund_request_id']['request_type']];
+            $debit_operation_assignment = static::MAP_DEBIT_OPERATION_ASSIGNMENTS[$requestExecution['fund_request_id']['request_type']];
             $logs[] = "Retrieved debit operation assignment {$debit_operation_assignment}";
 
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
@@ -447,11 +447,12 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
     }
 
     public static function doGenerateFundings($self) {
+
         $self->read([
                 'posting_date',
                 'due_date',
                 'fiscal_year_id' => ['date_from'],
-                'condo_id' => ['code'],
+                'condo_id' => ['id', 'code'],
                 'fund_request_id' => [
                     'id', 'name', 'request_type', 'request_account_id', 'request_bank_account_id'
                 ],
@@ -460,8 +461,24 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
 
         foreach($self as $id => $requestExecution) {
 
+            $debit_operation_assignment = static::MAP_DEBIT_OPERATION_ASSIGNMENTS[$requestExecution['fund_request_id']['request_type']];
+
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
                 $ownership_id = $executionLine['ownership_id']['id'];
+
+                // find the account based on operation_assignment
+                $logs[] = "Fetching account for ownership {$executionLine['ownership_id']}";
+                $ownershipAccount = Account::search([
+                        ['condo_id', '=', $requestExecution['condo_id']['id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['operation_assignment', '=', $debit_operation_assignment]
+                    ])
+                    ->first();
+
+                if(!$ownershipAccount) {
+                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                }
+
                 // retrieve detached-non-empty fundings relating to the targeted ownership and fund request, if any
                 $fund_request_id = $requestExecution['fund_request_id']['id'];
                 $fundings = Funding::search([
@@ -471,6 +488,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                         ['fund_request_execution_id', '=', null]
                     ])
                     ->read(['payments_ids']);
+
                 $paid_amount = 0;
                 foreach($fundings as $funding_id => $funding) {
                     // #memo - empty fundings have been removed at cancellation of previous execution(s)
@@ -494,6 +512,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                         'fund_request_id'           => $requestExecution['fund_request_id']['id'],
                         'fund_request_execution_id' => $id,
                         'ownership_id'              => $ownership_id,
+                        'accounting_account_id'     => $ownershipAccount['id'],
                         'bank_account_id'           => $requestExecution['fund_request_id']['request_bank_account_id'],
                         'issue_date'                => $issue_date,
                         'due_date'                  => $due_date,

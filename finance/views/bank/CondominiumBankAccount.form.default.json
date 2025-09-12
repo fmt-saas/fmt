@@ -137,7 +137,10 @@
                                             {
                                                 "type": "field",
                                                 "value": "bank_statements_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.condo"
+                                                }
                                             }
                                         ]
                                     }

@@ -285,6 +285,9 @@ $adapters = [
     'bic_normalize' => function($bic) {
         return strtoupper(trim($bic));
     },
+    'payment_reference_normalize' => function($reference) {
+        return strtoupper(preg_replace('/[^a-z0-9]/i', '', $reference));
+    },
     // converts transaction type to a standardized code (string)
     'transaction_type_normalize' => function($transaction_type) {
         $result = $transaction_type;
@@ -417,7 +420,7 @@ $map_xls_fields = [
     ],
     'Structured Reference' => [
         'target'  => 'structured_reference',
-        'adapter' => 'string_trim',
+        'adapter' => 'payment_reference_normalize',
     ],
     'Unstructured Reference' => [
         'target'  => 'unstructured_reference',
