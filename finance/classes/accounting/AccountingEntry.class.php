@@ -48,7 +48,7 @@ class AccountingEntry extends Model {
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => "Accounting journal the entry relates to.",
                 'required'          => true,
-                'domain'            => [['code', '<>', 'LEDG'], ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+                'domain'            => [['journal_type', '<>', 'LEDG'], ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'fiscal_year_id' => [

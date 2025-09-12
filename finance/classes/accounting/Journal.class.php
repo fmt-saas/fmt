@@ -70,7 +70,8 @@ class Journal extends Model {
                     'LEDG'      => 'General Ledger',
                     'SALE'      => 'Sales',
                     'PURC'      => 'Purchases',
-                    'CASH'      => 'Bank & Cash',
+                    'BANK'      => 'Bank',
+                    'CASH'      => 'Cashdesk',
                     'PAYR'      => 'Payroll',
                     'ASST'      => 'Fixed Assets',
                     'OPEN'      => 'Opening Balances/Carryforward',
@@ -92,30 +93,51 @@ class Journal extends Model {
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
                 'foreign_field'     => 'journal_id',
                 'description'       => "Accounting entries of the journal."
-            ]
+            ],
 
-            // #todo - add 'default_account_id'
+            // #todo - add 'default_account_id' ?
+
+            // support for sub journals
+            // for now this is limited to 1 level, and for CASH/FIN journals only
+            // creation of sub-journals is not allowed through the UI and is made programmatically only to have 1 sub-journal for each accounting account linked to condominiums bank accounts
+            'has_parent' => [
+                'type'              => 'boolean',
+                'description'       => "Flag mak journal has sub-journal.",
+                'default'           => false,
+                'visible'           => ['journal_type', '=', 'CASH']
+            ],
+
+            'parent_journal_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the accounting journal refers to.",
+                'foreign_object'    => 'finance\accounting\Journal',
+                'readonly'          => true,
+                'visible'           => ['has_parent', '=', true]
+            ]
 
         ];
     }
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['mnemo', 'code', 'journal_type', 'description']);
+        $self->read(['mnemo', 'journal_type', 'description']);
         foreach($self as $id => $journal) {
-            $name = ($journal['description'] && strlen($journal['description'])) ? $journal['mnemo'] : $journal['code'];
-            if($journal['description'] && strlen($journal['description'])) {
-                $name .= ' - '.$journal['description'];
+            $parts = [];
+            if($journal['mnemo'] && strlen($journal['mnemo'])) {
+                $parts[] = $journal['mnemo'];
             }
-            $name .= ' ('.$journal['journal_type'].')';
-            $result[$id] = $name;
+            if($journal['description'] && strlen($journal['description'])) {
+                $parts[] = $journal['description'];
+            }
+            $parts[] = $journal['journal_type'];
+            $result[$id] = implode(' - ', $parts);
         }
         return $result;
     }
 
     public function getUnique(): array {
         return [
-            ['code', 'organisation_id', 'condo_id']
+            ['journal_type', 'organisation_id', 'condo_id', 'parent_journal_id']
         ];
     }
 }

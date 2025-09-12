@@ -342,6 +342,10 @@ class BankStatementLine extends Model {
         return $result;
     }
 
+    /**
+     * Attempts to reconcile by searching for matching Fundings (based on payment_reference) and, if found, by creating corresponding Payments.
+     *
+     */
     protected static function doAttemptReconcile($self) {
         $self->read([
                 'status',
@@ -353,7 +357,7 @@ class BankStatementLine extends Model {
                 'accounting_account_id',
                 'accounting_account_code',
                 'payments_ids' => ['amount', 'status'],
-                'bank_statement_id' => ['bank_account_iban', 'bank_account_id' => ['accounting_account_id']],
+                'bank_statement_id' => ['bank_account_iban', 'bank_account_id' => ['id', 'accounting_account_id']],
                 'is_misc',
                 'is_expense',
                 'is_owner',
@@ -383,19 +387,22 @@ class BankStatementLine extends Model {
                 $domain = [
                     ['is_cancelled', '=', false],
                     ['status', '<>', 'balanced'],
-                    // ['remaining_amount', '=', $amount],
+                    // #memo - we support the possibility that the payment be made on another bank account than the one linked to the funding (see below)
                     // ['bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']],
                     // #memo - funding payment reference is computed (depends on funding_type)
                     ['payment_reference', '=', $reference]
                 ];
 
-                // #memo - this is not relevant for filtering, but must be checked, depending on the found Funding(s)
+                // #memo - this is not relevant for filtering, but must be verified, depending on the found Funding(s)
                 // $funding = Funding::search(array_merge($domain, [['counterpart_bank_account_iban', '=', $bankStatementLine['account_iban']]]))->first();
 
                 // pass-1 - preliminary match
-                $candidateFundings = Funding::search($domain, ['sort' => ['due_date' => 'asc']])->read(['funding_type', 'counterpart_bank_account_iban', 'remaining_amount']);
+                // #memo - in case of multiple candidates, the oldest one prevails
+                $candidateFundings = Funding::search($domain, ['sort' => ['due_date' => 'asc']])
+                    ->read(['funding_type', 'bank_account_iban', 'counterpart_bank_account_iban', 'remaining_amount']);
 
                 // pass-2 - validate candidates based on remaining amount and counterpart_bank_account_iban, when mandatory
+                // #memo - the payment reference is the main criteria, additional checks can be applied but not sure yet how to handle manual encoding
                 foreach($candidateFundings as $funding_id => $funding) {
                     $valid = false;
                     if($amount < 0) {
@@ -404,12 +411,19 @@ class BankStatementLine extends Model {
                     else {
                         $valid = ($funding['remaining_amount'] >= $amount);
                     }
-                    // ? most of the time we don't want this, but might be reelvant for strict compliance : ['bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']],
+
                     if($valid && strlen($bankStatementLine['account_iban'] ?? '') > 0) {
                         if(in_array($funding['funding_type'], ['refund','transfer','invoice'], true)) {
+                            // payment was received on another bank account than the one expected
+                            if($funding['bank_account_iban'] <> $bankStatementLine['account_iban']) {
+                                // $valid = false;
+                            }
+                        }
+                        if(in_array($funding['funding_type'], ['refund','transfer','invoice'], true)) {
                             // #memo - counterpart_bank_account_iban is computed from counterpart_bank_account_id
+                            // #memo - for manual encoding, statement line might not hold an account IBAN (might be unknown)
                             if($funding['counterpart_bank_account_iban'] <> $bankStatementLine['account_iban']) {
-                                $valid = false;
+                                // $valid = false;
                             }
                         }
                     }
@@ -421,9 +435,11 @@ class BankStatementLine extends Model {
 
             }
 
+            // #todo - move this somewhere else - requires confirmation
+
             if(!$selected_funding_id) {
                 // retrieve the BANK accounting journal
-                $journal = Journal::search([['code', '=', 'BNK'], ['condo_id', '=', $bankStatementLine['condo_id']]])->first();
+                $journal = Journal::search([['journal_type', '=', 'BANK'], ['condo_id', '=', $bankStatementLine['condo_id']]])->first();
 
                 if($bankStatementLine['is_misc']) {
                     // 1) create a Misc Operation
@@ -479,15 +495,16 @@ class BankStatementLine extends Model {
             if($selected_funding_id) {
                 trigger_error("APP::matching funding ({$selected_funding_id}) found for bank statement line {$id} with reference {$reference}.", EQ_REPORT_DEBUG);
                 Payment::create([
-                        'condo_id'              => $bankStatementLine['condo_id'],
-                        'amount'                => $bankStatementLine['amount'],
-                        'communication'         => $bankStatementLine['communication'],
-                        'receipt_date'          => $bankStatementLine['date'],
-                        'payment_origin'        => 'bank',
-                        'payment_method'        => 'wire_transfer',
-                        'statement_line_id'     => $id,
-                        'accounting_account_id' => $bankStatementLine['accounting_account_id'],
-                        'funding_id'            => $selected_funding_id
+                        'condo_id'                  => $bankStatementLine['condo_id'],
+                        'amount'                    => $bankStatementLine['amount'],
+                        'communication'             => $bankStatementLine['communication'],
+                        'receipt_date'              => $bankStatementLine['date'],
+                        'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id']['id'],
+                        'payment_origin'            => 'bank',
+                        'payment_method'            => 'wire_transfer',
+                        'statement_line_id'         => $id,
+                        'accounting_account_id'     => $bankStatementLine['accounting_account_id'],
+                        'funding_id'                => $selected_funding_id
                     ]);
 
                 self::id($id)->update(['is_reconciled' => null]);
@@ -756,7 +773,7 @@ class BankStatementLine extends Model {
                 ->first();
 
             $bankAccount = CondominiumBankAccount::id($bankStatement['bank_account_id'])->read(['accounting_account_id'])->first();
-            $journal = Journal::search([['code', '=', 'BNK'], ['condo_id', '=', $bankStatementLine['condo_id']]])->first();
+            $journal = Journal::search([['journal_type', '=', 'BANK'], ['condo_id', '=', $bankStatementLine['condo_id']]])->first();
 
             foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
 

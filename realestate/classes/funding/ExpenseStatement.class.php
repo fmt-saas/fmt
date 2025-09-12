@@ -383,7 +383,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
 
         foreach($self as $id => $statement) {
             // retrieve journal dedicated to purchases
-            $journal = Journal::search([['condo_id', '=', $statement['condo_id']], ['code', '=', 'SAL']])->first();
+            $journal = Journal::search([['condo_id', '=', $statement['condo_id']], ['purchase_type', '=', 'SALE']])->first();
             if(!$journal) {
                 trigger_error("APP::unable to find a match for journal PUR for condominium {$statement['condo_id']}", EQ_REPORT_ERROR);
                 throw new \Exception("missing_mandatory_journal", EQ_ERROR_INVALID_CONFIG);

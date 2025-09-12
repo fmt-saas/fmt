@@ -576,7 +576,7 @@ class FiscalYear extends Model {
 
             // 4 - create temporary carry-forward / opening-balance accounting entries in next fiscal year OPB journal
 
-            $carryForwardJournal = Journal::search([['condo_id', '=', $fiscalYear['condo_id']], ['code', '=', 'OPB']])->first();
+            $carryForwardJournal = Journal::search([['condo_id', '=', $fiscalYear['condo_id']], ['journal_type', '=', 'OPEN']])->first();
             if(!$carryForwardJournal) {
                 throw new \Exception('missing_opb_journal', EQ_ERROR_INVALID_CONFIG);
             }
@@ -629,7 +629,7 @@ class FiscalYear extends Model {
         foreach($self as $id => $fiscalYear) {
             $fiscal_year_code = $fiscalYear['code'];
 
-            $journals = Journal::search([['code', '<>', 'LEDG'], ['condo_id', '=', $fiscalYear['condo_id']]])->read(['code']);
+            $journals = Journal::search([['journal_type', '<>', 'LEDG'], ['condo_id', '=', $fiscalYear['condo_id']]])->read(['journal_type']);
 
             // init mandatory sequences
             foreach($fiscalYear['fiscal_periods_ids'] as $period_id => $fiscalPeriod) {
@@ -643,8 +643,8 @@ class FiscalYear extends Model {
 
                 // create accounting entries sequences for all existing journals
                 foreach($journals as $journal) {
-                    $journal_code = $journal['code'];
-                    Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}", 1, ['condo_id' => $fiscalYear['condo_id']]);
+                    $journal_type = $journal['journal_type'];
+                    Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_type}", 1, ['condo_id' => $fiscalYear['condo_id']]);
                 }
 
             }
@@ -660,7 +660,7 @@ class FiscalYear extends Model {
         $self->read(['condo_id']);
 
         foreach($self as $id => $fiscalYear) {
-            $carryForwardJournal = Journal::search([['code', '=', 'OPB'], ['condo_id', '=', $fiscalYear['condo_id']]])->first();
+            $carryForwardJournal = Journal::search([['journal_type', '=', 'OPEN'], ['condo_id', '=', $fiscalYear['condo_id']]])->first();
             if(!$carryForwardJournal) {
                 throw new \Exception('missing_opb_journal', EQ_ERROR_INVALID_CONFIG);
             }

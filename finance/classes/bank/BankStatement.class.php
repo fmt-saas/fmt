@@ -192,6 +192,7 @@ class BankStatement extends Model {
         return [
             'attempt_reconcile' => [
                 'description'   => 'Attempt to reconcile the statement and its lines, and invoke the creation of subsequent accounting entries.',
+                'help'          => 'This action triggers a reconcile attempt on all statement lines. It is immutable and can be called multiple times.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
                 'function'      => 'doAttemptReconcile'
             ],

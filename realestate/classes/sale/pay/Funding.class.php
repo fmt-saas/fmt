@@ -48,6 +48,7 @@ class Funding extends \sale\pay\Funding {
                 'description'       => 'The Bank account the funding relates to.',
                 'help'              => 'This is the bank account to which payment is expected to be received, or from which payment is expected to be made.',
                 'readonly'          => true,
+                'dependents'        => ['bank_account_iban'],
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
@@ -63,8 +64,11 @@ class Funding extends \sale\pay\Funding {
                 'type'              => 'string',
                 'selection'         => [
                     'installment',
+                    // money_refund
                     'refund',
+                    // money transfer
                     'transfer',
+                    // purchase invoice
                     'invoice',
                     'fund_request',
                     'expense_statement',
@@ -228,27 +232,38 @@ class Funding extends \sale\pay\Funding {
             $reference = str_pad('', 12, '0');
 
             switch($funding['funding_type']) {
-                case 'refund':
-                    $reference = sprintf("%010d", $funding['money_refund_id']);
-                    break;
-                case 'transfer':
-                    $reference = sprintf("%010d", $funding['money_transfer_id']);
-                    break;
                 case 'fund_request':
-                case 'expense_statement':
+                    // by convention, references for fund requests start with '4'
                     $reference =
-                        substr(str_pad((int) $funding['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
+                        '4' .
+                        substr(str_pad((int) $funding['condo_id']['code'], 5, '0', STR_PAD_LEFT), 0, 6) .
                         substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
                     break;
+                case 'expense_statement':
+                    // by convention, references for expense statements start with '5'
+                    $reference =
+                        '5' .
+                        substr(str_pad((int) $funding['condo_id']['code'], 5, '0', STR_PAD_LEFT), 0, 6) .
+                        substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+                    break;
+                case 'refund':
+                    // by convention, references for refunds start with '6'
+                    $reference = sprintf("6%09d", $funding['money_refund_id']);
+                    break;
+                case 'transfer':
+                    // by convention, references for money transfers start with '7'
+                    $reference = sprintf("7%09d", $funding['money_transfer_id']);
+                    break;
                 case 'invoice':
-                    // for purchase invoices, use invoice id to generate a unique reference (VCS compliant)
-                    $reference = sprintf("%010d", $funding['invoice_id']);
+                    // by convention, references for purchase invoices start with '8'
+                    $reference = sprintf("8%09d", $funding['invoice_id']);
                     break;
                 case 'misc':
-                    $reference = sprintf("%010d", $funding['misc_operation_id']);
+                    // by convention, references for misc operations start with '9'
+                    $reference = sprintf("9%09d", $funding['misc_operation_id']);
                     break;
                 case 'installment':
-                    // #todo
+                    // #memo - non relevant here
                     break;
             }
 

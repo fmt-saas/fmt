@@ -101,7 +101,7 @@ class Payment extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'cash',                 // cash money
-                    'bank_card',            // electronic payment with bank (or credit) card
+                    'bank_card',            // electronic payment with credit card
                     'voucher',              // gift or coupon
                     'wire_transfer'         // transfer between bank account
                 ],
@@ -149,17 +149,14 @@ class Payment extends Model {
                 'default'           => false
             ],
 
-            'journal_code' => [
+            'journal_type' => [
                 'type'              => 'string',
-                'description'       => 'Code of the Accounting journal the payment relates to.',
+                'description'       => 'Code of the Accounting journal the payment relates to (always BANK for payments).',
                 'selection'         => [
-                    'SAL',
-                    'PUR',
-                    'BNK',
-                    'OPB',
-                    'MISC'
+                    'CASH',
+                    'BANK'
                 ],
-                'default'           => 'BNK',
+                'default'           => 'BANK',
                 'dependents'        => ['journal_id']
             ],
 
@@ -390,12 +387,12 @@ class Payment extends Model {
 
     protected static function calcJournalId($self) {
         $result = [];
-        $self->read(['condo_id', 'journal_code']);
+        $self->read(['condo_id', 'journal_type']);
         foreach($self as $id => $payment) {
             if(!$payment['condo_id']) {
                 continue;
             }
-            $journal = Journal::search([['condo_id', '=', $payment['condo_id']], ['journal_code', '=', $payment['journal_code']]])->first();
+            $journal = Journal::search([['condo_id', '=', $payment['condo_id']], ['journal_type', '=', $payment['journal_type']]])->first();
 
             if($journal) {
                 $result[$id] = $journal['id'];

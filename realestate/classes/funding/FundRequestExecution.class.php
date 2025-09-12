@@ -380,7 +380,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
 
             AccountingEntry::id($requestExecution['accounting_entry_id'])->delete(true);
 
-            $journal = Journal::search([['condo_id', '=', $requestExecution['condo_id']], ['code', '=', 'SAL']])->first();
+            $journal = Journal::search([['condo_id', '=', $requestExecution['condo_id']], ['journal_type', '=', 'SALE']])->first();
 
             $logs[] = "Retrieved SALE journal id {$journal['id']}";
 

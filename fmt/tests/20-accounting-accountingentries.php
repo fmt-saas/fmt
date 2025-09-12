@@ -37,7 +37,7 @@ $tests = [
                     $accountingEntry = AccountingEntry::create([
                             'condo_id'          => $condo['id'],
                             'status'            => 'pending',
-                            'journal_id'        => current(Journal::search([['code', '=', 'PUR'],['condo_id', '=', $condo['id']]])->ids()),
+                            'journal_id'        => current(Journal::search([['journal_type', '=', 'PURC'],['condo_id', '=', $condo['id']]])->ids()),
                             'fiscal_year_id'    => $fiscalYear['id'],
                             'entry_date'        => time(),
                         ])
@@ -92,7 +92,7 @@ $tests = [
                     $accountingEntry = AccountingEntry::create([
                             'condo_id'          => $condo['id'],
                             'status'            => 'pending',
-                            'journal_id'        => current(Journal::search(['code', '=', 'PUR'])->ids()),
+                            'journal_id'        => current(Journal::search(['journal_type', '=', 'PURC'])->ids()),
                             'fiscal_year_id'    => $fiscalYear['id'],
                             'entry_date'        => time(),
                         ])

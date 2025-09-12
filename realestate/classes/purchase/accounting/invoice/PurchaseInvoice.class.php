@@ -586,7 +586,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
             }
 
             // retrieve journal dedicated to purchases
-            $journal = Journal::search([['condo_id', '=', $invoice['condo_id']], ['code', '=', 'PUR']])->first();
+            $journal = Journal::search([['condo_id', '=', $invoice['condo_id']], ['journal_type', '=', 'PURC']])->first();
             if(!$journal) {
                 trigger_error("APP::unable to find a match for journal PUR for condominium {$invoice['condo_id']}", EQ_REPORT_ERROR);
                 throw new \Exception("missing_mandatory_journal", EQ_ERROR_INVALID_CONFIG);
