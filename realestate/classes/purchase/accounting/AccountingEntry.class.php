@@ -18,6 +18,19 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
 
     public static function getColumns() {
         return [
+            'origin_object_class' => [
+                'type'              => 'string',
+                'description'       => 'Entity class that the entry originates from.',
+                'help'              => "The accounting document the accounting entry originates from.
+                    Possible classes are:
+                    PurchaseInvoice, FundRequestExecution, ExpenseStatement, BankStatementLine, MiscOperation (virtual document).",
+            ],
+
+            'origin_object_id' => [
+                'type'              => 'integer',
+                'description'       => 'Object identifier, as a complement to `origin_object_class`, the entry originates from.'
+            ],
+
             'invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
@@ -26,10 +39,34 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'fund_request_execution_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\FundRequestExecution',
+                'description'       => 'Invoice the entry relates to, if any.',
+                'ondelete'          => 'null',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'expense_statement_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\ExpenseStatement',
+                'description'       => "Expense Statement the entry relates to, if any.",
+                'ondelete'          => 'null',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'bank_statement_line_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankStatementLine',
+                'description'       => 'Bank Statement line the entry relates to, if any.',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'bank_statement_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
-                'description'       => 'Invoice the entry relates to, if any.',
+                'foreign_object'    => 'finance\bank\BankStatement',
+                'description'       => 'Bank statement the entry relates to, if any.',
                 'ondelete'          => 'null',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],

@@ -5,6 +5,7 @@
         "data": [
             {
                 "id": 1,
+                "code": "LDG",
                 "mnemo": "LEDG",
                 "journal_type": "LEDG",
                 "organisation_id": 1,
@@ -13,6 +14,7 @@
             },
             {
                 "id": 2,
+                "code": "SAL",
                 "mnemo": "SAL",
                 "journal_type": "SALE",
                 "organisation_id": 1,
@@ -21,6 +23,7 @@
             },
             {
                 "id": 3,
+                "code": "PUR",
                 "mnemo": "PUR",
                 "journal_type": "PURC",
                 "organisation_id": 1,
@@ -29,6 +32,7 @@
             },
             {
                 "id": 4,
+                "code": "BNK",
                 "mnemo": "BANK",
                 "journal_type": "BANK",
                 "organisation_id": 1,
@@ -37,6 +41,7 @@
             },
             {
                 "id": 5,
+                "code": "MSC",
                 "mnemo": "MISC",
                 "journal_type": "MISC",
                 "organisation_id": 1,
@@ -45,6 +50,7 @@
             },
             {
                 "id": 6,
+                "code": "OPB",
                 "mnemo": "OPB",
                 "journal_type": "OPEN",
                 "organisation_id": 1,

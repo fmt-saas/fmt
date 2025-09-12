@@ -51,6 +51,20 @@ class AccountingEntry extends Model {
                 'domain'            => [['journal_type', '<>', 'LEDG'], ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
+            'sub_journal_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Journal',
+                'description'       => "Accounting journal the entry relates to.",
+                'help'              => "We need this to be able to view either all entries from a parent journal, or only entries from a specific sub journal.",
+                'visible'           => ['journal_id', '<>', null],
+                'domain'            => [
+                    ['journal_type', '=', 'BANK'],
+                    ['parent_journal_id', '=', 'object.journal_id'],
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['condo_id', '<>', null]
+                ]
+            ],
+
             'fiscal_year_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
@@ -97,8 +111,7 @@ class AccountingEntry extends Model {
 
             'origin_object_class' => [
                 'type'              => 'string',
-                'description'       => 'Entity class that the entry originates from.',
-                'help'              => 'An accounting entry can originate from. Possible classes are: PurchaseInvoice, FundRequestExecution, ExpenseStatement, BankStatementLine, MiscOperation (virtual document).',
+                'description'       => 'Entity class that the entry originates from.'
             ],
 
             'origin_object_id' => [
@@ -162,13 +175,6 @@ class AccountingEntry extends Model {
                 'description'       => 'Invoice the accounting entry is related to.',
                 'help'              => 'This field is expected to be overloaded in purchase and sale invoice classes.',
                 'ondelete'          => 'null'
-            ],
-
-            // #todo - not sure if this is necessary
-            'document_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'documents\Document',
-                'description'       => 'Reference document, if any.'
             ],
 
             'status' => [
@@ -280,6 +286,7 @@ class AccountingEntry extends Model {
                 'condo_id',
                 'entry_date',
                 'journal_id',
+                'sub_journal_id',
                 'fiscal_period_id' => ['id', 'date_from'],
                 'fiscal_year_id'   => ['current_balance_id'],
                 'entry_lines_ids'  => ['account_id', 'debit', 'credit']
@@ -310,12 +317,27 @@ class AccountingEntry extends Model {
 
             // make sure entries are chronological
             // search for all entries in the period for the concerned journal and, if more recent, take the date of the most recent one
-            $mostRecentEntry = self::search([['id', '<>', $id], ['journal_id', '=', $accountingEntry['journal_id']], ['fiscal_period_id', '=', $accountingEntry['fiscal_period_id']['id']]], ['sort' => ['entry_date' => 'desc'], 'limit' => 1])->read(['entry_date'])->first();
+            $domain = [
+                    ['id', '<>', $id],
+                    ['fiscal_period_id', '=', $accountingEntry['fiscal_period_id']['id']]
+                ];
+
+            if($accountingEntry['sub_journal_id']) {
+                $domain[] = ['journal_id', '=', $accountingEntry['sub_journal_id']];
+            }
+            else {
+                $domain[] = ['journal_id', '=', $accountingEntry['journal_id']];
+            }
+
+            $mostRecentEntry = self::search($domain, ['sort' => ['entry_date' => 'desc'], 'limit' => 1])->read(['entry_date'])->first();
             $entry_date = $accountingEntry['entry_date'];
             if($mostRecentEntry && $mostRecentEntry['entry_date'] > $accountingEntry['entry_date']) {
                 $entry_date = $mostRecentEntry['entry_date'];
             }
-            self::id($id)->update(['entry_number' => self::computeEntryNumber($id), 'entry_date' => $entry_date]);
+            self::id($id)->update([
+                    'entry_number'  => self::computeEntryNumber($id),
+                    'entry_date'    => $entry_date
+                ]);
         }
     }
 
@@ -478,6 +500,7 @@ class AccountingEntry extends Model {
             ->read(['status', 'is_temp',
                 'condo_id'          => ['id', 'code'],
                 'journal_id'        => ['code'],
+                'sub_journal_id'    => ['code'],
                 'fiscal_year_id'    => ['code'],
                 'fiscal_period_id'  => ['code']
             ])
@@ -506,6 +529,10 @@ class AccountingEntry extends Model {
         $journal_code = $entry['journal_id']['code'];
         $condo_code = $entry['condo_id']['code'];
 
+        if($entry['sub_journal_id']) {
+            $journal_code = $entry['sub_journal_id']['code'];
+        }
+
         $sequence = Setting::fetch_and_add(
                 'finance',
                 'accounting',
@@ -517,7 +544,7 @@ class AccountingEntry extends Model {
             );
 
         if(!$sequence) {
-            trigger_error("APP::missing mandatory finance.accounting.accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code} for condominium {$entry['condo_id']}.", EQ_REPORT_ERROR);
+            trigger_error("APP::missing mandatory finance.accounting.accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code} for condominium {$entry['condo_id']['id']}.", EQ_REPORT_ERROR);
             throw new \Exception('missing_mandatory_sequence', EQ_ERROR_INVALID_CONFIG);
         }
 

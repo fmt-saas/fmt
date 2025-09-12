@@ -104,15 +104,22 @@ class Journal extends Model {
                 'type'              => 'boolean',
                 'description'       => "Flag mak journal has sub-journal.",
                 'default'           => false,
-                'visible'           => ['journal_type', '=', 'CASH']
+                'visible'           => ['journal_type', '=', 'BANK']
             ],
 
             'parent_journal_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the accounting journal refers to.",
                 'foreign_object'    => 'finance\accounting\Journal',
+                'description'       => "The journal the accounting journal is a child of.",
                 'readonly'          => true,
                 'visible'           => ['has_parent', '=', true]
+            ],
+
+            'sub_journals_ids' => [
+                'type'              => 'one2many',
+                'description'       => "The children accounting journals, if any.",
+                'foreign_object'    => 'finance\accounting\Journal',
+                'foreign_field'     => 'parent_journal_id'
             ]
 
         ];
@@ -120,12 +127,13 @@ class Journal extends Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['mnemo', 'journal_type', 'description']);
+        $self->read(['mnemo', 'code', 'journal_type', 'description']);
         foreach($self as $id => $journal) {
             $parts = [];
             if($journal['mnemo'] && strlen($journal['mnemo'])) {
                 $parts[] = $journal['mnemo'];
             }
+            $parts[] = $journal['code'];
             if($journal['description'] && strlen($journal['description'])) {
                 $parts[] = $journal['description'];
             }
@@ -137,7 +145,7 @@ class Journal extends Model {
 
     public function getUnique(): array {
         return [
-            ['journal_type', 'organisation_id', 'condo_id', 'parent_journal_id']
+            ['code', 'organisation_id', 'condo_id']
         ];
     }
 }

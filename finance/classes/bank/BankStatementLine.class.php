@@ -162,7 +162,9 @@ class BankStatementLine extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => 'Accounting account the statement line relates to.',
-                'help'              => "This value can only be set manually and targets the accounting account to use for the counterpart movement. This is an accounting account, not to be mixed up with bank accounts.",
+                'help'              => "This value can only be set manually and targets the accounting account to use for the counterpart movement.
+                    When set, the counterpart accounting document is created automatically when posting the line.
+                    This is an accounting account, not to be mixed up with bank accounts.",
                 'ondelete'          => 'null',
                 'dependents'        => ['accounting_account_code', 'is_misc', 'is_expense', 'is_supplier', 'is_owner', 'ownership_id', 'suppliership_id'],
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]]
@@ -177,12 +179,12 @@ class BankStatementLine extends Model {
                 'instant'           => true
             ],
 
-            'is_misc' => [
+            'is_transfer' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
-                'description'       => 'Flag marking the line as being an unexpected expense or income.',
-                'help'              => "This field depends on the selected accounting account. When set to true, the line implies the creation of a stand alone miscellaneous operation.",
-                'function'          => 'calcIsMisc',
+                'description'       => 'Flag marking the line as being a transfer between accounts.',
+                'help'              => "This field depends on the selected accounting account. When set to true, the line implies the creation of a MoneyTransfer operation.",
+                'function'          => 'calcIsTransfer',
                 'store'             => true,
                 'instant'           => true
             ],
@@ -554,18 +556,12 @@ class BankStatementLine extends Model {
         return $result;
     }
 
-    private static function computeIsMisc($accounting_account_id) {
+    private static function computeIsTransfer($accounting_account_id) {
         $result = false;
         if($accounting_account_id) {
-            $account = Account::id($accounting_account_id)->read(['code'])->first();
-            if($account) {
-                $account_class_digits_one = substr($account['code'], 0, 1);
-                $account_class_digits_two = substr($account['code'], 0, 2);
-                // expense or income
-                $result = (
-                        $account_class_digits_one !== '6' && $account_class_digits_one !== '7' &&
-                        $account_class_digits_two !== '41' && $account_class_digits_one !== '44'
-                    );
+            $account = Account::id($accounting_account_id)->read(['operation_assignment'])->first();
+            if($account && $account['operation_assignment'] === 'bank_transfer') {
+                $result = true;
             }
         }
         return $result;
@@ -608,11 +604,11 @@ class BankStatementLine extends Model {
         return $result;
     }
 
-    protected static function calcIsMisc($self) {
+    protected static function calcIsTransfer($self) {
         $result = [];
         $self->read(['accounting_account_id']);
         foreach($self as $id => $bankStatementLine) {
-            $result[$id] = self::computeIsMisc($bankStatementLine['accounting_account_id']);
+            $result[$id] = self::computeIsTransfer($bankStatementLine['accounting_account_id']);
         }
         return $result;
     }

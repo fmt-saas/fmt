@@ -20,15 +20,6 @@ class Payment extends \sale\pay\Payment {
                 'sort'              => 'asc'
             ],
 
-            'receipt_bank_account_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\bank\BankAccount',
-                'description'       => 'The Bank account the payment relates to.',
-                'help'              => 'This is the bank account to which payment was actually received or sent, and might differ from the Funding banK-account_id.',
-                'readonly'          => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id']
-            ],
-
         ];
     }
 

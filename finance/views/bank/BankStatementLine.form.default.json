@@ -230,7 +230,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "is_misc",
+                                                "value": "is_transfer",
                                                 "width": "100%"
                                             },
                                             {

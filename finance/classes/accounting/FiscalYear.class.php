@@ -629,7 +629,8 @@ class FiscalYear extends Model {
         foreach($self as $id => $fiscalYear) {
             $fiscal_year_code = $fiscalYear['code'];
 
-            $journals = Journal::search([['journal_type', '<>', 'LEDG'], ['condo_id', '=', $fiscalYear['condo_id']]])->read(['journal_type']);
+            $journals = Journal::search([['journal_type', '<>', 'LEDG'], ['condo_id', '=', $fiscalYear['condo_id']]])
+                ->read(['code']);
 
             // init mandatory sequences
             foreach($fiscalYear['fiscal_periods_ids'] as $period_id => $fiscalPeriod) {
@@ -643,8 +644,8 @@ class FiscalYear extends Model {
 
                 // create accounting entries sequences for all existing journals
                 foreach($journals as $journal) {
-                    $journal_type = $journal['journal_type'];
-                    Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_type}", 1, ['condo_id' => $fiscalYear['condo_id']]);
+                    $journal_code = $journal['code'];
+                    Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}", 1, ['condo_id' => $fiscalYear['condo_id']]);
                 }
 
             }

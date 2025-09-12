@@ -343,7 +343,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             if(!$moneyTransfer['condo_id']) {
                 continue;
             }
-            $journal = Journal::search([['condo_id', '=', $moneyTransfer['condo_id']], ['journal_type', '=', 'CASH']])->first();
+            $journal = Journal::search([['condo_id', '=', $moneyTransfer['condo_id']], ['journal_type', '=', 'BANK']])->first();
 
             if($journal) {
                 $result[$id] = $journal['id'];

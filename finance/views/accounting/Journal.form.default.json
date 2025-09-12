@@ -31,11 +31,16 @@
                                             {
                                                 "type": "field",
                                                 "value": "description",
-                                                "width": "100%",
+                                                "width": "50%",
                                                 "widget": {
                                                     "heading": true,
                                                     "readonly": true
                                                 }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "mnemo",
+                                                "width": "50%"
                                             }
                                         ]
                                     },
