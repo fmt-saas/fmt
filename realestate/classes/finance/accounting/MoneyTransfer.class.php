@@ -459,6 +459,9 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                         'accounting_entry_id'   => $accountingEntry['id']
                     ]);
 
+
+// #todo - ces écritures doivent être faites dans le Payment lors de la réconciliation avec la ligne de relevé bancaire
+
                 AccountingEntryLine::create([
                         'account_id'            => $moneyTransfer['counterpart_bank_account_id']['accounting_account_id'],
                         'debit'                 => $moneyTransfer['amount'],

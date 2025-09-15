@@ -52,7 +52,8 @@ class MiscOperation extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'misc',
-                    'transfer'
+                    'transfer',
+                    'refund'
                 ],
                 'default'           => 'misc',
                 'description'       => "Type of operation, necessary for entities inheriting from MiscOperation."
@@ -395,6 +396,10 @@ class MiscOperation extends Model {
             // Store the created accounting entry ID back to the misc operation
             self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
         }
+    }
+
+    protected static function doCreateFundings($self) {
+        // #todo - not sure of this : stand alone Misc Operation should not be linked to Funding, to allow arbitrary movements
     }
 
     protected static function onafterPost($self) {

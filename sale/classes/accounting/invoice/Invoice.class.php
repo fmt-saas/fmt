@@ -404,10 +404,10 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 'policies'      => [],
                 'function'      => 'doReverseInvoice'
             ],
-            'create_funding' => [
+            'create_fundings' => [
                 'description'   => 'Create the funding according to the invoice.',
                 'policies'      => [],
-                'function'      => 'doCreateFunding'
+                'function'      => 'doCreateFundings'
             ],
             'assign_invoice_number' => [
                 'description'   => 'Assign a unique number to the invoice.',
@@ -513,7 +513,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
     /**
      * Create the fundings according to the invoices.
      */
-    public static function doCreateFunding($self) {
+    public static function doCreateFundings($self) {
         $self->read(['id', 'price', 'payment_reference', 'due_date', 'funding_id']);
 
         foreach($self as $invoice) {

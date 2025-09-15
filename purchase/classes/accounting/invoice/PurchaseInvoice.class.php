@@ -289,10 +289,10 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
 
     public static function getActions() {
         return array_merge(parent::getActions(), [
-            'create_funding' => [
+            'create_fundings' => [
                 'description'   => 'Create the funding according to the invoice.',
                 'policies'      => [],
-                'function'      => 'doCreateFunding'
+                'function'      => 'doCreateFundings'
             ],
             'assign_invoice_number' => [
                 'description'   => 'Creates accounting entries according to invoice lines.',
@@ -383,7 +383,7 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
     /**
      * Create the fundings for paying the invoice.
      */
-    protected static function doCreateFunding($self) {
+    protected static function doCreateFundings($self) {
         $self->read(['id', 'price', 'payment_reference', 'due_date', 'funding_id']);
 
         foreach($self as $invoice) {

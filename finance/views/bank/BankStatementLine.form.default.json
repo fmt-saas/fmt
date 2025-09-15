@@ -24,7 +24,10 @@
             "label": "Post",
             "description": "Post the statement line.",
             "controller": "core_model_transition",
-            "visible": ["status", "=", "proforma"],
+            "visible": [
+                ["status", "=", "pending"],
+                ["is_reconciled", "=", true]
+            ],
             "params": {
                 "entity": "finance\\bank\\BankStatementLine",
                 "transition": "post",
@@ -142,7 +145,10 @@
                                 ]
                             },
                             {
-                                "visible": ["is_expense", "=", true],
+                                "visible": [
+                                    [["is_expense", "=", true]],
+                                    [["is_income", "=", true]]
+                                ],
                                 "columns": [
                                     {
                                         "width": "100%",
@@ -236,6 +242,11 @@
                                             {
                                                 "type": "field",
                                                 "value": "is_expense",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_income",
                                                 "width": "100%"
                                             },
                                             {

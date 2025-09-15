@@ -259,10 +259,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     public static function getActions() {
         return array_merge(parent::getActions(), [
-            'create_funding' => [
+            'create_fundings' => [
                 'description'   => 'Create the funding according to the invoice.',
                 'policies'      => ['is_proforma'],
-                'function'      => 'doCreateFunding'
+                'function'      => 'doCreateFundings'
             ],
             'update_document_json' => [
                 'description'   => 'Update the document data JSON with the newly provided data.',
@@ -288,7 +288,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         ]);
     }
 
-    protected static function doCreateFunding($self) {
+    protected static function doCreateFundings($self) {
         $self->read([
                 'condo_id', 'price', 'payment_reference', 'due_date', 'funding_id',
                 'suppliership_id',

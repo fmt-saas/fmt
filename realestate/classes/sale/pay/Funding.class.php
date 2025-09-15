@@ -72,7 +72,8 @@ class Funding extends \sale\pay\Funding {
                     'sale_invoice',
                     'fund_request',
                     'expense_statement',
-                    'misc'
+                    'misc',
+                    'statement_line'
                 ],
                 'required'          => true,
                 'dependents'        => ['payment_reference'],
@@ -123,7 +124,7 @@ class Funding extends \sale\pay\Funding {
                 'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).',
                 'readonly'          => true,
                 'dependents'        => ['has_mandate'],
-                'visible'           => ['funding_type', 'in', ['installment', 'purchase_invoice']],
+                'visible'           => ['funding_type', '=', 'purchase_invoice'],
             ],
 
             'money_transfer_id' => [
@@ -132,7 +133,7 @@ class Funding extends \sale\pay\Funding {
                 'description'       => 'Miscellaneous operation targeted by the funding, if any.',
                 'help'              => 'Money transfer is a particular case of misc operation.',
                 'readonly'          => true,
-                'visible'           => ['funding_type', 'in', ['transfer']],
+                'visible'           => ['funding_type', '=', 'transfer'],
             ],
 
             'money_refund_id' => [
@@ -141,7 +142,7 @@ class Funding extends \sale\pay\Funding {
                 'description'       => 'Miscellaneous operation targeted by the funding, if any.',
                 'help'              => 'Money refund is a particular case of misc operation.',
                 'readonly'          => true,
-                'visible'           => ['funding_type', 'in', ['refund']],
+                'visible'           => ['funding_type', '=', 'refund'],
             ],
 
             'misc_operation_id' => [
@@ -150,7 +151,14 @@ class Funding extends \sale\pay\Funding {
                 'description'       => 'Miscellaneous operation targeted by the funding, if any.',
                 'help'              => 'This is for the unexpected movements, for which the Funding was created at bank statement line reconcile.',
                 'readonly'          => true,
-                'visible'           => ['funding_type', 'in', ['misc']],
+                'visible'           => ['funding_type', '=', 'misc'],
+            ],
+
+            'bank_statement_line_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankStatementLine',
+                'description'       => 'The bank statement line targeted by the funding, if any.',
+                'visible'           => ['funding_type', '=', 'statement_line'],
             ],
 
             'ownership_id' => [
@@ -221,7 +229,7 @@ class Funding extends \sale\pay\Funding {
         $result = [];
         $self->read([
                 'funding_type',
-                'purchase_invoice_id', 'money_transfer_id', 'money_refund_id', 'misc_operation_id',
+                'purchase_invoice_id', 'money_transfer_id', 'money_refund_id', 'misc_operation_id', 'bank_statement_line_id',
                 'condo_id' => ['code'],
                 'ownership_id' => ['code']
             ]);
@@ -233,6 +241,10 @@ class Funding extends \sale\pay\Funding {
             $reference = str_pad('', 12, '0');
 
             switch($funding['funding_type']) {
+                case 'statement_line':
+                    // by convention, references for statement lines start with '3'
+                    $reference = sprintf("3%09d", $funding['bank_statement_line_id']);
+                    break;
                 case 'fund_request':
                     // by convention, references for fund requests start with '4'
                     $reference =
