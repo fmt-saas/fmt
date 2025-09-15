@@ -414,11 +414,12 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
 
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
 
+                $ownership_id = $executionLine['ownership_id'];
                 // find the account based on operation_assignment
-                $logs[] = "Fetching account for ownership {$executionLine['ownership_id']}";
+                $logs[] = "Fetching account for ownership {$ownership_id}";
                 $ownershipAccount = Account::search([
                         ['condo_id', '=', $requestExecution['condo_id']],
-                        ['ownership_id', '=', $executionLine['ownership_id']],
+                        ['ownership_id', '=', $ownership_id],
                         ['operation_assignment', '=', $debit_operation_assignment]
                     ])
                     ->first();
@@ -467,7 +468,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                 $ownership_id = $executionLine['ownership_id']['id'];
 
                 // find the account based on operation_assignment
-                $logs[] = "Fetching account for ownership {$executionLine['ownership_id']}";
+                $logs[] = "Fetching account for ownership {$ownership_id}";
                 $ownershipAccount = Account::search([
                         ['condo_id', '=', $requestExecution['condo_id']['id']],
                         ['ownership_id', '=', $ownership_id],
@@ -507,17 +508,17 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                 $due_date = $requestExecution['issue_date'];
 
                 Funding::create([
-                        'condo_id'                  => $requestExecution['condo_id']['id'],
-                        'description'               => $requestExecution['fund_request_id']['name'],
-                        'fund_request_id'           => $requestExecution['fund_request_id']['id'],
-                        'fund_request_execution_id' => $id,
-                        'ownership_id'              => $ownership_id,
-                        'accounting_account_id'     => $ownershipAccount['id'],
-                        'bank_account_id'           => $requestExecution['fund_request_id']['request_bank_account_id'],
-                        'issue_date'                => $issue_date,
-                        'due_date'                  => $due_date,
-                        'due_amount'                => $executionLine['called_amount'] - $paid_amount,
-                        'funding_type'              => 'fund_request'
+                        'condo_id'                          => $requestExecution['condo_id']['id'],
+                        'description'                       => $requestExecution['fund_request_id']['name'],
+                        'fund_request_id'                   => $requestExecution['fund_request_id']['id'],
+                        'fund_request_execution_id'         => $id,
+                        'ownership_id'                      => $ownership_id,
+                        'counterpart_accounting_account_id' => $ownershipAccount['id'],
+                        'bank_account_id'                   => $requestExecution['fund_request_id']['request_bank_account_id'],
+                        'issue_date'                        => $issue_date,
+                        'due_date'                          => $due_date,
+                        'due_amount'                        => $executionLine['called_amount'] - $paid_amount,
+                        'funding_type'                      => 'fund_request'
                     ]);
 
             }

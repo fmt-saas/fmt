@@ -65,14 +65,24 @@ class AccountingEntry extends Model {
                 ]
             ],
 
+            'entry_date' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => 'The date on which the transaction is recorded in the accounting system and affects the fiscal period.',
+                'help'              => 'This should always match the selected period, and is necessary in case of period re-assignment.',
+                'required'          => true,
+                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
+            ],
+
             'fiscal_year_id' => [
-                'type'              => 'many2one',
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "Fiscal year the entry relates to.",
-                'required'          => true,
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'dependents'        => ['fiscal_period_id'],
-                'default'           => 'defaultFiscalYearId'
+                'function'          => 'calcFiscalYear',
+                'store'             => true,
+                'instant'           => true
             ],
 
             'fiscal_period_id' => [
@@ -80,19 +90,11 @@ class AccountingEntry extends Model {
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
                 'description'       => "Period of the fiscal year the entry relates to (from entry_date).",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'help'              => "Period is automatically assigned based on entry date.",
                 'function'          => 'calcFiscalPeriodId',
                 'store'             => true,
                 'instant'           => true
-            ],
-
-            'entry_date' => [
-                'type'              => 'date',
-                'usage'             => 'date/plain',
-                'description'       => 'The date on which the transaction is recorded in the accounting system and affects the fiscal period.',
-                'help'              => 'This should always match the selected period, and is necessary in case of period re-assignment.',
-                'required'          => true,
-                'dependents'        => ['fiscal_period_id']
             ],
 
             'is_temp' => [
@@ -262,20 +264,6 @@ class AccountingEntry extends Model {
         return $result;
     }
 
-    public static function defaultFiscalYearId($values) {
-        $result = null;
-        if(isset($values['journal_id'])) {
-            $journal = Journal::id($values['journal_id'])->read(['condo_id'])->first();
-            if(isset($journal['condo_id'])) {
-                $fiscalYear = FiscalYear::search([['condo_id', '=', $journal['condo_id']], ['status', '=', 'open']], ['sort' => ['date_from' => 'desc'], 'limit' => 1])->first();
-                if($fiscalYear) {
-                    $result = $fiscalYear['id'];
-                }
-            }
-        }
-        return $result;
-    }
-
     /**
      * The entry has been validated (irreversible transition).
      * This method triggers the update of the related current balance and the fiscal period (based on the entry date).
@@ -428,6 +416,28 @@ class AccountingEntry extends Model {
             }
             else {
                 $result[$id] = $accountingEntry['entry_number'];
+            }
+        }
+        return $result;
+    }
+
+
+    /**
+     * #memo - we need this value even if it can still change (i.e. accounting entry is not yet validated)
+     */
+    protected static function calcFiscalYear($self) {
+        $result = [];
+        $self->read(['status', 'condo_id', 'entry_date']);
+        foreach($self as $id => $accountingEntry) {
+            $fiscalYear = FiscalYear::search([
+                    ['condo_id', '=', $accountingEntry['condo_id']],
+                    ['date_from', '<=', $accountingEntry['entry_date']],
+                    ['date_to', '>=', $accountingEntry['entry_date']]
+                ])
+                ->first();
+
+            if($fiscalYear) {
+                $result[$id] = $fiscalYear['id'];
             }
         }
         return $result;

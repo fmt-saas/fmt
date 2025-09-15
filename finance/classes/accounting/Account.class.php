@@ -7,7 +7,7 @@
 namespace finance\accounting;
 use equal\orm\Model;
 use fmt\setting\Setting;
-use realestate\purchase\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntry;
 
 class Account extends Model {
 

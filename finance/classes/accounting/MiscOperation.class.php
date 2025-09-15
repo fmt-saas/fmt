@@ -98,7 +98,7 @@ class MiscOperation extends Model {
             'accounting_entry_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
-                'description'       => "Accounting entry of the invoice.",
+                'description'       => "Accounting entry of the MiscOperation.",
                 'domain'            => [['origin_object_class', '=', 'finance\accounting\MiscOperation'], ['origin_object_id', '=', 'object.id']]
             ],
 

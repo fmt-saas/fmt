@@ -13,6 +13,11 @@
                 "after": [
                     {
                         "type": "field",
+                        "value": "is_primary_reserve",
+                        "width": "10%"
+                    },
+                    {
+                        "type": "field",
                         "value": "status",
                         "width": "10%"
                     },

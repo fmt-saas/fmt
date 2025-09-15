@@ -19,8 +19,8 @@ use purchase\supplier\Suppliership;
 use realestate\finance\accounting\MoneyRefund;
 use realestate\finance\accounting\MoneyTransfer;
 use realestate\ownership\Ownership;
-use realestate\purchase\accounting\AccountingEntry;
-use realestate\purchase\accounting\AccountingEntryLine;
+use realestate\finance\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntryLine;
 
 class BankStatementLine extends Model {
 
@@ -437,8 +437,7 @@ class BankStatementLine extends Model {
 
             }
 
-            // #todo - move this somewhere else - requires confirmation
-
+            // #todo - move this somewhere else - requires confirmation (only draft objects)
             if(!$selected_funding_id) {
                 // retrieve the BANK accounting journal
                 $journal = Journal::search([['journal_type', '=', 'BANK'], ['condo_id', '=', $bankStatementLine['condo_id']]])->first();
@@ -473,6 +472,7 @@ class BankStatementLine extends Model {
                         ]);
 
                     // 2) create a Funding for this Misc Op
+                    // #todo - c'est MiscOp qui doit créer son propre Funding 
                     $funding = Funding::create([
                             'condo_id'                      => $bankStatementLine['condo_id'],
                             'misc_operation_id'             => $miscOperation['id'],
@@ -493,7 +493,6 @@ class BankStatementLine extends Model {
                 }
             }
 
-
             if($selected_funding_id) {
                 trigger_error("APP::matching funding ({$selected_funding_id}) found for bank statement line {$id} with reference {$reference}.", EQ_REPORT_DEBUG);
                 Payment::create([
@@ -511,8 +510,6 @@ class BankStatementLine extends Model {
 
                 self::id($id)->update(['is_reconciled' => null]);
             }
-
-
 
         }
     }
@@ -734,10 +731,22 @@ class BankStatementLine extends Model {
     }
 
     /**
-     * Unlike invoices, Accounting Entries related to bank statement are made on the children objects (lines) to allow accurate reconciliation 
+     * Il y a deux types de situations:
+     *   - soit un funding existait préalablement à la création du paiement
+     *   - soit on a créé à la fois le paiement et le funding (dans ce cas la pièce est la BankStatementLine)
+     *
+     * Dans le cas où la BankStatementLine est considérée comme la pièce comptable d'origine, c'est elle qui doit générer l'écriture comptable.
+     * Sinon la pièce comptable était préexistante et les écritures avaient déjà été générées.
+     *
+     * Les écritures à faire dans le journal financier (BANK) sont toujours réalisés dans le Payment.
+     */
+
+    /**
+     * Unlike invoices, Accounting Entries relating to bank statements are made on the children objects (lines) to allow accurate reconciliation
      * while allowing progressive processing of a given statement (i.e. not having to reconciling all lines before posting bank movements).
      *
      */
+    // #todo - ceci doit être fait dans Payment, sur base du Payment et de la ligne (toutes les infos requises sont transmises de la ligne vers le paiement)
     protected static function doGenerateAccountingEntry($self) {
         $self->read([
                 'condo_id',
@@ -749,7 +758,6 @@ class BankStatementLine extends Model {
                     'fiscal_year_id',
                     'fiscal_period_id',
                     'accounting_account_id',
-                    'has_funding',
                     'funding_id' => [
                         'funding_type',
                         'money_transfer_id',

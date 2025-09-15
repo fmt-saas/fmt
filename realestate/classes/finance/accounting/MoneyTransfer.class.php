@@ -12,8 +12,8 @@ use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 use finance\bank\CondominiumBankAccount;
-use realestate\purchase\accounting\AccountingEntry;
-use realestate\purchase\accounting\AccountingEntryLine;
+use realestate\finance\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntryLine;
 use realestate\sale\pay\Funding;
 
 class MoneyTransfer extends \finance\accounting\MiscOperation {

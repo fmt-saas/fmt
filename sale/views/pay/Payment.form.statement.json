@@ -38,11 +38,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "has_funding",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "funding_id",
                                                 "width": "50%",
                                                 "widget": {
@@ -52,14 +47,12 @@
                                                         }
                                                     },
                                                     "domain": ["is_paid", "=", false]
-                                                },
-                                                "visible": ["has_funding", "=", true]
+                                                }
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "accounting_account_id",
-                                                "width": "50%",
-                                                "visible": ["has_funding", "=", false]
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",

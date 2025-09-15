@@ -13,7 +13,7 @@ use finance\accounting\Journal;
 use realestate\finance\accounting\CondoFund;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
-use realestate\purchase\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntry;
 use realestate\purchase\accounting\invoice\PurchaseInvoiceLine;
 use realestate\sale\pay\Funding;
 

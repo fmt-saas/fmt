@@ -20,8 +20,8 @@ use fmt\setting\Setting;
 use purchase\supplier\Suppliership;
 use realestate\ownership\Ownership;
 use realestate\property\Condominium;
-use realestate\purchase\accounting\AccountingEntry;
-use realestate\purchase\accounting\AccountingEntryLine;
+use realestate\finance\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntryLine;
 use realestate\sale\pay\Funding;
 
 class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
@@ -119,7 +119,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             'accounting_entries_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'realestate\purchase\accounting\AccountingEntry',
+                'foreign_object'    => 'realestate\finance\accounting\AccountingEntry',
                 'foreign_field'     => 'origin_object_id',
                 'domain'            => ['origin_object_class', '=', 'realestate\purchase\accounting\invoice\PurchaseInvoice'],
                 'description'       => 'Accounting entries relating to the invoice.',

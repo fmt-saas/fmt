@@ -101,6 +101,14 @@ class CondominiumBankAccount extends BankAccount {
                 'function'          => 'calcAvailableBalance',
             ],
 
+            'is_primary' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the account as primary account of the Condominium.',
+                'help'              => 'When a primary account is updated, sync is automatically replicated on related identity (from `owner_identity_id`).',
+                'default'           => false,
+                'visible'           => ['bank_account_type', '=', 'bank_current']
+            ],
+
             'is_primary_reserve' => [
                 'type'              => 'boolean',
                 'description'       => 'Flag marking the account as primary reserve funds account.',
