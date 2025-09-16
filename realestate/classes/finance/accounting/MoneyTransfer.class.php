@@ -139,7 +139,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'selection'         => [
                     'pending',
                     'proforma',
-                    'sent',
                     'posted'
                 ],
                 'default'           => 'pending',
@@ -166,19 +165,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'description' => 'Planned transfer waiting to be sent.',
                 'icon'        => 'send',
                 'transitions' => [
-                    'send' => [
-                        'description' => 'Update the document to `sent`.',
-                        'help'        => 'Mark the transfer as sent (SEPA ready). This transition is used to prepare the transfer for posting after a bank statement has been integrated.',
-                        'policies'    => ['is_valid'],
-                        'onafter'     => 'onafterSend',
-                        'status'      => 'sent'
-                    ]
-                ]
-            ],
-            'sent' => [
-                'description' => 'Transfer in progress waiting for confirmation from the bank.',
-                'icon'        => 'check' ,
-                'transitions' => [
                     'post' => [
                         'description' => 'Update the document to `completed`.',
                         'help'        => 'This transition is used to post the money transfer, after a bank statement has been integrated. It creates the accounting entries and fundings necessary to track the transfer.',
@@ -202,12 +188,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'description'   => 'Creates a funding for the transfer followup.',
                 'policies'      => [/* 'can_generate_fundings' */],
                 'function'      => 'doCreateFundings'
-            ],
-            'attempt_posting' => [
-                'description'   => 'Attempt to post the money transfer.',
-                'help'          => 'This action is used to attempt posting the money transfer, after a bank statement has been integrated.',
-                'policies'      => [/* no policies - action is allowed to fail */],
-                'function'      => 'doAttemptPosting'
             ]
         ]);
     }
@@ -323,14 +303,17 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return $result;
     }
 
+    // #todo - this should not occur - raise an alert if it does
     protected static function policyCanPost($self): array {
         $result = [];
         $self->read(['status', 'condo_id', 'amount', 'bank_account_id' => ['current_balance']]);
         foreach($self as $id => $moneyTransfer) {
             if($moneyTransfer['bank_account_id']['current_balance'] < $moneyTransfer['amount']) {
+                /*
                 $result[$id] = [
                     'insufficient_funds' => 'The origin account has not enough funds.'
                 ];
+                */
             }
         }
         return $result;
@@ -368,16 +351,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             $result[$id] = self::computeFiscalPeriodId($moneyTransfer['condo_id'], $moneyTransfer['posting_date']);
         }
         return $result;
-    }
-
-    protected static function doAttemptPosting($self) {
-        try {
-            $self->transition('post');
-        }
-        catch(\Exception $e) {
-            // error is plausible and considered as normal
-            trigger_error("APP::Posting not possible for money transfer: ".$e->getMessage(), EQ_REPORT_INFO);
-        }
     }
 
     protected static function doCreateFundings($self) {
@@ -443,8 +416,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     ])
                     ->first();
 
-                $bankTransferAccount = Account::search([ ['condo_id', '=', $moneyTransfer['condo_id']], ['operation_assignment', '=', 'bank_transfer'] ])->first();
-
                 AccountingEntryLine::create([
                         'account_id'            => $moneyTransfer['bank_account_id']['accounting_account_id'],
                         'debit'                 => 0.0,
@@ -453,26 +424,9 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     ]);
 
                 AccountingEntryLine::create([
-                        'account_id'            => $bankTransferAccount['id'],
-                        'debit'                 => $moneyTransfer['amount'],
-                        'credit'                => 0.0,
-                        'accounting_entry_id'   => $accountingEntry['id']
-                    ]);
-
-
-// #todo - ces écritures doivent être faites dans le Payment lors de la réconciliation avec la ligne de relevé bancaire
-
-                AccountingEntryLine::create([
                         'account_id'            => $moneyTransfer['counterpart_bank_account_id']['accounting_account_id'],
                         'debit'                 => $moneyTransfer['amount'],
                         'credit'                => 0.0,
-                        'accounting_entry_id'   => $accountingEntry['id']
-                    ]);
-
-                AccountingEntryLine::create([
-                        'account_id'            => $bankTransferAccount['id'],
-                        'debit'                 => 0.0,
-                        'credit'                => $moneyTransfer['amount'],
                         'accounting_entry_id'   => $accountingEntry['id']
                     ]);
 

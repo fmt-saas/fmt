@@ -193,6 +193,7 @@ class Payment extends \sale\pay\Payment {
                     'bank_statement_line_id' => $id,
                 ]);
 
+            // instant validation of the created accounting entry
             AccountingEntry::id($accountingEntry['id'])->transition('validate');
 
             // Store the created accounting entry ID back to the payment

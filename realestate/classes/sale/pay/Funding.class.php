@@ -9,6 +9,10 @@ namespace realestate\sale\pay;
 
 use core\setting\Setting;
 use equal\data\DataFormatter;
+use finance\accounting\MiscOperation;
+use finance\bank\BankStatementLine;
+use realestate\finance\accounting\MoneyRefund;
+use realestate\finance\accounting\MoneyTransfer;
 
 class Funding extends \sale\pay\Funding {
 
@@ -191,6 +195,70 @@ class Funding extends \sale\pay\Funding {
         ];
     }
 
+    public static function getActions() {
+        return array_merge(parent::getActions(), [
+            'refresh_status' => [
+                'description'   => 'Update status according to currently paid amount.',
+                'policies'      => [],
+                'function'      => 'doRefreshStatus'
+            ],
+            'attempt_post_accounting_document' => [
+                'description'   => 'Retrieve the associated accounting document and post it, if not posted yet.',
+                'policies'      => [],
+                'function'      => 'doAttemptPostAccountingDocument'
+            ]
+
+        ]);
+    }
+
+
+    protected static function doAttemptPostAccountingDocument($self) {
+        $self->read([
+                'status',
+                'funding_type',
+                'money_transfer_id',
+                'money_refund_id',
+                'misc_operation_id',
+                'bank_statement_line_id',
+            ]);
+
+        foreach($self as $id => $funding) {
+            if($funding['status'] === 'balanced') {
+                continue;
+            }
+
+            $operations = null;
+
+            switch($funding['funding_type']) {
+                // these accounting documents are posted independently from the Funding
+                case 'fund_request':
+                case 'expense_statement':
+                case 'purchase_invoice':
+                    break;
+                case 'transfer':
+                    $operations = MoneyTransfer::id($funding['bank_statemoney_transfer_idment_line_id'])->read(['status']);
+                    break;
+                case 'refund':
+                    $operations = MoneyRefund::id($funding['money_refund_id'])->read(['status']);
+                    break;
+                case 'statement_line':
+                    $operations = BankStatementLine::id($funding['bank_statement_line_id'])->read(['status']);
+                    break;
+                case 'misc':
+                    $operations = MiscOperation::id($funding['misc_operation_id'])->read(['status']);
+                    break;
+            }
+
+            if($operations) {
+                $operation = $operations->first();
+                if($operation['status'] !== 'posted') {
+                    $operations->transition('post');
+                }
+            }
+
+        }
+    }
+
     protected static function calcName($self) {
         $result = [];
         $self->read(['state', 'due_amount', 'payment_reference', 'fund_request_execution_id' => ['name'],  'purchase_invoice_id' => ['name']]);
@@ -290,7 +358,7 @@ class Funding extends \sale\pay\Funding {
 
     /**
      * Check if the Funding relates to an Ownership for which a property transfer is in progress,
-     * and dispatch `sale.pay.funding.ownership_transfer` if it is the case.
+     * and, if it is the case, dispatch `sale.pay.funding.ownership_transfer`.
      *
      */
     protected static function oncreate($self) {

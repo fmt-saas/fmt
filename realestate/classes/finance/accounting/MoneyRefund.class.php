@@ -196,18 +196,6 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
                 'icon'        => 'draw',
                 'transitions' => [
-                    'send' => [
-                        'description' => 'Update the document to `completed`.',
-                        'policies'    => ['is_valid'],
-                        'onafter'     => 'onafterSend',
-                        'status'      => 'sent'
-                    ]
-                ]
-            ],
-            'sent' => [
-                'description' => 'Transfer in progress waiting for confirmation from the bank.',
-                'icon'        => 'check' ,
-                'transitions' => [
                     'post' => [
                         'description' => 'Update the document to `completed`.',
                         'help'        => 'This transition is used to post the money transfer, after a bank statement has been integrated. It creates the accounting entries and fundings necessary to track the transfer.',
@@ -231,13 +219,6 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'description'   => 'Creates a funding for the transfer followup.',
                 'policies'      => [/* 'can_generate_fundings' */],
                 'function'      => 'doCreateFundings'
-            ],
-            'attempt_posting' => [
-                'description'   => 'Attempt to post the money transfer.',
-                'help'          => 'This action is used to attempt posting the money transfer, after a bank statement has been integrated.',
-                // #memo - action is allowed to fail
-                'policies'      => [ 'is_payable' ],
-                'function'      => 'doAttemptPosting'
             ]
         ]);
     }
@@ -356,17 +337,6 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
             $result[$id] = self::computeFiscalPeriodId($moneyRefund['condo_id'], $moneyRefund['posting_date']);
         }
         return $result;
-    }
-
-
-    protected static function doAttemptPosting($self) {
-        try {
-            $self->transition('post');
-        }
-        catch(\Exception $e) {
-            // error is plausible and considered as normal
-            trigger_error("APP::Posting not possible for money transfer: ".$e->getMessage(), EQ_REPORT_INFO);
-        }
     }
 
     protected static function doCreateFundings($self) {
