@@ -25,18 +25,6 @@
             }
         },
         {
-            "id": "action.send",
-            "label": "Send",
-            "description": "Mark the transfer as completed.",
-            "controller": "core_model_transition",
-            "visible": [ ["status", "=", "proforma"] ],
-            "params": {
-                "entity": "realestate\\finance\\accounting\\MoneyTransfer",
-                "transition": "send",
-                "ids": []
-            }
-        },
-        {
             "id": "action.post",
             "label": "Post",
             "description": "Mark the transfer as posted/initiated.",
@@ -146,7 +134,7 @@
                     {
                         "id": "section.fundings",
                         "label": "Fundings",
-                        "visible": [["state", "<>", "draft"], ["status", "in", ["sent", "posted"]]],
+                        "visible": [["state", "<>", "draft"], ["status", "in", ["proforma", "posted"]]],
                         "rows": [
                             {
                                 "columns": [

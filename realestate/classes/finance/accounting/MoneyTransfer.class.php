@@ -157,6 +157,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     'publish' => [
                         'description' => 'Update the document to `completed`.',
                         'policies'    => ['is_valid', 'can_transfer'],
+                        'onafter'     => 'onafterPublish',
                         'status'      => 'proforma'
                     ]
                 ]
@@ -547,7 +548,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return parent::canupdate($self);
     }
 
-    protected static function onafterSend($self) {
+    protected static function onafterPublish($self) {
         $self->do('create_fundings');
     }
 

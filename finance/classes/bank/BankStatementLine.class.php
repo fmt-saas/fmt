@@ -779,7 +779,7 @@ class BankStatementLine extends Model {
             $sum += $payment['amount'];
         }
 
-        $result[$id] = (abs($sum - $bankStatementLine['amount']) < 0.01);
+        return ( abs(abs($sum) - abs($bankStatementLine['amount'])) < 0.01 );
     }
 
     private static function computeIsTransfer($accounting_account_id) {

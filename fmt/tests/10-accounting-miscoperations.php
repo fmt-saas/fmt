@@ -95,8 +95,7 @@ $tests = [
                 },
             'act'               => function($moneyTransfer) use($providers) {
                     MoneyTransfer::id($moneyTransfer['id'])
-                        ->transition('publish')
-                        ->transition('send');
+                        ->transition('publish');
                 },
             'assert'            => function() use($providers) {
                     $bankAccount = CondominiumBankAccount::search([['condo_id', '=', 1], ['bank_account_type', '=', 'bank_savings']])

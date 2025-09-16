@@ -591,7 +591,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
         // compute number of calendar days within the period
         $nb_days = round(($fiscalPeriod['date_to'] - $fiscalPeriod['date_from']) / 86400, 0) + 1;
 
-        // #todo - il y a la notion de lots groupés - à faire une map, par propriétaire, par lot :
+        // #todo - il y a la notion de lots groupés - faire une map, par propriétaire, par lot :
         // on peut le faire par groupe de lots (si un lot est marqué avec primary_lot_id, il peut être ignoré pour les calculs)
 
         // fetch relevant accounting entries that apply to the chosen period
