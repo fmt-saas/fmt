@@ -469,4 +469,17 @@ class MiscOperation extends Model {
         }
         return parent::candelete($self);
     }
+
+    public static function canupdate($self, $values) {
+        $self->read(['status']);
+
+        foreach($self as $id => $miscOperation) {
+            // only allow editable fields
+            if($miscOperation['status'] != 'proforma') {
+                return ['status' => ['non_editable' => "Invoice can only be updated while its status is proforma ({$id})."]];
+            }
+
+        }
+        return parent::canupdate($self);
+    }
 }

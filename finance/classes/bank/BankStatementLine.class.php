@@ -415,6 +415,7 @@ class BankStatementLine extends Model {
     protected static function doGenerateOrphanOperation($self) {
         $self->read([
                 'condo_id',
+                'date',
                 'is_reconciled',
                 'amount',
                 'account_iban',
@@ -506,11 +507,12 @@ class BankStatementLine extends Model {
                     $counterpart_bank_account_id = $bankStatementLine['bank_statement_id']['bank_account_id']['id'];
                 }
 
+// #todo - ne créer que s'il n'existe pas encore
                 // create MoneyTransfer
                 $moneyTransfers = MoneyTransfer::create([
                         'condo_id'                      => $bankStatementLine['condo_id'],
                         'description'                   => $bankStatementLine['communication'],
-                        'posting_date'                  => time(),
+                        'posting_date'                  => $bankStatementLine['date'],
                         'amount'                        => $amount,
                         'bank_account_id'               => $bank_account_id,
                         'counterpart_bank_account_id'   => $counterpart_bank_account_id

@@ -25,7 +25,7 @@ class SuppliershipBankAccount extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'description'       => "IBAN of the targeted bank account.",
-                'relation'          => ['bank_account_id' => ['bank_account_iban']],
+                'relation'          => ['bank_account_id' => ['name']],
                 'instant'           => true,
                 'store'             => true
             ],

@@ -545,7 +545,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             }
 
         }
-        return parent::canupdate($self);
+        return parent::canupdate($self, $values);
     }
 
     protected static function onafterPublish($self) {
