@@ -45,17 +45,20 @@
                                             {
                                                 "type": "field",
                                                 "value": "bank_account_type",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": ["state", "<>", "draft"]
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "bank_account_iban",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": ["state", "<>", "draft"]
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "bank_account_bic",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": ["state", "<>", "draft"]
                                             }
                                         ]
                                     }

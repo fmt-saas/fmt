@@ -354,6 +354,7 @@ class BankStatementLine extends Model {
             ],
             'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
+                'help'          => 'This is run only when posting (in `onbeforePost`).',
                 'policies'      => [ 'can_generate_accounting_entry' ],
                 'function'      => 'doGenerateAccountingEntry'
             ]

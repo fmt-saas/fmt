@@ -15,6 +15,18 @@
                 "ids": []
             },
             "confirm": false
+        },
+        {
+            "id": "action.sync_bank_accounts",
+            "label": "Sync Bank account",
+            "description": "Import Supplier bank accounts.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "purchase\\supplier\\Suppliership",
+                "action": "sync_bank_accounts",
+                "ids": []
+            },
+            "confirm": false
         }
     ],
     "layout": {
