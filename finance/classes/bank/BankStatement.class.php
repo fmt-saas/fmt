@@ -36,6 +36,7 @@ class BankStatement extends Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the bank statement refers to.",
                 'foreign_object'    => 'realestate\property\Condominium',
+                'dependents'        => ['name']
                 //'readonly'          => true
             ],
 
@@ -44,7 +45,9 @@ class BankStatement extends Model {
                 'description'       => 'The bank account the statement refers to.',
                 'help'              => 'This field is set automatically upon update of the `bank_account_iban` field',
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'onupdate'          => 'onupdateBankAccountId',
+                'dependents'        => ['name']
             ],
 
             'name' => [
@@ -60,7 +63,8 @@ class BankStatement extends Model {
                 'description'       => 'Date at which the statement was received.',
                 'help'              => "This is for information only and might not be accurate with the actual date/time at which the statement was generated.
                     By convention all banks release at maximum 1 statement per day, so this date is always at midnight (00:00:00) of the given day.",
-                'readonly'          => true
+                'readonly'          => true,
+                'dependents'        => ['name']
             ],
 
             'statement_number' => [
@@ -87,7 +91,8 @@ class BankStatement extends Model {
             'closing_date' => [
                 'type'              => 'date',
                 'description'       => 'Last date the statement refers to.',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
             ],
 
             'opening_balance' => [
@@ -95,7 +100,8 @@ class BankStatement extends Model {
                 'usage'             => 'amount/money:2',
                 'description'       => 'Account balance before the transactions.',
                 'required'          => true,
-                'default'           => 0.0
+                'default'           => 0.0,
+                'dependents'        => ['name']
             ],
 
             'closing_balance' => [
@@ -103,7 +109,8 @@ class BankStatement extends Model {
                 'usage'             => 'amount/money:2',
                 'description'       => 'Account balance after the transactions.',
                 'required'          => true,
-                'default'           => 0.0
+                'default'           => 0.0,
+                'dependents'        => ['name']
             ],
 
             'bank_account_iban' => [
@@ -277,15 +284,27 @@ class BankStatement extends Model {
         return $result;
     }
 
+/* #todo - faire l'inverse
     protected static function onupdateBankAccountIban($self) {
+
         $self->read(['bank_account_iban', 'condo_id']);
         foreach($self as $id => $bankStatement) {
-            $bankAccount = CondominiumBankAccount::search(['bank_account_iban', '=', $bankStatement['bank_account_iban']])->read(['condo_id'])->first();
+            $bankAccount = CondominiumBankAccount::search(['bank_account_iban', '=', $bankStatement['bank_account_iban'], ['validated', '=', true]])->read(['condo_id'])->first();
             if($bankAccount) {
                 self::id($id)->update(['bank_account_id' => $bankAccount['id']]);
             }
         }
     }
+    */
+    protected static function onupdateBankAccountId($self) {
+        $self->read(['bank_account_id' => ['bank_account_iban']]);
+        foreach($self as $id => $bankStatement) {
+            if($bankStatement['bank_account_id']) {
+                self::id($id)->update(['bank_account_iban' => $bankStatement['bank_account_id']['bank_account_iban']]);
+            }
+        }
+    }
+
 
     protected static function onafterPost($self) {
         $self->read(['document_process_id', 'statement_lines_ids']);
