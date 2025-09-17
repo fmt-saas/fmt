@@ -62,8 +62,14 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "bank_account_iban",
+                                                "value": "bank_account_id",
                                                 "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "bank_account_iban",
+                                                "width": "33%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
