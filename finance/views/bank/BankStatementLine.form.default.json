@@ -15,22 +15,23 @@
             "confirm": false,
             "visible": [
                 [
-                    ["status", "=", "pending"]
+                    ["status", "=", "pending"],
+                    ["is_reconciled", "=", false]
                 ]
             ]
         },
         {
-            "id": "action.post",
-            "label": "Post",
-            "description": "Post the statement line.",
-            "controller": "core_model_transition",
+            "id": "action.validate",
+            "label": "Validate",
+            "description": "Validate the statement line.",
+            "controller": "core_model_do",
             "visible": [
                 ["status", "=", "pending"],
                 ["is_reconciled", "=", true]
             ],
             "params": {
                 "entity": "finance\\bank\\BankStatementLine",
-                "transition": "post",
+                "action": "validate",
                 "ids": []
             },
             "confirm": true

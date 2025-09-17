@@ -333,12 +333,12 @@ class BankStatementLine extends Model {
     public static function getActions() {
         return [
             'attempt_reconcile' => [
-                'description'   => 'Creates accounting entries according to operation lines.',
+                'description'   => 'Attempts to find a suitable Funding and, if so, creates a Payment to link the line to it.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
                 'function'      => 'doAttemptReconcile'
             ],
             'validate' => [
-                'description'   => 'Creates accounting entries according to operation lines.',
+                'description'   => 'Validates the bank statement line and sets its status to `posted`.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
                 'function'      => 'doValidate'
             ],
@@ -398,9 +398,9 @@ class BankStatementLine extends Model {
         $self->read(['payments_ids' => ['funding_id']]);
         foreach($self as $id => $bankStatementLine) {
             foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
-                // retrouver la pièce comptable liée au funding, si elle n'est pas postée, la poster
-                // ceci pourrait aboutir au 'post' de la ligne en cours
-                Funding::id($payment['funding_id'])->do(['attempt_post_accounting_document']);
+                // Find the accounting document linked to the funding, if it is not posted, post it (in this case, the post should always work)
+                // #memo - this could result in 'posting' the current line
+                Funding::id($payment['funding_id'])->do('attempt_post_accounting_document');
                 Payment::id($payment_id)->do('post');
             }
         }

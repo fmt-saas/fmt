@@ -17,7 +17,7 @@
             "label": "Publish",
             "description": "Publish the Money Transfer for validation.",
             "controller": "core_model_transition",
-            "visible": [ ["status", "=", "draft"] ],
+            "visible": [ ["status", "=", "pending"] ],
             "params": {
                 "entity": "realestate\\finance\\accounting\\MoneyTransfer",
                 "transition": "publish",
@@ -29,7 +29,7 @@
             "label": "Post",
             "description": "Mark the transfer as posted/initiated.",
             "controller": "core_model_transition",
-            "visible": [ ["status", "=", "sent"] ],
+            "visible": [ ["status", "=", "proforma"] ],
             "params": {
                 "entity": "realestate\\finance\\accounting\\MoneyTransfer",
                 "transition": "post",

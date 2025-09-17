@@ -847,18 +847,22 @@ class Identity extends Model {
         return $result;
     }
 
+
+// il faudrait un format lisible et systématique, en majuscule et sans ponctuation, 
     public static function calcAddress($self) {
         $result = [];
         $self->read(['address_street', 'address_dispatch', 'address_city', 'address_zip', 'address_country']);
         $organization = Organisation::id(1)->read(['address_country'])->first();
         foreach($self as $id => $identity) {
             $address = $identity['address_street'];
+            // add dispatch only if present
             if($identity['address_dispatch'] && strlen($organization['address_dispatch']) > 0 ) {
                 $address .= ' (' . $identity['address_dispatch'] . ')';
             }
             $address .= " {$identity['address_zip']} {$identity['address_city']}";
+            // add country only if different from organization's
             if($identity['address_country'] !== $organization['address_country']) {
-                $address .= " - {$identity['address_country']}";
+                $address .= " {$identity['address_country']}";
             }
             $result[$id] = $address;
         }
