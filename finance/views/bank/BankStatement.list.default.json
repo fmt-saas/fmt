@@ -1,15 +1,6 @@
 {
     "name": "Bank Statements",
     "description": "This view is intended for displaying the list of bank statements.",
-    "header": {
-        "actions": {
-            "ACTION.CREATE" : [
-                {
-                    "view": "form.create"
-                }
-            ]
-        }
-    },
     "layout": {
         "items": [
             {
