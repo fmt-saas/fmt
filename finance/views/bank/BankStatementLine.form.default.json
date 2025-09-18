@@ -206,6 +206,7 @@
                     {
                         "id": "section.payments",
                         "label": "Payments",
+                        "visible": ["accounting_account_id", "=", null],
                         "rows": [
                             {
                                 "columns": [

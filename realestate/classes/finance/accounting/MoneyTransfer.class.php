@@ -170,7 +170,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                         'description' => 'Update the document to `completed`.',
                         'help'        => 'This transition is used to post the money transfer, after a bank statement has been integrated. It creates the accounting entries and fundings necessary to track the transfer.',
                         'policies'    => ['can_post'],
-                        'onafter'     => 'onafterPost',
+                        'onbefore'     => 'onbeforePost',
                         'status'      => 'posted'
                     ]
                 ]
@@ -182,7 +182,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return array_merge(parent::getActions(), [
             'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
-                'policies'      => ['is_posted'],
+                'policies'      => [],
                 'function'      => 'doGenerateAccountingEntry'
             ],
             'create_fundings' => [
@@ -405,6 +405,13 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
         foreach($self as $id => $moneyTransfer) {
 
+            $funding = Funding::search([
+                    ['condo_id', '=', $moneyTransfer['condo_id']],
+                    ['money_transfer_id', '=', $id],
+                    ['bank_account_id', '=', $moneyTransfer['bank_account_id']['id']]
+                ])
+                ->first();
+
             try {
                 $accountingEntry = AccountingEntry::create([
                         'condo_id'              => $moneyTransfer['condo_id'],
@@ -412,6 +419,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                         'origin_object_class'   => self::getType(),
                         'origin_object_id'      => $id,
                         'journal_id'            => $moneyTransfer['journal_id'],
+                        'matching_id'           => $funding['id'],
                         'fiscal_year_id'        => $moneyTransfer['fiscal_year_id'],
                         'fiscal_period_id'      => $moneyTransfer['fiscal_period_id']
                     ])
@@ -552,7 +560,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         $self->do('create_fundings');
     }
 
-    protected static function onafterPost($self) {
+    protected static function onbeforePost($self) {
         $self->do('generate_accounting_entry');
     }
 

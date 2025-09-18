@@ -1,0 +1,38 @@
+{
+    "name": "Model",
+    "description": "A Matching allows mark several accounting entries as linked and to reconcile their movements.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "code",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "matching_type",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "is_balanced",
+                "width": "16%"
+            }
+        ]
+    }
+}

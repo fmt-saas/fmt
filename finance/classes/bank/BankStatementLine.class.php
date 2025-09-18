@@ -659,6 +659,7 @@ class BankStatementLine extends Model {
             }
 
             // in all situations, abort attempt if some payment have already been created
+            // user must manually remove them in order to be able to retry reconciliation
             if($bankStatementLine['payments_ids']->count() > 0) {
                 continue;
             }

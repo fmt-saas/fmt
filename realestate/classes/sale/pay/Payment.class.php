@@ -96,7 +96,7 @@ class Payment extends \sale\pay\Payment {
             ]);
 
         foreach($self as $id => $payment) {
-            if($payment['status'] !== 'pending') {
+            if($payment['status'] !== 'proforma') {
                 $result[$id] = [
                     'invalid_status' => 'Only pending payment can be posted.'
                 ];
@@ -166,6 +166,7 @@ class Payment extends \sale\pay\Payment {
                     'origin_object_class'       => self::getType(),
                     'origin_object_id'          => $id,
                     'journal_id'                => $bankJournal['id'],
+                    'matching_id'               => $payment['funding_id']['id'],
                     'bank_statement_line_id'    => $payment['bank_statement_line_id']['id'],
                     'bank_statement_id'         => $payment['bank_statement_line_id']['bank_statement_id'],
                 ])

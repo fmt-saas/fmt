@@ -51,7 +51,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "accounting_account_id",
+                                                "value": "accounting_entry_id",
                                                 "width": "50%"
                                             },
                                             {

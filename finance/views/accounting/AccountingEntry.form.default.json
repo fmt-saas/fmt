@@ -78,8 +78,8 @@
                                                 "width": "100%"
                                             },
                                             {
-                                                "type": "label",
-                                                "value": "",
+                                                "type": "field",
+                                                "value": "matching_id",
                                                 "width": "50%"
                                             },
                                             {
