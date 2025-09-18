@@ -11,22 +11,16 @@ use equal\orm\Model;
 use core\setting\Setting;
 use equal\data\DataFormatter;
 
-class Funding extends Model {
+class Funding extends \finance\accounting\Matching {
 
     public static function getDescription() {
-        return 'A funding is an amount of money that a customer ows to your organisation. It can be an installment or an invoice.';
+        return "A funding represents the accounting link between a document (such as an invoice, a call for funds or a charge statement) and the entries that settle it.
+            It can be covered by one or several payments, or by any other accounting entries needed to close the document.";
     }
 
     public static function getColumns() {
 
         return [
-
-            'condo_id' => [
-                'type'              => 'many2one',
-                'description'       => "The condominium the funding refers to.",
-                'foreign_object'    => 'realestate\property\Condominium',
-                'readonly'          => true
-            ],
 
             'name' => [
                 'type'              => 'computed',
@@ -45,8 +39,18 @@ class Funding extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'sale\pay\Payment',
                 'foreign_field'     => 'funding_id',
-                'description'       => 'Customer payments of the funding.',
+                'description'       => 'Payments of the funding.',
                 'dependents'        => ['paid_amount', 'remaining_amount', 'is_paid']
+            ],
+
+            'accounting_entries_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'description'       => "Accounting entry of the Matching.",
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['matching_id', '=', 'object.id']
+                ]
             ],
 
             'funding_type' => [

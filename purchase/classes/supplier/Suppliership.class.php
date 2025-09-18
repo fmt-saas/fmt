@@ -139,10 +139,10 @@ class Suppliership extends \equal\orm\Model {
                 'policies'      => [],
                 'function'      => 'doGenerateAccounts'
             ],
-            'import_bank_account' => [
+            'sync_bank_accounts' => [
                 'description'   => 'Import the primary bank account of the Supplier as a first Suppliership Bank Account.',
                 'policies'      => [],
-                'function'      => 'doImportBankAccount'
+                'function'      => 'doSyncBankAccounts'
             ]
         ];
     }
@@ -221,8 +221,8 @@ class Suppliership extends \equal\orm\Model {
         return $result;
     }
 
-    public static function doImportBankAccount($self) {
-        $self->read(['condo_id', 'supplier_id' => ['identity_id' => ['bank_accounts_ids' /*=> ['@domain' => ['is_primary', '=', true]] */]]]);
+    protected static function doSyncBankAccounts($self) {
+        $self->read(['condo_id', 'suppliership_bank_accounts_ids', 'supplier_id' => ['identity_id' => ['bank_accounts_ids' /*=> ['@domain' => ['is_primary', '=', true]] */]]]);
         foreach($self as $id => $suppliership) {
             if(!$suppliership['supplier_id']) {
                 continue;
@@ -231,11 +231,25 @@ class Suppliership extends \equal\orm\Model {
                 continue;
             }
             foreach($suppliership['supplier_id']['identity_id']['bank_accounts_ids'] as $bank_account_id) {
-                SuppliershipBankAccount::create([
-                        'condo_id'          => $suppliership['condo_id'],
-                        'suppliership_id'   => $id,
-                        'bank_account_id'   => $bank_account_id
+
+                $suppliershipBankAccounts = SuppliershipBankAccount::search([
+                        ['condo_id', '=', $suppliership['condo_id']],
+                        ['suppliership_id', '=', $id],
+                        ['bank_account_id', '=', $bank_account_id]
                     ]);
+
+                // if bank account already exists, reset computed fields
+                if($suppliershipBankAccounts->count() > 0) {
+                    $suppliershipBankAccounts->update(['name' => null, 'bank_account_type' => null, 'bank_account_iban' => null, 'bank_account_bic' => null]);
+                }
+                // otherwise, create a new bank account (link)
+                else {
+                    SuppliershipBankAccount::create([
+                            'condo_id'          => $suppliership['condo_id'],
+                            'suppliership_id'   => $id,
+                            'bank_account_id'   => $bank_account_id
+                        ]);
+                }
             }
         }
     }
@@ -294,7 +308,7 @@ class Suppliership extends \equal\orm\Model {
     protected static function onafterValidate($self) {
         $self
             ->do('generate_accounts')
-            ->do('import_bank_account');
+            ->do('sync_bank_accounts');
     }
 
     public static function candelete($self) {

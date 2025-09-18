@@ -165,7 +165,7 @@ class MiscOperation extends Model {
                     'post' => [
                         'description' => 'Create accounting entries and update the document to `posted`.',
                         'policies'    => ['is_valid'],
-                        'onafter'     => 'onafterPost',
+                        'onbefore'     => 'onbeforePost',
                         'status'      => 'posted'
                     ]
                 ]
@@ -402,7 +402,7 @@ class MiscOperation extends Model {
         // #todo - not sure of this : stand alone Misc Operation should not be linked to Funding, to allow arbitrary movements
     }
 
-    protected static function onafterPost($self) {
+    protected static function onbeforePost($self) {
         $self
             ->do('generate_accounting_entry')
             ->do('validate_accounting_entry');

@@ -121,6 +121,20 @@ class AccountingEntry extends Model {
                 'description'       => 'Object identifier, as a complement to `origin_object_class`, the entry originates from.'
             ],
 
+            'matching_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Matching',
+                'description'       => 'Matching (lettering) to which the accounting entry is linked, if any.',
+                'dependents'        => ['is_matched']
+            ],
+
+            'is_matched' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'function'          => '',
+                'store'             => true
+            ],
+
             'debit' => [
                 'type'              => 'computed',
                 'result_type'       => 'float',
@@ -167,7 +181,7 @@ class AccountingEntry extends Model {
             'reverse_entry_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
-                'description'       => "Reverse accounting entry voiding the current one.",
+                'description'       => "Reverse accounting entry voiding the current one, if any.",
                 'visible'           => ['is_cancelled', '=', true]
             ],
 

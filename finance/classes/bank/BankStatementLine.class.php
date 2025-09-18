@@ -73,6 +73,7 @@ class BankStatementLine extends Model {
                 'type'              => 'date',
                 'description'       => 'Date of the transaction as provided by the bank.',
                 'required'          => true,
+                // #todo - prendre la date du relevé
                 'default'           => function() {return time();}
             ],
 
@@ -1154,6 +1155,8 @@ class BankStatementLine extends Model {
                     // expense / income
                     else {
                         // cas supportés
+                        // 614 -> charge négative du remboursemement : dans ce cas, on n'a pas de counterpart_account_id
+                            // --> au moment de la création du Payment -> directement sur le compte de contrepartie, et ici, on ignore
                         // si compte accounting_account_id = frais banquaires (65)
                         //      -> le suppliership est la banque du condo (correspondant au compte bancaire)
                         $bankAccount = CondominiumBankAccount::id($bankStatementLine['bank_statement_id']['bank_account_id'])->read(['bank_id'])->first();

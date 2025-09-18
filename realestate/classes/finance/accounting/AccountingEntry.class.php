@@ -79,7 +79,6 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'visible'           => ['bank_statement_line_id', '<>', null]
             ],
 
-
             'entry_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\finance\accounting\AccountingEntryLine',

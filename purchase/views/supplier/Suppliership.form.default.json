@@ -18,8 +18,8 @@
         },
         {
             "id": "action.sync_bank_accounts",
-            "label": "Sync Bank account",
-            "description": "Import Supplier bank accounts.",
+            "label": "Sync Bank accounts",
+            "description": "Import/Sync Supplier bank accounts.",
             "controller": "core_model_do",
             "params": {
                 "entity": "purchase\\supplier\\Suppliership",

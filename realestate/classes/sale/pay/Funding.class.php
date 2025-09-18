@@ -46,6 +46,16 @@ class Funding extends \sale\pay\Funding {
                 'dependents'        => ['paid_amount', 'is_paid']
             ],
 
+            'accounting_entries_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\finance\accounting\AccountingEntry',
+                'description'       => "Accounting entry of the Matching.",
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['matching_id', '=', 'object.id']
+                ]
+            ],
+
             'bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
