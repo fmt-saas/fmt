@@ -413,6 +413,11 @@ class BankStatementLine extends Model {
     /**
      *  The line is expected to be assigned to an accounting account, but with no Payment (nor Funding)
      */
+
+// #todo - on créée pas de funding dans ce cas, on  générer une écriture comtpable arbitraire sur base de la ligne    (accounting_account_id)
+// si une ligne a un accounting_account_id, on permet aussi de sélectionner une écriture de contrepartie ou un Matching/Funding ouvert
+// a la validation, on crée une écriture sans paiement
+// note : si la ligne a des paiements, on peut les voir et voir les liens avec les Fundings
     protected static function doGenerateOrphanOperation($self) {
         $self->read([
                 'condo_id',
@@ -508,7 +513,7 @@ class BankStatementLine extends Model {
                     $counterpart_bank_account_id = $bankStatementLine['bank_statement_id']['bank_account_id']['id'];
                 }
 
-// #todo - ne créer que s'il n'existe pas encore
+        // #todo - ne créer que s'il n'existe pas encore
                 // create MoneyTransfer
                 $moneyTransfers = MoneyTransfer::create([
                         'condo_id'                      => $bankStatementLine['condo_id'],
@@ -585,6 +590,13 @@ class BankStatementLine extends Model {
 
         }
     }
+
+
+
+    protected static function doReconcileWithMatching($self, $values) {
+    }
+
+
 
     /**
      * Reconcile the line by creating a Payment.
@@ -1083,7 +1095,7 @@ class BankStatementLine extends Model {
      */
     protected static function doGenerateAccountingEntry($self) {
 
-        // ici on le fait à l'envers : on part de la ligne, et on va chercher le funding pour faire l'écriture comptable
+/*
         $self->read([
                 'condo_id',
                 'bank_statement_id' => ['bank_account_id'],
@@ -1222,7 +1234,7 @@ class BankStatementLine extends Model {
                 }
             }
         }
-
+*/
     }
 
     public static function onafterupdate($self) {

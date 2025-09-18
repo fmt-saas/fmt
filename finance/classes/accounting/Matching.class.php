@@ -40,6 +40,13 @@ class Matching extends Model {
                 'store'             => true
             ],
 
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Optional description to identify the funding.',
+                'help'              => "In case the Matching is a Funding, it holds a description similar to the name"
+            ],
+
+
             'accounting_entries_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',

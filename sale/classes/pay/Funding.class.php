@@ -10,6 +10,7 @@ namespace sale\pay;
 use equal\orm\Model;
 use core\setting\Setting;
 use equal\data\DataFormatter;
+use finance\accounting\AccountingEntry;
 
 class Funding extends \finance\accounting\Matching {
 
@@ -28,11 +29,6 @@ class Funding extends \finance\accounting\Matching {
                 'description'       => 'Display name of funding.',
                 'function'          => 'calcName',
                 'store'             => true
-            ],
-
-            'description' => [
-                'type'              => 'string',
-                'description'       => "Optional description to identify the funding."
             ],
 
             'payments_ids' => [
@@ -343,16 +339,15 @@ class Funding extends \finance\accounting\Matching {
         return parent::candelete($self);
     }
 
-    public static function ondelete($om, $oids) {
-        /*
-        $cron = $om->getContainer()->get('cron');
-
-        foreach($oids as $fid) {
-            // remove any previously scheduled task
-            $cron->cancel("booking.funding.overdue.{$fid}");
+    /**
+     * Revoke link between accounting entries & funding (indirect : using matching_id).
+     *
+     */
+    public static function onbeforedelete($self) {
+        $self->read(['accounting_entries_ids']);
+        foreach($self as $id => $funding) {
+            AccountingEntry::ids($funding['accounting_entries_ids'])->update(['matching_id' => null]);
         }
-        parent::ondelete($om, $oids);
-        */
     }
 
     public static function onchange($event, $values) {

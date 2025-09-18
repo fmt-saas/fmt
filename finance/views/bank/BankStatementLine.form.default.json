@@ -265,6 +265,29 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "id": "section.accounting_entries",
+                        "label": "Accounting Entries",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "accounting_entries_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.default"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }

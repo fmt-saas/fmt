@@ -181,6 +181,13 @@ class BankStatement extends Model {
                 'instant'           => true
             ],
 
+            'accounting_entries_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'foreign_field'     => 'bank_statement_line_id',
+                'description'       => 'Accounting entries linked to the bank statement line.'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [

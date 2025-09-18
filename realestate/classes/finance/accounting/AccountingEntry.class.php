@@ -31,7 +31,6 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'description'       => 'Object identifier, as a complement to `origin_object_class`, the entry originates from.'
             ],
 
-
             'invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
@@ -54,29 +53,6 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'description'       => "Expense Statement the entry relates to, if any.",
                 'ondelete'          => 'null',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
-            ],
-
-
-            'bank_statement_line_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\bank\BankStatementLine',
-                'description'       => 'Bank Statement line the entry relates to, if any.',
-                'ondelete'          => 'null',
-                'readonly'          => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id']
-            ],
-
-            'bank_statement_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'foreign_object'    => 'finance\bank\BankStatement',
-                'description'       => 'Bank statement the entry relates to, if any.',
-                'ondelete'          => 'null',
-                'domain'            => ['condo_id', '=', 'object.condo_id'],
-                'store'             => true,
-                'instant'           => true,
-                'relation'          => ['bank_statement_line_id' => ['bank_statement_id']],
-                'visible'           => ['bank_statement_line_id', '<>', null]
             ],
 
             'entry_lines_ids' => [

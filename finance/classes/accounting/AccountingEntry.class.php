@@ -124,6 +124,7 @@ class AccountingEntry extends Model {
             'matching_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Matching',
+                'ondelete'          => null,
                 'description'       => 'Matching (lettering) to which the accounting entry is linked, if any.',
                 'dependents'        => ['is_matched']
             ],
@@ -191,6 +192,28 @@ class AccountingEntry extends Model {
                 'description'       => 'Invoice the accounting entry is related to.',
                 'help'              => 'This field is expected to be overloaded in purchase and sale invoice classes.',
                 'ondelete'          => 'null'
+            ],
+
+            'bank_statement_line_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankStatementLine',
+                'description'       => 'Bank Statement line the entry relates to, if any.',
+                'ondelete'          => 'null',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'bank_statement_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\bank\BankStatement',
+                'description'       => 'Bank statement the entry relates to, if any.',
+                'ondelete'          => 'null',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'store'             => true,
+                'instant'           => true,
+                'relation'          => ['bank_statement_line_id' => ['bank_statement_id']],
+                'visible'           => ['bank_statement_line_id', '<>', null]
             ],
 
             'status' => [
