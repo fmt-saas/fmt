@@ -32,6 +32,17 @@ class Matching extends Model {
                 'description'       => 'Display name of funding.'
             ],
 
+            'matching_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'matching',
+                    'funding'
+                ],
+                'required'          => true,
+                'default'           => 'matching',
+                'description'       => "Type of matching. Either a regular matching, or a funding (which is linked to payments)."
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',

@@ -49,6 +49,13 @@ class Funding extends \finance\accounting\Matching {
                 ]
             ],
 
+            'matching_type' => [
+                'type'              => 'string',
+                'readonly'          => true,
+                'default'           => 'funding',
+                'description'       => "Type of matching. Always `funding` for Fundings."
+            ],
+
             'funding_type' => [
                 'type'              => 'string',
                 'selection'         => [

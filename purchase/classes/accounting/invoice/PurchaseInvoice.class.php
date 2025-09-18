@@ -381,14 +381,14 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
     }
 
     /**
-     * Create the fundings for paying the invoice.
+     * Create the fundings for paying the purchase the invoice.
      */
     protected static function doCreateFundings($self) {
-        $self->read(['id', 'price', 'payment_reference', 'due_date', 'funding_id']);
+        $self->read(['id', 'name', 'price', 'payment_reference', 'due_date', 'funding_id']);
 
-        foreach($self as $invoice) {
+        foreach($self as $id => $invoice) {
             $funding = Funding::create([
-                    'description'         => 'Purchase Invoice',
+                    'description'         => $invoice['name'],
                     'invoice_id'          => $invoice['id'],
                     'due_amount'          => $invoice['price'],
                     'is_paid'             => false,

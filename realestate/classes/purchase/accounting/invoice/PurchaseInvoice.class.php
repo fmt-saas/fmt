@@ -290,7 +290,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function doCreateFundings($self) {
         $self->read([
-                'condo_id', 'price', 'payment_reference', 'due_date', 'funding_id',
+                'condo_id', 'name', 'price', 'payment_reference', 'due_date', 'funding_id',
                 'suppliership_id',
                 'suppliership_bank_account_id' => ['bank_account_id']
             ]);
@@ -316,7 +316,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             $values = [
                     'condo_id'                          => $invoice['condo_id'],
-                    'description'                       => 'Purchase Invoice',
+                    'description'                       => $invoice['name'],
                     'funding_type'                      => 'purchase_invoice',
                     'invoice_id'                        => $id,
                     'bank_account_id'                   => $bankAccount['id'],
