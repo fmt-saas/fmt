@@ -103,6 +103,17 @@ class Matching extends Model {
         return $result;
     }
 
+    /**
+     * Revoke link between accounting entries & funding (indirect : using matching_id).
+     *
+     */
+    public static function onbeforedelete($self) {
+        $self->read(['accounting_entries_ids']);
+        foreach($self as $id => $funding) {
+            AccountingEntry::ids($funding['accounting_entries_ids'])->update(['matching_id' => null, 'matching_level' => null]);
+        }
+    }
+
 
 /*
     public function getUnique() {

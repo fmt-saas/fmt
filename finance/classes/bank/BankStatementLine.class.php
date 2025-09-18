@@ -906,6 +906,10 @@ class BankStatementLine extends Model {
         $result = [];
         $self->read(['payments_ids' => ['amount'], 'amount']);
         foreach($self as $id => $statementLine) {
+            if(!$statementLine['payments_ids'] || $statementLine['payments_ids']->count() <= 0) {
+                $result[$id] = false;
+                continue;
+            }
             $result[$id] = self::computeIsReconciled($id);
         }
         return $result;

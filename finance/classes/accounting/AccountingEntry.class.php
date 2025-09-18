@@ -126,13 +126,18 @@ class AccountingEntry extends Model {
                 'foreign_object'    => 'finance\accounting\Matching',
                 'ondelete'          => null,
                 'description'       => 'Matching (lettering) to which the accounting entry is linked, if any.',
-                'dependents'        => ['is_matched']
+                'dependents'        => ['matching_level']
             ],
 
-            'is_matched' => [
+            'matching_level' => [
                 'type'              => 'computed',
-                'result_type'       => 'boolean',
-                'function'          => '',
+                'result_type'       => 'string',
+                'selection'         => [
+                    'none',
+                    'part',
+                    'full'
+                ],
+                'function'          => 'calcMatchingLevel',
                 'store'             => true
             ],
 
@@ -458,6 +463,20 @@ class AccountingEntry extends Model {
         return $result;
     }
 
+    protected static function calcMatchingLevel($self) {
+        $result = [];
+        $self->read(['matching_id' => ['is_balanced']]);
+        foreach($self as $id => $accountingEntry) {
+            $result[$id] = 'none';
+            if($accountingEntry['matching_id']) {
+                $result[$id] = 'part';
+                if($accountingEntry['matching_id']['is_balanced']) {
+                    $result[$id] = 'full';
+                }
+            }
+        }
+        return $result;
+    }
 
     /**
      * #memo - we need this value even if it can still change (i.e. accounting entry is not yet validated)

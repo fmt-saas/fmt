@@ -346,17 +346,6 @@ class Funding extends \finance\accounting\Matching {
         return parent::candelete($self);
     }
 
-    /**
-     * Revoke link between accounting entries & funding (indirect : using matching_id).
-     *
-     */
-    public static function onbeforedelete($self) {
-        $self->read(['accounting_entries_ids']);
-        foreach($self as $id => $funding) {
-            AccountingEntry::ids($funding['accounting_entries_ids'])->update(['matching_id' => null]);
-        }
-    }
-
     public static function onchange($event, $values) {
         $result = [];
 
