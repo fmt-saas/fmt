@@ -112,9 +112,15 @@ class Matching extends Model {
     }
 
     protected static function doRefreshMatchingLevel($self) {
+        $self->read(['accounting_entry_lines_ids']);
+
+        foreach($self as $id => $matching) {
+            AccountingEntryLine::ids($matching['accounting_entry_lines_ids'])->do('refresh_matching_level');
+        }
+
         $self
             ->update(['is_balanced' => null, 'matching_level' => null])
-            ->read(['id', 'description']);
+            ->read(['is_balanced', 'matching_level']);
     }
 
     protected static function calcName($self) {

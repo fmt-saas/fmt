@@ -172,11 +172,22 @@ class AccountingEntry extends Model {
                 'help'              => 'Together origin_object_class and origin_object_id reference the accounting document the entry is linked to.'
             ],
 
-            'invoice_id' => [
+            /*
+                Since we cannot use origin_object_class & origin_object_id in views
+                following fields points directly to the targeted Object
+            */
+
+            'purchase_invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\invoice\Invoice',
+                'foreign_object'    => 'purchase\accounting\invoice\Invoice',
                 'description'       => 'Invoice the accounting entry is related to.',
-                'help'              => 'This field is expected to be overloaded in purchase and sale invoice classes.',
+                'ondelete'          => 'null'
+            ],
+
+            'sale_invoice_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'sale\accounting\invoice\Invoice',
+                'description'       => 'Invoice the accounting entry is related to.',
                 'ondelete'          => 'null'
             ],
 

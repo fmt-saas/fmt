@@ -154,6 +154,20 @@ class AccountingEntryLine extends Model {
         ];
     }
 
+    public static function getActions() {
+        return [
+            'refresh_matching_level' => [
+                'description'   => 'Update status according to currently paid amount.',
+                'policies'      => [],
+                'function'      => 'doRefreshMatchingLevel'
+            ]
+        ];
+    }
+
+    protected static function doRefreshMatchingLevel($self) {
+        $self->update(['matching_level' => null]);
+    }
+
     public static function defaultCondoId($values) {
         $result = null;
         if(isset($values['accounting_entry_id'])) {
@@ -173,6 +187,18 @@ class AccountingEntryLine extends Model {
             }
         }
         return parent::canupdate($self);
+    }
+
+    protected static function onupdateMatchingId($self) {
+        $self->read(['matching_id']);
+        foreach($self as $id => $accountingEntryLine) {
+            if($accountingEntryLine['matching_id']) {
+                Matching::id($accountingEntryLine['matching_id'])->do('refresh_matching_level');
+            }
+            else {
+                self::id($id)->do('refresh_matching_level');
+            }
+        }
     }
 
     protected static function calcMatchingLevel($self) {

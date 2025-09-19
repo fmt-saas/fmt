@@ -8,9 +8,14 @@
             "description": "Étiquette pour le groupe.",
             "help": ""
         },
-        "invoice_id": {
-            "label": "Facture",
-            "description": "Facture à laquelle la ligne est liée.",
+        "purchase_invoice_id": {
+            "label": "Facture d'achat",
+            "description": "Facture d'achat à laquelle la ligne est liée.",
+            "help": ""
+        },
+        "sale_invoice_id": {
+            "label": "Facture de vente",
+            "description": "Facture de vente à laquelle la ligne est liée.",
             "help": ""
         },
         "account_id": {
