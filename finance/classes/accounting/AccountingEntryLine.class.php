@@ -98,6 +98,7 @@ class AccountingEntryLine extends Model {
                 'foreign_object'    => 'finance\accounting\Matching',
                 'ondelete'          => null,
                 'description'       => 'Matching (lettering) to which the accounting entry is linked, if any.',
+                'onupdate'          => 'onupdateMatchingId',
                 'dependents'        => ['matching_level']
             ],
 

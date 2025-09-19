@@ -39,6 +39,7 @@
             },
             {
                 "type": "field",
+                "label": "Matching",
                 "value": "matching_level",
                 "width": "20%"
             },

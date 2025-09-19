@@ -70,7 +70,8 @@ class Matching extends Model {
                 'foreign_object'    => 'finance\accounting\AccountingEntryLine',
                 'foreign_field'     => 'matching_id',
                 'description'       => 'Accounting entry lines (records) linked to the matching.',
-                'domain'            => ['account_id', '=', 'object.accounting_account_id']
+                'domain'            => ['account_id', '=', 'object.accounting_account_id'],
+                'onupdate'          => 'onupdateAccountingEntryLinesIds'
             ],
 
             'is_balanced' => [
@@ -94,6 +95,26 @@ class Matching extends Model {
             ]
 
         ];
+    }
+
+    public static function getActions() {
+        return [
+            'refresh_matching_level' => [
+                'description'   => 'Update status according to currently paid amount.',
+                'policies'      => [],
+                'function'      => 'doRefreshMatchingLevel'
+            ],
+        ];
+    }
+
+    protected static function onupdateAccountingEntryLinesIds($self) {
+        $self->do('refresh_matching_level');
+    }
+
+    protected static function doRefreshMatchingLevel($self) {
+        $self
+            ->update(['is_balanced' => null, 'matching_level' => null])
+            ->read(['id', 'description']);
     }
 
     protected static function calcName($self) {
@@ -134,13 +155,13 @@ class Matching extends Model {
     }
 
     /**
-     * Revoke link between accounting entries & funding (indirect : using matching_id).
+     * Revoke link between accounting entries & matching.
      *
      */
-    public static function onbeforedelete($self) {
-        $self->read(['accounting_entries_ids']);
-        foreach($self as $id => $funding) {
-            AccountingEntry::ids($funding['accounting_entries_ids'])->update(['matching_id' => null, 'matching_level' => null]);
+    protected static function onbeforedelete($self) {
+        $self->read(['accounting_entry_lines_ids']);
+        foreach($self as $id => $matching) {
+            AccountingEntryLine::ids($matching['accounting_entry_lines_ids'])->update(['matching_id' => null, 'matching_level' => null]);
         }
     }
 

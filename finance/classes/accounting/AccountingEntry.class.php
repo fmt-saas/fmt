@@ -111,16 +111,6 @@ class AccountingEntry extends Model {
                 'description'       => 'Entry number is automatically assigned after validation, and cannot be changed afterwards.'
             ],
 
-            'origin_object_class' => [
-                'type'              => 'string',
-                'description'       => 'Entity class that the entry originates from.'
-            ],
-
-            'origin_object_id' => [
-                'type'              => 'integer',
-                'description'       => 'Object identifier, as a complement to `origin_object_class`, the entry originates from.'
-            ],
-
             'debit' => [
                 'type'              => 'computed',
                 'result_type'       => 'float',
@@ -169,6 +159,17 @@ class AccountingEntry extends Model {
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
                 'description'       => "Reverse accounting entry voiding the current one, if any.",
                 'visible'           => ['is_cancelled', '=', true]
+            ],
+
+            'origin_object_class' => [
+                'type'              => 'string',
+                'description'       => 'Entity class that the entry originates from.'
+            ],
+
+            'origin_object_id' => [
+                'type'              => 'integer',
+                'description'       => 'Object identifier, as a complement to `origin_object_class`.',
+                'help'              => 'Together origin_object_class and origin_object_id reference the accounting document the entry is linked to.'
             ],
 
             'invoice_id' => [

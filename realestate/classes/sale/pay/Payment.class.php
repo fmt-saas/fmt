@@ -61,6 +61,7 @@ class Payment extends \sale\pay\Payment {
                     'post' => [
                         'description' => 'Update the payment status to `payment`.',
                         'onbefore'    => 'onbeforePost',
+                        'onafter'     => 'onafterPost',
                         'status'      => 'posted'
                     ]
                 ]
@@ -124,6 +125,13 @@ class Payment extends \sale\pay\Payment {
         $self->do('generate_accounting_entry');
     }
 
+    protected static function onafterPost($self) {
+        $self->read(['funding_id']);
+        foreach($self as $id => $payment) {
+            Funding::id($payment['funding_id'])->do('refresh_status');
+        }
+    }
+
     protected static function doGenerateAccountingEntry($self) {
         $self->read([
                 'condo_id',
@@ -166,7 +174,6 @@ class Payment extends \sale\pay\Payment {
                     'origin_object_class'       => self::getType(),
                     'origin_object_id'          => $id,
                     'journal_id'                => $bankJournal['id'],
-                    'matching_id'               => $payment['funding_id']['id'],
                     'bank_statement_line_id'    => $payment['bank_statement_line_id']['id'],
                     'bank_statement_id'         => $payment['bank_statement_line_id']['bank_statement_id'],
                 ])
@@ -188,6 +195,7 @@ class Payment extends \sale\pay\Payment {
             AccountingEntryLine::create([
                     'condo_id'               => $payment['condo_id'],
                     'account_id'             => $credit_account_id,
+                    'matching_id'               => $payment['funding_id']['id'],
                     'debit'                  => $amount < 0 ? abs($amount) : 0,
                     'credit'                 => $amount > 0 ? abs($amount) : 0,
                     'accounting_entry_id'    => $accountingEntry['id'],

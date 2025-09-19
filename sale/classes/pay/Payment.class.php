@@ -158,11 +158,19 @@ class Payment extends Model {
                 'transitions' => [
                     'post' => [
                         'description' => 'Update the payment status to `payment`.',
+                        'onafter'     => 'onafterPost',
                         'status'      => 'posted'
                     ]
                 ]
             ]
         ];
+    }
+
+    protected static function onafterPost($self) {
+        $self->read(['funding_id']);
+        foreach($self as $id => $payment) {
+            Funding::id($payment['funding_id'])->do('refresh_status');
+        }
     }
 
     protected static function oncreate($self) {
