@@ -12,11 +12,11 @@ use fmt\setting\Setting;
 class AccountingEntry extends Model {
 
     public static function getName() {
-        return "Journal accounting entry";
+        return "Accounting entry";
     }
 
     public static function getDescription() {
-        return "Accounting entries correspond to invoice lines mapped as records of financial transactions in the accounting books.";
+        return "Accounting entries are linked to accounting documents and hold a series of lines for recording the subsequent movements in the accounting books.";
     }
 
     public static function getColumns() {
@@ -119,26 +119,6 @@ class AccountingEntry extends Model {
             'origin_object_id' => [
                 'type'              => 'integer',
                 'description'       => 'Object identifier, as a complement to `origin_object_class`, the entry originates from.'
-            ],
-
-            'matching_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\Matching',
-                'ondelete'          => null,
-                'description'       => 'Matching (lettering) to which the accounting entry is linked, if any.',
-                'dependents'        => ['matching_level']
-            ],
-
-            'matching_level' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'selection'         => [
-                    'none',
-                    'part',
-                    'full'
-                ],
-                'function'          => 'calcMatchingLevel',
-                'store'             => true
             ],
 
             'debit' => [
@@ -458,21 +438,6 @@ class AccountingEntry extends Model {
             }
             else {
                 $result[$id] = $accountingEntry['entry_number'];
-            }
-        }
-        return $result;
-    }
-
-    protected static function calcMatchingLevel($self) {
-        $result = [];
-        $self->read(['matching_id' => ['is_balanced']]);
-        foreach($self as $id => $accountingEntry) {
-            $result[$id] = 'none';
-            if($accountingEntry['matching_id']) {
-                $result[$id] = 'part';
-                if($accountingEntry['matching_id']['is_balanced']) {
-                    $result[$id] = 'full';
-                }
             }
         }
         return $result;

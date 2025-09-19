@@ -180,6 +180,14 @@ class BankStatementLine extends Model {
                 'instant'           => true
             ],
 
+            'matching_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Matching',
+                'description'       => 'Matching (lettering) to which the accounting entry is linked, if any.',
+                'help'              => "This value can only be set manually when doing reconciliation with a non balanced matching",
+                'visible'           => ['accounting_account_id', '<>', null]
+            ],
+
             'is_transfer' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
@@ -399,12 +407,16 @@ class BankStatementLine extends Model {
 
         $self->read(['payments_ids' => ['funding_id']]);
         foreach($self as $id => $bankStatementLine) {
+            // dans certains cas, les écritures des pièces ne sont postées qu'à la confirmation de la transaction
+            // c'est une exception pour les mouvements entre comptes: ca pourrait se gérer ici
             foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
                 // Find the accounting document linked to the funding, if it is not posted, post it (in this case, the post should always work)
                 // #memo - this could result in 'posting' the current line
                 Funding::id($payment['funding_id'])->do('attempt_post_accounting_document');
                 Payment::id($payment_id)->do('post');
             }
+
+            // si on a un accounting_account_id et un matching_id, on créée directement l'écriture
         }
 
         $self->update(['status' => 'posted']);

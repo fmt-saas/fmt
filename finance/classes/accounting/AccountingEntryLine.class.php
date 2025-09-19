@@ -37,37 +37,7 @@ class AccountingEntryLine extends Model {
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
                 'description'       => "Accounting entry the line relates to.",
                 'ondelete'          => 'cascade',
-                'dependents'        => ['journal_id', 'entry_date', 'fiscal_year_id', 'fiscal_period_id']
-            ],
-
-            'entry_date' => [
-                'type'              => 'computed',
-                'result_type'       => 'date',
-                'usage'             => 'date/plain',
-                'relation'          => ['accounting_entry_id' => 'entry_date'],
-                'description'       => 'The date on which the transaction is recorded in the accounting system and affects the fiscal period.',
-                'store'             => true,
-                'instant'           => true
-            ],
-
-            'account_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\Account',
-                'description'       => "Accounting account the entry relates to.",
-                'required'          => true,
-                'ondelete'          => 'null',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
-                'dependents'        => ['account_code']
-            ],
-
-            'account_code' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'description'       => "Code of the related accounting account.",
-                'relation'          => ['account_id' => 'code'],
-                'store'             => true,
-                'instant'           => true,
-                'readonly'          => true
+                'dependents'        => ['journal_id', 'entry_date', 'entry_number', 'fiscal_year_id', 'fiscal_period_id']
             ],
 
             'journal_id' => [
@@ -98,6 +68,67 @@ class AccountingEntryLine extends Model {
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
                 'description'       => "Period of the fiscal year the entry relates to (from entry_date).",
                 'relation'          => ['accounting_entry_id' => 'fiscal_period_id'],
+                'store'             => true,
+                'instant'           => true,
+                'readonly'          => true
+            ],
+
+            'entry_date' => [
+                'type'              => 'computed',
+                'result_type'       => 'date',
+                'usage'             => 'date/plain',
+                'relation'          => ['accounting_entry_id' => 'entry_date'],
+                'description'       => 'The date on which the transaction is recorded in the accounting system and affects the fiscal period.',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'entry_number' => [
+                'type'              => 'computed',
+                'result_type'       => 'date',
+                'usage'             => 'date/plain',
+                'relation'          => ['accounting_entry_id' => 'entry_date'],
+                'description'       => 'The date on which the transaction is recorded in the accounting system and affects the fiscal period.',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'matching_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Matching',
+                'ondelete'          => null,
+                'description'       => 'Matching (lettering) to which the accounting entry is linked, if any.',
+                'dependents'        => ['matching_level']
+            ],
+
+            'matching_level' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'icon',
+                'selection'         => [
+                    'none',
+                    'part',
+                    'full'
+                ],
+                'function'          => 'calcMatchingLevel',
+                'store'             => true
+            ],
+
+            'account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Accounting account the entry relates to.",
+                'required'          => true,
+                'ondelete'          => 'null',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
+                'dependents'        => ['account_code']
+            ],
+
+            'account_code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "Code of the related accounting account.",
+                'relation'          => ['account_id' => 'code'],
                 'store'             => true,
                 'instant'           => true,
                 'readonly'          => true
@@ -143,4 +174,18 @@ class AccountingEntryLine extends Model {
         return parent::canupdate($self);
     }
 
+    protected static function calcMatchingLevel($self) {
+        $result = [];
+        $self->read(['matching_id' => ['is_balanced']]);
+        foreach($self as $id => $accountingEntry) {
+            $result[$id] = 'none';
+            if($accountingEntry['matching_id']) {
+                $result[$id] = 'part';
+                if($accountingEntry['matching_id']['is_balanced']) {
+                    $result[$id] = 'full';
+                }
+            }
+        }
+        return $result;
+    }
 }

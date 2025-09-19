@@ -12,7 +12,7 @@ use equal\orm\Model;
 class Matching extends Model {
 
     public static function getDescription() {
-        return 'A Matching allows mark several accounting entries as linked and to reconcile their movements.';
+        return 'A Matching allows marking several accounting entry lines (records) as linked, and to reconcile their movements.';
     }
 
     public static function getColumns() {
@@ -24,6 +24,20 @@ class Matching extends Model {
                 'description'       => "The condominium the funding refers to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'readonly'          => true
+            ],
+
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Display name of matching.',
+                'function'          => 'calcName',
+                'store'             => true
+            ],
+
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Optional description to identify the funding.',
+                'help'              => "In case the Matching is a Funding, it holds a description similar to the name"
             ],
 
             // #todo - we should have a sequence for auto assignment of sequential code, by condominium
@@ -43,26 +57,20 @@ class Matching extends Model {
                 'description'       => "Type of matching. Either a regular matching, or a funding (which is linked to payments)."
             ],
 
-            'name' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'description'       => 'Display name of matching.',
-                'function'          => 'calcName',
-                'store'             => true
+            'account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Accounting account the matching relates to.",
+                'required'          => true,
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]]
             ],
 
-            'description' => [
-                'type'              => 'string',
-                'description'       => 'Optional description to identify the funding.',
-                'help'              => "In case the Matching is a Funding, it holds a description similar to the name"
-            ],
-
-
-            'accounting_entries_ids' => [
+            'accounting_entry_lines_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'foreign_object'    => 'finance\accounting\AccountingEntryLine',
                 'foreign_field'     => 'matching_id',
-                'description'       => 'Accounting entries linked to the matching.'
+                'description'       => 'Accounting entry lines (records) linked to the matching.',
+                'domain'            => ['account_id', '=', 'object.account_id']
             ],
 
             'is_balanced' => [
@@ -73,32 +81,54 @@ class Matching extends Model {
                 'store'             => true
             ],
 
+            'matching_level' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'icon',
+                'selection'         => [
+                    'part',
+                    'full'
+                ],
+                'function'          => 'calcMatchingLevel',
+                'store'             => true
+            ]
 
         ];
     }
 
     protected static function calcName($self) {
         $result = [];
-        $self->read(['id', 'code', 'created']);
+        $self->read(['id', 'description']);
         foreach($self as $id => $matching) {
-            $result[$id] = sprintf("%08d - %s", $matching['id'], date('Y-m-d', $matching['created']));
+            $result[$id] = sprintf("%08d - %s", $matching['id'], $matching['description']);
         }
-
         return $result;
     }
 
-
     protected static function calcIsBalanced($self) {
         $result = [];
-        $self->read(['accounting_entries_ids' => ['debit', 'credit']]);
+        $self->read(['accounting_entry_lines_ids' => ['debit', 'credit']]);
         foreach($self as $id => $matching) {
             $credit = 0.0;
             $debit = 0.0;
-            foreach($matching['accounting_entries_ids'] as $accounting_entry) {
+            foreach($matching['accounting_entry_lines_ids'] as $accounting_entry) {
                 $credit += $accounting_entry['credit'];
                 $debit  += $accounting_entry['debit'];
             }
             $result[$id] = (abs(abs($credit) - abs($debit)) < 0.01);
+        }
+        return $result;
+    }
+
+
+    protected static function calcMatchingLevel($self) {
+        $result = [];
+        $self->read(['is_balanced']);
+        foreach($self as $id => $matching) {
+            $result[$id] = 'part';
+            if($matching['is_balanced']) {
+                $result[$id] = 'full';
+            }
         }
         return $result;
     }

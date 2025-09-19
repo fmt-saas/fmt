@@ -39,6 +39,11 @@
             },
             {
                 "type": "field",
+                "value": "matching_level",
+                "width": "20%"
+            },
+            {
+                "type": "field",
                 "value": "debit",
                 "width": "15%"
             },
