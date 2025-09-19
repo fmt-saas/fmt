@@ -502,7 +502,7 @@ class BankStatementLine extends Model {
                         'funding_type'                      => 'misc',
                         'due_amount'                        => $amount,
                         'bank_account_id'                   => $bankStatementLine['bank_statement_id']['bank_account_id']['id'],
-                        'counterpart_accounting_account_id' => $bankStatementLine['accounting_account_id'],
+                        'accounting_account_id' => $bankStatementLine['accounting_account_id'],
                         'due_date'                          => time() + 10 * 86400,
                         // #memo - payment_reference is a computed field
                     ])
@@ -551,7 +551,7 @@ class BankStatementLine extends Model {
                         'funding_type'                      => 'statement_line',
                         'due_amount'                        => $bankStatementLine['amount'],
                         'bank_account_id'                   => $bankStatementLine['bank_statement_id']['bank_account_id']['id'],
-                        'counterpart_accounting_account_id' => $bankStatementLine['accounting_account_id'],
+                        'accounting_account_id' => $bankStatementLine['accounting_account_id'],
                         // #memo - avoid any irrelevant alert
                         'due_date'                          => time() + (10 * 86400),
                         // #memo - payment_reference is a computed field
@@ -579,7 +579,7 @@ class BankStatementLine extends Model {
                     'funding_type'                      => 'statement_line',
                     'due_amount'                        => $bankStatementLine['amount'],
                     'bank_account_id'                   => $bankStatementLine['bank_statement_id']['bank_account_id']['id'],
-                    'counterpart_accounting_account_id' => $bankStatementLine['accounting_account_id'],
+                    'accounting_account_id' => $bankStatementLine['accounting_account_id'],
                     // #memo - avoid any irrelevant alert
                     'due_date'                          => time() + (10 * 86400),
                     // #memo - payment_reference is a computed field
@@ -1129,7 +1129,7 @@ class BankStatementLine extends Model {
                         'suppliership_id',
                         'bank_account_id',
                         'counterpart_bank_account_id',
-                        'counterpart_accounting_account_id'
+                        'accounting_account_id'
                     ]
                 ]
             ]);
@@ -1161,7 +1161,7 @@ class BankStatementLine extends Model {
                                 throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                             }
                             $debit_account_id = $ownershipAccount['id'];
-                            $credit_account_id = $funding['counterpart_accounting_account_id'];
+                            $credit_account_id = $funding['accounting_account_id'];
 
                         }
                         elseif($payment['funding_id']['suppliership_id']) {
@@ -1177,7 +1177,7 @@ class BankStatementLine extends Model {
                                 throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                             }
                             $credit_account_id = $suppliershipAccount['id'];
-                            $debit_account_id = $funding['counterpart_accounting_account_id'];
+                            $debit_account_id = $funding['accounting_account_id'];
                         }
 
                     }
@@ -1209,7 +1209,7 @@ class BankStatementLine extends Model {
                         }
 
                         $credit_account_id = $suppliershipAccount['id'];
-                        $debit_account_id = $funding['counterpart_accounting_account_id'];
+                        $debit_account_id = $funding['accounting_account_id'];
 
                         // la répartition se fait sur les types d'entrées comptables, directement basé sur les frais (? et les rentrées - comptes 7)
                     }

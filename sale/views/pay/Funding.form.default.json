@@ -159,8 +159,8 @@
                         ]
                     },
                     {
-                        "label": "Accounting Entries",
-                        "id": "section.accounting_entries",
+                        "label": "Accounting Records",
+                        "id": "section.accounting_entry_lines",
                         "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
@@ -170,7 +170,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "accounting_entries_ids",
+                                                "value": "accounting_entry_lines_ids",
                                                 "width": "100%"
                                             }
                                         ]

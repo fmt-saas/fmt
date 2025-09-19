@@ -322,7 +322,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'bank_account_id'                   => $bankAccount['id'],
                     'suppliership_id'                   => $invoice['suppliership_id'],
                     'counterpart_bank_account_id'       => $invoice['suppliership_bank_account_id']['bank_account_id'],
-                    'counterpart_accounting_account_id' => $suppliershipAccount['id'],
+                    'accounting_account_id' => $suppliershipAccount['id'],
                     'due_amount'                        => $invoice['price'],
                     'is_paid'                           => false,
                     'due_date'                          => $invoice['due_date']

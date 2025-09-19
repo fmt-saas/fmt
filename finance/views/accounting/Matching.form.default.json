@@ -42,8 +42,8 @@
                                         "width": "33%",
                                         "items": [
                                             {
-                                                "type": "label",
-                                                "value": "",
+                                                "type": "field",
+                                                "value": "accounting_account_id",
                                                 "width": "50%"
                                             },
                                             {

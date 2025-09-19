@@ -513,7 +513,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                         'fund_request_id'                   => $requestExecution['fund_request_id']['id'],
                         'fund_request_execution_id'         => $id,
                         'ownership_id'                      => $ownership_id,
-                        'counterpart_accounting_account_id' => $ownershipAccount['id'],
+                        'accounting_account_id' => $ownershipAccount['id'],
                         'bank_account_id'                   => $requestExecution['fund_request_id']['request_bank_account_id'],
                         'issue_date'                        => $issue_date,
                         'due_date'                          => $due_date,

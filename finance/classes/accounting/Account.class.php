@@ -142,12 +142,11 @@ class Account extends Model {
                 'description'       => "The children accounts linked to the account (all sub-levels)."
             ],
 
-
-            /* parent chart of accounts */
             'account_chart_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountChart',
-                'description'       => "The chart of accounts the line belongs to.",
+                'description'       => 'Parent chart of accounts.',
+                'help'              => 'The chart of accounts the line belongs to.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'required'          => true
             ],
@@ -223,6 +222,18 @@ class Account extends Model {
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account."
             ],
 
+
+            /*
+
+            */
+
+            'accounting_account_id' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\Matching',
+                'foreign_field'     => 'accounting_account_id',
+                'description'       => "Matchings referencing the account.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+            ],
 
             /*
                 entities the Account can possibly be linked to

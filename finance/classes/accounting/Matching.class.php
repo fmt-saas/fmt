@@ -57,7 +57,7 @@ class Matching extends Model {
                 'description'       => "Type of matching. Either a regular matching, or a funding (which is linked to payments)."
             ],
 
-            'account_id' => [
+            'accounting_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account the matching relates to.",
@@ -70,7 +70,7 @@ class Matching extends Model {
                 'foreign_object'    => 'finance\accounting\AccountingEntryLine',
                 'foreign_field'     => 'matching_id',
                 'description'       => 'Accounting entry lines (records) linked to the matching.',
-                'domain'            => ['account_id', '=', 'object.account_id']
+                'domain'            => ['account_id', '=', 'object.accounting_account_id']
             ],
 
             'is_balanced' => [

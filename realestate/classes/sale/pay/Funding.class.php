@@ -46,9 +46,9 @@ class Funding extends \sale\pay\Funding {
                 'dependents'        => ['paid_amount', 'is_paid']
             ],
 
-            'accounting_entries_ids' => [
+            'accounting_entry_lines_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'realestate\finance\accounting\AccountingEntry',
+                'foreign_object'    => 'realestate\finance\accounting\AccountingEntryLine',
                 'description'       => "Accounting entry of the Matching.",
                 'domain'            => [
                     ['condo_id', '=', 'object.condo_id'],
@@ -319,39 +319,26 @@ class Funding extends \sale\pay\Funding {
             $reference = str_pad('', 12, '0');
 
             switch($funding['funding_type']) {
-                case 'statement_line':
-                    // by convention, references for statement lines start with '3'
-                    $reference = sprintf("3%09d", $funding['bank_statement_line_id']);
-                    break;
-                case 'fund_request':
-                    // by convention, references for fund requests start with '4'
-                    $reference =
-                        '4' .
-                        substr(str_pad((int) $funding['condo_id']['code'], 5, '0', STR_PAD_LEFT), 0, 6) .
-                        substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
-                    break;
+                // incoming payments
                 case 'expense_statement':
-                    // by convention, references for expense statements start with '5'
+                case 'fund_request':
                     $reference =
-                        '5' .
-                        substr(str_pad((int) $funding['condo_id']['code'], 5, '0', STR_PAD_LEFT), 0, 6) .
+                        substr(str_pad((int) $funding['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
                         substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+                    break;
+                // outgoing payments
+                case 'invoice':
+                    // by convention, references for purchase invoices start with '9'
+                    // this reference might be overwritten by the reference given by the supplier
+                    $reference = sprintf("9%09d", $funding['purchase_invoice_id']);
                     break;
                 case 'refund':
-                    // by convention, references for refunds start with '6'
-                    $reference = sprintf("6%09d", $funding['money_refund_id']);
+                    // by convention, references for refunds start with '8'
+                    $reference = sprintf("8%09d", $funding['money_refund_id']);
                     break;
                 case 'transfer':
                     // by convention, references for money transfers start with '7'
                     $reference = sprintf("7%09d", $funding['money_transfer_id']);
-                    break;
-                case 'invoice':
-                    // by convention, references for purchase invoices start with '8'
-                    $reference = sprintf("8%09d", $funding['purchase_invoice_id']);
-                    break;
-                case 'misc':
-                    // by convention, references for misc operations start with '9'
-                    $reference = sprintf("9%09d", $funding['misc_operation_id']);
                     break;
                 case 'installment':
                     // #memo - non relevant here

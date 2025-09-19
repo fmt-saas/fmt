@@ -92,7 +92,7 @@ class Payment extends \sale\pay\Payment {
         $self->read([
                 'status',
                 'bank_statement_line_id' => ['bank_statement_id'],
-                'funding_id' => ['counterpart_accounting_account_id']
+                'funding_id' => ['accounting_account_id']
             ]);
 
         foreach($self as $id => $payment) {
@@ -109,7 +109,7 @@ class Payment extends \sale\pay\Payment {
                 continue;
             }
 
-            if( !($payment['funding_id']['counterpart_accounting_account_id'] ?? null) ) {
+            if( !($payment['funding_id']['accounting_account_id'] ?? null) ) {
                 $result[$id] = [
                     'missing_mandatory_counterpart_account' => 'Payment (via Funding) not linked to counterpart accounting account.'
                 ];
@@ -137,7 +137,7 @@ class Payment extends \sale\pay\Payment {
                     'id', 'bank_statement_id'
                 ],
                 'funding_id' => [
-                    'counterpart_accounting_account_id'
+                    'accounting_account_id'
                 ]
             ]);
 
@@ -156,7 +156,7 @@ class Payment extends \sale\pay\Payment {
             }
 
             $debit_account_id = $bankAccount['accounting_account_id'];
-            $credit_account_id = $payment['funding_id']['counterpart_accounting_account_id'];
+            $credit_account_id = $payment['funding_id']['accounting_account_id'];
 
             $amount = round($payment['amount'], 2);
 

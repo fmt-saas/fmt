@@ -16,6 +16,11 @@
             },
             {
                 "type": "field",
+                "value": "accounting_account",
+                "width": "16%"
+            },
+            {
+                "type": "field",
                 "value": "matching_type",
                 "width": "16%"
             },

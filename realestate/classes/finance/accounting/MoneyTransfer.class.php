@@ -370,7 +370,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     'due_amount'                        => -$moneyTransfer['amount'],
                     'bank_account_id'                   => $moneyTransfer['bank_account_id']['id'],
                     'counterpart_bank_account_id'       => $moneyTransfer['counterpart_bank_account_id']['id'],
-                    'counterpart_accounting_account_id' => $moneyTransfer['counterpart_bank_account_id']['accounting_account_id'],
+                    'accounting_account_id' => $moneyTransfer['counterpart_bank_account_id']['accounting_account_id'],
                     // #todo - allow custom with setting
                     'due_date'                          => time() + 10 * 86400,
                     // #memo - payment_reference is a computed field
@@ -383,7 +383,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     'due_amount'                        => $moneyTransfer['amount'],
                     'bank_account_id'                   => $moneyTransfer['counterpart_bank_account_id']['id'],
                     'counterpart_bank_account_id'       => $moneyTransfer['bank_account_id']['id'],
-                    'counterpart_accounting_account_id' => $moneyTransfer['bank_account_id']['accounting_account_id'],
+                    'accounting_account_id' => $moneyTransfer['bank_account_id']['accounting_account_id'],
                     // #todo - allow custom with setting
                     'due_date'                          => time() + 10 * 86400,
                     // #memo - payment_reference is a computed field

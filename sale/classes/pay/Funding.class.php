@@ -39,9 +39,9 @@ class Funding extends \finance\accounting\Matching {
                 'dependents'        => ['paid_amount', 'remaining_amount', 'is_paid']
             ],
 
-            'accounting_entries_ids' => [
+            'accounting_entry_lines_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'foreign_object'    => 'finance\accounting\AccountingEntryLine',
                 'description'       => "Accounting entry of the Matching.",
                 'domain'            => [
                     ['condo_id', '=', 'object.condo_id'],
@@ -118,7 +118,7 @@ class Funding extends \finance\accounting\Matching {
                 'instant'           => true
             ],
 
-            'counterpart_accounting_account_id' => [
+            'accounting_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Target accounting account that will be impacted by the movement (expected payments).",

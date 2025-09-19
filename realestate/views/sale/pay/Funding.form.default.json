@@ -209,8 +209,8 @@
                         ]
                     },
                     {
-                        "id": "section.accounting_entries",
-                        "label": "Accounting Entries",
+                        "id": "section.accounting_entry_lines",
+                        "label": "Accounting Records",
                         "rows": [
                             {
                                 "columns": [
@@ -219,7 +219,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "accounting_entries_ids",
+                                                "value": "accounting_entry_lines_ids",
                                                 "width": "100%",
                                                 "widget": {
                                                     "view": "list.default"
