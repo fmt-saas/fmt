@@ -32,16 +32,6 @@ $tests = [
                         ->read(['accounting_account_id'])
                         ->first();
 
-                        /*
-                        on peut faire la même chose mais directement avec une  accounting entry
-
-journal des OD (misc)
-entry
-records/lines
-validate
-
-
-                        */
                     $journal = Journal::search([['condo_id', '=', 1],['journal_type', '=', 'MISC']])->first();
 
                     $miscOperation = AccountingEntry::create([
