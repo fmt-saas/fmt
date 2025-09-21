@@ -66,7 +66,7 @@ class BankStatementLine extends Model {
                 'foreign_field'     => 'bank_statement_line_id',
                 'description'       => 'The list of payments this line relates to.',
                 'ondetach'          => 'delete',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'],['condo_id', '<>', null]]
             ],
 
             'date' => [
@@ -308,6 +308,13 @@ class BankStatementLine extends Model {
                 'visible'           => [['is_supplier', '=', true]]
             ],
 
+            'accounting_entry_lines_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\AccountingEntryLine',
+                'foreign_field'     => 'bank_statement_line_id',
+                'description'       => "Accounting entries linked to the statement line."
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -345,11 +352,6 @@ class BankStatementLine extends Model {
                 'description'   => 'Attempts to find a suitable Funding and, if so, creates a Payment to link the line to it.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
                 'function'      => 'doAttemptReconcile'
-            ],
-            'validate' => [
-                'description'   => 'Validates the bank statement line and sets its status to `posted`.',
-                'policies'      => [/* 'can_generate_accounting_entry' */],
-                'function'      => 'doValidate'
             ],
             'reconcile_with_funding' => [
                 'description'   => 'Creates Funding and related Payment that use the Bank Statement line itself as accounting document.',
@@ -412,8 +414,8 @@ class BankStatementLine extends Model {
             foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
                 // Find the accounting document linked to the funding, if it is not posted, post it (in this case, the post should always work)
                 // #memo - this could result in 'posting' the current line
-                Funding::id($payment['funding_id'])->do('attempt_post_accounting_document');
-                Payment::id($payment_id)->do('post');
+                // Funding::id($payment['funding_id'])->do('attempt_post_accounting_document');
+                Payment::id($payment_id)->transition('post');
             }
 
             // si on a un accounting_account_id et un matching_id, on créée directement l'écriture
@@ -980,7 +982,7 @@ class BankStatementLine extends Model {
                 continue;
             }
 
-            if(!self::isReconciled($id)) {
+            if(!self::computeIsReconciled($id)) {
                 $result[$id] = [
                     'invalid_reconcile_state' => 'Only reconciled bank statement lines can be posted.'
                 ];
@@ -1016,28 +1018,14 @@ class BankStatementLine extends Model {
                 continue;
             }
 
-            if($bankStatementLine['payments_ids']->count() > 1) {
-                $result[$id] = [
-                    'invalid_status' => 'Only bank statement line with a single payment can be posted.'
-                ];
-                continue;
-            }
-
             foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
-                $funding = Funding::id($payment['funding_id'])->read(['funding_type'])->first();
+                $funding = Funding::id($payment['funding_id'])->first();
                 if(!$funding) {
                     $result[$id] = [
                         'missing_mandatory_funding' => 'Unexpected statement line not linked to any funding.'
                     ];
                     continue 2;
                 }
-                if($funding['funding_type'] !== 'statement_line') {
-                    $result[$id] = [
-                        'invalid_target_funding' => 'Only bank statement lines targeting a statement_line Funding can be posted.'
-                    ];
-                    continue 2;
-                }
-
             }
 
             $bankStatement = BankStatement::id($bankStatementLine['bank_statement_id'])
@@ -1053,7 +1041,7 @@ class BankStatementLine extends Model {
                 continue;
             }
 
-            if(!$bankAccount['condo_id'] != $bankStatementLine['condo_id']) {
+            if($bankAccount['condo_id'] != $bankStatementLine['condo_id']) {
                 $result[$id] = [
                     'mismatch_bank_account_with_condominium' => 'Bank Statement IBAN not amongst targeted Condominium bank accounts.'
                 ];
@@ -1101,9 +1089,6 @@ class BankStatementLine extends Model {
     }
 
     /**
-     * There are two types of situations:
-     *   - either a funding existed prior to the creation of the payment
-     *   - or both the payment and the funding were created together (in this case, the document is the BankStatementLine)
      *
      * In the case where the BankStatementLine is considered as the original accounting document, it is responsible for generating the accounting entry.
      * Otherwise, the accounting document was pre-existing and the entries were already generated.
@@ -1112,7 +1097,6 @@ class BankStatementLine extends Model {
      */
     protected static function doGenerateAccountingEntry($self) {
 
-/*
         $self->read([
                 'condo_id',
                 'bank_statement_id' => ['bank_account_id'],
@@ -1122,13 +1106,11 @@ class BankStatementLine extends Model {
                     'receipt_date',
                     'fiscal_year_id',
                     'fiscal_period_id',
-                    'accounting_account_id',
                     'funding_id' => [
-                        'funding_type',
+                        'due_amount',
+                        'bank_account_id',
                         'ownership_id',
                         'suppliership_id',
-                        'bank_account_id',
-                        'counterpart_bank_account_id',
                         'accounting_account_id'
                     ]
                 ]
@@ -1142,77 +1124,10 @@ class BankStatementLine extends Model {
 
                     $funding = $payment['funding_id'];
 
-                    if($funding['funding_type'] !== 'statement_line') {
-                        continue;
-                    }
+                    $bankAccount = CondominiumBankAccount::id($funding['bank_account_id'])->read(['accounting_account_id'])->first();
+                    $debit_account_id = $bankAccount['accounting_account_id'];
+                    $credit_account_id = $funding['accounting_account_id'];
 
-                    if($payment['funding_id']['suppliership_id'] || $payment['funding_id']['ownership_id']) {
-                        // le journal va dépendre du type d'opération
-                        if($payment['funding_id']['ownership_id']) {
-                            $journal = Journal::search([['condo_id', '=', $bankStatementLine['condo_id']], ['journal_type', '=', 'SALE']])->first();
-                            // sale invoice : payment from an owner
-                            $ownershipAccount = Account::search([
-                                    ['condo_id', '=', $bankStatementLine['condo_id']],
-                                    ['ownership_id', '=', $funding['ownership_id']]
-                                ])
-                                ->first();
-
-                            if(!$ownershipAccount) {
-                                throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
-                            }
-                            $debit_account_id = $ownershipAccount['id'];
-                            $credit_account_id = $funding['accounting_account_id'];
-
-                        }
-                        elseif($payment['funding_id']['suppliership_id']) {
-                            $journal = Journal::search([['condo_id', '=', $bankStatementLine['condo_id']], ['journal_type', '=', 'PURC']])->first();
-                            // purchase invoice : payment to the supplier
-                            $suppliershipAccount = Account::search([
-                                    ['condo_id', '=', $bankStatementLine['condo_id']],
-                                    ['suppliership_id', '=', $funding['suppliership_id']]
-                                ])
-                                ->first();
-
-                            if(!$suppliershipAccount) {
-                                throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
-                            }
-                            $credit_account_id = $suppliershipAccount['id'];
-                            $debit_account_id = $funding['accounting_account_id'];
-                        }
-
-                    }
-                    // expense / income
-                    else {
-                        // cas supportés
-                        // 614 -> charge négative du remboursemement : dans ce cas, on n'a pas de counterpart_account_id
-                            // --> au moment de la création du Payment -> directement sur le compte de contrepartie, et ici, on ignore
-                        // si compte accounting_account_id = frais banquaires (65)
-                        //      -> le suppliership est la banque du condo (correspondant au compte bancaire)
-                        $bankAccount = CondominiumBankAccount::id($bankStatementLine['bank_statement_id']['bank_account_id'])->read(['bank_id'])->first();
-                        if($bankAccount) {
-                            throw new \Exception('missing_bank_account_for_condo', EQ_ERROR_INVALID_PARAM);
-                        }
-                        $suppliership = Suppliership::search([['condo_id', '=', $bankStatementLine['condo_id']], ['supplier_id', '=', $bankAccount['bank_id']]])->first();
-                        if(!$suppliership) {
-                            throw new \Exception('missing_suppliership_for_bank', EQ_ERROR_INVALID_PARAM);
-                        }
-
-                        // purchase invoice : payment to the supplier
-                        $suppliershipAccount = Account::search([
-                                ['condo_id', '=', $bankStatementLine['condo_id']],
-                                ['suppliership_id', '=', $suppliership['id']]
-                            ])
-                            ->first();
-
-                        if(!$suppliershipAccount) {
-                            throw new \Exception('missing_bank_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
-                        }
-
-                        $credit_account_id = $suppliershipAccount['id'];
-                        $debit_account_id = $funding['accounting_account_id'];
-
-                        // la répartition se fait sur les types d'entrées comptables, directement basé sur les frais (? et les rentrées - comptes 7)
-                    }
 
                     $amount = round($payment['amount'], 2);
 
@@ -1221,7 +1136,7 @@ class BankStatementLine extends Model {
                             'entry_date'            => $payment['receipt_date'],
                             'origin_object_class'   => self::getType(),
                             'origin_object_id'      => $id,
-                            'journal_id'            => $journal['id']
+                            'journal_id'            => $payment['id']
                         ])
                         ->first();
 
@@ -1232,7 +1147,7 @@ class BankStatementLine extends Model {
                             'debit'                  => $amount > 0 ? abs($amount) : 0,
                             'credit'                 => $amount < 0 ? abs($amount) : 0,
                             'accounting_entry_id'    => $accountingEntry['id'],
-                            'bank_statement_line_id' => $id,
+                            'bank_statement_line_id' => $id
                         ]);
 
                     // credit line
@@ -1241,17 +1156,26 @@ class BankStatementLine extends Model {
                             'account_id'             => $credit_account_id,
                             'debit'                  => $amount < 0 ? abs($amount) : 0,
                             'credit'                 => $amount > 0 ? abs($amount) : 0,
+                            'matching_id'            => $funding['id'],
                             'accounting_entry_id'    => $accountingEntry['id'],
-                            'bank_statement_line_id' => $id,
+                            'bank_statement_line_id' => $id
                         ]);
+
+                    // instant validation of the created accounting entry
+                    AccountingEntry::id($accountingEntry['id'])->transition('validate');
+
+                    // Store the created accounting entry ID back to the payment
+                    Payment::id($payment_id)->update(['accounting_entry_id' => $accountingEntry['id']]);
 
                 }
                 catch(\Exception $e) {
                     trigger_error("APP::doGenerateAccountingEntry: Error while creating accounting entries for Bank Statement Line #{$id} : " . $e->getMessage(), EQ_REPORT_ERROR);
                 }
+
+
             }
         }
-*/
+
     }
 
     public static function onafterupdate($self) {

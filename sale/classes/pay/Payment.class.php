@@ -12,6 +12,7 @@ use finance\accounting\Account;
 use finance\accounting\AccountingEntry;
 use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
+use finance\accounting\Journal;
 use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
 class Payment extends Model {
@@ -28,7 +29,8 @@ class Payment extends Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the payment relates to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'readonly'          => true
+                'readonly'          => true,
+                'dependents'        => ['journal_id']
             ],
 
             'ownership_id' => [
@@ -38,6 +40,16 @@ class Payment extends Model {
                 'ondelete'          => 'cascade',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'readonly'          => true
+            ],
+
+            'journal_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\Journal',
+                'function'          => 'calcJournalId',
+                'description'       => "The BANK accounting journal according to Condominium.",
+                'readonly'          => true,
+                'store'             => true
             ],
 
             'customer_id' => [
@@ -195,6 +207,18 @@ class Payment extends Model {
                 BankStatement::id($payment['bank_statement_line_id'])->update(['remaining_amount' => null]);
             }
         }
+    }
+
+    protected static function calcJournalId($self) {
+        $result = [];
+        $self->read(['condo_id']);
+        foreach($self as $id => $payment) {
+            $journal = Journal::search([['condo_id', '=', $payment['condo_id']], ['journal_type', '=', 'BANK']])->first();
+            if($journal) {
+                $result[$id] = $journal['id'];
+            }
+        }
+        return $result;
     }
 
     public static function onchange($event, $values) {

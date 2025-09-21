@@ -101,7 +101,15 @@
                                                 "value": "reverse_entry_id",
                                                 "width": "50%",
                                                 "visible": ["status", "=", "cancelled"]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "help": "#todo - temp -to remove",
+                                                "label": "origin object",
+                                                "value": "origin_object_class",
+                                                "width": "50%"
                                             }
+
                                         ]
                                     }
                                 ]

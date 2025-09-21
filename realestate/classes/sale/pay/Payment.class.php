@@ -60,21 +60,10 @@ class Payment extends \sale\pay\Payment {
                 'transitions' => [
                     'post' => [
                         'description' => 'Update the payment status to `payment`.',
-                        'onbefore'    => 'onbeforePost',
                         'onafter'     => 'onafterPost',
                         'status'      => 'posted'
                     ]
                 ]
-            ]
-        ];
-    }
-
-    public static function getActions() {
-        return [
-            'generate_accounting_entry' => [
-                'description'   => 'Creates accounting entries according to operation lines.',
-                'policies'      => [ 'can_generate_accounting_entry' ],
-                'function'      => 'doGenerateAccountingEntry'
             ]
         ];
     }
@@ -121,95 +110,11 @@ class Payment extends \sale\pay\Payment {
         return $result;
     }
 
-    protected static function onbeforePost($self) {
-        $self->do('generate_accounting_entry');
-    }
-
     protected static function onafterPost($self) {
         $self->read(['funding_id']);
         foreach($self as $id => $payment) {
             Funding::id($payment['funding_id'])->do('refresh_status');
         }
     }
-
-    protected static function doGenerateAccountingEntry($self) {
-        $self->read([
-                'condo_id',
-                'amount',
-                'journal_id',
-                'receipt_date',
-                'fiscal_year_id',
-                'fiscal_period_id',
-                'receipt_bank_account_id',
-                'bank_statement_line_id' => [
-                    'id', 'bank_statement_id'
-                ],
-                'funding_id' => [
-                    'accounting_account_id'
-                ]
-            ]);
-
-        foreach($self as $id => $payment) {
-            // #memo - the receipt bank account should match the bank statement bank account
-            $bankAccount = CondominiumBankAccount::id($payment['receipt_bank_account_id'])->read(['accounting_account_id'])->first();
-
-            if(!$bankAccount) {
-                throw new \Exception('missing_bank_account', EQ_ERROR_INVALID_CONFIG);
-            }
-
-            $bankJournal = Journal::search([['journal_type', '=', 'BANK'], ['condo_id', '=', $payment['condo_id']]])->first();
-
-            if(!$bankJournal) {
-                throw new \Exception('missing_bank_journal', EQ_ERROR_INVALID_CONFIG);
-            }
-
-            $debit_account_id = $bankAccount['accounting_account_id'];
-            $credit_account_id = $payment['funding_id']['accounting_account_id'];
-
-            $amount = round($payment['amount'], 2);
-
-            $accountingEntry = AccountingEntry::create([
-                    'condo_id'                  => $payment['condo_id'],
-                    'entry_date'                => $payment['receipt_date'],
-                    'origin_object_class'       => self::getType(),
-                    'origin_object_id'          => $id,
-                    'journal_id'                => $bankJournal['id'],
-                    'bank_statement_line_id'    => $payment['bank_statement_line_id']['id'],
-                    'bank_statement_id'         => $payment['bank_statement_line_id']['bank_statement_id'],
-                ])
-                ->first();
-
-            // #memo - debit & credit assignment might be inverted if amount is negative
-
-            // debit line
-            AccountingEntryLine::create([
-                    'condo_id'               => $payment['condo_id'],
-                    'account_id'             => $debit_account_id,
-                    'debit'                  => $amount > 0 ? abs($amount) : 0,
-                    'credit'                 => $amount < 0 ? abs($amount) : 0,
-                    'accounting_entry_id'    => $accountingEntry['id'],
-                    'bank_statement_line_id' => $id,
-                ]);
-
-            // credit line
-            AccountingEntryLine::create([
-                    'condo_id'               => $payment['condo_id'],
-                    'account_id'             => $credit_account_id,
-                    'matching_id'               => $payment['funding_id']['id'],
-                    'debit'                  => $amount < 0 ? abs($amount) : 0,
-                    'credit'                 => $amount > 0 ? abs($amount) : 0,
-                    'accounting_entry_id'    => $accountingEntry['id'],
-                    'bank_statement_line_id' => $id,
-                ]);
-
-            // instant validation of the created accounting entry
-            AccountingEntry::id($accountingEntry['id'])->transition('validate');
-
-            // Store the created accounting entry ID back to the payment
-            self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
-        }
-    }
-
-
 
 }

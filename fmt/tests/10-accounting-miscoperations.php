@@ -5,11 +5,14 @@
     Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use finance\accounting\Journal;
 use finance\accounting\MiscOperation;
 use finance\accounting\MiscOperationLine;
 use finance\bank\BankStatement;
 use finance\bank\BankStatementImport;
 use finance\bank\CondominiumBankAccount;
+use realestate\finance\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntryLine;
 use realestate\finance\accounting\MoneyTransfer;
 
 $providers = eQual::inject(['context', 'orm', 'auth', 'access']);
@@ -29,35 +32,46 @@ $tests = [
                         ->read(['accounting_account_id'])
                         ->first();
 
-                    $miscOperation = MiscOperation::create([
+                        /*
+                        on peut faire la même chose mais directement avec une  accounting entry
+
+journal des OD (misc)
+entry
+records/lines
+validate
+
+
+                        */
+                    $journal = Journal::search([['condo_id', '=', 11],['journal_type', '=', 'MISC']])->first();
+
+                    $miscOperation = AccountingEntry::create([
                             'condo_id'          => 1,
                             'description'       => 'reprise de compte epargne',
-                            'posting_date'      => strtotime('2024-01-01T00:00:00Z'),
-                            'journal_id'        => 11,
+                            'entry_date'        => strtotime('2024-01-01T00:00:00Z'),
+                            'journal_id'        => $journal['id'],
                             'operation_type'    => 'misc'
                         ])
                         ->first();
 
-                    MiscOperationLine::create([
-                            'condo_id'          => 1,
-                            'misc_operation_id' => $miscOperation['id'],
-                            'account_id'        => 676,
-                            'credit'            => 5000
+                    AccountingEntryLine::create([
+                            'condo_id'              => 1,
+                            'accounting_entry_id'   => $miscOperation['id'],
+                            'account_id'            => 676,
+                            'credit'                => 5000
                         ]);
 
-                    MiscOperationLine::create([
-                            'condo_id'          => 1,
-                            'misc_operation_id' => $miscOperation['id'],
-                            'account_id'        => $bankAccount['accounting_account_id'],
-                            'debit'             => 5000
+                    AccountingEntryLine::create([
+                            'condo_id'              => 1,
+                            'accounting_entry_id'   => $miscOperation['id'],
+                            'account_id'            => $bankAccount['accounting_account_id'],
+                            'debit'                 => 5000
                         ]);
 
                     return $miscOperation;
                 },
             'act'               => function($miscOperation) use($providers) {
-                    MiscOperation::id($miscOperation['id'])
-                        ->transition('publish')
-                        ->transition('post');
+                    AccountingEntry::id($miscOperation['id'])
+                        ->transition('validate');
                 },
             'assert'            => function() use($providers) {
                     $bankAccount = CondominiumBankAccount::search([['condo_id', '=', 1], ['bank_account_type', '=', 'bank_savings']])

@@ -24,14 +24,14 @@
             "id": "action.validate",
             "label": "Validate",
             "description": "Validate the statement line.",
-            "controller": "core_model_do",
+            "controller": "core_model_transition",
             "visible": [
                 ["status", "=", "pending"],
                 ["is_reconciled", "=", true]
             ],
             "params": {
                 "entity": "finance\\bank\\BankStatementLine",
-                "action": "validate",
+                "transition": "post",
                 "ids": []
             },
             "confirm": true
@@ -278,7 +278,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "accounting_entries_ids",
+                                                "value": "accounting_entry_lines_ids",
                                                 "width": "100%",
                                                 "widget": {
                                                     "view": "list.default"

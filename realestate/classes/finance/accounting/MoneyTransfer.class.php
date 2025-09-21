@@ -96,17 +96,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'description'       => 'Amount to be transferred.',
             ],
 
-            'journal_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'foreign_object'    => 'finance\accounting\Journal',
-                'description'       => 'Accounting journal used for the Money Transfer.',
-                'help'              => 'Money transfer between internal accounts is a bank operation and is always put in the BNK/FIN journal.',
-                'store'             => true,
-                'function'          => 'calcJournalId',
-                'readonly'          => true
-            ],
-
             'posting_date' => [
                 'type'              => 'date',
                 'description'       => 'Date the operation is posted in the accounting system.',
@@ -170,7 +159,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                         'description' => 'Update the document to `completed`.',
                         'help'        => 'This transition is used to post the money transfer, after a bank statement has been integrated. It creates the accounting entries and fundings necessary to track the transfer.',
                         'policies'    => ['can_post'],
-                        'onbefore'     => 'onbeforePost',
                         'status'      => 'posted'
                     ]
                 ]
@@ -180,11 +168,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
     public static function getActions() {
         return array_merge(parent::getActions(), [
-            'generate_accounting_entry' => [
-                'description'   => 'Creates accounting entries according to operation lines.',
-                'policies'      => [],
-                'function'      => 'doGenerateAccountingEntry'
-            ],
             'create_fundings' => [
                 'description'   => 'Creates a funding for the transfer followup.',
                 'policies'      => [/* 'can_generate_fundings' */],
@@ -304,33 +287,16 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return $result;
     }
 
-    // #todo - this should not occur - raise an alert if it does
     protected static function policyCanPost($self): array {
         $result = [];
-        $self->read(['status', 'condo_id', 'amount', 'bank_account_id' => ['current_balance']]);
+        $self->read(['status', 'condo_id', 'fundings_ids' => ['status']]);
         foreach($self as $id => $moneyTransfer) {
-            if($moneyTransfer['bank_account_id']['current_balance'] < $moneyTransfer['amount']) {
-                /*
-                $result[$id] = [
-                    'insufficient_funds' => 'The origin account has not enough funds.'
-                ];
-                */
-            }
-        }
-        return $result;
-    }
-
-    protected static function calcJournalId($self) {
-        $result = [];
-        $self->read(['condo_id']);
-        foreach($self as $id => $moneyTransfer) {
-            if(!$moneyTransfer['condo_id']) {
-                continue;
-            }
-            $journal = Journal::search([['condo_id', '=', $moneyTransfer['condo_id']], ['journal_type', '=', 'BANK']])->first();
-
-            if($journal) {
-                $result[$id] = $journal['id'];
+            foreach($moneyTransfer['fundings_ids'] as $funding_id => $funding) {
+                if($funding['status'] !== 'balanced') {
+                    $result[$id] = [
+                        'funding_not_balanced' => "Money Transfer cannot be validated while bank statement havent' been received and processed."
+                    ];
+                }
             }
         }
         return $result;
@@ -354,6 +320,11 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return $result;
     }
 
+    /**
+     * Generate fundings materializing the MoneyTransfer.
+     *
+     * #memo - this operation will result in 2 bank statements lines on 2 distinct bank statements (one for each involved bank account)
+     */
     protected static function doCreateFundings($self) {
         $self->read([
                 'condo_id',
@@ -361,8 +332,12 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'bank_account_id' => ['accounting_account_id'],
                 'counterpart_bank_account_id' => ['accounting_account_id']
             ]);
-        // #memo - this operation will result in 2 bank statements lines on 2 distinct bank statements (one for each involved bank account)
+
         foreach($self as $id => $moneyTransfer) {
+
+            // retrieve bank transfers accounting account
+            $bankTransferAccount = Account::search([ ['condo_id', '=', $moneyTransfer['condo_id']], ['operation_assignment', '=', 'bank_transfer'] ])->first();
+
             Funding::create([
                     'condo_id'                          => $moneyTransfer['condo_id'],
                     'money_transfer_id'                 => $id,
@@ -370,7 +345,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     'due_amount'                        => -$moneyTransfer['amount'],
                     'bank_account_id'                   => $moneyTransfer['bank_account_id']['id'],
                     'counterpart_bank_account_id'       => $moneyTransfer['counterpart_bank_account_id']['id'],
-                    'accounting_account_id' => $moneyTransfer['counterpart_bank_account_id']['accounting_account_id'],
+                    'accounting_account_id'             => $bankTransferAccount['id'],
                     // #todo - allow custom with setting
                     'due_date'                          => time() + 10 * 86400,
                     // #memo - payment_reference is a computed field
@@ -383,75 +358,11 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     'due_amount'                        => $moneyTransfer['amount'],
                     'bank_account_id'                   => $moneyTransfer['counterpart_bank_account_id']['id'],
                     'counterpart_bank_account_id'       => $moneyTransfer['bank_account_id']['id'],
-                    'accounting_account_id' => $moneyTransfer['bank_account_id']['accounting_account_id'],
+                    'accounting_account_id'             => $bankTransferAccount['id'],
                     // #todo - allow custom with setting
                     'due_date'                          => time() + 10 * 86400,
                     // #memo - payment_reference is a computed field
                 ]);
-        }
-    }
-
-
-    /**
-     * Fund transfers are a specific case for which an automatic entry must be made after the reception of bank statements, which may be deferred.
-     * This is to maintain the consistency of accounting operations (without "gaps" in the tracking of fund movements).
-     */
-    protected static function doGenerateAccountingEntry($self) {
-        $self->read([
-                'condo_id', 'amount', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
-                'bank_account_id' => ['accounting_account_id'],
-                'counterpart_bank_account_id' => ['accounting_account_id']
-            ]);
-
-        foreach($self as $id => $moneyTransfer) {
-
-            $funding = Funding::search([
-                    ['condo_id', '=', $moneyTransfer['condo_id']],
-                    ['money_transfer_id', '=', $id],
-                    ['bank_account_id', '=', $moneyTransfer['bank_account_id']['id']]
-                ])
-                ->first();
-
-            try {
-                $accountingEntry = AccountingEntry::create([
-                        'condo_id'              => $moneyTransfer['condo_id'],
-                        'entry_date'            => $moneyTransfer['posting_date'],
-                        'origin_object_class'   => self::getType(),
-                        'origin_object_id'      => $id,
-                        'journal_id'            => $moneyTransfer['journal_id'],
-                        'matching_id'           => $funding['id'],
-                        'fiscal_year_id'        => $moneyTransfer['fiscal_year_id'],
-                        'fiscal_period_id'      => $moneyTransfer['fiscal_period_id']
-                    ])
-                    ->first();
-
-                AccountingEntryLine::create([
-                        'account_id'            => $moneyTransfer['bank_account_id']['accounting_account_id'],
-                        'debit'                 => 0.0,
-                        'credit'                => $moneyTransfer['amount'],
-                        'accounting_entry_id'   => $accountingEntry['id']
-                    ]);
-
-                AccountingEntryLine::create([
-                        'account_id'            => $moneyTransfer['counterpart_bank_account_id']['accounting_account_id'],
-                        'debit'                 => $moneyTransfer['amount'],
-                        'credit'                => 0.0,
-                        'accounting_entry_id'   => $accountingEntry['id']
-                    ]);
-
-                AccountingEntry::id($accountingEntry['id'])->transition('validate');
-
-                // Store the created accounting entry ID back to the misc operation
-                self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
-            }
-            catch(\Exception $e) {
-                trigger_error("APP::Unexpected error while creating accounting entry: " . $e->getMessage(), EQ_REPORT_WARNING);
-                // rollback
-                if(isset($accountingEntry)) {
-                    AccountingEntry::id($accountingEntry['id'])->delete(true);
-                }
-                throw new \Exception('unexpected_error', EQ_ERROR_UNKNOWN);
-            }
         }
     }
 
@@ -558,10 +469,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
     protected static function onafterPublish($self) {
         $self->do('create_fundings');
-    }
-
-    protected static function onbeforePost($self) {
-        $self->do('generate_accounting_entry');
     }
 
 }

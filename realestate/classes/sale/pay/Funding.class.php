@@ -211,62 +211,8 @@ class Funding extends \sale\pay\Funding {
                 'description'   => 'Update status according to currently paid amount.',
                 'policies'      => [],
                 'function'      => 'doRefreshStatus'
-            ],
-            'attempt_post_accounting_document' => [
-                'description'   => 'Retrieve the associated accounting document and post it, if not posted yet.',
-                'policies'      => [],
-                'function'      => 'doAttemptPostAccountingDocument'
             ]
-
         ]);
-    }
-
-
-    protected static function doAttemptPostAccountingDocument($self) {
-        $self->read([
-                'status',
-                'funding_type',
-                'money_transfer_id',
-                'money_refund_id',
-                'misc_operation_id',
-                'bank_statement_line_id',
-            ]);
-
-        foreach($self as $id => $funding) {
-            if($funding['status'] === 'balanced') {
-                continue;
-            }
-
-            $operations = null;
-
-            switch($funding['funding_type']) {
-                // these accounting documents are posted independently from the Funding
-                case 'fund_request':
-                case 'expense_statement':
-                case 'purchase_invoice':
-                    break;
-                case 'transfer':
-                    $operations = MoneyTransfer::id($funding['bank_statemoney_transfer_idment_line_id'])->read(['status']);
-                    break;
-                case 'refund':
-                    $operations = MoneyRefund::id($funding['money_refund_id'])->read(['status']);
-                    break;
-                case 'statement_line':
-                    $operations = BankStatementLine::id($funding['bank_statement_line_id'])->read(['status']);
-                    break;
-                case 'misc':
-                    $operations = MiscOperation::id($funding['misc_operation_id'])->read(['status']);
-                    break;
-            }
-
-            if($operations) {
-                $operation = $operations->first();
-                if($operation['status'] !== 'posted') {
-                    $operations->transition('post');
-                }
-            }
-
-        }
     }
 
     protected static function calcName($self) {

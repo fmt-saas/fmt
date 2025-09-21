@@ -151,6 +151,14 @@ class AccountingEntryLine extends Model {
                 'dependents'        => ['accounting_entry_id' => 'credit']
             ],
 
+            'bank_statement_line_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankStatementLine',
+                'description'       => 'Bank Statement line the entry line relates to, if any.',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
         ];
     }
 
@@ -203,12 +211,15 @@ class AccountingEntryLine extends Model {
 
     protected static function calcMatchingLevel($self) {
         $result = [];
-        $self->read(['matching_id' => ['is_balanced']]);
-        foreach($self as $id => $accountingEntry) {
+        $self->read(['accounting_entry_id' => ['status'], 'matching_id' => ['is_balanced']]);
+        foreach($self as $id => $accountingEntryLine) {
+            if($accountingEntryLine['accounting_entry_id'] !== 'validated') {
+                continue;
+            }
             $result[$id] = 'none';
-            if($accountingEntry['matching_id']) {
+            if($accountingEntryLine['matching_id']) {
                 $result[$id] = 'part';
-                if($accountingEntry['matching_id']['is_balanced']) {
+                if($accountingEntryLine['matching_id']['is_balanced']) {
                     $result[$id] = 'full';
                 }
             }

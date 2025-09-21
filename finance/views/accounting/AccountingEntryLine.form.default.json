@@ -14,17 +14,27 @@
                                             {
                                                 "type": "field",
                                                 "value": "accounting_entry_id",
-                                                "width": "50%"
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "name",
+                                                "width": "66%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "account_id",
                                                 "width": "50%"
                                             },
+{
+                                                "type": "field",
+                                                "value": "debit",
+                                                "width": "25%"
+                                            },
                                             {
                                                 "type": "field",
-                                                "value": "name",
-                                                "width": "100%"
+                                                "value": "credit",
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
@@ -35,17 +45,21 @@
                                         ]
                                     },
                                     {
-                                        "width": "50%",
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "debit",
-                                                "width": "50%"
+                                                "value": "matching_id",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "credit",
-                                                "width": "50%"
+                                                "value": "matching_level",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

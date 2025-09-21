@@ -222,7 +222,9 @@ class AccountingEntry extends Model {
                 ],
                 'default'           => 'pending',
                 'description'       => 'Status of the accounting entry.',
-                'help'              => 'Pending entries are not actual accounting entries but `drafts` that can be created and modified without impacting Balance. Once an accounting entry has been validated, it cannot be removed. It can however, be cancelled through a reverse entry. Planned entries are system entries and can never be removed manually (only through source document cancellation).',
+                'help'              => 'Pending entries are not actual accounting entries but `drafts` that can be created and modified without impacting Balance.
+                    Once an accounting entry has been validated, it cannot be removed. It can however, be cancelled through a reverse entry.
+                    Planned entries are system entries and can never be removed manually (only through source document cancellation).',
                 'dependents'        => ['name']
             ]
 

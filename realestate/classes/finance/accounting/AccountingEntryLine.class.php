@@ -38,14 +38,6 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
-            'bank_statement_line_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\bank\BankStatementLine',
-                'description'       => 'Bank Statement line the entry line relates to, if any.',
-                'readonly'          => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id']
-            ],
-
         ];
     }
 

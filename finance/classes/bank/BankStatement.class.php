@@ -319,7 +319,7 @@ class BankStatement extends Model {
             try {
                 // relay post to BankStatementLines
                 // #memo - this triggers a cascade event `attempt_posting` on Funding and related documents
-                BankStatementLine::ids($bankStatement['statement_lines_ids'])->do('validate');
+                BankStatementLine::ids($bankStatement['statement_lines_ids'])->transition('post');
             }
             catch(\Exception $e) {
                 // ignore already published payments

@@ -92,7 +92,6 @@ class MiscOperation extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => 'Accounting journal used for this miscellaneous operation.',
-                'required'          => true,
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['journal_type', '=', 'MISC']]
             ],
 

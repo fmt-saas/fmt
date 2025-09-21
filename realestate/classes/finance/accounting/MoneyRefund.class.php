@@ -387,7 +387,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                     'due_amount'                        => -$moneyRefund['amount'],
                     'bank_account_id'                   => $moneyRefund['bank_account_id'],
                     'counterpart_bank_account_id'       => $moneyRefund['counterpart_bank_account_id'],
-                    'accounting_account_id' => $counterpartAccount['id'],
+                    'accounting_account_id'             => $counterpartAccount['id'],
                     // #todo - allow custom with setting
                     'due_date'                          => time() + 10 * 86400
                 ]);
