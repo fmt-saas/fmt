@@ -42,7 +42,7 @@ validate
 
 
                         */
-                    $journal = Journal::search([['condo_id', '=', 11],['journal_type', '=', 'MISC']])->first();
+                    $journal = Journal::search([['condo_id', '=', 1],['journal_type', '=', 'MISC']])->first();
 
                     $miscOperation = AccountingEntry::create([
                             'condo_id'          => 1,
