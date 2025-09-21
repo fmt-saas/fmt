@@ -38,8 +38,7 @@ $tests = [
                             'condo_id'          => 1,
                             'description'       => 'reprise de compte epargne',
                             'entry_date'        => strtotime('2024-01-01T00:00:00Z'),
-                            'journal_id'        => $journal['id'],
-                            'operation_type'    => 'misc'
+                            'journal_id'        => $journal['id']
                         ])
                         ->first();
 

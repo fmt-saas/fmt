@@ -353,11 +353,13 @@ class BankStatementLine extends Model {
                 'policies'      => [/* 'can_generate_accounting_entry' */],
                 'function'      => 'doAttemptReconcile'
             ],
+            // arbitrary reconcile with a given funding (auto or manual)
             'reconcile_with_funding' => [
                 'description'   => 'Creates Funding and related Payment that use the Bank Statement line itself as accounting document.',
                 'policies'      => [],
                 'function'      => 'doReconcileWithFunding'
             ],
+            // #todo - create and attempt to auto reconcile with an existing Matching
             'generate_orphan_operation' => [
                 'description'   => 'Creates Funding and related Payment that use the Bank Statement line itself as accounting document.',
                 'policies'      => [ 'can_generate_orphan_operation' ],
@@ -622,7 +624,9 @@ class BankStatementLine extends Model {
             throw new \Exception('missing_mandatory_funding_id', EQ_ERROR_INVALID_PARAM);
         }
 
-        $funding = Funding::id($values['funding_id'])->first();
+        $funding = Funding::id($values['funding_id'])
+            ->read(['accounting_account_id'])
+            ->first();
 
         if(!$funding) {
             throw new \Exception('provided_funding_not_found', EQ_ERROR_INVALID_PARAM);
@@ -645,6 +649,8 @@ class BankStatementLine extends Model {
                     'bank_statement_line_id'    => $id,
                     'funding_id'                => $funding['id']
                 ]);
+
+            self::id($id)->update(['accounting_account_id' => $funding['accounting_account_id']]);
         }
     }
 
@@ -681,13 +687,17 @@ class BankStatementLine extends Model {
             // 1) attempt to reconcile with a matching Funding
             $matching_funding_id = self::computeMatchingFunding($bankStatementLine['amount'], $bankStatementLine['communication'], $bankStatementLine['bank_statement_id']['bank_account_iban'], $bankStatementLine['account_iban']);
             if($matching_funding_id) {
-                self::id($id)->do('reconcile_with_funding', ['funding_id' => $matching_funding_id]);
+                self::id($id)
+                    ->do('reconcile_with_funding', ['funding_id' => $matching_funding_id])
+                    ->update(['is_reconciled' => null]);
             }
             // 2) attempt to reconcile with a matching Funding
+            /*
+            // #todo - nothing to try here : only at posting, if a Matching can be retrieved
             elseif($bankStatementLine['accounting_account_id']) {
                 self::id($id)->do('generate_orphan_operation');
             }
-            self::id($id)->update(['is_reconciled' => null]);
+            */
         }
 
     }
@@ -931,7 +941,18 @@ class BankStatementLine extends Model {
     }
 
     protected static function onbeforePost($self) {
+
+        // s'il y a des paiements, on génère les accounting entries à partir d'eux (ils prévalent toujours sur le compte sélectionné)
+        // corollaire : quand on fait un match manuel avec un funding, il faut créer un paiement (= doReconcileWithFunding)
         $self->do('generate_accounting_entry');
+        // sinon, on créée des écritures (on doit vérifier dans can_post si: 1) l'écriture est réconciliée 2) il y a des paiements (qui reconcilient intégralement la ligne), ou un compte comptable de contrepartie est précisé)
+
+        // 'accounting_account_id'
+
+        // si un MAtching existe sur ce compte et que le delta correspond au amount de la ligne, alors on assigne l'écriture à ce Matching
+        // le compte peut avoir été choisi et puis le funding assigné
+        // -> dans le cas d'une assignation manuelle à une ligne, il faut reset le accounting_account_id
+
     }
 
     public static function onchange($event, $values, $view) {
@@ -1089,16 +1110,20 @@ class BankStatementLine extends Model {
     }
 
     /**
+     * Generate and validate accounting entries, based on existing Payments
+     * In the case where the BankStatementLine is considered as the original accounting document, it is responsible for generating the accounting entry
+     * and AccountingEntryLines (records) are linked to it.
      *
-     * In the case where the BankStatementLine is considered as the original accounting document, it is responsible for generating the accounting entry.
-     * Otherwise, the accounting document was pre-existing and the entries were already generated.
-     *
-     * The entries to be made in the financial journal (BANK) are always created in the Payment.
+     * The entries to be made in the financial journal (BANK) .
      */
     protected static function doGenerateAccountingEntry($self) {
 
         $self->read([
                 'condo_id',
+                'date',
+                'amount',
+                'communication',
+                'accounting_account_id',
                 'bank_statement_id' => ['bank_account_id'],
                 'payments_ids' => [
                     'amount',
@@ -1117,26 +1142,80 @@ class BankStatementLine extends Model {
             ]);
 
         foreach($self as $id => $bankStatementLine) {
+            $bankAccount = CondominiumBankAccount::id($bankStatementLine['bank_statement_id']['bank_account_id'])->read(['accounting_account_id'])->first();
 
-            foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
+            if(count($bankStatementLine['payments_ids']) > 0) {
+                foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
+
+                    try {
+
+                        $funding = $payment['funding_id'];
+
+                        $debit_account_id = $bankAccount['accounting_account_id'];
+                        $credit_account_id = $funding['accounting_account_id'];
+
+                        $amount = round($payment['amount'], 2);
+
+                        $accountingEntry = AccountingEntry::create([
+                                'condo_id'              => $bankStatementLine['condo_id'],
+                                'entry_date'            => $payment['receipt_date'],
+                                'origin_object_class'   => self::getType(),
+                                'origin_object_id'      => $id,
+                                'journal_id'            => $payment['journal_id']
+                            ])
+                            ->first();
+
+                        // debit line
+                        AccountingEntryLine::create([
+                                'condo_id'               => $bankStatementLine['condo_id'],
+                                'account_id'             => $debit_account_id,
+                                'debit'                  => $amount > 0 ? abs($amount) : 0,
+                                'credit'                 => $amount < 0 ? abs($amount) : 0,
+                                'accounting_entry_id'    => $accountingEntry['id'],
+                                'bank_statement_line_id' => $id
+                            ]);
+
+                        // credit line
+                        AccountingEntryLine::create([
+                                'condo_id'               => $bankStatementLine['condo_id'],
+                                'account_id'             => $credit_account_id,
+                                'debit'                  => $amount < 0 ? abs($amount) : 0,
+                                'credit'                 => $amount > 0 ? abs($amount) : 0,
+                                'matching_id'            => $funding['id'],
+                                'accounting_entry_id'    => $accountingEntry['id'],
+                                'bank_statement_line_id' => $id
+                            ]);
+
+                        // instant validation of the created accounting entry
+                        AccountingEntry::id($accountingEntry['id'])->transition('validate');
+
+                        // Store the created accounting entry ID back to the payment
+                        Payment::id($payment_id)->update(['accounting_entry_id' => $accountingEntry['id']]);
+
+                    }
+                    catch(\Exception $e) {
+                        trigger_error("APP::doGenerateAccountingEntry: Error while creating accounting entries for Bank Statement Line #{$id} : " . $e->getMessage(), EQ_REPORT_ERROR);
+                    }
+
+                }
+            }
+            else {
 
                 try {
 
-                    $funding = $payment['funding_id'];
+                    $journal = Journal::search([['condo_id', '=', $bankStatementLine['condo_id']], ['journal_type', '=', 'BANK']])->first();
 
-                    $bankAccount = CondominiumBankAccount::id($funding['bank_account_id'])->read(['accounting_account_id'])->first();
                     $debit_account_id = $bankAccount['accounting_account_id'];
-                    $credit_account_id = $funding['accounting_account_id'];
+                    $credit_account_id = $bankStatementLine['accounting_account_id'];
 
-
-                    $amount = round($payment['amount'], 2);
+                    $amount = round($bankStatementLine['amount'], 2);
 
                     $accountingEntry = AccountingEntry::create([
                             'condo_id'              => $bankStatementLine['condo_id'],
-                            'entry_date'            => $payment['receipt_date'],
+                            'entry_date'            => $bankStatementLine['date'],
                             'origin_object_class'   => self::getType(),
                             'origin_object_id'      => $id,
-                            'journal_id'            => $payment['id']
+                            'journal_id'            => $journal['id']
                         ])
                         ->first();
 
@@ -1156,7 +1235,6 @@ class BankStatementLine extends Model {
                             'account_id'             => $credit_account_id,
                             'debit'                  => $amount < 0 ? abs($amount) : 0,
                             'credit'                 => $amount > 0 ? abs($amount) : 0,
-                            'matching_id'            => $funding['id'],
                             'accounting_entry_id'    => $accountingEntry['id'],
                             'bank_statement_line_id' => $id
                         ]);
@@ -1164,14 +1242,10 @@ class BankStatementLine extends Model {
                     // instant validation of the created accounting entry
                     AccountingEntry::id($accountingEntry['id'])->transition('validate');
 
-                    // Store the created accounting entry ID back to the payment
-                    Payment::id($payment_id)->update(['accounting_entry_id' => $accountingEntry['id']]);
-
                 }
                 catch(\Exception $e) {
                     trigger_error("APP::doGenerateAccountingEntry: Error while creating accounting entries for Bank Statement Line #{$id} : " . $e->getMessage(), EQ_REPORT_ERROR);
                 }
-
 
             }
         }
