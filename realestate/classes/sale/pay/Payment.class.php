@@ -61,7 +61,7 @@ class Payment extends \sale\pay\Payment {
         return [
             'can_post' => [
                 'description' => 'Verifies that the proforma can be invoiced.',
-                'function'    => 'policyPost'
+                'function'    => 'policyCanPost'
             ]
         ];
     }

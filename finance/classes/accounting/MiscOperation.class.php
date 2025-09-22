@@ -106,13 +106,6 @@ class MiscOperation extends Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['journal_type', '=', 'MISC']]
             ],
 
-            'accounting_entry_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\AccountingEntry',
-                'description'       => "Accounting entry of the MiscOperation.",
-                'domain'            => [['origin_object_class', '=', 'finance\accounting\MiscOperation'], ['origin_object_id', '=', 'object.id']]
-            ],
-
             'misc_operation_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\MiscOperationLine',
@@ -475,13 +468,14 @@ class MiscOperation extends Model {
 
     public static function canupdate($self, $values) {
         $self->read(['status']);
-
+        $allowed_fields = ['payment_status'];
         foreach($self as $id => $miscOperation) {
             // only allow editable fields
-            if($miscOperation['status'] != 'proforma') {
-                return ['status' => ['non_editable' => "Invoice can only be updated while its status is proforma ({$id})."]];
+            if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
+                if($miscOperation['status'] != 'proforma') {
+                    return ['status' => ['non_editable' => "Invoice can only be updated while its status is proforma ({$id})."]];
+                }
             }
-
         }
         return parent::canupdate($self);
     }

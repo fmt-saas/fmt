@@ -105,7 +105,7 @@ class AccountingEntryLine extends Model {
             'matching_level' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'usage'             => 'icon',
+                // 'usage'             => 'icon',
                 'selection'         => [
                     'none',
                     'part',
@@ -272,18 +272,16 @@ class AccountingEntryLine extends Model {
         $result = [];
         $self->read(['accounting_entry_id' => ['status'], 'matching_id' => ['is_balanced']]);
         foreach($self as $id => $accountingEntryLine) {
-            if($accountingEntryLine['accounting_entry_id'] !== 'validated') {
+            if(!$accountingEntryLine['accounting_entry_id'] || $accountingEntryLine['accounting_entry_id']['status'] !== 'validated') {
                 continue;
             }
             $result[$id] = 'none';
-            if(!$accountingEntryLine['$matching_id']) {
+            if(!$accountingEntryLine['matching_id']) {
                 continue;
             }
-            if($accountingEntryLine['matching_id']) {
-                $result[$id] = 'part';
-                if($accountingEntryLine['matching_id']['is_balanced']) {
-                    $result[$id] = 'full';
-                }
+            $result[$id] = 'part';
+            if($accountingEntryLine['matching_id']['is_balanced']) {
+                $result[$id] = 'full';
             }
         }
         return $result;

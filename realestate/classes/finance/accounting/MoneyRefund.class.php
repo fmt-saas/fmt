@@ -150,14 +150,6 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'instant'           => true
             ],
 
-            'accounting_entries_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'finance\accounting\AccountingEntry',
-                'foreign_field'     => 'origin_object_id',
-                'description'       => "Accounting entry of the invoice.",
-                'domain'            => [['origin_object_class', '=', 'realestate\finance\accounting\MoneyRefund']]
-            ],
-
             'fundings_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\sale\pay\Funding',

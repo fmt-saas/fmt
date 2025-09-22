@@ -127,11 +127,10 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'pending',
                     'proforma',
                     'posted'
                 ],
-                'default'           => 'pending',
+                'default'           => 'proforma',
                 'description'       => 'Current status of the operation.',
             ],
 
@@ -140,26 +139,14 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
     public static function getWorkflow() {
         return array_merge(parent::getWorkflow(), [
-            'pending' => [
-                'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
-                'icon'        => 'draw',
-                'transitions' => [
-                    'publish' => [
-                        'description' => 'Update the document to `completed`.',
-                        'policies'    => ['is_valid', 'can_transfer'],
-                        'onafter'     => 'onafterPublish',
-                        'status'      => 'proforma'
-                    ]
-                ]
-            ],
             'proforma' => [
-                'description' => 'Planned transfer waiting to be sent.',
-                'icon'        => 'send',
+                'description' => 'Just created Money Transfer, waiting to be completed (manually or auto-analysis).',
+                'icon'        => 'draw',
                 'transitions' => [
                     'post' => [
                         'description' => 'Update the document to `completed`.',
-                        'help'        => 'This transition is used to post the money transfer, after a bank statement has been integrated. It creates the accounting entries and fundings necessary to track the transfer.',
-                        'policies'    => ['can_post'],
+                        'policies'    => ['is_valid', 'can_transfer'],
+                        'onafter'     => 'onafterPost',
                         'status'      => 'posted'
                     ]
                 ]
@@ -448,27 +435,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return $result;
     }
 
-    public static function canupdate($self, $values) {
-        $self->read(['status', 'accounting_entry_id']);
-
-        foreach($self as $id => $moneyTransfer) {
-            if($moneyTransfer['status'] === 'posted') {
-                if(!$moneyTransfer['accounting_entry_id'] && isset($values['accounting_entry_id']) && count($values) == 1) {
-                    // allow first setting of accounting entry
-                    continue;
-                }
-                return [
-                    'status' => [
-                        'not_allowed' => "Money transfer cannot be updated once posted."
-                    ]
-                ];
-            }
-
-        }
-        return parent::canupdate($self, $values);
-    }
-
-    protected static function onafterPublish($self) {
+    protected static function onafterPost($self) {
         $self->do('create_fundings');
     }
 
