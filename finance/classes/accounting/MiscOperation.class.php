@@ -59,6 +59,17 @@ class MiscOperation extends Model {
                 'description'       => "Type of operation, necessary for entities inheriting from MiscOperation."
             ],
 
+            'payment_status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'debit_balance',    // movement is still incomplete
+                    'credit_balance',   // reverse movement (reimbursement) is required
+                    'balanced'          // movement fully performed
+                ],
+                'visible'           => ['status', '=', 'posted'],
+                'default'           => 'pending'
+            ],
+
             'posting_date' => [
                 'type'              => 'date',
                 'description'       => 'Date the operation is posted in the accounting system.',
@@ -115,12 +126,6 @@ class MiscOperation extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Supporting document attached to the operation, if any.',
-            ],
-
-            'funding_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'sale\pay\Funding',
-                'description'       => 'The funding related to the misc operation, if any.'
             ],
 
             'is_balanced' => [
@@ -337,11 +342,10 @@ class MiscOperation extends Model {
 
     protected static function calcName($self) {
         $result = [];
-        $self->read(['description', 'journal_id' => ['code']]);
+        $self->read(['description', 'operation_type', 'condo_id' => ['code']]);
         foreach($self as $id => $operation) {
-            if($operation['journal_id']) {
-                $result[$id] = sprintf("%05d - %s - %s", $id, $operation['journal_id']['code'], $operation['description']);
-            }
+            // $result[$id] = sprintf("%05d - %s - %s (%s)", $id, $operation['condo_id']['code'], $operation['description'], $operation['operation_type']);
+            $result[$id] = sprintf("%05d - %s (%s)", $id, $operation['description'], $operation['operation_type']);
         }
         return $result;
     }

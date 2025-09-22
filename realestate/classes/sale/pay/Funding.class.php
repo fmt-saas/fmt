@@ -13,6 +13,9 @@ use finance\accounting\MiscOperation;
 use finance\bank\BankStatementLine;
 use realestate\finance\accounting\MoneyRefund;
 use realestate\finance\accounting\MoneyTransfer;
+use realestate\funding\ExpenseStatement;
+use realestate\funding\FundRequestExecution;
+use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 class Funding extends \sale\pay\Funding {
 
@@ -245,6 +248,45 @@ class Funding extends \sale\pay\Funding {
         return $result;
     }
 
+
+
+    protected static function doRefreshStatus($self) {
+        parent::doRefreshStatus($self);
+
+        $self->read([
+                'status',
+                'funding_type',
+                'money_refund_id',
+                'money_transfer_id',
+                'purchase_invoice_id',
+                'expense_statement_id',
+                'fund_request_execution_id'
+            ]);
+
+        foreach($self as $id => $funding) {
+            if($funding['status'] === 'pending') {
+                continue;
+            }
+            switch($funding['funding_type']) {
+                case 'expense_statement':
+                    ExpenseStatement::id($funding['money_refund_id'])->update(['payment_status' => $funding['status']]);
+                    break;
+                case 'fund_request':
+                    FundRequestExecution::id($funding['fund_request_execution_id'])->update(['payment_status' => $funding['status']]);
+                    break;
+                case 'purchase_invoice':
+                    PurchaseInvoice::id($funding['purchase_invoice_id'])->update(['payment_status' => $funding['status']]);
+                    break;
+                case 'refund':
+                    MoneyRefund::id($funding['money_refund_id'])->update(['payment_status' => $funding['status']]);
+                    break;
+                case 'transfer':
+                    MoneyTransfer::id($funding['money_transfer_id'])->update(['payment_status' => $funding['status']]);
+                    break;
+            }
+        }
+    }
+
     /**
      * Generate payment reference according to SCOR/VCS logic
      *
@@ -265,7 +307,7 @@ class Funding extends \sale\pay\Funding {
             $reference = str_pad('', 12, '0');
 
             switch($funding['funding_type']) {
-                // incoming payments
+                // incoming payments (no sale_invoice)
                 case 'expense_statement':
                 case 'fund_request':
                     $reference =
@@ -273,7 +315,7 @@ class Funding extends \sale\pay\Funding {
                         substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
                     break;
                 // outgoing payments
-                case 'invoice':
+                case 'purchase_invoice':
                     // by convention, references for purchase invoices start with '9'
                     // this reference might be overwritten by the reference given by the supplier
                     $reference = sprintf("9%09d", $funding['purchase_invoice_id']);

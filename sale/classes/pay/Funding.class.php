@@ -200,8 +200,8 @@ class Funding extends \finance\accounting\Matching {
                 'type'              => 'string',
                 'selection'         => [
                     'pending',
-                    'credit_balance',
                     'debit_balance',
+                    'credit_balance',
                     'balanced'
                 ],
                 'default'           => 'pending',

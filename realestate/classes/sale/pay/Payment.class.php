@@ -7,11 +7,6 @@
 
 namespace realestate\sale\pay;
 
-use finance\accounting\Journal;
-use finance\bank\CondominiumBankAccount;
-use realestate\finance\accounting\AccountingEntry;
-use realestate\finance\accounting\AccountingEntryLine;
-
 class Payment extends \sale\pay\Payment {
 
     public static function getColumns() {
@@ -39,14 +34,7 @@ class Payment extends \sale\pay\Payment {
                 'help'              => 'This is the bank account on which movement was actually performed (received or sent), and might differ from the Funding banK-account_id.',
                 'readonly'          => true,
                 'domain'            => ['condo_id', '=', 'object.condo_id']
-            ],
-
-            'accounting_entry_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'realestate\finance\accounting\AccountingEntry',
-                'description'       => "Accounting entry of the invoice.",
-                'domain'            => [['origin_object_class', '=', 'finance\accounting\MiscOperation'], ['origin_object_id', '=', 'object.id']]
-            ],
+            ]
 
         ];
     }
@@ -60,6 +48,7 @@ class Payment extends \sale\pay\Payment {
                 'transitions' => [
                     'post' => [
                         'description' => 'Update the payment status to `payment`.',
+                        'policies'    => ['can_post'],
                         'onafter'     => 'onafterPost',
                         'status'      => 'posted'
                     ]
@@ -70,25 +59,30 @@ class Payment extends \sale\pay\Payment {
 
     public static function getPolicies(): array {
         return [
-            'can_generate_accounting_entry' => [
+            'can_post' => [
                 'description' => 'Verifies that the proforma can be invoiced.',
-                'function'    => 'policyCanGenerateAccountingEntry'
+                'function'    => 'policyPost'
             ]
         ];
     }
 
-    protected static function policyCanGenerateAccountingEntry($self) {
+    protected static function policyCanPost($self) {
         $result = [];
         $self->read([
                 'status',
-                'bank_statement_line_id' => ['bank_statement_id'],
-                'funding_id' => ['accounting_account_id']
+                'bank_statement_line_id' => ['status', 'bank_statement_id']
             ]);
 
         foreach($self as $id => $payment) {
             if($payment['status'] !== 'proforma') {
                 $result[$id] = [
                     'invalid_status' => 'Only pending payment can be posted.'
+                ];
+                continue;
+            }
+            if($payment['bank_statement_line_id']['status'] !== 'posted') {
+                $result[$id] = [
+                    'statement_line_not_posted' => 'Payment can only be posted once related bank statement line already is.'
                 ];
                 continue;
             }
@@ -99,21 +93,14 @@ class Payment extends \sale\pay\Payment {
                 continue;
             }
 
-            if( !($payment['funding_id']['accounting_account_id'] ?? null) ) {
-                $result[$id] = [
-                    'missing_mandatory_counterpart_account' => 'Payment (via Funding) not linked to counterpart accounting account.'
-                ];
-                continue;
-            }
-
         }
         return $result;
     }
 
     protected static function onafterPost($self) {
-        $self->read(['funding_id']);
+        $self->read(['funding_id' => ['funding_type']]);
         foreach($self as $id => $payment) {
-            Funding::id($payment['funding_id'])->do('refresh_status');
+            Funding::id($payment['funding_id']['id'])->do('refresh_status');
         }
     }
 

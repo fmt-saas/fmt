@@ -127,7 +127,7 @@ $tests = [
                 },
             'assert'            => function() use($providers) {
                     $moneyTransfer = MoneyTransfer::search(['condo_id', '=', 1])->read(['status'])->first();
-                    return $moneyTransfer['status'] == 'posted';
+                    return $moneyTransfer['status'] === 'posted';
                 },
             'rollback'          => function() use($providers) {
                 }

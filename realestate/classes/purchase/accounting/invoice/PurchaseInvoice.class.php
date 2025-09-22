@@ -982,12 +982,17 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
 
     /**
      * This method is used to create the document based on received data, and start the processing.
+     * #memo - this differs slightly from Bank Statements since invoices can be imported in 1 step.
      */
     protected static function onupdateDocumentData($self) {
         $self->read(['document_process_id', 'document_name', 'document_data']);
+        $documentType = DocumentType::search(['code', '=', 'invoice'])->first();
         foreach($self as $id => $invoice) {
             if(!$invoice['document_process_id']) {
-                $collection = DocumentProcess::create(['name' => $invoice['document_name']]);
+                $collection = DocumentProcess::create([
+                        'name'              => $invoice['document_name'],
+                        'document_type_id'  => $documentType['id']
+                    ]);
             }
             else {
                 $collection = DocumentProcess::id($invoice['document_process_id']);
@@ -1052,17 +1057,17 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         return array_merge(parent::onchange($event, $values), $result);
     }
 
-    public static function canupdate($self) {
+    public static function canupdate($self, $values) {
         $self->read(['status', 'document_process_id' => ['status']]);
         foreach($self as $id => $invoice) {
-            if($invoice['status'] !== 'proforma') {
-                return ['status' => ['non_editable' => 'Invoice cannot be updated after recording.']];
-            }
-            if(!$invoice['document_process_id']) {
-                continue;
-            }
-            if($invoice['document_process_id']['status'] !== 'created') {
-                return ['status' => ['non_editable' => 'Invoice cannot be updated after Document processing.']];
+            $editable_fields = ['payment_status', 'customer_ref', 'funding_id', 'reversed_invoice_id'];
+            if(count(array_diff(array_keys($values), $editable_fields)) > 0) {
+                if($invoice['status'] !== 'proforma') {
+                    return ['status' => ['non_editable' => 'Purchase Invoice cannot be updated after recording.']];
+                }
+                if($invoice['document_process_id'] && $invoice['document_process_id']['status'] !== 'created') {
+                    return ['status' => ['non_editable' => 'Invoice cannot be updated after Document processing.']];
+                }
             }
         }
     }

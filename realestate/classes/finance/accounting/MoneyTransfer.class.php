@@ -10,12 +10,13 @@ namespace realestate\finance\accounting;
 use finance\accounting\Account;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
-use finance\accounting\Journal;
 use finance\bank\CondominiumBankAccount;
-use realestate\finance\accounting\AccountingEntry;
-use realestate\finance\accounting\AccountingEntryLine;
 use realestate\sale\pay\Funding;
 
+/**
+ * A MoneyTransfer does not directly correspond to accounting entries: it is an empty shell used to manage requests for movements between accounts of a condominium and to generate the corresponding Fundings.
+ * The corresponding entries, which will eventually be created when bank statements are processed, will, if applicable, be linked to these fundings.
+ */
 class MoneyTransfer extends \finance\accounting\MiscOperation {
 
     public static function getName() {

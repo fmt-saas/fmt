@@ -496,7 +496,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                 }
             }
 
-            if(in_array($invoice['payment_status'], ['pending', 'overdue'])) {
+            if(in_array($invoice['payment_status'], ['pending', 'debit_balance'])) {
                 // no payment was received yet : mark both invoices as balanced (no transaction required)
                 Invoice::id($reversed_invoice['id'])->update(['payment_status' => 'balanced']);
                 Invoice::id($invoice['id'])->update(['payment_status' => 'balanced']);
@@ -765,7 +765,7 @@ class Invoice extends \finance\accounting\invoice\Invoice {
                     $editable_fields = ['payment_status', 'customer_ref', 'funding_id', 'reversed_invoice_id'];
 
                     if( count(array_diff(array_keys($values), $editable_fields)) ) {
-                    //    return ['status' => ['non_editable' => "Invoice can only be updated while its status is proforma ({$id})."]];
+                    //    return ['status' => ['non_editable' => "Invoice can only be updated while status is proforma ({$id})."]];
                     }
                 }
             }

@@ -314,16 +314,22 @@ class BankStatement extends Model {
 
 
     protected static function onafterPost($self) {
-        $self->read(['document_process_id', 'statement_lines_ids']);
+        $self->read(['document_process_id', 'statement_lines_ids' => ['status']]);
         foreach($self as $id => $bankStatement) {
+
             try {
-                // relay post to BankStatementLines
-                // #memo - this triggers a cascade event `attempt_posting` on Funding and related documents
-                BankStatementLine::ids($bankStatement['statement_lines_ids'])->transition('post');
+                foreach($bankStatement['statement_lines_ids'] as $bank_statement_line_id => $bankStatementLine) {
+                    // relay post to BankStatementLines
+                    // #memo - this triggers a cascade event `post` on Payments, and `refresh_status` on Fundings
+                    if($bankStatementLine['status'] === 'pending') {
+                        BankStatementLine::id($bank_statement_line_id)->transition('post');
+                    }
+                }
+
             }
             catch(\Exception $e) {
-                // ignore already published payments
-                trigger_error("APP::BankStatement::onafterPost - Failed to post BankStatementLine: {$e->getMessage()}", EQ_REPORT_ERROR);
+                // ignore already posted lines
+                trigger_error("APP::BankStatement::onafterPost - Failed to post BankStatementLine: {$e->getMessage()}", EQ_REPORT_WARNING);
             }
 
             if($bankStatement['document_process_id']) {
@@ -501,7 +507,7 @@ class BankStatement extends Model {
     }
 
     /**
-     * If not document is attached to the bank statement (handled as an accounting document), a Document and a DocumentProcess are created
+     * If no document is attached to the bank statement (handled as an accounting document), a Document and a DocumentProcess are created
      */
     protected static function onafterupdate($self) {
         $self->read(['state', 'document_id', 'condo_id']);

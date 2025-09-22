@@ -68,7 +68,10 @@ class BankStatementImport extends Model {
                 $binary = self::computeXlsxBinaryFromStatement($statement);
                 // this will trigger the creation of the Document and the Document Processing, which should not interrupt the import even if it fails
                 try {
-                    DocumentProcess::create(['name' => $file_name . '(' . ($i+1) . ').' . 'xlsx', 'document_type_id' => $documentType['id']])
+                    DocumentProcess::create([
+                            'name'              => $file_name . '(' . ($i+1) . ').' . 'xlsx',
+                            'document_type_id'  => $documentType['id']
+                        ])
                         ->update(['data' => $binary])
                         ->first();
                 }
@@ -77,7 +80,7 @@ class BankStatementImport extends Model {
                 }
             }
             // remove temporary document
-            Document::id($document['id'])->delete();
+            Document::id($document['id'])->delete(true);
             // remove current object (pointless after successful import)
             self::id($id)->delete(true);
         }

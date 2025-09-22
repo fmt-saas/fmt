@@ -339,6 +339,7 @@ class BankStatementLine extends Model {
                         'policies'    => ['can_post'],
                         'description' => 'Update the payment status to `payment`.',
                         'onbefore'    => 'onbeforePost',
+                        'onafter'     => 'onafterPost',
                         'status'      => 'posted'
                     ]
                 ]
@@ -402,29 +403,6 @@ class BankStatementLine extends Model {
         return $result;
     }
 
-
-    /**
-     * Il y a une distinction entre validate et post, mais dans les deux cas, la ligne est marquée comme posted à la fin de l'opération.
-     * La transition 'post' ne devrait être invoquée que via un attempt_post_accounting_document du Funding associé, dans le cas ou la ligne d'extrait est considérée comme une pièce comptable .
-     */
-    protected static function doValidate($self) {
-
-        $self->read(['payments_ids' => ['funding_id']]);
-        foreach($self as $id => $bankStatementLine) {
-            // dans certains cas, les écritures des pièces ne sont postées qu'à la confirmation de la transaction
-            // c'est une exception pour les mouvements entre comptes: ca pourrait se gérer ici
-            foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
-                // Find the accounting document linked to the funding, if it is not posted, post it (in this case, the post should always work)
-                // #memo - this could result in 'posting' the current line
-                // Funding::id($payment['funding_id'])->do('attempt_post_accounting_document');
-                Payment::id($payment_id)->transition('post');
-            }
-
-            // si on a un accounting_account_id et un matching_id, on créée directement l'écriture
-        }
-
-        $self->update(['status' => 'posted']);
-    }
 
     /**
      *  The line is expected to be assigned to an accounting account, but with no Payment (nor Funding)
@@ -941,12 +919,14 @@ class BankStatementLine extends Model {
     }
 
     protected static function onbeforePost($self) {
-
         $self->do('generate_accounting_entry');
+    }
 
-        // vérifier dans can_post si: 1) l'écriture est réconciliée 2) il y a des paiements (qui reconcilient intégralement la ligne), ou un compte comptable de contrepartie est précisé)
-
-
+    protected static function onafterPost($self) {
+        $self->read(['payments_ids']);
+        foreach($self as $id => $bankStatementLine) {
+            Payment::ids($bankStatementLine['payments_ids'])->transition('post');
+        }
     }
 
     public static function onchange($event, $values, $view) {
@@ -988,7 +968,7 @@ class BankStatementLine extends Model {
 
     protected static function policyCanPost($self) {
         $result = [];
-        $self->read(['status']);
+        $self->read(['status', 'accounting_account_id']);
         foreach($self as $id => $bankStatementLine) {
             if($bankStatementLine['status'] !== 'pending') {
                 $result[$id] = [
@@ -996,8 +976,8 @@ class BankStatementLine extends Model {
                 ];
                 continue;
             }
-
-            if(!self::computeIsReconciled($id)) {
+            // Check if: 1) the entry is reconciled 2) there are payments (which fully reconcile the line), or a counterpart accounting account is specified
+            if(!self::computeIsReconciled($id) && !$bankStatementLine['accounting_account_id']) {
                 $result[$id] = [
                     'invalid_reconcile_state' => 'Only reconciled bank statement lines can be posted.'
                 ];

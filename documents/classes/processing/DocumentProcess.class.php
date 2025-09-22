@@ -513,7 +513,7 @@ class DocumentProcess extends Model {
             // #todo - a recording rule might be missing
             if($is_recording_rule_mandatory) {
                 $rules_ids = RecordingRule::search([
-                        ['condo_id', '=', $documentProcess['condo_id']], 
+                        ['condo_id', '=', $documentProcess['condo_id']],
                         ['document_type_id', '=', $documentProcess['document_type_id']]
                     ])
                     ->ids();
@@ -870,7 +870,7 @@ class DocumentProcess extends Model {
 
         foreach($self as $id => $documentProcess) {
             if($documentProcess['status'] !== 'created') {
-                trigger_error("APP::Update skipped for document process already encoded.", EQ_REPORT_WARNING);
+                trigger_error("APP::Update skipped for document process already encoded.", EQ_REPORT_INFO);
                 continue;
             }
             if(!$documentProcess['document_id']) {
@@ -1179,7 +1179,16 @@ class DocumentProcess extends Model {
      *
      */
     protected static function doPerformDrafting($self) {
-        $self->read(['condo_id', 'report_html', 'has_target_object', 'supplier_id' => ['supplier_type_id'], 'document_type_code', 'document_type_id', 'document_subtype_id', 'document_id' => ['name', 'document_json']]);
+        $self->read([
+                'condo_id',
+                'report_html',
+                'has_target_object',
+                'document_type_code',
+                'document_type_id',
+                'document_subtype_id',
+                'supplier_id' => ['supplier_type_id'],
+                'document_id' => ['name', 'document_json']
+            ]);
         foreach($self as $id => $documentProcess) {
             // ignore if mandatory info is missing
             if(!$documentProcess['document_type_code']) {
@@ -1369,7 +1378,7 @@ class DocumentProcess extends Model {
                 // unexpected error
                 // unable to extract or confidence level too low
                 $logs[] = "Drafting error : " . $e->getMessage();
-                trigger_error("APP::unable to draft target object from document." . $e->getMessage(), EQ_REPORT_WARNING);
+                trigger_error("APP::unable to draft target object for DocumentProcess ({$id}) from document ({$documentProcess['document_id']['id']})." . $e->getMessage(), EQ_REPORT_WARNING);
             }
 
             $report_html = $documentProcess['report_html'];
