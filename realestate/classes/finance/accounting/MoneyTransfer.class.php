@@ -320,8 +320,8 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
             Funding::create([
                     'condo_id'                          => $moneyTransfer['condo_id'],
-                    'money_transfer_id'                 => $id,
                     'funding_type'                      => 'transfer',
+                    'money_transfer_id'                 => $id,
                     'due_amount'                        => -$moneyTransfer['amount'],
                     'bank_account_id'                   => $moneyTransfer['bank_account_id']['id'],
                     'counterpart_bank_account_id'       => $moneyTransfer['counterpart_bank_account_id']['id'],
@@ -333,8 +333,8 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
             Funding::create([
                     'condo_id'                          => $moneyTransfer['condo_id'],
-                    'money_transfer_id'                 => $id,
                     'funding_type'                      => 'transfer',
+                    'money_transfer_id'                 => $id,
                     'due_amount'                        => $moneyTransfer['amount'],
                     'bank_account_id'                   => $moneyTransfer['counterpart_bank_account_id']['id'],
                     'counterpart_bank_account_id'       => $moneyTransfer['bank_account_id']['id'],

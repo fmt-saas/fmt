@@ -48,10 +48,18 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
             'invoice_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'purchase\accounting\invoice\InvoiceLine',
-                'foreign_field'     => 'invoice_id',
+                'foreign_field'     => 'purchase_invoice_id',
                 'description'       => 'Detailed lines of the invoice.',
                 'ondetach'          => 'delete',
                 'dependencies'      => ['total', 'price']
+            ],
+
+            'fundings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'sale\pay\Funding',
+                'foreign_field'     => 'purchase_invoice_id',
+                'domain'            => ['funding_type', '=', 'purchase_invoice'],
+                'description'       => 'Fundings created from the invoice.'
             ],
 
             /**
@@ -93,7 +101,7 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
             'accounting_entries_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
-                'foreign_field'     => 'invoice_id',
+                'foreign_field'     => 'purchase_invoice_id',
                 'description'       => 'Accounting entries relating to the invoice.',
                 'help'              => "Purchase invoices might be subject to several accounting entries."
             ],
@@ -389,10 +397,10 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
         foreach($self as $id => $invoice) {
             $funding = Funding::create([
                     'description'         => $invoice['name'],
-                    'invoice_id'          => $invoice['id'],
+                    'funding_type'        => 'purchase_invoice',
+                    'purchase_invoice_id' => $invoice['id'],
                     'due_amount'          => $invoice['price'],
                     'is_paid'             => false,
-                    'funding_type'        => 'purchase_invoice',
                     'payment_reference'   => $invoice['payment_reference'],
                     'due_date'            => $invoice['due_date']
                 ])
@@ -547,23 +555,23 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
             foreach($map_accounting_entries as $account_id => $amount) {
                 $account = Account::id($account_id)->read(['description'])->first();
                 $result[] = [
-                        'name'          => $account['description'],
-                        'has_invoice'   => true,
-                        'invoice_id'    => $invoice_id,
-                        'account_id'    => $account_id,
-                        'debit'         => ($invoice['invoice_type'] == 'credit_note')?$amount:0.0,
-                        'credit'        => ($invoice['invoice_type'] == 'invoice')?$amount:0.0
+                        'name'                  => $account['description'],
+                        'has_invoice'           => true,
+                        'purchase_invoice_id'   => $invoice_id,
+                        'account_id'            => $account_id,
+                        'debit'                 => ($invoice['invoice_type'] == 'credit_note')?$amount:0.0,
+                        'credit'                => ($invoice['invoice_type'] == 'invoice')?$amount:0.0
                     ];
             }
 
             // create a debit line on account "trade debtors"
             $result[] = [
-                    'name'          => $accountTradeDebtors['description'],
-                    'has_invoice'   => true,
-                    'invoice_id'    => $invoice_id,
-                    'account_id'    => $accountTradeDebtors['id'],
-                    'debit'         => ($invoice['invoice_type'] == 'invoice')?$invoice['price']:0.0,
-                    'credit'        => ($invoice['invoice_type'] == 'credit_note')?$invoice['price']:0.0
+                    'name'                      => $accountTradeDebtors['description'],
+                    'has_invoice'               => true,
+                    'purchase_invoice_id'       => $invoice_id,
+                    'account_id'                => $accountTradeDebtors['id'],
+                    'debit'                     => ($invoice['invoice_type'] == 'invoice')?$invoice['price']:0.0,
+                    'credit'                    => ($invoice['invoice_type'] == 'credit_note')?$invoice['price']:0.0
                 ];
 
         }

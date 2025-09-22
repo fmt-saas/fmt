@@ -31,7 +31,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'description'       => 'Object identifier, as a complement to `origin_object_class`, the entry originates from.'
             ],
 
-            'invoice_id' => [
+            'purchase_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
                 'description'       => 'Invoice the entry relates to, if any.',

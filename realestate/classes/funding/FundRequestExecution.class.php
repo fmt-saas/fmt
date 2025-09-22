@@ -17,7 +17,7 @@ use realestate\sale\pay\Funding;
 use sale\pay\Payment;
 
 #memo - Fund requests executions are handled as sales invoices
-class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
+class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoice {
 
     protected const MAP_DEBIT_OPERATION_ASSIGNMENTS = [
         'reserve_fund'         => 'co_owners_reserve_fund',
@@ -393,7 +393,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                     'fiscal_year_id'        => $requestExecution['fiscal_year_id'],
                     'entry_date'            => $requestExecution['emission_date'],
                     'origin_object_class'   => self::getType(),
-                    'origin_object_id'      => $id
+                    'origin_object_id'      => $id,
+                    'sale_invoice_id'       => $id
                 ])
                 ->first();
 

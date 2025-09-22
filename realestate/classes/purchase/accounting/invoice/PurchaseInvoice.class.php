@@ -129,7 +129,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             'fundings_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\sale\pay\Funding',
-                'foreign_field'     => 'invoice_id',
+                'foreign_field'     => 'purchase_invoice_id',
                 'domain'            => ['funding_type', '=', 'purchase_invoice'],
                 'description'       => 'Fundings created from the invoice.'
             ],
@@ -318,7 +318,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'condo_id'                          => $invoice['condo_id'],
                     'description'                       => $invoice['name'],
                     'funding_type'                      => 'purchase_invoice',
-                    'invoice_id'                        => $id,
+                    'purchase_invoice_id'               => $id,
                     'bank_account_id'                   => $bankAccount['id'],
                     'suppliership_id'                   => $invoice['suppliership_id'],
                     'counterpart_bank_account_id'       => $invoice['suppliership_bank_account_id']['bank_account_id'],
@@ -622,7 +622,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
             $accountingEntry = AccountingEntry::create([
                     'condo_id'              => $invoice['condo_id'],
                     'journal_id'            => $journal['id'],
-                    'invoice_id'            => $id,
+                    'purchase_invoice_id'   => $id,
                     'fiscal_year_id'        => $invoice['fiscal_year_id'],
                     // #memo - if necessary, entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
                     'entry_date'            => $date_from,

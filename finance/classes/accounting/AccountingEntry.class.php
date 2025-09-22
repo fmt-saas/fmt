@@ -626,7 +626,7 @@ class AccountingEntry extends Model {
                 return ['status' => ['non_removable' => 'Non-draft accounting entries cannot be deleted.']];
             }
             // while still attached to an invoice, an planned entry cannot be removed
-            if($entry['invoice_id'] && $entry['status'] === 'planned') {
+            if($entry['status'] === 'planned') {
                 return ['status' => ['non_removable' => 'Planned accounting entries cannot be deleted (system entries).']];
             }
         }

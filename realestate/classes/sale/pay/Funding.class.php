@@ -248,7 +248,42 @@ class Funding extends \sale\pay\Funding {
         return $result;
     }
 
+    private static function computeAccountingEntryLinesIds($id, $accounting_account_id) {
+        $result = [];
 
+        $self = self::id($id)->read([
+                // lignes qui ont été mises sur le funding via une ligne d'extrait
+                'accounting_entry_lines_ids',
+                // lignes retrouvées à partir des entrées des linked accounting documents
+                'funding_type',
+                'money_refund_id',
+                'money_transfer_id',
+                'purchase_invoice_id',
+                'expense_statement_id',
+                'fund_request_execution_id'
+            ]);
+
+        foreach($self as $id => $funding) {
+            switch($funding['funding_type']) {
+                case 'expense_statement':
+                    ExpenseStatement::id($funding['expense_statement_id'])->read(['accounting_entry_id' => ['entry_lines_ids']]);
+                    break;
+                case 'fund_request':
+                    FundRequestExecution::id($funding['fund_request_execution_id'])->read(['accounting_entry_id' => ['entry_lines_ids']]);
+                    break;
+                case 'purchase_invoice':
+                    PurchaseInvoice::id($funding['purchase_invoice_id'])->read(['accounting_entry_id' => ['entry_lines_ids']]);
+                    break;
+                case 'refund':
+                    MoneyRefund::id($funding['money_refund_id'])->read(['accounting_entry_id' => ['entry_lines_ids']]);
+                    break;
+                case 'transfer':
+                    break;
+            }
+        }
+
+        return $result;
+    }
 
     protected static function doRefreshStatus($self) {
         parent::doRefreshStatus($self);

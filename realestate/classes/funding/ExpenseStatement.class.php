@@ -18,7 +18,7 @@ use realestate\purchase\accounting\invoice\PurchaseInvoiceLine;
 use realestate\sale\pay\Funding;
 
 #memo - Expense statements are handled as sales invoices
-class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
+class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
     public static function getName() {
         return 'Expense Statement';
@@ -398,7 +398,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\Invoice {
                     // #memo - if necessary, entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
                     'entry_date'            => $statement['fiscal_period_id']['date_to'],
                     'origin_object_class'   => self::getType(),
-                    'origin_object_id'      => $id
+                    'origin_object_id'      => $id,
+                    'sale_invoice_id'       => $id
                 ])
                 ->first();
 
