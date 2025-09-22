@@ -43,18 +43,7 @@ class Matching extends Model {
             // #todo - we should have a sequence for auto assignment of sequential code, by condominium
             'code' => [
                 'type'              => 'string',
-                'description'       => 'Display name of funding.'
-            ],
-
-            'matching_type' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'matching',
-                    'funding'
-                ],
-                'required'          => true,
-                'default'           => 'matching',
-                'description'       => "Type of matching. Either a regular matching, or a funding (which is linked to payments)."
+                'description'       => 'Display name of the matching.'
             ],
 
             'accounting_account_id' => [
@@ -112,11 +101,27 @@ class Matching extends Model {
                 'policies'      => [],
                 'function'      => 'doRefreshMatchingLevel'
             ],
+            'check_emptiness' => [
+                'description'   => 'Check remaining linked accounting entry lines, if empty matching is removed.',
+                'policies'      => [],
+                'function'      => 'doCheckEmptiness'
+            ]
         ];
     }
 
     protected static function onupdateAccountingEntryLinesIds($self) {
-        $self->do('refresh_matching_level');
+        $self
+            ->do('refresh_matching_level')
+            ->do('check_emptiness');
+    }
+
+    protected static function doCheckEmptiness($self) {
+        $self->read(['accounting_entry_lines_ids']);
+        foreach($self as $id => $matching) {
+            if(count($matching['accounting_entry_lines_ids']) <= 0) {
+                self::id($id)->delete(true);
+            }
+        }
     }
 
     protected static function doRefreshMatchingLevel($self) {

@@ -7,12 +7,10 @@
 
 namespace sale\pay;
 
-use equal\orm\Model;
 use core\setting\Setting;
 use equal\data\DataFormatter;
-use finance\accounting\AccountingEntry;
 
-class Funding extends \finance\accounting\Matching {
+class Funding extends \equal\orm\Model {
 
     public static function getDescription() {
         return "A funding represents the accounting link between a document (such as an invoice, a call for funds or a charge statement) and the entries that settle it.
@@ -31,6 +29,11 @@ class Funding extends \finance\accounting\Matching {
                 'store'             => true
             ],
 
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Optional description to identify the funding.'
+            ],
+
             'payments_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'sale\pay\Payment',
@@ -39,21 +42,24 @@ class Funding extends \finance\accounting\Matching {
                 'dependents'        => ['paid_amount', 'remaining_amount', 'is_paid']
             ],
 
-            'accounting_entry_lines_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'finance\accounting\AccountingEntryLine',
-                'description'       => "Accounting entry of the Matching.",
+            'accounting_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Accounting account the funding relates to.",
+                'required'          => true,
                 'domain'            => [
-                    ['condo_id', '=', 'object.condo_id'],
-                    ['matching_id', '=', 'object.id']
+                    ['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]
                 ]
             ],
 
-            'matching_type' => [
-                'type'              => 'string',
-                'readonly'          => true,
-                'default'           => 'funding',
-                'description'       => "Type of matching. Always `funding` for Fundings."
+            'accounting_entry_lines_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\AccountingEntryLine',
+                'foreign_field'     => 'funding_id',
+                'description'       => "Accounting entry of the Matching.",
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id']
+                ]
             ],
 
             'funding_type' => [

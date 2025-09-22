@@ -329,7 +329,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
 
     public static function doCancelExecution($self) {
         $self->update(['price' => 0.0])
-            ->read(['execution_lines_ids' => ['ownership_id'], 'fund_request_id', 'accounting_entry_id']);
+             ->read(['execution_lines_ids' => ['ownership_id'], 'fund_request_id', 'accounting_entry_id']);
+
         foreach($self as $id => $requestExecution) {
             // retrieve accounting entry and cancel it
             AccountingEntry::id($requestExecution['accounting_entry_id'])->transition('cancel');
@@ -513,7 +514,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\Invoice {
                         'fund_request_id'                   => $requestExecution['fund_request_id']['id'],
                         'fund_request_execution_id'         => $id,
                         'ownership_id'                      => $ownership_id,
-                        'accounting_account_id' => $ownershipAccount['id'],
+                        'accounting_account_id'             => $ownershipAccount['id'],
                         'bank_account_id'                   => $requestExecution['fund_request_id']['request_bank_account_id'],
                         'issue_date'                        => $issue_date,
                         'due_date'                          => $due_date,

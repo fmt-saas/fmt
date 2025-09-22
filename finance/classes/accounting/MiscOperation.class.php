@@ -162,7 +162,6 @@ class MiscOperation extends Model {
                     'post' => [
                         'description' => 'Create accounting entries and update the document to `posted`.',
                         'policies'    => ['is_valid'],
-                        'onbefore'     => 'onbeforePost',
                         'status'      => 'posted'
                     ]
                 ]
@@ -352,58 +351,12 @@ class MiscOperation extends Model {
         }
     }
 
-    protected static function doGenerateAccountingEntry($self) {
-        $self->read([
-                'condo_id', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
-                'description',
-                'misc_operation_lines_ids' => ['account_id', 'debit', 'credit']
-            ]);
-        foreach ($self as $id => $miscOperation) {
-
-            // remove any previously created accounting entry (resulting from an incomplete operation)
-            AccountingEntry::search([
-                    ['condo_id', '=', $miscOperation['condo_id']],
-                    ['origin_object_class', '=', self::getType()],
-                    ['origin_object_id', '=', $id]
-                ])
-                ->delete(true);
-
-            $accountingEntry = AccountingEntry::create([
-                    'condo_id'              => $miscOperation['condo_id'],
-                    'entry_date'            => $miscOperation['posting_date'],
-                    'origin_object_class'   => self::getType(),
-                    'origin_object_id'      => $id,
-                    'description'           => $miscOperation['description'],
-                    'journal_id'            => $miscOperation['journal_id'],
-                    'fiscal_year_id'        => $miscOperation['fiscal_year_id'],
-                    'fiscal_period_id'      => $miscOperation['fiscal_period_id']
-                ])
-                ->first();
-
-            foreach($miscOperation['misc_operation_lines_ids'] as $line) {
-                AccountingEntryLine::create([
-                        'account_id'            => $line['account_id'],
-                        'debit'                 => $line['debit'],
-                        'credit'                => $line['credit'],
-                        'accounting_entry_id'   => $accountingEntry['id']
-                    ]);
-            }
-
-            // Store the created accounting entry ID back to the misc operation
-            self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
-        }
-    }
-
     protected static function doCreateFundings($self) {
         // #todo - not sure of this : stand alone Misc Operation should not be linked to Funding, to allow arbitrary movements
     }
 
-    protected static function onbeforePost($self) {
-        $self
-            ->do('generate_accounting_entry')
-            ->do('validate_accounting_entry');
-    }
 
+// #todo - move this to AccountingEntry
     public static function onchange($event, $values) {
         $result = [];
 

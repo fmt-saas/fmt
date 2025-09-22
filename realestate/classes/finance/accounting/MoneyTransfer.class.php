@@ -76,14 +76,6 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'description'       => 'The target Bank account available balance.'
             ],
 
-            'accounting_entries_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'finance\accounting\AccountingEntry',
-                'foreign_field'     => 'origin_object_id',
-                'description'       => "Accounting entry of the invoice.",
-                'domain'            => [['origin_object_class', '=', 'realestate\finance\accounting\MoneyTransfer']]
-            ],
-
             'fundings_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\sale\pay\Funding',

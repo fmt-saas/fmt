@@ -93,6 +93,13 @@ class AccountingEntryLine extends Model {
                 'instant'           => true
             ],
 
+            'funding_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'sale\pay\Funding',
+                'ondelete'          => null,
+                'description'       => 'Funding to which the accounting entry is linked, if any.'
+            ],
+
             'matching_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Matching',
@@ -262,8 +269,19 @@ class AccountingEntryLine extends Model {
                 Matching::id($accountingEntryLine['matching_id'])->do('refresh_matching_level');
             }
             else {
-                // matching_id just reset to null
+                // matching_id was reset to null
                 self::id($id)->do('refresh_matching_level');
+            }
+        }
+    }
+
+    protected static function onbeforeupdate($self, $values) {
+        // matching_id is about to be reset to null
+        if(array_key_exists('matching_id', $values) && !$values['matching_id']) {
+            $self->read(['matching_id']);
+            foreach($self as $id => $accountingEntryLine) {
+                // matching will remove itself if empty
+                Matching::id($accountingEntryLine['matching_id'])->do('check_emptiness');
             }
         }
     }

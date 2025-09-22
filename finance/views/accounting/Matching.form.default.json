@@ -48,11 +48,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "matching_type",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "is_balanced",
                                                 "width": "50%"
                                             }

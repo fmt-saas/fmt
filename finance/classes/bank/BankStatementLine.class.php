@@ -1161,7 +1161,7 @@ class BankStatementLine extends Model {
                                 'account_id'             => $credit_account_id,
                                 'debit'                  => $amount < 0 ? abs($amount) : 0,
                                 'credit'                 => $amount > 0 ? abs($amount) : 0,
-                                'matching_id'            => $funding['id'],
+                                'funding_id'             => $funding['id'],
                                 'accounting_entry_id'    => $accountingEntry['id'],
                                 'bank_statement_line_id' => $id
                             ]);
