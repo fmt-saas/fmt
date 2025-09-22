@@ -140,7 +140,8 @@ class AccountingEntryLine extends Model {
                 'usage'             => 'amount/money:4',
                 'description'       => 'Amount to be debited on the account.',
                 'default'           => 0.0,
-                'dependents'        => ['accounting_entry_id' => 'debit']
+                'dependents'        => ['accounting_entry_id' => 'debit'],
+                'onupdate'          => 'onupdateDebit'
             ],
 
             'credit' => [
@@ -148,7 +149,8 @@ class AccountingEntryLine extends Model {
                 'usage'             => 'amount/money:4',
                 'description'       => 'Amount to be credited on the account.',
                 'default'           => 0.0,
-                'dependents'        => ['accounting_entry_id' => 'credit']
+                'dependents'        => ['accounting_entry_id' => 'credit'],
+                'onupdate'          => 'onupdateCredit'
             ],
 
             'bank_statement_line_id' => [
@@ -164,6 +166,11 @@ class AccountingEntryLine extends Model {
 
     public static function getActions() {
         return [
+            'attempt_match' => [
+                'description'   => 'Attempts to find a suitable Matching and, if so, links the entry to it.',
+                'policies'      => [/* */],
+                'function'      => 'doAttemptMatch'
+            ],
             'refresh_matching_level' => [
                 'description'   => 'Update status according to currently paid amount.',
                 'policies'      => [],
@@ -171,6 +178,34 @@ class AccountingEntryLine extends Model {
             ]
         ];
     }
+
+
+    protected static function doAttemptMatch($self) {
+        $self->read(['condo_id', 'matching_id', 'account_id' => ['account_type'], 'debit', 'credit']);
+        foreach($self as $id => $accountingEntryLine) {
+            // skip records that are already matched (matching cancellation must be done manually)
+            if($accountingEntryLine['matching_id']) {
+                continue;
+            }
+            if($accountingEntryLine['account_id']['account_type'] === 'B') {
+                // If a Matching exists on this account and the delta matches the amount of the line, then assign the entry to this Matching
+                $amount = round($accountingEntryLine['debit'] - $accountingEntryLine['crebit'], 2);
+                $matching = Matching::search([
+                        ['condo_id', '=', $accountingEntryLine['condo_id']],
+                        ['balance_amount', '=', $amount],
+                        ['is_balanced', '=', false]
+                    ],
+                    [
+                        'sort' => ['created' => 'desc']
+                    ])
+                    ->first();
+                if($matching) {
+                    self::id($id)->update(['matching_id' => $matching['id']]);
+                }
+            }
+        }
+    }
+
 
     protected static function doRefreshMatchingLevel($self) {
         $self->update(['matching_level' => null]);
@@ -197,6 +232,24 @@ class AccountingEntryLine extends Model {
         return parent::canupdate($self);
     }
 
+    protected static function onupdateCredit($self) {
+        $self->read(['matching_id']);
+        foreach($self as $id => $accountingEntryLine) {
+            if($accountingEntryLine['matching_id']) {
+                Matching::id($accountingEntryLine['matching_id'])->do('refresh_matching_level');
+            }
+        }
+    }
+
+    protected static function onupdateDebit($self) {
+        $self->read(['matching_id']);
+        foreach($self as $id => $accountingEntryLine) {
+            if($accountingEntryLine['matching_id']) {
+                Matching::id($accountingEntryLine['matching_id'])->do('refresh_matching_level');
+            }
+        }
+    }
+
     protected static function onupdateMatchingId($self) {
         $self->read(['matching_id']);
         foreach($self as $id => $accountingEntryLine) {
@@ -204,6 +257,7 @@ class AccountingEntryLine extends Model {
                 Matching::id($accountingEntryLine['matching_id'])->do('refresh_matching_level');
             }
             else {
+                // matching_id just reset to null
                 self::id($id)->do('refresh_matching_level');
             }
         }
@@ -217,6 +271,9 @@ class AccountingEntryLine extends Model {
                 continue;
             }
             $result[$id] = 'none';
+            if(!$accountingEntryLine['$matching_id']) {
+                continue;
+            }
             if($accountingEntryLine['matching_id']) {
                 $result[$id] = 'part';
                 if($accountingEntryLine['matching_id']['is_balanced']) {

@@ -49,8 +49,7 @@ AccountingEntryLine::search([
         ['account_id', '=', $account['id']],
         ['matching_level', 'in', ['none', 'part']]
     ])
-    ->read([]);
-
+    ->read(['id', 'name', 'entry_date', 'entry_number', 'matching_id', 'debit', 'credit']);
 
 
 $context->httpResponse()

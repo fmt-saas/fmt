@@ -74,6 +74,14 @@ class Matching extends Model {
                 'onupdate'          => 'onupdateAccountingEntryLinesIds'
             ],
 
+            'balance_amount' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'description'       => 'A matching is balanced/completed, if the total debited amount equals the total credited amount.',
+                'function'          => 'calcBalanceAmount',
+                'store'             => true
+            ],
+
             'is_balanced' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
@@ -114,13 +122,14 @@ class Matching extends Model {
     protected static function doRefreshMatchingLevel($self) {
         $self->read(['accounting_entry_lines_ids']);
 
+        $self
+            ->update(['balance_amount' => null, 'is_balanced' => null, 'matching_level' => null])
+            ->read(['balance_amount', 'is_balanced', 'matching_level']);
+
         foreach($self as $id => $matching) {
             AccountingEntryLine::ids($matching['accounting_entry_lines_ids'])->do('refresh_matching_level');
         }
 
-        $self
-            ->update(['is_balanced' => null, 'matching_level' => null])
-            ->read(['is_balanced', 'matching_level']);
     }
 
     protected static function calcName($self) {
@@ -132,7 +141,7 @@ class Matching extends Model {
         return $result;
     }
 
-    protected static function calcIsBalanced($self) {
+    protected static function calcBalanceAmount($self) {
         $result = [];
         $self->read(['accounting_entry_lines_ids' => ['debit', 'credit']]);
         foreach($self as $id => $matching) {
@@ -142,11 +151,19 @@ class Matching extends Model {
                 $credit += $accounting_entry['credit'];
                 $debit  += $accounting_entry['debit'];
             }
-            $result[$id] = (abs(abs($credit) - abs($debit)) < 0.01);
+            $result[$id] = round($debit - $credit, 2);
         }
         return $result;
     }
 
+    protected static function calcIsBalanced($self) {
+        $result = [];
+        $self->read(['balance_amount']);
+        foreach($self as $id => $matching) {
+            $result[$id] = abs($matching['balance_amount']) < 0.01;
+        }
+        return $result;
+    }
 
     protected static function calcMatchingLevel($self) {
         $result = [];

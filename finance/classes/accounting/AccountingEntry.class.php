@@ -231,6 +231,7 @@ class AccountingEntry extends Model {
         ];
     }
 
+
     public static function getActions() {
         return [
             'cancel' => [
@@ -238,6 +239,11 @@ class AccountingEntry extends Model {
                 'help'          => 'A fiscal year can be opened before the previous one is definitely closed.',
                 'policies'      => ['can_be_cancelled'],
                 'function'      => 'doCancel'
+            ],
+            'attempt_match' => [
+                'description'   => 'Attempts to find a suitable Matching and, if so, links the entry to it.',
+                'policies'      => [/* */],
+                'function'      => 'doAttemptMatch'
             ]
         ];
     }
@@ -298,6 +304,14 @@ class AccountingEntry extends Model {
             }
         }
         return $result;
+    }
+
+    // #memo - matching is performed at AccountingEntryLne (records) level
+    protected static function doAttemptMatch($self) {
+        $self->read(['entry_lines_ids']);
+        foreach($self as $id => $accountingEntry) {
+            AccountingEntryLine::ids($accountingEntry['entry_lines_ids'])->do('attempt_match');
+        }
     }
 
     /**

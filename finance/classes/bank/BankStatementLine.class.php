@@ -942,16 +942,10 @@ class BankStatementLine extends Model {
 
     protected static function onbeforePost($self) {
 
-        // s'il y a des paiements, on génère les accounting entries à partir d'eux (ils prévalent toujours sur le compte sélectionné)
-        // corollaire : quand on fait un match manuel avec un funding, il faut créer un paiement (= doReconcileWithFunding)
         $self->do('generate_accounting_entry');
-        // sinon, on créée des écritures (on doit vérifier dans can_post si: 1) l'écriture est réconciliée 2) il y a des paiements (qui reconcilient intégralement la ligne), ou un compte comptable de contrepartie est précisé)
 
-        // 'accounting_account_id'
+        // vérifier dans can_post si: 1) l'écriture est réconciliée 2) il y a des paiements (qui reconcilient intégralement la ligne), ou un compte comptable de contrepartie est précisé)
 
-        // si un MAtching existe sur ce compte et que le delta correspond au amount de la ligne, alors on assigne l'écriture à ce Matching
-        // le compte peut avoir été choisi et puis le funding assigné
-        // -> dans le cas d'une assignation manuelle à une ligne, il faut reset le accounting_account_id
 
     }
 
@@ -1115,6 +1109,12 @@ class BankStatementLine extends Model {
      * and AccountingEntryLines (records) are linked to it.
      *
      * The entries to be made in the financial journal (BANK) .
+     *
+     *
+     * s'il y a des paiements, on génère les accounting entries à partir d'eux (ils prévalent toujours sur le compte sélectionné)
+     * corollaire : quand on fait un match manuel avec un funding, il faut créer un paiement (= doReconcileWithFunding)
+     * sinon, on créée des écritures en utilisant  'accounting_account_id'
+     *
      */
     protected static function doGenerateAccountingEntry($self) {
 
@@ -1239,8 +1239,12 @@ class BankStatementLine extends Model {
                             'bank_statement_line_id' => $id
                         ]);
 
-                    // instant validation of the created accounting entry
-                    AccountingEntry::id($accountingEntry['id'])->transition('validate');
+
+                    AccountingEntry::id($accountingEntry['id'])
+                        // instant validation of the created accounting entry
+                        ->transition('validate')
+                        // attampt to match the entry with an existing match
+                        ->do('attempt_match');
 
                 }
                 catch(\Exception $e) {
