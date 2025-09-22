@@ -295,17 +295,17 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'suppliership_bank_account_id' => ['bank_account_id']
             ]);
 
-        foreach($self as $id => $invoice) {
+        foreach($self as $id => $purchaseInvoice) {
             // retrieve the condo's current account
             $bankAccount = CondominiumBankAccount::search([
-                    ['condo_id', '=', $invoice['condo_id']],
+                    ['condo_id', '=', $purchaseInvoice['condo_id']],
                     ['bank_account_type', '=', 'bank_current']
                 ])
                 ->first();
 
             $suppliershipAccount = Account::search([
-                    ['condo_id', '=', $invoice['condo_id']],
-                    ['ownership_id', '=', $invoice['suppliership_id']],
+                    ['condo_id', '=', $purchaseInvoice['condo_id']],
+                    ['ownership_id', '=', $purchaseInvoice['suppliership_id']],
                     ['operation_assignment', '=', 'suppliers']
                 ])
                 ->first();
@@ -315,27 +315,27 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
 
             $values = [
-                    'condo_id'                          => $invoice['condo_id'],
-                    'description'                       => $invoice['name'],
+                    'condo_id'                          => $purchaseInvoice['condo_id'],
+                    'description'                       => $purchaseInvoice['name'],
                     'funding_type'                      => 'purchase_invoice',
                     'purchase_invoice_id'               => $id,
                     'bank_account_id'                   => $bankAccount['id'],
-                    'suppliership_id'                   => $invoice['suppliership_id'],
-                    'counterpart_bank_account_id'       => $invoice['suppliership_bank_account_id']['bank_account_id'],
+                    'suppliership_id'                   => $purchaseInvoice['suppliership_id'],
+                    'counterpart_bank_account_id'       => $purchaseInvoice['suppliership_bank_account_id']['bank_account_id'],
                     'accounting_account_id'             => $suppliershipAccount['id'],
-                    'due_amount'                        => $invoice['price'],
+                    'due_amount'                        => $purchaseInvoice['price'],
                     'is_paid'                           => false,
-                    'due_date'                          => $invoice['due_date']
+                    'due_date'                          => $purchaseInvoice['due_date']
                 ];
 
-            if($invoice['payment_reference'] && strlen($invoice['payment_reference']) > 0) {
+            if($purchaseInvoice['payment_reference'] && strlen($purchaseInvoice['payment_reference']) > 0) {
                 // #memo - if not set, payment_reference will be computed based on invoice id
-                $values['payment_reference'] = $invoice['payment_reference'];
+                $values['payment_reference'] = $purchaseInvoice['payment_reference'];
             }
 
             $funding = Funding::create($values)->first();
 
-            self::id($invoice['id'])
+            self::id($purchaseInvoice['id'])
                 ->update(['funding_id' => $funding['id']]);
         }
     }

@@ -141,7 +141,12 @@ class Matching extends Model {
         $result = [];
         $self->read(['id', 'description']);
         foreach($self as $id => $matching) {
-            $result[$id] = sprintf("%08d - %s", $matching['id'], $matching['description']);
+            $parts = [];
+            $parts[] = sprintf("%08d", $matching['id']);
+            if(strlen($matching['description'] ?? '') > 0) {
+                $parts[] = $matching['description'];
+            }
+            $result[$id] = implode(' - ', $parts);
         }
         return $result;
     }

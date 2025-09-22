@@ -157,27 +157,6 @@
                                 ]
                             }
                         ]
-                    },
-                    {
-                        "label": "Accounting Records",
-                        "id": "section.accounting_entry_lines",
-                        "visible": ["state", "<>", "draft"],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "accounting_entry_lines_ids",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
                     }
                 ]
             }

@@ -331,7 +331,8 @@ class Funding extends \equal\orm\Model {
         $self->read(['status']);
         foreach($self as $funding) {
             if($funding['status'] == 'balanced') {
-                return ['status' => ['non_editable' => 'No change is allowed once the funding has been fully paid.']];
+                // Funding might change depending on actions performed on Payments
+                // return ['status' => ['non_editable' => 'No change is allowed once the funding has been fully paid.']];
             }
         }
 

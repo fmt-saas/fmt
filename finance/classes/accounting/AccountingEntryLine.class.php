@@ -196,7 +196,7 @@ class AccountingEntryLine extends Model {
             }
             if($accountingEntryLine['account_id']['account_type'] === 'B') {
                 // If a Matching exists on this account and the delta matches the amount of the line, then assign the entry to this Matching
-                $amount = round($accountingEntryLine['debit'] - $accountingEntryLine['crebit'], 2);
+                $amount = round($accountingEntryLine['debit'] - $accountingEntryLine['credit'], 2);
                 $matching = Matching::search([
                         ['condo_id', '=', $accountingEntryLine['condo_id']],
                         ['balance_amount', '=', $amount],
@@ -231,7 +231,7 @@ class AccountingEntryLine extends Model {
 
     public static function canupdate($self, $values) {
         $self->read(['accounting_entry_id' => ['status']]);
-        $allowed_fields = ['matching_id'];
+        $allowed_fields = ['matching_id', 'matching_level'];
         $updated_fields = array_keys($values);
 
         if(count(array_diff($updated_fields, $allowed_fields)) > 0) {

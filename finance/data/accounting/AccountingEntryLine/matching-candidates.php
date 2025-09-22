@@ -11,6 +11,7 @@ use finance\accounting\AccountingEntryLine;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Advanced search for Balance Lines: returns a collection of Reports according to extra parameters.',
+    'help'          => 'When linking a bank statement line, the accounting entry line does exist yet.',
     'extends'       => 'core_model_collect',
     'params'        => [
         'id' =>  [
@@ -44,12 +45,12 @@ if(!$account) {
     throw new Exception('unknown_accounting_entry', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-AccountingEntryLine::search([
+$accountingEntryLines = AccountingEntryLine::search([
         ['condo_id', '=', $account['condo_id']],
         ['account_id', '=', $account['id']],
         ['matching_level', 'in', ['none', 'part']]
     ])
-    ->read(['id', 'name', 'entry_date', 'entry_number', 'matching_id', 'debit', 'credit']);
+    ->read(['id', 'name', 'entry_date', 'entry_number', 'matching_id', 'funding_id', 'debit', 'credit']);
 
 
 $context->httpResponse()

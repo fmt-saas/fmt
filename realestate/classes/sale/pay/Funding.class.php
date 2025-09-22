@@ -255,9 +255,14 @@ class Funding extends \sale\pay\Funding {
         return $result;
     }
 
+    /**
+     * Retrieve all accounting entry lines (records), either from accounting documents linked to funding, or from bank statement line
+     *
+     */
     protected static function doMatchAccountingEntries($self) {
         $self->read([
                 'condo_id',
+                'status',
                 // lines from Bank Statement
                 'accounting_entry_lines_ids',
                 // lines from accounting entries linked accounting documents
@@ -270,6 +275,9 @@ class Funding extends \sale\pay\Funding {
             ]);
 
         foreach($self as $id => $funding) {
+            if($funding['status'] === 'pending') {
+                continue;
+            }
             $accounting_entry_lines_ids = $funding['accounting_entry_lines_ids'];
             switch($funding['funding_type']) {
                 case 'expense_statement':

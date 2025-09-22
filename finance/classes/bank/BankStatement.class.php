@@ -11,12 +11,8 @@ use documents\Document;
 use documents\DocumentType;
 use documents\processing\DocumentProcess;
 use equal\orm\Model;
-use finance\accounting\Account;
-use finance\accounting\AccountingEntry;
-use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
 use realestate\property\Condominium;
-use sale\pay\Payment;
 
 class BankStatement extends Model {
 

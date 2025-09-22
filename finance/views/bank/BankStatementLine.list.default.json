@@ -11,6 +11,22 @@
             ]
         }
     },
+    "actions": [
+        {
+            "id": "action.reconcile",
+            "inline": true,
+            "label": "Reconcile",
+            "icon": "list",
+            "description": "Reconcile line.",
+            "component": {
+                "name": "matchAccountingEntry",
+                "data": {
+                    "condo_id": "object.condo_id",
+                    "bank_statement_line_id": "object.id"
+                }
+            }
+        }
+    ],
     "operations": {
         "total": {
             "amount": {

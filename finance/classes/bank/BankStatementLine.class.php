@@ -561,7 +561,7 @@ class BankStatementLine extends Model {
                     'funding_type'                      => 'statement_line',
                     'due_amount'                        => $bankStatementLine['amount'],
                     'bank_account_id'                   => $bankStatementLine['bank_statement_id']['bank_account_id']['id'],
-                    'accounting_account_id' => $bankStatementLine['accounting_account_id'],
+                    'accounting_account_id'             => $bankStatementLine['accounting_account_id'],
                     // #memo - avoid any irrelevant alert
                     'due_date'                          => time() + (10 * 86400),
                     // #memo - payment_reference is a computed field
@@ -635,6 +635,7 @@ class BankStatementLine extends Model {
     /**
      * This method either links the line with a Funding through a Payment,
      * or generates an orphan operation referencing current line as accounting document.
+     * If a funding is fund, action `reconcile_with_funding` is called with it.
      */
     protected static function doAttemptReconcile($self) {
 
@@ -988,7 +989,7 @@ class BankStatementLine extends Model {
     }
 
     /**
-     * La création d'une écriture comtpable à partir d'une ligne de relevé est un cas particulier, uniquement lorsqu'il n'y a qu'un seul paiement, et que ce paiement est lié à un funding de type 'statement_line'
+     *
      */
     protected static function policyCanGenerateAccountingEntry($self) {
         $result = [];
@@ -1047,8 +1048,14 @@ class BankStatementLine extends Model {
         return $result;
     }
 
+    // on ne doit pas générer une opération mais essayer de rattacher ce qui peut l'être 
     protected static function policyCanGenerateOrphanOperation($self) {
         $result = [];
+
+
+        // si les écritures ne sont pas lettrées : pas de payment pour la ligne
+        // on prend toutes les écritures de la ligne, et on cherche un matching 
+        // retrouver un matching dont le solde correspond au montant de la ligne
 
         $self->read([
                 'condo_id', 'status', 'payments_ids',
@@ -1084,8 +1091,8 @@ class BankStatementLine extends Model {
     }
 
     /**
-     * Generate and validate accounting entries, based on existing Payments
-     * In the case where the BankStatementLine is considered as the original accounting document, it is responsible for generating the accounting entry
+     * Generate and validate accounting entry, based on existing Payments.
+     * In the case where the BankStatementLine is considered as the original accounting document, it is responsible for generating the accounting entry,
      * and AccountingEntryLines (records) are linked to it.
      *
      * The entries to be made in the financial journal (BANK) .
@@ -1223,7 +1230,7 @@ class BankStatementLine extends Model {
                     AccountingEntry::id($accountingEntry['id'])
                         // instant validation of the created accounting entry
                         ->transition('validate')
-                        // attampt to match the entry with an existing match
+                        // attempt to match the entry with an existing match
                         ->do('attempt_match');
 
                 }
