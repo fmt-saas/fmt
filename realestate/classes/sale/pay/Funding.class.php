@@ -9,8 +9,10 @@ namespace realestate\sale\pay;
 
 use core\setting\Setting;
 use equal\data\DataFormatter;
+use finance\accounting\Matching;
 use finance\accounting\MiscOperation;
 use finance\bank\BankStatementLine;
+use realestate\finance\accounting\AccountingEntryLine;
 use realestate\finance\accounting\MoneyRefund;
 use realestate\finance\accounting\MoneyTransfer;
 use realestate\funding\ExpenseStatement;
@@ -52,10 +54,10 @@ class Funding extends \sale\pay\Funding {
             'accounting_entry_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\finance\accounting\AccountingEntryLine',
-                'description'       => "Accounting entry of the Matching.",
+                'foreign_field'     => 'funding_id',
+                'description'       => "Accounting entry lines (records) of the Funding.",
                 'domain'            => [
-                    ['condo_id', '=', 'object.condo_id'],
-                    ['matching_id', '=', 'object.id']
+                    ['condo_id', '=', 'object.condo_id']
                 ]
             ],
 
@@ -214,6 +216,11 @@ class Funding extends \sale\pay\Funding {
                 'description'   => 'Update status according to currently paid amount.',
                 'policies'      => [],
                 'function'      => 'doRefreshStatus'
+            ],
+            'match_accounting_entries' => [
+                'description'   => 'Update status according to currently paid amount.',
+                'policies'      => [],
+                'function'      => 'doMatchAccountingEntries'
             ]
         ]);
     }
@@ -248,13 +255,12 @@ class Funding extends \sale\pay\Funding {
         return $result;
     }
 
-    private static function computeAccountingEntryLinesIds($id, $accounting_account_id) {
-        $result = [];
-
-        $self = self::id($id)->read([
-                // lignes qui ont été mises sur le funding via une ligne d'extrait
+    protected static function doMatchAccountingEntries($self) {
+        $self->read([
+                'condo_id',
+                // lines from Bank Statement
                 'accounting_entry_lines_ids',
-                // lignes retrouvées à partir des entrées des linked accounting documents
+                // lines from accounting entries linked accounting documents
                 'funding_type',
                 'money_refund_id',
                 'money_transfer_id',
@@ -264,25 +270,47 @@ class Funding extends \sale\pay\Funding {
             ]);
 
         foreach($self as $id => $funding) {
+            $accounting_entry_lines_ids = $funding['accounting_entry_lines_ids'];
             switch($funding['funding_type']) {
                 case 'expense_statement':
-                    ExpenseStatement::id($funding['expense_statement_id'])->read(['accounting_entry_id' => ['entry_lines_ids']]);
+                    $expenseStatement = ExpenseStatement::id($funding['expense_statement_id'])->read(['accounting_entry_id' => ['entry_lines_ids']])->first();
+                    $accounting_entry_lines_ids = array_merge($accounting_entry_lines_ids, $expenseStatement['accounting_entry_id']['entry_lines_ids']);
                     break;
                 case 'fund_request':
-                    FundRequestExecution::id($funding['fund_request_execution_id'])->read(['accounting_entry_id' => ['entry_lines_ids']]);
+                    $fundRequest = FundRequestExecution::id($funding['fund_request_execution_id'])->read(['accounting_entry_id' => ['entry_lines_ids']])->first();
+                    $accounting_entry_lines_ids = array_merge($accounting_entry_lines_ids, $fundRequest['accounting_entry_id']['entry_lines_ids']);
                     break;
                 case 'purchase_invoice':
-                    PurchaseInvoice::id($funding['purchase_invoice_id'])->read(['accounting_entry_id' => ['entry_lines_ids']]);
+                    $purchaseInvoice = PurchaseInvoice::id($funding['purchase_invoice_id'])->read(['accounting_entry_id' => ['entry_lines_ids']])->first();
+                    $accounting_entry_lines_ids = array_merge($accounting_entry_lines_ids, $purchaseInvoice['accounting_entry_id']['entry_lines_ids']);
                     break;
                 case 'refund':
-                    MoneyRefund::id($funding['money_refund_id'])->read(['accounting_entry_id' => ['entry_lines_ids']]);
+                    $refund = MoneyRefund::id($funding['money_refund_id'])->read(['fundings_ids' => ['accounting_entry_lines_ids']])->first();
+                    foreach($refund['fundings_ids'] as $extFunding) {
+                        $accounting_entry_lines_ids = array_merge($accounting_entry_lines_ids, $extFunding['accounting_entry_lines_ids']);
+                    }
                     break;
                 case 'transfer':
+                    $transfer = MoneyTransfer::id($funding['money_transfer_id'])->read(['fundings_ids' => ['accounting_entry_lines_ids']])->first();
+                    foreach($transfer['fundings_ids'] as $extFunding) {
+                        $accounting_entry_lines_ids = array_merge($accounting_entry_lines_ids, $extFunding['accounting_entry_lines_ids']);
+                    }
                     break;
             }
-        }
+            $map_account_entry_lines = [];
+            $accountingEntryLines = AccountingEntryLine::ids($accounting_entry_lines_ids)->read(['account_id']);
+            foreach($accountingEntryLines as $accounting_entry_line_id => $accountingEntryLine) {
+                $map_account_entry_lines[$accountingEntryLine['account_id']][] = $accounting_entry_line_id;
+            }
 
-        return $result;
+            foreach($map_account_entry_lines as $accounting_account_id => $accounting_entry_lines_ids) {
+                Matching::create([
+                        'condo_id'              => $funding['condo_id'],
+                        'accounting_account_id' => $accounting_account_id
+                    ])
+                    ->update(['accounting_entry_lines_ids' => $accounting_entry_lines_ids]);
+            }
+        }
     }
 
     protected static function doRefreshStatus($self) {

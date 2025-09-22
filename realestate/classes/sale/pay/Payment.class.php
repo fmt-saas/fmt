@@ -100,7 +100,9 @@ class Payment extends \sale\pay\Payment {
     protected static function onafterPost($self) {
         $self->read(['funding_id' => ['funding_type']]);
         foreach($self as $id => $payment) {
-            Funding::id($payment['funding_id']['id'])->do('refresh_status');
+            Funding::id($payment['funding_id']['id'])
+                ->do('refresh_status')
+                ->do('match_accounting_entries');
         }
     }
 
