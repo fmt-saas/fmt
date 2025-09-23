@@ -238,22 +238,30 @@ class AccountingEntryLine extends Model {
                     self::id($id)->update(['matching_id' => $matching['id']]);
                 }
                 else {
-                    AccountingEntryLine::search([
-                        [
-                            ['condo_id', '=',  $accountingEntryLine['condo_id']],
-                            ['account_id', '=', $accountingEntryLine['account_id']['id']],
-                            ['matching_id', '=', null],
-                            ['debit', '=', $accountingEntryLine['credit']],
-                            ['debit', '>', 0]
-                        ],
-                        [
-                            ['condo_id', '=',  $accountingEntryLine['condo_id']],
-                            ['account_id', '=', $accountingEntryLine['account_id']['id']],
-                            ['matching_id', '=', null],
-                            ['credit', '=', $accountingEntryLine['debit']],
-                            ['credit', '>', 0]
-                        ]
-                    ]);
+                    $counterpartAccountingEntryLine = AccountingEntryLine::search([
+                            [
+                                ['condo_id', '=',  $accountingEntryLine['condo_id']],
+                                ['account_id', '=', $accountingEntryLine['account_id']['id']],
+                                ['matching_id', '=', null],
+                                ['debit', '=', $accountingEntryLine['credit']],
+                                ['debit', '>', 0]
+                            ],
+                            [
+                                ['condo_id', '=',  $accountingEntryLine['condo_id']],
+                                ['account_id', '=', $accountingEntryLine['account_id']['id']],
+                                ['matching_id', '=', null],
+                                ['credit', '=', $accountingEntryLine['debit']],
+                                ['credit', '>', 0]
+                            ]
+                        ])
+                        ->first();
+                    if($counterpartAccountingEntryLine) {
+                        Matching::create([
+                                'condo_id'              => $accountingEntryLine['condo_id'],
+                                'accounting_account_id' => $accountingEntryLine['account_id']['id']
+                            ])
+                            ->update(['accounting_entry_lines_ids' => [$id, $counterpartAccountingEntryLine['id']]]);
+                    }
                 }
             }
 
