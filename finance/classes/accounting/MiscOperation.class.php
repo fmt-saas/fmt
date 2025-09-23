@@ -162,6 +162,7 @@ class MiscOperation extends Model {
                     'post' => [
                         'description' => 'Create accounting entries and update the document to `posted`.',
                         'policies'    => ['is_valid'],
+                        'onbefore'    => 'onbeforePost',
                         'status'      => 'posted'
                     ]
                 ]
@@ -391,6 +392,12 @@ class MiscOperation extends Model {
                 AccountingEntry::id($miscOperation['accounting_entry_id']['id'])->transition('validate');
             }
         }
+    }
+
+    protected static function onbeforePost($self) {
+        $self
+            ->do('generate_accounting_entry')
+            ->do('validate_accounting_entry');
     }
 
     protected static function doCreateFundings($self) {
