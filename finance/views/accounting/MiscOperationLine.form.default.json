@@ -38,6 +38,11 @@
                                                 "type": "field",
                                                 "value": "credit",
                                                 "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "name",
+                                                "width": "50%"
                                             }
                                         ]
                                     }

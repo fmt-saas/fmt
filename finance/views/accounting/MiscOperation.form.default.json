@@ -128,15 +128,10 @@
                                                 "visible": false
                                             },
                                             {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "66%"
-                                            },
-                                            {
                                                 "type": "field",
                                                 "value": "is_balanced",
                                                 "width": "66%",
-                                                "visible": ["status", "<>", "pending"]
+                                                "visible": ["state", "<>", "draft"]
                                             }
                                         ]
                                     }

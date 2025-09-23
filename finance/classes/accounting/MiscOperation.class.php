@@ -235,6 +235,48 @@ class MiscOperation extends Model {
 
     }
 
+    protected static function doGenerateAccountingEntry($self) {
+        $self->read([
+                'condo_id', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
+                'description',
+                'misc_operation_lines_ids' => ['account_id', 'debit', 'credit']
+            ]);
+        foreach ($self as $id => $miscOperation) {
+
+            // remove any previously created accounting entry (resulting from an incomplete operation)
+            AccountingEntry::search([
+                    ['condo_id', '=', $miscOperation['condo_id']],
+                    ['origin_object_class', '=', self::getType()],
+                    ['origin_object_id', '=', $id]
+                ])
+                ->delete(true);
+
+            $accountingEntry = AccountingEntry::create([
+                    'condo_id'              => $miscOperation['condo_id'],
+                    'entry_date'            => $miscOperation['posting_date'],
+                    'origin_object_class'   => self::getType(),
+                    'origin_object_id'      => $id,
+                    'description'           => $miscOperation['description'],
+                    'journal_id'            => $miscOperation['journal_id'],
+                    'fiscal_year_id'        => $miscOperation['fiscal_year_id'],
+                    'fiscal_period_id'      => $miscOperation['fiscal_period_id']
+                ])
+                ->first();
+
+            foreach($miscOperation['misc_operation_lines_ids'] as $line) {
+                AccountingEntryLine::create([
+                        'account_id'            => $line['account_id'],
+                        'debit'                 => $line['debit'],
+                        'credit'                => $line['credit'],
+                        'accounting_entry_id'   => $accountingEntry['id']
+                    ]);
+            }
+
+            // Store the created accounting entry ID back to the misc operation
+            self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
+        }
+    }
+
     private static function computeFiscalYearId($condo_id, $posting_date) {
         $result = null;
 

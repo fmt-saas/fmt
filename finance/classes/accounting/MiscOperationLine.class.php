@@ -27,6 +27,11 @@ class MiscOperationLine extends Model {
                 'default'           => 'defaultCondoId'
             ],
 
+            'name' => [
+                'type'              => 'string',
+                'description'       => 'Label for identifying the entry line.',
+            ],
+
             'misc_operation_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\MiscOperation',
