@@ -798,6 +798,7 @@ class BankStatementLine extends Model {
         $self->read([
                 'condo_id',
                 'status',
+                'accounting_account_id',
                 'bank_statement_id',
                 'payments_ids' => ['funding_id']
             ]);
@@ -809,9 +810,9 @@ class BankStatementLine extends Model {
                 continue;
             }
 
-            if($bankStatementLine['payments_ids']->count() <= 0) {
+            if($bankStatementLine['payments_ids']->count() <= 0 && !$bankStatementLine['accounting_account_id']) {
                 $result[$id] = [
-                    'invalid_status' => 'Only bank statement without payment cannot be posted.'
+                    'invalid_status' => 'Bank statement without payment nor accounting account cannot be posted.'
                 ];
                 continue;
             }
