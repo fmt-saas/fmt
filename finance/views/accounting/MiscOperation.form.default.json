@@ -38,6 +38,28 @@
             },
             "confirm": false,
             "visible": ["status", "=", "proforma"]
+        },
+        {
+            "id": "action.generate_accounting_entry",
+            "label": "Generate accounting entry",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "finance\\accounting\\MiscOperation",
+                "action": "generate_accounting_entry",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.validate_accounting_entry",
+            "label": "Validate accounting entry",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "finance\\accounting\\MiscOperation",
+                "action": "validate_accounting_entry",
+                "ids": []
+            },
+            "confirm": true
         }
     ],
     "layout": {
@@ -127,6 +149,7 @@
             {
                 "sections": [
                     {
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [
