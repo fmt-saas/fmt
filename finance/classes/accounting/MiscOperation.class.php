@@ -390,10 +390,15 @@ class MiscOperation extends Model {
 
     protected static function calcName($self) {
         $result = [];
-        $self->read(['description', 'operation_type', 'condo_id' => ['code']]);
+        $self->read(['description', 'operation_type', 'accounting_entry_id' => ['status', 'entry_number'], 'condo_id' => ['code']]);
         foreach($self as $id => $operation) {
-            // $result[$id] = sprintf("%05d - %s - %s (%s)", $id, $operation['condo_id']['code'], $operation['description'], $operation['operation_type']);
-            $result[$id] = sprintf("%05d - %s (%s)", $id, $operation['description'], $operation['operation_type']);
+            if($operation['accounting_entry_id']['status'] === 'validated') {
+                $result[$id] = $operation['accounting_entry_id']['entry_number'];
+            }
+            else {
+                // $result[$id] = sprintf("%05d - %s - %s (%s)", $id, $operation['condo_id']['code'], $operation['description'], $operation['operation_type']);
+                $result[$id] = sprintf("%05d - %s (%s)", $id, $operation['description'], $operation['operation_type']);
+            }
         }
         return $result;
     }
@@ -410,7 +415,8 @@ class MiscOperation extends Model {
     protected static function onbeforePost($self) {
         $self
             ->do('generate_accounting_entry')
-            ->do('validate_accounting_entry');
+            ->do('validate_accounting_entry')
+            ->update(['name' => null]);
     }
 
     protected static function doCreateFundings($self) {

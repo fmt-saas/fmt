@@ -19,6 +19,7 @@
             },
             {
                 "type": "field",
+                "label": "Entry number",
                 "value": "name",
                 "width": "9%"
             },
