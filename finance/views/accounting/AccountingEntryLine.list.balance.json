@@ -56,7 +56,7 @@
             },
             {
                 "type": "field",
-                "value": "name",
+                "value": "description",
                 "width": "25%"
             },
             {
