@@ -425,7 +425,7 @@ class MiscOperation extends Model {
         foreach($self as $id => $miscOperation) {
             // only allow editable fields
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
-                if($miscOperation['status'] != 'proforma') {
+                if(!in_array($miscOperation['status'], ['pending', 'proforma'])) {
                     return ['status' => ['non_editable' => "Invoice can only be updated while its status is proforma ({$id})."]];
                 }
             }
