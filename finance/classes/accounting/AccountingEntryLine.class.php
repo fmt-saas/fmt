@@ -226,6 +226,7 @@ class AccountingEntryLine extends Model {
                 $amount = round($accountingEntryLine['debit'] - $accountingEntryLine['credit'], 2);
                 $matching = Matching::search([
                         ['condo_id', '=', $accountingEntryLine['condo_id']],
+                        ['accounting_account_id', '=', $accountingEntryLine['account_id']['id']],
                         ['balance_amount', '=', $amount],
                         ['is_balanced', '=', false]
                     ],
@@ -236,7 +237,26 @@ class AccountingEntryLine extends Model {
                 if($matching) {
                     self::id($id)->update(['matching_id' => $matching['id']]);
                 }
+                else {
+                    AccountingEntryLine::search([
+                        [
+                            ['condo_id', '=',  $accountingEntryLine['condo_id']],
+                            ['account_id', '=', $accountingEntryLine['account_id']['id']],
+                            ['matching_id', '=', null],
+                            ['debit', '=', $accountingEntryLine['credit']],
+                            ['debit', '>', 0]
+                        ],
+                        [
+                            ['condo_id', '=',  $accountingEntryLine['condo_id']],
+                            ['account_id', '=', $accountingEntryLine['account_id']['id']],
+                            ['matching_id', '=', null],
+                            ['credit', '=', $accountingEntryLine['debit']],
+                            ['credit', '>', 0]
+                        ]
+                    ]);
+                }
             }
+
         }
     }
 

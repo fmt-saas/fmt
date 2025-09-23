@@ -1009,7 +1009,8 @@ class BankStatementLine extends Model {
                             'entry_date'            => $bankStatementLine['date'],
                             'origin_object_class'   => self::getType(),
                             'origin_object_id'      => $id,
-                            'journal_id'            => $journal['id']
+                            'journal_id'            => $journal['id'],
+                            'description'           => $bankStatementLine['communication']
                         ])
                         ->first();
 
@@ -1020,7 +1021,8 @@ class BankStatementLine extends Model {
                             'debit'                  => $amount > 0 ? abs($amount) : 0,
                             'credit'                 => $amount < 0 ? abs($amount) : 0,
                             'accounting_entry_id'    => $accountingEntry['id'],
-                            'bank_statement_line_id' => $id
+                            'bank_statement_line_id' => $id,
+                            'description'            => $bankStatementLine['communication']
                         ]);
 
                     // credit line
@@ -1030,7 +1032,8 @@ class BankStatementLine extends Model {
                             'debit'                  => $amount < 0 ? abs($amount) : 0,
                             'credit'                 => $amount > 0 ? abs($amount) : 0,
                             'accounting_entry_id'    => $accountingEntry['id'],
-                            'bank_statement_line_id' => $id
+                            'bank_statement_line_id' => $id,
+                            'description'            => $bankStatementLine['communication']
                         ]);
 
 
