@@ -977,7 +977,7 @@ class BankStatementLine extends Model {
                                 'funding_id'             => $funding['id'],
                                 'accounting_entry_id'    => $accountingEntry['id'],
                                 'bank_statement_line_id' => $id,
-                                'description'           => $bankStatementLine['communication']
+                                'description'            => $bankStatementLine['communication']
                             ]);
 
                         // instant validation of the created accounting entry
