@@ -15,10 +15,7 @@ use realestate\sale\pay\Funding;
 use realestate\sale\pay\Payment;
 use finance\bank\BankStatement;
 use finance\bank\CondominiumBankAccount;
-use purchase\supplier\Suppliership;
-use realestate\finance\accounting\MoneyRefund;
 use realestate\finance\accounting\MoneyTransfer;
-use realestate\ownership\Ownership;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
 
@@ -360,12 +357,6 @@ class BankStatementLine extends Model {
                 'policies'      => [],
                 'function'      => 'doReconcileWithFunding'
             ],
-            // #todo - create and attempt to auto reconcile with an existing Matching
-            'generate_orphan_operation' => [
-                'description'   => 'Creates Funding and related Payment that use the Bank Statement line itself as accounting document.',
-                'policies'      => [ 'can_generate_orphan_operation' ],
-                'function'      => 'doGenerateOrphanOperation'
-            ],
             'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
                 'help'          => 'This is run only when posting (in `onbeforePost`).',
@@ -405,196 +396,7 @@ class BankStatementLine extends Model {
 
 
     /**
-     *  The line is expected to be assigned to an accounting account, but with no Payment (nor Funding)
-     */
-
-// #todo - on créée pas de funding dans ce cas, on  générer une écriture comtpable arbitraire sur base de la ligne    (accounting_account_id)
-// si une ligne a un accounting_account_id, on permet aussi de sélectionner une écriture de contrepartie ou un Matching/Funding ouvert
-// a la validation, on crée une écriture sans paiement
-// note : si la ligne a des paiements, on peut les voir et voir les liens avec les Fundings
-    protected static function doGenerateOrphanOperation($self) {
-        $self->read([
-                'condo_id',
-                'date',
-                'is_reconciled',
-                'amount',
-                'account_iban',
-                'communication',
-                'is_misc',
-                'is_income',
-                'is_expense',
-                'is_income',
-                'is_transfer',
-                'is_owner',
-                'is_supplier',
-                'accounting_account_id',
-                'payments_ids',
-                'bank_statement_id' => ['bank_account_id' => ['id', 'accounting_account_id']],
-            ]);
-
-        foreach($self as $id => $bankStatementLine) {
-
-            if(count($bankStatementLine['payments_ids']) > 0) {
-                continue;
-            }
-
-            if(!$bankStatementLine['accounting_account_id']) {
-                continue;
-            }
-
-            $amount = $bankStatementLine['amount'];
-
-            if($bankStatementLine['is_misc']) {
-                // retrieve the BANK accounting journal
-                $miscJournal = Journal::search([['journal_type', '=', 'MISC'], ['condo_id', '=', $bankStatementLine['condo_id']]])->first();
-
-                // 1) create a Misc Operation
-                $bank_account_accounting_account_id = $bankStatementLine['bank_statement_id']['bank_account_id']['accounting_account_id'];
-
-                $miscOperation = MiscOperation::create([
-                        'condo_id'          => $bankStatementLine['condo_id'],
-                        'description'       => 'reprise sur compte bancaire',
-                        'posting_date'      => time(),
-                        'journal_id'        => $miscJournal['id'],
-                        'operation_type'    => 'misc'
-                    ])
-                    ->first();
-
-                MiscOperationLine::create([
-                        'condo_id'          => $bankStatementLine['condo_id'],
-                        'misc_operation_id' => $miscOperation['id'],
-                        'account_id'        => $bank_account_accounting_account_id,
-                        'debit'             => $amount > 0 ? abs($amount) : 0,
-                        'credit'            => $amount < 0 ? abs($amount) : 0,
-                    ]);
-
-                MiscOperationLine::create([
-                        'condo_id'          => $bankStatementLine['condo_id'],
-                        'misc_operation_id' => $miscOperation['id'],
-                        'account_id'        => $bankStatementLine['accounting_account_id'],
-                        'debit'             => $amount < 0 ? abs($amount) : 0,
-                        'credit'            => $amount > 0 ? abs($amount) : 0,
-                    ]);
-
-                // 2) create a Funding for this Misc Op
-                // #memo - MiscOp can be made on any account, so there is no generic way to create fundings inherent to MiscOperation (no `create_fundings` action)
-                $funding = Funding::create([
-                        'condo_id'                          => $bankStatementLine['condo_id'],
-                        'misc_operation_id'                 => $miscOperation['id'],
-                        'funding_type'                      => 'misc',
-                        'due_amount'                        => $amount,
-                        'bank_account_id'                   => $bankStatementLine['bank_statement_id']['bank_account_id']['id'],
-                        'accounting_account_id' => $bankStatementLine['accounting_account_id'],
-                        'due_date'                          => time() + 10 * 86400,
-                        // #memo - payment_reference is a computed field
-                    ])
-                    ->first();
-
-            }
-            // movement from one banking accounting to another
-            elseif($bankStatementLine['is_transfer']) {
-
-                // si le montant est positif c'est du compte contrepartie vers le compte de l'extrait
-                // si le montant est négatif c'est du compte de l'extrait vers le compte contrepartie
-                $condoBankAccount = CondominiumBankAccount::search([['condo_id', '=', $bankStatementLine['condo_id']], ['bank_account_iban', '=', $bankStatementLine['account_iban']]])->first();
-
-                if($amount < 0) {
-                    $bank_account_id = $bankStatementLine['bank_statement_id']['bank_account_id']['id'];
-                    $counterpart_bank_account_id = $condoBankAccount['id'];
-                }
-                else {
-                    $bank_account_id = $condoBankAccount['id'];
-                    $counterpart_bank_account_id = $bankStatementLine['bank_statement_id']['bank_account_id']['id'];
-                }
-
-        // #todo - ne créer que s'il n'existe pas encore
-                // create MoneyTransfer
-                $moneyTransfers = MoneyTransfer::create([
-                        'condo_id'                      => $bankStatementLine['condo_id'],
-                        'description'                   => $bankStatementLine['communication'],
-                        'posting_date'                  => $bankStatementLine['date'],
-                        'amount'                        => $amount,
-                        'bank_account_id'               => $bank_account_id,
-                        'counterpart_bank_account_id'   => $counterpart_bank_account_id
-                    ]);
-
-                // create funding
-                $moneyTransfers->do('create_fundings');
-                $moneyTransfer = $moneyTransfers->first();
-
-                $funding = Funding::search([['money_transfer_id', '=', $moneyTransfer['id']]])->first();
-            }
-            // movement on ownership/suppliership accounts, without counterpart accounting document (bank statement line is the accounting document)
-            elseif($bankStatementLine['is_owner'] || $bankStatementLine['is_supplier']) {
-                // pour le moment, on ne gère pas ce cas (la comptabilisation est ambigue)
-                $values = [
-                        'condo_id'                          => $bankStatementLine['condo_id'],
-                        'bank_statement_line_id'            => $id,
-                        'funding_type'                      => 'statement_line',
-                        'due_amount'                        => $bankStatementLine['amount'],
-                        'bank_account_id'                   => $bankStatementLine['bank_statement_id']['bank_account_id']['id'],
-                        'accounting_account_id' => $bankStatementLine['accounting_account_id'],
-                        // #memo - avoid any irrelevant alert
-                        'due_date'                          => time() + (10 * 86400),
-                        // #memo - payment_reference is a computed field
-                    ];
-
-                if($bankStatementLine['is_owner'] ) {
-                    // retrieve ownership_id from given accounting_account_id
-                    $account = Account::id($bankStatementLine['accounting_account_id'])->read(['ownership_id'])->first();
-                    $values['ownership_id'] = $account['ownership_id'];
-                }
-                elseif($bankStatementLine['is_supplier'] ) {
-                    // retrieve suppliership_id from given accounting_account_id
-                    $account = Account::id($bankStatementLine['accounting_account_id'])->read(['suppliership_id'])->first();
-                    $values['suppliership_id'] = $account['suppliership_id'];
-                }
-
-                $funding = Funding::create($values)->first();
-            }
-            // movement on expense/income accounts, without counterpart accounting document
-            elseif($bankStatementLine['is_expense'] || $bankStatementLine['is_income']) {
-
-                $funding = Funding::create([
-                    'condo_id'                          => $bankStatementLine['condo_id'],
-                    'bank_statement_line_id'            => $id,
-                    'funding_type'                      => 'statement_line',
-                    'due_amount'                        => $bankStatementLine['amount'],
-                    'bank_account_id'                   => $bankStatementLine['bank_statement_id']['bank_account_id']['id'],
-                    'accounting_account_id'             => $bankStatementLine['accounting_account_id'],
-                    // #memo - avoid any irrelevant alert
-                    'due_date'                          => time() + (10 * 86400),
-                    // #memo - payment_reference is a computed field
-                ])
-                ->first();
-            }
-
-            // create the related Payment
-            Payment::create([
-                    'condo_id'                  => $bankStatementLine['condo_id'],
-                    'amount'                    => $bankStatementLine['amount'],
-                    'communication'             => $bankStatementLine['communication'],
-                    'receipt_date'              => $bankStatementLine['date'],
-                    'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id']['id'],
-                    'payment_origin'            => 'bank',
-                    'payment_method'            => 'wire_transfer',
-                    'bank_statement_line_id'    => $id,
-                    'funding_id'                => $funding['id']
-                ]);
-
-        }
-    }
-
-
-
-    protected static function doReconcileWithMatching($self, $values) {
-    }
-
-
-
-    /**
-     * Reconcile the line by creating a Payment.
-     * Link the line with a Payment attached to given funding.
+     * Reconcile the line by creating a Payment and linking the line to related funding.
      *
      */
     protected static function doReconcileWithFunding($self, $values) {
@@ -1110,6 +912,7 @@ class BankStatementLine extends Model {
                 'date',
                 'amount',
                 'communication',
+                'matching_id',
                 'accounting_account_id',
                 'bank_statement_id' => ['bank_account_id'],
                 'payments_ids' => [
@@ -1229,10 +1032,19 @@ class BankStatementLine extends Model {
 
                     AccountingEntry::id($accountingEntry['id'])
                         // instant validation of the created accounting entry
-                        ->transition('validate')
-                        // attempt to match the entry with an existing match
-                        ->do('attempt_match');
+                        ->transition('validate');
 
+
+                    if($bankStatementLine['matching_id']) {
+                        // arbitrary match entry with given (existing) match
+                        AccountingEntry::id($accountingEntry['id'])
+                            ->do('match_with_matching', ['matching_id' => $bankStatementLine['matching_id']]);
+                    }
+                    else {
+                        // attempt to match the entry with an existing match (will cascade to accounting entry lines)
+                        AccountingEntry::id($accountingEntry['id'])
+                            ->do('attempt_match');
+                    }
                 }
                 catch(\Exception $e) {
                     trigger_error("APP::doGenerateAccountingEntry: Error while creating accounting entries for Bank Statement Line #{$id} : " . $e->getMessage(), EQ_REPORT_ERROR);

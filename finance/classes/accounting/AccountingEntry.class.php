@@ -244,6 +244,11 @@ class AccountingEntry extends Model {
                 'description'   => 'Attempts to find a suitable Matching and, if so, links the entry to it.',
                 'policies'      => [/* */],
                 'function'      => 'doAttemptMatch'
+            ],
+            'match_with_matching' => [
+                'description'   => 'Arbitrary link entry lines to a given Matching.',
+                'policies'      => [/* */],
+                'function'      => 'doMatchWithMatching'
             ]
         ];
     }
@@ -311,6 +316,30 @@ class AccountingEntry extends Model {
         $self->read(['entry_lines_ids']);
         foreach($self as $id => $accountingEntry) {
             AccountingEntryLine::ids($accountingEntry['entry_lines_ids'])->do('attempt_match');
+        }
+    }
+
+    // #memo - matching is performed at AccountingEntryLne (records) level
+    protected static function doMatchWithMatching($self, $values) {
+        if(!isset($values['matching_id'])) {
+            throw new \Exception('missing_mandatory_matching_id', EQ_ERROR_INVALID_PARAM);
+        }
+
+        $matching = Matching::id($values['matching_id'])
+            ->read(['accounting_account_id'])
+            ->first();
+
+        if(!$matching) {
+            throw new \Exception('provided_matching_not_found', EQ_ERROR_INVALID_PARAM);
+        }
+
+        $self->read(['entry_lines_ids' => ['account_id']]);
+        foreach($self as $id => $accountingEntry) {
+            foreach($accountingEntry['entry_lines_ids'] as $accounting_entry_line_id => $accountingEntryLine) {
+                if($accountingEntryLine['account_id'] == $matching['accounting_account_id']) {
+                    AccountingEntryLine::id($accounting_entry_line_id)->do('match_with_matching', ['matching_id' => $matching['id']]);
+                }
+            }
         }
     }
 

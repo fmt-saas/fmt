@@ -174,9 +174,14 @@ class AccountingEntryLine extends Model {
     public static function getActions() {
         return [
             'attempt_match' => [
-                'description'   => 'Attempts to find a suitable Matching and, if so, links the entry to it.',
+                'description'   => 'Attempts to find a suitable Matching and, if so, links the entry line to it.',
                 'policies'      => [/* */],
                 'function'      => 'doAttemptMatch'
+            ],
+            'match_with_matching' => [
+                'description'   => 'Arbitrary link the entry line to a given Matching.',
+                'policies'      => [/* */],
+                'function'      => 'doMatchWithMatching'
             ],
             'refresh_matching_level' => [
                 'description'   => 'Update status according to currently paid amount.',
@@ -186,6 +191,20 @@ class AccountingEntryLine extends Model {
         ];
     }
 
+    protected static function doMatchWithMatching($self, $values) {
+        if(!isset($values['matching_id'])) {
+            throw new \Exception('missing_mandatory_matching_id', EQ_ERROR_INVALID_PARAM);
+        }
+
+        $matching = Matching::id($values['matching_id'])
+            ->first();
+
+        if(!$matching) {
+            throw new \Exception('provided_matching_not_found', EQ_ERROR_INVALID_PARAM);
+        }
+
+        $self->update(['matching_id' => $matching['id']]);
+    }
 
     protected static function doAttemptMatch($self) {
         $self->read(['condo_id', 'matching_id', 'account_id' => ['account_type'], 'debit', 'credit']);
@@ -212,7 +231,6 @@ class AccountingEntryLine extends Model {
             }
         }
     }
-
 
     protected static function doRefreshMatchingLevel($self) {
         $self->update(['matching_level' => null]);

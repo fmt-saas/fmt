@@ -6,13 +6,11 @@
 */
 
 use finance\accounting\Account;
-use finance\accounting\AccountingEntry;
 use finance\accounting\AccountingEntryLine;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Advanced search for Balance Lines: returns a collection of Reports according to extra parameters.',
     'help'          => 'When linking a bank statement line, the accounting entry line does exist yet.',
-    'extends'       => 'core_model_collect',
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
@@ -42,7 +40,7 @@ $account = Account::id($params['id'])
     ->first();
 
 if(!$account) {
-    throw new Exception('unknown_accounting_entry', EQ_ERROR_UNKNOWN_OBJECT);
+    throw new Exception('unknown_accounting_account', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 $accountingEntryLines = AccountingEntryLine::search([
