@@ -255,6 +255,7 @@ class MiscOperation extends Model {
                 'description',
                 'misc_operation_lines_ids' => ['account_id', 'debit', 'credit']
             ]);
+
         foreach ($self as $id => $miscOperation) {
 
             // remove any previously created accounting entry (resulting from an incomplete operation)
@@ -282,7 +283,8 @@ class MiscOperation extends Model {
                         'account_id'            => $line['account_id'],
                         'debit'                 => $line['debit'],
                         'credit'                => $line['credit'],
-                        'accounting_entry_id'   => $accountingEntry['id']
+                        'accounting_entry_id'   => $accountingEntry['id'],
+                        'description'           => $line['description']
                     ]);
             }
 

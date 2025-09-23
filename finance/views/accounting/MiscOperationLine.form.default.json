@@ -41,7 +41,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "name",
+                                                "value": "description",
                                                 "width": "50%"
                                             }
                                         ]

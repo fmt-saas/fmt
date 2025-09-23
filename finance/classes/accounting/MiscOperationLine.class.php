@@ -32,6 +32,11 @@ class MiscOperationLine extends Model {
                 'description'       => 'Label for identifying the entry line.',
             ],
 
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Short description of the identifying the entry line.',
+            ],
+
             'misc_operation_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\MiscOperation',
@@ -84,6 +89,16 @@ class MiscOperationLine extends Model {
             ]
 
         ];
+    }
+
+    // description de la MiscOperation
+    protected static function oncreate($self, $values, $lang) {
+        if(isset($values['misc_operation_id'])) {
+            $miscOperation = MiscOperation::id($values['misc_operation_id'])
+                ->read(['description'])
+                ->first();
+            $self->update(['description' => $miscOperation['description']], $lang);
+        }
     }
 
 }

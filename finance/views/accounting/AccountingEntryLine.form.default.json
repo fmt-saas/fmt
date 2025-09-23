@@ -26,7 +26,7 @@
                                                 "value": "account_id",
                                                 "width": "50%"
                                             },
-{
+                                            {
                                                 "type": "field",
                                                 "value": "debit",
                                                 "width": "25%"
@@ -35,6 +35,11 @@
                                                 "type": "field",
                                                 "value": "credit",
                                                 "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "description",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",

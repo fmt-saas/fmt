@@ -81,17 +81,22 @@
                                             {
                                                 "type": "label",
                                                 "value": "",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "posting_date",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "journal_id",
-                                                "width": "33%"
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_opening_journal",
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
