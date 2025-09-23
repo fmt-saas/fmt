@@ -951,7 +951,8 @@ class BankStatementLine extends Model {
                                 'entry_date'            => $payment['receipt_date'],
                                 'origin_object_class'   => self::getType(),
                                 'origin_object_id'      => $id,
-                                'journal_id'            => $payment['journal_id']
+                                'journal_id'            => $payment['journal_id'],
+                                'description'           => $bankStatementLine['communication']
                             ])
                             ->first();
 
@@ -962,7 +963,8 @@ class BankStatementLine extends Model {
                                 'debit'                  => $amount > 0 ? abs($amount) : 0,
                                 'credit'                 => $amount < 0 ? abs($amount) : 0,
                                 'accounting_entry_id'    => $accountingEntry['id'],
-                                'bank_statement_line_id' => $id
+                                'bank_statement_line_id' => $id,
+                                'description'           => $bankStatementLine['communication']
                             ]);
 
                         // credit line
@@ -973,7 +975,8 @@ class BankStatementLine extends Model {
                                 'credit'                 => $amount > 0 ? abs($amount) : 0,
                                 'funding_id'             => $funding['id'],
                                 'accounting_entry_id'    => $accountingEntry['id'],
-                                'bank_statement_line_id' => $id
+                                'bank_statement_line_id' => $id,
+                                'description'           => $bankStatementLine['communication']
                             ]);
 
                         // instant validation of the created accounting entry

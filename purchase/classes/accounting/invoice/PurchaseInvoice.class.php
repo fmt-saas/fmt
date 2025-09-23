@@ -66,13 +66,6 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
              * Specific Purchase Invoice columns
              */
 
-            'description' => [
-                'type'              => 'string',
-                'description'       => 'Short description of the invoice.',
-                'help'              => 'This is meant to be used as a reminder for easing invoice identification.',
-                'multilang'         => true
-            ],
-
             'supplier_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\supplier\Supplier',

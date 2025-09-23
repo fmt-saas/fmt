@@ -653,7 +653,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
             AccountingEntryLine::create([
                     'condo_id'              => $invoice['condo_id'],
                     'accounting_entry_id'   => $accountingEntry['id'],
-                    'name'                  => $description,
+                    'description'           => $description,
                     'account_id'            => $suppliershipAccount['id'],
                     'debit'                 => 0.0,
                     'credit'                => $invoice['price']
@@ -669,7 +669,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     AccountingEntryLine::create([
                             'condo_id'              => $invoice['condo_id'],
                             'accounting_entry_id'   => $accountingEntry['id'],
-                            'name'                  => $invoice['description'],
+                            'description'           => $invoice['description'],
                             'account_id'            => $fundUsageLine['expense_account_id'],
                             'debit'                 => $fundUsageLine['amount'],
                             'credit'                => 0.0
@@ -679,7 +679,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     AccountingEntryLine::create([
                             'condo_id'              => $invoice['condo_id'],
                             'accounting_entry_id'   => $accountingEntry['id'],
-                            'name'                  => $invoice['description'],
+                            'description'           => $invoice['description'],
                             'account_id'            => $fundUsageLine['fund_account_id'],
                             'debit'                 => 0.0,
                             'credit'                => $fundUsageLine['amount']
@@ -710,7 +710,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     AccountingEntryLine::create([
                             'condo_id'              => $invoice['condo_id'],
                             'accounting_entry_id'   => $accountingEntry['id'],
-                            'name'                  => $invoice['description'],
+                            'description'           => $invoice['description'],
                             'account_id'            => $privateExpenseAccount['id'],
                             'invoice_line_id'       => $invoice_line_id,
                             'debit'                 => $invoiceLine['price'],
@@ -722,7 +722,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                         AccountingEntryLine::create([
                                 'condo_id'              => $invoice['condo_id'],
                                 'accounting_entry_id'   => $accountingEntry['id'],
-                                'name'                  => $invoice['description'],
+                                'description'           => $invoice['description'],
                                 'account_id'            => $ownershipAccount['id'],
                                 'invoice_line_id'       => $invoice_line_id,
                                 'debit'                 => 0.0,
@@ -733,7 +733,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                         AccountingEntryLine::create([
                                 'condo_id'              => $invoice['condo_id'],
                                 'accounting_entry_id'   => $accountingEntry['id'],
-                                'name'                  => $invoice['description'],
+                                'description'           => $invoice['description'],
                                 'account_id'            => $privateExpenseAccount['id'],
                                 'invoice_line_id'       => $invoice_line_id,
                                 'debit'                 => 0.0,
@@ -754,7 +754,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     AccountingEntryLine::create([
                             'condo_id'              => $invoice['condo_id'],
                             'accounting_entry_id'   => $accountingEntry['id'],
-                            'name'                  => $invoice['description'],
+                            'description'           => $invoice['description'],
                             'account_id'            => $invoiceLine['expense_account_id'],
                             'invoice_line_id'       => $invoice_line_id,
                             'debit'                 => $invoiceLine['price'],
@@ -798,7 +798,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                             AccountingEntryLine::create([
                                     'condo_id'              => $invoice['condo_id'],
                                     'accounting_entry_id'   => $accountingEntry['id'],
-                                    'name'                  => $description,
+                                    'description'           => $description,
                                     'account_id'            => $invoiceLine['expense_account_id'],
                                     'invoice_line_id'       => $invoice_line_id,
                                     'debit'                 => $invoiceLine['price'],
@@ -839,7 +839,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                             AccountingEntryLine::create([
                                     'condo_id'              => $invoice['condo_id'],
                                     'accounting_entry_id'   => $accountingEntry['id'],
-                                    'name'                  => $description,
+                                    'description'           => $description,
                                     'account_id'            => $deferredExpensesAccount['id'],
                                     'invoice_line_id'       => $invoice_line_id,
                                     'debit'                 => $amount,
@@ -850,7 +850,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                             AccountingEntryLine::create([
                                     'condo_id'              => $invoice['condo_id'],
                                     'accounting_entry_id'   => $accountingEntry['id'],
-                                    'name'                  => $description,
+                                    'description'           => $description,
                                     'account_id'            => $invoiceLine['expense_account_id'],
                                     'invoice_line_id'       => $invoice_line_id,
                                     'debit'                 => 0.0,
@@ -884,7 +884,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                             AccountingEntryLine::create([
                                     'condo_id'              => $invoice['condo_id'],
                                     'accounting_entry_id'   => $plannedAccountingEntry['id'],
-                                    'name'                  => $description,
+                                    'description'           => $description,
                                     'account_id'            => $deferredExpensesAccount['id'],
                                     'invoice_line_id'       => $invoice_line_id,
                                     'debit'                 => 0.0,
@@ -895,7 +895,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                             AccountingEntryLine::create([
                                     'condo_id'              => $invoice['condo_id'],
                                     'accounting_entry_id'   => $plannedAccountingEntry['id'],
-                                    'name'                  => $description,
+                                    'description'           => $description,
                                     'account_id'            => $invoiceLine['expense_account_id'],
                                     'invoice_line_id'       => $invoice_line_id,
                                     'debit'                 => $amount,

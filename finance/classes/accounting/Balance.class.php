@@ -27,11 +27,20 @@ class Balance extends Model {
                 'readonly'          => true
             ],
 
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "The condominium the accounting entry refers to.",
+                'relation'          => ['fiscal_year_id' => 'name'],
+                'store'             => true
+            ],
+
             'fiscal_year_id' => [
                 'type'              => 'many2one',
                 'description'       => "The fiscal year the balance refers to.",
                 'foreign_object'    => 'finance\accounting\FiscalYear',
-                'readonly'          => true
+                'readonly'          => true,
+                'dependents'        => ['name']
             ],
 
             'is_period_balance' => [

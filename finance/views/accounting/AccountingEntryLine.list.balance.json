@@ -56,6 +56,11 @@
             },
             {
                 "type": "field",
+                "value": "entry_date",
+                "width": "15%"
+            },
+            {
+                "type": "field",
                 "value": "description",
                 "width": "25%"
             },

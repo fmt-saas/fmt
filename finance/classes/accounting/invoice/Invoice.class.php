@@ -38,6 +38,13 @@ class Invoice extends Model {
                 'description'       => 'Label of the invoice, depending on its status'
             ],
 
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Short description of the invoice.',
+                'help'              => 'This is meant to be used as a reminder for easing invoice identification.',
+                'multilang'         => true
+            ],
+
             'reference' => [
                 'type'              => 'string',
                 'description'       => 'Note or comments to be addressed to the customer.',
