@@ -70,7 +70,7 @@ class BankStatementLine extends Model {
                 'type'              => 'date',
                 'description'       => 'Date of the transaction as provided by the bank.',
                 'required'          => true,
-                // #todo - prendre la date du relevé
+            // #todo - prendre la date du relevé (parent)
                 'default'           => function() {return time();}
             ],
 

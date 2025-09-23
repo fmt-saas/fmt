@@ -704,7 +704,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     }
 
 
-// #todo - handle invoice_type
+                    // #todo - handle invoice_type
 
                     // create the debit line on the private expense account
                     AccountingEntryLine::create([

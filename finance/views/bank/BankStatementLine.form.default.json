@@ -26,8 +26,7 @@
             "description": "Validate the statement line.",
             "controller": "core_model_transition",
             "visible": [
-                ["status", "=", "pending"],
-                ["is_reconciled", "=", true]
+                ["status", "=", "pending"]
             ],
             "params": {
                 "entity": "finance\\bank\\BankStatementLine",
