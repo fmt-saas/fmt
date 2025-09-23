@@ -119,7 +119,8 @@ class AccountingEntryLine extends Model {
                     'full'
                 ],
                 'function'          => 'calcMatchingLevel',
-                'store'             => true
+                'store'             => true,
+                'instant'           => true
             ],
 
             'account_id' => [

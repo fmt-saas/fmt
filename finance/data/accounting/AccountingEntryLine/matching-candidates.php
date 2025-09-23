@@ -43,12 +43,23 @@ if(!$account) {
     throw new Exception('unknown_accounting_account', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$accountingEntryLines = AccountingEntryLine::search([
-        ['condo_id', '=', $account['condo_id']],
-        ['account_id', '=', $account['id']],
-        ['matching_level', 'in', ['none', 'part']]
+$result = AccountingEntryLine::search([
+        [
+            ['condo_id', '=', $account['condo_id']],
+            ['account_id', '=', $account['id']],
+            ['matching_level', 'is', null]
+        ],
+        [
+            ['condo_id', '=', $account['condo_id']],
+            ['account_id', '=', $account['id']],
+            ['matching_level', 'in', ['none', 'part']]
+        ]
     ])
-    ->read(['id', 'name', 'entry_date', 'entry_number', 'matching_id', 'funding_id', 'debit', 'credit']);
+    ->read([
+        'id', 'name', 'entry_date', 'entry_number', 'matching_id', 'funding_id', 'debit', 'credit'
+    ])
+    ->adapt('json')
+    ->get(true);
 
 
 $context->httpResponse()
