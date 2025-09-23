@@ -106,6 +106,19 @@ class MiscOperation extends Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['journal_type', '=', 'MISC']]
             ],
 
+            'accounting_entry_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'description'       => "Accounting entry of the MiscOperation.",
+                'domain'            => [['origin_object_class', '=', 'finance\accounting\MiscOperation'], ['origin_object_id', '=', 'object.id']]
+            ],
+
+            'has_opening_journal' => [
+                'type'              => 'boolean',
+                'default'           => false,
+                'description'       => 'Accounting journal used for this miscellaneous operation.'
+            ],
+
             'misc_operation_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\MiscOperationLine',
