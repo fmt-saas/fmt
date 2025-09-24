@@ -204,22 +204,6 @@ class CondominiumBankAccount extends BankAccount {
                 continue;
             }
 
-            $parentJournal = Journal::search([['condo_id', '=', $bankAccount['condo_id']], ['journal_type', '=', 'BANK'], ['has_parent', '=', false]])
-                ->read(['code', 'sub_journals_ids'])
-                ->first();
-
-            if($parentJournal) {
-                $journal_code = $parentJournal['code'] . '/' . (count($parentJournal['sub_journals_ids']) + 1);
-                Journal::create([
-                        'condo_id'          => $bankAccount['condo_id'],
-                        'code'              => $journal_code,
-                        'description'       => $bankAccount['name'],
-                        'journal_type'      => 'BANK',
-                        'has_parent'        => true,
-                        'parent_journal_id' => $parentJournal['id']
-                    ]);
-            }
-
             // find the account based on operation_assignment to use it as "template"
             $assignmentAccount = Account::search([
                     ['condo_id', '=', $bankAccount['condo_id']],
@@ -258,6 +242,22 @@ class CondominiumBankAccount extends BankAccount {
                     ->read(['name'])
                     ->first();
 
+                $parentJournal = Journal::search([['condo_id', '=', $bankAccount['condo_id']], ['journal_type', '=', 'BANK'], ['has_parent', '=', false]])
+                    ->read(['code', 'sub_journals_ids'])
+                    ->first();
+
+                if($parentJournal) {
+                    $journal_code = $parentJournal['code'] . '/' . (count($parentJournal['sub_journals_ids']) + 1);
+                    Journal::create([
+                            'condo_id'              => $bankAccount['condo_id'],
+                            'code'                  => $journal_code,
+                            'description'           => $bankAccount['name'],
+                            'journal_type'          => 'BANK',
+                            'has_parent'            => true,
+                            'parent_journal_id'     => $parentJournal['id'],
+                            'accounting_account_id' => $account['id']
+                        ]);
+                }
                 self::id($id)->update(['accounting_account_id' => $account['id']]);
             }
 

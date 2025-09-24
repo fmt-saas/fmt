@@ -918,7 +918,6 @@ class BankStatementLine extends Model {
                 'bank_statement_id' => ['bank_account_id'],
                 'payments_ids' => [
                     'amount',
-                    'journal_id',
                     'receipt_date',
                     'fiscal_year_id',
                     'fiscal_period_id',
@@ -934,6 +933,17 @@ class BankStatementLine extends Model {
 
         foreach($self as $id => $bankStatementLine) {
             $bankAccount = CondominiumBankAccount::id($bankStatementLine['bank_statement_id']['bank_account_id'])->read(['accounting_account_id'])->first();
+
+            $journal = Journal::search([
+                            ['condo_id', '=', $bankStatementLine['condo_id']],
+                            ['journal_type', '=', 'BANK'],
+                            ['accounting_account_id', '=', $bankAccount['accounting_account_id']]
+                        ])
+                        ->first();
+
+            if(!$journal) {
+                throw new \Exception('missing_mandatory_journal', EQ_ERROR_INVALID_CONFIG);
+            }
 
             if(count($bankStatementLine['payments_ids']) > 0) {
                 foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
@@ -952,7 +962,7 @@ class BankStatementLine extends Model {
                                 'entry_date'            => $payment['receipt_date'],
                                 'origin_object_class'   => self::getType(),
                                 'origin_object_id'      => $id,
-                                'journal_id'            => $payment['journal_id'],
+                                'journal_id'            => $journal['id'],
                                 'description'           => $bankStatementLine['communication']
                             ])
                             ->first();
@@ -996,8 +1006,6 @@ class BankStatementLine extends Model {
             else {
 
                 try {
-
-                    $journal = Journal::search([['condo_id', '=', $bankStatementLine['condo_id']], ['journal_type', '=', 'BANK']])->first();
 
                     $debit_account_id = $bankAccount['accounting_account_id'];
                     $credit_account_id = $bankStatementLine['accounting_account_id'];

@@ -81,6 +81,11 @@
                                                 "type": "field",
                                                 "value": "parent_journal_id",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "accounting_account_id",
+                                                "width": "50%"
                                             }
                                         ]
                                     }

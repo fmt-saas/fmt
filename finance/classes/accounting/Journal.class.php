@@ -82,6 +82,13 @@ class Journal extends Model {
                 'dependents'        => ['name']
             ],
 
+            'accounting_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'visible'           => ['journal_type', '=', 'BANK']
+            ],
+
             'is_visible' => [
                 'type'              => 'boolean',
                 'description'       => "Flag to switch visibility of the journal.",
