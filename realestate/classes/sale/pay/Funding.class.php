@@ -28,6 +28,12 @@ class Funding extends \sale\pay\Funding {
     public static function getColumns() {
 
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the payment relates to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'readonly'          => true
+            ],
 
             'name' => [
                 'type'              => 'computed',

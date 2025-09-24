@@ -904,12 +904,14 @@ class Identity extends Model {
 
     protected static function updateField($self, $field) {
         $self->read([$field, 'identity_id', 'user_id', 'contact_id', 'employee_id', 'customer_id', 'condominium_id', 'supplier_id', 'organisation_id', 'managing_agent_id', 'owner_id', 'tenant_id', ]);
+        $orm = Container::getInstance()->get(['orm']);
+        // prevent loop update propagation
+        $events = $orm->disableEvents();
         foreach($self as $id => $identity) {
 
             /* update from derived class to Identity */
 
             if($identity['identity_id']) {
-                $orm = Container::getInstance()->get(['orm']);
                 $orm->update(Identity::getType(), $identity['identity_id'], [$field => $identity[$field]]);
                 continue;
             }
@@ -947,6 +949,7 @@ class Identity extends Model {
                 Tenant::id($identity['tenant_id'])->update([$field => $identity[$field]]);
             }
         }
+        $orm->enableEvents($events);
     }
 
     /*
@@ -1315,7 +1318,9 @@ class Identity extends Model {
      */
     public static function onafterupdate($self, $values, $orm) {
 
-        // Class inherits from Identity but uses a distinct table
+        $self->read(['identity_id']);
+
+        // Class inherits from Identity but uses a distinct table: check if a new Identity should be created
         if(substr(self::getType(), strrpos(self::getType(), '\\') + 1) !== 'Identity') {
             $common_fields = [
                     'identity_source',
@@ -1333,6 +1338,7 @@ class Identity extends Model {
                     continue;
                 }
 
+                // do not sync Identities from automated source (internal or external)
                 if($identity['identity_source'] != 'manual') {
                     continue;
                 }
@@ -1351,68 +1357,74 @@ class Identity extends Model {
                 }
             }
         }
-        // Class uses identity_identity table
-        else {
-            $name_dependencies = ['legal_name', 'short_name', 'firstname', 'lastname', 'type_id'];
-            if(array_intersect_key($values, array_flip($name_dependencies))) {
-                self::updateField($self, 'name');
-            }
 
-            foreach($self as $id => $identity) {
-                // sync primary address
-                $address_fields = ['address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_state', 'address_country'];
-                $address_updates = [];
-                foreach($address_fields as $address_field) {
-                    if(isset($values[$address_field])) {
-                        $address_updates[$address_field] = $values[$address_field];
-                    }
-                }
+        // sync name, addresses & bank accounts (if required)
 
-                if(count($address_updates)) {
-                    $mainAddress = Address::search([['owner_identity_id', '=', $id], ['is_primary', '=', true]]);
-                    if($mainAddress->count() <= 0) {
-                        $identity = self::id($id)->read($address_fields)->first();
-                        $mainAddress = Address::create([
-                            'owner_identity_id' => $id,
-                            'is_primary'        => true,
-                            'address_street'    => $identity['address_street'],
-                            'address_dispatch'  => $identity['address_dispatch'],
-                            'address_zip'       => $identity['address_zip'],
-                            'address_city'      => $identity['address_city'],
-                            'address_state'     => $identity['address_state'],
-                            'address_country'   => $identity['address_country']
-                        ]);
-                    }
-                    $mainAddress->update($address_updates);
-                }
-
-                // sync primary bank account
-                $bank_fields = ['bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country'];
-                $bank_updates = [];
-                foreach($bank_fields as $bank_field) {
-                    if(isset($values[$bank_field])) {
-                        $bank_updates[$bank_field] = $values[$bank_field];
-                    }
-                }
-
-                if(count($bank_updates)) {
-                    $mainBankAccount = BankAccount::search([['owner_identity_id', '=', $id], ['is_primary', '=', true]]);
-                    if($mainBankAccount->count() <= 0) {
-                        $identity = self::id($id)->read($bank_fields)->first();
-                        $mainBankAccount = BankAccount::create([
-                            'owner_identity_id' => $id,
-                            'is_primary'        => true,
-                            'bank_account_iban' => $identity['bank_account_iban'],
-                            'bank_account_bic'  => $identity['bank_account_bic'],
-                            'bank_name'         => $identity['bank_name'],
-                            'bank_country'      => $identity['bank_country']
-                        ]);
-                    }
-                    $mainBankAccount->update($bank_updates);
-                }
-
-            }
+        $name_dependencies = ['legal_name', 'short_name', 'firstname', 'lastname', 'type_id'];
+        if(array_intersect_key($values, array_flip($name_dependencies))) {
+            self::updateField($self, 'name');
         }
+
+        foreach($self as $id => $identityObject) {
+            // sync primary address
+            $address_fields = ['address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_state', 'address_country'];
+            $address_updates = [];
+            foreach($address_fields as $address_field) {
+                if(isset($values[$address_field])) {
+                    $address_updates[$address_field] = $values[$address_field];
+                }
+            }
+
+            $identity_id = $id;
+            if(isset($identityObject['identity_id'])) {
+                $identity_id = $identityObject['identity_id'];
+            }
+
+            if(count($address_updates)) {
+                $mainAddress = Address::search([['owner_identity_id', '=', $identity_id], ['is_primary', '=', true]]);
+                if($mainAddress->count() <= 0) {
+                    $identity = self::id($identity_id)->read($address_fields)->first();
+                    $mainAddress = Address::create([
+                        'owner_identity_id' => $identity_id,
+                        'is_primary'        => true,
+                        'address_street'    => $identity['address_street'],
+                        'address_dispatch'  => $identity['address_dispatch'],
+                        'address_zip'       => $identity['address_zip'],
+                        'address_city'      => $identity['address_city'],
+                        'address_state'     => $identity['address_state'],
+                        'address_country'   => $identity['address_country']
+                    ]);
+                }
+                $mainAddress->update($address_updates);
+            }
+
+            // sync primary bank account
+            $bank_fields = ['bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country'];
+            $bank_updates = [];
+            foreach($bank_fields as $bank_field) {
+                if(isset($values[$bank_field])) {
+                    $bank_updates[$bank_field] = $values[$bank_field];
+                }
+            }
+
+            if(count($bank_updates)) {
+                $mainBankAccount = BankAccount::search([['owner_identity_id', '=', $identity_id], ['is_primary', '=', true]]);
+                if($mainBankAccount->count() <= 0) {
+                    $identity = self::id($identity_id)->read($bank_fields)->first();
+                    $mainBankAccount = BankAccount::create([
+                        'owner_identity_id' => $identity_id,
+                        'is_primary'        => true,
+                        'bank_account_iban' => $identity['bank_account_iban'],
+                        'bank_account_bic'  => $identity['bank_account_bic'],
+                        'bank_name'         => $identity['bank_name'],
+                        'bank_country'      => $identity['bank_country']
+                    ]);
+                }
+                $mainBankAccount->update($bank_updates);
+            }
+
+        }
+
     }
 
     /**
