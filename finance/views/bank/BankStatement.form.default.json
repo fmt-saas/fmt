@@ -28,18 +28,21 @@
                 "ids": []
             },
             "confirm": false,
-            "visible": [["status", "=", "pending"], ["is_reconciled", "=", true]]
+            "visible": [
+                ["is_reconciled", "<>", true]
+            ]
         }
     ],
     "header": {
         "actions": {
             "ACTION.SAVE": [
-                {"id": "SAVE_AND_VIEW"},
-                {"id": "SAVE_AND_CONTINUE"}
+                {"id": "SAVE_AND_CONTINUE"},
+                {"id": "SAVE_AND_VIEW"}
             ],
             "ACTION.EDIT": [
                 {
-                    "view": ["posted", "<>", "object.status"]
+                    "#todo": "this doesn't work since object is not available in the header",
+                    "visible": ["posted", "<>", "object.status"]
                 }
             ]
         }
@@ -133,6 +136,7 @@
                 ]
             },
             {
+                "visible": ["state", "<>", "draft"],
                 "sections": [
                     {
                         "rows": [

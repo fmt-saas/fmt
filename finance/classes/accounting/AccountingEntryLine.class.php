@@ -92,10 +92,9 @@ class AccountingEntryLine extends Model {
 
             'entry_number' => [
                 'type'              => 'computed',
-                'result_type'       => 'date',
-                'usage'             => 'date/plain',
-                'relation'          => ['accounting_entry_id' => 'entry_date'],
-                'description'       => 'The date on which the transaction is recorded in the accounting system and affects the fiscal period.',
+                'result_type'       => 'string',
+                'relation'          => ['accounting_entry_id' => 'entry_number'],
+                'description'       => 'Number of the parent accounting entry.',
                 'store'             => true,
                 'instant'           => true
             ],
@@ -234,35 +233,43 @@ class AccountingEntryLine extends Model {
                         'sort' => ['created' => 'desc']
                     ])
                     ->first();
-                if($matching) {
-                    self::id($id)->update(['matching_id' => $matching['id']]);
-                }
-                else {
+
+                if(!$matching) {
                     $counterpartAccountingEntryLine = AccountingEntryLine::search([
                             [
                                 ['condo_id', '=',  $accountingEntryLine['condo_id']],
                                 ['account_id', '=', $accountingEntryLine['account_id']['id']],
                                 ['matching_id', '=', null],
                                 ['debit', '=', $accountingEntryLine['credit']],
-                                ['debit', '>', 0]
+                                ['debit', '>', 0],
+                                ['id', '<>', $id]
                             ],
                             [
                                 ['condo_id', '=',  $accountingEntryLine['condo_id']],
                                 ['account_id', '=', $accountingEntryLine['account_id']['id']],
                                 ['matching_id', '=', null],
                                 ['credit', '=', $accountingEntryLine['debit']],
-                                ['credit', '>', 0]
+                                ['credit', '>', 0],
+                                ['id', '<>', $id]
                             ]
                         ])
                         ->first();
+
                     if($counterpartAccountingEntryLine) {
-                        Matching::create([
+                        $matching = Matching::create([
                                 'condo_id'              => $accountingEntryLine['condo_id'],
                                 'accounting_account_id' => $accountingEntryLine['account_id']['id']
                             ])
-                            ->update(['accounting_entry_lines_ids' => [$id, $counterpartAccountingEntryLine['id']]]);
+                            ->first();
+
+                        self::id($counterpartAccountingEntryLine['id'])->update(['matching_id' => $matching['id']]);
                     }
                 }
+
+                if($matching) {
+                    self::id($id)->update(['matching_id' => $matching['id']]);
+                }
+
             }
 
         }

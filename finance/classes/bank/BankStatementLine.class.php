@@ -726,9 +726,10 @@ class BankStatementLine extends Model {
     }
 
     protected static function onafterPost($self) {
-        $self->read(['payments_ids']);
+        $self->read(['bank_statement_id', 'payments_ids']);
         foreach($self as $id => $bankStatementLine) {
             Payment::ids($bankStatementLine['payments_ids'])->transition('post');
+            BankStatement::id($bankStatementLine['bank_statement_id'])->do('refresh_status');
         }
     }
 
@@ -771,11 +772,18 @@ class BankStatementLine extends Model {
 
     protected static function policyCanPost($self) {
         $result = [];
-        $self->read(['status', 'accounting_account_id']);
+        $self->read(['status', 'accounting_account_id', 'bank_statement_id' => ['is_balanced']]);
         foreach($self as $id => $bankStatementLine) {
             if($bankStatementLine['status'] !== 'pending') {
                 $result[$id] = [
                     'invalid_status' => 'Only non-posted bank statement lines can be posted.'
+                ];
+                continue;
+            }
+            // parent bank statement must be balanced before being able to post individual lines
+            if(!$bankStatementLine['bank_statement_id']['is_balanced']) {
+                $result[$id] = [
+                    'incomplete_bank_statement' => 'Parent bank statement is not balanced.'
                 ];
                 continue;
             }

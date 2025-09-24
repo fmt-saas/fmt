@@ -177,6 +177,14 @@ class BankStatement extends Model {
                 'instant'           => true
             ],
 
+            'is_balanced' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'A statement is reconciled if all its lines are reconciled.',
+                'function'          => 'calcIsBalanced',
+                'store'             => false
+            ],
+
             'accounting_entries_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
@@ -211,6 +219,11 @@ class BankStatement extends Model {
                 'help'          => 'This action is called when a manual change have been made that implies a sync with the descriptor of the linked document.',
                 'policies'      => [],
                 'function'      => 'doUpdateDocumentJson'
+            ],
+            'refresh_status' => [
+                'description'   => 'Update status according to current status of the statement lines.',
+                'policies'      => [],
+                'function'      => 'doRefreshStatus'
             ]
         ];
     }
@@ -271,6 +284,18 @@ class BankStatement extends Model {
             }
         }
         return $result;
+    }
+
+    protected static function doRefreshStatus($self) {
+        $self->read(['statement_lines_ids' => ['status']]);
+        foreach($self as $id => $bankStatement) {
+            foreach($bankStatement['statement_lines_ids'] as $bank_statement_line_id => $bankStatementLine) {
+                if($bankStatementLine['status'] === 'pending') {
+                    continue 2;
+                }
+            }
+            self::id($id)->update(['status' => 'posted']);
+        }
     }
 
     protected static function calcFiscalPeriodId($self) {
@@ -546,14 +571,32 @@ class BankStatement extends Model {
 
     protected static function calcIsReconciled($self) {
         $result = [];
-        $self->read(['statement_lines_ids' => ['is_reconciled']]);
+        $self->read(['opening_balance', 'closing_balance', 'statement_lines_ids' => ['status', 'is_reconciled']]);
         foreach($self as $id => $bankStatement) {
             $result[$id] = ($bankStatement['statement_lines_ids']->count() > 0);
             foreach($bankStatement['statement_lines_ids'] as $bankStatementLine) {
-                if(!$bankStatementLine['is_reconciled']) {
+                if(!$bankStatementLine['is_reconciled'] && $bankStatementLine['status'] !== 'posted') {
                     $result[$id] = false;
                     break;
                 }
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcIsBalanced($self) {
+        $result = [];
+        $self->read(['statement_lines_ids' => ['amount'], 'opening_balance', 'closing_balance']);
+        foreach($self as $id => $statement) {
+            $delta = round($statement['closing_balance'], 2) - round($statement['opening_balance'], 2);
+            $sum = 0.0;
+            foreach($statement['statement_lines_ids'] as $statementLine) {
+                $sum += round($statementLine['amount'], 2);
+            }
+            if(abs($sum - $delta) > 0.01) {
+                $result[$id] = [
+                    'invalid_amount' => "The sum of the lines ({$sum}) does not match the delta ({$delta}) for Bank statement [{$id}]."
+                ];
             }
         }
         return $result;
@@ -596,16 +639,11 @@ class BankStatement extends Model {
 
     public static function policyIsBalanced($self): array {
         $result = [];
-        $self->read(['statement_lines_ids' => ['amount'], 'opening_balance', 'closing_balance']);
+        $self->read(['is_balanced']);
         foreach($self as $id => $statement) {
-            $delta = round($statement['closing_balance'], 2) - round($statement['opening_balance'], 2);
-            $sum = 0.0;
-            foreach($statement['statement_lines_ids'] as $statementLine) {
-                $sum += round($statementLine['amount'], 2);
-            }
-            if(abs($sum - $delta) > 0.01) {
+            if(!$statement['is_balanced']) {
                 $result[$id] = [
-                    'invalid_amount' => "The sum of the lines ({$sum}) does not match the delta ({$delta})."
+                    'invalid_amount' => "Bank Statemùent [{$id}] is not balanced."
                 ];
             }
         }
@@ -649,7 +687,7 @@ class BankStatement extends Model {
 
         switch($view) {
             case 'form.manual':
-            case 'form.create':
+            case 'form.default':
                 if(isset($event['bank_account_iban'])) {
                     if(!isset($values['condo_id'])) {
                         $event['bank_account_iban'] = trim(str_replace(' ', '', $event['bank_account_iban']));
