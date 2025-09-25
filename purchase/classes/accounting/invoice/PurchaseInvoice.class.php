@@ -108,7 +108,8 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                 'help'              => "Fiscal Year is automatically assigned based on posting_date.",
                 'function'          => 'calcFiscalYearId',
                 'store'             => true,
-                'instant'           => true
+                'instant'           => true,
+                'readonly'          => true
             ],
 
             'fiscal_period_id' => [
@@ -120,7 +121,8 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['fiscal_year_id', '=', 'object.fiscal_year_id']],
                 'function'          => 'calcFiscalPeriodId',
                 'store'             => true,
-                'instant'           => true
+                'instant'           => true,
+                'readonly'          => true
             ],
 
             'emission_date' => [

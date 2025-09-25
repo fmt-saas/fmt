@@ -79,29 +79,27 @@
                                         "width": "50%",
                                         "items": [
                                             {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "25%"
-                                            },
-                                            {
                                                 "type": "field",
                                                 "value": "posting_date",
                                                 "width": "25%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "journal_id",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
+                                                "label": "Opening journal",
                                                 "value": "has_opening_journal",
                                                 "width": "25%"
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "journal_id",
+                                                "width": "50%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "accounting_entry_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "visible": ["status", "=", "posted"]
                                             },
                                             {
                                                 "type": "field",

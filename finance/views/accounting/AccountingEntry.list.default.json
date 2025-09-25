@@ -12,6 +12,7 @@
         "items": [
             {
                 "type": "field",
+                "label": "Reference",
                 "value": "entry_number",
                 "width": "20%"
             },

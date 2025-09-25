@@ -426,9 +426,23 @@ class MiscOperation extends Model {
     }
 
 
-// #todo - move this to AccountingEntry
     public static function onchange($event, $values) {
         $result = [];
+
+        if(isset($event['has_opening_journal'])) {
+            if($event['has_opening_journal']) {
+                $journal = Journal::search([['condo_id', '=', $event['condo_id']], ['journal_type', '=', 'OPEN']])->read(['id', 'name'])->first();
+            }
+            else {
+                $journal = Journal::search([['condo_id', '=', $event['condo_id']], ['journal_type', '=', 'MISC']])->read(['id', 'name'])->first();
+            }
+            if($journal) {
+                $result['journal_id'] = [
+                        'id'    => $journal['id'],
+                        'name'  => $journal['name']
+                    ];
+            }
+        }
 
         if(isset($event['condo_id'])) {
             $journal = Journal::search([['condo_id', '=', $event['condo_id']], ['journal_type', '=', 'MISC']])->read(['id', 'name'])->first();
