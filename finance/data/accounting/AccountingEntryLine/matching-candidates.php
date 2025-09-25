@@ -5,8 +5,11 @@
     Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use equal\orm\Domain;
+use equal\orm\DomainCondition;
 use finance\accounting\Account;
 use finance\accounting\AccountingEntryLine;
+use finance\bank\BankStatementLine;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Advanced search for Balance Lines: returns a collection of Reports according to extra parameters.',
@@ -15,6 +18,27 @@ use finance\accounting\AccountingEntryLine;
         'id' =>  [
             'type'              => 'many2one',
             'foreign_object'    => 'finance\accounting\Account',
+        ],
+        'date_from' => [
+            'type'              => 'date',
+            'description'       => 'First date of the date range.',
+            'default'           => function ($id=null) {
+                $bankStatementLine = BankStatementLine::id($id)->read(['condo_id' => ['current_fiscal_year_id' => ['date_from']]])->first();
+                return $bankStatementLine['condo_id']['current_fiscal_year_id']['date_from'] ?? null;
+            }
+        ],
+        'date_to' => [
+            'type'              => 'date',
+            'description'       => 'Last date of the date range.',
+            'default'           => function ($id=null) {
+                $bankStatementLine = BankStatementLine::id($id)->read(['condo_id' => ['current_fiscal_year_id' => ['date_to']]])->first();
+                return $bankStatementLine['condo_id']['current_fiscal_year_id']['date_to'] ?? null;
+            }
+        ],
+        'limit' => [
+            'type'              => 'integer',
+            'description'       => 'Last date of the date range.',
+            'default'           => 100
         ]
     ],
     'response'      => [
@@ -43,7 +67,7 @@ if(!$account) {
     throw new Exception('unknown_accounting_account', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$result = AccountingEntryLine::search([
+$domain = new Domain([
         [
             ['condo_id', '=', $account['condo_id']],
             ['account_id', '=', $account['id']],
@@ -54,7 +78,17 @@ $result = AccountingEntryLine::search([
             ['account_id', '=', $account['id']],
             ['matching_level', 'in', ['none', 'part']]
         ]
-    ])
+    ]);
+
+if($params['date_from']) {
+    $domain->addCondition(new DomainCondition('entry_date', '>=', $params['date_from']));
+}
+
+if($params['date_to']) {
+    $domain->addCondition(new DomainCondition('entry_date', '<=', $params['date_to']));
+}
+
+$result = AccountingEntryLine::search($domain->toArray(), ['limit' => $params['limit']])
     ->read([
         'id', 'name', 'entry_date', 'entry_number', 'matching_id', 'funding_id', 'debit', 'credit'
     ])

@@ -20,7 +20,7 @@
             "description": "Reconcile line.",
             "visible": ["status", "<>", "posted"],
             "component": {
-                "name": "matchAccountingEntry",
+                "name": "matchBankStatementLine",
                 "data": {
                     "condo_id": "object.condo_id",
                     "bank_statement_line_id": "object.id"

@@ -164,7 +164,7 @@ class BankStatementLine extends Model {
                     When set, the counterpart accounting document is created automatically when posting the line.
                     This is an accounting account, not to be mixed up with bank accounts.",
                 'ondelete'          => 'null',
-                'dependents'        => ['accounting_account_code', 'is_misc', 'is_transfer', 'is_expense', 'is_income', 'is_supplier', 'is_owner', 'ownership_id', 'suppliership_id'],
+                'dependents'        => ['accounting_account_code', 'is_transfer', 'is_expense', 'is_income', 'is_supplier', 'is_owner', 'ownership_id', 'suppliership_id'],
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['account_type', '=', 'B']]
             ],
 
@@ -748,7 +748,6 @@ class BankStatementLine extends Model {
                 $result['accounting_account_code'] = $account['code'];
                 $result['is_expense'] = self::computeIsExpense($event['accounting_account_id']);
                 $result['is_income'] = self::computeIsIncome($event['accounting_account_id']);
-                $result['is_misc'] = self::computeIsMisc($event['accounting_account_id']);
                 $result['is_transfer'] = self::computeIsTransfer($event['accounting_account_id']);
                 $result['is_owner'] = self::computeIsOwner($event['accounting_account_id']);
                 $result['is_supplier'] = self::computeIsSupplier($event['accounting_account_id']);
@@ -930,6 +929,8 @@ class BankStatementLine extends Model {
                     'fiscal_year_id',
                     'fiscal_period_id',
                     'funding_id' => [
+                        'name',
+                        'description',
                         'due_amount',
                         'bank_account_id',
                         'ownership_id',
@@ -965,6 +966,15 @@ class BankStatementLine extends Model {
 
                         $amount = round($payment['amount'], 2);
 
+                        $description = $bankStatementLine['communication'];
+
+                        if(strlen($description) <= 0) {
+                            $description = $funding['description'];
+                            if(strlen($description) <= 0) {
+                                $description = $funding['name'];
+                            }
+                        }
+
                         $accountingEntry = AccountingEntry::create([
                                 'condo_id'              => $bankStatementLine['condo_id'],
                                 'entry_date'            => $payment['receipt_date'],
@@ -984,7 +994,7 @@ class BankStatementLine extends Model {
                                 'funding_id'             => $funding['id'],
                                 'accounting_entry_id'    => $accountingEntry['id'],
                                 'bank_statement_line_id' => $id,
-                                'description'            => $bankStatementLine['communication']
+                                'description'            => $description
                             ]);
 
                         // credit line
@@ -996,7 +1006,7 @@ class BankStatementLine extends Model {
                                 'funding_id'             => $funding['id'],
                                 'accounting_entry_id'    => $accountingEntry['id'],
                                 'bank_statement_line_id' => $id,
-                                'description'            => $bankStatementLine['communication']
+                                'description'            => $description
                             ]);
 
                         // instant validation of the created accounting entry

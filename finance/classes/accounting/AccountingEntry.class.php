@@ -108,7 +108,8 @@ class AccountingEntry extends Model {
                 'type'              => 'string',
                 'description'       => 'Unique code for entry identification.',
                 'dependents'        => ['name', 'debit', 'credit'],
-                'description'       => 'Entry number is automatically assigned after validation, and cannot be changed afterwards.'
+                'description'       => 'Entry number is automatically assigned after validation, and cannot be changed afterwards.',
+                'onupdate'          => 'onupdateEntryNumber'
             ],
 
             'debit' => [
@@ -311,6 +312,16 @@ class AccountingEntry extends Model {
         return $result;
     }
 
+    /**
+     * Make sure final entry number is replicated in accounting entry lines.
+     */
+    protected static function onupdateEntryNumber($self) {
+        $self->read(['entry_lines_ids']);
+        foreach($self as $id => $accountingEntry) {
+            AccountingEntryLine::ids($accountingEntry['entry_lines_ids'])->read(['entry_number']);
+        }
+    }
+
     // #memo - matching is performed at AccountingEntryLne (records) level
     protected static function doAttemptMatch($self) {
         $self->read(['entry_lines_ids']);
@@ -401,7 +412,8 @@ class AccountingEntry extends Model {
             if($mostRecentEntry && $mostRecentEntry['entry_date'] > $accountingEntry['entry_date']) {
                 $entry_date = $mostRecentEntry['entry_date'];
             }
-            self::id($id)->update([
+            self::id($id)
+                ->update([
                     'entry_number'  => self::computeEntryNumber($id),
                     'entry_date'    => $entry_date
                 ]);
