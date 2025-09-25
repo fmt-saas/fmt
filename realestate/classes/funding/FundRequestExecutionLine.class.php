@@ -7,7 +7,7 @@
 
 namespace realestate\funding;
 
-class FundRequestExecutionLine extends \sale\accounting\invoice\InvoiceLine {
+class FundRequestExecutionLine extends \sale\accounting\invoice\SaleInvoiceLine {
 
     public static function getName() {
         return 'Fund Request Execution';

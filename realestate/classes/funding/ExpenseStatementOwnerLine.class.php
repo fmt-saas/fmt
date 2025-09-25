@@ -11,7 +11,7 @@ use realestate\ownership\Ownership;
 use finance\accounting\FiscalYear;
 use realestate\property\Condominium;
 
-class ExpenseStatementOwnerLine extends \sale\accounting\invoice\InvoiceLine {
+class ExpenseStatementOwnerLine extends \sale\accounting\invoice\SaleInvoiceLine {
 
     public static function getName() {
         return 'Expense Statement Owner Line';

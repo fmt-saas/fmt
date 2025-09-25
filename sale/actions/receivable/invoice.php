@@ -5,9 +5,9 @@
     Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use sale\accounting\invoice\Invoice;
-use sale\accounting\invoice\InvoiceLine;
-use sale\accounting\invoice\InvoiceLineGroup;
+use sale\accounting\invoice\SaleInvoice;
+use sale\accounting\invoice\SaleInvoiceLine;
+use sale\accounting\invoice\SaleInvoiceLineGroup;
 use sale\receivable\Receivable;
 
 list($params, $providers) = eQual::announce([
@@ -84,7 +84,7 @@ if(count($params['ids']) !== count($receivables)) {
 
 $default_invoice = null;
 if(isset($params['invoice_id'])) {
-    $default_invoice = Invoice::id($params['invoice_id'])
+    $default_invoice = SaleInvoice::id($params['invoice_id'])
         ->read(['id', 'status', 'customer_id'])
         ->first();
 
@@ -102,7 +102,7 @@ foreach($receivables as $receivable) {
         $invoice = $default_invoice;
     }
     else {
-        $invoice = Invoice::search([
+        $invoice = SaleInvoice::search([
                 ['customer_id', '=', $receivable['customer_id']],
                 ['status', '=', 'proforma']
             ])
@@ -110,7 +110,7 @@ foreach($receivables as $receivable) {
             ->first();
 
         if(!isset($invoice)) {
-            $invoice = Invoice::create([
+            $invoice = SaleInvoice::create([
                     'customer_id' => $receivable['customer_id']
                 ])
                 ->first();
@@ -127,7 +127,7 @@ foreach($receivables as $receivable) {
         $invoice_line_group_name = $params['invoice_line_group_name'];
     }
 
-    $invoice_line_group = InvoiceLineGroup::search([
+    $invoice_line_group = SaleInvoiceLineGroup::search([
             ['invoice_id', '=', $invoice['id']],
             ['name', '=', $invoice_line_group_name]
         ])
@@ -135,14 +135,14 @@ foreach($receivables as $receivable) {
         ->first();
 
     if(!isset($invoice_line_group)) {
-        $invoice_line_group = InvoiceLineGroup::create([
+        $invoice_line_group = SaleInvoiceLineGroup::create([
                 'invoice_id' => $invoice['id'],
                 'name'       => $invoice_line_group_name
             ])
             ->first();
     }
 
-    $invoice_line = InvoiceLine::create([
+    $invoice_line = SaleInvoiceLine::create([
             //#memo - force name to receivable name instead of computed value (receivable name holds its own description when applicable)
             'name'                  => $receivable['name'],
             'description'           => implode(' - ', array_filter([$receivable['product_id']['name'], $receivable['product_id']['description']])),

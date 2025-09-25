@@ -165,7 +165,7 @@ class BankStatementLine extends Model {
                     This is an accounting account, not to be mixed up with bank accounts.",
                 'ondelete'          => 'null',
                 'dependents'        => ['accounting_account_code', 'is_misc', 'is_transfer', 'is_expense', 'is_income', 'is_supplier', 'is_owner', 'ownership_id', 'suppliership_id'],
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['account_type', '=', 'B']]
             ],
 
             'accounting_account_code' => [
@@ -981,9 +981,10 @@ class BankStatementLine extends Model {
                                 'account_id'             => $debit_account_id,
                                 'debit'                  => $amount > 0 ? abs($amount) : 0,
                                 'credit'                 => $amount < 0 ? abs($amount) : 0,
+                                'funding_id'             => $funding['id'],
                                 'accounting_entry_id'    => $accountingEntry['id'],
                                 'bank_statement_line_id' => $id,
-                                'description'           => $bankStatementLine['communication']
+                                'description'            => $bankStatementLine['communication']
                             ]);
 
                         // credit line

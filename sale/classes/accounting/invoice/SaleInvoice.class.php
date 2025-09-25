@@ -40,7 +40,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
 
             'reversed_invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'sale\accounting\invoice\Invoice',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoice',
                 'description'       => 'Credit note that was created for cancelling the invoice, if any.',
                 'visible'           => ['status', '=', 'cancelled']
             ],
@@ -78,7 +78,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
 
             'invoice_lines_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'sale\accounting\invoice\InvoiceLine',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoiceLine',
                 'foreign_field'     => 'invoice_id',
                 'description'       => 'Detailed lines of the invoice.',
                 'ondetach'          => 'delete',
@@ -87,7 +87,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
 
             'invoice_line_groups_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'sale\accounting\invoice\InvoiceLineGroup',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoiceLineGroup',
                 'foreign_field'     => 'invoice_id',
                 'description'       => 'Groups of lines of the invoice.',
                 'ondetach'          => 'delete',
@@ -477,14 +477,14 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
                 ->read(['id'])
                 ->first(true);
             foreach($invoice['invoice_line_groups_ids'] as $invoice_line_group) {
-                $reversed_group = InvoiceLineGroup::create([
+                $reversed_group = SaleInvoiceLineGroup::create([
                         'name'       => $invoice_line_group['name'],
                         'invoice_id' => $reversed_invoice['id']
                     ])
                     ->first(true);
 
                 foreach($invoice_line_group['invoice_lines_ids'] as $line) {
-                    InvoiceLine::create([
+                    SaleInvoiceLine::create([
                             'description'            => $line['description'],
                             'invoice_id'             => $reversed_invoice['id'],
                             'invoice_line_group_id'  => $reversed_group['id'],
@@ -649,7 +649,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
             $map_accounting_entries = [];
 
             // fetch invoice lines
-            $lines = InvoiceLine::ids($invoice['invoice_lines_ids'])
+            $lines = SaleInvoiceLine::ids($invoice['invoice_lines_ids'])
                 ->read([
                     'total', 'price',
                     'price_id' => [

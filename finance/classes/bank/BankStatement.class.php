@@ -236,8 +236,9 @@ class BankStatement extends Model {
                 'transitions' => [
                     'post' => [
                         'description' => 'Post bank statement statement to the accounting system.',
+                        'help'        => 'In order to be posted, Bank Statement must be balanced but not necessarily reconciled.',
                         'policies'    => [
-                            'is_balanced', 'is_reconciled'
+                            'is_balanced',
                         ],
                         'onafter'     => 'onafterPost',
                         'status'      => 'posted'
@@ -593,11 +594,7 @@ class BankStatement extends Model {
             foreach($statement['statement_lines_ids'] as $statementLine) {
                 $sum += round($statementLine['amount'], 2);
             }
-            if(abs($sum - $delta) > 0.01) {
-                $result[$id] = [
-                    'invalid_amount' => "The sum of the lines ({$sum}) does not match the delta ({$delta}) for Bank statement [{$id}]."
-                ];
-            }
+            $result[$id] = (abs($sum - $delta) < 0.01);
         }
         return $result;
     }
@@ -643,8 +640,9 @@ class BankStatement extends Model {
         foreach($self as $id => $statement) {
             if(!$statement['is_balanced']) {
                 $result[$id] = [
-                    'invalid_amount' => "Bank Statemùent [{$id}] is not balanced."
+                    'invalid_amount' => "Bank Statement [{$id}] is not balanced."
                 ];
+                continue;
             }
         }
         return $result;

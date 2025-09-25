@@ -449,7 +449,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                             'accounting_entry_id'   => $accountingEntry['id'],
                             'name'                  => $description,
                             'account_id'            => $statementLine['account_id'],
-                            'invoice_line_id'       => $line_id,
+                            'sale_invoice_line_id'  => $line_id,
                             'debit'                 => 0.0,
                             'credit'                => $statementLine['price']
                         ]);
@@ -604,7 +604,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ])
             ->read([
                 'entry_date',
-                'entry_lines_ids' => ['invoice_line_id', 'account_id', 'account_code', 'debit', 'credit']
+                'entry_lines_ids' => ['sale_invoice_line_id', 'account_id', 'account_code', 'debit', 'credit']
             ]);
 
 
@@ -674,7 +674,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         foreach($accountingEntries as $accountingEntry) {
             foreach($accountingEntry['entry_lines_ids'] as $accountingEntryLine) {
                 if(substr($accountingEntryLine['account_code'], 0, 3) === '643' && $accountingEntryLine['credit'] > 0) {
-                    $map_private_expenses[$accountingEntryLine['invoice_line_id']] = true;
+                    $map_private_expenses[$accountingEntryLine['sale_invoice_line_id']] = true;
                 }
             }
         }
@@ -697,13 +697,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 if(substr($accountingEntryLine['account_code'], 0, 3) === '643') {
                     // skip private expense that have been reinvoiced
                     // ceci ne fonctionne pas dans le cas d'aller-retours multiples (annuler, recréeer)
-                    if(isset($map_private_expenses[$accountingEntryLine['invoice_line_id']])) {
+                    if(isset($map_private_expenses[$accountingEntryLine['sale_invoice_line_id']])) {
                         continue;
                     }
                     // #todo - pour les consommations on n'a pas d'invoice line,
                     //     mais il faut un lien avec des lignes de relevés (format compatible avec InvoiceLine ? ConsumptionLine)
                     // #todo - prendre en compte les bank statement lines (en deux passes ?)
-                    $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['invoice_line_id'])->read([
+                    $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['sale_invoice_line_id'])->read([
                             'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
                             'invoice_id' => ['posting_date']
                         ])
@@ -746,7 +746,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 // 2) common expense
                 // #memo - only debit lines for these
                 elseif(substr($accountingEntryLine['account_code'], 0, 2) === '61') {
-                    $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['invoice_line_id'])->read(['vat_rate', 'apportionment_id', 'owner_share', 'tenant_share'])->first();
+                    $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['sale_invoice_line_id'])->read(['vat_rate', 'apportionment_id', 'owner_share', 'tenant_share'])->first();
                     if(!$invoiceLine) {
                         throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
                     }

@@ -11,7 +11,7 @@ use sale\catalog\Product;
 use sale\price\Price;
 use sale\price\PriceList;
 
-class InvoiceLine extends \finance\accounting\invoice\InvoiceLine {
+class SaleInvoiceLine extends \finance\accounting\invoice\InvoiceLine {
 
     public function getTable() {
         return 'sale_accounting_invoice_invoiceline';

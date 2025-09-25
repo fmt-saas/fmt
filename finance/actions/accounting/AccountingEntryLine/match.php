@@ -9,12 +9,11 @@ use finance\accounting\Account;
 use finance\accounting\AccountingEntryLine;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Advanced search for Balance Lines: returns a collection of Reports according to extra parameters.',
-    'help'          => 'When linking a bank statement line, the accounting entry line does exist yet.',
+    'description'   => '#todo',
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
-            'foreign_object'    => 'finance\accounting\Account',
+            'foreign_object'    => 'finance\accounting\AccountingEntryLine',
         ]
     ],
     'response'      => [
@@ -61,6 +60,13 @@ $result = AccountingEntryLine::search([
     ->adapt('json')
     ->get(true);
 
+// tests
+$line = current($result);
+
+$result = [];
+for ($i = 0; $i < 100; $i++) {
+    $result[] = $line;
+}
 
 $context->httpResponse()
         ->body($result)

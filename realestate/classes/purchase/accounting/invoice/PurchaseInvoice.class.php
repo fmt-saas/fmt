@@ -708,36 +708,36 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
 
                     // create the debit line on the private expense account
                     AccountingEntryLine::create([
-                            'condo_id'              => $invoice['condo_id'],
-                            'accounting_entry_id'   => $accountingEntry['id'],
-                            'description'           => $invoice['description'],
-                            'account_id'            => $privateExpenseAccount['id'],
-                            'invoice_line_id'       => $invoice_line_id,
-                            'debit'                 => $invoiceLine['price'],
-                            'credit'                => 0.0
+                            'condo_id'                  => $invoice['condo_id'],
+                            'accounting_entry_id'       => $accountingEntry['id'],
+                            'description'               => $invoice['description'],
+                            'account_id'                => $privateExpenseAccount['id'],
+                            'purchase_invoice_line_id'  => $invoice_line_id,
+                            'debit'                     => $invoiceLine['price'],
+                            'credit'                    => 0.0
                         ]);
 
                     if($invoiceLine['has_instant_reinvoice']) {
                         // create the debit line on the ownership account
                         AccountingEntryLine::create([
-                                'condo_id'              => $invoice['condo_id'],
-                                'accounting_entry_id'   => $accountingEntry['id'],
-                                'description'           => $invoice['description'],
-                                'account_id'            => $ownershipAccount['id'],
-                                'invoice_line_id'       => $invoice_line_id,
-                                'debit'                 => 0.0,
-                                'credit'                => $invoiceLine['price']
+                                'condo_id'                  => $invoice['condo_id'],
+                                'accounting_entry_id'       => $accountingEntry['id'],
+                                'description'               => $invoice['description'],
+                                'account_id'                => $ownershipAccount['id'],
+                                'purchase_invoice_line_id'  => $invoice_line_id,
+                                'debit'                     => 0.0,
+                                'credit'                    => $invoiceLine['price']
                             ]);
 
                         // create the credit line on the private expense
                         AccountingEntryLine::create([
-                                'condo_id'              => $invoice['condo_id'],
-                                'accounting_entry_id'   => $accountingEntry['id'],
-                                'description'           => $invoice['description'],
-                                'account_id'            => $privateExpenseAccount['id'],
-                                'invoice_line_id'       => $invoice_line_id,
-                                'debit'                 => 0.0,
-                                'credit'                => $invoiceLine['price']
+                                'condo_id'                  => $invoice['condo_id'],
+                                'accounting_entry_id'       => $accountingEntry['id'],
+                                'description'               => $invoice['description'],
+                                'account_id'                => $privateExpenseAccount['id'],
+                                'purchase_invoice_line_id'  => $invoice_line_id,
+                                'debit'                     => 0.0,
+                                'credit'                    => $invoiceLine['price']
                             ]);
                     }
 
@@ -752,13 +752,13 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     }
                     // create the debit line on the expense account (use of reserve fund)
                     AccountingEntryLine::create([
-                            'condo_id'              => $invoice['condo_id'],
-                            'accounting_entry_id'   => $accountingEntry['id'],
-                            'description'           => $invoice['description'],
-                            'account_id'            => $invoiceLine['expense_account_id'],
-                            'invoice_line_id'       => $invoice_line_id,
-                            'debit'                 => $invoiceLine['price'],
-                            'credit'                => 0.0
+                            'condo_id'                  => $invoice['condo_id'],
+                            'accounting_entry_id'       => $accountingEntry['id'],
+                            'description'               => $invoice['description'],
+                            'account_id'                => $invoiceLine['expense_account_id'],
+                            'purchase_invoice_line_id'  => $invoice_line_id,
+                            'debit'                     => $invoiceLine['price'],
+                            'credit'                    => 0.0
                         ]);
                 }
             }
@@ -796,13 +796,13 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                         if($i == 0) {
                             // create the debit line for the whole common expense
                             AccountingEntryLine::create([
-                                    'condo_id'              => $invoice['condo_id'],
-                                    'accounting_entry_id'   => $accountingEntry['id'],
-                                    'description'           => $description,
-                                    'account_id'            => $invoiceLine['expense_account_id'],
-                                    'invoice_line_id'       => $invoice_line_id,
-                                    'debit'                 => $invoiceLine['price'],
-                                    'credit'                => 0.0
+                                    'condo_id'                  => $invoice['condo_id'],
+                                    'accounting_entry_id'       => $accountingEntry['id'],
+                                    'description'               => $description,
+                                    'account_id'                => $invoiceLine['expense_account_id'],
+                                    'purchase_invoice_line_id'  => $invoice_line_id,
+                                    'debit'                     => $invoiceLine['price'],
+                                    'credit'                    => 0.0
                                 ]);
 
                             // compute paid amount pro-rata based on the duration of the date range.
@@ -837,24 +837,24 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
 
                             // create the debit line for the deferred expense
                             AccountingEntryLine::create([
-                                    'condo_id'              => $invoice['condo_id'],
-                                    'accounting_entry_id'   => $accountingEntry['id'],
-                                    'description'           => $description,
-                                    'account_id'            => $deferredExpensesAccount['id'],
-                                    'invoice_line_id'       => $invoice_line_id,
-                                    'debit'                 => $amount,
-                                    'credit'                => 0.0
+                                    'condo_id'                  => $invoice['condo_id'],
+                                    'accounting_entry_id'       => $accountingEntry['id'],
+                                    'description'               => $description,
+                                    'account_id'                => $deferredExpensesAccount['id'],
+                                    'purchase_invoice_line_id'  => $invoice_line_id,
+                                    'debit'                     => $amount,
+                                    'credit'                    => 0.0
                                 ]);
 
                             // create the credit line for the expense
                             AccountingEntryLine::create([
-                                    'condo_id'              => $invoice['condo_id'],
-                                    'accounting_entry_id'   => $accountingEntry['id'],
-                                    'description'           => $description,
-                                    'account_id'            => $invoiceLine['expense_account_id'],
-                                    'invoice_line_id'       => $invoice_line_id,
-                                    'debit'                 => 0.0,
-                                    'credit'                => $amount
+                                    'condo_id'                  => $invoice['condo_id'],
+                                    'accounting_entry_id'       => $accountingEntry['id'],
+                                    'description'               => $description,
+                                    'account_id'                => $invoiceLine['expense_account_id'],
+                                    'purchase_invoice_line_id'  => $invoice_line_id,
+                                    'debit'                     => 0.0,
+                                    'credit'                    => $amount
                                 ]);
 
                             // 2) schedule a symmetrical accounting entry for the related period ('planned')
@@ -882,24 +882,24 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
 
                             // create the credit line for the deferred expense
                             AccountingEntryLine::create([
-                                    'condo_id'              => $invoice['condo_id'],
-                                    'accounting_entry_id'   => $plannedAccountingEntry['id'],
-                                    'description'           => $description,
-                                    'account_id'            => $deferredExpensesAccount['id'],
-                                    'invoice_line_id'       => $invoice_line_id,
-                                    'debit'                 => 0.0,
-                                    'credit'                => $amount
+                                    'condo_id'                  => $invoice['condo_id'],
+                                    'accounting_entry_id'       => $plannedAccountingEntry['id'],
+                                    'description'               => $description,
+                                    'account_id'                => $deferredExpensesAccount['id'],
+                                    'purchase_invoice_line_id'  => $invoice_line_id,
+                                    'debit'                     => 0.0,
+                                    'credit'                    => $amount
                                 ]);
 
                             // create the debit line for the expense
                             AccountingEntryLine::create([
-                                    'condo_id'              => $invoice['condo_id'],
-                                    'accounting_entry_id'   => $plannedAccountingEntry['id'],
-                                    'description'           => $description,
-                                    'account_id'            => $invoiceLine['expense_account_id'],
-                                    'invoice_line_id'       => $invoice_line_id,
-                                    'debit'                 => $amount,
-                                    'credit'                => 0.0
+                                    'condo_id'                  => $invoice['condo_id'],
+                                    'accounting_entry_id'       => $plannedAccountingEntry['id'],
+                                    'description'               => $description,
+                                    'account_id'                => $invoiceLine['expense_account_id'],
+                                    'purchase_invoice_line_id'  => $invoice_line_id,
+                                    'debit'                     => $amount,
+                                    'credit'                    => 0.0
                                 ]);
 
                         }

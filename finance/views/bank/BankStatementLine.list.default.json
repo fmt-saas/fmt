@@ -18,6 +18,7 @@
             "label": "Reconcile",
             "icon": "list",
             "description": "Reconcile line.",
+            "visible": ["status", "<>", "posted"],
             "component": {
                 "name": "matchAccountingEntry",
                 "data": {

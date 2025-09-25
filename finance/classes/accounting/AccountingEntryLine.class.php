@@ -175,6 +175,24 @@ class AccountingEntryLine extends Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'sale_invoice_line_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'sale\accounting\invoice\InvoiceLine',
+                'description'       => 'Invoice line the entry line relates to, if any.',
+                'help'              => 'This is necessary for retrieving the invoice line corresponding to the entry line and, further, the apportionment and ratio to use for owner statement.',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'purchase_invoice_line_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoiceLine',
+                'description'       => 'Invoice line the entry line relates to, if any.',
+                'help'              => 'This is necessary for retrieving the invoice line corresponding to the entry line and, further, the apportionment and ratio to use for owner statement.',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
         ];
     }
 

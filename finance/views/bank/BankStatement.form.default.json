@@ -28,15 +28,14 @@
                 "ids": []
             },
             "confirm": false,
-            "visible": [
-                ["is_reconciled", "<>", true]
-            ]
+            "visible": [["status", "=", "pending"]]
         }
     ],
     "header": {
         "actions": {
             "ACTION.SAVE": [
                 {"id": "SAVE_AND_CONTINUE"},
+                {"id": "SAVE_AND_CLOSE"},
                 {"id": "SAVE_AND_VIEW"}
             ],
             "ACTION.EDIT": [
