@@ -29,7 +29,7 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'ondelete'          => 'cascade'
             ],
 
-            'invoice_line_id' => [
+            'purchase_invoice_line_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoiceLine',
                 'description'       => 'Invoice line the entry line relates to, if any.',
@@ -38,6 +38,7 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            // #memo - in realestate package, 'purchase_invoice_line_id' targets `ExpenseStatementOwnerLine` and `FundRequestExecutionLine`
         ];
     }
 

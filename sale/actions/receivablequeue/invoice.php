@@ -4,9 +4,9 @@
     (c) 2025–2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
 */
-use sale\accounting\invoice\Invoice;
-use sale\accounting\invoice\InvoiceLine;
-use sale\accounting\invoice\InvoiceLineGroup;
+use sale\accounting\invoice\SaleInvoice;
+use sale\accounting\invoice\SaleInvoiceLine;
+use sale\accounting\invoice\SaleInvoiceLineGroup;
 use sale\receivable\ReceivablesQueue;
 use sale\receivable\Receivable;
 
@@ -59,7 +59,7 @@ if(!$receivables_queues) {
 
 $default_invoice = null;
 if(isset($params['invoice_id'])) {
-    $default_invoice = Invoice::search([
+    $default_invoice = SaleInvoice::search([
             ['id', '=', $params['invoice_id']],
             ['status', '=', 'proforma']
         ])
@@ -95,7 +95,7 @@ foreach($receivables_queues as $receivables_queue) {
         $invoice = $default_invoice;
     }
     else {
-        $invoice = Invoice::search([
+        $invoice = SaleInvoice::search([
                 ['customer_id', '=', $receivables_queue['customer_id']],
                 ['status', '=', 'proforma']
             ])
@@ -103,21 +103,21 @@ foreach($receivables_queues as $receivables_queue) {
             ->first();
 
         if(!$invoice) {
-            $invoice = Invoice::create([
+            $invoice = SaleInvoice::create([
                     'customer_id' => $receivables_queue['customer_id']
                 ])
                 ->first();
         }
     }
 
-    $invoice_line_group = InvoiceLineGroup::create([
+    $invoice_line_group = SaleInvoiceLineGroup::create([
             'name'       => 'Additional Services ('.date('Y-m-d').')',
             'invoice_id' => $invoice['id']
         ])
         ->first();
 
     foreach($receivables as $receivable) {
-        $invoice_line = InvoiceLine::create([
+        $invoice_line = SaleInvoiceLine::create([
                 // #memo - name is computed & based on product
                 'description'           => $receivable['name'],
                 'invoice_line_group_id' => $invoice_line_group['id'],
