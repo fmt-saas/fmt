@@ -60,25 +60,6 @@
             },
             "show_in_apps": true
         },
-        {
-            "id": "fmt",
-            "name": "FMT",
-            "description": "Manage and configure Condominiums.",
-            "extends": "app",
-            "icon": "settings",
-            "color": "#dd2424",
-            "access": {
-                "groups": [
-                    "users"
-                ]
-            },
-            "params": {
-                "menus": {
-                    "left": "fmt.left",
-                    "top": "fmt.top"
-                }
-            },
-            "show_in_apps": true
-        }
+        "app"
     ]
 }
