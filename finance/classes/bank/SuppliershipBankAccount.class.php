@@ -95,6 +95,9 @@ class SuppliershipBankAccount extends Model {
                 'readonly'          => true
             ]
 
+/*
+    ajouter la possiblité d'ajouter un compte d'un autre fournisseur (le compte IBAN utilisé) ex. refactoring, pour pouvoir identifier les paiements
+ */
         ];
     }
 

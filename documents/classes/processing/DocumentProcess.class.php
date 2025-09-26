@@ -1318,12 +1318,13 @@ class DocumentProcess extends Model {
                     // #memo - by convention new statements have their status set to 'pending'
                     $bankStatement = BankStatement::create([
                             'condo_id'              => $documentProcess['condo_id'],
-                            'date'                  => time(),
+                            'date'                  => strtotime($data['closing_date']),
                             'opening_date'          => strtotime($data['opening_date']),
                             'closing_date'          => strtotime($data['closing_date']),
                             'opening_balance'       => round(floatval($data['opening_balance']), 2),
                             'closing_balance'       => round(floatval($data['closing_balance']), 2),
                             'statement_currency'    => $data['statement_currency'],
+                            'statement_number'      => sprintf("%03d", intval($data['statement_number'])),
                             'bank_account_id'       => $bankAccount['id'] ?? null,
                             'bank_account_iban'     => $data['account_iban'],
                             'bank_account_bic'      => $data['bank_bic'],

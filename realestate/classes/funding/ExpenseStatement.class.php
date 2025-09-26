@@ -597,6 +597,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
         // fetch relevant accounting entries that apply to the chosen period
         // #todo - plutot que filtrer sur invoice_id, on doit sans doute plutot regarder dans des journaux spécifiques (PUR, BNK)
+        // ->   * comptabiliser toutes les entrées comptables des comptes 6 et 7, quel que soit le journal
+        //      * marquer les écritures comme "décomptées"
         $accountingEntries = AccountingEntry::search([
                 ['fiscal_period_id', '=', $fiscalPeriod['id']],
                 ['status', '=', 'validated'],

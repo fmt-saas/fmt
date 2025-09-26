@@ -672,7 +672,7 @@ class FundRequest extends \equal\orm\Model {
 
             foreach($map_ownership_amounts as $ownership_id => $allocated_amount) {
                 $remaining_amount = $allocated_amount;
-                $base_amount = floor($allocated_amount / $num_intervals);
+                $base_amount = floor(($allocated_amount / $num_intervals) * 100) / 100;
 
                 foreach($execution_dates as $index => $execution_date) {
                     $called_amount = ($index == $num_intervals - 1) ? $remaining_amount : $base_amount;

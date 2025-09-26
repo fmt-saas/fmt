@@ -660,7 +660,7 @@ class AccountingEntry extends Model {
     }
 
     public static function candelete($self) {
-        $self->read(['status', 'is_temp', 'invoice_id']);
+        $self->read(['status', 'is_temp', 'sale_invoice_id', 'purchase_invoice_id']);
         foreach($self as $entry) {
             // unless temporary, a validated entry cannot be removed
             if($entry['status'] === 'validated' && !$entry['is_temp']) {
