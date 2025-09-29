@@ -136,17 +136,42 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             'emission_date' => [
                 'type'              => 'date',
-                'description'       => 'Date at which the invoice was emitted.',
+                'description'       => 'Date at which the invoice was emitted by the supplier.',
                 'required'          => true,
-                'onupdate'          => 'onupdateEmissionDate'
+                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
+            ],
+
+            'fiscal_year_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => "Fiscal year the invoice relates to.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'help'              => "Fiscal Year is automatically assigned based on emission_date.",
+                'function'          => 'calcFiscalYearId',
+                'store'             => true,
+                'instant'           => true,
+                'readonly'          => true
+            ],
+
+            'fiscal_period_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'description'       => "Period of the fiscal year the invoice relates to.",
+                'help'              => "Period is automatically assigned based on emission_date.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['fiscal_year_id', '=', 'object.fiscal_year_id']],
+                'function'          => 'calcFiscalPeriodId',
+                'store'             => true,
+                'instant'           => true,
+                'readonly'          => true
             ],
 
             'posting_date' => [
                 'type'              => 'date',
                 'description'       => 'The date on which the invoice is recorded in the accounting system.',
                 'default'           => function () { return time(); },
-                'visible'           => ['has_date_range', '=', false],
-                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
+                'visible'           => ['has_date_range', '=', false]
             ],
 
             'due_date' => [
@@ -566,10 +591,11 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
         $self->read([
                 'id', 'condo_id', 'price', 'description',
                 'invoice_type',
-                'posting_date', 'has_date_range', 'date_from', 'date_to',
+                'emission_date', 'posting_date', 'has_date_range', 'date_from', 'date_to',
                 'has_instant_reinvoice',
                 'has_fund_usage',
                 'fiscal_year_id',
+                'fiscal_period_id' => ['date_from', 'date_to'],
                 'accounting_entries_ids',
                 'suppliership_id',
                 'invoice_lines_ids' => [
@@ -599,6 +625,10 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 $date_from = $invoice['date_from'];
                 $date_to = $invoice['date_to'];
             }
+            else {
+                $date_from = $invoice['fiscal_period_id']['date_from'];
+                $date_to = $invoice['fiscal_period_id']['date_to'];
+            }
 
             // retrieve journal dedicated to purchases
             $journal = Journal::search([['condo_id', '=', $invoice['condo_id']], ['journal_type', '=', 'PURC']])->first();
@@ -611,6 +641,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
             $privateExpenseAccount = Account::search([['condo_id', '=', $invoice['condo_id']], ['operation_assignment', '=', 'private_expenses']])
                 ->read(['id', 'name'])
                 ->first();
+
             if(!$privateExpenseAccount) {
                 trigger_error("APP::unable to find a match for private_expense account for condominium {$invoice['condo_id']}", EQ_REPORT_ERROR);
                 throw new \Exception("missing_mandatory_journal", EQ_ERROR_INVALID_CONFIG);
@@ -625,7 +656,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     'purchase_invoice_id'   => $id,
                     'fiscal_year_id'        => $invoice['fiscal_year_id'],
                     // #memo - if necessary, entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
-                    'entry_date'            => $invoice['posting_date'],
+                    'entry_date'            => $invoice['emission_date'],
                     'origin_object_class'   => self::getType(),
                     'origin_object_id'      => $id
                 ])
@@ -960,6 +991,32 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                 }
             }
         }
+    }
+
+protected static function calcFiscalYearId($self) {
+        $result = [];
+        $self->read(['condo_id', 'emission_date']);
+        foreach($self as $id => $invoice) {
+            $fiscalYear = FiscalYear::search([ ['condo_id', '=', $invoice['condo_id']], ['date_from', '<=', $invoice['emission_date']], ['date_to', '>=', $invoice['emission_date']] ])->first();
+            if($fiscalYear) {
+                $result[$id] = $fiscalYear['id'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcFiscalPeriodId($self) {
+        $result = [];
+        $self->read(['emission_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
+        foreach($self as $id => $invoice) {
+            foreach($invoice['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
+                if($invoice['emission_date'] >= $period['date_from'] && $invoice['emission_date'] <= $period['date_to']) {
+                    $result[$id] = $period_id;
+                    break;
+                }
+            }
+        }
+        return $result;
     }
 
     private static function computeDocumentLink($document_id) {

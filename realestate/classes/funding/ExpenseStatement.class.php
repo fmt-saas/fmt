@@ -618,6 +618,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         $accountingEntryLines = AccountingEntryLine::search([
                 ['fiscal_period_id', '=', $fiscal_period_id],
                 ['status', '=', 'validated'],
+                ['is_cleared', '=', false],
                 ['account_class', 'in', [6, 7]]
             ])
             ->read([
