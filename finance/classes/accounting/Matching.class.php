@@ -79,6 +79,13 @@ class Matching extends Model {
                 'store'             => true
             ],
 
+            'is_system' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag indicating that the Matching was created by the system.',
+                'help'              => 'Matching made by the system cannot be removed by users.',
+                'default'           => false
+            ],
+
             'matching_level' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -206,4 +213,15 @@ class Matching extends Model {
         ];
     }
 */
+
+    protected static function candelete($self, $auth) {
+        $user_id = $auth->userId();
+        $self->read(['is_balanced', 'is_system']);
+        foreach($self as $matching) {
+            if($matching['is_balanced'] && $matching['is_system'] && $user_id !== EQ_ROOT_USER_ID) {
+                return ['is_system' => ['non_removable' => 'System Matching cannot be deleted.']];
+            }
+        }
+        return parent::candelete($self);
+    }
 }

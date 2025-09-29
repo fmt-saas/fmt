@@ -258,14 +258,17 @@ foreach($statements as $statement) {
 
         $transaction_account = $transaction->getAccount();
 
+        $counterparty_iban = $convertBbanToIban($transaction->getAccount()->getNumber());
+        $counterparty_bic = $transaction->getAccount()->getBic();
+
         $line['transactions'][] = [
             'entry_date'                => date('c', $transaction->getTransactionDate()->getTimestamp()),
             'value_date'                => date('c', $transaction->getValutaDate()->getTimestamp()),
             'sequence_number'           => $transaction->getStatementSequence(),
             'amount'                    => $transaction->getAmount(),
             'counterparty_name'         => $transaction->getAccount()->getName(),
-            'counterparty_iban'         => $convertBbanToIban($transaction->getAccount()->getNumber()),
-            'counterparty_bic'          => $transaction->getAccount()->getBic(),
+            'counterparty_iban'         => trim($counterparty_iban) !== '' ? $counterparty_iban : null,
+            'counterparty_bic'          => trim($counterparty_bic)  !== '' ? $counterparty_bic : null,
             'counterparty_details'      => '',
             'mandate_id'                => null,
             'transaction_type'          => $getTransactionType($transaction->getTransactionCode()->getFamily(), $transaction->getTransactionCode()->getOperation()),

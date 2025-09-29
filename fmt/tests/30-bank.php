@@ -9,7 +9,7 @@ $providers = eQual::inject(['context', 'orm', 'auth', 'access']);
 
 $tests = [
 
-        '1101' => [
+        '3001' => [
             'description'       => "Validate CODA import.",
             'help'              => "Convert a CODA bank statement to standardized JSON and validate result against `bank-statement` schema.",
             'arrange'           => function() use($providers) {
@@ -29,7 +29,7 @@ $tests = [
             'rollback'          => function() use($providers) {
                 }
         ],
-        '1102' => [
+        '3002' => [
             'description'       => "Validate ISABEL XLSX import.",
             'help'              => "Convert a CODA bank statement to standardized JSON and validate result against `bank-statement` schema.",
             'arrange'           => function() use($providers) {

@@ -136,9 +136,23 @@ class FiscalPeriod extends Model {
         return $result;
     }
 
-
-    public static function policyCanBeClosed($self) {
+    protected static function policyCanBeClosed($self) {
         $result = [];
+        $self->read(['status', 'fiscal_year_id' => ['status']]);
+        foreach($self as $id => $fiscalPeriod) {
+            if($fiscalPeriod['status'] !== 'open') {
+                $result[$id] = [
+                    'invalid_status' => 'Period already closed.'
+                ];
+                continue;
+            }
+            if($fiscalPeriod['fiscal_year_id']['status'] !== 'open') {
+                $result[$id] = [
+                    'invalid_fiscal_year_status' => 'Fiscal Year must be open for a period to be closed.'
+                ];
+                continue;
+            }
+        }
         return $result;
     }
 
