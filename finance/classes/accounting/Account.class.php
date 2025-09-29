@@ -45,7 +45,7 @@ class Account extends Model {
             'code' => [
                 'type'              => 'string',
                 'description'       => "A variable length string representing the number of the account.",
-                'dependents'        => ['name', 'level'],
+                'dependents'        => ['name', 'level', 'account_class'],
                 'required'          => true
             ],
 
@@ -64,6 +64,14 @@ class Account extends Model {
             ],
 
             'account_class' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => "The accounting class of the account.",
+                'function'          => 'calcAccountClass',
+                'store'             => true
+            ],
+
+            'display_account_class' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'description'       => "The accounting class of the account.",
@@ -306,7 +314,7 @@ class Account extends Model {
         $self->read(['code']);
         foreach($self as $id => $account) {
             if($account['code']) {
-                $result[$id] = '0'.substr($account['code'], 0, 1);
+                $result[$id] = intval(substr($account['code'], 0, 1));
             }
         }
         return $result;

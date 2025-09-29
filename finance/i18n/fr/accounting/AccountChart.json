@@ -17,7 +17,7 @@
             "label": "Comptes",
             "description": "Comptes relatifs au plan comptable.",
             "help": ""
-        }        
+        }
     },
     "view": {
         "form.default": {

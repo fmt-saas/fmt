@@ -50,7 +50,7 @@ class RecordingRuleLine extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account the rule points to.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false], ['account_class', '=', '06']],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false], ['account_class', '=', 6]],
                 'visible'           => ['condo_id', '<>', null]
             ],
 

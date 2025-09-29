@@ -136,7 +136,7 @@ class AccountingEntryLine extends Model {
                 'required'          => true,
                 'ondelete'          => 'null',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
-                'dependents'        => ['account_code']
+                'dependents'        => ['account_code', 'account_class']
             ],
 
             'account_code' => [
@@ -148,6 +148,17 @@ class AccountingEntryLine extends Model {
                 'instant'           => true,
                 'readonly'          => true
             ],
+
+            'account_class' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => "The accounting class of the account (as a number from 1 to 7).",
+                'function'          => 'calcAccountClass',
+                'store'             => true,
+                'instant'           => true,
+                'readonly'          => true
+            ],
+
 
             'debit' => [
                 'type'              => 'float',
@@ -214,6 +225,17 @@ class AccountingEntryLine extends Model {
                 'function'      => 'doRefreshMatchingLevel'
             ]
         ];
+    }
+
+    protected static function calcAccountClass($self) {
+        $result = [];
+        $self->read(['account_code']);
+        foreach($self as $id => $accountingEntryLine) {
+            if($accountingEntryLine['account_code']) {
+                $result[$id] = intval(substr($accountingEntryLine['account_code'], 0, 1));
+            }
+        }
+        return $result;
     }
 
     protected static function doMatchWithMatching($self, $values) {

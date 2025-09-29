@@ -412,11 +412,13 @@ class AccountingEntry extends Model {
             if($mostRecentEntry && $mostRecentEntry['entry_date'] > $accountingEntry['entry_date']) {
                 $entry_date = $mostRecentEntry['entry_date'];
             }
+
             self::id($id)
                 ->update([
                     'entry_number'  => self::computeEntryNumber($id),
                     'entry_date'    => $entry_date
                 ]);
+
         }
     }
 

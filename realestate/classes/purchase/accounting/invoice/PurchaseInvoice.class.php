@@ -703,9 +703,6 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                         throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                     }
 
-
-                    // #todo - handle invoice_type
-
                     // create the debit line on the private expense account
                     AccountingEntryLine::create([
                             'condo_id'                  => $invoice['condo_id'],
@@ -869,7 +866,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                                 $map_planned_accounting_entries[$period_date_from] = AccountingEntry::create([
                                         'condo_id'              => $invoice['condo_id'],
                                         'journal_id'            => $journal['id'],
-                                        'invoice_id'            => $id,
+                                        'purchase_invoice_id'   => $id,
                                         'fiscal_year_id'        => $plannedFiscalYear['id'],
                                         'entry_date'            => $period_date_from,
                                         'origin_object_class'   => self::getType(),

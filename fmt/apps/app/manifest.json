@@ -5,7 +5,8 @@
     "authors": ["Yesbabylon SA"],
     "license": "LGPL-3",
     "repository": "https://github.com/fmt-saas/apps-fmt-app.git",
-    "url": "/fmt",
+    "url": "/app",
+    "color": "#FF5F00",
     "access": {
         "groups": [
             "users"

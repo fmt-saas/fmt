@@ -599,16 +599,31 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         // #todo - plutot que filtrer sur invoice_id, on doit sans doute plutot regarder dans des journaux spécifiques (PUR, BNK)
         // ->   * comptabiliser toutes les entrées comptables des comptes 6 et 7, quel que soit le journal
         //      * marquer les écritures comme "décomptées"
-        $accountingEntries = AccountingEntry::search([
-                ['fiscal_period_id', '=', $fiscalPeriod['id']],
+        // rechercher les accounting entry lines : comment filtrer pour n'avoir que les comptes 6 et 7 ??
+        $accountingEntryLines = AccountingEntryLine::search([
+                ['fiscal_period_id', '=', $fiscal_period_id],
                 ['status', '=', 'validated'],
-                ['invoice_id', '<>', null]
+                ['account_class', 'in', [6, 7]]
             ])
             ->read([
-                'entry_date',
-                'entry_lines_ids' => ['sale_invoice_line_id', 'account_id', 'account_code', 'debit', 'credit']
+                'accounting_entry_id',
+                'account_id', 'account_code', 'debit', 'credit',
+                // #memo - we need this to retrieve details for private expenses
+                'sale_invoice_line_id'
             ]);
 
+        $map_accounting_entries_ids = [];
+        foreach($accountingEntryLines as $accountingEntryLine) {
+            $map_accounting_entries_ids[$accountingEntryLine['accounting_entry_id']] = true;
+        }
+
+        $accountingEntries = AccountingEntry::ids(array_keys($map_accounting_entries_ids))
+            ->read([
+                'entry_date',
+                'status',
+                'journal_id'
+            ])
+            ->get();
 
         /*
             Prefetch required objects (condominium configuration)
@@ -673,197 +688,207 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
         // pass-1 - identify private expenses that have been reinvoiced
         $map_private_expenses = [];
-        foreach($accountingEntries as $accountingEntry) {
-            foreach($accountingEntry['entry_lines_ids'] as $accountingEntryLine) {
-                if(substr($accountingEntryLine['account_code'], 0, 3) === '643' && $accountingEntryLine['credit'] > 0) {
-                    $map_private_expenses[$accountingEntryLine['sale_invoice_line_id']] = true;
-                }
+
+        foreach($accountingEntryLines as $accountingEntryLine) {
+            if(substr($accountingEntryLine['account_code'], 0, 3) === '643' && $accountingEntryLine['credit'] > 0) {
+                $map_private_expenses[$accountingEntryLine['sale_invoice_line_id']] = true;
             }
         }
 
         // pass-2 - handle all expenses
-        foreach($accountingEntries as $accountingEntry) {
-            if($accountingEntry['entry_date'] < $fiscalPeriod['date_from'] || $accountingEntry['entry_date'] > $fiscalPeriod['date_to']) {
-                throw new \Exception('out_of_range_entry', EQ_ERROR_INVALID_CONFIG);
+
+        foreach($accountingEntryLines as $accountingEntryLine) {
+
+            $accountingEntry = $accountingEntries[$accountingEntryLine['accounting_entry_id']];
+
+            // ignore accounting entries not yet validated
+            if($accountingEntry['status'] !== 'validated') {
+                continue;
             }
-            foreach($accountingEntry['entry_lines_ids'] as $accountingEntryLine) {
 
-                // 1) private expense
-                // #todo - handle energy/water consumption in a distinct manner (different in section in the statement : `consumptions`)
-                /*
-                encodage des factures sur le compte correspondant à l'énergie consommée 61200
-                + utilisation d'un compte dédié au décomptes de consommation (compteur) 61240
-                + création d'un total consommations privatives
-                */
-                // #memo - consider both debit and credit lines here (to void already reinvoiced private expenses)
-                if(substr($accountingEntryLine['account_code'], 0, 3) === '643') {
-                    // skip private expense that have been reinvoiced
-                    // ceci ne fonctionne pas dans le cas d'aller-retours multiples (annuler, recréeer)
-                    if(isset($map_private_expenses[$accountingEntryLine['sale_invoice_line_id']])) {
-                        continue;
-                    }
-                    // #todo - pour les consommations on n'a pas d'invoice line,
-                    //     mais il faut un lien avec des lignes de relevés (format compatible avec InvoiceLine ? ConsumptionLine)
-                    // #todo - prendre en compte les bank statement lines (en deux passes ?)
-                    $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['sale_invoice_line_id'])->read([
-                            'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
-                            'invoice_id' => ['posting_date']
-                        ])
-                        ->first();
+            // ignore out of range accounting entries
+            if($accountingEntry['entry_date'] < $fiscalPeriod['date_from'] || $accountingEntry['entry_date'] > $fiscalPeriod['date_to']) {
+                continue;
+            }
 
-                    if(!$invoiceLine) {
-                        throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
-                    }
+            // 1) private expense
 
-                    $ownership_id = $invoiceLine['ownership_id'];
-                    $property_lot_id = $invoiceLine['property_lot_id'];
+            // #todo - handle energy/water consumption in a distinct manner (different in section in the statement : `consumptions`)
+            /*
+            Encodage des factures sur le compte correspondant à l'énergie consommée 61200
+              + utilisation d'un compte dédié au décomptes de consommation (compteur) 61240
+              + création d'un total consommations privatives
+            */
 
-                    $amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
-
-                    $private_total += $amount;
-
-                    if(!isset($map_result[$ownership_id][$property_lot_id]['private_expense'][0][$accountingEntryLine['account_id']])) {
-                        $map_result[$ownership_id][$property_lot_id]['private_expense'][0][$accountingEntryLine['account_id']] = [];
-                    }
-
-                    $amount_vat = round($amount * $invoiceLine['vat_rate'], 2);
-                    $amount_owner  = round($amount * ($invoiceLine['owner_share'] / 100), 2);
-                    $amount_tenant = round($amount * (1 - $invoiceLine['owner_share'] / 100), 2);
-                    $adjust = round($amount - $amount_owner - $amount_tenant, 2);
-                    $amount_owner += $adjust;
-
-                    $amount_tenant = round($amount - $amount_owner, 2);
-
-                    $map_result[$ownership_id][$property_lot_id]['private_expense'][0][$accountingEntryLine['account_id']][] = [
-                            'owner'         => $amount_owner,
-                            'tenant'        => $amount_tenant,
-                            'vat'           => $amount_vat,
-                            'description'   => $invoiceLine['description'],
-                            'date'          => $invoiceLine['invoice_id']['posting_date'] ?? null
-                        ];
-
-                    $map_accounts_ids[$accountingEntryLine['account_id']] = true;
-                    $map_property_lots_ids[$property_lot_id] = true;
+            // #memo - consider both debit and credit lines here (to void already reinvoiced private expenses)
+            if(substr($accountingEntryLine['account_code'], 0, 3) === '643') {
+                // skip private expense that have been reinvoiced
+                // ceci ne fonctionne pas dans le cas d'aller-retours multiples (annuler, recréeer)
+                if(isset($map_private_expenses[$accountingEntryLine['purchase_invoice_line_id']])) {
+                    continue;
                 }
-                // 2) common expense
-                // #memo - only debit lines for these
-                elseif(substr($accountingEntryLine['account_code'], 0, 2) === '61') {
-                    $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['sale_invoice_line_id'])->read(['vat_rate', 'apportionment_id', 'owner_share', 'tenant_share'])->first();
-                    if(!$invoiceLine) {
-                        throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
-                    }
+                // #todo - pour les consommations on n'a pas d'invoice line,
+                //     mais il faut un lien avec des lignes de relevés (format compatible avec InvoiceLine ? ConsumptionLine)
+                // #todo - prendre en compte les bank statement lines (en deux passes ?)
+                $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['purchase_invoice_line_id'])->read([
+                        'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
+                        'invoice_id' => ['posting_date']
+                    ])
+                    ->first();
 
-                    $line_amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
-                    $vat_amount = $line_amount * $invoiceLine['vat_rate'];
+                if(!$invoiceLine) {
+                    throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
+                }
 
-                    $common_total += $line_amount;
+                $ownership_id = $invoiceLine['ownership_id'];
+                $property_lot_id = $invoiceLine['property_lot_id'];
 
-                    $apportionment = $map_apportionments[$invoiceLine['apportionment_id']];
+                $amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
 
-                    foreach($ownerships as $ownership_id => $ownership) {
-                        foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
-                            $property_lot_id = $property_lot_ownership['property_lot_id'];
-                            if($property_lot_ownership['date_to'] && $property_lot_ownership['date_to'] < $fiscalPeriod['date_from']) {
-                                continue;
-                            }
-                            if(!isset($apportionment[$property_lot_id])) {
-                                continue;
-                            }
+                $private_total += $amount;
 
-                            $start = max($fiscalPeriod['date_from'], $property_lot_ownership['date_from'] ?? $fiscalPeriod['date_from']);
-                            $end   = min($fiscalPeriod['date_to'], $property_lot_ownership['date_to'] ?? $fiscalPeriod['date_to']);
-                            $ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
+                if(!isset($map_result[$ownership_id][$property_lot_id]['private_expense'][0][$accountingEntryLine['account_id']])) {
+                    $map_result[$ownership_id][$property_lot_id]['private_expense'][0][$accountingEntryLine['account_id']] = [];
+                }
 
-                            $prorata = $ownership_nb_days / $nb_days;
-                            $shares = $apportionment[$property_lot_id];
-                            $total_shares = $apportionments[$invoiceLine['apportionment_id']]['total_shares'];
-                            $amount = $prorata * ($line_amount * $shares / $total_shares);
+                $amount_vat = round($amount * $invoiceLine['vat_rate'], 2);
+                $amount_owner  = round($amount * ($invoiceLine['owner_share'] / 100), 2);
+                $amount_tenant = round($amount * (1 - $invoiceLine['owner_share'] / 100), 2);
+                $adjust = round($amount - $amount_owner - $amount_tenant, 2);
+                $amount_owner += $adjust;
 
-                            if(!isset($map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']])) {
-                                $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']] = [
-                                        'shares'        => $shares,
-                                        'total_shares'  => $total_shares,
-                                        'total_amount'  => $line_amount,
-                                        'owner'         => 0.0,
-                                        'tenant'        => 0.0,
-                                        'vat'           => 0.0
-                                    ];
-                            }
-                            else {
-                                $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['total_amount'] += $line_amount;
-                            }
+                $amount_tenant = round($amount - $amount_owner, 2);
 
-                            $amount_vat = round($prorata * ($vat_amount * $shares / $total_shares), 2);
-                            $amount_owner = round($amount * ($invoiceLine['owner_share'] / 100), 2);
-                            $amount_tenant = round($amount * (1 - $invoiceLine['owner_share'] / 100), 2);
-                            $adjust = round($amount - $amount_owner - $amount_tenant, 2);
-                            $amount_owner += $adjust;
+                $map_result[$ownership_id][$property_lot_id]['private_expense'][0][$accountingEntryLine['account_id']][] = [
+                        'owner'         => $amount_owner,
+                        'tenant'        => $amount_tenant,
+                        'vat'           => $amount_vat,
+                        'description'   => $invoiceLine['description'],
+                        'date'          => $invoiceLine['invoice_id']['posting_date'] ?? null
+                    ];
 
-                            $delta_total += $amount - ($amount_owner + $amount_tenant);
+                $map_accounts_ids[$accountingEntryLine['account_id']] = true;
+                $map_property_lots_ids[$property_lot_id] = true;
+            }
+            // 2) common expense
+            // #memo - only debit lines for these
+            elseif(substr($accountingEntryLine['account_code'], 0, 2) === '61') {
+                $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['sale_invoice_line_id'])->read(['vat_rate', 'apportionment_id', 'owner_share', 'tenant_share'])->first();
+                if(!$invoiceLine) {
+                    throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
+                }
 
-                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['vat'] += $amount_vat;
-                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['owner'] += $amount_owner;
-                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['tenant'] += $amount_tenant;
+                $line_amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
+                $vat_amount = $line_amount * $invoiceLine['vat_rate'];
 
-                            $map_property_lots_ids[$property_lot_id] = true;
+                $common_total += $line_amount;
+
+                $apportionment = $map_apportionments[$invoiceLine['apportionment_id']];
+
+                foreach($ownerships as $ownership_id => $ownership) {
+                    foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
+                        $property_lot_id = $property_lot_ownership['property_lot_id'];
+                        if($property_lot_ownership['date_to'] && $property_lot_ownership['date_to'] < $fiscalPeriod['date_from']) {
+                            continue;
                         }
-                    }
-                    $map_accounts_ids[$accountingEntryLine['account_id']] = true;
-                }
-                // 3) reserve fund
-                // #memo - limit to lines related to use of reserve fund (debit only)
-                elseif(substr($accountingEntryLine['account_code'], 0, 4) === '6816' && substr($accountingEntryLine['account_code'], -1) === '1') {
-
-                    // retrieve account according to account_id and ReserveFund
-                    $reserveFund = $map_reserve_funds[$accountingEntryLine['account_code']] ?? null;
-                    if(!$reserveFund) {
-                        trigger_error("APP::unable to retrieve reserve fund with code {$accountingEntryLine['account_code']}", EQ_REPORT_ERROR);
-                        throw new \Exception('missing_mandatory_reserve_fund', EQ_ERROR_INVALID_CONFIG);
-                    }
-
-                    $line_amount = ($accountingEntryLine['debit'] > 0) ? -$accountingEntryLine['debit'] : $accountingEntryLine['credit'];
-
-                    $common_total += $line_amount;
-
-                    $apportionment_id = $reserveFund['apportionment_id'];
-                    $apportionment = $map_apportionments[$apportionment_id];
-
-                    foreach($ownerships as $ownership_id => $ownership) {
-                        foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
-                            $property_lot_id = $property_lot_ownership['property_lot_id'];
-                            if($property_lot_ownership['date_to'] && $property_lot_ownership['date_to'] < $fiscalPeriod['date_from']) {
-                                continue;
-                            }
-                            if(!isset($apportionment[$property_lot_id])) {
-                                continue;
-                            }
-                            $start = max($fiscalPeriod['date_from'], $property_lot_ownership['date_from'] ?? $fiscalPeriod['date_from']);
-                            $end   = min($fiscalPeriod['date_to'], $property_lot_ownership['date_to'] ?? $fiscalPeriod['date_to']);
-                            $ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
-
-                            $prorata = $ownership_nb_days / $nb_days;
-                            $shares = $apportionment[$property_lot_id];
-                            $total_shares = $apportionments[$apportionment_id]['total_shares'];
-                            $amount = $prorata * ($line_amount * $shares / $total_shares);
-                            if(!isset($map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']])) {
-                                $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']] = [
-                                        'shares'        => $shares,
-                                        'total_shares'  => $total_shares,
-                                        'total_amount'  => $line_amount,
-                                        'owner'         => 0.0,
-                                        'tenant'        => 0.0
-                                    ];
-                            }
-                            // use of reserve fund only applies to the owners
-                            $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']]['owner'] += round($amount, 2);
-
-                            $map_property_lots_ids[$property_lot_id] = true;
+                        if(!isset($apportionment[$property_lot_id])) {
+                            continue;
                         }
+
+                        $start = max($fiscalPeriod['date_from'], $property_lot_ownership['date_from'] ?? $fiscalPeriod['date_from']);
+                        $end   = min($fiscalPeriod['date_to'], $property_lot_ownership['date_to'] ?? $fiscalPeriod['date_to']);
+                        $ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
+
+                        $prorata = $ownership_nb_days / $nb_days;
+                        $shares = $apportionment[$property_lot_id];
+                        $total_shares = $apportionments[$invoiceLine['apportionment_id']]['total_shares'];
+                        $amount = $prorata * ($line_amount * $shares / $total_shares);
+
+                        if(!isset($map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']])) {
+                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']] = [
+                                    'shares'        => $shares,
+                                    'total_shares'  => $total_shares,
+                                    'total_amount'  => $line_amount,
+                                    'owner'         => 0.0,
+                                    'tenant'        => 0.0,
+                                    'vat'           => 0.0
+                                ];
+                        }
+                        else {
+                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['total_amount'] += $line_amount;
+                        }
+
+                        $amount_vat = round($prorata * ($vat_amount * $shares / $total_shares), 2);
+                        $amount_owner = round($amount * ($invoiceLine['owner_share'] / 100), 2);
+                        $amount_tenant = round($amount * (1 - $invoiceLine['owner_share'] / 100), 2);
+                        $adjust = round($amount - $amount_owner - $amount_tenant, 2);
+                        $amount_owner += $adjust;
+
+                        $delta_total += $amount - ($amount_owner + $amount_tenant);
+
+                        $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['vat'] += $amount_vat;
+                        $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['owner'] += $amount_owner;
+                        $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['tenant'] += $amount_tenant;
+
+                        $map_property_lots_ids[$property_lot_id] = true;
                     }
-                    $map_accounts_ids[$accountingEntryLine['account_id']] = true;
                 }
+                $map_accounts_ids[$accountingEntryLine['account_id']] = true;
+            }
+            // 3) reserve fund
+            // #memo - limit to lines related to use of reserve fund (debit only)
+            elseif(substr($accountingEntryLine['account_code'], 0, 4) === '6816' && substr($accountingEntryLine['account_code'], -1) === '1') {
+
+                // retrieve account according to account_id and ReserveFund
+                $reserveFund = $map_reserve_funds[$accountingEntryLine['account_code']] ?? null;
+                if(!$reserveFund) {
+                    trigger_error("APP::unable to retrieve reserve fund with code {$accountingEntryLine['account_code']}", EQ_REPORT_ERROR);
+                    throw new \Exception('missing_mandatory_reserve_fund', EQ_ERROR_INVALID_CONFIG);
+                }
+
+                $line_amount = ($accountingEntryLine['debit'] > 0) ? -$accountingEntryLine['debit'] : $accountingEntryLine['credit'];
+
+                $common_total += $line_amount;
+
+                $apportionment_id = $reserveFund['apportionment_id'];
+                $apportionment = $map_apportionments[$apportionment_id];
+
+                foreach($ownerships as $ownership_id => $ownership) {
+                    foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
+                        $property_lot_id = $property_lot_ownership['property_lot_id'];
+                        if($property_lot_ownership['date_to'] && $property_lot_ownership['date_to'] < $fiscalPeriod['date_from']) {
+                            continue;
+                        }
+                        if(!isset($apportionment[$property_lot_id])) {
+                            continue;
+                        }
+                        $start = max($fiscalPeriod['date_from'], $property_lot_ownership['date_from'] ?? $fiscalPeriod['date_from']);
+                        $end   = min($fiscalPeriod['date_to'], $property_lot_ownership['date_to'] ?? $fiscalPeriod['date_to']);
+                        $ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
+
+                        $prorata = $ownership_nb_days / $nb_days;
+                        $shares = $apportionment[$property_lot_id];
+                        $total_shares = $apportionments[$apportionment_id]['total_shares'];
+                        $amount = $prorata * ($line_amount * $shares / $total_shares);
+                        if(!isset($map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']])) {
+                            $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']] = [
+                                    'shares'        => $shares,
+                                    'total_shares'  => $total_shares,
+                                    'total_amount'  => $line_amount,
+                                    'owner'         => 0.0,
+                                    'tenant'        => 0.0
+                                ];
+                        }
+                        // use of reserve fund only applies to the owners
+                        $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']]['owner'] += round($amount, 2);
+
+                        $map_property_lots_ids[$property_lot_id] = true;
+                    }
+                }
+                $map_accounts_ids[$accountingEntryLine['account_id']] = true;
             }
         }
+
 
         // generate output response
         $result = [
