@@ -73,10 +73,10 @@ class FiscalPeriod extends Model {
             'status' => [
                 'type'        => 'string',
                 'selection'   => [
-                    'pending',
+                    'open',
                     'closed'
                 ],
-                'default'     => 'pending',
+                'default'     => 'open',
                 'description' => 'Status of the accounting period.',
                 'help'        => 'Status is `closed` once the expense statement has been validated.'
             ]
@@ -86,7 +86,7 @@ class FiscalPeriod extends Model {
 
     public static function getWorkflow() {
         return [
-            'pending' => [
+            'open' => [
                 'description' => 'Pending fiscal period, that can be used for recording new accounting entries.',
                 'icon' => 'draw',
                 'transitions' => [
@@ -97,7 +97,7 @@ class FiscalPeriod extends Model {
                             'can_be_closed'
                         ],
                         'onbefore' => 'onbeforeClose',
-                        'status' => 'close'
+                        'status' => 'closed'
                     ]
                 ]
             ]

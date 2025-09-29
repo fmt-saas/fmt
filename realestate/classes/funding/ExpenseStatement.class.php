@@ -7,13 +7,13 @@
 namespace realestate\funding;
 
 use finance\accounting\Account;
-use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\Journal;
 use realestate\finance\accounting\CondoFund;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\finance\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntryLine;
 use realestate\purchase\accounting\invoice\PurchaseInvoiceLine;
 use realestate\sale\pay\Funding;
 
@@ -178,6 +178,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'description'   => 'Generate fundings for each involved ownership.',
                 'policies'      => [],
                 'function'      => 'doGenerateFundings'
+            ],
+            'clear_accounting_entry_lines' => [
+                'description'   => 'Mark original accounting entries (records) as cleared by expense statement.',
+                'policies'      => [],
+                'function'      => 'doClearAccountingEntryLines'
             ]
         ]);
     }
@@ -298,6 +303,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ->do('generate_accounting_entries')
             ->do('generate_fundings')
             ->do('assign_invoice_number')
+            ->do('clear_accounting_entry_lines')
             ->do('validate_accounting_entries');
     }
 
@@ -316,6 +322,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'common_total'   => $data['common_total'],
                     'assigned_delta' => $data['assigned_delta']
                 ]);
+
+            // temporarily link involved records with current statement (has no implication while statement is not posted and `is_cleared` is not set to true)
+            AccountingEntryLine::ids($data['accounting_entry_lines_ids'])->update(['clearing_expense_statement_id' => $id]);
 
             foreach($data['owners'] as $owner) {
 
@@ -482,7 +491,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     }
 
 
-    public static function doGenerateFundings($self) {
+    protected static function doGenerateFundings($self) {
 
         /* from finance\accounting\invoice\Invoice: */
         // 'condo_id'
@@ -551,6 +560,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         }
     }
 
+    protected static function doClearAccountingEntryLines($self) {
+        foreach($self as $id => $expenseStatement) {
+            AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])
+                ->update(['is_cleared' => true]);
+        }
+    }
 
     public static function onchange($event, $values): array {
         $result = [];
@@ -690,12 +705,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         $map_private_expenses = [];
 
         foreach($accountingEntryLines as $accountingEntryLine) {
-            if(substr($accountingEntryLine['account_code'], 0, 3) === '643' && $accountingEntryLine['credit'] > 0) {
-                $map_private_expenses[$accountingEntryLine['sale_invoice_line_id']] = true;
+            if(substr($accountingEntryLine['account_code'], 0, 3) === '643' && $accountingEntryLine['credit'] > 0 && $accountingEntryLine['sale_invoice_line_id']) {
+                $map_private_expenses[$accountingEntryLine['id']] = true;
             }
         }
 
         // pass-2 - handle all expenses
+        $map_accounting_entry_lines_ids = [];
 
         foreach($accountingEntryLines as $accountingEntryLine) {
 
@@ -711,7 +727,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 continue;
             }
 
-            // 1) private expense
+            $map_accounting_entry_lines_ids[$accountingEntryLine['id']] = true;
+
+            // 1) private expense (relates to a purchase invoice line or a bank statement line)
 
             // #todo - handle energy/water consumption in a distinct manner (different in section in the statement : `consumptions`)
             /*
@@ -723,13 +741,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             // #memo - consider both debit and credit lines here (to void already reinvoiced private expenses)
             if(substr($accountingEntryLine['account_code'], 0, 3) === '643') {
                 // skip private expense that have been reinvoiced
-                // ceci ne fonctionne pas dans le cas d'aller-retours multiples (annuler, recréeer)
-                if(isset($map_private_expenses[$accountingEntryLine['purchase_invoice_line_id']])) {
+
+                if(isset($map_private_expenses[$accountingEntryLine['id']])) {
                     continue;
                 }
                 // #todo - pour les consommations on n'a pas d'invoice line,
-                //     mais il faut un lien avec des lignes de relevés (format compatible avec InvoiceLine ? ConsumptionLine)
-                // #todo - prendre en compte les bank statement lines (en deux passes ?)
+                //     => il faut un lien avec des lignes de relevés (? ConsumptionLine)
+                // #todo - prendre en compte les bank statement lines
                 $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['purchase_invoice_line_id'])->read([
                         'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
                         'invoice_id' => ['posting_date']
@@ -889,14 +907,14 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             }
         }
 
-
         // generate output response
         $result = [
-                'private_total'  => $private_total,
-                'common_total'   => $common_total,
+                'private_total'              => $private_total,
+                'common_total'               => $common_total,
                 // #memo - a positive amount means that a part of the purchase invoice was not allocated to owners
-                'assigned_delta' => round($delta_total, 2),
-                'owners'         => []
+                'assigned_delta'             => round($delta_total, 2),
+                'accounting_entry_lines_ids' => array_keys($map_accounting_entry_lines_ids),
+                'owners'                     => []
             ];
 
         foreach($map_result as $ownership_id => $list_property_lots) {

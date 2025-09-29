@@ -39,7 +39,43 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
             ],
 
             // #memo - in realestate package, 'purchase_invoice_line_id' targets `ExpenseStatementOwnerLine` and `FundRequestExecutionLine`
+
+            'is_cleared' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the record as cleared (reinvoiced to  Ownerships).',
+                'help'              => 'This flag is only set to true once, and uses the value of clearing_expense_statement_id.',
+                'readonly'          => true,
+                'default'           => false
+            ],
+
+            'clearing_expense_statement_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\ExpenseStatement',
+                'description'       => "Expense Statement in which the record has been reinvoiced.",
+                'help'              => "This field can be set several times and does not have a meaning while the `is_cleared` status is not set to true.",
+                'ondelete'          => 'null',
+                'domain'            => [ ['condo_id', '=', 'object.condo_id'] ],
+                'visible'           => ['is_cleared', '=', true]
+            ]
+
         ];
     }
+
+    public static function canupdate($self, $values) {
+        $self->read(['accounting_entry_id' => ['status']]);
+        $allowed_fields = ['matching_id', 'matching_level', 'clearing_expense_statement_id', 'is_cleared'];
+        $updated_fields = array_keys($values);
+
+        if(count(array_diff($updated_fields, $allowed_fields)) > 0) {
+            foreach($self as $id => $accountingEntryLine) {
+                if($accountingEntryLine['accounting_entry_id']['status'] == 'validated') {
+                    return ['accounting_entry_id' => ['not_allowed' => 'Accounting entry cannot be modified once validated.']];
+                }
+            }
+        }
+        // do not call parent which raises an error on unknown fields of the class
+        return [];
+    }
+
 
 }

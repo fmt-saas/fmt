@@ -625,7 +625,7 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     'purchase_invoice_id'   => $id,
                     'fiscal_year_id'        => $invoice['fiscal_year_id'],
                     // #memo - if necessary, entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
-                    'entry_date'            => $date_from,
+                    'entry_date'            => $invoice['posting_date'],
                     'origin_object_class'   => self::getType(),
                     'origin_object_id'      => $id
                 ])
