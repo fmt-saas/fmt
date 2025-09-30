@@ -10,6 +10,22 @@
             ]
         }
     },
+    "actions": [
+        {
+            "id": "action.match",
+            "inline": true,
+            "label": "Match",
+            "icon": "list",
+            "description": "Match recording.",
+            "component": {
+                "name": "matchAccountingEntry",
+                "data": {
+                    "condo_id": "object.condo_id",
+                    "accounting_entry_line_id": "object.id"
+                }
+            }
+        }
+    ],
     "operations": {
         "total": {
             "credit": {

@@ -42,7 +42,7 @@ use sale\pay\Payment;
 $result = [];
 
 
-// #odo - check consistency (has been done in UI)
+// #todo - check consistency (has been done in UI)
 
 $bankStatementLine = BankStatementLine::id($params['id'])
     ->read([

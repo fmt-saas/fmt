@@ -1,5 +1,20 @@
 {
     "name": "Accounting Entry Line",
+    "actions": [
+        {
+            "id": "action.match",
+            "label": "Match",
+            "icon": "list",
+            "description": "Match recording.",
+            "component": {
+                "name": "matchAccountingEntry",
+                "data": {
+                    "condo_id": "object.condo_id",
+                    "accounting_entry_line_id": "object.id"
+                }
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {
