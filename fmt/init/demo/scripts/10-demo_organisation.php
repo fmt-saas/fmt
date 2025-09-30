@@ -68,13 +68,13 @@ $team = Team::create([
 
 // create Employee
 $identity = Identity::create([
-        "type_id" => 3,
-        "type" => "IN",
-        "lang_id" => 2
+        "type_id"   => 1,
+        "type"      => "IN",
+        "lang_id"   => 2
     ])
     ->update([
         "firstname" => "Jean",
-        "lastname" => "Louis"
+        "lastname"  => "Louis"
     ])
     ->first();
 
@@ -92,6 +92,11 @@ $employee = Employee::create([
         'identity_id'   => $identity['id'],
     ])
     ->first();
+
+Identity::id($identity['id'])->update([
+        'employee_id'   => $employee['id'],
+        'user_id'       => $user['id']
+    ]);
 
 
 User::search()->do('sync_from_identity');
