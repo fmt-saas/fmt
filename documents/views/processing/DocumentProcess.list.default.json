@@ -32,6 +32,11 @@
             },
             {
                 "type": "field",
+                "value": "assigned_employee_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
                 "value": "document_id",
                 "width": "25%",
                 "readonly": true

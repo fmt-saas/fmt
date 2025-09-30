@@ -55,11 +55,18 @@ class BankStatementImport extends Model {
 
         foreach($self as $id => $bankStatementImport) {
             // create a temporary import Document holding all statements
-            $document = Document::create(['name' => $bankStatementImport['name'], 'data' => $bankStatementImport['data']])->first();
+            $document = Document::create([
+                    'name'      => $bankStatementImport['name'],
+                    'data'      => $bankStatementImport['data'],
+                    'is_origin' => true
+                ])
+                ->first();
             // extract data independently from the document content-type
             $data = \eQual::run('get', 'documents_processing_bankStatement_extract', ['document_id' => $document['id']]);
 
             if(!is_array($data)) {
+                // remove original document
+                Document::id($document['id'])->delete(true);
                 throw new \Exception('invalid_data', EQ_ERROR_INVALID_PARAM);
             }
             $file_name = pathinfo($bankStatementImport['name'], PATHINFO_FILENAME);
@@ -68,19 +75,23 @@ class BankStatementImport extends Model {
                 $binary = self::computeXlsxBinaryFromStatement($statement);
                 // this will trigger the creation of the Document and the Document Processing, which should not interrupt the import even if it fails
                 try {
-                    DocumentProcess::create([
+                    $documentProcess = DocumentProcess::create([
                             'name'              => $file_name . '(' . ($i+1) . ').' . 'xlsx',
                             'document_type_id'  => $documentType['id']
                         ])
                         ->update(['data' => $binary])
+                        ->read(['document_id'])
                         ->first();
+
+                    if($documentProcess && $documentProcess['document_id']) {
+                        // attach original document to the one being processed
+                        Document::id($documentProcess['document_id'])->update(['origin_document_id' => $document['id']]);
+                    }
                 }
                 catch(\Exception $e) {
                     // ignore (outputs are in logs)
                 }
             }
-            // remove temporary document
-            Document::id($document['id'])->delete(true);
             // remove current object (pointless after successful import)
             self::id($id)->delete(true);
         }

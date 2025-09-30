@@ -267,7 +267,7 @@ class Document extends Model {
                 'type'              => 'boolean',
                 'default'           => false,
                 'readonly'          => true,
-                'description'       => 'Document is the origin of the referenced accounting document.',
+                'description'       => 'Document is the origin of the processing of the referenced accounting document.',
                 'help'              => 'Document is a primary attachment. The binary data has been imported or generated and is linked to an accounting document (invoice, bank statement, ...).',
             ],
 
@@ -275,8 +275,16 @@ class Document extends Model {
                 'type'              => 'boolean',
                 'default'           => false,
                 'readonly'          => true,
-                'description'       => 'Document is the source of the related accounting document.',
-                'help'              => 'The binary data was used to generate the accounting document that references it back as source.'
+                'description'       => 'Document is the source of an accounting document (but not necessarily the origin).',
+                'help'              => 'The document might have been created in order to provide a reference holding a consistent binary data, that was used to generate the accounting document that references it back as source.'
+            ],
+
+            'origin_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Targets the final printable version of the document.',
+                'help'              => 'Optional version of the document with signatures on it, applicable for signed documents only. Has no legal value.',
+                'visible'           => ['is_source', '=', true]
             ],
 
             /* fields below serve as link between the document and the entity it originates from, independently from its type, and are mutually exclusive */

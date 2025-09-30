@@ -16,8 +16,10 @@ use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
 use finance\bank\CondominiumBankAccount;
 use finance\bank\SuppliershipBankAccount;
+use hr\employee\Employee;
 use hr\role\Role;
 use hr\role\RoleAssignment;
+use identity\Identity;
 use purchase\supplier\Supplier;
 use purchase\supplier\Suppliership;
 use purchase\supplier\SuppliershipReference;
@@ -67,7 +69,8 @@ class DocumentProcess extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Targeted document of the job.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'onupdate'          => 'onupdateDocumentId'
             ],
 
             'document_link' => [
@@ -373,6 +376,18 @@ class DocumentProcess extends Model {
                 'function'      => 'doUpdateDocumentJson'
             ]
         ]);
+    }
+
+    protected static function onupdateDocumentId($self) {
+        $self->read(['document_id' => ['creator']]);
+        foreach($self as $id => $documentProcess) {
+            $identity = Identity::search(['user_id', '=', $documentProcess['document_id']['creator']])
+                ->read(['employee_id'])
+                ->first();
+            if($identity && $identity['employee_id']) {
+                self::id($id)->update(['assigned_employee_id' => $identity['employee_id']]);
+            }
+        }
     }
 
     /**
