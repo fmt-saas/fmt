@@ -18,12 +18,17 @@ $tests = [
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
 
-                    $identity = Identity::create([]);
+                    $identity = Identity::create([
+                        "type_id"   => 1,
+                        "type"      => "IN",
+                        "lang_id"   => 2
+                    ])->first();
 
                     return $identity['id'];
                 },
             'act'               => function($identity_id) use($providers) {
-                    Employee::create(['identity_id'   => $identity_id]);
+                    Employee::create(['identity_id' => $identity_id]);
+
                     return $identity_id;
                 },
             'assert'            => function($identity_id) use($providers) {
