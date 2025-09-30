@@ -12,8 +12,7 @@ use finance\accounting\AccountingEntryLine;
 use finance\bank\BankStatementLine;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Advanced search for Balance Lines: returns a collection of Reports according to extra parameters.',
-    'help'          => 'When linking a bank statement line, the accounting entry line does exist yet.',
+    'description'   => 'Search Accounting Entry Lines candidates to a matching based on a given Accounting Account (record).',
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
@@ -21,19 +20,11 @@ use finance\bank\BankStatementLine;
         ],
         'date_from' => [
             'type'              => 'date',
-            'description'       => 'First date of the date range.',
-            'default'           => function ($id=null) {
-                $bankStatementLine = BankStatementLine::id($id)->read(['condo_id' => ['current_fiscal_year_id' => ['date_from']]])->first();
-                return $bankStatementLine['condo_id']['current_fiscal_year_id']['date_from'] ?? null;
-            }
+            'description'       => 'First date of the date range.'
         ],
         'date_to' => [
             'type'              => 'date',
-            'description'       => 'Last date of the date range.',
-            'default'           => function ($id=null) {
-                $bankStatementLine = BankStatementLine::id($id)->read(['condo_id' => ['current_fiscal_year_id' => ['date_to']]])->first();
-                return $bankStatementLine['condo_id']['current_fiscal_year_id']['date_to'] ?? null;
-            }
+            'description'       => 'Last date of the date range.'
         ],
         'limit' => [
             'type'              => 'integer',
