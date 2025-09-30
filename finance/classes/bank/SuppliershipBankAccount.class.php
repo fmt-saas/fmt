@@ -38,6 +38,12 @@ class SuppliershipBankAccount extends Model {
                 'required'          => true
             ],
 
+            'is_primary' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the account as primary account.',
+                'default'           => false
+            ],
+
             'supplier_identity_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
@@ -59,9 +65,11 @@ class SuppliershipBankAccount extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'The bank account of the supplier to be used.',
-                'domain'            => ['owner_identity_id', '=', 'object.supplier_identity_id'],
+                'help'              => 'This field and derived computed fields are used to identify paiements.',
+                // #memo - it must be possible to select the bank account of another supplier (IBAN) ex. refactoring
+                // 'domain'            => ['owner_identity_id', '=', 'object.supplier_identity_id'],
                 'required'          => true,
-                'dependents'        => ['name', 'bank_account_type', 'bank_account_iban', 'bank_account_bic']
+                'onupdate'          => 'onupdateBankAccountId'
             ],
 
             'bank_account_type' => [
@@ -95,10 +103,29 @@ class SuppliershipBankAccount extends Model {
                 'readonly'          => true
             ]
 
-/*
-    ajouter la possiblité d'ajouter un compte d'un autre fournisseur (le compte IBAN utilisé) ex. refactoring, pour pouvoir identifier les paiements
- */
         ];
+    }
+
+    public static function getActions() {
+        return [
+            'refresh_bank_account_fields' => [
+                'description'   => 'Open the fiscal year.',
+                'function'      => 'doRefreshBankAccountFields'
+            ],
+        ];
+    }
+
+    protected static function onupdateBankAccountId($self) {
+        $self->do('doRefreshBankAccountFields');
+    }
+
+    protected static function doRefreshBankAccountFields($self) {
+        $self->update([
+            'name'              => null,
+            'bank_account_type' => null,
+            'bank_account_iban' => null,
+            'bank_account_bic'  => null
+        ]);
     }
 
     public static function onchange($event, $values) {

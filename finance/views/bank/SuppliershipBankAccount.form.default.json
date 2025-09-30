@@ -59,6 +59,12 @@
                                                 "value": "bank_account_bic",
                                                 "width": "100%",
                                                 "visible": ["state", "<>", "draft"]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_primary",
+                                                "width": "100%",
+                                                "visible": ["state", "<>", "draft"]
                                             }
                                         ]
                                     }

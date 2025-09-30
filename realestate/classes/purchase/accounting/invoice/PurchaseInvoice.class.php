@@ -1104,15 +1104,25 @@ protected static function calcFiscalYearId($self) {
         if(isset($event['payment_reference'])) {
             $result['payment_reference'] = str_replace(['+', '/'], '', $event['payment_reference']);
         }
-
-// #todo - si on change has_date_range (activation) -> assigner les date_from et date_to sur base des dates de la période comptable sélectionnée
-
+        // #todo - si on change has_date_range (activation)
+        if(isset($event['has_date_range']) && $event['has_date_range']) {
+            // if given, assign date_from and date_to based on fiscal period
+            if(isset($values['fiscal_period_id'])) {
+                $fiscalPeriod = FiscalPeriod::id($values['fiscal_period_id'])
+                    ->read(['date_from', 'date_to'])
+                    ->first();
+                if($fiscalPeriod) {
+                    $result['date_from'] = $fiscalPeriod['date_from'];
+                    $result['date_to'] = $fiscalPeriod['date_to'];
+                }
+            }
+        }
 
         return array_merge(parent::onchange($event, $values), $result);
     }
 
     public static function canupdate($self, $values) {
-        $self->read(['status', 'document_process_id' => ['status']]);
+        $self->read(['status', 'document_process_id' => ['status'], 'fiscal_period_id' => ['status']]);
         foreach($self as $id => $invoice) {
             $editable_fields = ['payment_status', 'customer_ref', 'funding_id', 'reversed_invoice_id'];
             if(count(array_diff(array_keys($values), $editable_fields)) > 0) {
@@ -1122,6 +1132,9 @@ protected static function calcFiscalYearId($self) {
                 if($invoice['document_process_id'] && $invoice['document_process_id']['status'] !== 'created') {
                     return ['status' => ['non_editable' => 'Invoice cannot be updated after Document processing.']];
                 }
+            }
+            if($invoice['fiscal_period_id']['status'] !== 'open') {
+                return ['fiscal_period_id' => ['closed_fiscal_period' => 'Invoice cannot be allocated to a closed fiscal period.']];
             }
         }
     }

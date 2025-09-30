@@ -43,6 +43,11 @@ class Ownership extends \equal\orm\Model {
                 'readonly'          => true
             ],
 
+            'extref_owner_reference' => [
+                'type'              => 'string',
+                'description'       => "Arbitrary reference to the Ownership, as used in an external software (for imports).",
+            ],
+
             'description' => [
                 'type'              => 'string',
                 'description'       => "Short optional description.",

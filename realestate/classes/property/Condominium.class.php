@@ -377,6 +377,10 @@ class Condominium extends Identity {
             'sync_from_identity' => [
                 'description'   => 'Force sync values from related identity.',
                 'function'      => 'doSyncFromIdentity'
+            ],
+            'sync_bank_suppliers' => [
+                'description'   => 'Force sync values from related identity.',
+                'function'      => 'doSyncBankSuppliers'
             ]
         ]);
     }
@@ -408,22 +412,30 @@ class Condominium extends Identity {
         }
     }
 
-    public static function doSyncFromIdentity($self, $orm) {
+    protected static function doSyncBankSuppliers($self) {
+        $self->read(['bank_accounts_ids' => ['bank_id']]);
+        // #memo - Bank class inherits from Supplier
+        foreach($self as $id => $condominium) {
+            foreach($condominium['bank_accounts_ids'] as $bank_account_id => $bankAccount) {
+                if(!$bankAccount['bank_id']) {
+                    continue;
+                }
+                $supplierships = Suppliership::search([['condo_id', '=', $id], ['supplier_id', '=', $bankAccount['bank_id']]]);
+                if($supplierships->count() <= 0) {
+                    Suppliership::create(['condo_id' => $id, 'supplier_id' => $bankAccount['bank_id']]);
+                }
+            }
+        }
+    }
+
+    protected static function doSyncFromIdentity($self, $orm) {
         // sync bank accounts
         $self->read(['identity_id' => ['bank_accounts_ids' => ['bank_account_bic']]]);
         foreach($self as $id => $condominium) {
             foreach($condominium['identity_id']['bank_accounts_ids'] as $bank_account_id => $bankAccount) {
-                // sync condo_id
+                // make sure bank account is linked to condominium
+                // #memo - this will trigger back action `sync_bank_suppliers`
                 CondominiumBankAccount::id($bank_account_id)->update(['condo_id' => $id]);
-
-                $bank = Bank::search(['bic', '=', $bankAccount['bank_account_bic']])->first();
-                if($bank) {
-                    // #memo - class Bank inherits from Supplier (considered as "financial services supplier")
-                    $suppliership = Suppliership::search([['condo_id', '=', $id], ['supplier_id', '=', $bank['id']]])->first();
-                    if(!$suppliership) {
-                        Suppliership::create(['condo_id' => $id, 'supplier_id' => $bank['id']]);
-                    }
-                }
             }
         }
         parent::doSyncFromIdentity($self, $orm);

@@ -56,6 +56,17 @@
                                                 "type": "field",
                                                 "value": "representative_identity_id",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%",
+                                                "visible": ["has_representative", "=", false]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "extref_owner_reference",
+                                                "width": "50%"
                                             }
                                         ]
                                     },

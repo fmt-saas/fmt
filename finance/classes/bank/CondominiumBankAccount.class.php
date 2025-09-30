@@ -9,6 +9,7 @@ namespace finance\bank;
 use finance\accounting\Account;
 use finance\accounting\CurrentBalanceLine;
 use finance\accounting\Journal;
+use realestate\property\Condominium;
 use realestate\sale\pay\Funding;
 
 class CondominiumBankAccount extends BankAccount {
@@ -22,7 +23,8 @@ class CondominiumBankAccount extends BankAccount {
                 'foreign_object'    => 'realestate\property\Condominium',
                 //'readonly'          => true
                 'visible'           => ['organisation_id', '=', null],
-                'dependents'        => ['condominium_identity_id']
+                'dependents'        => ['condominium_identity_id'],
+                'onupdate'          => 'onupdateCondoId'
             ],
 
             'object_class' => [
@@ -194,6 +196,13 @@ class CondominiumBankAccount extends BankAccount {
                 ];
             }
 
+        }
+    }
+
+    protected static function onupdateCondoId($self) {
+        $self->read(['condo_id']);
+        foreach($self as $id => $condominiumBankAccount) {
+            Condominium::id($condominiumBankAccount['condo_id'])->do('sync_bank_suppliers');
         }
     }
 
