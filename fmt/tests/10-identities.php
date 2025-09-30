@@ -27,7 +27,7 @@ $tests = [
                     return $identity['id'];
                 },
             'act'               => function($identity_id) use($providers) {
-                    Employee::create(['identity_id' => $identity_id]);
+                    Employee::create()->update(['identity_id' => $identity_id]);
 
                     return $identity_id;
                 },

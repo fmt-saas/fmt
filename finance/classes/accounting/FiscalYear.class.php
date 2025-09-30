@@ -595,13 +595,22 @@ class FiscalYear extends Model {
                     ->first();
 
                 foreach($entry_lines as $line) {
-                    AccountingEntryLine::create([
+
+                    $newLine = AccountingEntryLine::create([
                             'condo_id'              => $fiscalYear['condo_id'],
                             'accounting_entry_id'   => $accountingEntry['id'],
                             'account_id'            => $line['account_id'],
                             'debit'                 => $line['debit'],
                             'credit'                => $line['credit']
-                        ]);
+                        ])
+                        ->first();
+
+                    Matching::create([
+                            'condo_id'              => $fiscalYear['condo_id'],
+                            'accounting_account_id' => $line['account_id']
+                        ])
+                        ->update(['accounting_entry_lines_ids' => [$line['id'], $newLine['id']]]);
+
                 }
 
                 AccountingEntry::id($accountingEntry['id'])->transition('validate');
@@ -655,10 +664,11 @@ class FiscalYear extends Model {
 
     /**
      * Generate final report of accounting entries.
-     * Create temporary carry-forward / opening-balance accounting entries in next fiscal year OPB journal
+     * Create temporary carry-forward / opening-balance accounting entries in next fiscal year OPB journal.
+     *
      */
     public static function onafterClose($self) {
-        $self->read(['condo_id']);
+        $self->read(['condo_id', 'date_from', 'date_to']);
 
         foreach($self as $id => $fiscalYear) {
             $carryForwardJournal = Journal::search([['journal_type', '=', 'OPEN'], ['condo_id', '=', $fiscalYear['condo_id']]])->first();
@@ -668,7 +678,13 @@ class FiscalYear extends Model {
 
             $entry_lines = self::computeCarryForwardEntryLines($id);
 
-            $nextFiscalYear = self::search([['status', '=', 'open'], ['condo_id', '=', $fiscalYear['condo_id']]])->first();
+            // take the year that immediately succeeds the current one, whatever its status
+            $nextFiscalYear = self::search([
+                    ['condo_id', '=', $fiscalYear['condo_id']],
+                    ['date_from', '>', $fiscalYear['date_to']]
+                ],
+                ['sort' => ['date_from' => 'desc']])
+                ->first();
 
             $accountingEntry = AccountingEntry::create([
                     'condo_id'          => $fiscalYear['condo_id'],
@@ -825,7 +841,7 @@ class FiscalYear extends Model {
         $map_accounts = [];
         $accounts = Account::ids($accounts_ids)->read(['account_type'])->get(true);
         foreach($accounts as $id => $account) {
-            $map_accounts[$id] = $account;
+            $map_accounts[$id] = $account['account_type'];
         }
 
         // we expect the balance lines to be consistent with the chart of accounts of the related condominium
@@ -835,8 +851,8 @@ class FiscalYear extends Model {
             }
             $result[] = [
                     'account_id'    => $line['account_id'],
-                    'debit'         => $line['debit'],
-                    'credit'        => $line['credit']
+                    'debit'         => $line['credit'],
+                    'credit'        => $line['debit']
                 ];
         }
         return $result;
