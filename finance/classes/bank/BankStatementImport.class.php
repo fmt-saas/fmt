@@ -66,7 +66,7 @@ class BankStatementImport extends Model {
 
             if(!is_array($data)) {
                 // remove original document
-                Document::id($document['id'])->delete(true);
+                // Document::id($document['id'])->delete(true);
                 throw new \Exception('invalid_data', EQ_ERROR_INVALID_PARAM);
             }
             $file_name = pathinfo($bankStatementImport['name'], PATHINFO_FILENAME);
