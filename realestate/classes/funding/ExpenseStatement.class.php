@@ -625,8 +625,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ->read([
                 'accounting_entry_id',
                 'account_id', 'account_code', 'debit', 'credit',
-                // #memo - we need this to retrieve details for private expenses
                 'sale_invoice_line_id',
+                // #memo - we need this to retrieve details for private expenses
+                'purchase_invoice_line_id',
                 'bank_statement_line_id'
             ]);
 
@@ -853,8 +854,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             elseif(substr($accountingEntryLine['account_code'], 0, 1) === '6' || substr($accountingEntryLine['account_code'], 0, 1) === '7') {
 
                 // #todo - gérer toutes les sources possibles : PurchaseInvoiceLine soit BankStatementLine soit MiscOperation
-                if(isset($accountingEntryLine['sale_invoice_line_id'])) {
-                    $sourceLine = PurchaseInvoiceLine::id($accountingEntryLine['sale_invoice_line_id'])
+                if(isset($accountingEntryLine['purchase_invoice_line_id'])) {
+                    $sourceLine = PurchaseInvoiceLine::id($accountingEntryLine['purchase_invoice_line_id'])
                         ->read([
                             'apportionment_id', 'owner_share', 'tenant_share', 'vat_rate'
                         ])
