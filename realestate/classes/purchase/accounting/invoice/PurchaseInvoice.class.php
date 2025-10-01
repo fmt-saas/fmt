@@ -778,7 +778,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         ]);
 
                     if($invoiceLine['has_instant_reinvoice']) {
-                        // create the debit line on the ownership account
+                        // #todo - il faut émettre quelque chose ici (facture de vente ou autre)
+                        // et la valider directement pour que les écritures soient dans la compta
+                        // sinon il n'y a rien qui demande au ownership le paiement
+
+                        // create the credit line on the ownership account
                         AccountingEntryLine::create([
                                 'condo_id'                  => $invoice['condo_id'],
                                 'accounting_entry_id'       => $accountingEntry['id'],
@@ -796,6 +800,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 'description'               => $invoice['description'],
                                 'account_id'                => $privateExpenseAccount['id'],
                                 'purchase_invoice_line_id'  => $invoice_line_id,
+                                // pour le moment, on met une valeur arbitraire dans sale_invoice_id pour signifier que la dépense ne doit pas être re-mise dans un décompte de charge
+                                // il faudrait pouvoir le faire en 2 temps
+                                'sale_invoice_line_id'      => $invoice_line_id,
                                 'debit'                     => 0.0,
                                 'credit'                    => $invoiceLine['price']
                             ]);

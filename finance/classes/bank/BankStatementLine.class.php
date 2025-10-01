@@ -8,6 +8,7 @@ namespace finance\bank;
 
 use equal\orm\Model;
 use finance\accounting\Account;
+use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 use finance\accounting\MiscOperation;
 use finance\accounting\MiscOperationLine;
@@ -70,11 +71,20 @@ class BankStatementLine extends Model {
                 'type'              => 'date',
                 'description'       => 'Date of the transaction as provided by the bank.',
                 'required'          => true,
-            // #todo - prendre la date du relevé (parent)
-            // #todo - validation de la ligne : il faut que la date de l'extrait = même année comptable (pas période)
-                'default'           => function() {
-                    return time();
-                }
+                'default'           => 'defaultDate',
+                'dependents'        => ['fiscal_year_id']
+            ],
+
+            'fiscal_year_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => "Fiscal year the statement relates to.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'help'              => "Fiscal Year is automatically assigned based on date.",
+                'function'          => 'calcFiscalYearId',
+                'store'             => true,
+                'instant'           => true
             ],
 
             'communication' => [
@@ -779,7 +789,7 @@ class BankStatementLine extends Model {
 
     protected static function policyCanPost($self) {
         $result = [];
-        $self->read(['status', 'accounting_account_id', 'bank_statement_id' => ['is_balanced']]);
+        $self->read(['status', 'fiscal_year_id', 'accounting_account_id', 'bank_statement_id' => ['is_balanced', 'fiscal_year']]);
         foreach($self as $id => $bankStatementLine) {
             if($bankStatementLine['status'] !== 'pending') {
                 $result[$id] = [
@@ -798,6 +808,13 @@ class BankStatementLine extends Model {
             if(!self::computeIsReconciled($id) && !$bankStatementLine['accounting_account_id']) {
                 $result[$id] = [
                     'invalid_reconcile_state' => 'Only reconciled bank statement lines can be posted.'
+                ];
+                continue;
+            }
+            // The statement date must be in the same fiscal year (not period)
+            if($bankStatementLine['fiscal_year_id'] = $bankStatementLine['bank_statement_id']['fiscal_year_id'] ) {
+                $result[$id] = [
+                    'incompatible_fiscal_year' => 'Fiscal year of the line must match parent bank statement fiscal year.'
                 ];
                 continue;
             }
@@ -1104,6 +1121,30 @@ class BankStatementLine extends Model {
             $map_statements_ids[$bankStatementLine['bank_statement_id']] = true;
         }
         BankStatement::ids(array_keys($map_statements_ids))->do('update_document_json');
+    }
+
+
+    protected static function defaultDate($values) {
+        $result = null;
+        if(isset($values['bank_statement_id'])) {
+            $bankStatement = BankStatement::id($values['bank_statement_id'])->read(['opening_date'])->first();
+            if($bankStatement) {
+                $result = $bankStatement['opening_date'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcFiscalYearId($self) {
+        $result = [];
+        $self->read(['condo_id', 'date']);
+        foreach($self as $id => $bankStatementLine) {
+            $fiscalYear = FiscalYear::search([ ['condo_id', '=', $bankStatementLine['condo_id']], ['date_from', '<=', $bankStatementLine['date']], ['date_to', '>=', $bankStatementLine['date']] ])->first();
+            if($fiscalYear) {
+                $result[$id] = $fiscalYear['id'];
+            }
+        }
+        return $result;
     }
 
 

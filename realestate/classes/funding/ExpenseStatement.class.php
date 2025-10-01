@@ -749,8 +749,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             // #memo - consider both debit and credit lines here (to void already reinvoiced private expenses)
             // private expenses
             if(substr($accountingEntryLine['account_code'], 0, 3) === '643') {
-                // skip private expense that have been reinvoiced
 
+                // skip private expense that have been reinvoiced
                 if(isset($map_private_expenses[$accountingEntryLine['id']])) {
                     continue;
                 }
