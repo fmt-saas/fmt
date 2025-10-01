@@ -28,6 +28,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     public static function getColumns() {
         return [
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the invoice refers to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'readonly'          => false,
+                'onupdate'          => 'onupdateCondoId'
+            ],
 
             'document_data' => [
                 'type'              => 'binary',
@@ -366,7 +373,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
 
-    public static function policyCanBeInvoiced($self, $dispatch): array {
+    protected static function policyCanBeInvoiced($self, $dispatch): array {
         $result = [];
         $self->read([
                 'price',
@@ -460,12 +467,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
 
         }
-/*
-#todo - FundUsageLines
-* il faut que le montant du compte de réserve choisi soit suffisant par rapport au montant assigné
-pour le trouver il faut prendre la dernière balance périodique, et ajouter tous les mouvements jusqu'à la date de facture
-
-*/
+        /*
+        #todo - FundUsageLines
+            Il faut que le montant du compte de réserve choisi soit suffisant par rapport au montant assigné
+            pour le trouver il faut prendre la dernière balance périodique, et ajouter tous les mouvements jusqu'à la date de facture
+        */
 
         return $result;
     }
@@ -578,6 +584,18 @@ pour le trouver il faut prendre la dernière balance périodique, et ajouter tou
                     ->transition('integrate');
             }
         }
+    }
+
+    /**
+     * Cascade change to related DocumentProcess & Document
+     */
+    protected static function onupdateCondoId($self) {
+        $self->read(['document_process_id', 'document_id']);
+
+        foreach($self as $id => $purchaseInvoice) {
+            
+        }
+
     }
 
     /**

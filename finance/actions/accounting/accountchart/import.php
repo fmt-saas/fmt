@@ -4,10 +4,7 @@
     (c) 2025–2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
 */
-use finance\accounting\Account;
-use finance\accounting\AccountChart;
 use finance\accounting\AccountChartTemplate;
-use realestate\property\Apportionment;
 
 [$params, $providers] = eQual::announce([
     'description'    => 'Create accounts from a template chart of accounts.',
@@ -22,7 +19,13 @@ use realestate\property\Apportionment;
             'type'           => 'many2one',
             'foreign_object' => 'finance\accounting\AccountChartTemplate',
             'description'    => 'Template to use to populate Chart of Accounts.',
-            'required'       => true
+            'default'           => function ($id=null) {
+                $accountCharts = AccountChartTemplate::search();
+                if($accountCharts->count() === 1) {
+                    return ($accountCharts->first())['id'];
+                }
+                return null;
+            }
         ]
     ],
     'response'       => [

@@ -263,7 +263,8 @@
                                                 "value": "document_invoice_id",
                                                 "width": "50%",
                                                 "widget": {
-                                                    "description": "#todo - il faudrait empêcher la sélection, et permettre uniquement la création"
+                                                    "readonly": true,
+                                                    "description": "Creation must be made using `draft target` action."
                                                 }
                                             },
                                             {
