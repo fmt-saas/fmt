@@ -736,6 +736,11 @@ class BankStatementLine extends Model {
     public static function onchange($event, $values, $view) {
         $result = [];
 
+
+        if(isset($event['communication']) && strlen($event['communication']) > 0) {
+            $result['communication'] = trim($result['communication']);
+        }
+
         // check VAT
         if(isset($event['vat_rate']) && $event['vat_rate'] >= 1) {
             $result['vat_rate'] = round($event['vat_rate'] / 100, 2);
