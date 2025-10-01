@@ -905,6 +905,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         $prorata = $ownership_nb_days / $nb_days;
                         $shares = $apportionment[$property_lot_id];
                         $total_shares = $apportionments[$sourceLine['apportionment_id']]['total_shares'];
+
                         $amount = $prorata * ($line_amount * $shares / $total_shares);
 
                         if(!isset($map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']])) {
@@ -922,11 +923,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         }
 
                         $amount_vat = round($prorata * ($vat_amount * $shares / $total_shares), 2);
-                        $amount_owner = round($amount * ($sourceLine['owner_share'] / 100), 2);
-                        $amount_tenant = round($amount * (1 - $sourceLine['owner_share'] / 100), 2);
-                        $adjust = round($amount - $amount_owner - $amount_tenant, 2);
+                        $amount_owner = round($amount, 2) * ($sourceLine['owner_share'] / 100);
+                        $amount_tenant = round($amount, 2) * (1 - $sourceLine['owner_share'] / 100);
+                        // if there is delta in the shares, allocate it to the owner
+                        $adjust = round($amount, 2) - $amount_owner - $amount_tenant;
                         $amount_owner += $adjust;
-
+                        // add up the delta (cents to reinvoice later)
                         $delta_total += $amount - ($amount_owner + $amount_tenant);
 
                         $map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']]['vat'] += $amount_vat;
