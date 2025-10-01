@@ -144,6 +144,12 @@ class ExpenseStatementOwnerLine extends \sale\accounting\invoice\SaleInvoiceLine
                 'help'              => 'This field is necessary for identifying lines relating to a private expense.'
             ],
 
+            'assigned_delta' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => 'Rounding delta between allocation and expenses, if any.'
+            ],
+
             'expense_type' => [
                 'type'              => 'string',
                 'selection'         => [

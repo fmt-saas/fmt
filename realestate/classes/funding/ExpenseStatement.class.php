@@ -355,6 +355,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                             'owner_amount'          => $line['owner'] ?? 0.0,
                             'tenant_amount'         => $line['tenant'] ?? 0.0,
                             'vat_amount'            => $line['vat'] ?? 0.0,
+                            'assigned_delta'        => $line['assigned_delta'] ?? 0.0,
                             'date'                  => $line['date'] ?? null,
                             'expense_type'          => $line['expense_type'],
                             'shares'                => $line['shares'] ?? null,
@@ -915,7 +916,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                                     'total_amount'  => $line_amount,
                                     'owner'         => 0.0,
                                     'tenant'        => 0.0,
-                                    'vat'           => 0.0
+                                    'vat'           => 0.0,
+                                    'assigned_delta'=> 0.0
                                 ];
                         }
                         else {
@@ -934,6 +936,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         $map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']]['vat'] += $amount_vat;
                         $map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']]['owner'] += $amount_owner;
                         $map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']]['tenant'] += $amount_tenant;
+                        $map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']]['assigned_delta'] += $delta_total;
 
                         $map_property_lots_ids[$property_lot_id] = true;
                     }
