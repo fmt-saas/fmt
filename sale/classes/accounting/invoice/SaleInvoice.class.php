@@ -251,7 +251,12 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
         $result = [];
         $self->read(['invoice_number',  'customer_id' => ['name']]);
         foreach($self as $id => $invoice) {
-            $result[$id] = $invoice['invoice_number'].' - '.$invoice['customer_id']['name'];
+            $parts = [];
+            $parts[] = $invoice['invoice_number'];
+            if($invoice['customer_id']) {
+                $parts[] = $invoice['customer_id']['name'];
+            }
+            $result[$id] = implode(' - ', $parts);
         }
         return $result;
     }
