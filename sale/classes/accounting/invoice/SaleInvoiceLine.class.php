@@ -35,7 +35,7 @@ class SaleInvoiceLine extends \finance\accounting\invoice\InvoiceLine {
 
             'invoice_line_group_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'sale\accounting\invoice\InvoiceLineGroup',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoiceLineGroup',
                 'description'       => 'Group the line relates to (in turn, groups relate to their invoice).',
                 'ondelete'          => 'cascade',
                 'domain'            => ['invoice_id', '=', 'object.invoice_id']
@@ -43,7 +43,7 @@ class SaleInvoiceLine extends \finance\accounting\invoice\InvoiceLine {
 
             'invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'sale\accounting\invoice\Invoice',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoice',
                 'description'       => 'Invoice the line is related to.',
                 'required'          => true,
                 'ondelete'          => 'cascade'

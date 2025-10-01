@@ -74,6 +74,26 @@ class MiscOperationLine extends Model {
                 'instant'           => true
             ],
 
+            'is_expense' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'Flag marking the line as an unexpected expense or income.',
+                'help'              => "When set to true, the line implies a stand alone purchase operation.",
+                'function'          => 'calcIsExpense',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'is_income' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'Flag marking the line as an unexpected expense or income.',
+                'help'              => "When set to true, the line implies a stand alone sale operation.",
+                'function'          => 'calcIsIncome',
+                'store'             => true,
+                'instant'           => true
+            ],
+
             'debit' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',
@@ -99,6 +119,24 @@ class MiscOperationLine extends Model {
                 ->first();
             $self->update(['description' => $miscOperation['description']], $lang);
         }
+    }
+
+    protected static function calcIsExpense($self) {
+        $result = [];
+        $self->read(['account_id']);
+        foreach($self as $id => $miscOperationLine) {
+            $result[$id] = self::computeIsExpense($miscOperationLine['account_id']);
+        }
+        return $result;
+    }
+
+    protected static function calcIsIncome($self) {
+        $result = [];
+        $self->read(['account_id']);
+        foreach($self as $id => $miscOperationLine) {
+            $result[$id] = self::computeIsIncome($miscOperationLine['account_id']);
+        }
+        return $result;
     }
 
 }

@@ -14,7 +14,7 @@ class SaleInvoiceLineGroup extends \finance\accounting\invoice\InvoiceLineGroup 
 
             'invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'sale\accounting\invoice\Invoice',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoice',
                 'description'       => 'Invoice the line group is related to.',
                 'required'          => true,
                 'ondelete'          => 'cascade'
@@ -22,7 +22,7 @@ class SaleInvoiceLineGroup extends \finance\accounting\invoice\InvoiceLineGroup 
 
             'invoice_lines_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'sale\accounting\invoice\InvoiceLine',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoiceLine',
                 'foreign_field'     => 'invoice_line_group_id',
                 'description'       => 'Detailed lines of the group.',
                 'ondetach'          => 'delete'
