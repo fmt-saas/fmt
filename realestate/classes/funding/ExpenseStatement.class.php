@@ -928,7 +928,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         // if there is delta in the shares, allocate it to the owner
                         $adjust = round($amount, 2) - $amount_owner - $amount_tenant;
                         $amount_owner += $adjust;
-                        // add up the delta (cents to reinvoice later)
+                        // add up the delta (cents to reinvoice later): if delta is < 0, it will be reimbursed at some point
                         $delta_total += $amount - ($amount_owner + $amount_tenant);
 
                         $map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']]['vat'] += $amount_vat;
