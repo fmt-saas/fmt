@@ -311,7 +311,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
      * Generate the ExpenseStatementOwner and ExpenseStatementOwnerLine objects based on accounting entries of the period.
      *
      */
-    public static function doGenerateStatement($self) {
+    protected static function doGenerateStatement($self) {
         $self->read(['condo_id', 'fiscal_period_id']);
         foreach($self as $id => $expenseStatement) {
             // remove any previously created owner statement
@@ -408,7 +408,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'entry_date'            => $statement['fiscal_period_id']['date_to'],
                     'origin_object_class'   => self::getType(),
                     'origin_object_id'      => $id,
-                    'sale_invoice_id'       => $id
+                    'sale_invoice_id'       => $id,
+                    'expense_statement_id'  => $id
                 ])
                 ->first();
 
@@ -617,7 +618,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         // rechercher les accounting entry lines : comment filtrer pour n'avoir que les comptes 6 et 7 ??
         $accountingEntryLines = AccountingEntryLine::search([
                 ['fiscal_period_id', '=', $fiscal_period_id],
-                ['status', '=', 'validated'],
                 ['is_cleared', '=', false],
                 ['account_class', 'in', [6, 7]]
             ])

@@ -136,6 +136,10 @@ class CondoFund extends \equal\orm\Model {
         ];
     }
 
+    protected static function onafterValidate($self) {
+        // #todo - il faut vérifier que tous les champs requis sont complets et puis juste valider
+    }
+
     public static function canupdate($self, $values) {
         $self->read(['status']);
         foreach($self as $funding) {
