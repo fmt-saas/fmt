@@ -738,7 +738,7 @@ class BankStatementLine extends Model {
 
 
         if(isset($event['communication']) && strlen($event['communication']) > 0) {
-            $result['communication'] = trim($result['communication']);
+            $result['communication'] = trim($event['communication']);
         }
 
         // check VAT

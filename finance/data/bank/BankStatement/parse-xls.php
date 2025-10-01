@@ -10,6 +10,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as XlsDate;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Parse a raw CODA file and returns it as a list of statement lines.",
+    'help'          => "The input is expected to follow the linear structure provided by ISABEL exports.",
     'params'        => [
         'data' =>  [
             'type'          => 'binary',
@@ -27,6 +28,13 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as XlsDate;
     ],
     'providers'     => ['context', 'auth']
 ]);
+
+// #todo
+/*
+il faudrait préciser le type de fochier XLS : ISABEL est un des choix 
+-> la configuration permet l'extraction des informations
+
+*/
 
 /**
  * This controller converts a XLSX formatted statement to a JSON structure.
