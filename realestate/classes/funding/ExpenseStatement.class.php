@@ -9,6 +9,7 @@ namespace realestate\funding;
 use finance\accounting\Account;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\Journal;
+use finance\bank\BankStatementLine;
 use realestate\finance\accounting\CondoFund;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
@@ -740,6 +741,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             */
 
             // #memo - consider both debit and credit lines here (to void already reinvoiced private expenses)
+            // private expenses
             if(substr($accountingEntryLine['account_code'], 0, 3) === '643') {
                 // skip private expense that have been reinvoiced
 
@@ -747,7 +749,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     continue;
                 }
                 // #todo - pour les consommations on n'a pas d'invoice line,
-                //     => il faut un lien avec des lignes de relevés (? ConsumptionLine)
+                //     => il faut un lien avec des lignes de relevés de compteurs (? ConsumptionLine)
                 // #todo - prendre en compte les bank statement lines
                 $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['purchase_invoice_line_id'])->read([
                         'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
@@ -789,74 +791,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $map_accounts_ids[$accountingEntryLine['account_id']] = true;
                 $map_property_lots_ids[$property_lot_id] = true;
             }
-            // 2) common expense
-            // #memo - only debit lines for these
-            elseif(substr($accountingEntryLine['account_code'], 0, 2) === '61') {
-                $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['sale_invoice_line_id'])->read(['vat_rate', 'apportionment_id', 'owner_share', 'tenant_share'])->first();
-                if(!$invoiceLine) {
-                    throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
-                }
-
-                $line_amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
-                $vat_amount = $line_amount * $invoiceLine['vat_rate'];
-
-                $common_total += $line_amount;
-
-                $apportionment = $map_apportionments[$invoiceLine['apportionment_id']];
-
-                foreach($ownerships as $ownership_id => $ownership) {
-                    foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
-                        $property_lot_id = $property_lot_ownership['property_lot_id'];
-                        if($property_lot_ownership['date_to'] && $property_lot_ownership['date_to'] < $fiscalPeriod['date_from']) {
-                            continue;
-                        }
-                        if(!isset($apportionment[$property_lot_id])) {
-                            continue;
-                        }
-
-                        $start = max($fiscalPeriod['date_from'], $property_lot_ownership['date_from'] ?? $fiscalPeriod['date_from']);
-                        $end   = min($fiscalPeriod['date_to'], $property_lot_ownership['date_to'] ?? $fiscalPeriod['date_to']);
-                        $ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
-
-                        $prorata = $ownership_nb_days / $nb_days;
-                        $shares = $apportionment[$property_lot_id];
-                        $total_shares = $apportionments[$invoiceLine['apportionment_id']]['total_shares'];
-                        $amount = $prorata * ($line_amount * $shares / $total_shares);
-
-                        if(!isset($map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']])) {
-                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']] = [
-                                    'shares'        => $shares,
-                                    'total_shares'  => $total_shares,
-                                    'total_amount'  => $line_amount,
-                                    'owner'         => 0.0,
-                                    'tenant'        => 0.0,
-                                    'vat'           => 0.0
-                                ];
-                        }
-                        else {
-                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['total_amount'] += $line_amount;
-                        }
-
-                        $amount_vat = round($prorata * ($vat_amount * $shares / $total_shares), 2);
-                        $amount_owner = round($amount * ($invoiceLine['owner_share'] / 100), 2);
-                        $amount_tenant = round($amount * (1 - $invoiceLine['owner_share'] / 100), 2);
-                        $adjust = round($amount - $amount_owner - $amount_tenant, 2);
-                        $amount_owner += $adjust;
-
-                        $delta_total += $amount - ($amount_owner + $amount_tenant);
-
-                        $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['vat'] += $amount_vat;
-                        $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['owner'] += $amount_owner;
-                        $map_result[$ownership_id][$property_lot_id]['common_expense'][$invoiceLine['apportionment_id']][$accountingEntryLine['account_id']]['tenant'] += $amount_tenant;
-
-                        $map_property_lots_ids[$property_lot_id] = true;
-                    }
-                }
-                $map_accounts_ids[$accountingEntryLine['account_id']] = true;
-            }
-            // 3) reserve fund
+            // 2) reserve fund
             // #memo - limit to lines related to use of reserve fund (debit only)
-            elseif(substr($accountingEntryLine['account_code'], 0, 4) === '6816' && substr($accountingEntryLine['account_code'], -1) === '1') {
+            elseif(substr($accountingEntryLine['account_code'], 0, 4) === '6816') {
 
                 // retrieve account according to account_id and ReserveFund
                 $reserveFund = $map_reserve_funds[$accountingEntryLine['account_code']] ?? null;
@@ -906,6 +843,96 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 }
                 $map_accounts_ids[$accountingEntryLine['account_id']] = true;
             }
+            // 3) common expense
+            // #memo - only debit lines for these
+            elseif(substr($accountingEntryLine['account_code'], 0, 2) === '6' || substr($accountingEntryLine['account_code'], 0, 2) === '7') {
+
+                // gérer toutes les sources possibles : PurchaseInvoiceLine soit BankStatementLine soit MiscOperation
+                if(isset($accountingEntryLine['sale_invoice_line_id'])) {
+                    $sourceLine = PurchaseInvoiceLine::id($accountingEntryLine['sale_invoice_line_id'])
+                        ->read([
+                            'apportionment_id', 'owner_share', 'tenant_share', 'vat_rate'
+                        ])
+                        ->first();
+
+                    if(!$sourceLine) {
+                        throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
+                    }
+                }
+                elseif(isset($accountingEntryLine['bank_statement_line_id'])) {
+                    $sourceLine = BankStatementLine::id($accountingEntryLine['bank_statement_line_id'])
+                        ->read([
+                            'apportionment_id', 'owner_share', 'tenant_share', 'vat_rate'
+                        ])
+                        ->first();
+
+                    if(!$sourceLine) {
+                        throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
+                    }
+                }
+                else {
+                    // #todo - handle OD MiscOperation
+                }
+
+
+                $line_amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
+                $vat_amount = $line_amount * $sourceLine['vat_rate'];
+
+                $common_total += $line_amount;
+
+                $apportionment = $map_apportionments[$sourceLine['apportionment_id']];
+
+                foreach($ownerships as $ownership_id => $ownership) {
+                    foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
+                        $property_lot_id = $property_lot_ownership['property_lot_id'];
+                        if($property_lot_ownership['date_to'] && $property_lot_ownership['date_to'] < $fiscalPeriod['date_from']) {
+                            continue;
+                        }
+                        if(!isset($apportionment[$property_lot_id])) {
+                            continue;
+                        }
+
+                        $start = max($fiscalPeriod['date_from'], $property_lot_ownership['date_from'] ?? $fiscalPeriod['date_from']);
+                        $end   = min($fiscalPeriod['date_to'], $property_lot_ownership['date_to'] ?? $fiscalPeriod['date_to']);
+                        $ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
+
+                        $prorata = $ownership_nb_days / $nb_days;
+                        $shares = $apportionment[$property_lot_id];
+                        $total_shares = $apportionments[$sourceLine['apportionment_id']]['total_shares'];
+                        $amount = $prorata * ($line_amount * $shares / $total_shares);
+
+                        if(!isset($map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']])) {
+                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']] = [
+                                    'shares'        => $shares,
+                                    'total_shares'  => $total_shares,
+                                    'total_amount'  => $line_amount,
+                                    'owner'         => 0.0,
+                                    'tenant'        => 0.0,
+                                    'vat'           => 0.0
+                                ];
+                        }
+                        else {
+                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']]['total_amount'] += $line_amount;
+                        }
+
+                        $amount_vat = round($prorata * ($vat_amount * $shares / $total_shares), 2);
+                        $amount_owner = round($amount * ($sourceLine['owner_share'] / 100), 2);
+                        $amount_tenant = round($amount * (1 - $sourceLine['owner_share'] / 100), 2);
+                        $adjust = round($amount - $amount_owner - $amount_tenant, 2);
+                        $amount_owner += $adjust;
+
+                        $delta_total += $amount - ($amount_owner + $amount_tenant);
+
+                        $map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']]['vat'] += $amount_vat;
+                        $map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']]['owner'] += $amount_owner;
+                        $map_result[$ownership_id][$property_lot_id]['common_expense'][$sourceLine['apportionment_id']][$accountingEntryLine['account_id']]['tenant'] += $amount_tenant;
+
+                        $map_property_lots_ids[$property_lot_id] = true;
+                    }
+                }
+                $map_accounts_ids[$accountingEntryLine['account_id']] = true;
+            }
+
         }
 
         // generate output response

@@ -40,19 +40,25 @@
                                                 "type": "field",
                                                 "label": "Apportionment",
                                                 "value": "apportionment_id",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "id": "item.tenant_share",
                                                 "type": "field",
                                                 "value": "tenant_share",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "id": "item.owner_share",
                                                 "type": "field",
                                                 "value": "owner_share",
-                                                "width": "33%"
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "id": "item.vat_rate",
+                                                "type": "field",
+                                                "value": "vat_rate",
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",

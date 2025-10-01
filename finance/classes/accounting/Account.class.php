@@ -230,6 +230,12 @@ class Account extends Model {
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account."
             ],
 
+            'vat_rate' => [
+                'type'              => 'float',
+                'usage'             => 'amount/rate',
+                'description'       => 'VAT rate to be applied.',
+                'default'           => 0.0
+            ],
 
             /*
 
