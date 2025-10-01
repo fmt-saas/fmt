@@ -554,7 +554,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         }
         elseif($fiscalPeriod['date_to'] < $date_to) {
             $current_date = $fiscalPeriod['date_from'];
-            while($current_date <= $date_to && ) {
+            while($current_date <= $date_to) {
                 $result[] = $current_date;
                 if($current_date == $date_to) {
                     break;

@@ -661,7 +661,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         }
 
         // retrieve applicable reserve funds
-        $reserveFunds = CondoFund::search([['condo_id', '=', $fiscalPeriod['condo_id']], ['fund_type', '=', 'reserve_fund']])->read(['expense_account_code', 'fund_account_id', 'expense_account_id', 'apportionment_id']);
+        $reserveFunds = CondoFund::search([
+                ['condo_id', '=', $fiscalPeriod['condo_id']],
+                ['fund_type', '=', 'reserve_fund']
+            ])
+            ->read(['expense_account_code', 'fund_account_id', 'expense_account_id', 'apportionment_id']);
         $map_reserve_funds = [];
         foreach($reserveFunds as $id => $reserveFund) {
             $map_reserve_funds[$reserveFund['expense_account_code']] = $reserveFund;
@@ -846,9 +850,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             }
             // 3) common expense
             // #memo - only debit lines for these
-            elseif(substr($accountingEntryLine['account_code'], 0, 2) === '6' || substr($accountingEntryLine['account_code'], 0, 2) === '7') {
+            elseif(substr($accountingEntryLine['account_code'], 0, 1) === '6' || substr($accountingEntryLine['account_code'], 0, 1) === '7') {
 
-                // gérer toutes les sources possibles : PurchaseInvoiceLine soit BankStatementLine soit MiscOperation
+                // #todo - gérer toutes les sources possibles : PurchaseInvoiceLine soit BankStatementLine soit MiscOperation
                 if(isset($accountingEntryLine['sale_invoice_line_id'])) {
                     $sourceLine = PurchaseInvoiceLine::id($accountingEntryLine['sale_invoice_line_id'])
                         ->read([
@@ -857,7 +861,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         ->first();
 
                     if(!$sourceLine) {
-                        throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
+                        throw new \Exception('missing_mandatory_sale_invoice_line', EQ_ERROR_INVALID_CONFIG);
                     }
                 }
                 elseif(isset($accountingEntryLine['bank_statement_line_id'])) {
@@ -868,7 +872,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         ->first();
 
                     if(!$sourceLine) {
-                        throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
+                        throw new \Exception('missing_mandatory_bank_statement_line', EQ_ERROR_INVALID_CONFIG);
                     }
                 }
                 else {

@@ -4,6 +4,8 @@
     (c) 2025–2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use finance\accounting\AccountChart;
 use finance\accounting\AccountChartTemplate;
 
 [$params, $providers] = eQual::announce([
