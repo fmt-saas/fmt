@@ -593,7 +593,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         $self->read(['document_process_id', 'document_id']);
 
         foreach($self as $id => $purchaseInvoice) {
-            
+
         }
 
     }
@@ -1027,6 +1027,9 @@ protected static function calcFiscalYearId($self) {
         $result = [];
         $self->read(['emission_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
         foreach($self as $id => $invoice) {
+            if(!$invoice['emission_date']) {
+                continue;
+            }
             foreach($invoice['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
                 if($invoice['emission_date'] >= $period['date_from'] && $invoice['emission_date'] <= $period['date_to']) {
                     $result[$id] = $period_id;
@@ -1151,7 +1154,7 @@ protected static function calcFiscalYearId($self) {
                     return ['status' => ['non_editable' => 'Invoice cannot be updated after Document processing.']];
                 }
             }
-            if($invoice['fiscal_period_id']['status'] !== 'open') {
+            if($invoice['fiscal_period_id'] && $invoice['fiscal_period_id']['status'] !== 'open') {
                 return ['fiscal_period_id' => ['closed_fiscal_period' => 'Invoice cannot be allocated to a closed fiscal period.']];
             }
         }
