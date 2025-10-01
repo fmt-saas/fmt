@@ -71,7 +71,10 @@ class BankStatementLine extends Model {
                 'description'       => 'Date of the transaction as provided by the bank.',
                 'required'          => true,
             // #todo - prendre la date du relevé (parent)
-                'default'           => function() {return time();}
+            // #todo - validation de la ligne : il faut que la date de l'extrait = même année comptable (pas période)
+                'default'           => function() {
+                    return time();
+                }
             ],
 
             'communication' => [

@@ -626,7 +626,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'accounting_entry_id',
                 'account_id', 'account_code', 'debit', 'credit',
                 // #memo - we need this to retrieve details for private expenses
-                'sale_invoice_line_id'
+                'sale_invoice_line_id',
+                'bank_statement_line_id'
             ]);
 
         $map_accounting_entries_ids = [];

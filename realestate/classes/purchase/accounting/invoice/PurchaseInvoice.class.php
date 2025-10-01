@@ -485,10 +485,16 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         $self->read(['posting_date', 'has_date_range', 'date_from', 'date_to', 'condo_id']);
         foreach($self as $id => $invoice) {
             $date_from = $date_to = $invoice['posting_date'];
+
             if($invoice['has_date_range']) {
                 $date_from = $invoice['date_from'];
                 $date_to = $invoice['date_to'];
             }
+            else {
+                $date_from = $invoice['fiscal_period_id']['date_from'];
+                $date_to = $invoice['fiscal_period_id']['date_to'];
+            }
+
             $allocation_dates = self::computeAllocationDates($date_from, $date_to, $invoice['condo_id']);
             if(empty($allocation_dates)) {
                 $result[$id] = [
@@ -523,7 +529,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     private static function computeAllocationDates($date_from, $date_to, $condo_id) {
         $result = [];
         // there should be none or exactly one matching fiscal year
-        $fiscalYear = FiscalYear::search([['condo_id', '=', $condo_id], ['date_from', '<=', $date_from], ['date_to', '>=', $date_from]])
+        $fiscalYear = FiscalYear::search([
+                ['condo_id', '=', $condo_id],
+                ['date_from', '<=', $date_from],
+                ['date_to', '>=', $date_from]
+            ])
             ->read(['id', 'status'])
             ->first();
 
@@ -531,7 +541,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             trigger_error('APP::Missing required fiscal year for assigning (partly or full) a purchase invoice.', EQ_REPORT_WARNING);
         }
 
-        $fiscalPeriod = FiscalPeriod::search([['fiscal_year_id', '=', $fiscalYear['id']], ['date_from', '<=', $date_from], ['date_to', '>=', $date_from]])
+        $fiscalPeriod = FiscalPeriod::search([
+                ['fiscal_year_id', '=', $fiscalYear['id']],
+                ['date_from', '<=', $date_from],
+                ['date_to', '>=', $date_from]
+            ])
             ->read(['date_from'])
             ->first();
 
