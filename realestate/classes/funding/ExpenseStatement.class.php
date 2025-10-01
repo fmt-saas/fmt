@@ -923,8 +923,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         }
 
                         $amount_vat = round($prorata * ($vat_amount * $shares / $total_shares), 2);
-                        $amount_owner = round($amount, 2) * ($sourceLine['owner_share'] / 100);
-                        $amount_tenant = round($amount, 2) * (1 - $sourceLine['owner_share'] / 100);
+                        $amount_owner = round(round($amount, 2) * ($sourceLine['owner_share'] / 100), 2);
+                        $amount_tenant = round(round($amount, 2) * (1 - $sourceLine['owner_share'] / 100), 2);
                         // if there is delta in the shares, allocate it to the owner
                         $adjust = round($amount, 2) - $amount_owner - $amount_tenant;
                         $amount_owner += $adjust;
