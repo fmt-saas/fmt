@@ -488,6 +488,21 @@ foreach($worksheet->getRowIterator() as $rowIterator) {
     foreach($rowIterator->getCellIterator() as $cell) {
 
         $value = $cell->getValue();
+
+        if(is_object($value)) {
+            if(class_exists('\PhpOffice\PhpSpreadsheet\RichText\RichText')
+                && $value instanceof \PhpOffice\PhpSpreadsheet\RichText\RichText
+            ) {
+                $value = $value->getPlainText();
+            }
+            elseif (method_exists($value, '__toString')) {
+                $value = (string) $value;
+            }
+            else {
+                $value = null;
+            }
+        }
+
         $format = $cell->getStyle()->getNumberFormat()->getFormatCode();
 
         if(XlsDate::isDateTime($cell)) {
