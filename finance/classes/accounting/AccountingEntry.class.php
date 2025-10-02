@@ -151,7 +151,9 @@ class AccountingEntry extends Model {
             'is_cancelled' => [
                 'type'              => 'boolean',
                 'description'       => 'Flag marking the entry as cancelled (reversed).',
-                'help'              => 'When cancelled an entry remains valid and continues impacting the balance. However it should not have an impact since its debit and credits are voided by the reverse entry.',
+                'help'              => 'When cancelled an entry remains valid and continues impacting the balance.
+                    It should be linked with an accounting document that voids it.
+                    And should not have an impact on the result since its debit and credits are voided by the reverse entry (`reverse_entry_id`).',
                 'default'           => false
             ],
 
@@ -189,6 +191,13 @@ class AccountingEntry extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\accounting\invoice\Invoice',
                 'description'       => 'Invoice the accounting entry is related to.',
+                'ondelete'          => 'null'
+            ],
+
+            'misc_operation_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\MiscOperation',
+                'description'       => 'Miscellaneous Operation the accounting entry is related to.',
                 'ondelete'          => 'null'
             ],
 
@@ -374,6 +383,9 @@ class AccountingEntry extends Model {
             if( !($accountingEntry['fiscal_year_id']['current_balance_id'] ?? false) ) {
                 throw new \Exception('missing_balance', EQ_ERROR_INVALID_PARAM);
             }
+
+            $accountingEntry['entry_lines_ids']->transition('validate');
+
             // #memo - we cannot update the Balance directly to avoid concurrent changes: always use BalanceUpdateRequest
             /*
             BalanceUpdateRequest::create([
@@ -395,30 +407,8 @@ class AccountingEntry extends Model {
 
             $entry_date = $accountingEntry['entry_date'];
 
-            // make sure entries are chronological
-            // search for all entries in the period for the concerned journal and, if more recent, take the date of the most recent one
-
-            /*
-            // #memo - this has been disabled because the encoding of the purchase invoices is non chronological
+            // #memo - the encoding of the purchase invoices is non chronological
             // - we must maintain the sequence, but cannot force dates sequence without losing information
-            $domain = [
-                    ['id', '<>', $id],
-                    ['fiscal_period_id', '=', $accountingEntry['fiscal_period_id']['id']]
-                ];
-
-            if($accountingEntry['sub_journal_id']) {
-                $domain[] = ['journal_id', '=', $accountingEntry['sub_journal_id']];
-            }
-            else {
-                $domain[] = ['journal_id', '=', $accountingEntry['journal_id']];
-            }
-
-            $mostRecentEntry = self::search($domain, ['sort' => ['entry_date' => 'desc'], 'limit' => 1])->read(['entry_date'])->first();
-
-            if($mostRecentEntry && $mostRecentEntry['entry_date'] > $accountingEntry['entry_date']) {
-                $entry_date = $mostRecentEntry['entry_date'];
-            }
-            */
 
             self::id($id)
                 ->update([

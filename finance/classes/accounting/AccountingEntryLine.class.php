@@ -190,7 +190,7 @@ class AccountingEntryLine extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\accounting\invoice\InvoiceLine',
                 'description'       => 'Invoice line the entry line relates to, if any.',
-                'help'              => 'This is necessary for retrieving the invoice line corresponding to the entry line and, further, the apportionment and ratio to use for owner statement.',
+                'help'              => 'This is necessary for retrieving the invoice line corresponding to the entry line and, further, the apportionment and ratio to use for expense statement.',
                 'readonly'          => true,
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
@@ -199,11 +199,45 @@ class AccountingEntryLine extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoiceLine',
                 'description'       => 'Invoice line the entry line relates to, if any.',
-                'help'              => 'This is necessary for retrieving the invoice line corresponding to the entry line and, further, the apportionment and ratio to use for owner statement.',
+                'help'              => 'This is necessary for retrieving the invoice line corresponding to the entry line and, further, the apportionment and ratio to use for expense statement.',
                 'readonly'          => true,
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'misc_operation_line_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\MiscOperationLine',
+                'description'       => 'Misc Operation line the entry line relates to, if any.',
+                'help'              => 'This is necessary for retrieving the invoice line corresponding to the entry line and, further, the apportionment and ratio to use for expense statement.',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'pending',
+                    'validated'
+                ],
+                'default'           => 'pending'
+            ]
+
+        ];
+    }
+
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Draft entry line, still waiting to be completed for validation.',
+                'help'        => 'Status depends on parent Accounting Entry.',
+                'icon'        => 'draw',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Update the accounting entry status to `validated`.',
+                        'status'    => 'validated'
+                    ]
+                ]
+            ]
         ];
     }
 

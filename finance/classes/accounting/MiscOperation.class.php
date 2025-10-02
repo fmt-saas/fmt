@@ -6,6 +6,8 @@
 */
 namespace finance\accounting;
 use equal\orm\Model;
+use finance\bank\CondominiumBankAccount;
+use realestate\sale\pay\Funding;
 
 class MiscOperation extends Model {
 
@@ -134,6 +136,20 @@ class MiscOperation extends Model {
                 'description'       => 'Supporting document attached to the operation, if any.',
             ],
 
+            'document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Supporting document attached to the operation, if any.',
+            ],
+
+            'purchase_invoice_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'purchase\accounting\invoice\Invoice',
+                'description'       => 'Invoice the accounting entry is related to.',
+                'ondelete'          => 'null',
+                'help'              => 'In case the Misc Operation relates to a purchaseInvoiceLine marked with instant re-invoicing.'
+            ],
+
             'is_balanced' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
@@ -210,9 +226,14 @@ class MiscOperation extends Model {
                 'function'      => 'doGenerateAccountingEntry'
             ],
             'validate_accounting_entry' => [
-                'description'   => 'Validate accounting entry (that should be pending) to be accounted in balance',
+                'description'   => 'Validate accounting entry (that should be pending) to be accounted in balance.',
                 'policies'      => [/* 'can_validate_accounting_entry' */],
                 'function'      => 'doValidateAccountingEntry'
+            ],
+            'generate_fundings' => [
+                'description'   => 'Generate fundings for lines related to Ownerships.',
+                'policies'      => [/* 'can_validate_accounting_entry' */],
+                'function'      => 'doGenerateFundings'
             ]
         ];
     }
@@ -278,12 +299,13 @@ class MiscOperation extends Model {
                 ])
                 ->first();
 
-            foreach($miscOperation['misc_operation_lines_ids'] as $line) {
+            foreach($miscOperation['misc_operation_lines_ids'] as $line_id => $line) {
                 AccountingEntryLine::create([
                         'account_id'            => $line['account_id'],
                         'debit'                 => $line['debit'],
                         'credit'                => $line['credit'],
                         'accounting_entry_id'   => $accountingEntry['id'],
+                        'misc_operation_line_id'=> $line_id,
                         'description'           => $line['description']
                     ]);
             }
@@ -414,17 +436,88 @@ class MiscOperation extends Model {
         }
     }
 
+    protected static function doGenerateFundings($self) {
+
+        /* from finance\accounting\invoice\Invoice: */
+        // 'condo_id'
+        // 'fiscal_year_id'
+        // 'fiscal_period_id'
+        // 'accounting_entry_id'
+        // 'emission_date'
+        // 'due_date'
+
+
+        $self->read([
+                'name',
+                'posting_date',
+                'fiscal_year_id' => ['date_from'],
+                'fiscal_period_id' => ['date_from'],
+                'condo_id' => ['code'],
+                'misc_operation_lines_ids' => [
+                    'account_id',
+                    'is_owner',
+                    'ownership_id',
+                    'debit',
+                    'credit'
+                ]
+            ]);
+
+        foreach($self as $id => $miscOperation) {
+            foreach($miscOperation['misc_operation_lines_ids'] as $misc_operation_line_id => $miscOperationLine) {
+                if(!$miscOperationLine['is_owner']) {
+                    continue;
+                }
+                $ownership_id = $miscOperationLine['ownership_id'];
+
+                $due_amount = $miscOperationLine['debit'] - $miscOperationLine['credit'];
+
+                $ownershipAccount = Account::search([
+                        ['condo_id', '=', $miscOperation['condo_id']['id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['operation_assignment', '=', 'co_owners_working_fund']
+                    ])
+                    ->first();
+
+                if(!$ownershipAccount) {
+                    throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                }
+
+                // a funding cannot be issued nor due in the past
+                $issue_date = max(strtotime('today'), $miscOperation['posting_date']);
+                // #todo - make possible to customize
+                $due_date = $miscOperation['posting_date'] + 60*60*24 * 15;
+
+                // #todo - allow to choose
+                $bankAccount = CondominiumBankAccount::search([['condo_id', '=', $miscOperation['condo_id']['id']], ['is_primary', '=', true]])->first();
+
+                Funding::create([
+                        'condo_id'                          => $miscOperation['condo_id']['id'],
+                        'description'                       => $miscOperation['name'],
+                        'funding_type'                      => 'misc',
+                        'misc_operation_id'                 => $id,
+                        'ownership_id'                      => $ownership_id,
+                        'bank_account_id'                   => $bankAccount['id'],
+                        'accounting_account_id'             => $ownershipAccount['id'],
+                        'issue_date'                        => $issue_date,
+                        'due_date'                          => $due_date,
+                        'due_amount'                        => $due_amount
+                    ]);
+
+            }
+        }
+    }
+
     protected static function onbeforePost($self) {
         $self
             ->do('generate_accounting_entry')
             ->do('validate_accounting_entry')
+            ->do('generate_fundings')
             ->update(['name' => null]);
     }
 
     protected static function doCreateFundings($self) {
         // #todo - not sure of this : stand alone Misc Operation should not be linked to Funding, to allow arbitrary movements
     }
-
 
     public static function onchange($event, $values) {
         $result = [];

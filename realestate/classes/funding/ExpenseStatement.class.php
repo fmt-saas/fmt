@@ -9,6 +9,7 @@ namespace realestate\funding;
 use finance\accounting\Account;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\Journal;
+use finance\accounting\MiscOperationLine;
 use finance\bank\BankStatementLine;
 use realestate\finance\accounting\CondoFund;
 use realestate\ownership\Ownership;
@@ -419,8 +420,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             $description = 'Décompte de charge ' . $statement['fiscal_period_id']['name'];
 
             // handle assigned delta (diff between paid to provider and reinvoiced to owners - rounding account), if any
-            /*
-            // this unbalances the entry: it has to be taken under account at the end of the fiscal year
             $assigned_delta = round($statement['assigned_delta'], 2);
             if($assigned_delta != 0.0) {
                 // find the account based on operation_assignment
@@ -439,8 +438,23 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'credit'                => ($assigned_delta < 0.0) ? abs($assigned_delta) : 0.0
                     ]);
             }
-            */
 
+            $accountingEntryLines = AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])->read(['account_id', 'debit', 'credit']);
+
+            // create lines based on accounting records cleared by the expense statement
+            // #memo - we loose the link between statement lines and accounting entry lines
+            foreach($accountingEntryLines as $accounting_entry_line_id => $accountingEntryLine) {
+                AccountingEntryLine::create([
+                        'condo_id'              => $statement['condo_id'],
+                        'accounting_entry_id'   => $accountingEntry['id'],
+                        'name'                  => $description,
+                        'account_id'            => $accountingEntryLine['account_id'],
+                        'debit'                 => $accountingEntryLine['credit'],
+                        'credit'                => $accountingEntryLine['debit']
+                    ]);
+            }
+
+            /*
             foreach($statement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
 
                 // sum of field `price`, to be accounted on ownership debit
@@ -488,6 +502,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'credit'                => 0.0
                     ]);
             }
+            */
 
             self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
         }
@@ -620,16 +635,20 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         // rechercher les accounting entry lines : comment filtrer pour n'avoir que les comptes 6 et 7 ??
         $accountingEntryLines = AccountingEntryLine::search([
                 ['fiscal_period_id', '=', $fiscal_period_id],
+                ['status', '=', 'validated'],
                 ['is_cleared', '=', false],
                 ['account_class', 'in', [6, 7]]
             ])
             ->read([
                 'accounting_entry_id',
                 'account_id', 'account_code', 'debit', 'credit',
+                // #memo - we need this to discard records from expense statements
+                'expense_statement_id',
                 'sale_invoice_line_id',
                 // #memo - we need this to retrieve details for private expenses
                 'purchase_invoice_line_id',
-                'bank_statement_line_id'
+                'bank_statement_line_id',
+                'misc_operation_line_id'
             ]);
 
         $map_accounting_entries_ids = [];
@@ -728,6 +747,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             // ignore accounting entries not yet validated
             if($accountingEntry['status'] !== 'validated') {
+                continue;
+            }
+
+            // ignore accounting entries already cleared by an expense statement
+            if($accountingEntry['expense_statement_id']) {
                 continue;
             }
 
@@ -851,10 +875,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $map_accounts_ids[$accountingEntryLine['account_id']] = true;
             }
             // 3) common expense
-            // #memo - only debit lines for these
             elseif(substr($accountingEntryLine['account_code'], 0, 1) === '6' || substr($accountingEntryLine['account_code'], 0, 1) === '7') {
-
-                // #todo - gérer toutes les sources possibles : PurchaseInvoiceLine soit BankStatementLine soit MiscOperation
+                // handle all possible sources: PurchaseInvoiceLine soit BankStatementLine soit MiscOperation
                 if(isset($accountingEntryLine['purchase_invoice_line_id'])) {
                     $sourceLine = PurchaseInvoiceLine::id($accountingEntryLine['purchase_invoice_line_id'])
                         ->read([
@@ -877,8 +899,30 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         throw new \Exception('missing_mandatory_bank_statement_line', EQ_ERROR_INVALID_CONFIG);
                     }
                 }
+                elseif(isset($accountingEntryLine['bank_statement_line_id'])) {
+                    $sourceLine = BankStatementLine::id($accountingEntryLine['bank_statement_line_id'])
+                        ->read([
+                            'apportionment_id', 'owner_share', 'tenant_share', 'vat_rate'
+                        ])
+                        ->first();
+
+                    if(!$sourceLine) {
+                        throw new \Exception('missing_mandatory_bank_statement_line', EQ_ERROR_INVALID_CONFIG);
+                    }
+                }
+                elseif(isset($accountingEntryLine['misc_operation_line_id'])) {
+                    $sourceLine = MiscOperationLine::id($accountingEntryLine['misc_operation_line_id'])
+                        ->read([
+                            'apportionment_id', 'owner_share', 'tenant_share', 'vat_rate'
+                        ])
+                        ->first();
+
+                    if(!$sourceLine) {
+                        throw new \Exception('missing_mandatory_misc_operation_line', EQ_ERROR_INVALID_CONFIG);
+                    }
+                }
                 else {
-                    // #todo - handle OD MiscOperation
+                    throw new \Exception('missing_mandatory_source_line', EQ_ERROR_INVALID_CONFIG);
                 }
 
 

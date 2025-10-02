@@ -14,6 +14,8 @@ use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Account;
 use finance\accounting\Journal;
+use finance\accounting\MiscOperation;
+use finance\accounting\MiscOperationLine;
 use finance\bank\BankAccount;
 use finance\bank\CondominiumBankAccount;
 use fmt\setting\Setting;
@@ -779,33 +781,36 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
                     if($invoiceLine['has_instant_reinvoice']) {
                         // #todo - il faut émettre quelque chose ici (facture de vente ou autre)
-                        // et la valider directement pour que les écritures soient dans la compta
+                        // with immediate la valider directement pour que les écritures soient dans la compta
                         // sinon il n'y a rien qui demande au ownership le paiement
 
+                        $miscOperation = MiscOperation::create([
+                                'condo_id'              => $invoice['condo_id'],
+                                'description'           => 'Refacturation ' . $invoice['description'],
+                                'purchase_invoice_id'   => $id
+                            ])
+                            ->first();
+
                         // create the credit line on the ownership account
-                        AccountingEntryLine::create([
+                        MiscOperationLine::create([
                                 'condo_id'                  => $invoice['condo_id'],
-                                'accounting_entry_id'       => $accountingEntry['id'],
+                                'misc_operation_id'         => $miscOperation['id'],
                                 'description'               => $invoice['description'],
                                 'account_id'                => $ownershipAccount['id'],
-                                'purchase_invoice_line_id'  => $invoice_line_id,
                                 'debit'                     => 0.0,
                                 'credit'                    => $invoiceLine['price']
                             ]);
 
                         // create the credit line on the private expense
-                        AccountingEntryLine::create([
+                        MiscOperationLine::create([
                                 'condo_id'                  => $invoice['condo_id'],
-                                'accounting_entry_id'       => $accountingEntry['id'],
+                                'misc_operation_id'         => $miscOperation['id'],
                                 'description'               => $invoice['description'],
                                 'account_id'                => $privateExpenseAccount['id'],
-                                'purchase_invoice_line_id'  => $invoice_line_id,
-                                // pour le moment, on met une valeur arbitraire dans sale_invoice_id pour signifier que la dépense ne doit pas être re-mise dans un décompte de charge
-                                // il faudrait pouvoir le faire en 2 temps
-                                'sale_invoice_line_id'      => $invoice_line_id,
                                 'debit'                     => 0.0,
                                 'credit'                    => $invoiceLine['price']
                             ]);
+
                     }
 
                 }
@@ -1029,6 +1034,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     AccountingEntry::id($accounting_entry_id)->transition('validate');
                 }
             }
+            // post related miscellaneous operations, if any
+            MiscOperation::search(['purchase_invoice_id', '=', $id])
+                ->transition('publish')
+                ->transition('post');
         }
     }
 

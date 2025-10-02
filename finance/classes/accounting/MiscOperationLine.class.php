@@ -52,7 +52,7 @@ class MiscOperationLine extends Model {
                 'required'          => true,
                 'ondelete'          => 'null',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
-                'dependents'        => ['account_code']
+                'dependents'        => ['account_code', 'is_expense', 'is_income']
             ],
 
             'account_code' => [
@@ -70,6 +70,16 @@ class MiscOperationLine extends Model {
                 'description'       => "Accounting journal the entry relates to.",
                 'relation'          => ['misc_operation_id' => 'journal_id'],
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['journal_type', '=', 'MISC']],
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'is_owner' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'Flag marking the line as a payment from/to an owner(ship).',
+                'help'              => "When set to true, the line implies a link with a Funding.",
+                'function'          => 'calcIsOwner',
                 'store'             => true,
                 'instant'           => true
             ],
@@ -92,6 +102,64 @@ class MiscOperationLine extends Model {
                 'function'          => 'calcIsIncome',
                 'store'             => true,
                 'instant'           => true
+            ],
+
+            'apportionment_id' => [
+                'type'              => 'many2one',
+                'description'       => "The key that the apportionment refers to.",
+                'foreign_object'    => 'realestate\property\Apportionment',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_statutory', '=', false], ['is_active', '=', true], ['status', '=', 'validated']],
+                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
+                'visible'           => [
+                    [['account_id', '<>', null], ['is_expense', '=', true]],
+                    [['account_id', '<>', null], ['is_income', '=', true]]
+                ]
+            ],
+
+            'owner_share'           => [
+                'type'              => 'integer',
+                'default'           => 100,
+                'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
+                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
+                'visible'           => [
+                    [['account_id', '<>', null], ['is_expense', '=', true]],
+                    [['account_id', '<>', null], ['is_income', '=', true]]
+                ]
+            ],
+
+            'tenant_share'          => [
+                'type'              => 'integer',
+                'default'           => 0,
+                'description'       => "Default value, in percent, of the amount to be imputed to the tenant when using the account.",
+                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
+                'visible'           => [
+                    [['account_id', '<>', null], ['is_expense', '=', true]],
+                    [['account_id', '<>', null], ['is_income', '=', true]]
+                ]
+            ],
+
+            'vat_rate' => [
+                'type'              => 'float',
+                'usage'             => 'amount/rate',
+                'description'       => 'VAT rate to be applied.',
+                'default'           => 0.0,
+                'visible'           => [
+                    [['account_id', '<>', null], ['is_expense', '=', true]],
+                    [['account_id', '<>', null], ['is_income', '=', true]]
+                ]
+            ],
+
+            'ownership_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'function'          => 'calcOwnershipId',
+                'store'             => true,
+                'instant'           => true,
+                'description'       => "The ownership that the funding refers to.",
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'ondelete'          => 'cascade',
+                'domain'            => [['condo_id', '=', 'object.condo_id']],
+                'visible'           => [['is_owner', '=', true]]
             ],
 
             'debit' => [
@@ -135,6 +203,63 @@ class MiscOperationLine extends Model {
         $self->read(['account_id']);
         foreach($self as $id => $miscOperationLine) {
             $result[$id] = self::computeIsIncome($miscOperationLine['account_id']);
+        }
+        return $result;
+    }
+
+    protected static function calcOwnershipId($self) {
+        $result = [];
+        $self->read(['condo_id', 'is_owner', 'account_id' => ['ownership_id']]);
+        foreach($self as $id => $miscOperationLine) {
+            if(!$miscOperationLine['is_owner'] || !$miscOperationLine['account_id']['ownership_id']) {
+                continue;
+            }
+            $result[$id] = $miscOperationLine['account_id']['ownership_id'];
+        }
+        return $result;
+    }
+
+    protected static function calcIsOwner($self) {
+        $result = [];
+        $self->read(['account_id']);
+        foreach($self as $id => $miscOperationLine) {
+            $result[$id] = self::computeIsOwner($miscOperationLine['account_id']);
+        }
+        return $result;
+    }
+
+    private static function computeIsIncome($account_id) {
+        $result = false;
+        if($account_id) {
+            $account = Account::id($account_id)->read(['code'])->first();
+            if($account) {
+                $account_class_digit = substr($account['code'], 0, 1);
+                $result = ($account_class_digit === '7');
+            }
+        }
+        return $result;
+    }
+
+    private static function computeIsExpense($account_id) {
+        $result = false;
+        if($account_id) {
+            $account = Account::id($account_id)->read(['code'])->first();
+            if($account) {
+                $account_class_digit = substr($account['code'], 0, 1);
+                $result = ($account_class_digit === '6');
+            }
+        }
+        return $result;
+    }
+
+    private static function computeIsOwner($account_id) {
+        $result = false;
+        if($account_id) {
+            $account = Account::id($account_id)->read(['code'])->first();
+            if($account) {
+                $account_class_digits_two = substr($account['code'], 0, 2);
+                $result = ($account_class_digits_two === '41');
+            }
         }
         return $result;
     }

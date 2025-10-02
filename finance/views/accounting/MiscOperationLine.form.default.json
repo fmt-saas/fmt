@@ -43,6 +43,51 @@
                                                 "type": "field",
                                                 "value": "description",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_expense",
+                                                "width": "50%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_income",
+                                                "width": "50%",
+                                                "visible": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "visible": [
+                                    [["is_expense", "=", true]],
+                                    [["is_income", "=", true]]
+                                ],
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "apportionment_id",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "owner_share",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "tenant_share",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "vat_rate",
+                                                "width": "25%"
                                             }
                                         ]
                                     }
