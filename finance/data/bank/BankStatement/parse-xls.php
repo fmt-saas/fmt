@@ -487,23 +487,23 @@ foreach($worksheet->getRowIterator() as $rowIterator) {
     $row = [];
     foreach($rowIterator->getCellIterator() as $cell) {
 
+        $format = $cell->getStyle()->getNumberFormat()->getFormatCode();
         $value = $cell->getValue();
 
+        // support for RichText cells
         if(is_object($value)) {
             if(class_exists('\PhpOffice\PhpSpreadsheet\RichText\RichText')
                 && $value instanceof \PhpOffice\PhpSpreadsheet\RichText\RichText
             ) {
                 $value = $value->getPlainText();
             }
-            elseif (method_exists($value, '__toString')) {
+            elseif(method_exists($value, '__toString')) {
                 $value = (string) $value;
             }
             else {
                 $value = null;
             }
         }
-
-        $format = $cell->getStyle()->getNumberFormat()->getFormatCode();
 
         if(XlsDate::isDateTime($cell)) {
             $date = XlsDate::excelToDateTimeObject($value);
