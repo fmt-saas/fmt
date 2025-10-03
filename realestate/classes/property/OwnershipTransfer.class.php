@@ -936,6 +936,7 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             // #memo - refund is pending and can still be updated (sending to bank must be done manually)
             MoneyRefund::create([
+                'condo_id'                  => $ownershipTransfer['condo_id'],
                 'bank_account_id'           => $condoBankAccount['id'],
                 'ownership_id'              => $ownershipTransfer['old_ownership_id'],
                 'ownership_bank_account_id' => $ownerBankAccount['id'] ?? null,
