@@ -68,6 +68,7 @@ class SuppliershipBankAccount extends Model {
                 'help'              => 'This field and derived computed fields are used to identify paiements.',
                 // #memo - it must be possible to select the bank account of another supplier (IBAN) ex. refactoring
                 // 'domain'            => ['owner_identity_id', '=', 'object.supplier_identity_id'],
+                'domain'            => [['is_active', '=', true]],
                 'required'          => true,
                 'onupdate'          => 'onupdateBankAccountId'
             ],

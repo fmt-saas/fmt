@@ -77,6 +77,12 @@
                                                 "label": "Primary",
                                                 "value": "is_primary",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Active",
+                                                "value": "is_active",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

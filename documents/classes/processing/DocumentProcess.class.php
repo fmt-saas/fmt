@@ -387,6 +387,8 @@ class DocumentProcess extends Model {
             if($identity && $identity['employee_id']) {
                 self::id($id)->update(['assigned_employee_id' => $identity['employee_id']]);
             }
+            // assign back document to the process
+            Document::id($documentProcess['document_id']['id'])->update(['document_process_id' => $id]);
         }
     }
 
@@ -451,7 +453,7 @@ class DocumentProcess extends Model {
         return parent::candelete($self);
     }
 
-    public static function policyCanPerformIdentification($self): array {
+    protected static function policyCanPerformIdentification($self): array {
         $result = [];
         $self->read(['status', 'document_type_id']);
         foreach($self as $id => $documentProcess) {
@@ -466,7 +468,7 @@ class DocumentProcess extends Model {
         return $result;
     }
 
-    public static function policyCanPerformExtraction($self): array {
+    protected static function policyCanPerformExtraction($self): array {
         $result = [];
         $self->read(['status', 'document_id' => ['has_document_json']]);
         foreach($self as $id => $documentProcess) {

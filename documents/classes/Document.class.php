@@ -8,6 +8,7 @@
 namespace documents;
 
 use documents\navigation\Node;
+use documents\processing\DocumentProcess;
 use equal\http\HttpRequest;
 use equal\orm\Model;
 use purchase\supplier\Suppliership;
@@ -64,6 +65,13 @@ class Document extends Model {
                 // #memo - prevent resetting after voiding local data
                 // 'dependents'        => ['content_type', 'content_size', 'extension', 'readable_size', 'preview_image'],
                 'onupdate'          => 'onupdateData'
+            ],
+
+            'document_process_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\processing\DocumentProcess',
+                'description'       => 'Processing Job of the document, if any.',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'has_document_json' => [
@@ -301,7 +309,7 @@ class Document extends Model {
                 'description'       => 'Optional link to the received Email the document is an attachment of, if any.'
             ],
 
-            'invoice_id' => [
+            'purchase_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
                 'description'       => 'Optional link to the related purchase invoice.',
@@ -314,6 +322,34 @@ class Document extends Model {
                 'description'       => 'Optional link to the related bank statement.',
                 'visible'           => ['document_type_code', '=', 'bank_statement']
             ],
+
+            'expense_statement_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\ExpenseStatement',
+                'description'       => 'The fund request execution targeted by the funding, if any.',
+                'help'              => 'As a convention, this field is set when a funding relates to a fund request. Fund request executions are sale invoices (with invoice_type set to fund_request).',
+                'visible'           => ['funding_type', '=', 'expense_statement'],
+                'readonly'          => true
+            ],
+
+            'fund_request_execution_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\FundRequestExecution',
+                'description'       => 'The fund request execution targeted by the funding, if any.',
+                'help'              => 'As a convention, this field is set when a funding relates to a fund request. Fund request executions are sale invoices (with invoice_type set to fund_request).',
+                'visible'           => ['funding_type', '=', 'fund_request'],
+                'readonly'          => true
+            ],
+
+            'misc_operation_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\MiscOperation',
+                'description'       => 'Miscellaneous operation targeted by the funding, if any.',
+                'help'              => 'This is for the unexpected movements, for which the Funding was created at bank statement line reconcile.',
+                'readonly'          => true,
+                'visible'           => ['funding_type', '=', 'misc'],
+            ],
+
 
             'ownership_transfer_id' => [
                 'type'              => 'many2one',
@@ -389,7 +425,54 @@ class Document extends Model {
         ];
     }
 
-    public static function onupdateDocumentTypeId($self) {
+    public static function getPolicies(): array {
+        return [
+            'can_start_processing' => [
+                'description' => 'Verifies that the state of the processing allows drafting.',
+                'function'    => 'policyCanStarProcessing'
+            ]
+        ];
+    }
+
+    public static function getActions() {
+        return [
+            'start_processing' => [
+                'description'   => 'Attempt to identity document type and subtype.',
+                'policies'      => ['can_start_processing'],
+                'function'      => 'doStartProcessing'
+            ]
+        ];
+    }
+
+    protected static function policyCanStarProcessing($self) {
+        $result = [];
+        $self->read(['document_process_id']);
+        foreach($self as $id => $document) {
+            if(isset($document['document_process_id'])) {
+                $result[$id] = [
+                    'already_processing' => 'Document is already attached to a processing job.'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    protected static function doStartProcessing($self) {
+        $self->read(['condo_id', 'name']);
+
+        foreach($self as $id => $document) {
+            DocumentProcess::create([
+                    'condo_id'  => $document['condo_id'],
+                    'name'      => $document['name']
+                ])
+                // #memo - this will sync back the document_process_id
+                ->update(['document_id' => $id]);
+            self::id($id)->update(['is_origin' => true]);
+        }
+    }
+
+    protected static function onupdateDocumentTypeId($self) {
         $self->read(['condo_id', 'document_type_id']);
         foreach($self as $id => $document) {
             if(isset($document['document_type_id'], $document['condo_id'])) {

@@ -56,7 +56,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
                 'description'       => 'The Bank account the refund originates from.',
                 'help'              => 'This is the bank account from which the refund is made.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['bank_account_type', '=', 'bank_current']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['bank_account_type', '=', 'bank_current'], ['is_active', '=', true]]
             ],
 
             'account_available_balance' => [

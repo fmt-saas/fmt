@@ -74,7 +74,7 @@ class Funding extends \sale\pay\Funding {
                 'help'              => 'This is the bank account to which payment is expected to be received, or from which payment is expected to be made.',
                 'readonly'          => true,
                 'dependents'        => ['bank_account_iban'],
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_active', '=', true]]
             ],
 
             'counterpart_bank_account_id' => [

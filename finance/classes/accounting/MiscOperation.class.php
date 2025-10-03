@@ -136,12 +136,14 @@ class MiscOperation extends Model {
                 'description'       => 'Supporting document attached to the operation, if any.',
             ],
 
-            'document_id' => [
-                'type'              => 'many2one',
+            'documents_ids' => [
+                'type'              => 'one2many',
                 'foreign_object'    => 'documents\Document',
-                'description'       => 'Supporting document attached to the operation, if any.',
+                'foreign_field'     => 'misc_operation_id',
+                'description'       => 'All documents linked to the misc operation.',
             ],
 
+            /*
             'purchase_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\accounting\invoice\Invoice',
@@ -149,6 +151,7 @@ class MiscOperation extends Model {
                 'ondelete'          => 'null',
                 'help'              => 'In case the Misc Operation relates to a purchaseInvoiceLine marked with instant re-invoicing.'
             ],
+            */
 
             'is_balanced' => [
                 'type'              => 'computed',

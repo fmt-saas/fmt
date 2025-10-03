@@ -3,6 +3,22 @@
     "description": "Document analysis form.",
     "header": {
     },
+    "actions": [
+        {
+            "id": "action.start_processing",
+            "label": "Start processing",
+            "icon": "play_arrow",
+            "description": "Initiate the processing of the document.",
+            "controller": "core_model_do",
+            "visible": ["document_process_id", "=", null],
+            "params": {
+                "entity": "documents\\Document",
+                "action": "start_processing",
+                "ids": []
+            },
+            "confirm": false
+        }
+    ],
     "routes": [
         {
             "id": "item.meta_data",
@@ -129,7 +145,7 @@
                                             {
                                                 "type": "field",
                                                 "label": "Invoice",
-                                                "value": "invoice_id",
+                                                "value": "purchase_invoice_id",
                                                 "width": "50%"
                                             },
                                             {

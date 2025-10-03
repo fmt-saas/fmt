@@ -199,7 +199,15 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             'document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
-                'description'       => 'Received Document that the invoice is issued from.'
+                'description'       => 'Received Document that the invoice is issued from.',
+                'help'              => 'Target document has is_origin set to true.'
+            ],
+
+            'documents_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\Document',
+                'foreign_field'     => 'purchase_invoice_id',
+                'description'       => 'All documents linked to the purchase invoice.',
             ],
 
             'document_link' => [
@@ -1316,13 +1324,13 @@ protected static function calcFiscalYearId($self) {
                 $data = \eQual::run('get', 'documents_processing_purchaseInvoice_empty');
 
                 $document = Document::create([
-                        'condo_id'          => $purchaseInvoice['condo_id'],
-                        'name'              => sprintf("%s %06d", 'facture d\'achat', $id),
-                        'invoice_id'        => $id,
-                        'document_type_id'  => $documentType['id'],
-                        'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
-                        'is_origin'         => true,
-                        'is_source'         => false
+                        'condo_id'              => $purchaseInvoice['condo_id'],
+                        'name'                  => sprintf("%s %06d", 'facture d\'achat', $id),
+                        'purchase_invoice_id'   => $id,
+                        'document_type_id'      => $documentType['id'],
+                        'document_json'         => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
+                        'is_origin'             => true,
+                        'is_source'             => false
                     ])
                     ->first();
 

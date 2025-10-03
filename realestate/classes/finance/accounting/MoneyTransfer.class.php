@@ -49,7 +49,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
                 'description'       => 'The Bank account the funding relates to.',
                 'help'              => 'This is the bank account to which payments are expected to be received or from which payment is expected to be made.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_active', '=', true]]
             ],
 
             'counterpart_bank_account_id' => [

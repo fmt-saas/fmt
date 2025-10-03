@@ -146,7 +146,8 @@ class Funding extends \equal\orm\Model {
                 'description'       => 'The Bank account the funding relates to.',
                 'help'              => 'This is the bank account to which payments are expected to be received (or from which payment is expected to be made).',
                 'readonly'          => true,
-                'dependents'        => ['bank_account_iban']
+                'dependents'        => ['bank_account_iban'],
+                'domain'            => [['is_active', '=', true]]
             ],
 
             'counterpart_bank_account_id' => [

@@ -206,6 +206,10 @@
             {
                 "sections": [
                     {
+                        "visible": [
+                            ["is_income", "=", false],
+                            ["is_expense", "=", false]
+                        ],
                         "id": "section.payments",
                         "label": "Payments",
                         "rows": [
@@ -269,6 +273,7 @@
                         ]
                     },
                     {
+                        "visible": ["status", "=", "posted"],
                         "id": "section.accounting_entries",
                         "label": "Accounting Entries",
                         "rows": [

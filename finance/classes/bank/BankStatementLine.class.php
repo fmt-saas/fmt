@@ -178,7 +178,8 @@ class BankStatementLine extends Model {
                     This is an accounting account, not to be mixed up with bank accounts.",
                 'ondelete'          => 'null',
                 'dependents'        => ['accounting_account_code', 'is_transfer', 'is_expense', 'is_income', 'is_supplier', 'is_owner', 'ownership_id', 'suppliership_id'],
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]],
+                'onupdate'          => 'onupdateAccountingAccountId'
             ],
 
             'accounting_account_code' => [
@@ -1147,5 +1148,19 @@ class BankStatementLine extends Model {
         return $result;
     }
 
+    protected static function onupdateAccountingAccountId($self) {
+        $self->read(['accounting_account_id']);
+        foreach($self as $id => $bankStatementLine) {
+            $account = Account::id($bankStatementLine['accounting_account_id'])->read(['apportionment_id', 'tenant_share', 'owner_share', 'vat_rate'])->first();
+            if($account) {
+                self::id($id)->update([
+                    'apportionment_id'  => $account['apportionment_id'],
+                    'tenant_share'      => $account['tenant_share'],
+                    'owner_share'       => $account['owner_share'],
+                    'vat_rate'          => $account['vat_rate'],
+                ]);
+            }
+        }
+    }
 
 }

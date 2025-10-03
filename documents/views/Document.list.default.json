@@ -64,8 +64,8 @@
             },
             {
                 "type": "field",
-                "value": "tags",
-                "label": "Tags",
+                "value": "is_origin",
+                "label": "Origin?",
                 "width": "20%",
                 "readonly": true
             }

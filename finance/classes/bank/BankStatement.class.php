@@ -640,7 +640,7 @@ class BankStatement extends Model {
         foreach($self as $id => $statement) {
             if(!$statement['is_balanced']) {
                 $result[$id] = [
-                    'invalid_amount' => "Bank Statement [{$id}] is not balanced."
+                    'is_balanced' => "Bank Statement [{$id}] is not balanced."
                 ];
                 continue;
             }
@@ -693,6 +693,13 @@ class BankStatement extends Model {
                         $bankAccount = CondominiumBankAccount::search(['bank_account_iban', '=', $event['bank_account_iban']])->read(['condo_id' => ['id', 'name']])->first();
                         if($bankAccount) {
                             $result['condo_id'] = ['id' => $bankAccount['condo_id']['id'], 'name' => $bankAccount['condo_id']['name']];
+                            $previousBankStatement = BankStatement::search([['bank_account_id', '=', $bankAccount['id']]], ['sort' => ['date' => 'desc']])
+                                ->read(['statement_number', 'opening_balance', 'closing_balance'])
+                                ->first();
+                            if($previousBankStatement) {
+                                $result['statement_number'] = self::computeNewStatementNumber($previousBankStatement['statement_number']);
+                                $result['opening_balance'] = $previousBankStatement['closing_balance'];
+                            }
                         }
                     }
                 }
@@ -719,6 +726,10 @@ class BankStatement extends Model {
                 break;
         }
         return $result;
+    }
+
+    private static function computeNewStatementNumber($previous_statement_number)  {
+        return sprintf("%03d", intval($previous_statement_number) + 1);
     }
 
     public function getUnique() {

@@ -272,7 +272,7 @@ class Account extends Model {
             'condo_bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_active', '=', true]],
                 'ondelete'          => 'null',
                 'description'       => 'Condominium bank account the account relates to, if any.'
             ]

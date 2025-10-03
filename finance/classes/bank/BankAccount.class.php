@@ -59,6 +59,13 @@ class BankAccount extends Model {
                 'visible'           => ['bank_account_type', '=', 'bank_current']
             ],
 
+            'is_active' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the account as currently in use.',
+                'help'              => 'When a bank account is not active, it no longer appears in Views amongst possible choices.',
+                'default'           => true,
+            ],
+
             'organisation_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Organisation',
