@@ -280,14 +280,19 @@ class BankStatement extends Model {
         $self->read(['condo_id', 'bank_account_id', 'statement_number', 'opening_date', 'opening_balance', 'closing_balance']);
         foreach($self as $id => $bankStatement) {
 
-            $previousBankStatement = BankStatement::search([['bank_account_id', '=', $bankStatement['bank_account_id']]], ['sort' => ['date' => 'desc']])
+            $previousBankStatement = BankStatement::search([
+                    ['bank_account_id', '=', $bankStatement['bank_account_id']],
+                    ['id', '<>', $id]
+                ], ['sort' => ['date' => 'desc']])
                 ->read(['statement_number', 'opening_balance', 'closing_balance'])
                 ->first();
 
             if($previousBankStatement) {
-                if( (intval($previousBankStatement['statement_number']) + 1) != intval($bankStatement['statement_number'])) {
+                $previous_number = intval($previousBankStatement['statement_number']);
+                $statement_number = intval($bankStatement['statement_number']);
+                if($statement_number != ($previous_number + 1)) {
                     $result[$id] = [
-                        'statement_number_mismatch' => "Sequence does not follow the previous statement of the account."
+                        'statement_number_mismatch' => "Statement number ($statement_number) does not follow the previous statement of the account (previous = $previous_number)."
                     ];
                     continue;
                 }
