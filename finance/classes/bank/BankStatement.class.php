@@ -238,7 +238,7 @@ class BankStatement extends Model {
                         'description' => 'Post bank statement statement to the accounting system.',
                         'help'        => 'In order to be posted, Bank Statement must be balanced but not necessarily reconciled.',
                         'policies'    => [
-                            'is_balanced',
+                            'is_balanced', 'can_post'
                         ],
                         'onafter'     => 'onafterPost',
                         'status'      => 'posted'
@@ -269,10 +269,40 @@ class BankStatement extends Model {
                 'description' => 'Verifies that all statement lines have been processed.',
                 'function'    => 'policyIsReconciled'
             ],
-            'can_generate_accounting_entry' => [
-                'function'    => 'policyCanGenerateAccountingEntry'
+            'can_post' => [
+                'function'    => 'policyCanPost'
             ]
         ]);
+    }
+
+    protected static function policyCanPost($self) {
+        $result = [];
+        $self->read(['condo_id', 'bank_account_id', 'statement_number', 'opening_date', 'opening_balance', 'closing_balance']);
+        foreach($self as $id => $bankStatement) {
+
+            $previousBankStatement = BankStatement::search([['bank_account_id', '=', $bankStatement['bank_account_id']]], ['sort' => ['date' => 'desc']])
+                ->read(['statement_number', 'opening_balance', 'closing_balance'])
+                ->first();
+
+            if($previousBankStatement) {
+                if( (intval($previousBankStatement['statement_number']) + 1) != intval($bankStatement['statement_number'])) {
+                    $result[$id] = [
+                        'statement_number_mismatch' => "Sequence does not follow the previous statement of the account."
+                    ];
+                    continue;
+                }
+
+                if( $previousBankStatement['closing_balance'] != $bankStatement['opening_balance']) {
+                    $result[$id] = [
+                        'balance_mismatch' => "Opening balance does not match closing balance of previous statement."
+                    ];
+                    continue;
+                }
+            }
+
+
+        }
+        return $result;
     }
 
     protected static function calcFiscalYearId($self) {

@@ -934,15 +934,11 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ])
                 ->first();
 
-            if(!$ownerBankAccount) {
-                throw new \Exception("owner_bank_account_not_found", EQ_ERROR_UNKNOWN_OBJECT);
-            }
-
             // #memo - refund is pending and can still be updated (sending to bank must be done manually)
             MoneyRefund::create([
                 'bank_account_id'           => $condoBankAccount['id'],
                 'ownership_id'              => $ownershipTransfer['old_ownership_id'],
-                'ownership_bank_account_id' => $ownerBankAccount['id'],
+                'ownership_bank_account_id' => $ownerBankAccount['id'] ?? null,
                 'amount'                    => $refund_amount
             ]);
 

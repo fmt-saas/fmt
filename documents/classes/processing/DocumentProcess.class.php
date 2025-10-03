@@ -1379,11 +1379,13 @@ class DocumentProcess extends Model {
                                 'sequence_number'         => $txn['sequence_number'],
                                 'date'                    => strtotime($txn['value_date']),
                                 'amount'                  => round(floatval($txn['amount']), 2),
-                                'account_iban'            => $txn['counterparty_iban'] ?? $data['account_iban'],
                                 'account_holder'          => $txn['counterparty_name'] ?? null,
                                 'communication'           => $communication,
                                 'communication_type'      => $communication_type,
                                 'status'                  => 'pending'
+                            ])
+                            ->update([
+                                'account_iban'            => $txn['counterparty_iban'] ?? $data['account_iban']
                             ]);
                     }
 

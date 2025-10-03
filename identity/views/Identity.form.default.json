@@ -10,46 +10,12 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "66%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "legal_name",
-                                                "width": "50%",
-                                                "widget": {
-                                                    "header": false
-                                                }
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "short_name",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "firstname",
-                                                "width": "50%",
-                                                "widget": {
-                                                    "header": false
-                                                }
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "lastname",
-                                                "width": "50%",
-                                                "widget": {
-                                                    "header": false
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "33%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "type_id",
-                                                "width": "100%",
+                                                "width": "33%",
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
@@ -58,6 +24,26 @@
                                                         }
                                                     }
                                                 }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "legal_name",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "short_name",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "firstname",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "lastname",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",

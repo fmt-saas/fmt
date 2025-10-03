@@ -69,6 +69,13 @@ class OwnershipBankAccount extends BankAccount {
                 'function'          => 'calcAccountingAccountId',
                 'store'             => true,
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+            ],
+
+            'is_validated' => [
+                'type'              => 'boolean',
+                'description'       => "The bank account has been confirmed by the Owner(ship).",
+                'help'              => "Validation is intended to be made by the Owner through the self-service platform. This is used to limit reimbursement to Ownership bank account that have been validated",
+                'default'           => false
             ]
 
         ];
