@@ -9,7 +9,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date as XlsDate;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Parse a raw CODA file and returns it as a list of statement lines.",
+    'description'   => "Parse a normalized XLS file and returns it as a list of statement lines.",
     'help'          => "The input is expected to follow the linear structure provided by ISABEL exports.",
     'params'        => [
         'data' =>  [
@@ -273,22 +273,29 @@ $adapters = [
         return 'current';
     },
     'iban_normalize' => function($account_number) {
+        if(empty($account_number)) {
+            return null;
+        }
+
         $account_number = strtoupper(trim($account_number));
 
-        // IBAN followed by currency
-        if(preg_match('/^([A-Z]{2}[0-9]{2}[A-Z0-9]{11,30})([A-Z]{3})$/', $account_number, $matches)) {
+        if(preg_match('/^([A-Z]{2}[0-9]{2}[A-Z0-9]{10,30})/', $account_number, $matches)) {
+            $account_number = $matches[1];
+        }
+
+        if(preg_match('/^([A-Z]{2}[0-9]{2}[A-Z0-9]{10,30})([A-Z]{3})$/', $account_number, $matches)) {
             $account_number = $matches[1];
         }
 
         $prefix = substr($account_number, 0, 2);
-
         if(!preg_match('/^[A-Z]{2}$/', $prefix)) {
             return null;
         }
 
         $remainder = substr($account_number, 2);
+        $remainder = preg_replace('/[^A-Z0-9]/i', '', $remainder);
 
-        return $prefix . preg_replace('/[^A-Z0-9]/i', '', $remainder);
+        return $prefix . $remainder;
     },
     'bic_normalize' => function($bic) {
         return strtoupper(trim($bic));
@@ -553,6 +560,15 @@ for($i = 1, $n = count($lines); $i < $n; ++$i) {
         $target = $map_xls_fields[$header]['target'];
 
         $value = $line[$j] ?? null;
+
+        // handle special case for account IBAN used as an account identifier, potentially holding non-SEPA standard data
+        if($target === 'account_iban') {
+            if(preg_match('/-/', $value)) {
+                $parts = explode('-', str_replace(' ', '', $value), 2);
+                $statement['account_suffix'] = $parts[1];
+            }
+        }
+
         if($adapter && is_callable($adapters[$adapter])) {
             $value = $adapters[$adapter]($value);
         }

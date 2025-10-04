@@ -106,7 +106,6 @@ class BankAccount extends Model {
                 'type'              => 'string',
                 'description'       => 'The BIC code of the bank related to the organization\'s bank account.',
                 'help'              => 'Additional number for composite identification used by some banks.',
-                'default'           => '',
                 // #memo - so far this only applies to ING bank
                 'domain'            => ['bank_account_bic', '=', 'BBRUBEBB']
             ],
@@ -178,6 +177,10 @@ class BankAccount extends Model {
                 $result['bank_name'] = $bank_info['name'];
                 $result['bank_account_bic'] = $bank_info['bic'];
             }
+        }
+
+        if(isset($event['bank_account_suffix'])) {
+            $result['bank_account_suffix'] = preg_replace('/[^0-9-]/i', '', $event['bank_account_suffix']);
         }
 
         if(isset($event['bank_account_type'])) {

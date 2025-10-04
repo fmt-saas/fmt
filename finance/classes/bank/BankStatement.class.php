@@ -121,6 +121,13 @@ class BankStatement extends Model {
                 'description'       => 'Bank Identification Code of the account.'
             ],
 
+            'bank_account_suffix' => [
+                'type'              => 'string',
+                'description'       => 'Proprietary or extended account identifier (e.g. ING sub-account, not SEPA-valid).',
+                // #memo - so far this only applies to ING bank
+                'domain'            => ['bank_account_bic', '=', 'BBRUBEBB']
+            ],
+
             'statement_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\bank\BankStatementLine',
@@ -360,11 +367,16 @@ class BankStatement extends Model {
         }
     }
     */
+
     protected static function onupdateBankAccountId($self) {
-        $self->read(['bank_account_id' => ['bank_account_iban']]);
+        $self->read(['bank_account_id' => ['bank_account_iban', 'bank_account_suffix']]);
         foreach($self as $id => $bankStatement) {
             if($bankStatement['bank_account_id']) {
-                self::id($id)->update(['bank_account_iban' => $bankStatement['bank_account_id']['bank_account_iban']]);
+                $values = ['bank_account_iban' => $bankStatement['bank_account_id']['bank_account_iban']];
+                if($bankStatement['bank_account_suffix']) {
+                    $values['bank_account_suffix'] = $bankStatement['bank_account_suffix'];
+                }
+                self::id($id)->update($values);
             }
         }
     }

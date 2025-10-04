@@ -143,8 +143,16 @@ class BankStatementLine extends Model {
                 'type'              => 'string',
                 'usage'             => 'uri/urn.iban',
                 'description'       => 'Counterparty IBAN, if any.',
-                'help'              => 'In theory, this field should be provided, but it might be missing for manually encoded statements.'
+                'help'              => 'In theory, this field should be provided, but it might be missing for manually encoded statements.',
                 // 'required'          => true
+                'onupdate'          => 'onupdateAccountIban'
+            ],
+
+            'account_suffix' => [
+                'type'              => 'string',
+                'description'       => 'Proprietary or extended account identifier (e.g. ING sub-account, not SEPA-valid).',
+                // #memo - so far this only applies to ING bank
+                'domain'            => ['account_bic', '=', 'BBRUBEBB']
             ],
 
             'account_bic' => [
@@ -1163,4 +1171,15 @@ class BankStatementLine extends Model {
         }
     }
 
+    /**
+     * retrieve accounting_account_id based on account_iban
+     */
+    protected static function onupdateAccountIban($self) {
+        $self->read(['condo_id', 'account_iban']);
+        foreach($self as $id => $bankStatementLine) {
+            // attempt to retrieve a ownership or suppliership for Condo with IBAN
+            // if found, assign the related accounting_account_id
+            // #todo
+        }
+    }
 }
