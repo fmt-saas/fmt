@@ -394,6 +394,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ]);
 
         foreach($self as $id => $statement) {
+            // remove any existing accounting entry (this should not occur, just in case of a previous unfinished action)
+            AccountingEntry::search([
+                    ['sale_invoice_id', '=', $id],
+                    ['status', '=', 'pending']
+                ])
+                ->delete(true);
+
             // retrieve journal dedicated to purchases
             $journal = Journal::search([['condo_id', '=', $statement['condo_id']], ['journal_type', '=', 'SALE']])->first();
             if(!$journal) {
@@ -454,7 +461,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ]);
             }
 
-            /*
             foreach($statement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
 
                 // sum of field `price`, to be accounted on ownership debit
@@ -468,17 +474,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     }
 
                     $total_ownership += $statementLine['price'];
-
-                    // create the credit line on the expense account
-                    AccountingEntryLine::create([
-                            'condo_id'              => $statement['condo_id'],
-                            'accounting_entry_id'   => $accountingEntry['id'],
-                            'name'                  => $description,
-                            'account_id'            => $statementLine['account_id'],
-                            'sale_invoice_line_id'  => $line_id,
-                            'debit'                 => 0.0,
-                            'credit'                => $statementLine['price']
-                        ]);
                 }
 
                 $ownershipAccount = Account::search([
@@ -502,7 +497,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'credit'                => 0.0
                     ]);
             }
-            */
 
             self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
         }
