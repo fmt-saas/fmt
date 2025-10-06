@@ -143,7 +143,6 @@ class MiscOperation extends Model {
                 'description'       => 'All documents linked to the misc operation.',
             ],
 
-            /*
             'purchase_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\accounting\invoice\Invoice',
@@ -151,7 +150,6 @@ class MiscOperation extends Model {
                 'ondelete'          => 'null',
                 'help'              => 'In case the Misc Operation relates to a purchaseInvoiceLine marked with instant re-invoicing.'
             ],
-            */
 
             'is_balanced' => [
                 'type'              => 'computed',

@@ -81,8 +81,11 @@ class Suppliership extends \equal\orm\Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
-            // #memo - a Suppliership might be linked to several Accounts of the Accounting Chart
-            // 'accounting_account_id' => [
+            'accounting_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+            ],
 
             'status' => [
                 'type'              => 'string',
@@ -286,7 +289,7 @@ class Suppliership extends \equal\orm\Model {
                 $account_exists = (bool) count(Account::search([['condo_id', '=', $suppliership['condo_id']], ['code', '=', $assignmentAccount['code'] . $suppliership['code']]])->ids());
 
                 if(!$account_exists) {
-                    Account::create([
+                    $account = Account::create([
                             'code'                  => $assignmentAccount['code'] . $suppliership['code'],
                             'condo_id'              => $suppliership['condo_id'],
                             'parent_account_id'     => $assignmentAccount['id'],
@@ -298,6 +301,8 @@ class Suppliership extends \equal\orm\Model {
                         ])
                         ->read(['name'])
                         ->first();
+
+                    self::id($id)->update(['accounting_account_id' => $account['id']]);
                 }
 
             }

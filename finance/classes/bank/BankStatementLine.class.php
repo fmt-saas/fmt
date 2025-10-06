@@ -1177,8 +1177,36 @@ class BankStatementLine extends Model {
     protected static function onupdateAccountIban($self) {
         $self->read(['condo_id', 'account_iban']);
         foreach($self as $id => $bankStatementLine) {
+            if(!$bankStatementLine['condo_id']) {
+                continue;
+            }
             // attempt to retrieve a ownership or suppliership for Condo with IBAN
+            $ownerBankAccount = OwnershipBankAccount::search([
+                    ['condo_id', '=', $bankStatementLine['condo_id']],
+                    ['bank_account_iban', '=', $bankStatementLine['account_iban']]
+                ])
+                ->read(['ownership_id'])
+                ->first();
+
             // if found, assign the related accounting_account_id
+            if($ownerBankAccount) {
+                $account = Account::search([
+                        ['ownership_id', '=', $ownerBankAccount['ownership_id']],
+                        ['operation_assignment', '=', 'co_owners_working_fund']
+                    ])
+                    ->first();
+                if($account) {
+                    self::id($id)->update(['accounting_account_id' => $account['id']]);
+                }
+
+                continue;
+            }
+            SuppliershipBankAccount::search([
+                    ['condo_id', '=', $bankStatementLine['condo_id']],
+                    ['bank_account_iban', '=', $bankStatementLine['account_iban']]
+                ])
+                ->read(['suppliership_id'])
+                ->first();
             // #todo
         }
     }
