@@ -42,6 +42,13 @@ list($params, $providers) = eQual::announce([
                         ['condo_id', '=', $condo_id],
                     ],  ['sort' => ['date_from' => 'desc']])
                     ->ids();
+                if(count($fiscal_year_ids) <= 0) {
+                    $fiscal_year_ids = FiscalYear::search([
+                            ['status', '=', 'preopen'],
+                            ['condo_id', '=', $condo_id],
+                        ],  ['sort' => ['date_from' => 'desc']])
+                        ->ids();
+                }
                 return count($fiscal_year_ids) ? current($fiscal_year_ids) : null;
             }
         ],
