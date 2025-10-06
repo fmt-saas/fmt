@@ -286,11 +286,14 @@ class BankStatement extends Model {
         $result = [];
         $self->read(['condo_id', 'bank_account_id', 'statement_number', 'opening_date', 'opening_balance', 'closing_balance']);
         foreach($self as $id => $bankStatement) {
+            $statement_year = date('Y', $bankStatement['opening_date']);
+            $year_start = strtotime("{$statement_year}-01-01");
 
             $previousBankStatement = BankStatement::search([
                     ['bank_account_id', '=', $bankStatement['bank_account_id']],
                     ['id', '<>', $id],
-                    ['closing_date', '<', $bankStatement['opening_date']]
+                    ['closing_date', '<', $bankStatement['opening_date']],
+                    ['closing_date', '>=', $year_start],
                 ], ['sort' => ['date' => 'desc']])
                 ->read(['statement_number', 'opening_balance', 'closing_balance'])
                 ->first();
