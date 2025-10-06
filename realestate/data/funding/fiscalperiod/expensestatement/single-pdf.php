@@ -75,11 +75,13 @@ try {
     $dompdf->render();
     $canvas = $dompdf->getCanvas();
 
+    $page_count = $canvas->get_page_count();
+
     $font = $dompdf->getFontMetrics()->getFont("helvetica", "regular");
     $canvas->page_text(530, $canvas->get_height() - 35, "p. {PAGE_NUM} / " . $page_count, $font, 9, array(0,0,0));
 
     // enforce odd amount of pages
-    $page_count = $canvas->get_page_count();
+
     if($page_count % 2 !== 0) {
         $canvas->new_page();
         /*
@@ -92,7 +94,6 @@ try {
         $canvas = $dompdf->getCanvas();
         */
     }
-
 
     // get generated PDF raw binary
     $output = $dompdf->output();
