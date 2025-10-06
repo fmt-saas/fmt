@@ -155,7 +155,8 @@ class FiscalYear extends Model {
                     'closed'
                 ],
                 'default'           => 'draft',
-                'description'       => 'Status of the fiscal year.'
+                'description'       => 'Status of the fiscal year.',
+                'dependents'        => ['name']
             ]
 
         ];
@@ -166,7 +167,7 @@ class FiscalYear extends Model {
      */
     public static function calcName($self) {
         $result = [];
-        $self->read(['condo_id' => ['name'], 'date_from', 'date_to']);
+        $self->read(['condo_id' => ['name'], 'status', 'date_from', 'date_to']);
         foreach($self as $id => $year) {
             if(!$year['date_from'] || !$year['date_to']) {
                 continue;
@@ -180,7 +181,7 @@ class FiscalYear extends Model {
             if(strcmp($year_from, $year_to) !== 0) {
                 $name .= '-'.$year_to;
             }
-            $result[$id] = $name;
+            $result[$id] = $name . '(' . $year['status'] . ')';
         }
         return $result;
     }

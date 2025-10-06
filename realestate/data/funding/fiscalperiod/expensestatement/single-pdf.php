@@ -78,6 +78,8 @@ try {
     // enforce odd amount of pages
     $page_count = $canvas->get_page_count();
     if($page_count % 2 !== 0) {
+        $canvas->new_page();
+        /*
         $blank_page_html = '<div style="page-break-before: always;">&nbsp;</div>';
         $html = str_replace('</body>', $blank_page_html . '</body>', $html);
         $dompdf = new Dompdf($options);
@@ -85,6 +87,7 @@ try {
         $dompdf->loadHtml($html);
         $dompdf->render();
         $canvas = $dompdf->getCanvas();
+        */
     }
 
     $font = $dompdf->getFontMetrics()->getFont("helvetica", "regular");

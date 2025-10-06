@@ -49,7 +49,7 @@ class BankStatementImport extends Model {
      * Handle data update (i.e. file upload).
      * This method is used to create the document based on received data, and start the processing.
      */
-    public static function onupdateData($self) {
+    protected static function onupdateData($self) {
         $self->read(['name', 'data']);
         $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
 

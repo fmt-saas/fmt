@@ -359,26 +359,32 @@ class BankStatement extends Model {
         return $result;
     }
 
-/* #todo - faire l'inverse
     protected static function onupdateBankAccountIban($self) {
-
-        $self->read(['bank_account_iban', 'condo_id']);
+        $self->read(['bank_account_iban', 'bank_account_suffix', 'condo_id']);
         foreach($self as $id => $bankStatement) {
-            $bankAccount = CondominiumBankAccount::search(['bank_account_iban', '=', $bankStatement['bank_account_iban'], ['validated', '=', true]])->read(['condo_id'])->first();
+            $domain = [
+                ['bank_account_iban', '=', $bankStatement['bank_account_iban']],
+                ['validated', '=', true]
+            ];
+            if($bankStatement['bank_account_suffix']) {
+                $domain[] = ['bank_account_suffix', '=', $bankStatement['bank_account_suffix']];
+            }
+            $bankAccount = CondominiumBankAccount::search($domain)
+                ->read(['condo_id'])
+                ->first();
             if($bankAccount) {
                 self::id($id)->update(['bank_account_id' => $bankAccount['id']]);
             }
         }
     }
-    */
 
     protected static function onupdateBankAccountId($self) {
         $self->read(['bank_account_id' => ['bank_account_iban', 'bank_account_suffix']]);
         foreach($self as $id => $bankStatement) {
             if($bankStatement['bank_account_id']) {
                 $values = ['bank_account_iban' => $bankStatement['bank_account_id']['bank_account_iban']];
-                if($bankStatement['bank_account_suffix']) {
-                    $values['bank_account_suffix'] = $bankStatement['bank_account_suffix'];
+                if($bankStatement['bank_account_id']['bank_account_suffix']) {
+                    $values['bank_account_suffix'] = $bankStatement['bank_account_id']['bank_account_suffix'];
                 }
                 self::id($id)->update($values);
             }

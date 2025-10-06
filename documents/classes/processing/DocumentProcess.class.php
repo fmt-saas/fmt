@@ -1147,7 +1147,9 @@ class DocumentProcess extends Model {
                         $logs[] = "attempting to match bank statement data";
                         if(!$values['condo_id']) {
                             if(isset($data['account_iban']) && strlen($data['account_iban'])) {
-                                $bankAccount = CondominiumBankAccount::search(['bank_account_iban', '=', $data['account_iban']])->read(['condo_id'])->first();
+                                $bankAccount = CondominiumBankAccount::search(['bank_account_iban', '=', $data['account_iban']])
+                                    ->read(['condo_id'])
+                                    ->first();
                                 if($bankAccount && $bankAccount['condo_id']) {
                                     $values['condo_id'] = $bankAccount['condo_id'];
                                     $doc_values['condo_id'] = $values['condo_id'];
