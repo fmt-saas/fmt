@@ -81,7 +81,7 @@
             "label": "Close",
             "description": "Close the fiscal year (this cannot be undone).",
             "controller": "core_model_transition",
-            "visible": ["status", "=", "preclose"],
+            "visible": ["status", "=", "preclosed"],
             "params": {
                 "entity": "finance\\accounting\\FiscalYear",
                 "transition": "close",
