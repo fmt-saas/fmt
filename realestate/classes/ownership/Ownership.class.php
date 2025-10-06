@@ -105,6 +105,7 @@ class Ownership extends \equal\orm\Model {
 
             // #memo - an Ownership might be linked to several Accounts of the Accounting Chart
             // 'accounting_account_id' => [
+            // 'accounting_accounts_ids' => [
 
             'date_from' => [
                 'type'              => 'date',
@@ -386,9 +387,16 @@ class Ownership extends \equal\orm\Model {
     }
 
     /**
+     * 410 co_owners
+     * 4100 reserve funds
+     * 4101 working funds
+     *
      * Upon creation of an ownership, it is necessary to create accounts for:
      * - 4100xxxxx:        co_owners_reserve_fund
      * - 4101xxxxx:        co_owners_working_fund
+     *
+     * collecteur virtuel : enlever le 4è digit pour les comptes ownerships, et fusionner les comptes avec code identique
+     * 410xxxxx -> co_owners_reserve_fund + co_owners_working_fund
      */
     public static function doGenerateAccounts($self) {
         $self->read(['condo_id', 'name', 'code']);

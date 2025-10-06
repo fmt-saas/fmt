@@ -665,6 +665,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             Prefetch required objects (condominium configuration)
         */
 
+        // retrieve all ownerships of given Condo, whatever their history
         $ownerships = Ownership::search(['condo_id', '=', $fiscalPeriod['condo_id']])
             ->read(['name', 'date_from', 'date_to', 'property_lot_ownerships_ids' => ['property_lot_id', 'date_from', 'date_to']])
             ->get();
@@ -672,6 +673,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
         // compute nb_days of Ownership to apply prorata
         // #memo - we assume ownerships remain consistent and that a property lot is always owned by someone (for a same property lot, sum of ownerships nb_days matches the nb_days of the period)
+        // #memo - this can be adapted below if invoice line was encoded to map a specific time interval
         foreach($ownerships as $ownership_id => $ownership) {
             $start = max($fiscalPeriod['date_from'], $ownership['date_from'] ?? $fiscalPeriod['date_from']);
             $end   = min($fiscalPeriod['date_to'], $ownership['date_to'] ?? $fiscalPeriod['date_to']);
@@ -781,7 +783,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 // #todo - prendre en compte les bank statement lines
                 $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['purchase_invoice_line_id'])->read([
                         'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
-                        'invoice_id' => ['posting_date']
+                        'invoice_id' => ['posting_date', 'has_date_range', 'date_from', 'date_to']
                     ])
                     ->first();
 
@@ -791,6 +793,17 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 $ownership_id = $invoiceLine['ownership_id'];
                 $property_lot_id = $invoiceLine['property_lot_id'];
+
+                // retrieve date_from and date_to from purchase invoice line, to determine nb_days
+                if($invoiceLine['invoice_id']['has_date_range']) {
+                    $start = max($invoiceLine['invoice_id']['date_from'], $ownerships[$ownership_id]['date_from'] ?? $invoiceLine['invoice_id']['date_from']);
+                    $end   = min($invoiceLine['invoice_id']['date_to'], $ownerships[$ownership_id]['date_to'] ?? $invoiceLine['invoice_id']['date_to']);
+                }
+                else {
+                    $start = max($invoiceLine['invoice_id']['posting_date'], $ownerships[$ownership_id]['date_from'] ?? $invoiceLine['invoice_id']['posting_date']);
+                    $end   = min($invoiceLine['invoice_id']['posting_date'], $ownerships[$ownership_id]['date_to'] ?? $invoiceLine['invoice_id']['posting_date']);
+                }
+                $ownerships[$ownership_id]['nb_days'] = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
 
                 $amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
 

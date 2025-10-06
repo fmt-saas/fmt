@@ -36,8 +36,12 @@ list($params, $providers) = eQual::announce([
             'description'       => "The fiscal year the balance refers to.",
             'foreign_object'    => 'finance\accounting\FiscalYear',
             'domain'            => ['condo_id', '=', 'object.condo_id'],
-            'default'           => function($domain=[]) {
-                $fiscal_year_ids = FiscalYear::search(Domain::conditionAdd($domain, ['status', '=', 'open']),  ['sort' => ['date_from' => 'desc']])->ids();
+            'default'           => function($condo_id=null) {
+                $fiscal_year_ids = FiscalYear::search([
+                        ['status', '=', 'open'],
+                        ['condo_id', '=', $condo_id],
+                    ],  ['sort' => ['date_from' => 'desc']])
+                    ->ids();
                 return count($fiscal_year_ids) ? current($fiscal_year_ids) : null;
             }
         ],
@@ -82,7 +86,15 @@ list($params, $providers) = eQual::announce([
  * @var \equal\php\Context $context
  * @var \equal\orm\ObjectManager $orm
  */
-list($context, $orm) = [ $providers['context'], $providers['orm'] ];
+['context' => $context, 'orm' => $orm] = $providers;
+
+
+/*
+// #todo - Ownerships accounts
+    - collecteur virtuel : enlever le 4è digit pour les comptes ownerships, et fusionner les comptes avec code identique
+    - 410xxxxx -> co_owners_reserve_fund + co_owners_working_fund
+*/
+
 
 
 $result = [];

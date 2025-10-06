@@ -100,8 +100,16 @@ class AccountingEntry extends Model {
             'is_temp' => [
                 'type'              => 'boolean',
                 'description'       => 'The accounting entry is a temporary report and cannot be modified nor receive an entry number.',
+                'help'              => 'Temporary reports are made when a fiscal year is preclosed. While temporary report entries are present, a fiscal year cannot be closed.',
                 'default'           => false,
                 'dependents'        => ['name']
+            ],
+
+            'is_carry_forward' => [
+                'type'              => 'boolean',
+                'description'       => 'The accounting entry is a report and is handled depending on the status of its fiscal year.',
+                'help'              => 'Carry forward entries are balanced between a year and the one that follows (Y & Y+1).',
+                'default'           => false
             ],
 
             'entry_number' => [

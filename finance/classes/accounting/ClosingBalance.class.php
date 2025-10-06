@@ -93,7 +93,7 @@ class ClosingBalance extends Balance {
      * A closing balance is generated once and is directly set to 'closed'
      *
      */
-    public function doGenerateBalanceLines($self) {
+    protected static function doGenerateBalanceLines($self) {
         $self->read(['condo_id', 'status', 'fiscal_year_id', 'is_period_balance', 'fiscal_period_id', 'accounting_entry_id' => ['entry_lines_ids' => ['account_id', 'debit', 'credit']]]);
         foreach($self as $id => $balance) {
             // ignore non-draft
@@ -163,4 +163,13 @@ class ClosingBalance extends Balance {
         }
     }
 
+    protected static function candelete($self) {
+        $self->read(['fiscal_year_id' => ['status']]);
+        foreach($self as $id => $closingBalance) {
+            if($closingBalance['fiscal_year_id']['status'] == 'closed') {
+                return ['status' => ['non_removable' => 'Closing balance from a closed fiscal year cannot be deleted.']];
+            }
+        }
+        return [];
+    }
 }

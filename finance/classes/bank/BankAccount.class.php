@@ -82,6 +82,7 @@ class BankAccount extends Model {
                 'foreign_object'    => 'identity\Identity'
             ],
 
+            // #memo - unique key must be made on iban + suffix (to support composition identification)
             'bank_account_iban' => [
                 'type'              => 'string',
                 'usage'             => 'uri/urn.iban',

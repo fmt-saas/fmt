@@ -49,6 +49,14 @@ class Balance extends Model {
                 'default'           => false
             ],
 
+            'is_balanced' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => "Does the balance relate to a specific fiscal period.",
+                'function'          => 'calcIsBalanced',
+                'store'             => false
+            ],
+
             'fiscal_period_id' => [
                 'type'              => 'many2one',
                 'description'       => "The fiscal period the balance refers to.",
@@ -101,5 +109,20 @@ class Balance extends Model {
                 ]
             ]
         ];
+    }
+
+    protected static function calcIsBalanced($self) {
+        $result = [];
+        $self->read(['balance_lines_ids' => ['debit', 'credit']]);
+        foreach($self as $id => $balance) {
+            $total_debit = 0.0;
+            $total_credit = 0.0;
+            foreach($balance['balance_lines_ids'] as $balanceLine) {
+                $total_debit += $balanceLine['debit'];
+                $total_credit += $balanceLine['credit'];
+            }
+            $result[$id] = abs($total_debit - $total_credit) < 0.01;
+        }
+        return $result;
     }
 }
