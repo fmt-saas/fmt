@@ -63,7 +63,7 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
 
     public static function canupdate($self, $values) {
         $self->read(['accounting_entry_id' => ['status']]);
-        $allowed_fields = ['matching_id', 'matching_level', 'clearing_expense_statement_id', 'is_cleared'];
+        $allowed_fields = ['status', 'matching_id', 'matching_level', 'clearing_expense_statement_id', 'is_cleared'];
         $updated_fields = array_keys($values);
 
         if(count(array_diff($updated_fields, $allowed_fields)) > 0) {
