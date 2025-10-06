@@ -145,7 +145,7 @@ $domainEntries->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 $entries_ids = AccountingEntry::search($domainEntries->toArray())->ids();
 
 $entry_lines = AccountingEntryLine::search(['accounting_entry_id', 'in', $entries_ids])
-    ->read(['account_id', 'debit', 'debit'])
+    ->read(['account_id', 'debit', 'credit'])
     ->get();
 
 $map_accounts_ids = [];
