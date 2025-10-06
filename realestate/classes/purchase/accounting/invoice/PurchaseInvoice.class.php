@@ -492,7 +492,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
      */
     protected static function policyCanBeAllocated($self) {
         $result = [];
-        $self->read(['posting_date', 'has_date_range', 'date_from', 'date_to', 'condo_id']);
+        $self->read(['posting_date', 'has_date_range', 'date_from', 'date_to', 'condo_id', 'fiscal_period_id' => ['date_from', 'date_to']]);
         foreach($self as $id => $invoice) {
             $date_from = $date_to = $invoice['posting_date'];
 
