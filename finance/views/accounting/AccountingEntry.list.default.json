@@ -6,6 +6,21 @@
     "header": {
         "actions": {
             "ACTION.CREATE": false
+        },
+        "selection": {
+            "default" : false,
+            "actions" : [
+                {
+                    "id": "header.selection.actions.validate",
+                    "label": "Validate",
+                    "icon": "play_arrow",
+                    "controller": "core_model_transition",
+                    "params": {
+                        "entity": "finance\\accounting\\AccountingEntry",
+                        "transition": "validate"
+                    }
+                }
+            ]
         }
     },
     "layout": {
@@ -36,7 +51,8 @@
             {
                 "type": "field",
                 "value": "status",
-                "width": "20%"
+                "width": "20%",
+                "readonly": true
             },
             {
                 "type": "field",
