@@ -792,7 +792,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         // with immediate la valider directement pour que les écritures soient dans la compta
                         // sinon il n'y a rien qui demande au ownership le paiement
 
-                        $saleJournal = Journal::search([['condo_id', '=', $invoice['condo_id']], ['journal_type', '=', 'SALE']])->first();
+                        $saleJournal = Journal::search([
+                                ['condo_id', '=', $invoice['condo_id']],
+                                ['journal_type', '=', 'SALE']
+                            ])->first();
 
                         $miscOperation = MiscOperation::create([
                                 'condo_id'              => $invoice['condo_id'],

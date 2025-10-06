@@ -21,6 +21,12 @@
             },
             {
                 "type": "field",
+                "label": "Sequence",
+                "value": "statement_number",
+                "width": "15%"
+            },
+            {
+                "type": "field",
                 "value": "opening_balance",
                 "width": "10%"
             },

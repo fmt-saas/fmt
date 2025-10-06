@@ -289,7 +289,8 @@ class BankStatement extends Model {
 
             $previousBankStatement = BankStatement::search([
                     ['bank_account_id', '=', $bankStatement['bank_account_id']],
-                    ['id', '<>', $id]
+                    ['id', '<>', $id],
+                    ['closing_date', '<', $bankStatement['opening_date']]
                 ], ['sort' => ['date' => 'desc']])
                 ->read(['statement_number', 'opening_balance', 'closing_balance'])
                 ->first();
