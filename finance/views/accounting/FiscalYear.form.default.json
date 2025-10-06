@@ -30,7 +30,6 @@
             "icon": "edit_calendar",
             "description": "Check and create missing sequences for fiscal Year.",
             "controller": "core_model_do",
-            "visible": ["status", "=", "draft"],
             "params": {
                 "entity": "finance\\accounting\\FiscalYear",
                 "action": "generate_sequences",
