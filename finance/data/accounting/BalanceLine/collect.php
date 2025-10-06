@@ -6,6 +6,7 @@
 */
 
 use equal\orm\Domain;
+use equal\orm\DomainCondition;
 use finance\accounting\Account;
 use finance\accounting\AccountingEntry;
 use finance\accounting\AccountingEntryLine;
@@ -104,11 +105,10 @@ list($params, $providers) = eQual::announce([
 
 
 /*
-// #todo - Ownerships accounts
+// #todo - virtual Ownership collector account
     - collecteur virtuel : enlever le 4è digit pour les comptes ownerships, et fusionner les comptes avec code identique
     - 410xxxxx -> co_owners_reserve_fund + co_owners_working_fund
 */
-
 
 
 $result = [];
@@ -116,58 +116,76 @@ $result = [];
 // Add conditions to the domain to consider advanced parameters
 $domain = $params['domain'];
 
-// fiscal year is given : use BalanceLine
-if($params['has_fiscal_year']) {
-    if(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
-        $domain = Domain::conditionAdd($domain, ['fiscal_year_id', '=', $params['fiscal_year_id']]);
-        $params['domain'] = $domain;
-        $result = eQual::run('get', 'model_collect', $params, true);
-    }
+// #todo - on doit fonctionner de la même manière pour toutes les sutations pour ne pas gérze trop de cas
+
+
+if(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
+    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])->read(['date_from', 'date_to'])->first();
+    $date_from = $fiscalYear['date_from'];
+    $date_to = $fiscalYear['date_to'];
+
+    $domain = Domain::conditionAdd($domain, ['fiscal_year_id', '=', $params['fiscal_year_id']]);
+    $params['domain'] = $domain;
+    $result = eQual::run('get', 'model_collect', $params, true);
 }
-// arbitrary dates : compute result on the fly, based on accounting entries
+elseif(isset($params['date_from'], $params['date_to'])) {
+    $date_from = $params['date_from'];
+    $date_to = $params['date_to'];
+
+}
 else {
-    if(isset($params['date_from'], $params['date_to']) && $params['date_from'] > 0 && $params['date_to'] > 0) {
-        // #memo - condo_id is expected to be in the domain
-        $domain_entries = Domain::conditionAdd(Domain::conditionAdd($domain, ['entry_date', '>=', $params['date_from']]), ['entry_date', '<=', $params['date_to']]);
-        $entries_ids = AccountingEntry::search($domain_entries)->ids();
-
-        $entry_lines = AccountingEntryLine::search(['accounting_entry_id', 'in', $entries_ids])
-            ->read(['account_id', 'debit', 'debit'])
-            ->get();
-
-        $map_accounts_ids = [];
-        $totals = [];
-
-        foreach($entry_lines as $line) {
-            $account_id = $line['account_id'];
-            $map_accounts_ids[$account_id] = true;
-            $debit   = $line['debit'];
-            $credit  = $line['credit'];
-
-            $totals[$account_id]['debit']  = ($totals[$account_id]['debit'] ?? 0) + $debit;
-            $totals[$account_id]['credit'] = ($totals[$account_id]['credit'] ?? 0) + $credit;
-        }
-        // fetch all accounts at once
-        $accounts = Account::ids(array_keys($map_accounts_ids))->read(['id', 'name'])->get();
-
-        // generate virtual fields
-        $i = 1;
-        foreach($totals as $account_id => &$line) {
-            $line['id'] = $i++;
-            $line['fiscal_year_id'] = null;
-            $delta = $line['debit'] - $line['credit'];
-            $line['debit_balance']  = max($delta, 0.0);
-            $line['credit_balance'] = max(-$delta, 0.0);
-            $line['account_id'] = [
-                'id'    => $account_id,
-                'name'  => $accounts[$account_id]['name']
-            ];
-        }
-
-        $result = array_values($totals);
-    }
+    // missing mandatory param
+    throw new Exception('missing_fiscal_year_or_dates', EQ_ERROR_MISSING_PARAM);
 }
 
+if($params['date_from'] <= 0 || $params['date_to'] <= 0) {
+    // invalid param
+    throw new Exception('invalid_dates', EQ_ERROR_INVALID_PARAM);
+}
+
+// #memo - condo_id is expected to be in the domain
+$domainEntries = new Domain($domain);
+$domainEntries->addCondition(new DomainCondition('entry_date', '>=', $date_from));
+$domainEntries->addCondition(new DomainCondition('entry_date', '<=', $date_to));
+
+$entries_ids = AccountingEntry::search($domainEntries->toArray())->ids();
+
+$entry_lines = AccountingEntryLine::search(['accounting_entry_id', 'in', $entries_ids])
+    ->read(['account_id', 'debit', 'debit'])
+    ->get();
+
+$map_accounts_ids = [];
+$totals = [];
+
+foreach($entry_lines as $line) {
+    $account_id = $line['account_id'];
+
+    // retrouver un éventuel compte collecteur et l'utiliser à la place si l'option est cochée
+    $map_accounts_ids[$account_id] = true;
+    $debit   = $line['debit'];
+    $credit  = $line['credit'];
+
+    $totals[$account_id]['debit']  = ($totals[$account_id]['debit'] ?? 0) + $debit;
+    $totals[$account_id]['credit'] = ($totals[$account_id]['credit'] ?? 0) + $credit;
+}
+// fetch all accounts at once
+$accounts = Account::ids(array_keys($map_accounts_ids))->read(['id', 'name'])->get();
+
+// generate virtual fields
+$i = 1;
+foreach($totals as $account_id => &$line) {
+    $line['id'] = $i++;
+    $line['fiscal_year_id'] = null;
+    $delta = $line['debit'] - $line['credit'];
+    $line['debit_balance']  = max($delta, 0.0);
+    $line['credit_balance'] = max(-$delta, 0.0);
+    $line['account_id'] = [
+        'id'    => $account_id,
+        'name'  => $accounts[$account_id]['name']
+    ];
+}
+
+$result = array_values($totals);
 
 
 $context->httpResponse()

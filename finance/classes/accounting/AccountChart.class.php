@@ -195,15 +195,11 @@ class AccountChart extends Model {
     }
 
     protected static function onbeforeActivation($self) {
-        $self->read(['condo_id']);
+        $self->read(['condo_id', 'accounts_ids']);
         foreach($self as $id => $accountChart) {
-            $controlAccounts = Account::search([['account_chart_id', '=', $id], ['is_control_account', '=', true]])->read(['code']);
-            foreach($controlAccounts as $control_account_id => $controlAccount) {
-                Account::search([['account_chart_id', '=', $id], ['code', 'like', "{$controlAccount['code']}%"]])
-                    ->update(['parent_account_id' => $control_account_id]);
-            }
+            // force computation of parent_account_id fields
+            Account::ids($accountChart['accounts_ids'])->read(['parent_account_id']);
         }
-
     }
 
 }

@@ -62,8 +62,14 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Parent",
+                                                "value": "parent_account_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "description",
-                                                "width": "100%"
+                                                "width": "50%"
                                             }
                                         ]
                                     },

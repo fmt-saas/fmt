@@ -79,8 +79,6 @@ catch(Exception $e) {
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 
-
-
 $context->httpResponse()
         // ->header('Content-Disposition', 'attachment; filename="document.pdf"')
         ->header('Content-Disposition', 'inline; filename="document.pdf"')

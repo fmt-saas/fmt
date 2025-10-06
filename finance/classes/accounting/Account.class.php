@@ -137,10 +137,14 @@ class Account extends Model {
             ],
 
             'parent_account_id' => [
-                'type'              => 'many2one',
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
-                'description'       => "The parent account (line) the account is part of.",
-                'dependents'        => ['level']
+                'description'       => 'The parent control account the account is part of.',
+                'help'              => 'The first account that has a common prefix and marked as control control account.',
+                'function'          => 'calcParentAccountId',
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'children_accounts_ids' => [
@@ -326,12 +330,49 @@ class Account extends Model {
         return $result;
     }
 
+    protected static function calcParentAccountId($self) {
+        $result = [];
+        $self->read(['condo_id', 'code']);
+
+        foreach($self as $id => $account) {
+            $code = $account['code'];
+            $account_class = substr($account['code'], 0, 1);
+            $parent_id = null;
+
+            $map_accounts_codes = [];
+            $accounts = self::search([
+                    ['condo_id', '=', $account['condo_id']],
+                    ['is_control_account', '=', true],
+                    ['account_class', '=', intval($account_class)]
+                ])
+                ->read(['id', 'code']);
+
+            foreach($accounts as $control_account_id => $controlAccount) {
+                $map_accounts_codes[$controlAccount['code']] = $control_account_id;
+            }
+
+            while(strlen($code) > 1) {
+                $code = substr($code, 0, -1);
+                if(isset($map_accounts_codes[$code])) {
+                    $parent_id = $map_accounts_codes[$code];
+                    break;
+                }
+            }
+
+            if($parent_id) {
+                $result[$id] = $parent_id;
+            }
+
+        }
+
+        return $result;
+    }
 
     /**
      * Level is used in conjunction with code to display
      * #memo - level cannot be directly based parent-children links, because some levels might be missing.
      */
-    public static function calcLevel($self) {
+    protected static function calcLevel($self) {
         $result = [];
         $self->read(['code']);
         foreach($self as $id => $line) {
@@ -342,7 +383,7 @@ class Account extends Model {
         return $result;
     }
 
-    public static function calcName($self) {
+    protected static function calcName($self) {
         $result = [];
         $self->read(['code', 'description']);
         foreach($self as $id => $line) {
