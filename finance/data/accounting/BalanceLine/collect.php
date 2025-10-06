@@ -118,7 +118,6 @@ $domain = $params['domain'];
 
 // #todo - on doit fonctionner de la même manière pour toutes les sutations pour ne pas gérze trop de cas
 
-
 if(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
     $fiscalYear = FiscalYear::id($params['fiscal_year_id'])->read(['date_from', 'date_to'])->first();
     $date_from = $fiscalYear['date_from'];
