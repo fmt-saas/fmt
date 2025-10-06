@@ -384,7 +384,7 @@ class AccountingEntry extends Model {
                 throw new \Exception('missing_balance', EQ_ERROR_INVALID_PARAM);
             }
 
-            $accountingEntry['entry_lines_ids']->transition('validate');
+            $accountingEntry['entry_lines_ids']->update(['status' => 'validated']);
 
             // #memo - we cannot update the Balance directly to avoid concurrent changes: always use BalanceUpdateRequest
             /*

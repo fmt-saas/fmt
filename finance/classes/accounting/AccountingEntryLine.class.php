@@ -213,6 +213,7 @@ class AccountingEntryLine extends Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            // #memo - this field is only changed by parent Accounting Entry and should remain synced
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -222,22 +223,6 @@ class AccountingEntryLine extends Model {
                 'default'           => 'pending'
             ]
 
-        ];
-    }
-
-    public static function getWorkflow() {
-        return [
-            'pending' => [
-                'description' => 'Draft entry line, still waiting to be completed for validation.',
-                'help'        => 'Status depends on parent Accounting Entry.',
-                'icon'        => 'draw',
-                'transitions' => [
-                    'validate' => [
-                        'description' => 'Update the accounting entry status to `validated`.',
-                        'status'    => 'validated'
-                    ]
-                ]
-            ]
         ];
     }
 
