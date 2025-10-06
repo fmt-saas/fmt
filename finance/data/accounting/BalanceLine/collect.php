@@ -123,22 +123,17 @@ if(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
     $fiscalYear = FiscalYear::id($params['fiscal_year_id'])->read(['date_from', 'date_to'])->first();
     $date_from = $fiscalYear['date_from'];
     $date_to = $fiscalYear['date_to'];
-
-    $domain = Domain::conditionAdd($domain, ['fiscal_year_id', '=', $params['fiscal_year_id']]);
-    $params['domain'] = $domain;
-    $result = eQual::run('get', 'model_collect', $params, true);
 }
 elseif(isset($params['date_from'], $params['date_to'])) {
     $date_from = $params['date_from'];
     $date_to = $params['date_to'];
-
 }
 else {
     // missing mandatory param
     throw new Exception('missing_fiscal_year_or_dates', EQ_ERROR_MISSING_PARAM);
 }
 
-if($params['date_from'] <= 0 || $params['date_to'] <= 0) {
+if($date_from <= 0 || $date_to <= 0) {
     // invalid param
     throw new Exception('invalid_dates', EQ_ERROR_INVALID_PARAM);
 }
