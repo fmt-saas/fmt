@@ -25,6 +25,20 @@
             "confirm": true
         },
         {
+            "id": "action.generate_sequences",
+            "label": "Assert sequences",
+            "icon": "edit_calendar",
+            "description": "Check and create missing sequences for fiscal Year.",
+            "controller": "core_model_do",
+            "visible": ["status", "=", "draft"],
+            "params": {
+                "entity": "finance\\accounting\\FiscalYear",
+                "action": "generate_sequences",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
             "id": "action.preopen",
             "label": "Pre-open",
             "description": "Pre-open the fiscal year. This will initialize the fiscal year and its dependencies.",

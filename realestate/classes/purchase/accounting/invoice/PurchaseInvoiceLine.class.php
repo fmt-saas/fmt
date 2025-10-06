@@ -156,7 +156,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
 */
 
         // update price
-        if(array_key_exists('vat_rate', $event) && $values['total']) {
+        if(array_key_exists('vat_rate', $event) && isset($values['total'])) {
             $result['price'] = round($values['total'] * (1 + $event['vat_rate']), 2);
         }
         if(array_key_exists('total', $event)) {

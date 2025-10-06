@@ -8,6 +8,7 @@ namespace finance\bank;
 
 use finance\accounting\Account;
 use finance\accounting\CurrentBalanceLine;
+use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 use realestate\property\Condominium;
 use realestate\sale\pay\Funding;
@@ -182,7 +183,15 @@ class CondominiumBankAccount extends BankAccount {
 
     protected static function onafterValidate($self) {
         $self
+            ->read(['condo_id'])
             ->do('generate_accounts');
+
+        // update sequences for existing fiscal years
+        foreach($self as $id => $condominiumBankAccount) {
+            FiscalYear::search(['condo_id', '=', $condominiumBankAccount['condo_id']])
+                ->do('generate_sequences');
+        }
+
     }
 
     protected static function policyIsValid($self) {
