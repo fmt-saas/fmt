@@ -408,6 +408,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 throw new \Exception("missing_mandatory_journal", EQ_ERROR_INVALID_CONFIG);
             }
 
+            // #todo - allow customization of label
+            $description = 'Décompte de charge ' . $statement['fiscal_period_id']['name'];
+
             // create the accounting entry for the Expense Statement
             $accountingEntry = AccountingEntry::create([
                     'condo_id'              => $statement['condo_id'],
@@ -419,12 +422,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'origin_object_class'   => self::getType(),
                     'origin_object_id'      => $id,
                     'sale_invoice_id'       => $id,
-                    'expense_statement_id'  => $id
+                    'expense_statement_id'  => $id,
+                    'description'           => $description
                 ])
                 ->first();
 
-            // #todo - allow customization of label
-            $description = 'Décompte de charge ' . $statement['fiscal_period_id']['name'];
 
             // handle assigned delta (diff between paid to provider and reinvoiced to owners - rounding account), if any
             $assigned_delta = round($statement['assigned_delta'], 2);
@@ -439,7 +441,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 AccountingEntryLine::create([
                         'condo_id'              => $statement['condo_id'],
                         'accounting_entry_id'   => $accountingEntry['id'],
-                        'name'                  => $description,
+                        'description'           => $description,
                         'account_id'            => $roundingAccount['id'],
                         'debit'                 => ($assigned_delta > 0.0) ? abs($assigned_delta) : 0.0,
                         'credit'                => ($assigned_delta < 0.0) ? abs($assigned_delta) : 0.0
@@ -454,7 +456,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 AccountingEntryLine::create([
                         'condo_id'              => $statement['condo_id'],
                         'accounting_entry_id'   => $accountingEntry['id'],
-                        'name'                  => $description,
+                        'description'           => $description,
                         'account_id'            => $accountingEntryLine['account_id'],
                         'debit'                 => $accountingEntryLine['credit'],
                         'credit'                => $accountingEntryLine['debit']
@@ -491,7 +493,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 AccountingEntryLine::create([
                         'condo_id'              => $statement['condo_id'],
                         'accounting_entry_id'   => $accountingEntry['id'],
-                        'name'                  => $description,
+                        'description'           => $description,
                         'account_id'            => $ownershipAccount['id'],
                         'debit'                 => $total_ownership,
                         'credit'                => 0.0
@@ -531,6 +533,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ]);
 
         foreach($self as $id => $expenseStatement) {
+            // supprimer les funding déjà existant si'il y en a 
             foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
                 $ownership_id = $statementOwner['ownership_id']['id'];
 

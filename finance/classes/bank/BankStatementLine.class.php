@@ -1195,19 +1195,33 @@ class BankStatementLine extends Model {
                         ['operation_assignment', '=', 'co_owners_working_fund']
                     ])
                     ->first();
+
                 if($account) {
                     self::id($id)->update(['accounting_account_id' => $account['id']]);
                 }
 
                 continue;
             }
-            SuppliershipBankAccount::search([
+
+            $supplierBankAccount = SuppliershipBankAccount::search([
                     ['condo_id', '=', $bankStatementLine['condo_id']],
                     ['bank_account_iban', '=', $bankStatementLine['account_iban']]
                 ])
                 ->read(['suppliership_id'])
                 ->first();
-            // #todo
+
+            if($supplierBankAccount) {
+                $account = Account::search([
+                        ['suppliership_id', '=', $supplierBankAccount['suppliership_id']]
+                    ])
+                    ->first();
+
+                if($account) {
+                    self::id($id)->update(['accounting_account_id' => $account['id']]);
+                }
+
+                continue;
+            }
         }
     }
 }

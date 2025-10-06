@@ -28,10 +28,8 @@ class AccountingEntryLine extends Model {
             ],
 
             'name' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'description'       => 'Label for identifying the entry line.',
-                'function'          => 'calcName'
+                'type'              => 'alias',
+                'alias'             => 'id'
             ],
 
             'description' => [

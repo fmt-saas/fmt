@@ -3999,11 +3999,7 @@
             },
             {
                 "id": 89,
-                "description": "Arrondis débiteurs"
-            },
-            {
-                "id": 90,
-                "description": "Arrondis créditeurs"
+                "description": "Arrondis"
             },
             {
                 "id": 91,
