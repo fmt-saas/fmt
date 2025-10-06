@@ -556,7 +556,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 ['date_from', '<=', $date_from],
                 ['date_to', '>=', $date_from]
             ])
-            ->read(['date_from'])
+            ->read(['date_from', 'date_to'])
             ->first();
 
         if(!$fiscalPeriod) {
