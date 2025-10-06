@@ -50,6 +50,20 @@
                                         ]
                                     }
                                 ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "use_collectors",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     }

@@ -89,6 +89,13 @@ list($params, $providers) = eQual::announce([
             'description'       => 'Last date of the time range.'
         ],
 
+        'use_collectors' => [
+            'type'              => 'boolean',
+            'label'             => 'Collectors',
+            'description'       => "Toggle to group accounts into collectors.",
+            'default'           => true
+        ],
+
     ],
     'response'      => [
         'content-type'  => 'application/json',
@@ -113,10 +120,6 @@ list($params, $providers) = eQual::announce([
 
 $result = [];
 
-// Add conditions to the domain to consider advanced parameters
-$domain = $params['domain'];
-
-// #todo - on doit fonctionner de la même manière pour toutes les sutations pour ne pas gérze trop de cas
 
 if(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
     $fiscalYear = FiscalYear::id($params['fiscal_year_id'])->read(['date_from', 'date_to'])->first();
@@ -137,7 +140,11 @@ if($date_from <= 0 || $date_to <= 0) {
     throw new Exception('invalid_dates', EQ_ERROR_INVALID_PARAM);
 }
 
+// Add conditions to the domain to consider advanced parameters
+
 // #memo - condo_id is expected to be in the domain
+$domain = $params['domain'];
+
 $domainEntries = new Domain($domain);
 $domainEntries->addCondition(new DomainCondition('entry_date', '>=', $date_from));
 $domainEntries->addCondition(new DomainCondition('entry_date', '<=', $date_to));
@@ -151,18 +158,40 @@ $entry_lines = AccountingEntryLine::search(['accounting_entry_id', 'in', $entrie
 $map_accounts_ids = [];
 $totals = [];
 
+// pass-1 - identify all involved accounts
+foreach($entry_lines as $line) {
+    $map_accounts_ids[$line['account_id']] = true;
+}
+
+if($params['use_collectors']) {
+    // fetch all accounts at once
+    // #memo - parent_account_id targets the first collector (bottom-up) amongst the parents (based on account code hierarchy)
+    $accounts = Account::ids(array_keys($map_accounts_ids))->read(['parent_account_id'])->get();
+}
+
+// reset accounts map
+$map_accounts_ids = [];
+
+// pass-2 - compute totals
 foreach($entry_lines as $line) {
     $account_id = $line['account_id'];
 
-    // retrouver un éventuel compte collecteur et l'utiliser à la place si l'option est cochée
+    if($params['use_collectors']) {
+        if(isset($accounts[$account_id]) && isset($accounts[$account_id]['parent_account_id'])) {
+            $account_id = $accounts[$account_id]['parent_account_id'];
+        }
+    }
+
     $map_accounts_ids[$account_id] = true;
+
     $debit   = $line['debit'];
     $credit  = $line['credit'];
 
     $totals[$account_id]['debit']  = ($totals[$account_id]['debit'] ?? 0) + $debit;
     $totals[$account_id]['credit'] = ($totals[$account_id]['credit'] ?? 0) + $credit;
 }
-// fetch all accounts at once
+
+// fetch all (final) accounts at once
 $accounts = Account::ids(array_keys($map_accounts_ids))->read(['id', 'name'])->get();
 
 // generate virtual fields
@@ -180,7 +209,6 @@ foreach($totals as $account_id => &$line) {
 }
 
 $result = array_values($totals);
-
 
 $context->httpResponse()
         ->body($result)

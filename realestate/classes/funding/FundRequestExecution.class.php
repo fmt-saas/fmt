@@ -404,7 +404,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             AccountingEntryLine::create([
                     'condo_id'              => $requestExecution['condo_id'],
                     'accounting_entry_id'   => $accountingEntry['id'],
-                    'name'                  => $requestExecution['name'],
+                    'description'           => $requestExecution['name'],
                     'account_id'            => $requestExecution['fund_request_id']['request_account_id'],
                     'debit'                 => 0.0,
                     'credit'                => $requestExecution['called_amount']
@@ -435,7 +435,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 AccountingEntryLine::create([
                         'condo_id'              => $requestExecution['condo_id'],
                         'accounting_entry_id'   => $accountingEntry['id'],
-                        'name'                  => $requestExecution['name'],
+                        'description'           => $requestExecution['name'],
                         'account_id'            => $ownershipAccount['id'],
                         'debit'                 => $executionLine['called_amount'],
                         'credit'                => 0.0
