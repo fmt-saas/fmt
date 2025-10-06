@@ -31,6 +31,31 @@ list($params, $providers) = eQual::announce([
             'default'           => true
         ],
 
+        'condo_id' => [
+            'type'              => 'many2one',
+            'description'       => "The condominium the fiscal year refers to.",
+            'help'              => "When a fiscal year is not linked to a condominium, it relates to the organisation itself.",
+            'foreign_object'    => 'realestate\property\Condominium',
+            'default'           => function($domain=[]) {
+                // #memo - in some cases fiscal_year_id is provided in $domain and is not valid for Condominium schema
+                $condo_id = null;
+
+                // $user_id = $this->am->userId();
+                // Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id]);
+
+                $origDomain = new Domain($domain);
+                foreach($origDomain->getClauses() as $clause) {
+                    foreach($clause->getConditions() as $condition) {
+                        if($condition->getOperand() === 'condo_id') {
+                            $condo_id = $condition->getValue();
+                            break 2;
+                        }
+                    }
+                }
+                return $condo_id;
+            }
+        ],
+
         'fiscal_year_id' => [
             'type'              => 'many2one',
             'description'       => "The fiscal year the balance refers to.",
@@ -46,7 +71,7 @@ list($params, $providers) = eQual::announce([
                     $fiscal_year_ids = FiscalYear::search([
                             ['status', '=', 'preopen'],
                             ['condo_id', '=', $condo_id],
-                        ],  ['sort' => ['date_from' => 'desc']])
+                        ],  ['sort' => ['date_from' => 'asc']])
                         ->ids();
                 }
                 return count($fiscal_year_ids) ? current($fiscal_year_ids) : null;
@@ -61,24 +86,6 @@ list($params, $providers) = eQual::announce([
         'date_to' => [
             'type'              => 'date',
             'description'       => 'Last date of the time range.'
-        ],
-
-        'condo_id' => [
-            'type'              => 'many2one',
-            'description'       => "The condominium the fiscal year refers to.",
-            'help'              => "When a fiscal year is not linked to a condominium, it relates to the organisation itself.",
-            'foreign_object'    => 'realestate\property\Condominium',
-            'default'           => function($domain=[]) {
-/*
-                // #memo - in some cases fiscal_year_id is provided in $domain and is not valid for Condominium schema
-
-                // $user_id = $this->am->userId();
-                // Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id]);
-
-                $condos_ids = Condominium::search($domain)->ids();
-                return count($condos_ids) ? current($condos_ids) : null;
-*/
-            }
         ],
 
     ],
