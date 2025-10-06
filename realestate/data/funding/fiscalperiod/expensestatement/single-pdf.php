@@ -91,7 +91,7 @@ try {
     }
 
     $font = $dompdf->getFontMetrics()->getFont("helvetica", "regular");
-    $canvas->page_text(530, $canvas->get_height() - 35, "p. {PAGE_NUM} / {PAGE_COUNT}", $font, 9, array(0,0,0));
+    $canvas->page_text(530, $canvas->get_height() - 35, "p. {PAGE_NUM} / " . $page_count, $font, 9, array(0,0,0));
     // $canvas->page_text(40, $canvas->get_height() - 35, "Export", $font, 9, array(0,0,0));
 
     // get generated PDF raw binary
