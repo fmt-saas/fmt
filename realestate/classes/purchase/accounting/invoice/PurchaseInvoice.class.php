@@ -586,6 +586,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 $current_date = $nextPeriod['date_from'];
             }
         }
+        else {
+            $result[] = $fiscalPeriod['date_from'];
+        }
         return $result;
     }
 

@@ -251,46 +251,46 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     public static function policyHasMandatoryData($self): array {
         $result = [];
         $self->read(['condo_id', 'request_date', 'has_date_range', 'date_from', 'date_to', 'request_account_id', 'request_bank_account_id', 'payment_terms_id']);
-        foreach($self as $id => $fundRequest) {
-            if($fundRequest['has_date_range']) {
-                if(!$fundRequest['date_from']) {
+        foreach($self as $id => $expenseStatement) {
+            if($expenseStatement['has_date_range']) {
+                if(!$expenseStatement['date_from']) {
                     $result[$id] = [
                         'missing_date_from' => 'The start date of the time range is mandatory.'
                     ];
                 }
-                if(!$fundRequest['date_to']) {
+                if(!$expenseStatement['date_to']) {
                     $result[$id] = [
                         'missing_date_to' => 'The end date of the time range is mandatory.'
                     ];
                 }
-                if($fundRequest['date_from'] > $fundRequest['date_from']) {
+                if($expenseStatement['date_from'] > $expenseStatement['date_from']) {
                     $result[$id] = [
                         'invalid_date_interval' => 'The end date cannot be before start date.'
                     ];
                 }
             }
-            elseif(!$fundRequest['request_date']) {
+            elseif(!$expenseStatement['request_date']) {
                 $result[$id] = [
                     'missing_date' => 'The date of the request is mandatory.'
                 ];
             }
 
-            if(!$fundRequest['condo_id']) {
+            if(!$expenseStatement['condo_id']) {
                 $result[$id] = [
                     'missing_condominium' => 'The condominium is mandatory.'
                 ];
             }
-            if(!$fundRequest['request_account_id']) {
+            if(!$expenseStatement['request_account_id']) {
                 $result[$id] = [
                     'missing_accounting_account' => 'The accounting account is mandatory.'
                 ];
             }
-            if(!$fundRequest['request_bank_account_id']) {
+            if(!$expenseStatement['request_bank_account_id']) {
                 $result[$id] = [
                     'missing_bank_account' => 'The bank account is mandatory.'
                 ];
             }
-            if(!$fundRequest['payment_terms_id']) {
+            if(!$expenseStatement['payment_terms_id']) {
                 $result[$id] = [
                     'missing_payment_terms' => 'The payment terms are mandatory.'
                 ];
