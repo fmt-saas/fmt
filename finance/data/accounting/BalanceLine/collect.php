@@ -111,13 +111,6 @@ list($params, $providers) = eQual::announce([
 ['context' => $context, 'orm' => $orm] = $providers;
 
 
-/*
-// #todo - virtual Ownership collector account
-    - collecteur virtuel : enlever le 4è digit pour les comptes ownerships, et fusionner les comptes avec code identique
-    - 410xxxxx -> co_owners_reserve_fund + co_owners_working_fund
-*/
-
-
 $result = [];
 
 
@@ -192,19 +185,24 @@ foreach($entry_lines as $line) {
 }
 
 // fetch all (final) accounts at once
-$accounts = Account::ids(array_keys($map_accounts_ids))->read(['id', 'name'])->get();
+$accounts = Account::ids(array_keys($map_accounts_ids))->read(['id', 'name', 'code'])->get();
 
 // generate virtual fields
 $i = 1;
 foreach($totals as $account_id => &$line) {
+    $account_code = $accounts[$account_id]['code'];
+    $account_name = $accounts[$account_id]['name'];
+
     $line['id'] = $i++;
     $line['fiscal_year_id'] = null;
     $delta = $line['debit'] - $line['credit'];
     $line['debit_balance']  = max($delta, 0.0);
     $line['credit_balance'] = max(-$delta, 0.0);
+    $line['account_name'] = $account_name;
+    $line['account_code'] = $account_code;
     $line['account_id'] = [
         'id'    => $account_id,
-        'name'  => $accounts[$account_id]['name']
+        'name'  => $account_name
     ];
 }
 

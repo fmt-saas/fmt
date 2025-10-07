@@ -392,18 +392,50 @@ class Ownership extends \equal\orm\Model {
      * 4101 working funds
      *
      * Upon creation of an ownership, it is necessary to create accounts for:
+     * - 410xxxxx:         [Ownership collector] -> co_owners_reserve_fund + co_owners_working_fund
      * - 4100xxxxx:        co_owners_reserve_fund
      * - 4101xxxxx:        co_owners_working_fund
      *
-     * collecteur virtuel : enlever le 4è digit pour les comptes ownerships, et fusionner les comptes avec code identique
-     * 410xxxxx -> co_owners_reserve_fund + co_owners_working_fund
      */
     public static function doGenerateAccounts($self) {
         $self->read(['condo_id', 'name', 'code']);
+
         foreach($self as $id => $ownership) {
             if(!$ownership['condo_id']) {
                 continue;
             }
+
+            $assignmentAccount = Account::search([
+                    ['condo_id', '=', $ownership['condo_id']],
+                    ['operation_assignment', '=', 'co_owners'],
+                    ['ownership_id', '=', null]
+                ])
+                ->read(['code', 'account_chart_id', 'account_category'])
+                ->first();
+
+            if(!$assignmentAccount) {
+                trigger_error("APP::Could not find account candidate for condominium {$ownership['condo_id']} for operation assignment `co_owners`", EQ_REPORT_ERROR);
+                throw new \Exception("missing_mandatory_account", EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $parentAccount = Account::search([['condo_id', '=', $ownership['condo_id']], ['code', '=', $assignmentAccount['code'] . $ownership['code']]])
+                ->read(['id', 'code'])
+                ->first();
+
+            if(!$parentAccount) {
+                $parentAccount = Account::create([
+                        'code'                  => $assignmentAccount['code'] . $ownership['code'],
+                        'condo_id'              => $ownership['condo_id'],
+                        'account_chart_id'      => $assignmentAccount['account_chart_id'],
+                        'account_category'      => $assignmentAccount['account_category'],
+                        'description'           => $ownership['name'],
+                        'is_control_account'    => true,
+                        'ownership_id'          => $id
+                    ])
+                    ->read(['id', 'code'])
+                    ->first();
+            }
+
             $operation_assignments = [
                     'co_owners_reserve_fund',
                     'co_owners_working_fund'
@@ -435,7 +467,8 @@ class Ownership extends \equal\orm\Model {
                             'account_category'      => $assignmentAccount['account_category'],
                             'description'           => $ownership['name'],
                             'operation_assignment'  => $operation_assignment,
-                            'ownership_id'          => $id
+                            'ownership_id'          => $id,
+                            'parent_account_id'     => $parentAccount['id']
                         ])
                         ->read(['name']);
                 }
