@@ -26,7 +26,7 @@ class ConsumptionMeter extends \equal\orm\Model {
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'description'       => 'The name is composed of the center name and description.',
+                'description'       => 'The name is composed of the meter type and description.',
                 'function'          => 'calcName',
                 'store'             => true,
                 'readonly'          => true
