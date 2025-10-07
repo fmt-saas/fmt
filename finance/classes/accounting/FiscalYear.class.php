@@ -6,7 +6,6 @@
 */
 namespace finance\accounting;
 use equal\orm\Model;
-use Exception;
 use fmt\setting\Setting;
 use realestate\property\Condominium;
 
@@ -165,7 +164,7 @@ class FiscalYear extends Model {
     /**
      * This method is just for display and can be adapted if necessary
      */
-    public static function calcName($self) {
+    protected static function calcName($self) {
         $result = [];
         $self->read(['condo_id' => ['name'], 'status', 'date_from', 'date_to']);
         foreach($self as $id => $year) {
@@ -267,8 +266,8 @@ class FiscalYear extends Model {
                 'icon' => 'drive_file_rename_outline',
                 'transitions' => [
                     'open' => [
-                        'description' => 'Delete the proforma and set receivables statuses back to pending.',
-                        'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'description' => 'Mark a fiscal year as open and maintain consistency with previous and next years.',
+                        'help' => 'A fiscal year can be opened before the previous one is definitely closed (previous has to be preclosed).',
                         'onafter' => 'onafterOpen',
                         'policies' => [
                             'can_be_opened',
@@ -593,7 +592,7 @@ class FiscalYear extends Model {
             // #memo - moved to preopen
 
             // 4 - create temporary carry-forward / opening-balance accounting entries in next fiscal year OPB journal
-            // #memo - this is done exclusively in FiscalYear closing
+            // #memo - this is done exclusively in FiscalYear (pre)closing
 
             /*
             $carryForwardJournal = Journal::search([['condo_id', '=', $fiscalYear['condo_id']], ['journal_type', '=', 'OPEN']])->first();
@@ -700,7 +699,7 @@ class FiscalYear extends Model {
             // remove any previously created closing balance
             ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
 
-            // génerer une closing balance: clone de la current balance
+            // generate a closing balance
             ClosingBalance::create([
                     'fiscal_year_id' => $id
                 ])
@@ -778,7 +777,7 @@ class FiscalYear extends Model {
      * Create temporary carry-forward / opening-balance accounting entries in next fiscal year OPB journal.
      *
      */
-    public static function onafterPreclose($self) {
+    protected static function onafterPreclose($self) {
         $self->read(['condo_id', 'date_from', 'date_to']);
 
         foreach($self as $id => $fiscalYear) {
@@ -786,7 +785,7 @@ class FiscalYear extends Model {
             // remove any previously created closing balance
             ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
 
-            // génerer une closing balance: clone de la current balance
+            // generate a closing balance
             ClosingBalance::create([
                     'fiscal_year_id' => $id
                 ])
@@ -859,7 +858,7 @@ class FiscalYear extends Model {
         }
     }
 
-    public static function doGeneratePeriods($self) {
+    protected static function doGeneratePeriods($self) {
         $self->read(['date_from', 'date_to', 'previous_fiscal_year_id', 'fiscal_period_frequency', 'condo_id' => ['id', 'fiscal_year_start', 'fiscal_year_end']]);
         foreach($self as $id => $fiscalYear) {
             if(!$fiscalYear['date_from']) {

@@ -8,6 +8,7 @@ namespace realestate\ownership;
 
 use finance\accounting\Account;
 use fmt\setting\Setting;
+use realestate\property\PropertyLotOwnership;
 
 class Ownership extends \equal\orm\Model {
 
@@ -55,6 +56,7 @@ class Ownership extends \equal\orm\Model {
             ],
 
             // #memo - this does not consider the date_from and date_to stored in propertyLotOwnership
+            /*
             'property_lots_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\property\PropertyLot',
@@ -63,6 +65,15 @@ class Ownership extends \equal\orm\Model {
                 'rel_foreign_key'   => 'property_lot_id',
                 'rel_local_key'     => 'ownership_id',
                 'description'       => 'Property lots that are assigned to this ownership.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+            */
+
+            'property_lots_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\PropertyLot',
+                'foreign_field'     => 'active_ownership_id',
+                'description'       => 'Property lots that are currently assigned to this ownership.',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
@@ -104,8 +115,8 @@ class Ownership extends \equal\orm\Model {
             ],
 
             // #memo - an Ownership might be linked to several Accounts of the Accounting Chart
-            // 'accounting_account_id' => [
-            // 'accounting_accounts_ids' => [
+            // 'accounting_account_id'
+            // 'accounting_accounts_ids'
 
             'date_from' => [
                 'type'              => 'date',
@@ -271,6 +282,11 @@ class Ownership extends \equal\orm\Model {
                 'description'   => 'Generate Communication Preferences for Ownership.',
                 'policies'      => [],
                 'function'      => 'doGenerateCommunicationPrefs'
+            ],
+            'generate_history' => [
+                'description'   => 'Used at validation to ensure a PropertyLotOwnership exists.',
+                'policies'      => [],
+                'function'      => 'doGenerateHistory'
             ]
         ];
     }
@@ -478,6 +494,32 @@ class Ownership extends \equal\orm\Model {
     }
 
     /**
+     * Create relational objects `PropertyLotOwnership` for all currently assigned Property Lots.
+     *
+     */
+    protected static function doGenerateHistory($self) {
+        $self->read(['condo_id', 'date_from', 'date_to', 'property_lots_ids']);
+
+        foreach($self as $id => $ownership) {
+            foreach($ownership['property_lots_ids'] as $property_lot_id) {
+                if(PropertyLotOwnership::search([
+                        ['ownership_id', '=', $id],
+                        ['property_lot_id', '=', $property_lot_id]
+                    ])->count() <= 0
+                ) {
+                    PropertyLotOwnership::create([
+                            'condo_id'          => $ownership['condo_id'],
+                            'property_lot_id'   => $property_lot_id,
+                            'ownership_id'      => $id,
+                            'date_from'         => $ownership['date_from'],
+                            'date_to'           => $ownership['date_to']
+                        ]);
+                }
+            }
+        }
+    }
+
+    /**
      * #memo - the communication preferences apply on the entire Ownership
      * and are used for communications with representative Owner
      *  - no preferences can be applied directly on Owner
@@ -599,7 +641,8 @@ class Ownership extends \equal\orm\Model {
             ->do('normalize_representative_owner')
             ->do('generate_accounts')
             ->do('generate_folders')
-            ->do('generate_communication_prefs');
+            ->do('generate_communication_prefs')
+            ->do('generate_history');
     }
 
 }

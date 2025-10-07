@@ -10,6 +10,7 @@ use documents\Document;
 use documents\DocumentType;
 use documents\recording\RecordingRule;
 use documents\recording\RecordingRuleLine;
+use equal\text\TextTransformer;
 use finance\bank\Bank;
 use finance\bank\BankAccount;
 use finance\bank\BankStatement;
@@ -1375,6 +1376,25 @@ class DocumentProcess extends Model {
                             $communication = $txn['unstructured_reference'];
                         }
 
+                        $counterpart_iban = $txn['counterparty_iban'];
+
+                        if(!$counterpart_iban && $data['bank_bic']) {
+                            $clue = strtolower(TextTransformer::toAscii($communication));
+                            if(in_array($clue, ['frais', 'commission', 'interet', 'agios', 'cotisation', 'retenue'])
+                                || in_array($clue, ['kost', 'rente', 'intrest', 'commissie', 'inhouding'])
+                                || in_array($clue, ['fee', 'interest', 'overdraft', 'commission'])
+                            ) {
+                                // attempt to assign Bank IBAN (as supplier)
+                                $bank = Bank::search(['bic', '=', $data['bank_bic']])->first();
+
+                                $suppliership = Suppliership::search([['condo_id', '=', $documentProcess['condo_id']], ['supplier_id', '=', $bank['id']]])->first();
+                                if($suppliership) {
+                                    $bankAccount = SuppliershipBankAccount::search([['suppliership_id', '=', $suppliership['id']], ['is_primary', '=', true]])->read(['bank_account_iban'])->first();
+                                    $counterpart_iban = $bankAccount['bank_account_iban'] ?? null;
+                                }
+                            }
+                        }
+
                         BankStatementLine::create([
                                 'condo_id'                => $documentProcess['condo_id'],
                                 'bank_statement_id'       => $bankStatement['id'],
@@ -1387,7 +1407,7 @@ class DocumentProcess extends Model {
                                 'status'                  => 'pending'
                             ])
                             ->update([
-                                'account_iban'            => $txn['counterparty_iban'] ?? $data['account_iban']
+                                'account_iban'            => $counterpart_iban
                             ]);
                     }
 

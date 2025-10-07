@@ -1172,12 +1172,12 @@ class BankStatementLine extends Model {
     }
 
     /**
-     * retrieve accounting_account_id based on account_iban
+     * Attempt to retrieve accounting_account_id based on account_iban.
      */
     protected static function onupdateAccountIban($self) {
         $self->read(['condo_id', 'account_iban']);
         foreach($self as $id => $bankStatementLine) {
-            if(!$bankStatementLine['condo_id']) {
+            if(!isset($bankStatementLine['condo_id'], $bankStatementLine['account_iban'])) {
                 continue;
             }
             // attempt to retrieve a ownership or suppliership for Condo with IBAN
