@@ -13,7 +13,7 @@ use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
 use realestate\property\Condominium;
 
-list($params, $providers) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description'   => 'Advanced search for Balance Lines: returns a collection of Reports according to extra parameters.',
     'extends'       => 'core_model_collect',
     'params'        => [
@@ -23,6 +23,13 @@ list($params, $providers) = eQual::announce([
             'type'              => 'string',
             'default'           => 'finance\accounting\BalanceLine',
             'help'              => 'This value should be relayed from view and be either CurrentBalanceLine or ClosingBalanceLine.'
+        ],
+
+        'nolimit' => [
+            'description'   => 'Explicit request for ignoring limit and return all matching objects.',
+            'help'          => 'When activated start and limit parameters are ignored.',
+            'type'          => 'boolean',
+            'default'       => true
         ],
 
         'has_fiscal_year' => [
@@ -151,7 +158,7 @@ $entry_lines = AccountingEntryLine::search(['accounting_entry_id', 'in', $entrie
 $map_accounts_ids = [];
 $totals = [];
 
-// pass-1 - identify all involved accounts
+// pass-1 - identify involved accounts
 foreach($entry_lines as $line) {
     $map_accounts_ids[$line['account_id']] = true;
 }
@@ -179,9 +186,13 @@ foreach($entry_lines as $line) {
 
     $debit   = $line['debit'];
     $credit  = $line['credit'];
+    $delta = $debit - $credit;
 
     $totals[$account_id]['debit']  = ($totals[$account_id]['debit'] ?? 0) + $debit;
     $totals[$account_id]['credit'] = ($totals[$account_id]['credit'] ?? 0) + $credit;
+
+    $totals[$account_id]['debit_balance']  = ($totals[$account_id]['debit_balance'] ?? 0) + max($delta, 0.0);
+    $totals[$account_id]['credit_balance'] = ($totals[$account_id]['credit_balance'] ?? 0) + max(-$delta, 0.0);
 }
 
 // fetch all (final) accounts at once
@@ -195,9 +206,6 @@ foreach($totals as $account_id => &$line) {
 
     $line['id'] = $i++;
     $line['fiscal_year_id'] = null;
-    $delta = $line['debit'] - $line['credit'];
-    $line['debit_balance']  = max($delta, 0.0);
-    $line['credit_balance'] = max(-$delta, 0.0);
     $line['account_name'] = $account_name;
     $line['account_code'] = $account_code;
     $line['account_id'] = [
