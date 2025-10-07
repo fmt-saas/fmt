@@ -1,0 +1,38 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "consumption_meter_id",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "date_reading",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "index_value",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "display_value",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "16%"
+            }
+        ]
+    }
+}

@@ -1,0 +1,88 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "meter_description",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "parent_meter_id",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "date_opening",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "is_active",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "index_value",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "coefficient",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "meter_type",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "meter_scope",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "metering_mode",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "has_ean",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "meter_number",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "meter_ean",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "meter_unit",
+                "width": "6%"
+            },
+            {
+                "type": "field",
+                "value": "property_lot_id",
+                "width": "6%"
+            }
+        ]
+    }
+}

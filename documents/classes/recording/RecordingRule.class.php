@@ -74,6 +74,16 @@ class RecordingRule extends Model {
                 'description'       => "Code of the supplier type assigned to the rule."
             ],
 
+            'suppliers_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'purchase\supplier\Supplier',
+                'foreign_field'     => 'supplier_recording_rules_ids',
+                'description'       => "Suppliers assigned to the Recording Rule.",
+                'rel_table'         => 'purchase_supplier_rel_recordingrule',
+                'rel_foreign_key'   => 'supplier_id',
+                'rel_local_key'     => 'recording_rule_id'
+            ],
+
             'recording_rule_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\recording\RecordingRuleLine',

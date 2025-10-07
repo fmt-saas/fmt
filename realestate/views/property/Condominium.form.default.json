@@ -48,6 +48,18 @@
             }
         },
         {
+            "id": "consumption_meters",
+            "type": "entry",
+            "label": "Consumption Meters",
+            "icon": "gas_meter",
+            "description": "",
+            "context": {
+                "entity": "realestate\\utility\\energy\\ConsumptionMeter",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
             "id": "suppliers",
             "type": "entry",
             "label": "Suppliers",

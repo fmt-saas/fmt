@@ -89,6 +89,16 @@ class Supplier extends Identity {
 
             ],
 
+            'recording_rules_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'documents\recording\RecordingRule',
+                'foreign_field'     => 'suppliers_ids',
+                'description'       => "Recording Rule assigned to the Supplier.",
+                'rel_table'         => 'purchase_supplier_rel_recordingrule',
+                'rel_foreign_key'   => 'recording_rule_id',
+                'rel_local_key'     => 'supplier_id'
+            ],
+
             // #memo - foreign_field cannot be used here, since it should be identity_id, which points back to current object's `id` instead of `identity_id`
             'bank_accounts_ids' => [
                 'type'              => 'one2many',
