@@ -201,20 +201,20 @@ $accounts = Account::ids(array_keys($map_accounts_ids))->read(['id', 'name', 'co
 // generate virtual fields
 $i = 1;
 foreach($totals as $account_id => &$line) {
-    $account_code = $accounts[$account_id]['code'];
-    $account_name = $accounts[$account_id]['name'];
-
     $line['id'] = $i++;
     $line['fiscal_year_id'] = null;
-    $line['account_name'] = $account_name;
-    $line['account_code'] = $account_code;
+    $line['account_code'] = $accounts[$account_id]['code'];
     $line['account_id'] = [
         'id'    => $account_id,
-        'name'  => $account_name
+        'name'  => $accounts[$account_id]['name']
     ];
 }
 
 $result = array_values($totals);
+
+usort($result, function($a, $b) {
+    return strcmp($a['account_code'], $b['account_code']);
+});
 
 $context->httpResponse()
         ->body($result)
