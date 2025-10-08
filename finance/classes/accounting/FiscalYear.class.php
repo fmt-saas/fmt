@@ -994,7 +994,10 @@ class FiscalYear extends Model {
             return [];
         }
 
-        $accounts_ids = array_map( fn($a) => $a['account_id'], $closingBalance['balance_lines_ids']->get(true) );
+        $accounts_ids = [];
+        foreach($closingBalance['balance_lines_ids'] as $balance_line_id => $balanceLine) {
+            $accounts_ids[] = $balanceLine['account_id'];
+        }
 
         $map_accounts = [];
         $accounts = Account::ids($accounts_ids)->read(['account_type']);
