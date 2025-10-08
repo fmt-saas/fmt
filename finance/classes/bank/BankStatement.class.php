@@ -294,6 +294,7 @@ class BankStatement extends Model {
                     ['id', '<>', $id],
                     ['closing_date', '<', $bankStatement['opening_date']],
                     ['closing_date', '>=', $year_start],
+                    ['statement_number', '=', sprintf("%03d", intval($bankStatement['statement_number']) - 1)]
                 ], ['sort' => ['date' => 'desc']])
                 ->read(['statement_number', 'opening_balance', 'closing_balance'])
                 ->first();
