@@ -46,6 +46,20 @@ class ConsumptionMeterReading extends \equal\orm\Model {
                 'store'             => true
             ],
 
+            'status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'pending',
+                    'ready',
+                    'posted',
+                ],
+                'description'       => 'Status of the reading.',
+                'default'           => 'pending',
+                // cannot be set manually
+                'readonly'          => true
+            ],
+
+
         ];
     }
 

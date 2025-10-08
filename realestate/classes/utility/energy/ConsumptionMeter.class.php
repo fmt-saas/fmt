@@ -66,6 +66,7 @@ class ConsumptionMeter extends \equal\orm\Model {
                 'type'              => 'string',
                 'selection'         => [
                     'water',
+                    'hot_water',
                     'gas',
                     'electricity',
                     'gas_tank',

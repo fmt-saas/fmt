@@ -300,6 +300,7 @@ class FiscalYear extends Model {
                         'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
                         'onbefore' => 'onbeforeClose',
                         // 'onafter' => 'onafterClose',
+                        // #todo - on after close : idem onafterPreclose : exercice suivant et post suivant
                         'policies' => [
                             'can_be_closed',
                         ],
@@ -371,7 +372,7 @@ class FiscalYear extends Model {
         $result = [];
         $self->read(['status', 'condo_id', 'date_to']);
         foreach($self as $id => $fiscalYear) {
-            $balance = CurrentBalance::search(['fiscal_year_id', '=', $id])->read(['is_balanced']);
+            $balance = CurrentBalance::search(['fiscal_year_id', '=', $id])->read(['is_balanced'])->first();
             if(!$balance) {
                 $result[$id] = [
                     'missing_current_balance' => 'Missing mandatory current balance.'
@@ -586,7 +587,11 @@ class FiscalYear extends Model {
 
             // 2 - transition next fiscal year to 'preopen' (existence and transition have been checked in `policyCanBeOpened()`)
 
+            // #todo - le suivant en preopen
             $nextFiscalYear = self::search([['status', '=', 'draft'], ['condo_id', '=', $fiscalYear['condo_id']]])->transition('preopen')->first();
+
+            // #todo - le précédent en preclosed
+
 
             // 3 - finalize periods order
             // #memo - moved to preopen
@@ -781,6 +786,9 @@ class FiscalYear extends Model {
         $self->read(['condo_id', 'date_from', 'date_to']);
 
         foreach($self as $id => $fiscalYear) {
+
+            // #todo - suivant en 'open' et postsuivant en 'preopen'
+
 
             // remove any previously created closing balance
             ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
