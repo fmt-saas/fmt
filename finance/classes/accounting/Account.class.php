@@ -52,6 +52,7 @@ class Account extends Model {
             'description' => [
                 'type'              => 'string',
                 'description'       => "Short description of the account.",
+                'dependents'        => ['name'],
                 'multilang'         => true
             ],
 
