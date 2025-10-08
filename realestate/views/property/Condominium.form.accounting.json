@@ -103,7 +103,19 @@
                 "domain": [["condo_id", "=", "object.id"]]
             }
         },
-    {
+        {
+            "id": "bank_statements",
+            "type": "entry",
+            "label": "Bank Statements",
+            "icon": "receipt",
+            "description": "",
+            "context": {
+                "entity": "finance\\bank\\BankStatement",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
             "id": "item.transfers",
             "label": "Money Transfers",
             "description": "",
