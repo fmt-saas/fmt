@@ -402,11 +402,11 @@ class MiscOperation extends Model {
             $debit = 0.0;
             foreach($miscOperation['misc_operation_lines_ids'] as $operation_line_id => $operationLine) {
                 $credit += $operationLine['credit'];
-                $debit += $operationLine['debit'];
+                $debit  += $operationLine['debit'];
             }
-            if($debit !== $credit) {
+            if(abs($debit - $credit) >= 0.01) {
                 $result[$id] = [
-                    'non_balances' => 'The lines of the operation are not balanced.'
+                    'non_balanced' => 'The lines of the operation are not balanced.'
                 ];
             }
         }

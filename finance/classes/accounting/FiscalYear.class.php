@@ -178,9 +178,9 @@ class FiscalYear extends Model {
             $name = $year_from;
 
             if(strcmp($year_from, $year_to) !== 0) {
-                $name .= '-'.$year_to;
+                $name .= '-' . $year_to;
             }
-            $result[$id] = $name . '(' . $year['status'] . ')';
+            $result[$id] = $name . ' (' . $year['status'] . ')';
         }
         return $result;
     }
