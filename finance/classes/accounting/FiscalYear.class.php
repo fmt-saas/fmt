@@ -724,7 +724,7 @@ class FiscalYear extends Model {
                     ['condo_id', '=', $fiscalYear['condo_id']],
                     ['date_from', '>', $fiscalYear['date_to']]
                 ],
-                ['sort' => ['date_from' => 'desc']])
+                ['sort' => ['date_from' => 'asc']])
                 ->first();
 
             if(!$nextFiscalYear) {
@@ -747,36 +747,38 @@ class FiscalYear extends Model {
             // generate carry-forward entries (y+1) and match them with reversal entries (y)
             $entry_lines = self::computeCarryForwardEntryLines($id);
 
-            $accountingEntry = AccountingEntry::create([
-                    'condo_id'          => $fiscalYear['condo_id'],
-                    'journal_id'        => $carryForwardJournal['id'],
-                    'is_temp'           => false,
-                    'is_carry_forward'  => true,
-                    'fiscal_year_id'    => $nextFiscalYear['id'],
-                    'entry_date'        => time()
-                ])
-                ->first();
-
-            foreach($entry_lines as $line) {
-                $matching = Matching::create([
-                        'condo_id'              => $fiscalYear['condo_id'],
-                        'accounting_account_id' => $line['account_id']
+            if(count($entry_lines) > 0) {
+                $accountingEntry = AccountingEntry::create([
+                        'condo_id'          => $fiscalYear['condo_id'],
+                        'journal_id'        => $carryForwardJournal['id'],
+                        'is_temp'           => false,
+                        'is_carry_forward'  => true,
+                        'fiscal_year_id'    => $nextFiscalYear['id'],
+                        'entry_date'        => time()
                     ])
                     ->first();
 
-                AccountingEntryLine::create([
-                        'condo_id'              => $fiscalYear['condo_id'],
-                        'accounting_entry_id'   => $accountingEntry['id'],
-                        'account_id'            => $line['account_id'],
-                        'debit'                 => $line['debit'],
-                        'credit'                => $line['credit'],
-                        'matching_id'           => $matching['id']
-                    ]);
+                foreach($entry_lines as $line) {
+                    $matching = Matching::create([
+                            'condo_id'              => $fiscalYear['condo_id'],
+                            'accounting_account_id' => $line['account_id']
+                        ])
+                        ->first();
 
-                AccountingEntryLine::id($line['id'])->update(['matching_id' => $matching['id']]);
+                    AccountingEntryLine::create([
+                            'condo_id'              => $fiscalYear['condo_id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
+                            'account_id'            => $line['account_id'],
+                            'debit'                 => $line['debit'],
+                            'credit'                => $line['credit'],
+                            'matching_id'           => $matching['id']
+                        ]);
+
+                    AccountingEntryLine::id($line['id'])->update(['matching_id' => $matching['id']]);
+                }
+
+                AccountingEntry::id($accountingEntry['id'])->transition('validate');
             }
-
-            AccountingEntry::id($accountingEntry['id'])->transition('validate');
         }
 
     }
