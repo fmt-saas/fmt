@@ -30,10 +30,20 @@ class ConsumptionMeterReading extends \equal\orm\Model {
                 'default'           => time()
             ],
 
+            'previous_index_value' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => 'The index value of the consumption meter reading.',
+                'help'              => 'To prevent rounding issued, indexes are stored as integer: the last 3 digits being the decimal part. Index values must therefore be divided by 1000 for further computations.',
+                'function'          => 'calcPreviousIndexValue',
+                'store'             => true
+            ],
+
             'index_value' => [
                 'type'              => 'integer',
                 'description'       => 'The index value of the consumption meter reading.',
-                'help'              => 'To prevent rounding issued, indexes are stored as integer: the last 3 digits being the decimal part. Index values must therefore be divided by 1000 for further computations.',
+                'help'              => 'Indexes are stored as integer: the last 3 digits being the decimal part.
+                    Index values must be divided by 1000 for further computations.',
                 'required'          => true
             ],
 
@@ -59,11 +69,29 @@ class ConsumptionMeterReading extends \equal\orm\Model {
                 'readonly'          => true
             ],
 
-
         ];
     }
 
-    public static function calcDisplayValue($self) {
+    protected static function calcPreviousIndexValue($self) {
+        $result = [];
+        $self->read(['consumption_meter_id', 'date_reading']);
+        foreach($self as $id => $consumptionMeter) {
+            $previousMeter = self::search([
+                        ['consumption_meter_id', '=', $consumptionMeter['consumption_meter_id']],
+                        ['date_reading', '<', $consumptionMeter['date_reading']]
+                    ],
+                    ['sort' => ['date_reading' => 'desc'], 'limit' => 1]
+                )
+                ->read(['index_value'])
+                ->first();
+            if($previousMeter) {
+                $result[$id] = $previousMeter['index_value'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcDisplayValue($self) {
         $result = [];
         $self->read(['index_value']);
         foreach($self as $id => $meter) {

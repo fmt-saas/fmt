@@ -191,14 +191,14 @@ class Receivable extends Model {
 
             'invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'sale\accounting\invoice\Invoice',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoice',
                 'description'       => 'Invoice the receivable is related to.',
                 'ondelete'          => 'null'
             ],
 
             'invoice_line_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\invoice\InvoiceLine',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoiceLine',
                 'description'       => 'The invoice line that has been generated based on the item.',
                 'ondelete'          => 'null'
             ]

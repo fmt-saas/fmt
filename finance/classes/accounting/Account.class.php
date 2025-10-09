@@ -355,8 +355,10 @@ class Account extends Model {
             while(strlen($code) > 1) {
                 $code = substr($code, 0, -1);
                 if(isset($map_accounts_codes[$code])) {
-                    $parent_id = $map_accounts_codes[$code];
-                    break;
+                    if($id != $map_accounts_codes[$code]) {
+                        $parent_id = $map_accounts_codes[$code];
+                        break;
+                    }
                 }
             }
 

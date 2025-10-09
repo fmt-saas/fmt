@@ -149,17 +149,32 @@ class MiscOperationLine extends Model {
                 ]
             ],
 
+            'is_private_expense' => [
+                'type'              => 'boolean',
+                'description'       => 'Enable to apply charge to a single owner.',
+                'default'           => false,
+                'onupdate'          => 'onupdateIsPrivateExpense'
+            ],
+
             'ownership_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
                 'function'          => 'calcOwnershipId',
                 'store'             => true,
                 'instant'           => true,
-                'description'       => "The ownership that the funding refers to.",
+                'description'       => "The ownership that the line refers to (based on accounting account).",
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'ondelete'          => 'cascade',
                 'domain'            => [['condo_id', '=', 'object.condo_id']],
                 'visible'           => [['is_owner', '=', true]]
+            ],
+
+            'property_lot_id' => [
+                'type'              => 'many2one',
+                'description'       => "Property Lot to apply the charge to.",
+                'foreign_object'    => 'realestate\property\PropertyLot',
+                'visible'           => ['is_private_expense', '=', true],
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'debit' => [
@@ -262,6 +277,24 @@ class MiscOperationLine extends Model {
             }
         }
         return $result;
+    }
+
+    protected static function onupdateIsPrivateExpense($self) {
+        $self->read(['is_private_expense', 'condo_id']);
+        foreach($self as $id => $miscOperationLine) {
+            if(!$miscOperationLine['is_private_expense']) {
+                continue;
+            }
+            // set expense_account_id to 643xxx
+            $account = Account::search([
+                    ['condo_id', '=', $miscOperationLine['condo_id']],
+                    ['operation_assignment', '=', 'private_expenses']
+                ])
+                ->first();
+            if($account) {
+                self::id($id)->update(['account_id' => $account['id']]);
+            }
+        }
     }
 
 }

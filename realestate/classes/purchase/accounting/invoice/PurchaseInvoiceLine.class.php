@@ -110,7 +110,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
         return $result;
     }
 
-    public static function onupdateIsPrivateExpense($self) {
+    protected static function onupdateIsPrivateExpense($self) {
         $self->read(['is_private_expense', 'condo_id']);
         foreach($self as $id => $invoiceLine) {
             if(!$invoiceLine['is_private_expense']) {
@@ -118,7 +118,6 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             }
             // set expense_account_id to 643xxx
             $account = Account::search([['condo_id', '=', $invoiceLine['condo_id']], ['operation_assignment', '=', 'private_expenses']])
-                ->read(['id', 'name'])
                 ->first();
             if($account) {
                 self::id($id)->update(['expense_account_id' => $account['id']]);

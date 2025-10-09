@@ -181,7 +181,7 @@ class Funding extends \equal\orm\Model {
 
             'sale_invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'sale\accounting\invoice\Invoice',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoice',
                 'description'       => 'The invoice targeted by the funding, if any.',
                 'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).',
                 'readonly'          => true,
@@ -190,7 +190,7 @@ class Funding extends \equal\orm\Model {
 
             'purchase_invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'purchase\accounting\invoice\Invoice',
+                'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoice',
                 'description'       => 'The invoice targeted by the funding, if any.',
                 'help'              => 'As a convention, this field is set when a funding relates to an invoice: either because the funding has been invoiced (downpayment or balance invoice), or because it is an installment (deduced from the due amount).',
                 'readonly'          => true,

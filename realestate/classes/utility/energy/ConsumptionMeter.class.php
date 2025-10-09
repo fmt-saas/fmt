@@ -19,8 +19,7 @@ class ConsumptionMeter extends \equal\orm\Model {
 
             'meter_description' => [
                 'type'              => 'string',
-                'description'       => "The short description of the meter.",
-                'required'          => true
+                'description'       => "The short description of the meter."
             ],
 
             'name' => [
@@ -35,8 +34,19 @@ class ConsumptionMeter extends \equal\orm\Model {
             'parent_meter_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\utility\energy\ConsumptionMeter',
-                'description'       => "The center to which the consumption meter to.",
-                'visible'           => ['meter_scope', 'in', ['passage', 'unit']]
+                'description'       => "The parent consumption meter, if any.",
+                'visible'           => ['meter_scope', 'in', ['passage', 'unit']],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_active', '=', true], ['meter_scope', '=', 'master']]
+            ],
+
+            'children_meters_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\utility\energy\ConsumptionMeter',
+                'foreign_field'     => 'parent_meter_id',
+                'description'       => "Children consumption meters.",
+                'visible'           => ['meter_scope', '=', 'master'],
+                'ondetach'          => 'delete',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_active', '=', true]]
             ],
 
             'date_opening' => [
@@ -59,7 +69,7 @@ class ConsumptionMeter extends \equal\orm\Model {
             'coefficient' => [
                 'type'              => 'float',
                 'description'       => 'The coefficient established in the meter to calculate the actual consumption.',
-                'default'           => 1
+                'default'           => 1.0
             ],
 
             'meter_type' => [
@@ -78,10 +88,10 @@ class ConsumptionMeter extends \equal\orm\Model {
             'meter_scope' => [
                 'type'        => 'string',
                 'selection'   => [
-                    'master',   // compteur global (pour l'ensemble de la copro)
-                    'passage',  // compteur intermédiaire
-                    'common',   // compteur lié aux parties communes seules
-                    'unit'      // compteur associé à un lot / unité privative
+                    'master',   // global meter
+                    'passage',  // intermediary meter
+                    'common',   // common parts meter
+                    'unit'      // property lot / private unit meter
                 ],
                 'description' => 'The functional scope of the meter within the property network.'
             ],
@@ -103,8 +113,7 @@ class ConsumptionMeter extends \equal\orm\Model {
 
             'meter_number' => [
                 'type'              => 'string',
-                'description'       => 'The code identifying the factory of the consumption meter.',
-                'visible'           => ['has_ean' , '=', false]
+                'description'       => 'Factory or supplier code identifying the of the consumption meter.'
             ],
 
             'meter_ean' => [
@@ -135,7 +144,7 @@ class ConsumptionMeter extends \equal\orm\Model {
             'property_lot_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\PropertyLot',
-                'description'       => 'List of readings of the consumption meter.',
+                'description'       => 'Property lot the meter relates to.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'visible'           => ['meter_scope', '=', 'unit']
             ]
@@ -158,6 +167,9 @@ class ConsumptionMeter extends \equal\orm\Model {
         $self->read(['meter_type' , 'meter_description']);
 
         foreach($self as $id => $meter) {
+            if(!$meter['meter_type']) {
+                continue;
+            }
             $result[$id] = self::computeName($meter['meter_type'], $meter['meter_description']);
         }
         return $result;
@@ -176,5 +188,12 @@ class ConsumptionMeter extends \equal\orm\Model {
             $result .= ' - ' . $description;
         }
         return $result;
+    }
+
+    protected static function oncreate($self, $values) {
+        if(isset($values['parent_meter_id'])) {
+            $self->update(['meter_scope' => 'unit']);
+        }
+
     }
 }

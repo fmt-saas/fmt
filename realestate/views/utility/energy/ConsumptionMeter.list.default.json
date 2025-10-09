@@ -1,6 +1,5 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Consumption Meter",
     "layout": {
         "items": [
             {
@@ -33,11 +32,6 @@
                 "type": "field",
                 "value": "meter_scope",
                 "width": "8%"
-            },
-            {
-                "type": "field",
-                "value": "property_lot_id",
-                "width": "10%"
             },
             {
                 "type": "field",

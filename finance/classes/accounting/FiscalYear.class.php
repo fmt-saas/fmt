@@ -710,7 +710,11 @@ class FiscalYear extends Model {
                 ])
                 ->do('generate_balance_lines');
 
-            $carryForwardJournal = Journal::search([['journal_type', '=', 'OPEN'], ['condo_id', '=', $fiscalYear['condo_id']]])->first();
+            $carryForwardJournal = Journal::search([
+                    ['journal_type', '=', 'OPEN'], ['condo_id', '=', $fiscalYear['condo_id']]
+                ])
+                ->first();
+
             if(!$carryForwardJournal) {
                 throw new \Exception('missing_opening_balance_journal', EQ_ERROR_INVALID_CONFIG);
             }
@@ -734,7 +738,7 @@ class FiscalYear extends Model {
                         ['is_carry_forward', '=', true]
                     ],
                     [
-                        ['fiscal_year_id', '=', $nextFiscalYear],
+                        ['fiscal_year_id', '=', $nextFiscalYear['id']],
                         ['is_carry_forward', '=', true]
                     ]
                 ])

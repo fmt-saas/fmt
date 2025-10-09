@@ -145,7 +145,7 @@ class MiscOperation extends Model {
 
             'purchase_invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'purchase\accounting\invoice\Invoice',
+                'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoice',
                 'description'       => 'Invoice the accounting entry is related to.',
                 'ondelete'          => 'null',
                 'help'              => 'In case the Misc Operation relates to a purchaseInvoiceLine marked with instant re-invoicing.'

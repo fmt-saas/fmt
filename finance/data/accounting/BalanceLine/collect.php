@@ -149,6 +149,11 @@ $domainEntries = new Domain($domain);
 $domainEntries->addCondition(new DomainCondition('entry_date', '>=', $date_from));
 $domainEntries->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 
+
+// #todo - ajouter les écritures virtuelles de report pour le delta entre la première date de l'intervalle et le début du dernier exercice pas encore cloturé
+// afficher tous les comptes ouverts (non balancés) : ignorer les comptes qui retombent à un delta 0
+
+
 $entries_ids = AccountingEntry::search($domainEntries->toArray())->ids();
 
 $entry_lines = AccountingEntryLine::search(['accounting_entry_id', 'in', $entries_ids])

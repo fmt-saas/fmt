@@ -190,14 +190,14 @@ class AccountingEntry extends Model {
 
             'purchase_invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'purchase\accounting\invoice\Invoice',
+                'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoice',
                 'description'       => 'Invoice the accounting entry is related to.',
                 'ondelete'          => 'null'
             ],
 
             'sale_invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'sale\accounting\invoice\Invoice',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoice',
                 'description'       => 'Invoice the accounting entry is related to.',
                 'ondelete'          => 'null'
             ],

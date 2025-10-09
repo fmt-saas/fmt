@@ -10,12 +10,28 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "condo_id",
-                                                "width": "100%"
+                                                "value": "meter_scope",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "meter_type",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "metering_mode",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "33%",
+                                                "visible": ["meter_scope", "<>", "master"]
                                             },
                                             {
                                                 "type": "field",
@@ -24,71 +40,28 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "name",
-                                                "width": "100%"
-                                            },
+                                                "value": "condo_id",
+                                                "width": "100%",
+                                                "visible": false
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "16%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
                                             {
                                                 "type": "field",
+                                                "label": "Parent Meter",
                                                 "value": "parent_meter_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "date_opening",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_active",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "index_value",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "coefficient",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "meter_type",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "meter_scope",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "metering_mode",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_ean",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "meter_number",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "meter_ean",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "meter_unit",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
+                                                "label": "Property Lot",
                                                 "value": "property_lot_id",
                                                 "width": "100%"
                                             }
@@ -98,6 +71,105 @@
                             }
                         ]
                     }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "visible": ["meter_scope", "=", "master"],
+                        "id": "section.children",
+                        "label": "Meters",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "children_meters_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.children",
+                                                    "domain": ["parent_meter_id", "=", "object.id"]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+
+
+                    
+                    {
+                        "id": "section.details",
+                        "label": "Details",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "meter_number",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_ean",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "meter_ean",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.advanced",
+                        "label": "Advanced",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "is_active",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_opening",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Initial index",
+                                                "value": "index_value",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "meter_unit",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+
                 ]
             }
         ]

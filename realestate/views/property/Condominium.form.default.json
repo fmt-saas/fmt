@@ -56,7 +56,7 @@
             "context": {
                 "entity": "realestate\\utility\\energy\\ConsumptionMeter",
                 "view": "list.default",
-                "domain": [["condo_id", "=", "object.id"]]
+                "domain": [["condo_id", "=", "object.id"], ["meter_scope", "=", "master"]]
             }
         },
         {

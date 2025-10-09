@@ -186,7 +186,7 @@ class AccountingEntryLine extends Model {
 
             'sale_invoice_line_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'sale\accounting\invoice\InvoiceLine',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoiceLine',
                 'description'       => 'Invoice line the entry line relates to, if any.',
                 'help'              => 'This is necessary for retrieving the invoice line corresponding to the entry line and, further, the apportionment and ratio to use for expense statement.',
                 'readonly'          => true,
