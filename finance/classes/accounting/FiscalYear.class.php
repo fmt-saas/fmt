@@ -828,7 +828,7 @@ class FiscalYear extends Model {
                         ['is_carry_forward', '=', true]
                     ],
                     [
-                        ['fiscal_year_id', '=', $nextFiscalYear],
+                        ['fiscal_year_id', '=', $nextFiscalYear['id']],
                         ['is_carry_forward', '=', true]
                     ]
                 ])
@@ -925,12 +925,6 @@ class FiscalYear extends Model {
                 throw new \Exception('failed_creating_fiscal_periods', EQ_ERROR_UNKNOWN);
             }
         }
-    }
-
-    public static function doGenerateClosingBalance($self) {
-// #todo
-
-
     }
 
     private static function computeFiscalPeriods($fiscal_year_start, $fiscal_year_end, $fiscal_period_frequency) {
