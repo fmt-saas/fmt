@@ -814,7 +814,7 @@ class FiscalYear extends Model {
                     ['condo_id', '=', $fiscalYear['condo_id']],
                     ['date_from', '>', $fiscalYear['date_to']]
                 ],
-                ['sort' => ['date_from' => 'desc']])
+                ['sort' => ['date_from' => 'asc']])
                 ->first();
 
             if(!$nextFiscalYear) {
