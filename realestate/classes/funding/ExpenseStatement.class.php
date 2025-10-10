@@ -779,34 +779,66 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 if(isset($map_private_expenses[$accountingEntryLine['id']])) {
                     continue;
                 }
-                // #todo - pour les consommations on n'a pas d'invoice line,
-                //     => il faut un lien avec des lignes de relevés de compteurs (? ConsumptionLine)
-                // #todo - prendre en compte les bank statement lines
 
-                // vérifier si 
+                if(isset($accountingEntryLine['purchase_invoice_line_id'])) {
+                    $sourceLine = PurchaseInvoiceLine::id($accountingEntryLine['purchase_invoice_line_id'])
+                        ->read([
+                            'apportionment_id', 'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
+                            'invoice_id' => ['posting_date', 'has_date_range', 'date_from', 'date_to']
+                        ])
+                        ->first();
+                    // retrieve date_from and date_to from purchase invoice line, to determine nb_days
+                    if($sourceLine['invoice_id']['has_date_range']) {
+                        $start = max($sourceLine['invoice_id']['date_from'], $ownerships[$ownership_id]['date_from'] ?? $sourceLine['invoice_id']['date_from']);
+                        $end   = min($sourceLine['invoice_id']['date_to'], $ownerships[$ownership_id]['date_to'] ?? $sourceLine['invoice_id']['date_to']);
+                    }
+                    else {
+                        $start = max($sourceLine['invoice_id']['posting_date'], $ownerships[$ownership_id]['date_from'] ?? $sourceLine['invoice_id']['posting_date']);
+                        $end   = min($sourceLine['invoice_id']['posting_date'], $ownerships[$ownership_id]['date_to'] ?? $sourceLine['invoice_id']['posting_date']);
+                    }
 
-                $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['purchase_invoice_line_id'])->read([
-                        'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
-                        'invoice_id' => ['posting_date', 'has_date_range', 'date_from', 'date_to']
-                    ])
-                    ->first();
+                    $posting_date = $sourceLine['invoice_id']['posting_date'] ?? null;
 
-                if(!$invoiceLine) {
-                    throw new \Exception('missing_mandatory_invoice_line', EQ_ERROR_INVALID_CONFIG);
                 }
+                elseif(isset($accountingEntryLine['bank_statement_line_id'])) {
+                    $sourceLine = BankStatementLine::id($accountingEntryLine['bank_statement_line_id'])
+                        ->read([
+                            'apportionment_id', 'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
+                            'bank_statement_id' => ['date']
+                        ])
+                        ->first();
 
-                $ownership_id = $invoiceLine['ownership_id'];
-                $property_lot_id = $invoiceLine['property_lot_id'];
+                    if(!$sourceLine) {
+                        throw new \Exception('missing_mandatory_bank_statement_line', EQ_ERROR_INVALID_CONFIG);
+                    }
 
-                // retrieve date_from and date_to from purchase invoice line, to determine nb_days
-                if($invoiceLine['invoice_id']['has_date_range']) {
-                    $start = max($invoiceLine['invoice_id']['date_from'], $ownerships[$ownership_id]['date_from'] ?? $invoiceLine['invoice_id']['date_from']);
-                    $end   = min($invoiceLine['invoice_id']['date_to'], $ownerships[$ownership_id]['date_to'] ?? $invoiceLine['invoice_id']['date_to']);
+                    $posting_date = $sourceLine['bank_statement_id']['date'] ?? null;
+                    $start = $posting_date;
+                    $end = $posting_date;
+                }
+                elseif(isset($accountingEntryLine['misc_operation_line_id'])) {
+                    $sourceLine = MiscOperationLine::id($accountingEntryLine['misc_operation_line_id'])
+                        ->read([
+                            'apportionment_id', 'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
+                            'misc_operation_id' => ['posting_date']
+                        ])
+                        ->first();
+
+                    if(!$sourceLine) {
+                        throw new \Exception('missing_mandatory_misc_operation_line', EQ_ERROR_INVALID_CONFIG);
+                    }
+
+                    $posting_date = $sourceLine['misc_operation_id']['posting_date'] ?? null;
+                    $start = $posting_date;
+                    $end = $posting_date;
                 }
                 else {
-                    $start = max($invoiceLine['invoice_id']['posting_date'], $ownerships[$ownership_id]['date_from'] ?? $invoiceLine['invoice_id']['posting_date']);
-                    $end   = min($invoiceLine['invoice_id']['posting_date'], $ownerships[$ownership_id]['date_to'] ?? $invoiceLine['invoice_id']['posting_date']);
+                    throw new \Exception('missing_mandatory_source_line', EQ_ERROR_INVALID_CONFIG);
                 }
+
+                $ownership_id = $sourceLine['ownership_id'];
+                $property_lot_id = $sourceLine['property_lot_id'];
+
                 $ownerships[$ownership_id]['nb_days'] = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
 
                 $amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
@@ -817,9 +849,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     $map_result[$ownership_id][$property_lot_id]['private_expense'][0][$accountingEntryLine['account_id']] = [];
                 }
 
-                $amount_vat = round($amount * $invoiceLine['vat_rate'], 2);
-                $amount_owner  = round($amount * ($invoiceLine['owner_share'] / 100), 2);
-                $amount_tenant = round($amount * (1 - $invoiceLine['owner_share'] / 100), 2);
+                $amount_vat = round($amount * $sourceLine['vat_rate'], 2);
+                $amount_owner  = round($amount * ($sourceLine['owner_share'] / 100), 2);
+                $amount_tenant = round($amount * (1 - $sourceLine['owner_share'] / 100), 2);
                 $adjust = round($amount - $amount_owner - $amount_tenant, 2);
                 $amount_owner += $adjust;
 
@@ -829,9 +861,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'owner'         => $amount_owner,
                         'tenant'        => $amount_tenant,
                         'vat'           => $amount_vat,
-                        'description'   => $invoiceLine['description'],
+                        'description'   => $sourceLine['description'],
                         // type : "private_expense" / "consumption"
-                        'date'          => $invoiceLine['invoice_id']['posting_date'] ?? null
+                        'date'          => $posting_date
                     ];
 
                 $map_accounts_ids[$accountingEntryLine['account_id']] = true;
