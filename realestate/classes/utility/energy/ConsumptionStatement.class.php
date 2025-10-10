@@ -190,7 +190,7 @@ class ConsumptionStatement extends \equal\orm\Model {
 
     protected static function policyCanPost($self): array {
         $result = [];
-        $self->read(['status']);
+        $self->read(['status', 'accounting_account_id', 'statement_total']);
         foreach($self as $id => $expenseStatement) {
             if($expenseStatement['status'] !== 'proforma') {
                 $result[$id] = [
