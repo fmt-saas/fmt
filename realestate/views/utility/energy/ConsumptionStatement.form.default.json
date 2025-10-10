@@ -59,19 +59,24 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "emission_date",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "date_from",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "date_to",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Account",
                                                 "value": "accounting_account_id",
-                                                "width": "33%"
+                                                "width": "25%"
                                             }
                                         ]
                                     },
