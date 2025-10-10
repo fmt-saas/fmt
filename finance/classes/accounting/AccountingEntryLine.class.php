@@ -211,6 +211,12 @@ class AccountingEntryLine extends Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'is_cleared' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the record as cleared (reinvoiced or processed).',
+                'default'           => false
+            ],
+
             // #memo - this field is only changed by parent Accounting Entry and should remain synced
             'status' => [
                 'type'              => 'string',

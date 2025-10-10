@@ -40,13 +40,6 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
 
             // #memo - in realestate package, 'purchase_invoice_line_id' targets `ExpenseStatementOwnerLine` and `FundRequestExecutionLine`
 
-            'is_cleared' => [
-                'type'              => 'boolean',
-                'description'       => 'Flag marking the record as cleared (reinvoiced to  Ownerships).',
-                'help'              => 'This flag is only set to true once, and uses the value of clearing_expense_statement_id.',
-                'default'           => false
-            ],
-
             'clearing_expense_statement_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\ExpenseStatement',

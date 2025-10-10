@@ -688,7 +688,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ])
             ->read(['expense_account_code', 'fund_account_id', 'expense_account_id', 'apportionment_id']);
         $map_reserve_funds = [];
-        foreach($reserveFunds as $id => $reserveFund) {
+        foreach($reserveFunds as $reserve_fund_id => $reserveFund) {
             $map_reserve_funds[$reserveFund['expense_account_code']] = $reserveFund;
         }
 
@@ -870,9 +870,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $map_property_lots_ids[$property_lot_id] = true;
             }
 
-
             // 2) reserve fund
-            // #memo - limit to lines related to use of reserve fund (debit only)
+            // #memo - limit to lines related to use of reserve fund
             elseif(substr($accountingEntryLine['account_code'], 0, 4) === '6816') {
 
                 // retrieve account according to account_id and ReserveFund
@@ -882,7 +881,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     throw new \Exception('missing_mandatory_reserve_fund', EQ_ERROR_INVALID_CONFIG);
                 }
 
-                $line_amount = ($accountingEntryLine['debit'] > 0) ? -$accountingEntryLine['debit'] : $accountingEntryLine['credit'];
+                $line_amount = ($accountingEntryLine['credit'] > 0) ? -$accountingEntryLine['credit'] : $accountingEntryLine['debit'];
 
                 $common_total += $line_amount;
 

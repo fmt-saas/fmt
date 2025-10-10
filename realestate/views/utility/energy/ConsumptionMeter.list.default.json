@@ -4,9 +4,9 @@
         "items": [
             {
                 "type": "field",
+                "label": "Condominium",
                 "value": "condo_id",
-                "width": "6%",
-                "visible": false
+                "width": "10%"
             },
             {
                 "type": "field",

@@ -494,11 +494,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         $result = [];
         $self->read(['posting_date', 'has_date_range', 'date_from', 'date_to', 'condo_id', 'fiscal_period_id' => ['date_from', 'date_to']]);
         foreach($self as $id => $invoice) {
-            $date_from = $date_to = $invoice['posting_date'];
 
             if($invoice['has_date_range']) {
                 $date_from = $invoice['date_from'];
                 $date_to = $invoice['date_to'];
+            }
+            elseif($invoice['posting_date']) {
+                $date_from = $date_to = $invoice['posting_date'];
             }
             else {
                 $date_from = $invoice['fiscal_period_id']['date_from'];

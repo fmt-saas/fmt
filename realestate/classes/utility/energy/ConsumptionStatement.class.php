@@ -57,9 +57,13 @@ class ConsumptionStatement extends \equal\orm\Model {
             ],
 
 
-            // 'misc_operation_id'
+            'misc_operation_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\MiscOperation',
+                'description'       => "Accounting entry the line relates to."
+            ],
 
-            'emission_date' => [
+            'posting_date' => [
                 'type'              => 'date',
                 'description'       => 'Date the operation should be accounted ins the accounting system.',
                 'default'           => function () { return time(); }
@@ -298,7 +302,7 @@ class ConsumptionStatement extends \equal\orm\Model {
         $self->read([
                 'condo_id',
                 'fiscal_year_id',
-                'emission_date',
+                'posting_date',
                 'accounting_account_id',
                 'apportionment_id',
                 'statement_total',
@@ -323,7 +327,7 @@ class ConsumptionStatement extends \equal\orm\Model {
             $miscOperation = MiscOperation::create([
                     'condo_id'          => $consumptionStatement['condo_id'],
                     'description'       => $description,
-                    'posting_date'      => $consumptionStatement['emission_date'],
+                    'posting_date'      => $consumptionStatement['posting_date'],
                     'journal_id'        => $saleJournal['id']
                 ])
                 ->first();
@@ -363,7 +367,9 @@ class ConsumptionStatement extends \equal\orm\Model {
                         'ownership_id'              => $ownership_id,
                         'property_lot_id'           => $consumptionStatementLine['property_lot_id'],
                         'debit'                     => $consumptionStatementLine['price'],
-                        'credit'                    => 0.0
+                        'credit'                    => 0.0,
+                        'owner_share'               => 0,
+                        'tenant_share'              => 100
                     ]);
 
             }
@@ -372,6 +378,8 @@ class ConsumptionStatement extends \equal\orm\Model {
             MiscOperation::id($miscOperation['id'])
                 ->transition('publish')
                 ->transition('post');
+
+            self::id($id)->update(['misc_operation_id' => $miscOperation['id']]);
         }
     }
 

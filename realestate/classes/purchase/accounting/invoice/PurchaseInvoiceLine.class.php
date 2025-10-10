@@ -8,7 +8,6 @@
 namespace realestate\purchase\accounting\invoice;
 
 use finance\accounting\Account;
-use realestate\property\PropertyLot;
 use realestate\property\PropertyLotOwnership;
 
 class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLine {
