@@ -228,7 +228,7 @@ class ConsumptionStatement extends \equal\orm\Model {
     }
 
     protected static function onbeforePost($self) {
-        $self->do(['generate_misc_operation']);
+        $self->do('generate_misc_operation');
     }
 
     protected static function doGenerateStatementLines($self) {
