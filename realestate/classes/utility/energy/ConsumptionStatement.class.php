@@ -228,12 +228,7 @@ class ConsumptionStatement extends \equal\orm\Model {
     }
 
     protected static function onbeforePost($self) {
-        $self->read(['consumption_statement_lines_ids']);
-        foreach($self as $id => $consumptionStatement) {
-            foreach($consumptionStatement['consumption_statement_lines_ids'] as $consumption_statement_line_id => $consumptionStatementLine) {
-
-            }
-        }
+        $self->do(['generate_misc_operation']);
     }
 
     protected static function doGenerateStatementLines($self) {
