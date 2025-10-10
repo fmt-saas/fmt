@@ -184,7 +184,20 @@ class ConsumptionStatement extends \equal\orm\Model {
                 ];
                 continue;
             }
+        }
+        return $result;
+    }
 
+    protected static function policyCanPost($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $expenseStatement) {
+            if($expenseStatement['status'] !== 'proforma') {
+                $result[$id] = [
+                    'invalid_status' => 'Already cancelled.'
+                ];
+                continue;
+            }
             if(!$expenseStatement['accounting_account_id']) {
                 $result[$id] = [
                     'invalid_account' => 'An accounting account must be specified.'
@@ -195,20 +208,6 @@ class ConsumptionStatement extends \equal\orm\Model {
             if($expenseStatement['statement_total'] <= 0.01) {
                 $result[$id] = [
                     'invalid_total' => 'Statement total must be greater than 0.'
-                ];
-                continue;
-            }
-        }
-        return $result;
-    }
-
-    protected static function policyCanPost($self): array {
-        $result = [];
-        $self->read(['status']);
-        foreach($self as $id => $expenseStatement) {
-            if($expenseStatement['status'] === 'cancelled') {
-                $result[$id] = [
-                    'invalid_status' => 'Already cancelled.'
                 ];
                 continue;
             }
@@ -289,7 +288,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'condo_id',
                 'fiscal_year_id',
                 'emission_date',
-                'consumption_statement_lines_ids' => ['price', 'ownership_id']
+                'consumption_statement_lines_ids' => ['price', 'property_lot_id', 'ownership_id']
             ]);
 
         foreach($self as $id => $consumptionStatement) {
@@ -329,14 +328,15 @@ class ConsumptionStatement extends \equal\orm\Model {
             foreach($consumptionStatement['consumption_statement_lines_ids'] as $consumptionStatementLine) {
                 // create the debit line on the ownership account
                 $ownership_id = $consumptionStatementLine['ownership_id'];
-                $ownershipAccount = Account::search([
+
+                // set expense_account_id to 643xxx
+                $privateExpenseAccount = Account::search([
                         ['condo_id', '=', $consumptionStatement['condo_id']],
-                        ['ownership_id', '=', $ownership_id],
-                        ['operation_assignment', '=', 'co_owners_working_fund']
+                        ['operation_assignment', '=', 'private_expenses']
                     ])
                     ->first();
 
-                if(!$ownershipAccount) {
+                if(!$privateExpenseAccount) {
                     throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
@@ -344,7 +344,9 @@ class ConsumptionStatement extends \equal\orm\Model {
                         'condo_id'                  => $consumptionStatement['condo_id'],
                         'misc_operation_id'         => $miscOperation['id'],
                         'description'               => $description,
-                        'account_id'                => $ownershipAccount['ownersid'],
+                        'account_id'                => $privateExpenseAccount['id'],
+                        'ownership_id'              => $ownership_id,
+                        'property_lot_id'           => $consumptionStatementLine['property_lot_id'],
                         'debit'                     => 0.0,
                         'credit'                    => $consumptionStatementLine['price']
                     ]);

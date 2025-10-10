@@ -76,6 +76,7 @@ class ConsumptionMeter extends \equal\orm\Model {
             'meter_type' => [
                 'type'              => 'string',
                 'selection'         => [
+                    'virtual',
                     'water',
                     'hot_water',
                     'gas',
