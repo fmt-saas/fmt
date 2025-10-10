@@ -295,17 +295,16 @@ class ConsumptionStatement extends \equal\orm\Model {
 
             $saleJournal = Journal::search([
                     ['condo_id', '=', $consumptionStatement['condo_id']],
-                    ['journal_type', '=', 'SALE']
+                    ['journal_type', '=', 'MISC']
                 ])
                 ->first();
 
             $description = 'Décompte de consommations';
 
-            $miscOperation = MiscOperation ::create([
+            $miscOperation = MiscOperation::create([
                     'condo_id'          => $consumptionStatement['condo_id'],
                     'description'       => $description,
                     'posting_date'      => $consumptionStatement['emission_date'],
-                    'fiscal_year_id'    => $consumptionStatement['fiscal_year_id'],
                     'journal_id'        => $saleJournal['id']
                 ])
                 ->first();
