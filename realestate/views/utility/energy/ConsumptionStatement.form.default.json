@@ -80,7 +80,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Account",
+                                                "label": "Apportionment",
                                                 "value": "apportionment_id",
                                                 "width": "50%"
                                             }

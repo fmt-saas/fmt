@@ -14,18 +14,23 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "condo_id",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "meter_scope",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "meter_type",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "metering_mode",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "label",
@@ -47,12 +52,6 @@
                                                 "type": "field",
                                                 "value": "apportionment_id",
                                                 "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "condo_id",
-                                                "width": "100%",
-                                                "visible": false
                                             }
                                         ]
                                     },
