@@ -343,8 +343,8 @@ class ConsumptionStatement extends \equal\orm\Model {
                         'account_id'                => $privateExpenseAccount['id'],
                         'ownership_id'              => $ownership_id,
                         'property_lot_id'           => $consumptionStatementLine['property_lot_id'],
-                        'debit'                     => 0.0,
-                        'credit'                    => $consumptionStatementLine['price']
+                        'debit'                     => $consumptionStatementLine['price'],
+                        'credit'                    => 0.0
                     ]);
 
             }
