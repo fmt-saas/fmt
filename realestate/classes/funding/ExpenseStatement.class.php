@@ -657,7 +657,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ->read([
                 'entry_date',
                 'status',
-                'journal_id'
+                'journal_id',
+                'expense_statement_id'
             ])
             ->get();
 
@@ -764,7 +765,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             // 1) private expense (relates to a purchase invoice line or a bank statement line)
 
-            // #todo - handle energy/water consumption in a distinct manner (different in section in the statement : `consumptions`)
             /*
             Encodage des factures sur le compte correspondant à l'énergie consommée 61200
               + utilisation d'un compte dédié au décomptes de consommation (compteur) 61240
