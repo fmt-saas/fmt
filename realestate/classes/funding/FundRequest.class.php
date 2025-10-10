@@ -277,7 +277,7 @@ class FundRequest extends \equal\orm\Model {
         $result = [];
         $self->read(['status', 'request_executions_ids' => ['status']]);
         foreach($self as $id => $fundRequest) {
-            if($fundRequest['status'] == 'cancelled') {
+            if($fundRequest['status'] === 'cancelled') {
                 $result[$id] = [
                     'invalid_status' => 'Already cancelled.'
                 ];
@@ -300,7 +300,7 @@ class FundRequest extends \equal\orm\Model {
         $self->read(['status', 'fiscal_year_id' => ['status']]);
 
         foreach($self as $id => $fundRequest) {
-            if($fundRequest['status'] == 'cancelled') {
+            if($fundRequest['status'] === 'cancelled') {
                 $result[$id] = [
                     'invalid_status' => 'Cancelled fund requests cannot be updated.'
                 ];

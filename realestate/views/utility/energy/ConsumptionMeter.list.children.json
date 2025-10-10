@@ -1,0 +1,51 @@
+{
+    "name": "Consumption Meter",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": [
+                {
+                    "view": false
+                }
+            ]
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "6%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "parent_meter_id",
+                "width": "6%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "meter_scope",
+                "width": "6%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Property Lot",
+                "value": "property_lot_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "meter_description",
+                "width": "33%"
+            },
+            {
+                "type": "field",
+                "value": "meter_number",
+                "width": "20%"
+            }
+        ]
+    }
+}

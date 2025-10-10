@@ -798,7 +798,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         $saleJournal = Journal::search([
                                 ['condo_id', '=', $invoice['condo_id']],
                                 ['journal_type', '=', 'SALE']
-                            ])->first();
+                            ])
+                            ->first();
 
                         $miscOperation = MiscOperation::create([
                                 'condo_id'              => $invoice['condo_id'],

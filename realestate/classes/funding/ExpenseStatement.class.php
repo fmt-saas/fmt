@@ -214,7 +214,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         $result = [];
         $self->read(['status']);
         foreach($self as $id => $expenseStatement) {
-            if($expenseStatement['status'] == 'cancelled') {
+            if($expenseStatement['status'] === 'cancelled') {
                 $result[$id] = [
                     'invalid_status' => 'Already cancelled.'
                 ];
@@ -761,6 +761,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             $map_accounting_entry_lines_ids[$accountingEntryLine['id']] = true;
 
+
             // 1) private expense (relates to a purchase invoice line or a bank statement line)
 
             // #todo - handle energy/water consumption in a distinct manner (different in section in the statement : `consumptions`)
@@ -781,6 +782,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 // #todo - pour les consommations on n'a pas d'invoice line,
                 //     => il faut un lien avec des lignes de relevés de compteurs (? ConsumptionLine)
                 // #todo - prendre en compte les bank statement lines
+
+                // vérifier si 
+
                 $invoiceLine = PurchaseInvoiceLine::id($accountingEntryLine['purchase_invoice_line_id'])->read([
                         'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
                         'invoice_id' => ['posting_date', 'has_date_range', 'date_from', 'date_to']
@@ -826,12 +830,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'tenant'        => $amount_tenant,
                         'vat'           => $amount_vat,
                         'description'   => $invoiceLine['description'],
+                        // type : "private_expense" / "consumption"
                         'date'          => $invoiceLine['invoice_id']['posting_date'] ?? null
                     ];
 
                 $map_accounts_ids[$accountingEntryLine['account_id']] = true;
                 $map_property_lots_ids[$property_lot_id] = true;
             }
+
+
             // 2) reserve fund
             // #memo - limit to lines related to use of reserve fund (debit only)
             elseif(substr($accountingEntryLine['account_code'], 0, 4) === '6816') {
@@ -884,6 +891,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 }
                 $map_accounts_ids[$accountingEntryLine['account_id']] = true;
             }
+
+
             // 3) common expense
             elseif(substr($accountingEntryLine['account_code'], 0, 1) === '6' || substr($accountingEntryLine['account_code'], 0, 1) === '7') {
                 // handle all possible sources: PurchaseInvoiceLine soit BankStatementLine soit MiscOperation
@@ -896,17 +905,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                     if(!$sourceLine) {
                         throw new \Exception('missing_mandatory_sale_invoice_line', EQ_ERROR_INVALID_CONFIG);
-                    }
-                }
-                elseif(isset($accountingEntryLine['bank_statement_line_id'])) {
-                    $sourceLine = BankStatementLine::id($accountingEntryLine['bank_statement_line_id'])
-                        ->read([
-                            'apportionment_id', 'owner_share', 'tenant_share', 'vat_rate'
-                        ])
-                        ->first();
-
-                    if(!$sourceLine) {
-                        throw new \Exception('missing_mandatory_bank_statement_line', EQ_ERROR_INVALID_CONFIG);
                     }
                 }
                 elseif(isset($accountingEntryLine['bank_statement_line_id'])) {

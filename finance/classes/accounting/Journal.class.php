@@ -82,6 +82,7 @@ class Journal extends Model {
                 'dependents'        => ['name']
             ],
 
+            // #todo - check if this field is still necessary
             'accounting_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',

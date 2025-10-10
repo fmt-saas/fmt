@@ -7,17 +7,14 @@
 namespace documents\processing;
 use equal\orm\Model;
 use documents\Document;
-use documents\DocumentType;
 use documents\recording\RecordingRule;
 use documents\recording\RecordingRuleLine;
 use equal\text\TextTransformer;
 use finance\bank\Bank;
-use finance\bank\BankAccount;
 use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
 use finance\bank\CondominiumBankAccount;
 use finance\bank\SuppliershipBankAccount;
-use hr\employee\Employee;
 use hr\role\Role;
 use hr\role\RoleAssignment;
 use identity\Identity;

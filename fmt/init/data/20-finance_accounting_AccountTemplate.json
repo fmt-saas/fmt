@@ -2379,7 +2379,7 @@
                 "is_control_account": false,
                 "description": "Heating and\/or water settlement",
                 "account_chart_id": 1,
-                "operation_assignment": null,
+                "operation_assignment": "consumption_statement",
                 "tenant_share": 100,
                 "owner_share": 0
             },

@@ -19,7 +19,8 @@ class ConsumptionMeter extends \equal\orm\Model {
 
             'meter_description' => [
                 'type'              => 'string',
-                'description'       => "The short description of the meter."
+                'description'       => "The short description of the meter.",
+                'dependents'        => ['name']
             ],
 
             'name' => [
@@ -82,7 +83,8 @@ class ConsumptionMeter extends \equal\orm\Model {
                     'gas_tank',
                     'oil_tank'
                 ],
-                'description'       => 'The type of meter consumption.'
+                'description'       => 'The type of meter consumption.',
+                'dependents'        => ['name']
             ],
 
             'meter_scope' => [
@@ -113,7 +115,8 @@ class ConsumptionMeter extends \equal\orm\Model {
 
             'meter_number' => [
                 'type'              => 'string',
-                'description'       => 'Factory or supplier code identifying the of the consumption meter.'
+                'description'       => 'Factory or supplier code identifying the of the consumption meter.',
+                'dependents'        => ['name']
             ],
 
             'meter_ean' => [
@@ -154,28 +157,32 @@ class ConsumptionMeter extends \equal\orm\Model {
 
     public static function onchange($event, $values) {
         $result = [];
-        if(isset($event['meter_type']) || isset($event['meter_description'])){
+        if(isset($event['parent_meter_id'])) {
+            $parentMeter = self::id($event['parent_meter_id'])->read(['meter_type'])->first();
+            if($parentMeter) {
+                $result['meter_type'] = $parentMeter['meter_type'];
+            }
+        }
+        if(isset($event['meter_type']) || isset($event['meter_number']) || isset($event['meter_description'])){
             $meter_type = isset($event['meter_type']) ? $event['meter_type'] : $values['meter_type'];
+            $meter_number = isset($event['meter_number']) ? $event['meter_number'] : $values['meter_number'];
             $meter_description = isset($event['meter_description']) ? $event['meter_description'] : $values['meter_description'];
-            $result['name'] = self::computeName($meter_type, $meter_description);
+            $result['name'] = self::computeName($meter_type, $meter_number, $meter_description);
         }
         return $result;
     }
 
     protected static function calcName($self) {
         $result = [];
-        $self->read(['meter_type' , 'meter_description']);
+        $self->read(['meter_number', 'meter_type' , 'meter_description']);
 
         foreach($self as $id => $meter) {
-            if(!$meter['meter_type']) {
-                continue;
-            }
-            $result[$id] = self::computeName($meter['meter_type'], $meter['meter_description']);
+            $result[$id] = self::computeName($meter['meter_type'], $meter['meter_number'], $meter['meter_description']);
         }
         return $result;
     }
 
-    private static function computeName($type, $description) {
+    private static function computeName($type, $number, $description) {
         $meter_map = [
             "water"         => "Eau",
             "gas"           => "Gaz",
@@ -183,8 +190,14 @@ class ConsumptionMeter extends \equal\orm\Model {
             "gas tank"      => "Gaz (cit.)",
             "oil tank"      => "Mazout"
         ];
-        $result = '[' . ($meter_map[$type] ?? $type) . ']';
-        if(strlen($description)) {
+        $result = '';
+        if($number && strlen($number) > 0) {
+            $result = $number . ' ';
+        }
+        if($type && strlen($type)) {
+            $result .= '[' . ($meter_map[$type] ?? $type) . ']';
+        }
+        if($description && strlen($description)) {
             $result .= ' - ' . $description;
         }
         return $result;
@@ -192,8 +205,14 @@ class ConsumptionMeter extends \equal\orm\Model {
 
     protected static function oncreate($self, $values) {
         if(isset($values['parent_meter_id'])) {
-            $self->update(['meter_scope' => 'unit']);
+            $parentMeter = self::id($values['parent_meter_id'])->read(['meter_type'])->first();
+            if($parentMeter) {
+                $self->update([
+                        'meter_scope'   => 'unit',
+                        'meter_type'    => $parentMeter['meter_type']
+                    ]);
+            }
         }
-
     }
+
 }

@@ -246,7 +246,7 @@ class Account extends Model {
 
             */
 
-            'accounting_account_id' => [
+            'matchings_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\Matching',
                 'foreign_field'     => 'accounting_account_id',

@@ -1,0 +1,75 @@
+{
+    "name": "Consumption Statement Line",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": [
+                {
+                    "view": false
+                }
+            ]
+        }
+    },
+    "operations": {
+        "total": {
+            "price": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "limit": 100,
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Property Lot",
+                "value": "property_lot_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Ownership",
+                "value": "ownership_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Meter",
+                "value": "consumption_meter_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "date_from",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "date_to",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "page_from",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "page_to",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "price",
+                "width": "15%"
+            }
+        ]
+    }
+}

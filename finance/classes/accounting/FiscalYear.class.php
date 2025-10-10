@@ -231,7 +231,12 @@ class FiscalYear extends Model {
                 'description'   => 'Generate the mandatory sequences for the fiscal year.',
                 'policies'      => [],
                 'function'      => 'doGenerateSequences'
-            ]
+            ],
+            'attempt_transition' => [
+                'description'   => 'Attempt to apply a transition on the FiscalYear.',
+                'policies'      => [],
+                'function'      => 'doAttemptTransition'
+            ],
         ];
     }
 
@@ -299,8 +304,7 @@ class FiscalYear extends Model {
                         'description' => 'Handle actions related to fiscal year closing.',
                         'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
                         'onbefore' => 'onbeforeClose',
-                        // 'onafter' => 'onafterClose',
-                        // #todo - on after close : idem onafterPreclose : exercice suivant et post suivant
+                        'onafter' => 'onafterClose',
                         'policies' => [
                             'can_be_closed',
                         ],
@@ -505,6 +509,33 @@ class FiscalYear extends Model {
             }
         }
         return $result;
+    }
+
+    /**
+    * Attempts to perform a transition to the specified state ($values['status']).
+    * Does nothing if the fiscal year is already in the target state.
+     */
+    protected static function doAttemptTransition($self, $values) {
+        $self->read(['condo_id', 'status']);
+        $map_status_transition = [
+                'open'          => 'open',
+                'preopen'       => 'preopen',
+                'preclosed'     => 'preclose',
+                'closed'        => 'close',
+            ];
+        foreach($self as $id => $fiscalYear) {
+            if(!isset($values['status'])) {
+                continue;
+            }
+            // #memo - $values['status'] is the target status
+            if($values['status'] === $fiscalYear['status']) {
+                continue;
+            }
+            if(!isset($map_status_transition[$values['status']])) {
+                continue;
+            }
+            self::id($id)->transition($map_status_transition[$values['status']]);
+        }
     }
 
     protected static function onbeforePreOpen($self) {
@@ -794,9 +825,6 @@ class FiscalYear extends Model {
 
         foreach($self as $id => $fiscalYear) {
 
-            // #todo - suivant en 'open' et postsuivant en 'preopen'
-
-
             // remove any previously created closing balance
             ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
 
@@ -818,6 +846,7 @@ class FiscalYear extends Model {
                     ['date_from', '>', $fiscalYear['date_to']]
                 ],
                 ['sort' => ['date_from' => 'asc']])
+                ->read(['date_to'])
                 ->first();
 
             if(!$nextFiscalYear) {
@@ -837,7 +866,7 @@ class FiscalYear extends Model {
                 ])
                 ->delete(true);
 
-            // generate carry-forward entries (y+1) and match them with reversal entries (y)
+            // if necessary, generate carry-forward entries (y+1) and match them with reversal entries (y)
             $entry_lines = self::computeCarryForwardEntryLines($id);
             if(count($entry_lines)) {
                 $accountingEntry = AccountingEntry::create([
@@ -872,6 +901,61 @@ class FiscalYear extends Model {
 
                 AccountingEntry::id($accountingEntry['id'])->transition('validate');
             }
+
+            $postNextFiscalYear = self::search([
+                    ['condo_id', '=', $fiscalYear['condo_id']],
+                    ['date_from', '>', $nextFiscalYear['date_to']]
+                ],
+                ['sort' => ['date_from' => 'asc']])
+                ->first();
+
+            if(!$postNextFiscalYear) {
+                throw new \Exception('missing_mandatory_post_next_fiscal_year', EQ_ERROR_UNKNOWN);
+            }
+
+            // attempt to transition following years according to logic (next to 'open' and post next to 'preopen')
+            self::id($nextFiscalYear['id'])->do('attempt_transition', ['status' => 'open']);
+            self::id($postNextFiscalYear['id'])->do('attempt_transition', ['status' => 'preopen']);
+
+        }
+    }
+
+    /**
+     * #memo - closing balance accounting entries are generated in onbeforeClose
+     */
+    protected static function onafterClose($self) {
+        $self->read(['condo_id', 'date_from', 'date_to']);
+
+        foreach($self as $id => $fiscalYear) {
+
+            // retrieve next fiscal year
+            // take the year that immediately succeeds the current one, whatever its status
+            $nextFiscalYear = self::search([
+                    ['condo_id', '=', $fiscalYear['condo_id']],
+                    ['date_from', '>', $fiscalYear['date_to']]
+                ],
+                ['sort' => ['date_from' => 'asc']])
+                ->read(['date_to'])
+                ->first();
+
+            if(!$nextFiscalYear) {
+                throw new \Exception('missing_mandatory_next_fiscal_year', EQ_ERROR_UNKNOWN);
+            }
+
+            $postNextFiscalYear = self::search([
+                    ['condo_id', '=', $fiscalYear['condo_id']],
+                    ['date_from', '>', $nextFiscalYear['date_to']]
+                ],
+                ['sort' => ['date_from' => 'asc']])
+                ->first();
+
+            if(!$postNextFiscalYear) {
+                throw new \Exception('missing_mandatory_post_next_fiscal_year', EQ_ERROR_UNKNOWN);
+            }
+
+            // attempt to transition following years according to logic (next to 'open' and post next to 'preopen')
+            self::id($nextFiscalYear['id'])->do('attempt_transition', ['status' => 'open']);
+            self::id($postNextFiscalYear['id'])->do('attempt_transition', ['status' => 'preopen']);
         }
     }
 

@@ -153,6 +153,37 @@
                         ]
                     },
                     {
+                        "id": "item.energy_consumption",
+                        "label": "Energy Consumption",
+                        "description": "",
+                        "icon": "gas_meter",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "consumption_meters",
+                                "type": "entry",
+                                "label": "Cons. Meters",
+                                "icon": "gas_meter",
+                                "description": "",
+                                "context": {
+                                    "entity": "realestate\\utility\\energy\\ConsumptionMeter",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "consumption_statements",
+                                "type": "entry",
+                                "label": "Cons. Statements",
+                                "icon": "calculate",
+                                "description": "",
+                                "context": {
+                                    "entity": "realestate\\utility\\energy\\ConsumptionStatement",
+                                    "view": "list.default"
+                                }
+                            }
+                        ]
+                    },
+                    {
                         "id": "item.allocations",
                         "label": "Allocations",
                         "description": "",

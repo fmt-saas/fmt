@@ -49,8 +49,6 @@ class Matching extends Model {
             'accounting_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
-                'description'       => "Accounting account the matching relates to.",
-                'required'          => true,
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]]
             ],
 

@@ -1,0 +1,134 @@
+{
+    "name": "Consumption Statement",
+    "description": "Interface for model definition classes.",
+    "actions": [
+        {
+            "id": "action.generate_lines",
+            "label": "Generate",
+            "icon": "play_arrow",
+            "description": "Generate statement lines.",
+            "controller": "core_model_do",
+            "visible": ["status", "=", "proforma"],
+            "params": {
+                "entity": "realestate\\utility\\energy\\ConsumptionStatement",
+                "action": "generate_statement_lines",
+                "ids": []
+            },
+            "confirm": false
+        },
+        {
+            "id": "action.post",
+            "label": "Post",
+            "icon": "play_arrow",
+            "description": "Generate resulting Misc Operation.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "proforma"],
+            "params": {
+                "entity": "realestate\\utility\\energy\\ConsumptionStatement",
+                "transition": "post",
+                "ids": []
+            },
+            "confirm": false
+        }
+    ],
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_year_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "consumption_meter_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_from",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_to",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Account",
+                                                "value": "accounting_account_id",
+                                                "width": "33%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "document_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "statement_total",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "status",
+                                                "width": "100%",
+                                                "visible": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "visible": ["state", "<>", "draft"],
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "consumption_statement_lines_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

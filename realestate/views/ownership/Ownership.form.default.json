@@ -23,6 +23,17 @@
                 "view_id": "print.default",
                 "debug": false
             }
+        },
+        {
+            "id": "action.generate_history",
+            "label": "Generate History",
+            "description": "Generate Property Lots Ownership history.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\ownership\\Ownership",
+                "action": "generate_history",
+                "ids": []
+            }
         }
     ],
     "layout": {

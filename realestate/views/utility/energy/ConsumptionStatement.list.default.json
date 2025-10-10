@@ -1,0 +1,58 @@
+{
+    "name": "Consumption Statement",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "fiscal_year_id",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "fiscal_period_id",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "date_from",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "date_to",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "document_id",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "consumption_meter_id",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "statement_total",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "10%"
+            }
+        ]
+    }
+}

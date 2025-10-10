@@ -61,6 +61,25 @@
                                 ]
                             },
                             {
+                                "columns": [
+                                    {
+                                        "type": "field",
+                                        "value": "is_private_expense",
+                                        "width": "50%"
+                                    },
+                                    {
+                                        "type": "field",
+                                        "value": "ownership_id",
+                                        "width": "50%"
+                                    },
+                                    {
+                                        "type": "field",
+                                        "value": "property_lot_id",
+                                        "width": "50%"
+                                    }
+                                ]
+                            },
+                            {
                                 "visible": [
                                     [["is_expense", "=", true]],
                                     [["is_income", "=", true]]
