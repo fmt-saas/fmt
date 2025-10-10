@@ -135,7 +135,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                     'post' => [
                         'description' => 'Update the consumption statement. Generate a Misc Operation, generate accounting entries and validate accounting entries.',
                         'policies'    => [
-                            'can_be_posted'
+                            'can_post'
                         ],
                         'onbefore'  => 'onbeforePost',
                         'status'    => 'posted',
