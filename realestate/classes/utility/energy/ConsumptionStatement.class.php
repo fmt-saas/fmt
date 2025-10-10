@@ -341,6 +341,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                         'misc_operation_id'         => $miscOperation['id'],
                         'description'               => $description,
                         'account_id'                => $privateExpenseAccount['id'],
+                        'is_private_expense'        => true,
                         'ownership_id'              => $ownership_id,
                         'property_lot_id'           => $consumptionStatementLine['property_lot_id'],
                         'debit'                     => $consumptionStatementLine['price'],

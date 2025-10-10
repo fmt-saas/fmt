@@ -161,6 +161,7 @@ class MiscOperationLine extends Model {
                 'type'              => 'many2one',
                 'description'       => "The ownership that the line refers to (based on accounting account).",
                 'foreign_object'    => 'realestate\ownership\Ownership',
+                'visible'           => ['is_private_expense', '=', true],
                 'ondelete'          => 'cascade',
                 'domain'            => [['condo_id', '=', 'object.condo_id']]
             ],

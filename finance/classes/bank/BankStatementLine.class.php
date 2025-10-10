@@ -10,8 +10,6 @@ use equal\orm\Model;
 use finance\accounting\Account;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
-use finance\accounting\MiscOperation;
-use finance\accounting\MiscOperationLine;
 use realestate\sale\pay\Funding;
 use realestate\sale\pay\Payment;
 use finance\bank\BankStatement;
