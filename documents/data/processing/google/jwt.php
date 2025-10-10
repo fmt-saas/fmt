@@ -3,13 +3,7 @@ use equal\http\HttpResponse;
 
 [$params, $providers] = eQual::announce([
     'description' => 'Génère un JWT signé à partir des credentials Google.',
-    'params' => [
-        'credentials_path' => [
-            'description' => 'Chemin vers le fichier credentials.json',
-            'type'        => 'string',
-            'required'    => true
-        ]
-    ],
+    'params' => [],
     'constants' => ['GOOGLE_DOCAI_PRIVATE_KEY', 'GOOGLE_DOCAI_CLIENT_EMAIL'],
     'response' => [
         'content-type' => 'application/json',
@@ -25,6 +19,9 @@ $credentials = json_decode(file_get_contents($params['credentials_path']), true)
 $privateKey  = $credentials['private_key'];
 $clientEmail = $credentials['client_email'];
 */
+
+$privateKey  = constant('GOOGLE_DOCAI_PRIVATE_KEY');
+$clientEmail = constant('GOOGLE_DOCAI_CLIENT_EMAIL');
 
 $header  = base64_encode(json_encode(['alg' => 'RS256', 'typ' => 'JWT']));
 $time    = time();
