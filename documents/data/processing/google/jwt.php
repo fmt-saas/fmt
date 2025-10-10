@@ -9,10 +9,11 @@ use equal\http\HttpResponse;
         'content-type' => 'application/json',
         'charset' => 'utf-8'
     ],
-    'access' => [ 'visibility' => 'protected' ]
+    'access' => [ 'visibility' => 'protected' ],
+    'providers'     => ['context']
 ]);
 
-['context' => $context, 'report' => $reporter] = $providers;
+['context' => $context] = $providers;
 
 /*
 $credentials = json_decode(file_get_contents($params['credentials_path']), true);
