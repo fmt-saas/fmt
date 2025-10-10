@@ -214,7 +214,8 @@ class Account extends Model {
                     'special_reserve_fund',             // used for FundRequest
                     'work_expenses',
                     'work_provisions',                  // used for FundRequest
-                    'working_fund'                      // used for FundRequest
+                    'working_fund',                     // used for FundRequest
+                    'consumption_statement'
                 ]
             ],
 
