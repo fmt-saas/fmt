@@ -6,6 +6,8 @@
 */
 namespace realestate\utility\energy;
 
+use finance\accounting\Account;
+
 class ConsumptionMeter extends \equal\orm\Model {
 
     public static function getColumns() {
@@ -151,13 +153,40 @@ class ConsumptionMeter extends \equal\orm\Model {
                 'description'       => 'Property lot the meter relates to.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'visible'           => ['meter_scope', '=', 'unit']
-            ]
+            ],
+
+            'accounting_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
+                'required'          => true
+            ],
+
+            'apportionment_id' => [
+                'type'              => 'many2one',
+                'description'       => "The key that the apportionment refers to.",
+                'foreign_object'    => 'realestate\property\Apportionment',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_statutory', '=', false], ['is_active', '=', true], ['status', '=', 'validated']],
+                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
+                'required'          => true
+            ],
 
         ];
     }
 
     public static function onchange($event, $values) {
         $result = [];
+
+        if(isset($event['accounting_account_id'])) {
+            $account = Account::id($event['accounting_account_id'])->read(['apportionment_id' => ['name']])->first();
+            if($account && isset($account['apportionment_id'])) {
+                $result['apportionment_id'] = [
+                    'id'    => $account['apportionment_id']['id'],
+                    'name'  => $account['apportionment_id']['name']
+                ];
+            }
+        }
+
         if(isset($event['parent_meter_id'])) {
             $parentMeter = self::id($event['parent_meter_id'])->read(['meter_type'])->first();
             if($parentMeter) {

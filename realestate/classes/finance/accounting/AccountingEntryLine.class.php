@@ -44,7 +44,6 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'type'              => 'boolean',
                 'description'       => 'Flag marking the record as cleared (reinvoiced to  Ownerships).',
                 'help'              => 'This flag is only set to true once, and uses the value of clearing_expense_statement_id.',
-                'readonly'          => true,
                 'default'           => false
             ],
 

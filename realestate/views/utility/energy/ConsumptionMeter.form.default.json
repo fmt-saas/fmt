@@ -36,7 +36,17 @@
                                             {
                                                 "type": "field",
                                                 "value": "meter_description",
-                                                "width": "100%"
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "accounting_account_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "apportionment_id",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
@@ -100,9 +110,6 @@
                             }
                         ]
                     },
-
-
-                    
                     {
                         "id": "section.details",
                         "label": "Details",

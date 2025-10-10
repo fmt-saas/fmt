@@ -82,9 +82,25 @@ class ConsumptionStatement extends \equal\orm\Model {
 
             // (décompte eau et chaufffage)
             'accounting_account_id' => [
-                'type'              => 'many2one',
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'store'             => false,
+                'relation'          => ['consumption_meter_id' => 'accounting_account_id'],
                 'foreign_object'    => 'finance\accounting\Account',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
+                'readonly'          => true
+            ],
+
+            'apportionment_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'store'             => false,
+                'relation'          => ['consumption_meter_id' => 'apportionment_id'],
+                'description'       => "The key that the apportionment refers to.",
+                'foreign_object'    => 'realestate\property\Apportionment',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_statutory', '=', false], ['is_active', '=', true], ['status', '=', 'validated']],
+                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
+                'readonly'          => true
             ],
 
             /*
@@ -284,6 +300,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'fiscal_year_id',
                 'emission_date',
                 'accounting_account_id',
+                'apportionment_id',
                 'statement_total',
                 'consumption_statement_lines_ids' => ['price', 'property_lot_id', 'ownership_id']
             ]);
@@ -311,18 +328,19 @@ class ConsumptionStatement extends \equal\orm\Model {
                 ])
                 ->first();
 
-            // create the credit line on the private expense
+            // create the credit line on the consumption expense
             MiscOperationLine::create([
                     'condo_id'                  => $consumptionStatement['condo_id'],
                     'misc_operation_id'         => $miscOperation['id'],
-                    'description'               => $description,
+                    'apportionment_id'          => $consumptionStatement['apportionment_id'],
                     'account_id'                => $consumptionStatement['accounting_account_id'],
+                    'description'               => $description,
                     'debit'                     => 0.0,
                     'credit'                    => $consumptionStatement['statement_total']
                 ]);
 
             foreach($consumptionStatement['consumption_statement_lines_ids'] as $consumptionStatementLine) {
-                // create the debit line on the ownership account
+                // create the debit line on the private expense (+ownership)
                 $ownership_id = $consumptionStatementLine['ownership_id'];
 
                 // set expense_account_id to 643xxx
