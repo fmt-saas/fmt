@@ -47,11 +47,6 @@
                 "type": "field",
                 "value": "status",
                 "width": "10%"
-            },
-            {
-                "type": "field",
-                "value": "name",
-                "width": "10%"
             }
         ]
     }

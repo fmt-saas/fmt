@@ -283,6 +283,8 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'condo_id',
                 'fiscal_year_id',
                 'emission_date',
+                'accounting_account_id',
+                'statement_total',
                 'consumption_statement_lines_ids' => ['price', 'property_lot_id', 'ownership_id']
             ]);
 
