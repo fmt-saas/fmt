@@ -24,25 +24,26 @@ $clientEmail = $credentials['client_email'];
 $privateKey  = str_replace("\\n", "\n", constant('GOOGLE_DOCAI_PRIVATE_KEY'));
 $clientEmail = constant('GOOGLE_DOCAI_CLIENT_EMAIL');
 
-$header  = base64_encode(json_encode(['alg' => 'RS256', 'typ' => 'JWT']));
-$time    = time();
-$payload = base64_encode(json_encode([
+$header = ['alg' => 'RS256', 'typ' => 'JWT'];
+$payload = [
     'iss'   => $clientEmail,
     'scope' => 'https://www.googleapis.com/auth/cloud-platform',
     'aud'   => 'https://oauth2.googleapis.com/token',
     'exp'   => $time + 3600,
     'iat'   => $time
-]));
+];
 
-$base64UrlHeader  = rtrim(strtr($header, '+/', '-_'), '=');
-$base64UrlPayload = rtrim(strtr($payload, '+/', '-_'), '=');
+// encodage direct en base64url du JSON
+$base64UrlHeader  = rtrim(strtr(base64_encode(json_encode($header)), '+/', '-_'), '=');
+$base64UrlPayload = rtrim(strtr(base64_encode(json_encode($payload)), '+/', '-_'), '=');
 
-$data = $base64UrlHeader . "." . $base64UrlPayload;
+$data = $base64UrlHeader . '.' . $base64UrlPayload;
 
-openssl_sign($data, $signature, $privateKey, "sha256WithRSAEncryption");
+// signature
+openssl_sign($data, $signature, $privateKey, OPENSSL_ALGO_SHA256);
+
 $base64UrlSignature = rtrim(strtr(base64_encode($signature), '+/', '-_'), '=');
-
-$jwt = $data . "." . $base64UrlSignature;
+$jwt = $data . '.' . $base64UrlSignature;
 
 $context->httpResponse()
     ->body([ 'jwt' => $jwt ])
