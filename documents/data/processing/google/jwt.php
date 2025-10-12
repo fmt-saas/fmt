@@ -21,7 +21,7 @@ $privateKey  = $credentials['private_key'];
 $clientEmail = $credentials['client_email'];
 */
 
-$privateKey  = constant('GOOGLE_DOCAI_PRIVATE_KEY');
+$privateKey  = str_replace("\\n", "\n", constant('GOOGLE_DOCAI_PRIVATE_KEY'));
 $clientEmail = constant('GOOGLE_DOCAI_CLIENT_EMAIL');
 
 $header  = base64_encode(json_encode(['alg' => 'RS256', 'typ' => 'JWT']));
