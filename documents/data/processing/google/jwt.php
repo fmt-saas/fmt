@@ -24,6 +24,8 @@ $clientEmail = $credentials['client_email'];
 $privateKey  = str_replace("\\n", "\n", constant('GOOGLE_DOCAI_PRIVATE_KEY'));
 $clientEmail = constant('GOOGLE_DOCAI_CLIENT_EMAIL');
 
+$time = time();
+
 $header = ['alg' => 'RS256', 'typ' => 'JWT'];
 $payload = [
     'iss'   => $clientEmail,
