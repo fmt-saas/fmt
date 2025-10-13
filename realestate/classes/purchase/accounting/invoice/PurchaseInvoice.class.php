@@ -1333,7 +1333,7 @@ protected static function calcFiscalYearId($self) {
         foreach($self as $id => $purchaseInvoice) {
             if($purchaseInvoice['state'] === 'instance' && !$purchaseInvoice['document_id']) {
                 $documentType = DocumentType::search(['code', '=', 'invoice'])->first();
-                $data = \eQual::run('get', 'documents_processing_purchaseInvoice_empty');
+                $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_empty');
 
                 $document = Document::create([
                         'condo_id'              => $purchaseInvoice['condo_id'],

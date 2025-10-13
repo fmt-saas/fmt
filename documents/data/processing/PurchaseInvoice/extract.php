@@ -50,35 +50,30 @@ $computeBicFromIban = function($iban) {
     return $result;
 };
 
-$document = Document::id($params['document_id'])->read(['content_type'])->first();
+$document = Document::id($params['document_id'])
+    ->read(['has_analysis_json', 'analysis_json'])
+    ->first();
 
 if(!$document) {
     throw new Exception('invalid_document', EQ_ERROR_INVALID_PARAM);
 }
 
-$supported_content_types = [
-        'application/pdf',
-        'image/webp',
-        'image/png',
-        'image/jpg',
-        'image/jpeg'
-    ];
+// 1) si le document n'a pas encore été analysé, lancer le controller dédié
+if(!$document['has_analysis_json']) {
+    $data = eQual::run('do', 'documents_processing_PurchaseInvoice_analyze-google', ['id' => $document['id']]);
 
-if(!in_array($document['content_type'], $supported_content_types)) {
-    throw new Exception('non_supported_document_type', EQ_ERROR_INVALID_PARAM);
+    $document = Document::id($params['document_id'])
+        ->read(['has_analysis_json', 'analysis_json'])
+        ->first();
+
+    if(!$document['has_analysis_json']) {
+        throw new Exception('error_retrieving_analysis', EQ_ERROR_UNKNOWN);
+    }
 }
 
-$data = eQual::run('get', 'documents_processing_Invoice_analyze-mindee', ['id' => $document['id']]);
-
-if(!isset($data['document']['inference']['prediction'])) {
-    // invalid Mindee response
-    throw new Exception('invalid_api_response', EQ_REPORT_WARNING);
-}
-
-$prediction = $data['document']['inference']['prediction'];
 
 // retrieve the corresponding JSON matching schema $id purchase-invoice
-$data = eQual::run('get', 'documents_processing_Invoice_parse-mindee', ['json' => json_encode($data['document']['inference']['prediction'])]);
+$data = eQual::run('get', 'documents_processing_PurchaseInvoice_parse-google', ['json' => $document['analysis_json']]);
 
 // essayer de récupérer le vat_seller dans les lignes
 // $data[lines_ids]
@@ -86,7 +81,7 @@ $data = eQual::run('get', 'documents_processing_Invoice_parse-mindee', ['json' =
 
 // attempt to enrich with additional data
 $text = eQual::run('get', 'documents_processing_dump-text', ['id' =>  $document['id']]);
-$info = eQual::run('get', 'documents_processing_Invoice_parse-text', ['text' => $text]);
+$info = eQual::run('get', 'documents_processing_PurchaseInvoice_parse-text', ['text' => $text]);
 
 if(!isset($data['supplier']['vat_id']) && isset($info['seller_vat'])) {
     $data['supplier']['vat_id'] = $info['seller_vat'];

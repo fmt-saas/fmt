@@ -8,6 +8,7 @@ use documents\Document;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Request a document analysis using Mindee.com service, and return the result as a JSON descriptor.',
+    'deprecated'    => true,
     'params'        => [
         'document_id' =>  [
             'description'   => 'Identifier of the document to parse.',

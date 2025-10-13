@@ -964,7 +964,7 @@ class DocumentProcess extends Model {
                 switch($documentProcess['document_type_id']['code']) {
                     case 'invoice':
                     case 'credit_note':
-                        $data = \eQual::run('get', 'documents_processing_purchaseInvoice_extract', ['document_id' => $documentProcess['document_id']]);
+                        $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_extract', ['document_id' => $documentProcess['document_id']]);
                         break;
                     case 'bank_statement':
                         $data = \eQual::run('get', 'documents_processing_bankStatement_extract', ['document_id' => $documentProcess['document_id']]);
@@ -1025,7 +1025,7 @@ class DocumentProcess extends Model {
                 switch($documentProcess['document_type_id']['code']) {
                     case 'invoice':
                     case 'credit_note':
-                        $data = \eQual::run('get', 'documents_processing_purchaseInvoice_empty');
+                        $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_empty');
                         break;
                     case 'bank_statement':
                         $data = \eQual::run('get', 'documents_processing_bankStatement_empty');
