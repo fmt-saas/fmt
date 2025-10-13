@@ -12,9 +12,9 @@ use equal\http\HttpRequest;
     'description' => 'Envoie un document PDF à Google Document AI et retourne le résultat.',
     'params' => [
         'id' =>  [
+            'description'       => 'Identifier of the document.',
             'type'              => 'many2one',
             'foreign_object'    => 'documents\Document',
-            'description'       => 'Identifier of the document to parse.',
             'required'          => true
         ]
     ],
@@ -32,7 +32,7 @@ $document = Document::id($params['id'])
     ->first();
 
 if(!$document) {
-    throw new Exception('unknown_document', EQ_ERROR_UNKNOWN_OBJECT);
+    throw new Exception('unknown_target_document', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 // check that content_type is supported by the API
