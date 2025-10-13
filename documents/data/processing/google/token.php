@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
 */
 use equal\auth\JWT;
+use equal\http\HttpRequest;
 
 [$params, $providers] = eQual::announce([
     'description' => 'Génère un JWT signé à partir des credentials Google.',
@@ -41,7 +42,25 @@ catch(Exception $e) {
     throw new Exception('jwt_generation_failed', EQ_ERROR_UNKNOWN);
 }
 
+$request = new HttpRequest('POST https://oauth2.googleapis.com/token');
+$request
+    ->header('Content-Type', 'application/x-www-form-urlencoded')
+    ->body([
+        'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        'assertion'  => $jwt
+    ]);
+
+$response = $request->send();
+$status = $response->getStatusCode();
+
+if($status != 200) {
+    trigger_error("APP::Token request failed with code $status", EQ_REPORT_ERROR);
+    throw new Exception('error_obtaining_token', EQ_ERROR_UNKNOWN);
+}
+
+$data = $response->body();
+
 $context->httpResponse()
-    ->body([ 'jwt' => $jwt ])
+    ->body([ 'token' => $data['access_token'] ])
     ->status(200)
     ->send();
