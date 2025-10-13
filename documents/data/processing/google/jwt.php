@@ -31,7 +31,7 @@ if(!$key) {
 }
 
 
-$time = time();
+$time = 1760345392;
 
 $header = ['alg' => 'RS256', 'typ' => 'JWT'];
 
