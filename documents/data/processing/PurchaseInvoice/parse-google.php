@@ -148,7 +148,6 @@ $supplierName       = $getValue($getEntity('supplier_name'));
 $supplierVat        = $getValue($getEntity('supplier_tax_id'));
 $supplierIban       = str_replace(' ', '', $getValue($getEntity('supplier_iban'), ''));
 $supplierBic        = $getValue($getEntity('supplier_bic'), '');
-$supplierAddress    = $getValue($getEntity('supplier_address'));
 $supplierPaymentRef = $getValue($getEntity('supplier_payment_ref'), '');
 $customerName       = $getValue($getEntity('customer_name'), '');
 $currency           = $getValue($getEntity('currency'), 'EUR');
@@ -214,7 +213,7 @@ $output = [
     'supplier' => [
         'name'    => $supplierName,
         'vat_id'  => $supplierVat,
-        'address' => $extractAddress($supplierAddress, $localeCountry),
+        'address' => $extractAddress($getValue($getEntity('supplier_address')), $localeCountry),
     ],
     'customer' => [
         'name'    => $customerName,
