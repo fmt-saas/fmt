@@ -147,10 +147,10 @@ $totalAmount        = $getValue($getEntity('total_amount'), 0);
 $supplierName       = $getValue($getEntity('supplier_name'));
 $supplierVat        = $getValue($getEntity('supplier_tax_id'));
 $supplierIban       = str_replace(' ', '', $getValue($getEntity('supplier_iban'), ''));
-$supplierBic        = $getValue($getEntity('supplier_bic'));
+$supplierBic        = $getValue($getEntity('supplier_bic'), '');
 $supplierAddress    = $getValue($getEntity('supplier_address'));
 $supplierPaymentRef = $getValue($getEntity('supplier_payment_ref'), '');
-$customerName       = $getValue($getEntity('customer_name'));
+$customerName       = $getValue($getEntity('customer_name'), '');
 $currency           = $getValue($getEntity('currency'), 'EUR');
 
 /**
