@@ -31,14 +31,14 @@ if(!$key) {
 }
 
 
-$time = 1760345392;
+$time = time();
 
 $header = ['alg' => 'RS256', 'typ' => 'JWT'];
-
 
 $payload = [
     'iss'   => $clientEmail,
     'scope' => 'https://www.googleapis.com/auth/cloud-platform',
+    //'aud'   => 'https://oauth2.googleapis.com/token',
     'aud'   => 'https://accounts.google.com/o/oauth2/token',
     'exp'   => $time + 3600,
     'iat'   => $time
