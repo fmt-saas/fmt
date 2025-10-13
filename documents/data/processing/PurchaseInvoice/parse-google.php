@@ -93,6 +93,11 @@ $extractIban = function($iban) {
     return str_replace(' ', '', strtoupper($iban));
 };
 
+$extractVat = function ($tax_id) {
+    if(!$tax_id) return null;
+    return str_replace(' ', '', strtoupper($tax_id));
+};
+
 $computeBicFromIban = function($iban) {
     static $map_bic;
     $result = null;
@@ -171,14 +176,14 @@ $dueDate            = $getValue($getEntity('due_date'));
 $totalNet           = $getValue($getEntity('net_amount'), 0);
 $totalTax           = $getValue($getEntity('total_tax_amount'), 0);
 $totalAmount        = $getValue($getEntity('total_amount'), 0);
-$supplierName       = $getValue($getEntity('supplier_name'), '');
-$supplierVat        = $getValue($getEntity('supplier_tax_id'));
+$supplierName       = str_replace("\n", ' ', $getValue($getEntity('supplier_name'), ''));
+$supplierVat        = $extractVat($getValue($getEntity('supplier_tax_id')));
 $supplierIban       = $extractIban($getValue($getEntity('supplier_iban')));
 $supplierBic        = $getValue($getEntity('supplier_bic')) ?? $computeBicFromIban($supplierIban);
 $supplierPaymentRef = $getValue($getEntity('supplier_payment_ref'), '');
 $supplierAddress    = $extractAddress($getValue($getEntity('supplier_address')), $localeCountry);
 $currency           = $getValue($getEntity('currency'), 'EUR');
-$customerName       = $getValue($getEntity('customer_name'), '');
+$customerName       = str_replace("\n", ' ', $getValue($getEntity('customer_name'), ''));
 $customerAddress    = $extractAddress($getValue($getEntity('customer_address'), $localeCountry));
 
 /**

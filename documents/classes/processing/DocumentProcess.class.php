@@ -1106,6 +1106,13 @@ class DocumentProcess extends Model {
                                     $logs[] = "supplier_id retrieved from NAME '{$data['supplier']['name']}'";
                                 }
                             }
+                            if(isset($data['supplier']['vat_id']) && strlen($data['supplier']['vat_id']) > 0) {
+                                $suppliers_ids = Supplier::search(['vat_number', '=', $data['supplier']['vat_id'] . '%'])->ids();
+                                if(count($suppliers_ids)) {
+                                    $values['supplier_id'] = current($suppliers_ids);
+                                    $logs[] = "supplier_id retrieved from VAT ID '{$data['supplier']['vat_id']}'";
+                                }
+                            }
                         }
                         // attempt to retrieve condominium by number
                         if(!$values['condo_id'] && $values['supplier_id']) {
