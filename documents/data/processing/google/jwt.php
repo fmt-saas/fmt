@@ -17,11 +17,11 @@ use equal\http\HttpResponse;
 
 ['context' => $context] = $providers;
 
-$privateKey  = str_replace("\\n", "\n", constant('GOOGLE_DOCAI_PRIVATE_KEY'));
-$clientEmail = constant('GOOGLE_DOCAI_CLIENT_EMAIL');
+$private_key  = str_replace("\\n", "\n", constant('GOOGLE_DOCAI_PRIVATE_KEY'));
+$client_email = constant('GOOGLE_DOCAI_CLIENT_EMAIL');
 
 $payload = [
-    'iss'   => $clientEmail,
+    'iss'   => $client_email,
     'scope' => 'https://www.googleapis.com/auth/cloud-platform',
     'aud'   => 'https://accounts.google.com/o/oauth2/token',
     'exp'   => time() + 3600,
@@ -29,7 +29,7 @@ $payload = [
 ];
 
 try {
-    $jwt = JWT::encode($payload, $privateKey, $algo = 'RS256');
+    $jwt = JWT::encode($payload, $private_key, 'RS256');
 }
 catch(Exception $e) {
     throw new Exception('jwt_generation_failed', EQ_ERROR_UNKNOWN);
