@@ -135,19 +135,23 @@ $formatDate = function ($dateText) {
 /**
  * Extract base entities
  */
-$invoiceType    = $getValue($getEntity('invoice_type'));
-$issueDate      = $getValue($getEntity('invoice_date'));
-$dueDate        = $getValue($getEntity('due_date'));
-$totalNet       = $getValue($getEntity('net_amount'), 0);
-$totalTax       = $getValue($getEntity('total_tax_amount'), 0);
-$totalAmount    = $getValue($getEntity('total_amount'), 0);
-$supplierName   = $getValue($getEntity('supplier_name'));
-$supplierVat    = $getValue($getEntity('supplier_tax_id'));
-$supplierIban   = $getValue($getEntity('supplier_iban'));
-$supplierBic    = $getValue($getEntity('supplier_bic'));
-$supplierAddress= $getValue($getEntity('supplier_address'));
-$customerName   = $getValue($getEntity('customer_name'));
-$currency       = $getValue($getEntity('currency'), 'EUR');
+$localeCountry = 'BE';
+
+
+$invoiceType        = $getValue($getEntity('invoice_type'));
+$issueDate          = $getValue($getEntity('invoice_date'));
+$dueDate            = $getValue($getEntity('due_date'));
+$totalNet           = $getValue($getEntity('net_amount'), 0);
+$totalTax           = $getValue($getEntity('total_tax_amount'), 0);
+$totalAmount        = $getValue($getEntity('total_amount'), 0);
+$supplierName       = $getValue($getEntity('supplier_name'));
+$supplierVat        = $getValue($getEntity('supplier_tax_id'));
+$supplierIban       = str_replace(' ', '', $getValue($getEntity('supplier_iban'), ''));
+$supplierBic        = $getValue($getEntity('supplier_bic'));
+$supplierAddress    = $getValue($getEntity('supplier_address'));
+$supplierPaymentRef = $getValue($getEntity('supplier_payment_ref'), '');
+$customerName       = $getValue($getEntity('customer_name'));
+$currency           = $getValue($getEntity('currency'), 'EUR');
 
 /**
  * Extract line items
@@ -196,8 +200,6 @@ $map_document_type = [
     // 'invoice_statement'    => 'credit_note',
 ];
 
-$localeCountry = 'BE';
-
 /**
  * Final output structure (aligned with Mindee version)
  */
@@ -217,7 +219,7 @@ $output = [
     'customer' => [
         'name'    => $customerName,
         'vat_id'  => $getValue($getEntity('customer_tax_id')),
-        'address' => $extractAddress($getValue($getEntity('customer_address')), $localeCountry),
+        'address' => $getValue($getEntity('customer_address'), $localeCountry),
     ],
     'lines' => $lines,
     'totals' => [
@@ -227,9 +229,9 @@ $output = [
         'payable_amount' => (float) $totalAmount,
     ],
     'payment' => [
-        'iban'               => str_replace(' ', '', $supplierIban),
-        'bic'                => $getValue($getEntity('supplier_bic')) ?? '',
-        'payment_id'         => null,
+        'iban'               => $supplierIban,
+        'bic'                => $supplierBic,
+        'payment_id'         => $supplierPaymentRef,
         'payment_means_code' => '30'
     ]
 ];
