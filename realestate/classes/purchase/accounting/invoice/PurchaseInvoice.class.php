@@ -247,7 +247,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'boolean',
                 'description'       => 'Service delivered over a period of time.',
                 'help'              => '',
-                // #memo - if we set default to true we cannot distinct a not found invoice_period from an invoice without invoice_period
                 'default'           => false
             ],
 

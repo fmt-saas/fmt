@@ -594,7 +594,7 @@ class BankStatement extends Model {
         foreach($self as $id => $bankStatement) {
             if($bankStatement['state'] === 'instance' && !$bankStatement['document_id']) {
                 $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
-                $data = \eQual::run('get', 'documents_processing_bankStatement_empty');
+                $data = \eQual::run('get', 'documents_processing_BankStatement_empty');
 
                 $document = Document::create([
                         'condo_id'          => $bankStatement['condo_id'],

@@ -798,7 +798,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     }
 
                     $posting_date = $sourceLine['invoice_id']['posting_date'] ?? null;
-
                 }
                 elseif(isset($accountingEntryLine['bank_statement_line_id'])) {
                     $sourceLine = BankStatementLine::id($accountingEntryLine['bank_statement_line_id'])
@@ -820,7 +819,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     $sourceLine = MiscOperationLine::id($accountingEntryLine['misc_operation_line_id'])
                         ->read([
                             'apportionment_id', 'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id',
-                            'misc_operation_id' => ['posting_date']
+                            'misc_operation_id' => ['posting_date', 'has_date_range', 'date_from', 'date_to']
                         ])
                         ->first();
 
@@ -828,9 +827,17 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         throw new \Exception('missing_mandatory_misc_operation_line', EQ_ERROR_INVALID_CONFIG);
                     }
 
+                    // retrieve date_from and date_to from purchase invoice line, to determine nb_days
+                    if($sourceLine['misc_operation_id']['has_date_range']) {
+                        $start = max($sourceLine['misc_operation_id']['date_from'], $ownerships[$ownership_id]['date_from'] ?? $sourceLine['misc_operation_id']['date_from']);
+                        $end   = min($sourceLine['misc_operation_id']['date_to'], $ownerships[$ownership_id]['date_to'] ?? $sourceLine['misc_operation_id']['date_to']);
+                    }
+                    else {
+                        $start = max($sourceLine['misc_operation_id']['posting_date'], $ownerships[$ownership_id]['date_from'] ?? $sourceLine['misc_operation_id']['posting_date']);
+                        $end   = min($sourceLine['misc_operation_id']['posting_date'], $ownerships[$ownership_id]['date_to'] ?? $sourceLine['misc_operation_id']['posting_date']);
+                    }
+
                     $posting_date = $sourceLine['misc_operation_id']['posting_date'] ?? null;
-                    $start = $posting_date;
-                    $end = $posting_date;
                 }
                 else {
                     throw new \Exception('missing_mandatory_source_line', EQ_ERROR_INVALID_CONFIG);

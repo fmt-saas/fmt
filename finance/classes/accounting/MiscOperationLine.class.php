@@ -152,7 +152,7 @@ class MiscOperationLine extends Model {
 
             'is_private_expense' => [
                 'type'              => 'boolean',
-                'description'       => 'Enable to apply charge to a single owner.',
+                'description'       => 'Enable application of the charge to a single owner.',
                 'default'           => false,
                 'onupdate'          => 'onupdateIsPrivateExpense'
             ],
@@ -294,7 +294,7 @@ class MiscOperationLine extends Model {
         }
     }
 
-public static function onchange($event, $values, $view) {
+    public static function onchange($event, $values, $view) {
         $result = [];
 
         // check VAT
@@ -372,6 +372,36 @@ public static function onchange($event, $values, $view) {
             }
         }
         return $result;
+    }
+
+
+   public static function canupdate($self, $values) {
+        $self->read(['misc_operation_id' => ['status']]);
+        $allowed_fields = ['apportionment_id', 'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id'];
+        foreach($self as $id => $miscOperationLine) {
+            // #meo - while parent misc operation hasn't been posted, all changes are allowed
+            if($miscOperationLine['misc_operation_id']['status'] === 'posted') {
+
+                // check if related accounting records has been cleared or not
+                $accountingEntryLine = AccountingEntryLine::search(['misc_operation_line_id', '=', $id])
+                    ->read(['is_cleared'])
+                    ->first();
+
+                if($accountingEntryLine) {
+                    // no change allowed, on any field
+                    if($accountingEntryLine['is_cleared']) {
+                        return ['status' => ['non_editable' => "Invoice can only be updated while its status is proforma ({$id})."]];
+                    }
+                }
+
+                // in other cases, only allow editable fields
+                if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
+                    return ['status' => ['non_editable' => "Line can only be updated while parent misc operation hasn't been posted ({$id})."]];
+                }
+
+            }
+        }
+        return parent::canupdate($self);
     }
 
 }

@@ -78,6 +78,27 @@ class MiscOperation extends Model {
                 'default'           => function () { return time(); }
             ],
 
+            'has_date_range' => [
+                'type'              => 'boolean',
+                'description'       => 'Apply expense/income on a date range.',
+                'help'              => '',
+                'default'           => false
+            ],
+
+            'date_from' => [
+                'type'              => 'date',
+                'description'       => 'First date of the date range.',
+                'default'           => function () { return time(); },
+                'visible'           => ['has_date_range', '=', true]
+            ],
+
+            'date_to' => [
+                'type'              => 'date',
+                'description'       => 'Last date of the date range.',
+                'default'           => function () { return time(); },
+                'visible'           => ['has_date_range', '=', true]
+            ],
+
             'fiscal_year_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
@@ -599,7 +620,7 @@ class MiscOperation extends Model {
 
     public static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['payment_status'];
+        $allowed_fields = ['payment_status', 'has_date_range', 'date_from', 'date_to'];
         foreach($self as $id => $miscOperation) {
             // only allow editable fields
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {

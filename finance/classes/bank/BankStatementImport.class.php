@@ -62,7 +62,7 @@ class BankStatementImport extends Model {
                 ])
                 ->first();
             // extract data independently from the document content-type
-            $data = \eQual::run('get', 'documents_processing_bankStatement_extract', ['document_id' => $document['id']]);
+            $data = \eQual::run('get', 'documents_processing_BankStatement_extract', ['document_id' => $document['id']]);
 
             if(!is_array($data)) {
                 // remove original document

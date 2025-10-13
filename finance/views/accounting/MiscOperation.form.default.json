@@ -85,6 +85,21 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "has_date_range",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_from",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_to",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "label": "Opening journal",
                                                 "value": "has_opening_journal",
                                                 "width": "25%"

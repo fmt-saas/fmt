@@ -10,11 +10,11 @@ use equal\orm\Model;
 class AccountingEntryLine extends Model {
 
     public static function getName() {
-        return "Accounting entry line";
+        return "Accounting Record";
     }
 
     public static function getDescription() {
-        return "Accounting entries lines map invoices lines into records of financial transactions in the accounting books.";
+        return "Accounting records map invoices lines into movements in the accounting journals.";
     }
 
     public static function getColumns() {

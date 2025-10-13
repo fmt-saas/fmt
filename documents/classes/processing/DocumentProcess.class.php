@@ -967,7 +967,7 @@ class DocumentProcess extends Model {
                         $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_extract', ['document_id' => $documentProcess['document_id']]);
                         break;
                     case 'bank_statement':
-                        $data = \eQual::run('get', 'documents_processing_bankStatement_extract', ['document_id' => $documentProcess['document_id']]);
+                        $data = \eQual::run('get', 'documents_processing_BankStatement_extract', ['document_id' => $documentProcess['document_id']]);
                         if(!is_array($data)) {
                             trigger_error("APP::unexpected bank statement returned as a non-array for process {$id} ({$documentProcess['document_type_id']['code']})", EQ_REPORT_WARNING);
                             throw new \Exception('invalid_document', EQ_ERROR_INVALID_PARAM);
@@ -1033,7 +1033,7 @@ class DocumentProcess extends Model {
                         $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_empty');
                         break;
                     case 'bank_statement':
-                        $data = \eQual::run('get', 'documents_processing_bankStatement_empty');
+                        $data = \eQual::run('get', 'documents_processing_BankStatement_empty');
                 }
 
                 // #memo - document_json is meant to receive a JSON representation of the content, according to schema, and independent from origin (ex.: parsed Mindee, parsed UBL, ...)
