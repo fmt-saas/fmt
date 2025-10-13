@@ -1099,6 +1099,15 @@ class DocumentProcess extends Model {
 
                         // attempt to retrieve supplier
                         if(!$values['supplier_id']) {
+                            if(isset($data['supplier']['vat_id']) && strlen($data['supplier']['vat_id']) > 0) {
+                                $suppliers_ids = Supplier::search(['vat_number', '=', $data['supplier']['vat_id']])->ids();
+                                if(count($suppliers_ids)) {
+                                    $values['supplier_id'] = current($suppliers_ids);
+                                    $logs[] = "supplier_id retrieved from VAT ID '{$data['supplier']['vat_id']}'";
+                                }
+                            }
+                        }
+                        if(!$values['supplier_id']) {
                             if(isset($data['supplier']['name']) && strlen($data['supplier']['name']) > 0) {
                                 $suppliers_ids = Supplier::search(['legal_name', 'ilike', $data['supplier']['name'] . '%'])->ids();
                                 if(count($suppliers_ids)) {
@@ -1106,41 +1115,50 @@ class DocumentProcess extends Model {
                                     $logs[] = "supplier_id retrieved from NAME '{$data['supplier']['name']}'";
                                 }
                             }
-                            if(isset($data['supplier']['vat_id']) && strlen($data['supplier']['vat_id']) > 0) {
-                                $suppliers_ids = Supplier::search(['vat_number', '=', $data['supplier']['vat_id'] . '%'])->ids();
-                                if(count($suppliers_ids)) {
-                                    $values['supplier_id'] = current($suppliers_ids);
-                                    $logs[] = "supplier_id retrieved from VAT ID '{$data['supplier']['vat_id']}'";
-                                }
-                            }
                         }
                         // attempt to retrieve condominium by number
-                        if(!$values['condo_id'] && $values['supplier_id']) {
-                            // lookup into SuppliershipReference to identify the Condominium
-                            $customer_refs = ['customer_number', 'contract_number', 'installation_number'];
-                            foreach($customer_refs as $ref) {
-                                if(!isset($data['customer'][$ref])) {
-                                    continue;
-                                }
-                                $supplierReference = SuppliershipReference::search([
-                                        ['supplier_id', '=', $values['supplier_id']],
-                                        ['reference_type', '=', $ref],
-                                        ['reference_value', '=', $data['customer'][$ref]]
-                                    ])
-                                    ->read(['condo_id'])
-                                    ->first();
+                        if(!$values['condo_id']) {
+                            if($values['supplier_id']) {
+                                // lookup into SuppliershipReference to identify the Condominium
+                                $customer_refs = ['customer_number', 'contract_number', 'installation_number'];
+                                foreach($customer_refs as $ref) {
+                                    if(!isset($data['customer'][$ref])) {
+                                        continue;
+                                    }
+                                    $supplierReference = SuppliershipReference::search([
+                                            ['supplier_id', '=', $values['supplier_id']],
+                                            ['reference_type', '=', $ref],
+                                            ['reference_value', '=', $data['customer'][$ref]]
+                                        ])
+                                        ->read(['condo_id'])
+                                        ->first();
 
-                                if($supplierReference) {
-                                    $values['condo_id'] = $supplierReference['condo_id'];
-                                    $doc_values['condo_id'] = $values['condo_id'];
-                                    $logs[] = "condo_id retrieved from $ref '{$data['customer'][$ref]}'";
-                                    break;
+                                    if($supplierReference) {
+                                        $values['condo_id'] = $supplierReference['condo_id'];
+                                        $doc_values['condo_id'] = $values['condo_id'];
+                                        $logs[] = "condo_id retrieved from $ref '{$data['customer'][$ref]}'";
+                                        break;
+                                    }
                                 }
                             }
                         }
 
+                        // attempt to retrieve condominium by suppliership
+                        if(!$values['condo_id']) {
+                            if($values['supplier_id']) {
+                                $supplierships = Suppliership::search(['supplier_id', '=', $values['supplier_id']])
+                                    ->read(['condo_id']);
+                                if($supplierships->count() === 1) {
+                                    $suppliership = $supplierships->first();
+                                    $values['condo_id'] = $suppliership['condo_id'];
+                                    $doc_values['condo_id'] = $values['condo_id'];
+                                    $logs[] = "condo_id retrieved from single suppliership";
+                                }
+                            }
+                        }
+
+                        // attempt to retrieve condominium by name
                         if(!isset($values['condo_id'])) {
-                            // attempt to retrieve condominium by name
                             if(isset($data['customer']['name'])) {
                                 $parts = explode(' ', trim($data['customer']['name'], " \n\r\t\v\0-_\/"));
                                 $customer_name = implode(' ', array_filter($parts, function($a, $k) { return $k < 3 && !preg_match('/[^\p{L}\p{N}]/iu', $a); }, ARRAY_FILTER_USE_BOTH));
