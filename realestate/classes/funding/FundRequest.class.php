@@ -74,7 +74,11 @@ class FundRequest extends \equal\orm\Model {
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account the entry relates to.",
                 'ondelete'          => 'null',
-                'domain'            => [['condo_id', '<>', null], ['condo_id', '=', 'object.condo_id'], ['operation_assignment', '=', 'object.request_type']]
+                'domain'            => [
+                        ['condo_id', '<>', null],
+                        ['condo_id', '=', 'object.condo_id'],
+                        ['operation_assignment', '=', 'object.request_type']
+                    ]
             ],
 
             'request_date' => [

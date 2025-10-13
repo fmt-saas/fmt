@@ -38,7 +38,7 @@ class FundUsageLine extends \equal\orm\Model {
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account of the fund to use.",
                 'required'          => true,
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['operation_assignment', 'like', 'reserve_fund']],
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['operation_assignment', 'in', ['reserve_fund', 'special_reserve_fund']]],
                 'dependents'        => ['expense_account_id', 'apportionment_id']
             ],
 

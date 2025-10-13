@@ -178,22 +178,20 @@ FiscalPeriod::search(['status', '=', 'pending'])
     ->read(['name']);
 
 CondoFund::create([
-        'name'                  => 'fonds de roulement',
+        'description'           => 'Fonds de roulement',
         'condo_id'              => 1,
-        'fund_account_id'       => 369,
         'apportionment_id'      => 2,
         'fund_type'             => 'working_fund'
-    ]);
+    ])
+    ->transition('validate');
 
 CondoFund::create([
-        'name'                  => 'fonds de réserve',
+        'description'           => 'Fonds de réserve',
         'condo_id'              => 1,
-        'fund_account_id'       => 373,
-        'expense_account_id'    => 706,
         'apportionment_id'      => 2,
         'fund_type'             => 'reserve_fund'
-    ]);
-
+    ])
+    ->transition('validate');
 
 // create a fund request for first condo
 $fundRequest = FundRequest::create([
@@ -211,7 +209,6 @@ $fundRequest = FundRequest::create([
         'date_to'                   => strtotime('2024-12-31')
     ])
     ->first();
-
 
 FundRequestLine::create([
         'condo_id'          =>  $condominiums_ids[0],

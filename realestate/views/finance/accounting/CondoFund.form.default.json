@@ -1,6 +1,20 @@
 {
     "name": "Condominium Fund",
     "description": "A Fund is used by a Condominium as a link between a reserve fund account, an utilization account and an apportionment key.",
+    "actions": [
+        {
+            "id": "action.validate",
+            "label": "Validate",
+            "description": "Validate the Condominium Fund.",
+            "controller": "core_model_transition",
+            "visible": [ ["status", "=", "pending"] ],
+            "params": {
+                "entity": "realestate\\finance\\accounting\\CondoFund",
+                "transition": "validate",
+                "ids": []
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -14,8 +28,14 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "status",
+                                                "width": "66%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "name",
-                                                "width": "33%",
+                                                "width": "100%",
                                                 "widget": {
                                                     "heading": true
                                                 },
@@ -28,29 +48,30 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "fund_type",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "condo_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "fund_account_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": ["status", "=", "validated"]
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "expense_account_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": ["status", "=", "validated"]
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "apportionment_id",
                                                 "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "fund_type",
-                                                "width": "0%",
-                                                "visible": false
                                             }
                                         ]
                                     }

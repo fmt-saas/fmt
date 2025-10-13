@@ -59,46 +59,6 @@
                 "is_control_account": true,
                 "description": "RESERVE FUND",
                 "account_chart_id": 1,
-                "operation_assignment": null,
-                "tenant_share": 0,
-                "owner_share": 0
-            },
-            {
-                "id": 8,
-                "code": "16001",
-                "is_control_account": false,
-                "description": "Reserve fund",
-                "account_chart_id": 1,
-                "operation_assignment": "reserve_fund",
-                "tenant_share": 0,
-                "owner_share": 0
-            },
-            {
-                "id": 9,
-                "code": "16002",
-                "is_control_account": false,
-                "description": "Reserve fund (1)",
-                "account_chart_id": 1,
-                "operation_assignment": "reserve_fund",
-                "tenant_share": 0,
-                "owner_share": 0
-            },
-            {
-                "id": 10,
-                "code": "16003",
-                "is_control_account": false,
-                "description": "Reserve fund (2)",
-                "account_chart_id": 1,
-                "operation_assignment": "reserve_fund",
-                "tenant_share": 0,
-                "owner_share": 0
-            },
-            {
-                "id": 11,
-                "code": "16004",
-                "is_control_account": false,
-                "description": "Reserve fund (3)",
-                "account_chart_id": 1,
                 "operation_assignment": "reserve_fund",
                 "tenant_share": 0,
                 "owner_share": 0
@@ -109,7 +69,7 @@
                 "is_control_account": true,
                 "description": "SPECIAL RESERVE FUND",
                 "account_chart_id": 1,
-                "operation_assignment": null,
+                "operation_assignment": "special_reserve_fund",
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -3385,31 +3345,31 @@
             },
             {
                 "id": 340,
-                "code": "681600",
+                "code": "6816",
                 "is_control_account": true,
                 "description": "RESERVE FUND VARIATION",
                 "account_chart_id": 1,
-                "operation_assignment": null,
+                "operation_assignment": "",
                 "tenant_share": 0,
                 "owner_share": 0
             },
             {
                 "id": 341,
-                "code": "68160010",
-                "is_control_account": false,
-                "description": "Reserve fund call",
+                "code": "68160",
+                "is_control_account": true,
+                "description": "Reserve fund variation",
                 "account_chart_id": 1,
-                "operation_assignment": null,
+                "operation_assignment": "reserve_fund_variation",
                 "tenant_share": 0,
                 "owner_share": 100
             },
             {
                 "id": 342,
-                "code": "68160011",
+                "code": "68161",
                 "is_control_account": false,
-                "description": "Reserve fund levy",
+                "description": "Special Reserve fund variation",
                 "account_chart_id": 1,
-                "operation_assignment": null,
+                "operation_assignment": "special_reserve_fund_variation",
                 "tenant_share": 0,
                 "owner_share": 100
             },

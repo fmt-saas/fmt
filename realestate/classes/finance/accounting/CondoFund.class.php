@@ -116,7 +116,7 @@ class CondoFund extends \equal\orm\Model {
                 'transitions' => [
                     'validate' => [
                         'description' => 'Update the fund to `validated`.',
-                        'policies'    => [/*'is_valid'*/],
+                        'policies'    => ['is_valid'],
                         'onafter'     => 'onafterValidate',
                         'status'      => 'validated'
                     ]
@@ -136,8 +136,122 @@ class CondoFund extends \equal\orm\Model {
         ];
     }
 
+    public static function getPolicies(): array {
+        return [
+            'is_valid' => [
+                'description' => 'Verifies that the fund details are complete and consistent.',
+                'function'    => 'policyIsValid'
+            ]
+        ];
+    }
+
+    protected static function policyIsValid($self) {
+        $result = [];
+        $self->read(['condo_id', 'fund_account_id', 'expense_account_id', 'apportionment_id', 'fund_type']);
+        foreach($self as $id => $condoFund) {
+            if(!$condoFund['fund_type']) {
+                $result[$id] = [
+                    'incomplete_fund_type' => 'Missing mandatory Fund type.'
+                ];
+                continue;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * When creating a fund, automatically generate corresponding accounting accounts:
+     *   - 160 (reserve_fund) and 161 (special_reserve_fund)
+     *   - 68160 (reserve_fund_variation) and 68161 (special_reserve_fund_variation)
+     * Each fund has subaccounts for "call" (xx...0) and "use" (xx...1).
+     *
+     * Example: 16001 (fund), 68160010 (call), 68160011 (use).
+     * Mirrors reserve fund movements between 16x and 6816x accounts and links each CondoFund to its collector.
+     */
     protected static function onafterValidate($self) {
-        // #todo - il faut vérifier que tous les champs requis sont complets et puis juste valider
+        // create related accounting accounts
+        $self->read(['condo_id' => ['account_chart_id'], 'fund_type', 'apportionment_id']);
+        foreach($self as $id => $condoFund) {
+
+            if($condoFund['fund_type'] === 'working_fund') {
+                $account = Account::search([
+                        ['condo_id', '=', $condoFund['condo_id']['id']],
+                        ['operation_assignment', '=', $condoFund['fund_type']]
+                    ])
+                    ->first();
+
+                if(!$account) {
+                    Account::create([
+                            'condo_id'              => $condoFund['condo_id']['id'],
+                            'code'                  => '100000',
+                            'is_control_account'    => false,
+                            'description'           => 'Working capital',
+                            'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
+                            'operation_assignment'  => 'working_fund',
+                            'apportionment_id'      => $condoFund['apportionment_id'],
+                            'tenant_share'          => 0,
+                            'owner_share'           => 100
+                        ]);
+                }
+                continue;
+            }
+
+            $templateAccount = Account::search([
+                    ['condo_id', '=', $condoFund['condo_id']['id']],
+                    ['account_chart_id', '=', $condoFund['condo_id']['account_chart_id']],
+                    ['is_control_account', '=', true],
+                    ['operation_assignment', '=', $condoFund['fund_type']]
+                ])
+                ->read(['code', 'description'])
+                ->first();
+
+            // count already existing accounts for this fund type
+            $accounts_ids = Account::search([
+                    ['condo_id', '=', $condoFund['condo_id']['id']],
+                    ['account_chart_id', '=', $condoFund['condo_id']['account_chart_id']],
+                    ['is_control_account', '=', false],
+                    ['operation_assignment', '=', $condoFund['fund_type']]
+                ])
+                ->ids();
+
+            $index = count($accounts_ids) + 1;
+
+            $account_code = $templateAccount['code'] . str_pad($index, 2, '0', STR_PAD_LEFT);
+
+            // create the fund account
+            $fundAccount = Account::create([
+                    'condo_id'              => $condoFund['condo_id']['id'],
+                    'code'                  => $account_code,
+                    'is_control_account'    => false,
+                    'description'           => $templateAccount['description'],
+                    'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
+                    'operation_assignment'  => $condoFund['fund_type'],
+                    'apportionment_id'      => $condoFund['apportionment_id'],
+                    'tenant_share'          => 0,
+                    'owner_share'           => 100
+                ])
+                ->first();
+
+            // create the expense account
+            $expenseAccount = Account::create([
+                    'condo_id'              => $condoFund['condo_id']['id'],
+                    'code'                  => '68' . $account_code . '1',
+                    'is_control_account'    => false,
+                    'description'           => $templateAccount['description'] . ' variation',
+                    'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
+                    'operation_assignment'  => $condoFund['fund_type'],
+                    'apportionment_id'      => $condoFund['apportionment_id'],
+                    'tenant_share'          => 0,
+                    'owner_share'           => 100
+                ])
+                ->first();
+
+            self::id($id)->update([
+                    'expense_account_id'    => $expenseAccount['id'],
+                    'fund_account_id'       => $fundAccount['id']
+                ]);
+        }
     }
 
     public static function canupdate($self, $values) {
@@ -151,56 +265,8 @@ class CondoFund extends \equal\orm\Model {
         return parent::canupdate($self, $values);
     }
 
-    protected static function computeExpenseAccountId($fund_account_id) {
-        $result = null;
-        $fundAccount = Account::id($fund_account_id)
-            ->read(['id', 'code', 'condo_id'])
-            ->first();
-
-        if($fundAccount) {
-            // #todo #accounting - we should not hard coding this
-            $expense_account_code = '68' . $fundAccount['code'] . '1';
-            $expenseAccount = Account::search([['condo_id', '=', $fundAccount['condo_id']], ['code', '=', $expense_account_code]])->first();
-            if($expenseAccount) {
-                $result = $expenseAccount['id'];
-            }
-        }
-
-        return $result;
-    }
-
-    protected static function calcExpenseAccountId($self) {
-        $result = [];
-        $self->read(['fund_account_id']);
-        foreach($self as $id => $reserveFund) {
-            if($reserveFund['fund_account_id']) {
-                $result[$id] = static::computeExpenseAccountId($reserveFund['fund_account_id']);
-            }
-        }
-        return $result;
-    }
-
     protected static function onchange($event, $values) {
         $result = [];
-        if(array_key_exists('fund_account_id', $event)) {
-            $expense_account_id = static::computeExpenseAccountId($event['fund_account_id']);
-            if($expense_account_id) {
-                $expenseAccount = Account::id($expense_account_id)->read(['id', 'name', 'apportionment_id'])->first();
-
-                $result['expense_account_id'] = [
-                        'id'    => $expenseAccount['id'],
-                        'name'  => $expenseAccount['name']
-                    ];
-
-                if($expenseAccount['apportionment_id']) {
-                    $apportionment = Apportionment::id($expenseAccount['apportionment_id'])->read(['id', 'name'])->first();
-                    $result['apportionment_id'] = [
-                            'id'    => $apportionment['id'],
-                            'name'  => $apportionment['name']
-                        ];
-                }
-            }
-        }
         return $result;
     }
 
