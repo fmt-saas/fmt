@@ -22,7 +22,8 @@ use equal\http\HttpRequest;
         'content-type'  => 'application/json',
         'charset'       => 'utf-8'
     ],
-    'access' => [ 'visibility' => 'protected' ]
+    'access' => [ 'visibility' => 'protected' ],
+    'providers'     => ['context', 'report']
 ]);
 
 ['context' => $context, 'report' => $reporter] = $providers;
