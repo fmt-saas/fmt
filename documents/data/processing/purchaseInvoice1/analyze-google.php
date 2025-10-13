@@ -81,7 +81,18 @@ if($status != 200) {
     throw new Exception('invalid_analysis_response', EQ_ERROR_UNKNOWN);
 }
 
+$data = json_decode($response->getBody(true), true);
+$json = json_encode($data['document']['entities'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+// store JSON response in the Document
+Document::id($document['id'])
+    ->update([
+        'has_analysis_json' => true,
+        'analysis_json'     => $json,
+        'analysis_version'  => 'google_docai_pretrained-invoice-v1.3'
+    ]);
+
+
 $context->httpResponse()
-    ->body($response->body())
-    ->status(200)
+    ->status(204)
     ->send();
