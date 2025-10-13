@@ -7,9 +7,8 @@
 
 use documents\Document;
 use equal\http\HttpRequest;
-use equal\http\HttpResponse;
 
-list($params, $providers) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description' => 'Envoie un document PDF à Google Document AI et retourne le résultat.',
     'params' => [
         'id' =>  [
@@ -28,13 +27,13 @@ list($params, $providers) = eQual::announce([
 
 ['context' => $context, 'report' => $reporter] = $providers;
 
-$document = Document::id($params['id'])->read(['name', 'content_type'])->first();
+$document = Document::id($params['id'])
+    ->read(['name', 'content_type'])
+    ->first();
 
 if(!$document) {
     throw new Exception('unknown_document', EQ_ERROR_UNKNOWN_OBJECT);
 }
-
-
 
 // check that content_type is supported by the API
 $supported_content_types = [
@@ -77,7 +76,8 @@ $response = $request->send();
 $status = $response->getStatusCode();
 
 if($status != 200) {
-    throw new Exception("Document AI request failed with code $status", QN_ERROR_INVALID_PARAM);
+    trigger_error("APP::Document AI request failed with code $status", EQ_REPORT_ERROR);
+    throw new Exception('invalid_analysis_response', EQ_ERROR_UNKNOWN);
 }
 
 $context->httpResponse()
