@@ -24,9 +24,17 @@ $clientEmail = $credentials['client_email'];
 $privateKey  = str_replace("\\n", "\n", constant('GOOGLE_DOCAI_PRIVATE_KEY'));
 $clientEmail = constant('GOOGLE_DOCAI_CLIENT_EMAIL');
 
+
+$key = openssl_pkey_get_private($privateKey);
+if(!$key) {
+    throw new Exception('invalid_private_key', EQ_ERROR_INVALID_CONFIG);
+}
+
+
 $time = time();
 
 $header = ['alg' => 'RS256', 'typ' => 'JWT'];
+
 $payload = [
     'iss'   => $clientEmail,
     'scope' => 'https://www.googleapis.com/auth/cloud-platform',
@@ -42,7 +50,11 @@ $base64UrlPayload = rtrim(strtr(base64_encode(json_encode($payload)), '+/', '-_'
 $data = $base64UrlHeader . '.' . $base64UrlPayload;
 
 // signature
-openssl_sign($data, $signature, $privateKey, OPENSSL_ALGO_SHA256);
+$success = openssl_sign($data, $signature, $privateKey, OPENSSL_ALGO_SHA256);
+
+if($success === false) {
+    throw new Exception('jwt_signature_failed', EQ_ERROR_UNKNOWN);
+}
 
 $base64UrlSignature = rtrim(strtr(base64_encode($signature), '+/', '-_'), '=');
 $jwt = $data . '.' . $base64UrlSignature;
