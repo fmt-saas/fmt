@@ -102,7 +102,7 @@ class Document extends Model {
 
             'analysis_json' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.medium',
+                'usage'             => 'text/json.medium',
                 'description'       => 'JSON result of the document analysis.',
                 'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and might remain empty (depending on the feeding strategy associated to the document type).'
             ],

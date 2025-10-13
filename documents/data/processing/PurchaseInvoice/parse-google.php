@@ -95,8 +95,8 @@ $currency       = $getValue($getEntity('currency'), 'EUR');
  * Extract line items
  */
 $lines = [];
-foreach ($entities as $entity) {
-    if ($entity['type'] === 'line_item') {
+foreach($entities as $entity) {
+    if($entity['type'] === 'line_item') {
         $line = [
             'id' => (string)($entity['id'] ?? count($lines) + 1),
             'description' => $entity['mentionText'] ?? null,
@@ -133,13 +133,18 @@ foreach ($entities as $entity) {
     }
 }
 
+$map_document_type = [
+    'invoice_statement'    => 'invoice',
+    // 'invoice_statement'    => 'credit_note',
+];
+
 /**
  * Final output structure (aligned with Mindee version)
  */
 $output = [
-    'document_type'     => $invoiceType ?? 'unknown',
+    'document_type'     => $map_document_type[$invoiceType] ?? 'unknown',
     'invoice_number'    => $getValue($getEntity('invoice_id')),
-    'invoice_type'      => $invoiceType,
+    'invoice_type'      => $map_document_type[$invoiceType] ?? 'unknown',
     'issue_date'        => $formatDate($issueDate),
     'due_date'          => $formatDate($dueDate),
     'currency'          => $currency,
