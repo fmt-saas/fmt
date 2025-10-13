@@ -17,6 +17,7 @@ use equal\http\HttpResponse;
 
 ['context' => $context] = $providers;
 
+// #memo - key is expected to be provided as a PEM string, with \n for new lines (as in Google JSON credentials file)
 $private_key  = str_replace("\\n", "\n", constant('GOOGLE_DOCAI_PRIVATE_KEY'));
 $client_email = constant('GOOGLE_DOCAI_CLIENT_EMAIL');
 
@@ -24,7 +25,6 @@ $time = 1760345392;
 
 $payload = [
     'iss'   => $client_email,
-    'sub'   => $client_email,
     'scope' => 'https://www.googleapis.com/auth/cloud-platform',
     'aud'   => 'https://oauth2.googleapis.com/token',
     'exp'   => $time + 3600,
