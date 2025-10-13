@@ -179,7 +179,7 @@ $supplierPaymentRef = $getValue($getEntity('supplier_payment_ref'), '');
 $supplierAddress    = $extractAddress($getValue($getEntity('supplier_address')), $localeCountry);
 $currency           = $getValue($getEntity('currency'), 'EUR');
 $customerName       = $getValue($getEntity('customer_name'), '');
-$customerAddress    = $extractAddress($getValue($getEntity('customer_address'), $localeCountry))
+$customerAddress    = $extractAddress($getValue($getEntity('customer_address'), $localeCountry));
 
 /**
  * Extract line items

@@ -114,7 +114,7 @@ if(!isset($data['invoice_period']) && isset($info['period_start'], $info['period
     ];
 }
 
-$data['payment']['bic'] = $computeBicFromIban($data['payment']['iban']);
+$data['payment']['bic'] = $computeBicFromIban($data['payment']['iban'] ?? null);
 
 
 $context->httpResponse()
