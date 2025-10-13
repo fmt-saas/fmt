@@ -35,7 +35,6 @@ if (!is_array($entities)) {
 
 
 $extractAddress = function ($address, $default_country = null) {
-
     $street = null;
     $postal_code = null;
     $city = null;
@@ -89,13 +88,41 @@ $extractAddress = function ($address, $default_country = null) {
     ];
 };
 
+$extractIban = function($iban) {
+    if(!$iban) return null;
+    return str_replace(' ', '', strtoupper($iban));
+};
+
+$computeBicFromIban = function($iban) {
+    static $map_bic;
+    $result = null;
+
+    if(!$iban) {
+        return null;
+    }
+
+    $country = substr($iban, 0, 2);
+    $bank_code = substr($iban, 4, 3);
+
+    if(!$map_bic) {
+        $file = EQ_BASEDIR . "/packages/identity/i18n/en/bic/{$country}.json";
+        if(file_exists($file)) {
+            $data = file_get_contents($file);
+            $map_bic = json_decode($data, true);
+        }
+    }
+
+    $result = $map_bic[$bank_code]['bic'] ?? null;
+
+    return $result;
+};
 
 /**
  * Helper: find entity by type
  */
 $getEntity = function (string $type) use ($entities) {
-    foreach ($entities as $entity) {
-        if ($entity['type'] === $type) {
+    foreach($entities as $entity) {
+        if($entity['type'] === $type) {
             return $entity;
         }
     }
@@ -144,13 +171,15 @@ $dueDate            = $getValue($getEntity('due_date'));
 $totalNet           = $getValue($getEntity('net_amount'), 0);
 $totalTax           = $getValue($getEntity('total_tax_amount'), 0);
 $totalAmount        = $getValue($getEntity('total_amount'), 0);
-$supplierName       = $getValue($getEntity('supplier_name'));
+$supplierName       = $getValue($getEntity('supplier_name'), '');
 $supplierVat        = $getValue($getEntity('supplier_tax_id'));
-$supplierIban       = str_replace(' ', '', $getValue($getEntity('supplier_iban'), ''));
-$supplierBic        = $getValue($getEntity('supplier_bic'), '');
+$supplierIban       = $extractIban($getValue($getEntity('supplier_iban')));
+$supplierBic        = $getValue($getEntity('supplier_bic')) ?? $computeBicFromIban($supplierIban);
 $supplierPaymentRef = $getValue($getEntity('supplier_payment_ref'), '');
-$customerName       = $getValue($getEntity('customer_name'), '');
+$supplierAddress    = $extractAddress($getValue($getEntity('supplier_address')), $localeCountry);
 $currency           = $getValue($getEntity('currency'), 'EUR');
+$customerName       = $getValue($getEntity('customer_name'), '');
+$customerAddress    = $extractAddress($getValue($getEntity('customer_address'), $localeCountry))
 
 /**
  * Extract line items
@@ -213,12 +242,12 @@ $output = [
     'supplier' => [
         'name'    => $supplierName,
         'vat_id'  => $supplierVat,
-        'address' => $extractAddress($getValue($getEntity('supplier_address')), $localeCountry),
+        'address' => $supplierAddress,
     ],
     'customer' => [
         'name'    => $customerName,
         'vat_id'  => $getValue($getEntity('customer_tax_id')),
-        'address' => $getValue($getEntity('customer_address'), $localeCountry),
+        'address' => $customerAddress,
     ],
     'lines' => $lines,
     'totals' => [
