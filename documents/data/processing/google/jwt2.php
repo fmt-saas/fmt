@@ -24,6 +24,7 @@ $time = 1760345392;
 
 $payload = [
     'iss'   => $client_email,
+    'sub'   => $client_email,
     'scope' => 'https://www.googleapis.com/auth/cloud-platform',
     'aud'   => 'https://oauth2.googleapis.com/token',
     'exp'   => $time + 3600,

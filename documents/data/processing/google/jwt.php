@@ -37,6 +37,7 @@ $header = ['alg' => 'RS256', 'typ' => 'JWT'];
 
 $payload = [
     'iss'   => $clientEmail,
+    'sub'   => $clientEmail,
     'scope' => 'https://www.googleapis.com/auth/cloud-platform',
     'aud'   => 'https://oauth2.googleapis.com/token',
     // 'aud'   => 'https://accounts.google.com/o/oauth2/token',
