@@ -33,6 +33,63 @@ if (!is_array($entities)) {
     throw new Exception('invalid_json_entities', EQ_ERROR_INVALID_PARAM);
 }
 
+
+$extractAddress = function ($address, $default_country = null) {
+
+    $street = null;
+    $postal_code = null;
+    $city = null;
+    $country = $default_country;
+
+    if(is_array($address)) {
+        $streetParts = [];
+        if (!empty($address['street_name'])) {
+            $streetParts[] = $address['street_name'];
+        }
+        if (!empty($address['street_number'])) {
+            $streetParts[] = $address['street_number'];
+        }
+        if (!empty($address['address_complement'])) {
+            $streetParts[] = $address['address_complement'];
+        }
+
+        $street       = implode(' ', $streetParts);
+        $city         = $address['city'] ?? null;
+        $postal_code  = $address['postal_code'] ?? null;
+        $country      = $address['country'] ?? $default_country;
+    }
+    elseif(is_string($address)) {
+        $lines = array_values(array_filter(
+            array_map('trim', explode("\n", $address)),
+            fn($l) => $l !== ''
+        ));
+
+        foreach($lines as $line) {
+            // postal code followed by a city (e.g., "1000 Bruxelles")
+            if(preg_match('/(\d{4,6})\s+(.+)/u', $line, $m)) {
+                $postal_code = $m[1];
+                $city = trim($m[2]);
+            }
+            // country (alphabetic word or initial uppercase letter)
+            elseif(preg_match('/^[A-Z][A-Za-zéèêàçîïùüÿ\-\s]+$/u', $line)) {
+                $country = $line;
+            }
+            // otherwise probably street
+            elseif(!$street) {
+                $street = $line;
+            }
+        }
+    }
+
+    return [
+        'street'        => $street,
+        'city'          => $city,
+        'postal_code'   => $postal_code,
+        'country'       => $country
+    ];
+};
+
+
 /**
  * Helper: find entity by type
  */
@@ -87,6 +144,7 @@ $totalAmount    = $getValue($getEntity('total_amount'), 0);
 $supplierName   = $getValue($getEntity('supplier_name'));
 $supplierVat    = $getValue($getEntity('supplier_tax_id'));
 $supplierIban   = $getValue($getEntity('supplier_iban'));
+$supplierBic    = $getValue($getEntity('supplier_bic'));
 $supplierAddress= $getValue($getEntity('supplier_address'));
 $customerName   = $getValue($getEntity('customer_name'));
 $currency       = $getValue($getEntity('currency'), 'EUR');
@@ -138,6 +196,8 @@ $map_document_type = [
     // 'invoice_statement'    => 'credit_note',
 ];
 
+$localeCountry = 'BE';
+
 /**
  * Final output structure (aligned with Mindee version)
  */
@@ -152,23 +212,23 @@ $output = [
     'supplier' => [
         'name'    => $supplierName,
         'vat_id'  => $supplierVat,
-        'address' => $supplierAddress,
+        'address' => $extractAddress($supplierAddress, $localeCountry),
     ],
     'customer' => [
         'name'    => $customerName,
         'vat_id'  => $getValue($getEntity('customer_tax_id')),
-        'address' => $getValue($getEntity('customer_address')),
+        'address' => $extractAddress($getValue($getEntity('customer_address')), $localeCountry),
     ],
     'lines' => $lines,
     'totals' => [
-        'total_excl_tax' => (float)$totalNet,
-        'total_tax'      => (float)$totalTax,
-        'total_incl_tax' => (float)$totalAmount,
-        'payable_amount' => (float)$totalAmount,
+        'total_excl_tax' => (float) $totalNet,
+        'total_tax'      => (float) $totalTax,
+        'total_incl_tax' => (float) $totalAmount,
+        'payable_amount' => (float) $totalAmount,
     ],
     'payment' => [
-        'iban'               => $supplierIban,
-        'bic'                => $getValue($getEntity('supplier_bic')),
+        'iban'               => str_replace(' ', '', $supplierIban),
+        'bic'                => $getValue($getEntity('supplier_bic')) ?? '',
         'payment_id'         => null,
         'payment_means_code' => '30'
     ]

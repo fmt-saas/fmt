@@ -984,8 +984,13 @@ class DocumentProcess extends Model {
                 }
 
                 if(!empty($data)) {
-                    // #memo - we don't really need to validate : at this stage we're only interested in raw data, but we must ensure data are consistent
-                    $validation = \eQual::run('get', 'json-validate', ['json' => json_encode($data), 'schema_id' => $documentProcess['document_type_id']['json_schema']]);
+                    // #memo - we don't need strict validation here:
+                    //     at this stage we're only interested in raw data, but we must ensure structure is consistent
+                    $validation = \eQual::run('get', 'json-validate', [
+                            'json'      => json_encode($data),
+                            'schema_id' => $documentProcess['document_type_id']['json_schema'],
+                            'strict'    => false
+                        ]);
 
                     if(isset($validation['errors']) && count($validation['errors'])) {
                         foreach((array) $validation['errors'] as $section => $errors) {
