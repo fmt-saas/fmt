@@ -22,6 +22,7 @@ use equal\http\HttpRequest;
         'content-type'  => 'application/json',
         'charset'       => 'utf-8'
     ],
+    'constants' => ['GOOGLE_DOCAI_PROJECT_ID', 'GOOGLE_DOCAI_PROCESSOR_ID'],
     'access' => [ 'visibility' => 'protected' ],
     'providers'     => ['context', 'report']
 ]);
@@ -58,8 +59,10 @@ $document_data = eQual::run('get', 'documents_document', ['id' => $params['id']]
 $data = eQual::run('get', 'documents_processing_google_token');
 $token = $data['token'];
 
+$project_id = constant('GOOGLE_DOCAI_PROJECT_ID');
+$processor_id = constant('GOOGLE_DOCAI_PROCESSOR_ID');
 
-$url = "https://eu-documentai.googleapis.com/v1/projects/24230475119/locations/eu/processors/c5841be08501104e:process";
+$url = "https://eu-documentai.googleapis.com/v1/projects/{$project_id}/locations/eu/processors/{$processor_id}:process";
 
 
 $request = new HttpRequest("POST {$url}");
