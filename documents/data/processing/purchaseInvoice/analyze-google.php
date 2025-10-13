@@ -77,7 +77,7 @@ $response = $request->send();
 $status = $response->getStatusCode();
 
 if($status != 200) {
-    trigger_error("APP::Document AI request failed with code $status", EQ_REPORT_ERROR);
+    trigger_error("APP::Document AI request failed with code $status, body: " . $response->body(), EQ_REPORT_ERROR);
     throw new Exception('invalid_analysis_response', EQ_ERROR_UNKNOWN);
 }
 
