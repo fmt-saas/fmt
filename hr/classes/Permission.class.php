@@ -6,12 +6,7 @@
 */
 namespace hr;
 
-// #todo - remove - too complex to handle
-class Permission extends \core\Permission {
-
-    public function getTable() {
-        return 'hr_permission';
-    }
+class Permission extends \equal\orm\Model {
 
     public static function getColumns() {
         return [
@@ -23,9 +18,36 @@ class Permission extends \core\Permission {
                 'description'       => "Targeted role to which the permission applies.",
                 'ondelete'          => 'cascade',
                 'required'          => true
-            ]
+            ],
 
+            'class_name' => [
+                'type'              => 'string',
+                'description'       => 'Full name of the entity to which the permission rule applies.',
+                'selection'         => [
+                    'documents\processing\DocumentProcess' => 'Document Process'
+                ],
+                'required'          => true
+            ],
+
+            'transition' => [
+                'type'              => 'string',
+                'description'       => "Name of the workflow transition the permission applies to, if any.",
+                'default'           => NULL
+            ]
         ];
+    }
+
+    public static function onchange($event, $values, $view) {
+        $result = [];
+
+        if(isset($event['class_name'])) {
+            if(class_exists($event['class_name'])) {
+                $workflow = $event['class_name']::getWorkflow();
+                $result['transition']['selection'] = array_keys($workflow);
+            }
+        }
+
+        return $result;
     }
 
 }

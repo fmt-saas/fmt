@@ -1,25 +1,52 @@
 {
     "name": "Permission",
     "description": "Default form for Permission with all fields.",
-    "extends": {
-        "entity": "core\\Permission",
-        "view": "form.default"
-    },
     "layout": {
-        "remove": [
-            "item.group_id",
-            "item.user_id"
-        ],
-        "update": {
-            "column.right": {
-                "append": [
+        "groups": [
+            {
+                "sections": [
                     {
-                        "type": "field",
-                        "value": "role_id",
-                        "width": "100%"
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "66%",
+                                        "align": "left",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "class_name",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "transition",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "column.right",
+                                        "width": "33%",
+                                        "align": "left",
+                                        "items": [
+                                            {
+                                                "id": "item.role_id",
+                                                "type": "field",
+                                                "value": "role_id",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "limit": 100
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }
-        }
+        ]
     }
 }

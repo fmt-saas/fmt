@@ -1,26 +1,25 @@
 {
     "name": "Permission",
     "description": "Default form for Permission with all fields.",
-    "extends": {
-        "entity": "core\\Permission",
-        "view": "list.default"
-    },
     "layout": {
-        "remove": [
-            "item.group_id",
-            "item.user_id"
-        ],
-        "update": {
-            "item.class_name": {
-                "before": [
-                    {
-                        "type": "field",
-                        "label": "role",
-                        "value": "role_id",
-                        "width": "100%"
-                    }
-                ]
+        "items": [
+            {
+                "type": "field",
+                "label": "Role",
+                "value": "role_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Entity",
+                "value": "class_name",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "transition",
+                "width": "25%"
             }
-        }
+        ]
     }
 }

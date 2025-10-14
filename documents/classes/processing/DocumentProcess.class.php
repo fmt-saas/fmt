@@ -210,6 +210,7 @@ class DocumentProcess extends Model {
 
             // #todo - [...] to be completed according to document types that are supported by the DocumentProcess workflow
 
+            // consumption_statement_id
         ];
     }
 
