@@ -14,7 +14,7 @@ class Permission extends \equal\orm\Model {
             'role_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'hr\role\Role',
-                'foreign_field'     => 'permissions_ids',
+                'foreign_field'     => 'role_permissions_ids',
                 'description'       => "Targeted role to which the permission applies.",
                 'ondelete'          => 'cascade',
                 'required'          => true

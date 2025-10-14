@@ -53,10 +53,12 @@ class Role extends Group {
                 'description'       => 'List of assignments targeting the Role.'
             ],
 
-            'permissions_ids' => [
+            'role_permissions_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'hr\Permission',
-                'foreign_field'     => 'role_id'
+                'description'       => "Targeted role to which the permission applies.",
+                'ondelete'          => 'cascade',
+                'required'          => true
             ]
 
         ];
