@@ -1,0 +1,37 @@
+{
+    "name": "Role Assignments list",
+    "description": "List of all HR Roles.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE":  [
+                {
+                    "view": false
+                }
+            ]
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_name",
+                "label": "Condominium",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "employee_id",
+                "label": "Employee",
+                "width": "25%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "role_id",
+                "label": "Role",
+                "width": "25%"
+            }
+        ]
+    }
+}

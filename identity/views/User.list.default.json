@@ -13,6 +13,12 @@
             },
             {
                 "type": "field",
+                "label": "Identity",
+                "value": "identity_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
                 "value": "login",
                 "width": "20%"
             },
