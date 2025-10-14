@@ -11,19 +11,13 @@
     "layout": {
         "remove": [
             "field.type_id",
-            "field.has_vat"
+            "field.has_vat",
+            "section.bank_accounts",
+            "section.identity_addresses",
+            "section.departments",
+            "section.identity_contacts"
         ],
         "update": {
-            "field.lang_id": {
-                "after": [
-                    {
-                        "type": "field",
-                        "label": "Identity of Employee",
-                        "value": "identity_id",
-                        "width": "100%"
-                    }
-                ]
-            },
             "section.identity_info": {
                 "after": [
                     {
