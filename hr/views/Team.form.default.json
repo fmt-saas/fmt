@@ -25,6 +25,7 @@
                                 ]
                             },
                             {
+                                "visible": ["state", "<>", "draft"],
                                 "columns": [
                                     {
                                         "width": "100%",

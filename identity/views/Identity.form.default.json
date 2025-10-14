@@ -296,12 +296,18 @@
                                     {
                                         "id": "column.signature",
                                         "width": "50%",
-                                        "align": "left",
                                         "items": [
                                             {
                                                 "id": "field.signature",
                                                 "type": "field",
                                                 "value": "signature",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "id": "field.profile_image_document_id",
+                                                "type": "field",
+                                                "label": "Logo image",
+                                                "value": "profile_image_document_id",
                                                 "width": "100%"
                                             }
                                         ]
@@ -309,15 +315,7 @@
                                     {
                                         "id": "column.description",
                                         "width": "50%",
-                                        "align": "left",
                                         "items": [
-                                            {
-                                                "id": "field.profile_image_document_id",
-                                                "type": "field",
-                                                "label": "Logo image",
-                                                "value": "profile_image_document_id",
-                                                "width": "100%"
-                                            },
                                             {
                                                 "type": "field",
                                                 "value": "description",
