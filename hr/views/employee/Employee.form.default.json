@@ -5,13 +5,11 @@
         "groups": ["hr.default.users"]
     },
     "extends": {
-        "entity": "identity\\Partner",
+        "entity": "identity\\Identity",
         "view": "form.default"
     },
     "layout": {
         "remove": [
-            "section.advanced",
-            "group.partner_info",
             "field.type_id",
             "field.has_vat"
         ],
