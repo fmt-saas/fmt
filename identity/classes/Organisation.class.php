@@ -84,6 +84,13 @@ class Organisation extends Identity {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\management\ManagingAgent',
                 'description'       => "The Managing agent the Organization relates to.",
+            ],
+
+            'employees_ids' => [
+                'type'            => 'one2many',
+                'description'     => "List of employees working for the Organization.",
+                'foreign_object'  => 'identity\Organisation',
+                'foreign_field'   => 'organization_id'
             ]
 
         ];

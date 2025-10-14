@@ -22,11 +22,17 @@ class RoleAssignment extends \equal\orm\Model {
     public static function getColumns() {
 
         return [
+            'organization_id' => [
+                'type'            => 'many2one',
+                'description'     => "Organization the Employee works for.",
+                'foreign_object'  => 'identity\Organisation',
+                'default'         => 1
+            ],
 
             'condo_name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'function'          => 'calcCondoName',
+                'relation'          => ['condo_id' => 'name'],
                 'store'             => true
             ],
 
@@ -60,7 +66,8 @@ class RoleAssignment extends \equal\orm\Model {
                 'description'       => 'Employee the assignment applies to, if any.',
                 'help'              => 'Role can be assigned both to employees and external users. When assignment relates to an employee, corresponding user_id is automatically retrieved.',
                 'onupdate'          => 'onupdateEmployeeId',
-                'visible'           => ['is_external', '=', false]
+                'visible'           => ['is_external', '=', false],
+                'domain'            => ['organization_id', '=', 'object.organization_id']
             ],
 
             'role_id' => [
@@ -97,15 +104,6 @@ class RoleAssignment extends \equal\orm\Model {
             ]
 
         ];
-    }
-
-    public static function calcCondoName($self) {
-        $result = [];
-        $self->read(['condo_id' => ['name']]);
-        foreach($self as $id => $assignment) {
-            $result[$id] = $assignment['condo_id'] ? $assignment['condo_id']['name'] : '*';
-        }
-        return $result;
     }
 
     public static function onupdateEmployeeId($self) {
