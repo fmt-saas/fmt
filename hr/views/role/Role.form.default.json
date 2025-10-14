@@ -59,11 +59,7 @@
                                 ]
                             }
                         ]
-                    }
-                ]
-            },
-            {
-                "sections": [
+                    },
                     {
                         "id": "section.permissions",
                         "label": "Permissions",

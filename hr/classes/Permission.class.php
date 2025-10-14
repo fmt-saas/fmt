@@ -43,7 +43,17 @@ class Permission extends \equal\orm\Model {
         if(isset($event['class_name'])) {
             if(class_exists($event['class_name'])) {
                 $workflow = $event['class_name']::getWorkflow();
-                $result['transition']['selection'] = array_keys($workflow);
+                $map_transitions = [];
+                if(is_array($workflow)) {
+                    foreach($workflow as $status => $definition) {
+                        if(isset($definition['transitions'])) {
+                            foreach($definition['transitions'] as $transition => $descriptor) {
+                                $map_transitions[$transition] = true;
+                            }
+                        }
+                    }
+                    $result['transition']['selection'] = array_keys($map_transitions);
+                }
             }
         }
 
