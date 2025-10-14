@@ -126,11 +126,12 @@ class Employee extends Identity {
                 continue;
             }
             $identity = Identity::create([
-                'employee_id'   => $id,
-                'type_id'       => $employee['type_id'],
-                'firstname'     => $employee['firstname'],
-                'lastname'      => $employee['lastname']
-            ]);
+                    'employee_id'   => $id,
+                    'type_id'       => $employee['type_id'],
+                    'firstname'     => $employee['firstname'],
+                    'lastname'      => $employee['lastname']
+                ])
+                ->first();
             self::id($id)->update(['identity_id' => $identity['id']]);
         }
     }
