@@ -119,6 +119,22 @@ class Employee extends Identity {
         ];
     }
 
+    protected static function oncreate($self) {
+        $self->read(['firstname', 'lastname', 'type_id', 'identity_id']);
+        foreach($self as $id => $employee) {
+            if($employee['identity_id']) {
+                continue;
+            }
+            $identity = Identity::create([
+                'employee_id'   => $id,
+                'type_id'       => $employee['type_id'],
+                'firstname'     => $employee['firstname'],
+                'lastname'      => $employee['lastname']
+            ]);
+            self::id($id)->update(['identity_id' => $identity['id']]);
+        }
+    }
+
     public static function onupdateIdentityId($self) {
         $self->read(['identity_id']);
         foreach($self as $id => $employee) {

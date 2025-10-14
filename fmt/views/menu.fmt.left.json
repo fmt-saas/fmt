@@ -433,6 +433,17 @@
                         }
                     },
                     {
+                        "id": "users",
+                        "type": "entry",
+                        "label": "Users",
+                        "icon": "person",
+                        "description": "",
+                        "context": {
+                            "entity": "identity\\User",
+                            "view": "list.default"
+                        }
+                    },
+                    {
                         "id": "suppliers",
                         "type": "entry",
                         "label": "All Suppliers",
