@@ -956,15 +956,15 @@ class Identity extends Model {
         Handlers for updates of scalar fields
     */
 
-    public static function onupdateTypeId($self) {
+    protected static function onupdateTypeId($self) {
         self::updateField($self, 'type_id');
     }
 
-    public static function onupdateLegalName($self) {
+    protected static function onupdateLegalName($self) {
         self::updateField($self, 'legal_name');
     }
 
-    public static function onupdateFirstname($self) {
+    protected static function onupdateFirstname($self) {
         $self->read(['firstname', 'lastname', 'type']);
         self::updateField($self, 'firstname');
         // for individuals: sync legal name
@@ -975,7 +975,7 @@ class Identity extends Model {
         }
     }
 
-    public static function onupdateLastname($self) {
+    protected static function onupdateLastname($self) {
         $self->read(['firstname', 'lastname', 'type']);
         self::updateField($self, 'lastname');
         // for individuals: sync legal name
@@ -986,103 +986,103 @@ class Identity extends Model {
         }
     }
 
-    public static function onupdateHasVat($self) {
+    protected static function onupdateHasVat($self) {
         self::updateField($self, 'has_vat');
     }
 
-    public static function onupdateVatNumber($self) {
+    protected static function onupdateVatNumber($self) {
         self::updateField($self, 'vat_number');
     }
 
-    public static function onupdateEmail($self) {
+    protected static function onupdateEmail($self) {
         self::updateField($self, 'email');
     }
 
-    public static function onupdatePhone($self) {
+    protected static function onupdatePhone($self) {
         self::updateField($self, 'phone');
     }
 
-    public static function onupdateMobile($self) {
+    protected static function onupdateMobile($self) {
         self::updateField($self, 'mobile');
     }
 
-    public static function onupdateLangId($self) {
+    protected static function onupdateLangId($self) {
         self::updateField($self, 'lang_id');
     }
 
-    public static function onupdateAddressStreet($self) {
+    protected static function onupdateAddressStreet($self) {
         self::updateField($self, 'address_street');
     }
 
-    public static function onupdateAddressDispatch($self) {
+    protected static function onupdateAddressDispatch($self) {
         self::updateField($self, 'address_dispatch');
     }
 
-    public static function onupdateAddressCity($self) {
+    protected static function onupdateAddressCity($self) {
         self::updateField($self, 'address_city');
     }
 
-    public static function onupdateAddressZip($self) {
+    protected static function onupdateAddressZip($self) {
         self::updateField($self, 'address_zip');
     }
 
-    public static function onupdateAddressState($self) {
+    protected static function onupdateAddressState($self) {
         self::updateField($self, 'address_state');
     }
 
-    public static function onupdateAddressCountry($self) {
+    protected static function onupdateAddressCountry($self) {
         self::updateField($self, 'address_country');
     }
 
-    public static function onupdateNationality($self) {
+    protected static function onupdateNationality($self) {
         self::updateField($self, 'nationality');
     }
 
-    public static function onupdateRegistrationNumber($self) {
+    protected static function onupdateRegistrationNumber($self) {
         self::updateField($self, 'registration_number');
     }
 
-    public static function onupdateShortName($self) {
+    protected static function onupdateShortName($self) {
         self::updateField($self, 'short_name');
     }
 
-    public static function onupdateBankAccountIban($self) {
+    protected static function onupdateBankAccountIban($self) {
         self::updateField($self, 'bank_account_iban');
     }
 
-    public static function onupdateBankAccountBic($self) {
+    protected static function onupdateBankAccountBic($self) {
         self::updateField($self, 'bank_account_bic');
     }
 
-    public static function onupdateCitizenIdentification($self) {
+    protected static function onupdateCitizenIdentification($self) {
         self::updateField($self, 'citizen_identification');
     }
 
-    public static function onupdateGender($self) {
+    protected static function onupdateGender($self) {
         self::updateField($self, 'gender');
     }
 
-    public static function onupdateTitle($self) {
+    protected static function onupdateTitle($self) {
         self::updateField($self, 'title');
     }
 
-    public static function onupdateDateOfBirth($self) {
+    protected static function onupdateDateOfBirth($self) {
         self::updateField($self, 'date_of_birth');
     }
 
-    public static function onupdateEmailAlt($self) {
+    protected static function onupdateEmailAlt($self) {
         self::updateField($self, 'email_alt');
     }
 
-    public static function onupdatePhoneAlt($self) {
+    protected static function onupdatePhoneAlt($self) {
         self::updateField($self, 'phone_alt');
     }
 
-    public static function onupdateWebsite($self) {
+    protected static function onupdateWebsite($self) {
         self::updateField($self, 'website');
     }
 
-    public static function onupdateProfileImageDocumentId($self) {
+    protected static function onupdateProfileImageDocumentId($self) {
         self::updateField($self, 'profile_image_document_id');
         $self->do('generate_profile_image');
     }

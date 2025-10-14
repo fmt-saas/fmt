@@ -20,12 +20,29 @@ class Employee extends Identity {
     }
 
     public static function getDescription() {
-        return "An employee is relationship relating to contract that has been made between an identity and a company.";
+        return "An employee is relationship relating to a contract that has been made between an identity and a company.";
     }
 
     public static function getColumns() {
 
         return [
+            'organization_id' => [
+                'type'            => 'many2one',
+                'description'     => "Organization the Employee works for.",
+                'foreign_object'  => 'identity\Organisation',
+                'default'         => 1
+            ],
+
+            'type_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\IdentityType',
+                'onupdate'          => 'onupdateTypeId',
+                'default'           => 1,
+                'dependents  '      => ['type', 'name'],
+                'description'       => 'Type of identity.',
+                'help'              => 'For employees, default to `individual`.'
+            ],
+
             'object_class' => [
                 'type'              => 'string',
                 'description'       => 'Class of the current entity .',

@@ -25,6 +25,13 @@ class Team extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'organization_id' => [
+                'type'            => 'many2one',
+                'description'     => "Organization the Team is part of.",
+                'foreign_object'  => 'identity\Organisation',
+                'default'         => 1
+            ],
+
             'employees_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'hr\employee\Employee',
@@ -33,7 +40,8 @@ class Team extends \equal\orm\Model {
                 'rel_foreign_key'   => 'employee_id',
                 'rel_local_key'     => 'team_id',
                 'description'       => 'Employees members of the team.',
-                'dependents'        => ['members_count']
+                'dependents'        => ['members_count'],
+                'domain'            => [['organization_id', '=', 'object.organization_id']]
             ],
 
             'members_count' => [
@@ -41,7 +49,7 @@ class Team extends \equal\orm\Model {
                 'result_type'       => 'integer',
                 'description'       => 'Number of employees in the team.',
                 'function'          => 'calcMembersCount',
-                'store'             => true
+                'store'             => false
             ]
 
         ];
