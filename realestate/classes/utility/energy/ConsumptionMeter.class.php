@@ -156,10 +156,12 @@ class ConsumptionMeter extends \equal\orm\Model {
             ],
 
             'accounting_account_id' => [
-                'type'              => 'many2one',
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
-                'required'          => true
+                'function'          => 'calcAccountingAccountId',
+                'store'             => true,
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]]
             ],
 
             'apportionment_id' => [
@@ -174,18 +176,30 @@ class ConsumptionMeter extends \equal\orm\Model {
         ];
     }
 
-    public static function onchange($event, $values) {
+    protected static function calcAccountingAccountId($self) {
         $result = [];
+        $self->read(['condo_id']);
+        foreach($self as $id => $consumptionMeter) {
+            if(!$consumptionMeter['condo_id']) {
+                continue;
+            }
 
-        if(isset($event['accounting_account_id'])) {
-            $account = Account::id($event['accounting_account_id'])->read(['apportionment_id' => ['name']])->first();
-            if($account && isset($account['apportionment_id'])) {
-                $result['apportionment_id'] = [
-                    'id'    => $account['apportionment_id']['id'],
-                    'name'  => $account['apportionment_id']['name']
-                ];
+            $account = Account::search([
+                    ['condo_id', '=', $consumptionMeter['condo_id']],
+                    ['operation_assignment', '=', 'consumption_statement'],
+                ])
+                ->read(['id', 'name'])
+                ->first();
+
+            if($account) {
+                $result[$id] = $account['id'];
             }
         }
+        return $result;
+    }
+
+    public static function onchange($event, $values) {
+        $result = [];
 
         if(isset($event['parent_meter_id'])) {
             $parentMeter = self::id($event['parent_meter_id'])->read(['meter_type'])->first();
