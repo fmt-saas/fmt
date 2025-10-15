@@ -48,7 +48,8 @@
                                                 "type": "field",
                                                 "label": "code",
                                                 "value": "code",
-                                                "width": "25%"
+                                                "width": "25%",
+                                                "visible": ["state", "<>", "draft"]
                                             },
                                             {
                                                 "type": "field",

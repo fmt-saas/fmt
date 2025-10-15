@@ -25,6 +25,11 @@
             },
             {
                 "type": "field",
+                "value": "status",
+                "width": "20%"
+            },
+            {
+                "type": "field",
                 "value": "total_shares",
                 "width": "20%"
             }
