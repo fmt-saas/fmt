@@ -114,6 +114,12 @@ if(!isset($data['invoice_period']) && isset($info['period_start'], $info['period
     ];
 }
 
+
+// #memo - EAN 5414 (=BE) + 2 last digits as control (%97)
+if(!isset($data['buyer_reference']) && isset($info['ean_code'])) {
+    $data['buyer_reference'] = $info['ean_code'];
+}
+
 $data['payment']['bic'] = $computeBicFromIban($data['payment']['iban'] ?? null);
 
 

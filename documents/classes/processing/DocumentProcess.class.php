@@ -1129,7 +1129,7 @@ class DocumentProcess extends Model {
                                     $supplierReference = SuppliershipReference::search([
                                             ['supplier_id', '=', $values['supplier_id']],
                                             ['reference_type', '=', $ref],
-                                            ['reference_value', '=', $data['customer'][$ref]]
+                                            ['reference_value', '=', $data['buyer_reference']]
                                         ])
                                         ->read(['condo_id'])
                                         ->first();

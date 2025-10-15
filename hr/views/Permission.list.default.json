@@ -17,6 +17,7 @@
             },
             {
                 "type": "field",
+                "label": "action",
                 "value": "transition",
                 "width": "25%"
             }

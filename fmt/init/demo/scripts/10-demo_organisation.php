@@ -15,7 +15,8 @@ $events = $orm->disableEvents();
 
 
 // Main organisation
-
+/*
+// #memo - moved to fmt/init/data/scripts/01-create_organisation.php
 $identity = Identity::create([
         "id" => 1,
         "type_id" => 3,
@@ -43,6 +44,7 @@ Organisation::create([
         "identity_id" => $identity['id']
     ])
     ->first();
+*/
 
 BankAccount::create([
         "owner_identity_id" => $identity['id'],

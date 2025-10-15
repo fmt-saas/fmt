@@ -137,19 +137,66 @@ $getEntity = function (string $type) use ($entities) {
 /**
  * Helper: safely extract normalized or mentioned value
  */
-$getValue = function (?array $entity, $default = null, float $min_confidence = 0.0) {
+$getValue = function (?array $entity, $default = null, $expected_type = 'string', float $min_confidence = 0.0) {
     if(!$entity) {
         return $default;
     }
     if(isset($entity['confidence']) && $entity['confidence'] < $min_confidence) {
         return $default;
     }
-    if(isset($entity['normalizedValue']['text'])) {
-        return trim($entity['normalizedValue']['text']);
+
+
+    $value = null;
+    if (isset($entity['normalizedValue']['text'])) {
+        $value = trim($entity['normalizedValue']['text']);
     }
-    if(isset($entity['mentionText'])) {
-        return trim($entity['mentionText']);
+    elseif (isset($entity['mentionText'])) {
+        $value = trim($entity['mentionText']);
     }
+
+    if($value === null || $value === '') {
+        return $default;
+    }
+
+    // typage dynamique
+    switch ($expected_type) {
+        case 'float':
+            // Corrige les formats comme "1.388.28" ou "1,388.28"
+            $normalized = str_replace([' ', ','], ['', '.'], $value);
+
+            // Si plusieurs points décimaux -> on garde le dernier comme séparateur décimal
+            if (substr_count($normalized, '.') > 1) {
+                $normalized = preg_replace('/\.(?=.*\.)/', '', $normalized);
+            }
+
+            // Vérifie si c’est bien un nombre
+            if (is_numeric($normalized)) {
+                return (float) $normalized;
+            }
+
+            return $default;
+
+        case 'int':
+            if (preg_match('/-?\d+/', $value, $matches)) {
+                return (int) $matches[0];
+            }
+            return $default;
+
+        case 'bool':
+            $lower = strtolower($value);
+            if (in_array($lower, ['yes', 'true', '1', 'oui'], true)) {
+                return true;
+            }
+            if (in_array($lower, ['no', 'false', '0', 'non'], true)) {
+                return false;
+            }
+            return $default;
+
+        case 'string':
+        default:
+            return (string) $value;
+    }
+
     return $default;
 };
 
