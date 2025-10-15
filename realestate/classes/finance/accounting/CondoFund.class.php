@@ -117,7 +117,7 @@ class CondoFund extends \equal\orm\Model {
                     'validate' => [
                         'description' => 'Update the fund to `validated`.',
                         'policies'    => ['is_valid'],
-                        'onafter'     => 'onafterValidate',
+                        'onbefore'    => 'onbeforeValidate',
                         'status'      => 'validated'
                     ]
                 ]
@@ -169,7 +169,7 @@ class CondoFund extends \equal\orm\Model {
      * Example: 16001 (fund), 68160010 (call), 68160011 (use).
      * Mirrors reserve fund movements between 16x and 6816x accounts and links each CondoFund to its collector.
      */
-    protected static function onafterValidate($self) {
+    protected static function onbeforeValidate($self) {
         // create related accounting accounts
         $self->read(['condo_id' => ['account_chart_id'], 'fund_type', 'apportionment_id']);
         foreach($self as $id => $condoFund) {
