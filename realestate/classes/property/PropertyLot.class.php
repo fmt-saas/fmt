@@ -184,6 +184,13 @@ class PropertyLot extends \equal\orm\Model {
                 'default'           => false
             ],
 
+            'property_entrance_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\property\PropertyEntrance',
+                'description'       => "Specific entrance used by the property lot, if any.",
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ]
+
         ];
     }
 

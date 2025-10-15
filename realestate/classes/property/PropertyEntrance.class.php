@@ -52,6 +52,14 @@ class PropertyEntrance extends \equal\orm\Model {
                 'store'             => true,
                 'description'       => 'Street and number.',
                 'help'              => "It is assumed that zip and city remain the same as the Condominium address. This field is deduced from parent Condominium but can be manually edited.",
+            ],
+
+            'property_lots_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\PropertyLot',
+                'foreign_field'     => 'property_entrance_id',
+                'description'       => "Property lots that use the entrance.",
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ]
 
         ];

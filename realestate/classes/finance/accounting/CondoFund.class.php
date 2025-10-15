@@ -206,7 +206,6 @@ class CondoFund extends \equal\orm\Model {
                 ->read(['code', 'description'])
                 ->first();
 
-            // count already existing accounts for this fund type
             $accounts_ids = Account::search([
                     ['condo_id', '=', $condoFund['condo_id']['id']],
                     ['account_chart_id', '=', $condoFund['condo_id']['account_chart_id']],

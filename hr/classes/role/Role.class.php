@@ -58,8 +58,7 @@ class Role extends Group {
                 'foreign_object'    => 'hr\Permission',
                 'foreign_field'     => 'role_id',
                 'description'       => "Targeted role to which the permission applies.",
-                'ondelete'          => 'cascade',
-                'required'          => true
+                'ondelete'          => 'cascade'
             ]
 
         ];
