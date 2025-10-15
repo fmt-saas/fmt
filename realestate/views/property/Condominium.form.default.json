@@ -1,3 +1,4 @@
+
 {
     "name": "Organisation",
     "description": "Form holding basic information about an Organisation.",
@@ -20,6 +21,17 @@
             "icon": "apartment",
             "context": {
                 "entity": "realestate\\property\\PropertyLot",
+                "view": "list.default",
+                "domain": ["condo_id", "=", "object.id"]
+            }
+        },
+        {
+            "id": "item.property_entrances",
+            "label": "Property Entrances",
+            "description": "",
+            "icon": "door_front",
+            "context": {
+                "entity": "realestate\\property\\PropertyEntrance",
                 "view": "list.default",
                 "domain": ["condo_id", "=", "object.id"]
             }
