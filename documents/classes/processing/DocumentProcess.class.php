@@ -1121,7 +1121,7 @@ class DocumentProcess extends Model {
                         if(!$values['condo_id']) {
                             if($values['supplier_id']) {
                                 // lookup into SuppliershipReference to identify the Condominium
-                                $customer_refs = ['customer_number', 'contract_number', 'installation_number'];
+                                $customer_refs = ['ean_number', 'customer_number', 'contract_number', 'installation_number', 'meter_number'];
                                 foreach($customer_refs as $ref) {
                                     if(!isset($data['customer'][$ref])) {
                                         continue;
