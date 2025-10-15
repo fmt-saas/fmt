@@ -47,7 +47,7 @@
                                             {
                                                 "type": "field",
                                                 "label": "code",
-                                                "value": "apportionment_code",
+                                                "value": "code",
                                                 "width": "25%"
                                             },
                                             {

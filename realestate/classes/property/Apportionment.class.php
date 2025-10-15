@@ -6,6 +6,8 @@
 */
 namespace realestate\property;
 
+use fmt\setting\Setting;
+
 class Apportionment extends \equal\orm\Model {
 
     public static function getColumns() {
@@ -224,8 +226,19 @@ class Apportionment extends \equal\orm\Model {
                 $result[$id] = 'STAT';
             }
             else {
-                $count = count(self::search([['is_statutory', '=', false], ['condo_id', '=', $apportionment['condo_id']]])->ids());
-                $result[$id] = sprintf("%04d", $count);
+                $sequence = Setting::fetch_and_add(
+                        'realestate',
+                        'organization',
+                        "apportionment.sequence",
+                        1,
+                        [
+                            'condo_id' => $apportionment['condo_id']
+                        ]
+                    );
+
+                if($sequence) {
+                    $result[$id] = sprintf("%04d", $sequence);
+                }
             }
         }
         return $result;

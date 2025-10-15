@@ -3,7 +3,12 @@
     "description": "",
     "header": {
         "selection": {
-            "default" : false
+            "default" : false,
+            "actions" : [
+                {
+                    "id": "ACTION.ARCHIVE"
+                }
+            ]
         }
     },
     "layout": {
