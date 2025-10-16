@@ -79,8 +79,7 @@ class Condominium extends Identity {
             'instance_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'infra\server\Instance',
-                'description'       => "The instance on which the condominium is currently managed.",
-                'help'              => "The instance is assumed to be consistent with the assigned Managing Agent."
+                'description'       => "The instance on which the condominium is currently managed."
             ],
 
             'managing_agent_id' => [

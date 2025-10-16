@@ -57,7 +57,7 @@ class ManagingAgent extends \purchase\supplier\Supplier {
 
             'management_contracts_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'realestate\management\ManagementContract',
+                'foreign_object'    => 'realestate\management\ManagingAgentContract',
                 'foreign_field'     => 'managing_agent_id',
                 'description'       => "History of management contracts with Condominiums."
             ]

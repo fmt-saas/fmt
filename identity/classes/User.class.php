@@ -38,6 +38,7 @@ class User extends \core\User {
                 'foreign_object'    => 'identity\Identity',
                 'domain'            => ['type', '=', 'IN'],
                 'description'       => 'The identity related to the user.',
+                'help'              => 'The identity that this user relates to on the current instance. If set, the user details (name, email, etc.) will be synchronized from the identity.',  
                 'onupdate'          => 'onupdateIdentityId',
                 'dependencies'      => ['name']
             ],

@@ -18,7 +18,7 @@ class PurchaseInvoiceLine extends \finance\accounting\invoice\InvoiceLine {
 
             'invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'purchase\accounting\invoice\Invoice',
+                'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoice',
                 'description'       => 'Invoice the line is related to.',
                 'required'          => true,
                 'ondelete'          => 'cascade'

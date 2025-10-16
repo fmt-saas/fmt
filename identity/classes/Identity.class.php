@@ -561,6 +561,18 @@ class Identity extends Model {
                 'onupdate'          => 'onupdateUserId'
             ],
 
+
+            /*
+                On Master instance (only), there might be several User accounts linked to a single Identity.
+            */
+            'users_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'identity\User',
+                'foreign_field'     => 'identity_id',
+                'description'       => 'List of Users associated to this identity, if any.',
+                'visible'           => [['type', '=', 'IN']],
+            ],
+
             'customer_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\customer\Customer',
@@ -1608,9 +1620,10 @@ class Identity extends Model {
 
             $digest = "{$street}::{$number}::{$zip}";
             // ignore digests with non-significant clues
-            if(strlen($digest) > 15) {
-                $result[$id] = md5($digest);
+            if(strlen($digest) <= 15) {
+                continue;
             }
+            $result[$id] = md5($digest);
         }
         return $result;
     }

@@ -55,8 +55,20 @@ class LabelingRule extends Model {
                 'foreign_object'    => 'purchase\supplier\Supplier',
                 'foreign_field'     => 'labeling_rule_id',
                 'description'       => "Lines that are related to this rule."
-            ]
+            ],
 
+            'document_type_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\DocumentType',
+                'description'       => 'Document type linked to the rule.'
+            ],
+
+            'document_subtype_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\DocumentSubtype',
+                'description'       => 'Document subtype associated with the rule, if any.',
+                'domain'            => ['document_type_id', '=', 'object.document_type_id']
+            ]
         ];
     }
 

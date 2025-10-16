@@ -65,7 +65,7 @@ class Supplier extends Identity {
 
             'invoices_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'purchase\accounting\invoice\Invoice',
+                'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoice',
                 'foreign_field'     => 'supplier_id',
                 'description'       => 'Purchase invoices from the supplier.'
             ],
@@ -108,10 +108,10 @@ class Supplier extends Identity {
                 'rel_local_key'     => 'supplier_id'
             ],
 
-            // #memo - foreign_field cannot be used here, since it should be identity_id, which points back to current object's `id` instead of `identity_id`
             'bank_accounts_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\bank\BankAccount',
+                // #memo - foreign_field cannot be used here, since it should be identity_id, which points back to current object's `id` instead of `identity_id`
                 'description'       => 'List of the bank account of the supplier.',
                 'domain'            => ['owner_identity_id', '=', 'object.identity_id']
             ],
@@ -124,7 +124,6 @@ class Supplier extends Identity {
             ],
 
             'contacts_ids' => [
-                'type'              => 'computed',
                 'type'              => 'one2many',
                 'foreign_object'    => 'identity\Contact',
                 // #memo - there is no direct relation, so we use domain to point `owner_identity_id` to the supplier's identity
