@@ -6,6 +6,7 @@
 */
 namespace hr\employee;
 
+use hr\role\RoleAssignment;
 use identity\Identity;
 
 
@@ -110,12 +111,23 @@ class Employee extends Identity {
                 'type'              => 'many2many',
                 'foreign_object'    => 'hr\Team',
                 'foreign_field'     => 'employees_ids',
+                'onupdate'          => 'onupdateTeamsIds',
                 'rel_table'         => 'hr_rel_employee_team',
                 'rel_foreign_key'   => 'team_id',
                 'rel_local_key'     => 'employee_id',
                 'description'       => 'Teams the employee is a members of.'
             ]
 
+        ];
+    }
+
+    public static function getActions() {
+        return [
+            'sync_from_teams' => [
+                'description'   => "Sync role assignments from Teams and subsequent roles.",
+                'policies'      => [],
+                'function'      => 'doSyncFromTeams'
+            ]
         ];
     }
 
@@ -145,7 +157,41 @@ class Employee extends Identity {
         }
     }
 
-    public static function calcRoleId($self) {
+    private static function doSyncFromTeams($self) {
+        $self->read(['condo_id', 'teams_ids' => ['role_id']]);
+        foreach($self as $id => $employee) {
+            if(!$employee['teams_ids'] || empty($employee['teams_ids'])) {
+                continue;
+            }
+            $role_assignments_ids = [];
+            foreach($employee['teams_ids'] as $team) {
+                if(!$team['role_id']) {
+                    continue;
+                }
+                $roleAssignment = RoleAssignment::search([['employee_id', '=', $id], ['role_id', '=', $team['role_id']]])->first();
+                if($roleAssignment) {
+                    continue;
+                }
+                $roleAssignment = RoleAssignment::create([
+                        'condo_id'      => $employee['condo_id'],
+                        'employee_id'   => $id,
+                        'role_id'       => $team['role_id']
+                    ])
+                    ->first();
+                $role_assignments_ids[] = $roleAssignment['id'];
+            }
+            self::id($id)->update(['role_assignments_ids' => $role_assignments_ids]);
+        }
+    }
+
+    /**
+     * Sync roles with currently assigned teams.
+     */
+    protected static function onupdateTeamsIds($self) {
+        $self->do('sync_from_teams');
+    }
+
+    protected static function calcRoleId($self) {
         $result = [];
         $self->read(['role_assignments_ids' => ['is_primary', 'role_id']]);
         foreach($self as $id => $employee) {

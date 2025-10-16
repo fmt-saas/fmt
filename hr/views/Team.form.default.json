@@ -15,10 +15,15 @@
                                             {
                                                 "type": "field",
                                                 "value": "name",
-                                                "width": "100%",
+                                                "width": "50%",
                                                 "widget": {
                                                     "heading": true
                                                 }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "role_id",
+                                                "width": "50%"
                                             }
                                         ]
                                     }

@@ -6,6 +6,9 @@
 */
 namespace hr;
 
+use hr\employee\Employee;
+use hr\role\RoleAssignment;
+
 class Team extends \equal\orm\Model {
 
     public static function getName() {
@@ -36,6 +39,7 @@ class Team extends \equal\orm\Model {
                 'type'              => 'many2many',
                 'foreign_object'    => 'hr\employee\Employee',
                 'foreign_field'     => 'teams_ids',
+                'onupdate'          => 'onupdateEmployeesIds',
                 'rel_table'         => 'hr_rel_employee_team',
                 'rel_foreign_key'   => 'employee_id',
                 'rel_local_key'     => 'team_id',
@@ -50,6 +54,12 @@ class Team extends \equal\orm\Model {
                 'description'       => 'Number of employees in the team.',
                 'function'          => 'calcMembersCount',
                 'store'             => false
+            ],
+
+            'role_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'hr\role\Role',
+                'description'       => 'Primary role, if set.',
             ]
 
         ];
@@ -62,5 +72,18 @@ class Team extends \equal\orm\Model {
             $result[$id] = count($team['employees_ids']);
         }
         return $result;
+    }
+
+    /**
+     * Sync roles with currently assigned teams.
+     */
+    protected static function onupdateEmployeesIds($self) {
+        $self->read(['condo_id', 'role_id', 'employees_ids']);
+        foreach($self as $id => $team) {
+            if(!$team['employees_ids'] || empty($employee['employees_ids'])) {
+                continue;
+            }
+            Employee::ids($team['employees_ids'])->do('sync_from_teams');
+        }
     }
 }

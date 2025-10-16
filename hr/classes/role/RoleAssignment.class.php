@@ -109,11 +109,6 @@ class RoleAssignment extends \equal\orm\Model {
         ];
     }
 
-    public static function getActions() {
-        return [
-        ];
-    }
-
     /**
      * #memo - this will trigger `identity_id` refresh
      *

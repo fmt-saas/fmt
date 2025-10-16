@@ -1,11 +1,16 @@
 {
     "name": "Team",
-    "description": "List of Teams (group of employees).",
+    "description": "List of Teams (employees grouped by role).",
     "layout": {
         "items": [
             {
                 "type": "field",
                 "value": "name",
+                "width": "30%"
+            },
+            {
+                "type": "field",
+                "value": "role_id",
                 "width": "30%"
             },
             {
