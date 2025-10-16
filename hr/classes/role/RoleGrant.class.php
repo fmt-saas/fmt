@@ -6,7 +6,7 @@
 */
 namespace hr;
 
-class Permission extends \equal\orm\Model {
+class RoleGrant extends \equal\orm\Model {
 
     public static function getColumns() {
         return [
