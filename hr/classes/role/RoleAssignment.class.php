@@ -6,8 +6,6 @@
 */
 namespace hr\role;
 
-use identity\User;
-
 class RoleAssignment extends \equal\orm\Model {
 
     public static function getName() {
