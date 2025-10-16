@@ -1,0 +1,8 @@
+{
+    "/envinfo": {
+        "GET": {
+            "description": "Public config",
+            "operation": "?get=fmt_envinfo"
+        }
+    }
+}

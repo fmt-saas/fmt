@@ -1,0 +1,116 @@
+<?php
+/*
+    This file is part of the eQual framework <http://www.github.com/equalframework/equal>
+    Some Rights Reserved, eQual framework, 2010-2024
+    Original author(s): Cédric FRANCOYS
+    Licensed under GNU LGPL 3 license <http://www.gnu.org/licenses/>
+*/
+
+use fmt\setting\Setting;
+use fmt\setting\SettingValue;
+
+list( $params, $providers ) = eQual::announce([
+    'description' => 'Retrieve public configuration intended for front-end.',
+    'help'        => "This controller is public, but the information stored as SettingValue objects are only disclosed to authenticated users (user_id <> 0).\n
+                     If there are any setting values specific to the current user, these are append to the response.",
+    'access'      => [
+        'visibility' => 'public'
+    ],
+    'response'    => [
+        'content-type'  => 'application/json',
+        'charset'       => 'UTF-8',
+        'accept-origin' => '*',
+        'cacheable'     => false,
+        'cache-vary'    => ['user'],
+        'expires'       => (60*60*24)
+    ],
+    'constants'   => [
+        "ENV_MODE",
+        "APP_DEFAULT_LANG",
+        "L10N_LOCALE",
+        "ORG_NAME",
+        "ORG_URL",
+        "APP_NAME",
+        "APP_LOGO_URL",
+        "BACKEND_URL",
+        "REST_API_URL",
+        "NOTIFICATIONS_ENABLED",
+        "USER_ACCOUNT_REGISTRATION",
+        "FMT_INSTANCE_TYPE"
+    ],
+    'providers'     => ['context', 'auth']
+] );
+
+list($context, $auth) = [$providers['context'], $providers['auth']];
+
+$envinfo = [
+    "env_mode"              => constant('ENV_MODE'),
+    "production"            => (constant('ENV_MODE') == 'production'),
+    "parent_domain"         => parse_url(constant('BACKEND_URL'), PHP_URL_HOST),
+    "backend_url"           => constant('BACKEND_URL'),
+    "rest_api_url"          => constant('REST_API_URL'),
+    "lang"                  => constant('APP_DEFAULT_LANG'),
+    "locale"                => constant('L10N_LOCALE'),
+    "company_name"          => constant('ORG_NAME'),
+    "company_url"           => constant('ORG_URL'),
+    "app_name"              => constant('APP_NAME'),
+    "app_logo_url"          => constant('APP_LOGO_URL'),
+    "account_registration"  => constant('USER_ACCOUNT_REGISTRATION'),
+    "instance_type"         => constant('FMT_INSTANCE_TYPE')
+];
+
+// retrieve current User
+$user_id = $auth->userId();
+
+// append settings values if request is made by an authenticated user
+if($user_id) {
+    // disclose version only to authenticated users
+    $envinfo["version"] = constant('EQ_VERSION');
+
+    $envinfo["notifications"] = constant('NOTIFICATIONS_ENABLED');
+
+    // 1) read global settings
+    $settingValues = SettingValue::search([[['user_id', '=', 0]], [['user_id', 'is', null]]])->read(['name', 'value', 'setting_id'])->get();
+    $settings_ids = array_map(function ($a) {return $a['setting_id'];}, $settingValues);
+    $map_settings = Setting::ids($settings_ids)->read(['type'])->get();
+
+    foreach($settingValues as $sid => $settingValue) {
+        $value = $settingValue['value'];
+        $type = $map_settings[$settingValue['setting_id']]['type'] ?? null;
+        settype($value, [
+                'boolean'   => 'boolean',
+                'integer'   => 'integer',
+                'float'     => 'double',
+                'string'    => 'string',
+                'many2one'  => 'integer'
+            ][$type] ?? 'string');
+        $envinfo[$settingValue['name']] = $value;
+    }
+
+    // 2) overload with current User specific settings, if any
+    $settingValues = SettingValue::search(['user_id', '=', $user_id])->read(['name', 'value', 'setting_id'])->get();
+    $settings_ids = array_map(function ($a) {return $a['setting_id'];}, $settingValues);
+    $map_settings = Setting::ids($settings_ids)->read(['type', 'package', 'section'])->get();
+
+    foreach($settingValues as $sid => $settingValue) {
+        $setting = $map_settings[$settingValue['setting_id']];
+        if($setting['package'] == 'core' && $setting['section'] == 'security') {
+            // do not disclose security settings
+            continue;
+        }
+        $value = $settingValue['value'];
+        $type = $setting['type'] ?? null;
+        settype($value, [
+                'boolean'   => 'boolean',
+                'integer'   => 'integer',
+                'float'     => 'double',
+                'string'    => 'string',
+                'many2one'  => 'integer'
+            ][$type] ?? 'string');
+        $envinfo[$settingValue['name']] = $value;
+    }
+}
+
+$context->httpResponse()
+        ->body($envinfo)
+        ->send();
