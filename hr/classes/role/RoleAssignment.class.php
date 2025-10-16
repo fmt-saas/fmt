@@ -111,39 +111,11 @@ class RoleAssignment extends \equal\orm\Model {
 
     public static function getActions() {
         return [
-            'sync_user_permissions' => [
-                'description'   => "Sets the validated flag to true.",
-                'policies'      => [],
-                'function'      => 'doSyncUserPermissions'
-            ]
         ];
     }
 
-    protected static function doSyncUserPermissions($self) {
-        $self->read(['user_id', 'role_id' => ['groups_ids']]);
-        foreach($self as $id => $assignment) {
-            if(!$assignment['user_id']) {
-                continue;
-            }
-            if(!$assignment['role_id']) {
-                continue;
-            }
-            // #todo - what if user is granted groups aside from role's groups?
-            User::id($assignment['user_id'])->update(['groups_ids' => $assignment['role_id']['groups_ids']]);
-        }
-    }
-
-
-    protected static function onupdateUserId($self) {
-        $self->do('sync_user_permissions');
-    }
-
-    protected static function onupdateRoleId($self) {
-        $self->do('sync_user_permissions');
-    }
-
     /**
-     * #memo - this will trigger `identity_id` refresh, and possibly `sync_user_permissions`
+     * #memo - this will trigger `identity_id` refresh
      *
      */
     protected static function onupdateEmployeeId($self) {

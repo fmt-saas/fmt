@@ -4,7 +4,7 @@
     (c) 2025–2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
 */
-use core\Group;
+use identity\Group;
 use identity\User;
 use core\Permission;
 use hr\role\Role;
@@ -106,8 +106,8 @@ $tests = [
                 },
             'assert'            => function($user_id) use($providers) {
                     /** @var \fmt\access\AccessController */
-                    $am = $providers['access'];
-                    return $am->userIsAllowed($user_id, EQ_R_UPDATE, 'realestate\property\PropertyLot');
+                    $ac = $providers['access'];
+                    return $ac->userIsAllowed($user_id, EQ_R_UPDATE, 'realestate\property\PropertyLot');
                 },
             'rollback'          => function() {
                     User::search(['login', '=', 'user_test@example.com'])->delete(true);

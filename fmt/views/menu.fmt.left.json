@@ -260,28 +260,36 @@
                         }
                     },
                     {
-                        "id": "assignments",
-                        "type": "entry",
-                        "label": "Assignments",
-                        "icon": "group_add",
+                        "id": "security",
+                        "label": "Security",
                         "description": "",
-                        "context": {
-                            "entity": "hr\\role\\RoleAssignment",
-                            "view": "list.default"
-                        }
-                    },
-                    {
-                        "id": "roles",
-                        "type": "entry",
-                        "label": "Roles",
-                        "icon": "assignment_ind",
-                        "description": "",
-                        "context": {
-                            "entity": "hr\\role\\Role",
-                            "view": "list.default"
-                        }
+                        "icon": "lock_open",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "roles",
+                                "type": "entry",
+                                "label": "Roles",
+                                "icon": "assignment_ind",
+                                "description": "",
+                                "context": {
+                                    "entity": "hr\\role\\Role",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "assignments",
+                                "type": "entry",
+                                "label": "Assignments",
+                                "icon": "group_add",
+                                "description": "",
+                                "context": {
+                                    "entity": "hr\\role\\RoleAssignment",
+                                    "view": "list.default"
+                                }
+                            }
+                        ]
                     }
-
                 ]
             },
             {

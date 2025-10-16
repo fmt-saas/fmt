@@ -7,7 +7,7 @@
 namespace fmt\access;
 
 use equal\orm\ObjectManager;
-use hr\Permission;
+use core\Permission;
 use hr\role\Role;
 use hr\role\RoleAssignment;
 
@@ -133,115 +133,123 @@ class AccessController extends \equal\access\AccessController {
         if($object_class === '*') {
             return parent::userIsAllowed($user_id, $operation, $object_class, $object_fields, $object_ids);
         }
-        else {
-            $rights = 0;
 
-            while( true ) {
+        $rights = 0;
 
-                // retrieve rights from user and its groups
-                $rights |= parent::getUserRights($user_id, $object_class, $object_ids, $operation);
+        while( true ) {
 
-                if( ($rights & $operation) === $operation ) {
-                    break;
-                }
+            // retrieve rights from user and its groups
+            $rights |= parent::getUserRights($user_id, $object_class, $object_ids, $operation);
 
-                $model = $orm->getModel($object_class);
-                if($model === false) {
-                    trigger_error("APP::isAllowed(): unknown class '$object_class'", EQ_REPORT_WARNING);
-                    return false;
-                }
-
-                $schema = $model->getSchema();
-                // check HR roles only for classes relating to condominiums
-                if(isset($schema['condo_id'])) {
-
-                    $domain = [];
-
-                    if(count($object_ids)) {
-                        $objects = $orm->read($model::getType(), $object_ids, ['condo_id']);
-                        $condos_ids = array_map(function($o) { return $o['condo_id']; }, $objects);
-                        $domain = [
-                                // roles for condominiums specific to the objects (if $object_ids not empty)
-                                [
-                                    ['user_id', '=', $user_id],
-                                    ['condo_id', 'in', $condos_ids]
-                                ],
-                                // roles for any condominium
-                                [
-                                    ['user_id', '=', $user_id],
-                                    ['condo_id', 'is', null]
-                                ]
-                            ];
-                    }
-                    else {
-                        // check for roles on whole class (not specific objects)
-                        $domain = [
-                                [
-                                    ['user_id', '=', $user_id],
-                                    ['condo_id', 'is', null]
-                                ]
-                            ];
-                    }
-
-                    // retrieve roles assignments for any of the related condominiums
-                    $assignments_ids = $orm->search(RoleAssignment::getType(), $domain);
-
-                    if(!is_array($assignments_ids) || !count($assignments_ids)) {
-                        break;
-                    }
-
-                    // retrieve common roles (assigned to all objects), if any
-                    $assignments = $orm->read(RoleAssignment::getType(), $assignments_ids, ['condo_id', 'role_id']);
-                    $map_roles_by_condo = [];
-                    foreach($assignments as $a) {
-                        $map_roles_by_condo[$a['condo_id']][] = $a['role_id'];
-                    }
-                    if(count($map_roles_by_condo) <= 1) {
-                        $roles_ids = (current($map_roles_by_condo)) ?: [];
-                    }
-                    else {
-                        $roles_ids = array_intersect(...array_values($map_roles_by_condo));
-                    }
-
-                    // retrieve all permissions from granted roles
-                    $permissions_ids = $orm->search(Permission::getType(), ['role_id', 'in', $roles_ids]);
-
-                    if(!is_array($permissions_ids) || !count($permissions_ids)) {
-                        break;
-                    }
-
-                    $permissions = $orm->read(Permission::getType(), $permissions_ids, ['class_name', 'rights']);
-
-                    // check matches for the target class and all its parents
-                    $classes = [
-                        $object_class => true
-                    ];
-
-                    $parent_classes = ObjectManager::getObjectParentsClasses($object_class);
-                    if(count($parent_classes)) {
-                        $classes = [];
-                        $table_name = $orm->getObjectTableName($object_class);
-                        foreach($parent_classes as $class) {
-                            if($orm->getObjectTableName($class) == $table_name) {
-                                $classes[$class] = true;
-                            }
-                        }
-                    }
-
-                    foreach($permissions as $permission) {
-                        foreach(array_keys($classes) as $class) {
-                            if($class === $permission['class_name']) {
-                                $rights |= $permission['rights'];
-                                if( ($rights & $operation) === $operation ) {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
+            if( ($rights & $operation) === $operation ) {
                 break;
             }
 
+            $model = $orm->getModel($object_class);
+            if($model === false) {
+                trigger_error("APP::isAllowed(): unknown class '$object_class'", EQ_REPORT_WARNING);
+                return false;
+            }
+
+            $schema = $model->getSchema();
+            // check HR roles only for classes relating to condominiums
+            if(isset($schema['condo_id'])) {
+
+                $domain = [];
+
+                if(count($object_ids)) {
+                    $objects = $orm->read($model::getType(), $object_ids, ['condo_id']);
+                    $condos_ids = array_map(function($o) { return $o['condo_id']; }, $objects);
+                    $domain = [
+                            // roles for condominiums specific to the objects (if $object_ids not empty)
+                            [
+                                ['user_id', '=', $user_id],
+                                ['condo_id', 'in', $condos_ids]
+                            ],
+                            // roles for any condominium
+                            [
+                                ['user_id', '=', $user_id],
+                                ['condo_id', 'is', null]
+                            ]
+                        ];
+                }
+                else {
+                    // check for roles on whole class (not specific objects)
+                    $domain = [
+                            [
+                                ['user_id', '=', $user_id],
+                                ['condo_id', 'is', null]
+                            ]
+                        ];
+                }
+
+                // retrieve roles assignments for any of the related condominiums
+                $assignments_ids = $orm->search(RoleAssignment::getType(), $domain);
+
+                if(!is_array($assignments_ids) || !count($assignments_ids)) {
+                    break;
+                }
+
+                // retrieve common roles (assigned to all objects), if any
+                $assignments = $orm->read(RoleAssignment::getType(), $assignments_ids, ['condo_id', 'role_id']);
+                $map_roles_by_condo = [];
+                foreach($assignments as $a) {
+                    $map_roles_by_condo[$a['condo_id']][] = $a['role_id'];
+                }
+                if(count($map_roles_by_condo) <= 1) {
+                    $roles_ids = (current($map_roles_by_condo)) ?: [];
+                }
+                else {
+                    $roles_ids = array_intersect(...array_values($map_roles_by_condo));
+                }
+
+                $map_groups_ids = [];
+                $roles = Role::ids($roles_ids)->read(['groups_ids']);
+
+                foreach($roles as $role) {
+                    foreach($role['groups_ids'] as $group_id) {
+                        $map_groups_ids[$group_id] = true;
+                    }
+                }
+
+                // retrieve all permissions from granted roles
+                $permissions_ids = $orm->search(Permission::getType(), ['group_id', 'in', array_keys($map_groups_ids)]);
+
+                if(!is_array($permissions_ids) || !count($permissions_ids)) {
+                    break;
+                }
+
+                $permissions = $orm->read(Permission::getType(), $permissions_ids, ['class_name', 'rights']);
+
+                // check matches for the target class and all its parents
+                $classes = [
+                    $object_class => true
+                ];
+
+                $parent_classes = ObjectManager::getObjectParentsClasses($object_class);
+                if(count($parent_classes)) {
+                    $classes = [];
+                    $table_name = $orm->getObjectTableName($object_class);
+                    foreach($parent_classes as $class) {
+                        if($orm->getObjectTableName($class) == $table_name) {
+                            $classes[$class] = true;
+                        }
+                    }
+                }
+
+                foreach($permissions as $permission) {
+                    foreach(array_keys($classes) as $class) {
+                        if($class === $permission['class_name']) {
+                            $rights |= $permission['rights'];
+                            if( ($rights & $operation) === $operation ) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            break;
         }
 
         return ($rights & $operation) === $operation;
