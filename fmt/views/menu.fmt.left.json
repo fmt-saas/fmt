@@ -717,6 +717,38 @@
                         }
                     }
                 ]
+            },
+            {
+                "id": "item.infra",
+                "visible": ["agency", "=", "env.instance_type"],
+                "label": "Infra",
+                "description": "",
+                "icon": "file_upload",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "item.infra.servers",
+                        "type": "entry",
+                        "label": "Servers",
+                        "icon": "receipt_long",
+                        "description": "",
+                        "context": {
+                            "view": "form.default",
+                            "entity": "infra\\server\\Server"
+                        }
+                    },
+                    {
+                        "id": "item.infra.instances",
+                        "type": "entry",
+                        "label": "Instances",
+                        "icon": "receipt_long",
+                        "description": "",
+                        "context": {
+                            "view": "form.default",
+                            "entity": "infra\\server\\Instance"
+                        }
+                    }
+                ]
             }
         ]
     }

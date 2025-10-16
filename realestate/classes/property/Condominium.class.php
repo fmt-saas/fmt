@@ -32,6 +32,15 @@ class Condominium extends Identity {
                 'default'           => 'realestate\property\Condominium'
             ],
 
+            'uuid' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:36',
+                // #memo - commented for testing because items are on the same instance
+                // #todo - uncomment for PROD
+                // 'unique'            => true,
+                'description'       => 'Unique identifier from the Master instance.'
+            ],
+
             'condo_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'integer',
@@ -65,6 +74,13 @@ class Condominium extends Identity {
                 'description'       => "List of assemblies related to the condominium.",
                 'foreign_object'    => 'realestate\governance\Assembly',
                 'foreign_field'     => 'condo_id'
+            ],
+
+            'instance_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'infra\server\Instance',
+                'description'       => "The instance on which the condominium is currently managed.",
+                'help'              => "The instance is assumed to be consistent with the assigned Managing Agent."
             ],
 
             'managing_agent_id' => [
