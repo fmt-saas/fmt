@@ -24,6 +24,15 @@ class User extends \core\User {
                 'readonly'          => true
             ],
 
+            'uuid' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:36',
+                // #memo - commented for testing because items are on the same instance
+                // #todo - uncomment for PROD
+                // 'unique'            => true,
+                'description'       => 'Unique identifier from the Master instance.'
+            ],
+
             'identity_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Identity',

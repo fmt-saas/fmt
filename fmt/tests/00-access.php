@@ -6,8 +6,7 @@
 */
 use core\Group;
 use identity\User;
-use hr\Permission as HrPermission;
-use core\Permission as CorePermission;
+use core\Permission;
 use hr\role\Role;
 use hr\role\RoleAssignment;
 use realestate\property\Condominium;
@@ -47,7 +46,6 @@ $tests = [
                 },
             'act'               => function($params) use($providers) {
                     [$user, $role] = $params;
-                    HrPermission::create(['class_name' => 'realestate\property\Condominium', 'role_id' => $role['id'], 'rights' => 15]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id']]);
                     return $user['id'];
                 },
@@ -93,12 +91,16 @@ $tests = [
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
-                    $role = Role::create(['name' => 'test role', 'code' => 'test'])->first();
-                    return [$user, $role];
+                    $group = Group::create(['name' => 'test group'])->first();
+                    $role = Role::create(['name' => 'test role', 'code' => 'test'])
+                        ->update(['groups_ids' => [$group['id']]])
+                        ->first();
+
+                    return [$user, $role, $group];
                 },
             'act'               => function($params) use($providers) {
-                    [$user, $role] = $params;
-                    HrPermission::create(['class_name' => 'realestate\property\PropertyLot', 'role_id' => $role['id'], 'rights' => 15]);
+                    [$user, $role, $group] = $params;
+                    Permission::create(['class_name' => 'realestate\property\PropertyLot', 'group_id' => $group['id'], 'rights' => 15]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id']]);
                     return $user['id'];
                 },
@@ -109,6 +111,7 @@ $tests = [
                 },
             'rollback'          => function() {
                     User::search(['login', '=', 'user_test@example.com'])->delete(true);
+                    Group::search(['name', '=', 'test group'])->delete(true);
                     Role::search(['code', '=', 'test'])->delete(true);
                 }
         ],
@@ -153,8 +156,8 @@ $tests = [
                     [$user, $group] = $params;
                     /** @var \fmt\access\AccessController */
                     $am = $providers['access'];
-                    $am-> addGroup($group['id'], $user['id']);
-                    CorePermission::create(['class_name' => 'realestate\management\ManagingAgent', 'group_id' => $group['id'], 'rights' => 15]);
+                    $am->addGroup($group['id'], $user['id']);
+                    Permission::create(['class_name' => 'realestate\management\ManagingAgent', 'group_id' => $group['id'], 'rights' => 15]);
                     return $user['id'];
                 },
             'assert'            => function($user_id) use($providers) {
@@ -178,12 +181,15 @@ $tests = [
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
-                    $role = Role::create(['name' => 'test role', 'code' => 'test'])->first();
-                    return [$user, $role];
+                    $group = Group::create(['name' => 'test group'])->first();
+                    $role = Role::create(['name' => 'test role', 'code' => 'test'])
+                        ->update(['groups_ids' => [$group['id']]])
+                        ->first();
+                    return [$user, $role, $group];
                 },
             'act'               => function($params) use($providers) {
-                    [$user, $role] = $params;
-                    HrPermission::create(['class_name' => 'realestate\management\ManagingAgent', 'role_id' => $role['id'], 'rights' => EQ_R_READ|EQ_R_UPDATE]);
+                    [$user, $role, $group] = $params;
+                    Permission::create(['class_name' => 'realestate\management\ManagingAgent', 'group_id' => $group['id'], 'rights' => EQ_R_READ|EQ_R_UPDATE]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id']]);
                     return $user['id'];
                 },
@@ -195,6 +201,7 @@ $tests = [
             'rollback'          => function() {
                     User::search(['login', '=', 'user_test@example.com'])->delete(true);
                     Role::search(['code', '=', 'test'])->delete(true);
+                    Group::search(['name', '=', 'test group'])->delete(true);
                 }
         ],
 
@@ -208,12 +215,15 @@ $tests = [
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
-                    $role = Role::create(['name' => 'test role', 'code' => 'test'])->first();
-                    return [$user, $role];
+                    $group = Group::create(['name' => 'test group'])->first();
+                    $role = Role::create(['name' => 'test role', 'code' => 'test'])
+                        ->update(['groups_ids' => [$group['id']]])
+                        ->first();
+                    return [$user, $role, $group];
                 },
             'act'               => function($params) use($providers) {
-                    [$user, $role] = $params;
-                    HrPermission::create(['class_name' => 'realestate\property\PropertyLot', 'role_id' => $role['id'], 'rights' => EQ_R_READ]);
+                    [$user, $role, $group] = $params;
+                    Permission::create(['class_name' => 'realestate\property\PropertyLot', 'group_id' => $group['id'], 'rights' => EQ_R_READ]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id']]);
                     return $user['id'];
                 },
@@ -225,6 +235,7 @@ $tests = [
             'rollback'          => function() {
                     User::search(['login', '=', 'user_test@example.com'])->delete(true);
                     Role::search(['code', '=', 'test'])->delete(true);
+                    Group::search(['name', '=', 'test group'])->delete(true);
                 }
         ],
 
@@ -238,13 +249,16 @@ $tests = [
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
-                    $role = Role::create(['name' => 'test role', 'code' => 'test'])->first();
+                    $group = Group::create(['name' => 'test group'])->first();
+                    $role = Role::create(['name' => 'test role', 'code' => 'test'])
+                        ->update(['groups_ids' => [$group['id']]])
+                        ->first();
                     $condo = Condominium::create(['name' => 'test condo', 'managing_agent_id' => 1])->first();
-                    return [$user, $role, $condo];
+                    return [$user, $role, $condo, $group];
                 },
             'act'               => function($params) use($providers) {
-                    [$user, $role, $condo] = $params;
-                    HrPermission::create(['class_name' => 'realestate\property\PropertyLot', 'role_id' => $role['id'], 'rights' => EQ_R_UPDATE]);
+                    [$user, $role, $condo, $group] = $params;
+                    Permission::create(['class_name' => 'realestate\property\PropertyLot', 'group_id' => $group['id'], 'rights' => EQ_R_UPDATE]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id'], 'condo_id' => $condo['id' ]]);
                     return $params;
                 },
@@ -256,6 +270,7 @@ $tests = [
             'rollback'          => function() use($providers) {
                     User::search(['login', '=', 'user_test@example.com'])->delete(true);
                     Role::search(['code', '=', 'test'])->delete(true);
+                    Group::search(['name', '=', 'test group'])->delete(true);
                 }
         ],
 
@@ -269,13 +284,16 @@ $tests = [
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
-                    $role = Role::create(['name' => 'test role', 'code' => 'test'])->first();
+                    $group = Group::create(['name' => 'test group'])->first();
+                    $role = Role::create(['name' => 'test role', 'code' => 'test'])
+                        ->update(['groups_ids' => [$group['id']]])
+                        ->first();
                     $condo = Condominium::create(['name' => 'test condo', 'managing_agent_id' => 1])->first();
-                    return [$user, $role, $condo];
+                    return [$user, $role, $condo, $group];
                 },
             'act'               => function($params) use($providers) {
-                    [$user, $role, $condo] = $params;
-                    HrPermission::create(['class_name' => 'realestate\property\PropertyLot', 'role_id' => $role['id'], 'rights' => EQ_R_UPDATE]);
+                    [$user, $role, $condo, $group] = $params;
+                    Permission::create(['class_name' => 'realestate\property\PropertyLot', 'group_id' => $group['id'], 'rights' => EQ_R_UPDATE]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id']]);
                     return $params;
                 },
@@ -287,6 +305,7 @@ $tests = [
             'rollback'          => function() use($providers) {
                     User::search(['login', '=', 'user_test@example.com'])->delete(true);
                     Role::search(['code', '=', 'test'])->delete(true);
+                    Group::search(['name', '=', 'test group'])->delete(true);
                 }
         ],
 
@@ -299,14 +318,18 @@ $tests = [
                 ",
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
-                    $role = Role::create(['name' => 'test role', 'code' => 'test'])->first();
-                    $condo = Condominium::create(['name' => 'test condo', 'managing_agent_id' => 1])->first();
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
-                    return [$user, $role, $condo];
+                    $group = Group::create(['name' => 'test group'])->first();
+                    $role = Role::create(['name' => 'test role', 'code' => 'test'])
+                        ->update(['groups_ids' => [$group['id']]])
+                        ->first();
+                    $condo = Condominium::create(['name' => 'test condo', 'managing_agent_id' => 1])->first();
+
+                    return [$user, $role, $condo, $group];
                 },
             'act'               => function($params) use($providers) {
-                    [$user, $role, $condo] = $params;
-                    HrPermission::create(['class_name' => 'realestate\property\PropertyLot', 'role_id' => $role['id'], 'rights' => 15]);
+                    [$user, $role, $condo, $group] = $params;
+                    Permission::create(['class_name' => 'realestate\property\PropertyLot', 'group_id' => $group['id'], 'rights' => 15]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id'], 'condo_id' => $condo['id' ]]);
                     return $user['id'];
                 },
@@ -324,6 +347,7 @@ $tests = [
                     $auth->su();
                     User::search(['login', '=', 'user_test@example.com'])->delete(true);
                     Role::search(['code', '=', 'test'])->delete(true);
+                    Group::search(['name', '=', 'test group'])->delete(true);
                 }
         ],
 ];

@@ -26,13 +26,6 @@ class Supplier extends Identity {
     public static function getColumns() {
 
         return [
-            'object_class' => [
-                'type'              => 'string',
-                'description'       => 'Class of the current Identity.',
-                'help'              => 'This is required in order to display the relational fields accordingly.',
-                'default'           => 'purchase\supplier\Supplier'
-            ],
-
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -41,6 +34,22 @@ class Supplier extends Identity {
                 'store'             => true,
                 'readonly'          => true,
                 'onrevert'          => 'onrevertName'
+            ],
+
+            'uuid' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:36',
+                // #memo - commented for testing because items are on the same instance
+                // #todo - uncomment for PROD
+                // 'unique'            => true,
+                'description'       => 'Unique identifier from the Master instance.'
+            ],
+
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Class of the current Identity.',
+                'help'              => 'This is required in order to display the relational fields accordingly.',
+                'default'           => 'purchase\supplier\Supplier'
             ],
 
             /**

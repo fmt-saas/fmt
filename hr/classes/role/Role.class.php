@@ -59,7 +59,17 @@ class Role extends Group {
                 'foreign_field'     => 'role_id',
                 'description'       => "Targeted role to which the permission applies.",
                 'ondelete'          => 'cascade'
-            ]
+            ],
+
+            'groups_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'identity\Group',
+                'foreign_field'     => 'roles_ids',
+                'rel_table'         => 'hr_role_rel_core_group',
+                'rel_foreign_key'   => 'group_id',
+                'rel_local_key'     => 'role_id',
+                'description'       => 'Groups that are granted to employees assigned with the role.'
+            ],
 
         ];
     }

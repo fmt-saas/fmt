@@ -51,6 +51,15 @@ class Identity extends Model {
                     Whereas, for an individual having \"John\" as firstname and \"Smith\" as lastname, it will return \"John Smith\"."
             ],
 
+            'uuid' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:36',
+                // #memo - commented for testing because items are on the same instance
+                // #todo - uncomment for PROD
+                // 'unique'            => true,
+                'description'       => 'Unique identifier from the Master instance.'
+            ],
+
             'object_class' => [
                 'type'              => 'string',
                 'description'       => 'Class of the current entity.',
@@ -68,15 +77,6 @@ class Identity extends Model {
                 'store'             => true,
                 'instant'           => true,
                 'readonly'          => true
-            ],
-
-            'uuid' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:36',
-                // #memo - commented for testing
-                // #todo - uncomment for PROD
-                // 'unique'            => true,
-                'description'       => 'Unique Identity identifier from the Master instance.'
             ],
 
             'identity_id' => [

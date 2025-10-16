@@ -10,7 +10,7 @@ use purchase\supplier\SupplierType;
 
 class NotaryOffice extends \purchase\supplier\Supplier {
 
-    // #memo NotaryOffice uses the same DB table as Supplier
+    // #memo - NotaryOffice uses the same DB table as Supplier
 
     public static function getName() {
         return 'Notary Office';
@@ -23,6 +23,8 @@ class NotaryOffice extends \purchase\supplier\Supplier {
     public static function getColumns() {
 
         return [
+            // #memo - inherits uuid from Supplier
+
             'object_class' => [
                 'type'              => 'string',
                 'description'       => 'Class of the current Identity.',

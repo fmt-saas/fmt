@@ -32,6 +32,15 @@ class Document extends Model {
                 'onupdate'          => 'onupdateCondoId'
             ],
 
+            'uuid' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:36',
+                // #memo - commented for testing because items are on the same instance
+                // #todo - uncomment for PROD
+                // 'unique'            => true,
+                'description'       => 'Unique identifier from the Master instance.'
+            ],
+
             'ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The ownership that the document relates to, if any.",
@@ -214,15 +223,6 @@ class Document extends Model {
                 'help'              => 'This field holds the hexadecimal value of the hash and might require a conversion to base64 for exchanges.',
                 'store'             => true,
                 'readonly'          => true
-            ],
-
-            'uuid' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:36',
-                // #memo - commented for testing
-                // #todo - uncomment for PROD
-                // 'unique'            => true,
-                'description'       => 'Unique document identifier provided by EDMS'
             ],
 
             'link' => [

@@ -10,6 +10,8 @@ namespace finance\bank;
 
 class Bank extends \purchase\supplier\Supplier {
 
+    // #memo - Bank uses the same DB table as Supplier
+
     public static function getName() {
         return 'Bank';
     }
@@ -21,6 +23,8 @@ class Bank extends \purchase\supplier\Supplier {
     public static function getColumns() {
 
         return [
+            // #memo - inherits uuid from Supplier
+
             'object_class' => [
                 'type'              => 'string',
                 'description'       => 'Class of the current Identity.',

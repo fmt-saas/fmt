@@ -6,7 +6,7 @@
 */
 namespace hr\role;
 
-use core\Assignment;
+use identity\User;
 
 class RoleAssignment extends \equal\orm\Model {
 
@@ -15,8 +15,8 @@ class RoleAssignment extends \equal\orm\Model {
     }
 
     public static function getDescription() {
-        return "An assignment links a user to one or more roles which, in turn, relate to specific permissions.
-        Assignments implicitly relate to the current Organization / Managing Agent of the current instance but can also be external to it.";
+        return "An assignment links a user to one or more roles which, in turn, relate to specific groups, and related permissions.
+        Assignments implicitly relate to the current Organization / Managing Agent of the current instance (through Employees) but can also be external to it (through Users).";
     }
 
     public static function getColumns() {
@@ -29,13 +29,6 @@ class RoleAssignment extends \equal\orm\Model {
                 'default'         => 1
             ],
 
-            'condo_name' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'relation'          => ['condo_id' => 'name'],
-                'store'             => true
-            ],
-
             'condo_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\Condominium',
@@ -44,11 +37,20 @@ class RoleAssignment extends \equal\orm\Model {
                 'dependents'        => ['condo_name']
             ],
 
+            'condo_name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['condo_id' => 'name'],
+                'store'             => true
+            ],
+
             'user_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\User',
+                'onupdate'          => 'onupdateUserId',
                 'description'       => 'User (internal or external) the assignment applies to.',
-                'help'              => 'The user should always be set and is used for Access Control. It is automatically retrieved from the employee_id.',
+                'help'              => 'The user should always be set and is used for Access Control.
+                    When `employee_id` is set, it is automatically retrieved from related Identity (in `onupdateEmployeeId`).',
                 'ondelete'          => 'cascade',
                 'dependents'        => ['identity_id']
             ],
@@ -74,6 +76,7 @@ class RoleAssignment extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'hr\role\Role',
                 'description'       => 'Role the assignment relates to.',
+                'onupdate'          => 'onupdateRoleId',
                 'ondelete'          => 'cascade',
                 'dependents'        => ['role_code']
             ],
@@ -106,10 +109,47 @@ class RoleAssignment extends \equal\orm\Model {
         ];
     }
 
-    public static function onupdateEmployeeId($self) {
-        $self->read(['employee_id' => ['identity_id' => 'user_id'], 'user_id' ]);
+    public static function getActions() {
+        return [
+            'sync_user_permissions' => [
+                'description'   => "Sets the validated flag to true.",
+                'policies'      => [],
+                'function'      => 'doSyncUserPermissions'
+            ]
+        ];
+    }
+
+    protected static function doSyncUserPermissions($self) {
+        $self->read(['user_id', 'role_id' => ['groups_ids']]);
         foreach($self as $id => $assignment) {
-            if($assignment['employee_id'] && !$assignment['user_id']) {
+            if(!$assignment['user_id']) {
+                continue;
+            }
+            if(!$assignment['role_id']) {
+                continue;
+            }
+            // #todo - what if user is granted groups aside from role's groups?
+            User::id($assignment['user_id'])->update(['groups_ids' => $assignment['role_id']['groups_ids']]);
+        }
+    }
+
+
+    protected static function onupdateUserId($self) {
+        $self->do('sync_user_permissions');
+    }
+
+    protected static function onupdateRoleId($self) {
+        $self->do('sync_user_permissions');
+    }
+
+    /**
+     * #memo - this will trigger `identity_id` refresh, and possibly `sync_user_permissions`
+     *
+     */
+    protected static function onupdateEmployeeId($self) {
+        $self->read(['employee_id' => ['identity_id' => 'user_id']]);
+        foreach($self as $id => $assignment) {
+            if(isset($assignment['employee_id']['identity_id'])) {
                 self::id($id)->update(['user_id' => $assignment['employee_id']['identity_id']['user_id']]);
             }
         }
