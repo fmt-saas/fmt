@@ -1,0 +1,35 @@
+
+{
+    "name": "Abonnement",
+    "plural": "Abonnements",
+    "description": "Vue par défaut pour la liste des abonnements.",
+    "model": {
+        "service_id": {
+            "label": "Service",
+            "description": "Serivce lié à l'abonnement.",
+            "help": ""
+        },
+        "is_internal": {
+            "label": "Est interne",
+            "description": "L'abonnement utilisé par l'entreprise en interne.",
+            "help": ""
+        },
+        "has_external_provider": {
+            "label": "Fournisseur externe",
+            "description": "L'abonnement a un fournisseur externe.",
+            "help": ""
+        },
+        "service_provider_id":{
+            "label": "Fournisseur",
+            "description": "Fournisseur de service.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Abonnement",
+            "description": "",
+            "layout": {}
+        }
+    }
+}

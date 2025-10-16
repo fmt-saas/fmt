@@ -1,0 +1,94 @@
+{
+    "name": "Instance",
+    "plural": "Instances",
+    "description": "Instance exécutée sur un serveur, par exemple une instance Docker.",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Nom unique de l'instance.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Courte description de l'instance.",
+            "help": ""
+        },
+        "instance_type": {
+            "label": "Type",
+            "description": "Type d'instance.",
+            "selection": {
+                "dev": "Développement",
+                "staging": "Staging",
+                "prod": "Production",
+                "replica": "Réplique"
+            },
+            "help": ""
+        },
+        "version": {
+            "label": "Version",
+            "description": "Version de la branche.",
+            "selection": {
+                "development": "Développement",
+                "staging": "Staging",
+                "preview": "Aperçu",
+                "production": "Production"
+            },
+            "help": ""
+        },
+        "branch": {
+            "label": "Branche",
+            "description": "Branche installée sur l'instance.",
+            "help": ""
+        },
+        "url": {
+            "label": "Url",
+            "description": "URL d'accueil du frontend.",
+            "help": ""
+        },
+        "server_id": {
+            "label": "Serveur",
+            "description": "Serveur sur lequel l'instance s'exécute.",
+            "help": ""
+        },
+        "product_id": {
+            "label": "Produit",
+            "description": "Produit auquel appartient l’instance.",
+            "help": ""
+        },
+        "accesses_ids": {
+            "label": "Logiciels",
+            "description": "Informations sur la façon d'accéder à l'instance.",
+            "help": ""
+        },
+        "softwares_ids": {
+            "label": "Logiciels",
+            "description": "Informations sur les logiciels exécutés sur l'instance.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Instance",
+            "description": "Affiche le formulaire de modification d'une instance.",
+            "layout": {
+                "section.details": {
+                    "label": "Details"
+                },
+                "section.description": {
+                    "label": "Description"
+                },
+                "section.accesses": {
+                    "label": "Accès"
+                },
+                "section.softwares": {
+                    "label": "Logiciels"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Instances",
+            "description": "Affiche la liste des instances.",
+            "layout": {}
+        }
+    }
+}

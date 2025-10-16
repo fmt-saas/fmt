@@ -1,0 +1,41 @@
+{
+    "name": "Inventory menu",
+    "search": true,
+    "layout": {
+        "items": [
+            {
+                "id": "item.advanced.servers",
+                "type": "parent",
+                "label": "All Servers",
+                "icon": "lan",
+                "description": "",
+                "children": [
+                    {
+                        "id": "item.advanced.servers.all-servers",
+                        "type": "entry",
+                        "label": "All Servers",
+                        "icon": "storage",
+                        "description": "",
+                        "context": {
+                            "entity": "inventory\\server\\Server",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "item.advanced.servers.instances",
+                        "type": "entry",
+                        "label": "Instances",
+                        "icon": "article",
+                        "description": "",
+                        "context": {
+                            "entity": "inventory\\server\\Instance",
+                            "view": "list.default",
+                            "order": "id",
+                            "sort": "asc"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

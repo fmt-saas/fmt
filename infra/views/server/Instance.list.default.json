@@ -1,0 +1,33 @@
+{
+    "name": "Model",
+    "description": "Instance manages service or product instances, detailing type, version, URL, access information, and running software.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "instance_type",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "url",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "server_id",
+                "width": "20%"
+            }
+        ]
+    }
+}

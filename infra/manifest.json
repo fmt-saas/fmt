@@ -1,0 +1,33 @@
+{
+    "name": "infra",
+    "description": "Manage your IT inventory, including products, services, software, and servers, while billing customers subscription-based.",
+    "version": "1.0",
+    "authors": ["Yesbabylon"],
+    "license": "LGPL-3",
+    "depends_on": [
+        "core",
+        "sale",
+        "purchase"
+    ],
+    "apps": [
+        {
+            "id": "infra",
+            "name": "Infra",
+            "extends": "app",
+            "description": "Application inventory",
+            "icon": "analytics",
+            "color": "#6C3483",
+            "access": {
+                "groups": [
+                    "admins"
+                ]
+            },
+            "params": {
+                "menus": {
+                    "left": "infra.left",
+                    "top": "infra.top"
+                }
+            }
+        }
+    ]
+}

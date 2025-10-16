@@ -1,0 +1,23 @@
+{
+    "name": "Model",
+    "description": "A Server hosts one or more instances.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "33%"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "33%"
+            },
+            {
+                "type": "field",
+                "value": "instances_count",
+                "width": "33%"
+            }
+        ]
+    }
+}
