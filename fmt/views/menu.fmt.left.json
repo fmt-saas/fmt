@@ -730,10 +730,10 @@
                         "id": "item.infra.servers",
                         "type": "entry",
                         "label": "Servers",
-                        "icon": "receipt_long",
+                        "icon": "storage",
                         "description": "",
                         "context": {
-                            "view": "form.default",
+                            "view": "list.default",
                             "entity": "infra\\server\\Server"
                         }
                     },
@@ -741,10 +741,10 @@
                         "id": "item.infra.instances",
                         "type": "entry",
                         "label": "Instances",
-                        "icon": "receipt_long",
+                        "icon": "settings_system_daydream",
                         "description": "",
                         "context": {
-                            "view": "form.default",
+                            "view": "list.default",
                             "entity": "infra\\server\\Instance"
                         }
                     }

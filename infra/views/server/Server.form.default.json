@@ -21,11 +21,6 @@
                                                 "type": "field",
                                                 "value": "description",
                                                 "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "instances_count",
-                                                "width": "100%"
                                             }
                                         ]
                                     }

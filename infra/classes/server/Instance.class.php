@@ -47,7 +47,7 @@ class Instance extends Model {
 
             'server_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'inventory\server\Server',
+                'foreign_object'    => 'infra\server\Server',
                 'description'       => 'Server (host) on which the instance runs.',
                 'ondelete'          => 'cascade',
                 'required'          => true

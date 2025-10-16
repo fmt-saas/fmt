@@ -35,7 +35,7 @@ class Server extends Model {
             'instances_ids' => [
                 'type'              => 'one2many',
                 'foreign_field'     => 'server_id',
-                'foreign_object'    => 'inventory\server\Instance',
+                'foreign_object'    => 'infra\server\Instance',
                 'ondetach'          => 'delete',
                 'description'       => 'Instances running on the server.'
             ],
