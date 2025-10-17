@@ -6,7 +6,7 @@
 */
 namespace finance\bank;
 
-
+use equal\data\DataGenerator;
 
 class Bank extends \purchase\supplier\Supplier {
 
@@ -39,6 +39,22 @@ class Bank extends \purchase\supplier\Supplier {
             ]
 
         ];
+    }
+
+    /**
+     * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
+     */
+    protected static function oncreate($self, $orm) {
+        foreach($self as $id => $object) {
+            if(constant('FMT_INSTANCE_TYPE') === 'global') {
+                do {
+                    $uuid = DataGenerator::uuid();
+                    $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
+                } while( $existing > 0 && count($existing) > 0 );
+
+                self::id($id)->update(['uuid' => $uuid]);
+            }
+        }
     }
 
 }

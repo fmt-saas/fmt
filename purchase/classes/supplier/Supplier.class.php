@@ -60,7 +60,7 @@ class Supplier extends Identity {
                 'type'              => 'string',
                 'usage'             => 'text/plain:36',
                 'unique'            => true,
-                'description'       => 'Unique supplier identifier provided by GLOBAL'
+                'description'       => 'Unique supplier identifier provided by GLOBAL instance.'
             ],
 
             'invoices_ids' => [

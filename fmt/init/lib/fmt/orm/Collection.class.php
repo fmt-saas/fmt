@@ -55,23 +55,22 @@ class Collection extends \equal\orm\Collection {
 
         if(\eQual::constant('FMT_INSTANCE_TYPE') === 'agency') {
             // #todo - adapt according to final logic
-            static $map_classes = [
-                'private' => [],
-                'protected' => [
-                    'core\User'                      => true,
-                    'identity\Identity'              => true,
-                    'purchase\supplier\Supplier'     => true,
-                    'documents\DocumentType'         => true
-                ]
+            // #memo #config #sync - sync between controllers
+            $map_entities = [
+                'identity\Identity'                     => 'protected',
+                'identity\User'                         => 'protected',
+                'purchase\supplier\Supplier'            => 'protected',
+                'purchase\supplier\SupplierType'        => 'private',
+                'finance\bank\Bank'                     => 'private',
+                'realestate\property\NotaryOffice'      => 'protected',
+                'realestate\management\ManagingAgent'   => 'private',
+                'realestate\property\Condominium'       => 'private',
+                'documents\DocumentType'                => 'private',
+                'documents\DocumentSubtype'             => 'private'
             ];
 
-            static $root_class = null;
-
-            if(!$root_class) {
-                $root_class = $this->orm->getObjectRootClass($this->class);
-            }
-
-            if(isset($map_classes['private'][$root_class])) {
+            // #todo - what should we do for root classes (from which others inherit) ?
+            if(isset($map_entities[$this->class]) && $map_entities[$this->class] === 'private') {
                 trigger_error("APP::Creation of private object {$this->class} forbidden for agency instance.", EQ_REPORT_WARNING);
                 throw new \Exception('private_entity', EQ_ERROR_INVALID_PARAM);
             }

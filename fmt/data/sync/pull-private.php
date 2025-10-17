@@ -9,8 +9,7 @@
     'description'   => 'Return all objects relating to private entities modified since given date.',
     'params'        => [
         'date_from' => [
-            'type'              => 'date',
-            'required'          => true
+            'type'          => 'date'
         ]
     ],
     'access' => [
@@ -26,7 +25,11 @@
 
 ['context' => $context, 'orm' => $orm] = $providers;
 
-// #memo #config - sync between controllers
+if(constant('FMT_INSTANCE_TYPE') !== 'global') {
+    throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
+}
+
+// #memo #config #sync - sync between controllers
 $map_entities = [
     'identity\Identity'                     => 'protected',
     'identity\User'                         => 'protected',
@@ -56,7 +59,13 @@ foreach($map_entities as $entity => $scope) {
         }
     }
 
-    $objects = $entity::search(['modified', '>=', $params['date_from']])
+    $domain = [];
+
+    if(isset($params['date_from'])) {
+        $domain[] = ['modified', '>=', $params['date_from']];
+    }
+
+    $objects = $entity::search($domain)
         ->read(array_keys($schema))
         ->adapt('json')
         ->get(true);

@@ -7,9 +7,14 @@
 
 namespace documents;
 
+use equal\data\DataGenerator;
 use equal\orm\Model;
 
 class DocumentType extends Model {
+
+    public static function constants() {
+        return ['FMT_INSTANCE_TYPE'];
+    }
 
     public static function getColumns() {
         return [
@@ -18,6 +23,13 @@ class DocumentType extends Model {
                 'type'              => 'string',
                 'description'       => 'Name of the document Type.',
                 'required'          => true
+            ],
+
+            'uuid' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:36',
+                'unique'            => true,
+                'description'       => 'Unique supplier identifier provided by GLOBAL instance.'
             ],
 
             'code' => [
@@ -81,7 +93,25 @@ class DocumentType extends Model {
 
         ];
     }
+
+    /**
+     * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
+     */
+    protected static function oncreate($self, $orm) {
+        foreach($self as $id => $object) {
+            if(constant('FMT_INSTANCE_TYPE') === 'global') {
+                do {
+                    $uuid = DataGenerator::uuid();
+                    $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
+                } while( $existing > 0 && count($existing) > 0 );
+
+                self::id($id)->update(['uuid' => $uuid]);
+            }
+        }
+    }
 }
+
+
 
 
 /*

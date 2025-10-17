@@ -30,7 +30,12 @@
 
 ['context' => $context, 'orm' => $orm] = $providers;
 
-// #memo #config - sync between controllers
+
+if(constant('FMT_INSTANCE_TYPE') !== 'global') {
+    throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
+}
+
+// #memo #config #sync - sync between controllers
 $map_entities = [
     'identity\Identity'                     => 'protected',
     'identity\User'                         => 'protected',
@@ -46,6 +51,10 @@ $map_entities = [
 
 if(!isset($map_entities[$params['entity']])) {
     throw new Exception('invalid_entity', EQ_ERROR_INVALID_PARAM);
+}
+
+if($map_entities[$params['entity']] !== 'protected') {
+    throw new Exception('invalid_entity_scope', EQ_ERROR_INVALID_PARAM);
 }
 
 // retrieve all fields of the requested entity

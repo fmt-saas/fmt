@@ -7,6 +7,7 @@
 namespace realestate\property;
 
 use documents\navigation\Node;
+use equal\data\DataGenerator;
 use finance\accounting\AccountChart;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
@@ -695,7 +696,23 @@ class Condominium extends Identity {
     }
 
     /**
-     * Upon creation of a condominium, it is necessary to create sequences for:
+     * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
+     */
+    protected static function oncreate($self, $orm) {
+        foreach($self as $id => $object) {
+            if(constant('FMT_INSTANCE_TYPE') === 'global') {
+                do {
+                    $uuid = DataGenerator::uuid();
+                    $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
+                } while( $existing > 0 && count($existing) > 0 );
+
+                self::id($id)->update(['uuid' => $uuid]);
+            }
+        }
+    }
+
+    /**
+     * Upon validation of a condominium, it is necessary to create sequences for:
      * - owners:            realestate.organization.ownership.sequence           [condo_id]
      * - lots:              realestate.organization.property_lot.sequence        [condo_id]
      * - apportionments:    realestate.organization.apportionment.sequence       [condo_id]

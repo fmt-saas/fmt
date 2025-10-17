@@ -7,6 +7,7 @@
 
 namespace realestate\management;
 
+use equal\data\DataGenerator;
 use identity\Identity;
 
 class ManagingAgent extends \purchase\supplier\Supplier {
@@ -75,4 +76,19 @@ class ManagingAgent extends \purchase\supplier\Supplier {
         parent::onupdateIdentityId($self);
     }
 
+    /**
+     * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
+     */
+    protected static function oncreate($self, $orm) {
+        foreach($self as $id => $object) {
+            if(constant('FMT_INSTANCE_TYPE') === 'global') {
+                do {
+                    $uuid = DataGenerator::uuid();
+                    $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
+                } while( $existing > 0 && count($existing) > 0 );
+
+                self::id($id)->update(['uuid' => $uuid]);
+            }
+        }
+    }
 }
