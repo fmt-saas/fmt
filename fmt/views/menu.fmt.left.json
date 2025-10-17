@@ -604,14 +604,14 @@
                 "type": "parent",
                 "children": [
                     {
-                        "id": "security",
+                        "id": "item.config.security",
                         "label": "Security",
                         "description": "",
                         "icon": "lock_open",
                         "type": "parent",
                         "children": [
                             {
-                                "id": "permissions",
+                                "id": "item.config.security.permissions",
                                 "type": "entry",
                                 "label": "Permissions",
                                 "icon": "how_to_reg",
@@ -622,7 +622,7 @@
                                 }
                             },
                             {
-                                "id": "users",
+                                "id": "item.config.security.users",
                                 "type": "entry",
                                 "label": "Users",
                                 "icon": "person",
@@ -633,7 +633,7 @@
                                 }
                             },
                             {
-                                "id": "groups",
+                                "id": "item.config.security.groups",
                                 "type": "entry",
                                 "label": "Groups",
                                 "icon": "group",
@@ -641,6 +641,36 @@
                                 "context": {
                                     "entity": "core\\Group",
                                     "view": "list.default"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "item.config.scheduler",
+                        "label": "Scheduler",
+                        "description": "",
+                        "icon": "schedule",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "item.config.scheduler.cron_tasks",
+                                "type": "entry",
+                                "label": "Scheduled tasks",
+                                "description": "",
+                                "context": {
+                                    "entity": "core\\Task",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "item.config.scheduler.cron_tasks_recurring",
+                                "type": "entry",
+                                "label": "Recurring tasks",
+                                "description": "",
+                                "context": {
+                                    "entity": "core\\Task",
+                                    "view": "list.default",
+                                    "domain": ["is_recurring", "=", true]
                                 }
                             }
                         ]
@@ -723,7 +753,7 @@
                 "visible": ["agency", "=", "env.instance_type"],
                 "label": "Infra",
                 "description": "",
-                "icon": "file_upload",
+                "icon": "cloud",
                 "type": "parent",
                 "children": [
                     {
