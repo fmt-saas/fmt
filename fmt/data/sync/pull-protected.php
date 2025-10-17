@@ -13,7 +13,8 @@
             'required'          => true
         ],
         'date_from' => [
-            'type'              => 'date'
+            'type'              => 'datetime',
+            'required'          => true
         ]
     ],
     'access' => [

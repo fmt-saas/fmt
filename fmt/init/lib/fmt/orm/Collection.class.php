@@ -71,8 +71,11 @@ class Collection extends \equal\orm\Collection {
 
             // #todo - what should we do for root classes (from which others inherit) ?
             if(isset($map_entities[$this->class]) && $map_entities[$this->class] === 'private') {
-                trigger_error("APP::Creation of private object {$this->class} forbidden for agency instance.", EQ_REPORT_WARNING);
-                throw new \Exception('private_entity', EQ_ERROR_INVALID_PARAM);
+                $user_id = $this->am->userId();
+                if($user_id != EQ_ROOT_USER_ID) {
+                    trigger_error("APP::Creation of private object {$this->class} forbidden for agency instance.", EQ_REPORT_WARNING);
+                    throw new \Exception('private_entity', EQ_ERROR_INVALID_PARAM);
+                }
             }
         }
 

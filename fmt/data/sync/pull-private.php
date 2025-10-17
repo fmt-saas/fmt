@@ -9,7 +9,8 @@
     'description'   => 'Return all objects relating to private entities modified since given date.',
     'params'        => [
         'date_from' => [
-            'type'          => 'date'
+            'type'          => 'datetime',
+            'required'      => true
         ]
     ],
     'access' => [

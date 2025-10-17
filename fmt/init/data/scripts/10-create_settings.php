@@ -20,3 +20,5 @@ Setting::assert_sequence('finance', 'accounting', 'accounting_entry.sequence', 1
 
 Setting::assert_value('identity', 'organization', 'identity_type_default', 3);
 Setting::assert_value('identity', 'organization', 'identity_lang_default', 2);
+
+Setting::assert_value('fmt', 'system', 'sync.last_sync_timestamp', 0);

@@ -8,7 +8,7 @@ use equal\http\HttpRequest;
 use fmt\setting\Setting;
 
 [$params, $providers] = eQual::announce([
-    'description'   => '.',
+    'description'   => 'Pull changed data from GLOBAL instance to local FMT instance.',
     'params'        => [],
     'access' => [
         'visibility'        => 'private'
@@ -52,6 +52,7 @@ $result = [
     'logs'      => []
 ];
 
+$now = time();
 
 $timestamp = Setting::get_value('fmt', 'system', 'sync.last_sync_timestamp', 0);
 $date_from = date('c', $timestamp);
@@ -153,6 +154,8 @@ foreach($map_entities as $entity => $scope) {
     }
 }
 
+// store last_sync_timestamp
+Setting::set_value('fmt', 'system', 'sync.last_sync_timestamp', $now);
 
 $context
     ->httpResponse()
