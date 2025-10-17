@@ -11,6 +11,10 @@ use equal\orm\Model;
 
 class DocumentSubtype extends Model {
 
+    public static function constants() {
+        return ['FMT_INSTANCE_TYPE'];
+    }
+
     public static function getColumns() {
         return [
 

@@ -12,6 +12,10 @@ class Bank extends \purchase\supplier\Supplier {
 
     // #memo - Bank uses the same DB table as Supplier
 
+    public static function constants() {
+        return ['FMT_INSTANCE_TYPE'];
+    }
+
     public static function getName() {
         return 'Bank';
     }

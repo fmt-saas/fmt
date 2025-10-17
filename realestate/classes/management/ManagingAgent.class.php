@@ -14,6 +14,10 @@ class ManagingAgent extends \purchase\supplier\Supplier {
 
     // #memo ManagingAgent uses the same DB table as Supplier
 
+    public static function constants() {
+        return ['FMT_INSTANCE_TYPE'];
+    }
+
     public static function getName() {
         return 'Managing Agent';
     }
@@ -27,6 +31,12 @@ class ManagingAgent extends \purchase\supplier\Supplier {
 
     public static function getColumns() {
         return [
+            'instance_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'infra\server\Instance',
+                'description'       => "The instance on which the condominium is currently managed."
+            ],
+
             'object_class' => [
                 'type'              => 'string',
                 'description'       => 'Class of the current entity .',

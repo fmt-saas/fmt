@@ -23,6 +23,10 @@ class Condominium extends Identity {
         return 'realestate_property_condominium';
     }
 
+    public static function constants() {
+        return ['FMT_INSTANCE_TYPE'];
+    }
+
     public static function getColumns() {
 
         return [
