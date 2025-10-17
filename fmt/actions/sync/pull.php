@@ -58,7 +58,7 @@ $date_from = date('c', $timestamp);
 
 // pass-1 fetch all private entities
 try {
-    $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_data_sync_pull-private');
+    $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_sync_pull-private');
     /** @var HttpResponse */
     $response = $request->send();
 
@@ -118,7 +118,7 @@ foreach($map_entities as $entity => $scope) {
         continue;
     }
     try {
-        $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_data_sync_pull-protected&entity=' . urlencode($entity) . '&date_from=' . $date_from);
+        $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_sync_pull-protected&entity=' . urlencode($entity) . '&date_from=' . $date_from);
         /** @var HttpResponse */
         $response = $request->send();
         $data = $response->body();

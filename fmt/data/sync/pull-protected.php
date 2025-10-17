@@ -13,8 +13,7 @@
             'required'          => true
         ],
         'date_from' => [
-            'type'              => 'date',
-            'required'          => true
+            'type'              => 'date'
         ]
     ],
     'access' => [
@@ -67,11 +66,16 @@ foreach($schema as $field => $def) {
     }
 }
 
-$objects = $params['entity']::search(['modified', '>=', $params['date_from']])
+$domain = [];
+
+if(isset($params['date_from'])) {
+    $domain[] = ['modified', '>=', $params['date_from']];
+}
+
+$objects = $params['entity']::search($domain)
     ->read(array_keys($schema))
     ->adapt('json')
     ->get(true);
-
 
 $context->httpResponse()
         ->body($objects)

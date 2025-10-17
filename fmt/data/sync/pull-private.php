@@ -70,15 +70,16 @@ foreach($map_entities as $entity => $scope) {
         ->adapt('json')
         ->get(true);
 
-    $item = (object) [
-        'name' => $entity,
-        'lang' => constant('DEFAULT_LANG'),
-        'data' => $objects
-    ];
+    if(count($objects) > 0) {
+        $item = (object) [
+            'name' => $entity,
+            'lang' => constant('DEFAULT_LANG'),
+            'data' => $objects
+        ];
+    }
 
     $result[] = $item;
 }
-
 
 $context->httpResponse()
         ->body($result)
