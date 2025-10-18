@@ -50,8 +50,14 @@ foreach($map_entities as $entity => $scope) {
     if($scope !== 'private') {
         continue;
     }
+
     // retrieve all fields of the requested entity
-    $schema = $orm->getModel($entity)->getSchema();
+    $model = $orm->getModel($entity);
+    if(!$model) {
+        throw new Exception('unknown_entity', EQ_ERROR_INVALID_PARAM);
+    }
+
+    $schema = $model->getSchema();
 
     // we're only interested in scalar fields and many2one relations
     foreach($schema as $field => $def) {

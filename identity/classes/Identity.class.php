@@ -96,7 +96,11 @@ class Identity extends Model {
                 'visible'           => ['object_class', '<>', 'identity\Identity']
             ],
 
-            'identity_source' => [
+            /*
+                Following `source_*` fields apply to imported protected entities.
+            */
+
+            'source' => [
                 'type'              => 'string',
                 'description'       => 'The source the Identity originated from.',
                 'selection'         => [
@@ -118,7 +122,7 @@ class Identity extends Model {
                 ],
                 'default'           => 'manual',
                 'description'       => 'Type of source (eid, registry, manual, etc.)',
-                'help'              => 'Indicates how the identity data was obtained.',
+                'help'              => 'Indicates how the identity data was obtained. In case of manual encoding, there is no proof for that value.',
             ],
 
             'source_origin' => [
@@ -128,9 +132,21 @@ class Identity extends Model {
             ],
 
             'source_date' => [
-                'type'              => 'date',
+                'type'              => 'datetime',
                 'description'       => 'Date when the identity information was collected or encoded.',
                 'help'              => 'Used to assess the freshness of the information.',
+            ],
+
+            'source_verification_status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'pending',
+                    'rejected',
+                    'conflict',
+                    'verified',
+                ],
+                'default'           => 'pending',
+                'description'       => 'Status of the verification of the source (validity of the data).',
             ],
 
             'type_id' => [
@@ -1335,7 +1351,7 @@ class Identity extends Model {
         // Class inherits from Identity but uses a distinct table: check if a new Identity should be created
         if(substr(self::getType(), strrpos(self::getType(), '\\') + 1) !== 'Identity') {
             $common_fields = [
-                    'identity_source',
+                    'source',
                     'type_id','has_vat','vat_number','legal_name','firstname','lastname','lang_id',
                     'email','phone','mobile',
                     'address_street','address_dispatch','address_zip',
@@ -1351,7 +1367,7 @@ class Identity extends Model {
                 }
 
                 // do not sync Identities from automated source (internal or external)
-                if($identity['identity_source'] != 'manual') {
+                if($identity['source'] != 'manual') {
                     continue;
                 }
 

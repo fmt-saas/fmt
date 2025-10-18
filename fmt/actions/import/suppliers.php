@@ -34,7 +34,7 @@ use purchase\supplier\Supplier;
 
 $mapSupplierRowToJson = function (array $row): array {
     return [
-        "identity_source"     => "manual",
+        "source"              => "manual",
         "source_type"         => "manual",
         "type_id"             => 3,
         "type"                => "CO",

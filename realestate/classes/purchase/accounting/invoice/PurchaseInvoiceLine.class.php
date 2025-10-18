@@ -8,6 +8,7 @@
 namespace realestate\purchase\accounting\invoice;
 
 use finance\accounting\Account;
+use realestate\finance\accounting\AccountingEntryLine;
 use realestate\property\PropertyLotOwnership;
 
 class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLine {
@@ -238,16 +239,35 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
 
     public static function canupdate($self, $values) {
         $self->read(['invoice_id' => ['status', 'document_process_id' => ['status']]]);
+        $allowed_fields = ['apportionment_id', 'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id'];
         foreach($self as $id => $invoiceLine) {
-            if($invoiceLine['invoice_id']['status'] !== 'proforma') {
-                return ['invoice_id' => ['non_editable' => 'Line cannot be updated after invoice creation.']];
+            if($invoiceLine['invoice_id']['status'] === 'posted') {
+                // check if related accounting records has been cleared or not
+                $accountingEntryLine = AccountingEntryLine::search(['purchase_invoice_line_id', '=', $id])
+                    ->read(['is_cleared'])
+                    ->first();
+
+                if($accountingEntryLine) {
+                    // no change allowed, on any field
+                    if($accountingEntryLine['is_cleared']) {
+                        return ['status' => ['non_editable' => "Invoice can only be updated while its status is proforma ({$id})."]];
+                    }
+                }
+
+                // in other cases, only allow editable fields
+                if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
+                    return ['invoice_id' => ['non_editable' => "Line can only be updated while parent invoice hasn't been posted ({$id})."]];
+                }
             }
             if(!$invoiceLine['invoice_id']['document_process_id']) {
                 continue;
             }
+            /*
+            // #memo - this is allowed: change on line triggers an update of the subsequent document_json
             if($invoiceLine['invoice_id']['document_process_id']['status'] !== 'created') {
                 return ['invoice_id' => ['non_editable' => 'Line cannot be updated after Document processing.']];
             }
+            */
         }
     }
 
