@@ -51,6 +51,7 @@ class Ownership extends \equal\orm\Model {
 
             'description' => [
                 'type'              => 'string',
+                'usage'             => 'text/html',
                 'description'       => "Short optional description.",
                 'store'             => true
             ],
@@ -162,6 +163,22 @@ class Ownership extends \equal\orm\Model {
                 'dependents'        => ['name']
             ],
 
+
+            // ajout d'infos de contact -> non, ajout dans les préférences de communication
+            'email' => [
+                'type'              => 'string',
+                'usage'             => 'email',
+                'onupdate'          => 'onupdateEmail',
+                'description'       => "Identity main email address."
+            ],
+        
+
+
+            // champ address_recipient - calculé ? !on n'a pas le lien de parenté
+
+// pouvoir renseigner des representative complémentaires
+
+
             'has_representative' => [
                 'type'              => 'boolean',
                 'description'       => "Flag indicating if the ownership has a representative.",
@@ -176,7 +193,8 @@ class Ownership extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.id']]
             ],
-
+// représentants secondaires (pour générer d'autres lignes de communication) - uniquement 
+            // 'representative_owners_ids' => [
             'fundings_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'sale\pay\Funding',

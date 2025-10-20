@@ -245,6 +245,20 @@ class Account extends Model {
                 'default'           => 0.0
             ],
 
+// #todo
+            'usufruct_owner_share' => [
+                'type'              => 'integer',
+                'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
+                'default'           => 0
+            ],
+
+            'bare_owner_share' => [
+                'type'              => 'integer',
+                'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
+                'default'           => 100
+            ],
+
+
             /*
 
             */

@@ -170,8 +170,8 @@ class Identity extends Model {
 
             'description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain',
-                'description'       => 'A short reminder to help user identify the targeted person and its specifics.'
+                'usage'             => 'text/html',
+                'description'       => 'A short text/reminder to help user identify the targeted person and its specifics.'
             ],
 
             'bank_account_iban' => [
@@ -673,6 +673,10 @@ class Identity extends Model {
                 'description'   => 'Force sync between Identity main bank account and additional ones.',
                 'function'      => 'doRefreshBankAccounts'
             ],
+            'refresh_addresses' => [
+                'description'   => 'Force sync between Identity main bank account and additional ones.',
+                'function'      => 'doRefreshAddresses'
+            ],
             'generate_profile_image' => [
                 'description'   => 'Generate resized profile images based on profile image document.',
                 'function'      => 'doGenerateProfileImage'
@@ -793,6 +797,7 @@ class Identity extends Model {
 
     }
 
+    // #memo - this is also done in onupdate handler
     protected static function doRefreshBankAccounts($self) {
         $self->read(['bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country']);
 
@@ -809,6 +814,31 @@ class Identity extends Model {
                     'bank_account_bic'  => $identity['bank_account_bic'],
                     'bank_name'         => $identity['bank_name'],
                     'bank_country'      => $identity['bank_country']
+                ]);
+            }
+        }
+    }
+
+    // #memo - this is also done in onupdate handler
+    protected static function doRefreshAddresses($self) {
+        // sync primary address
+        $self->read(['address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_state', 'address_country']);
+
+        foreach($self as $id => $identity) {
+            if(!$identity['address_street'] || strlen($identity['address_street']) <= 0) {
+                continue;
+            }
+            $mainAddress = Address::search([['owner_identity_id', '=', $id], ['is_primary', '=', true]]);
+            if(!$mainAddress) {
+                $mainAddress = Address::create([
+                    'owner_identity_id' => $id,
+                    'is_primary'        => true,
+                    'address_street'    => $identity['address_street'],
+                    'address_dispatch'  => $identity['address_dispatch'],
+                    'address_zip'       => $identity['address_zip'],
+                    'address_city'      => $identity['address_city'],
+                    'address_state'     => $identity['address_state'],
+                    'address_country'   => $identity['address_country']
                 ]);
             }
         }
@@ -856,6 +886,7 @@ class Identity extends Model {
         return $result;
     }
 
+// #todo - remove
     protected static function calcHashSha256($self) {
         $result = [];
         $self->read(['registration_number', 'citizen_identification']);
@@ -1442,7 +1473,7 @@ class Identity extends Model {
 
             if(count($bank_updates)) {
                 $mainBankAccount = BankAccount::search([['owner_identity_id', '=', $identity_id], ['is_primary', '=', true]]);
-                if($mainBankAccount->count() <= 0) {
+                if($mainBankAccount->count() <= 0 && isset($identity['bank_account_iban'])) {
                     $identity = self::id($identity_id)->read($bank_fields)->first();
                     $mainBankAccount = BankAccount::create([
                         'owner_identity_id' => $identity_id,

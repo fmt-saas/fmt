@@ -47,7 +47,8 @@ $mapSupplierRowToJson = function (array $row): array {
         "registration_number" => isset($row['fournisseur_numero_entreprise']) && $row['fournisseur_numero_entreprise'] !== null
                 ? preg_replace('/[^0-9]/i', '', $row['fournisseur_numero_entreprise'])
                 : null,
-        "legal_name"          => $row['fournisseur_nom'],
+        "legal_name"          => $row['fournisseur_nom'] ?? '',
+        "short_name"          => $row['fournisseur_nom_usuel'] ?? '',
         "has_vat"             => !empty($row['fournisseur_numero_tva']),
         "nationality"         => strtoupper($row['fournisseur_pays'] ?? 'BE'),
         "lang_id"             => 2,
@@ -56,12 +57,12 @@ $mapSupplierRowToJson = function (array $row): array {
         "address_zip"         => $row['fournisseur_code_postal'] ?? null,
         "email"               => $row['fournisseur_email_1'] ?? null,
         "email_alt"           => $row['fournisseur_email_2'] ?? null,
-        "phone"               => $row['fournisseur_tel_1'] ?? null,
-        "phone_alt"           => $row['fournisseur_tel_2'] ?? null
+        "phone"               => isset($row['fournisseur_tel_1']) ? str_replace(' ', '', $row['fournisseur_tel_1']) : null,
+        "phone_alt"           => isset($row['fournisseur_tel_2']) ? str_replace(' ', '', $row['fournisseur_tel_2']) : null
     ];
 };
 
-
+// #todo - use only registration_number (in case of identity, the citizen_identification is copied into registration_number
 $calcHashSha256 = function ($supplier) {
     if(!$supplier['registration_number'] || strlen($supplier['registration_number']) <= 0) {
         return null;
@@ -120,26 +121,33 @@ $events = $orm->disableEvents();
 
 for($i = 0, $n = count($lines); $i < $n; ++$i) {
 
-    $values = $mapSupplierRowToJson($lines[$i]);
+    try {
+        $values = $mapSupplierRowToJson($lines[$i]);
 
-    $hash_sha256 = $calcHashSha256($values);
-    $identity = null;
-    $supplier = null;
+        $hash_sha256 = $calcHashSha256($values);
+        $identity = null;
+        $supplier = null;
 
-    if($hash_sha256) {
-        $identity = Identity::search(['hash_sha256', '=', $hash_sha256])->first();
-        $supplier = Supplier::search(['hash_sha256', '=', $hash_sha256])->first();
+        if($hash_sha256) {
+            $identity = Identity::search(['hash_sha256', '=', $hash_sha256])->first();
+            $supplier = Supplier::search(['hash_sha256', '=', $hash_sha256])->first();
+        }
+
+        if(!$identity) {
+            $identity = Identity::create($values)
+                ->do('refresh_bank_accounts')
+                ->do('refresh_addresses')
+                ->first();
+        }
+
+        if(!$supplier) {
+            Supplier::create([ 'identity_id' => $identity['id'] ])
+                ->do('sync_from_identity');
+        }
     }
-
-    if(!$identity) {
-        $identity = Identity::create($values)
-            ->do('refresh_bank_accounts')
-            ->first();
-    }
-
-    if(!$supplier) {
-        Supplier::create([ 'identity_id' => $identity['id'] ])
-            ->do('sync_from_identity');
+    catch(Exception $e) {
+        // something went wrong for line $i
+        // trigger_error()
     }
 }
 

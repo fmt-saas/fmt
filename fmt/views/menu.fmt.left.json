@@ -750,7 +750,7 @@
             },
             {
                 "id": "item.infra",
-                "visible": ["agency", "=", "env.instance_type"],
+                "visible": ["global", "=", "env.instance_type"],
                 "label": "Infra",
                 "description": "",
                 "icon": "cloud",
