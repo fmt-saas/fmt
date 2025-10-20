@@ -1084,6 +1084,11 @@ class Identity extends Model {
 
     protected static function onupdateCitizenIdentification($self) {
         self::updateField($self, 'citizen_identification');
+        // #memo - for convenience, citizen_identification (individuals only) is copied into registration_number
+        $self->read(['citizen_identification']);
+        foreach($self as $id => $identity) {
+            self::id($id)->update(['registration_number' => $identity['citizen_identification']]);
+        }
     }
 
     protected static function onupdateGender($self) {

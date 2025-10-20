@@ -19,6 +19,7 @@ use finance\accounting\MiscOperationLine;
 use finance\bank\BankAccount;
 use finance\bank\CondominiumBankAccount;
 use fmt\setting\Setting;
+use identity\User;
 use purchase\supplier\Suppliership;
 use realestate\ownership\Ownership;
 use realestate\property\Condominium;
@@ -1108,14 +1109,17 @@ protected static function calcFiscalYearId($self) {
      * This method is used to create the document based on received data, and start the processing.
      * #memo - this differs slightly from Bank Statements since invoices can be imported in 1 step.
      */
-    protected static function onupdateDocumentData($self) {
+    protected static function onupdateDocumentData($self, $auth) {
         $self->read(['document_process_id', 'document_name', 'document_data']);
         $documentType = DocumentType::search(['code', '=', 'invoice'])->first();
+        $user = User::id($auth->userId())->read(['employee_id'])->first();
+
         foreach($self as $id => $invoice) {
             if(!$invoice['document_process_id']) {
                 $collection = DocumentProcess::create([
-                        'name'              => $invoice['document_name'],
-                        'document_type_id'  => $documentType['id']
+                        'name'                  => $invoice['document_name'],
+                        'document_type_id'      => $documentType['id'],
+                        'assigned_employee_id'  => $user['employee_id']
                     ]);
             }
             else {
@@ -1327,8 +1331,10 @@ protected static function calcFiscalYearId($self) {
         }
     }
 
-    protected static function onafterupdate($self) {
+    protected static function onafterupdate($self, $auth) {
         $self->read(['state', 'document_id', 'condo_id']);
+        $user = User::id($auth->userId())->read(['employee_id'])->first();
+
         foreach($self as $id => $purchaseInvoice) {
             if($purchaseInvoice['state'] === 'instance' && !$purchaseInvoice['document_id']) {
                 $documentType = DocumentType::search(['code', '=', 'invoice'])->first();
@@ -1353,7 +1359,8 @@ protected static function calcFiscalYearId($self) {
                         'document_invoice_id'   => $id,
                         'document_type_id'      => $documentType['id'],
                         'document_origin'       => 'manual',
-                        'has_target_object'     => true
+                        'has_target_object'     => true,
+                        'assigned_employee_id'  => $user['employee_id']
                     ])
                     ->first();
 

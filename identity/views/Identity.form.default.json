@@ -436,6 +436,53 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "label": "Sourcing",
+                        "id": "section.sourcing",
+                        "visible": ["admins", "in", "user.groups"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "source_verification_status",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "source_date",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "column.description",
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "source",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "source_origin",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "source_type",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }

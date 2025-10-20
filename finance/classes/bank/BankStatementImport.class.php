@@ -14,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as XlsDate;
 use documents\processing\DocumentProcess;
 use equal\orm\Model;
-
+use identity\User;
 
 class BankStatementImport extends Model {
 
@@ -49,9 +49,10 @@ class BankStatementImport extends Model {
      * Handle data update (i.e. file upload).
      * This method is used to create the document based on received data, and start the processing.
      */
-    protected static function onupdateData($self) {
+    protected static function onupdateData($self, $auth) {
         $self->read(['name', 'data']);
         $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
+        $user = User::id($auth->userId())->read(['employee_id'])->first();
 
         foreach($self as $id => $bankStatementImport) {
             // create a temporary import Document holding all statements
@@ -76,8 +77,9 @@ class BankStatementImport extends Model {
                 // this will trigger the creation of the Document and the Document Processing, which should not interrupt the import even if it fails
                 try {
                     $documentProcess = DocumentProcess::create([
-                            'name'              => $file_name . '(' . ($i+1) . ').' . 'xlsx',
-                            'document_type_id'  => $documentType['id']
+                            'name'                  => $file_name . '(' . ($i+1) . ').' . 'xlsx',
+                            'document_type_id'      => $documentType['id'],
+                            'assigned_employee_id'  => $user['employee_id']
                         ])
                         ->update(['data' => $binary])
                         ->read(['document_id'])

@@ -10,6 +10,7 @@ use equal\orm\DomainCondition;
 use finance\accounting\Account;
 use finance\accounting\AccountingEntry;
 use finance\accounting\AccountingEntryLine;
+use finance\accounting\ClosingBalance;
 use finance\accounting\FiscalYear;
 use realestate\property\Condominium;
 
@@ -120,11 +121,13 @@ use realestate\property\Condominium;
 
 $result = [];
 
-
+// flag for marking the date interval as a specific fiscal year
+$is_fiscal_year = false;
 if(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
     $fiscalYear = FiscalYear::id($params['fiscal_year_id'])->read(['date_from', 'date_to'])->first();
     $date_from = $fiscalYear['date_from'];
     $date_to = $fiscalYear['date_to'];
+    $is_fiscal_year = true;
 }
 elseif(isset($params['date_from'], $params['date_to'])) {
     $date_from = $params['date_from'];
@@ -140,6 +143,26 @@ if($date_from <= 0 || $date_to <= 0) {
     throw new Exception('invalid_dates', EQ_ERROR_INVALID_PARAM);
 }
 
+
+if(!$is_fiscal_year) {
+    $prevFiscalYear = FiscalYear::search([
+            ['condo_id', '=', $params['condo_id']],
+            ['date_to', '<', $date_from],
+            ['status', 'in', ['closed', 'preclosed']]
+        ], ['sort' => ['date_to' => 'desc'], 'limit' => 1])
+        ->read(['id', 'date_to'])
+        ->first();
+
+
+    // lire ClosingBalance
+
+    // lire les ClosingBalanceLine
+    //    'account_id', 'debit', 'credit',
+
+    // modifier la date_from pour le jour suivant le jour de fin la $prevFiscalYear
+}
+
+
 // Add conditions to the domain to consider advanced parameters
 
 // #memo - condo_id is expected to be in the domain
@@ -148,10 +171,6 @@ $domain = $params['domain'];
 $domainEntries = new Domain($domain);
 $domainEntries->addCondition(new DomainCondition('entry_date', '>=', $date_from));
 $domainEntries->addCondition(new DomainCondition('entry_date', '<=', $date_to));
-
-
-// #todo - ajouter les écritures virtuelles de report pour le delta entre la première date de l'intervalle et le début du dernier exercice pas encore cloturé
-// afficher tous les comptes ouverts (non balancés) : ignorer les comptes qui retombent à un delta 0
 
 
 $entries_ids = AccountingEntry::search($domainEntries->toArray())->ids();
@@ -206,6 +225,17 @@ $accounts = Account::ids(array_keys($map_accounts_ids))->read(['id', 'name', 'co
 // generate virtual fields
 $i = 1;
 foreach($totals as $account_id => &$line) {
+
+    $debit_balance  = $line['debit_balance']  ?? 0.0;
+    $credit_balance = $line['credit_balance'] ?? 0.0;
+    $delta = abs($debit_balance - $credit_balance);
+
+    // ignore balanced accoutns
+    if ($delta < 0.01) {
+        unset($totals[$account_id]);
+        continue;
+    }
+
     $line['id'] = $i++;
     $line['fiscal_year_id'] = null;
     $line['account_code'] = $accounts[$account_id]['code'];

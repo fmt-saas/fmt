@@ -22,6 +22,13 @@ class NotaryOffice extends \purchase\supplier\Supplier {
 
     public static function getColumns() {
 
+
+/**
+ * pour une étude, il peut y avoir plusieurs notaires (et ça peut changer)
+ * pour une étude il peut y avoir plusieurs adresses
+ * le nom de la rue peut être écrite de différentes manières et en plusieurs langues
+ * le numéro de tél peut changer
+ */
         return [
             // #memo - inherits uuid from Supplier
 
@@ -39,6 +46,13 @@ class NotaryOffice extends \purchase\supplier\Supplier {
                 'dependents'        => ['supplier_type_code'],
                 'default'           => 'defaultSupplierTypeId'
             ],
+
+            'registry_ref' => [
+                'type'              => 'string',
+                'description'       => "Unique reference identifying the notary office.",
+                'help'              => "For Belgium, we use the slug assigned by Fednot. References are formatted: `fednot:{notary-office-slug}`",
+                'visible'           => ['object_class', '=', 'realestate\property\NotaryOffice']
+            ]
 
         ];
     }

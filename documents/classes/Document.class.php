@@ -11,6 +11,7 @@ use documents\navigation\Node;
 use documents\processing\DocumentProcess;
 use equal\http\HttpRequest;
 use equal\orm\Model;
+use identity\User;
 use purchase\supplier\Suppliership;
 
 class Document extends Model {
@@ -458,13 +459,15 @@ class Document extends Model {
         return $result;
     }
 
-    protected static function doStartProcessing($self) {
+    protected static function doStartProcessing($self, $auth) {
         $self->read(['condo_id', 'name']);
+        $user = User::id($auth->userId())->read(['employee_id'])->first();
 
         foreach($self as $id => $document) {
             DocumentProcess::create([
-                    'condo_id'  => $document['condo_id'],
-                    'name'      => $document['name']
+                    'condo_id'              => $document['condo_id'],
+                    'name'                  => $document['name'],
+                    'assigned_employee_id'  => $user['employee_id']
                 ])
                 // #memo - this will sync back the document_process_id
                 ->update(['document_id' => $id]);

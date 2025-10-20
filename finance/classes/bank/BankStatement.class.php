@@ -12,6 +12,7 @@ use documents\DocumentType;
 use documents\processing\DocumentProcess;
 use equal\orm\Model;
 use finance\accounting\FiscalYear;
+use identity\User;
 use realestate\property\Condominium;
 
 class BankStatement extends Model {
@@ -589,8 +590,10 @@ class BankStatement extends Model {
     /**
      * If no document is attached to the bank statement (handled as an accounting document), a Document and a DocumentProcess are created
      */
-    protected static function onafterupdate($self) {
+    protected static function onafterupdate($self, $auth) {
         $self->read(['state', 'document_id', 'condo_id']);
+        $user = User::id($auth->userId())->read(['employee_id'])->first();
+
         foreach($self as $id => $bankStatement) {
             if($bankStatement['state'] === 'instance' && !$bankStatement['document_id']) {
                 $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
@@ -615,7 +618,8 @@ class BankStatement extends Model {
                         'document_bank_statement_id'    => $id,
                         'document_type_id'              => $documentType['id'],
                         'document_origin'               => 'manual',
-                        'has_target_object'             => true
+                        'has_target_object'             => true,
+                        'assigned_employee_id'          => $user['employee_id']
                     ])
                     ->first();
 

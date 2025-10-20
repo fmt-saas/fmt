@@ -22,12 +22,12 @@ $events = $orm->disableEvents();
     "is_active" => true
   ]);
 
-
 NotaryOffice::create([
     "id" => 200,
     "identity_id" => 200,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:benoit-heymans-notaire"
 ]);
 
 Identity::create([
@@ -49,6 +49,7 @@ NotaryOffice::create([
     "identity_id" => 201,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:bernard-dewitte-et-astrid-comijn-notaires-associes"
 ]);
 
 Identity::create([
@@ -69,6 +70,7 @@ NotaryOffice::create([
     "identity_id" => 202,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:deweerdt-ruelle-notaires-associes"
 ]);
 
 Identity::create([
@@ -89,6 +91,7 @@ NotaryOffice::create([
     "identity_id" => 203,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:fasol-veronique"
 ]);
 
 Identity::create([
@@ -109,6 +112,7 @@ NotaryOffice::create([
     "identity_id" => 204,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:indekeu-de-crayencour"
 ]);
 
 Identity::create([
@@ -129,6 +133,7 @@ NotaryOffice::create([
     "identity_id" => 205,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:jean-didier-gyselinck-notaire"
 ]);
 
 Identity::create([
@@ -148,6 +153,7 @@ NotaryOffice::create([
     "identity_id" => 206,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:jean-louis-van-boxstael-societe-notariale"
 ]);
 
 Identity::create([
@@ -168,6 +174,7 @@ NotaryOffice::create([
     "identity_id" => 207,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:jean-pierre-marchant-notaire-notaris"
 ]);
 
 Identity::create([
@@ -176,7 +183,6 @@ Identity::create([
     "address_street" => "Avenue des Paradisiers 24",
     "address_zip" => "1160",
     "address_city" => "Auderghem",
-
     "phone" => "027320574",
     "website" => "https://notaire.be/Etude/licoppe-cauchie-notaires-associes",
     "nationality" => "BE",
@@ -188,6 +194,7 @@ NotaryOffice::create([
     "identity_id" => 208,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:licoppe-cauchie-notaires-associes"
 ]);
 
 Identity::create([
@@ -208,6 +215,7 @@ NotaryOffice::create([
     "identity_id" => 209,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:marroyen-luc"
 ]);
 
 Identity::create([
@@ -228,6 +236,7 @@ NotaryOffice::create([
     "identity_id" => 210,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:maxime-van-der-straten-waillet-societe-notariale"
 ]);
 
 Identity::create([
@@ -248,6 +257,7 @@ NotaryOffice::create([
     "identity_id" => 211,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:de-clippele-bruyaux-naets-notaires-associes"
 ]);
 
 Identity::create([
@@ -267,6 +277,7 @@ NotaryOffice::create([
     "identity_id" => 212,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:notaire-laura-hornung-societe-notariale"
 ]);
 
 Identity::create([
@@ -287,6 +298,7 @@ NotaryOffice::create([
     "identity_id" => 213,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:noteris-pierre-edouard"
 ]);
 
 Identity::create([
@@ -307,6 +319,7 @@ NotaryOffice::create([
     "identity_id" => 214,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:notilius-notaires-associes"
 ]);
 
 Identity::create([
@@ -326,6 +339,7 @@ NotaryOffice::create([
     "identity_id" => 215,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:patrick-gustin-gauthier-nobels-notaires-associes"
 ]);
 
 Identity::create([
@@ -343,6 +357,7 @@ NotaryOffice::create([
     "identity_id" => 216,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:sophie-maquet-stijn-joye-dominique-bertouille-notaires-associes"
 ]);
 
 Identity::create([
@@ -360,6 +375,7 @@ NotaryOffice::create([
     "identity_id" => 217,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:valery-colard-et-vanessa-waterkeyn-notaires-associes"
 ]);
 
 Identity::create([
@@ -377,6 +393,7 @@ NotaryOffice::create([
     "identity_id" => 218,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:van-steenkiste-societe-notariale-1"
 ]);
 
 Identity::create([
@@ -394,6 +411,7 @@ NotaryOffice::create([
     "identity_id" => 219,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:veronique-bonehill-et-laurent-wets-notaires-associes"
 ]);
 
 Identity::create([
@@ -412,6 +430,7 @@ NotaryOffice::create([
     "identity_id" => 520,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:bruno-michaux-marie-thiebaut-notaires-associes"
 ]);
 
 Identity::create([
@@ -430,6 +449,7 @@ NotaryOffice::create([
     "identity_id" => 521,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:damien-collon-antoine-loge-geassocieerde-notarissen"
 ]);
 
 Identity::create([
@@ -443,29 +463,19 @@ Identity::create([
     "lang_id" => 2,
     "is_active" => true
   ]);
+/*
+#todo - add address
+    "address_street" => "Avenue de Tervuren 270",
+    "address_zip" => "1120",
+    "address_city" => "Woluwe-Saint-Pierre",
+
+*/
 NotaryOffice::create([
     "id" => 522,
     "identity_id" => 522,
     "supplier_type_id" => 6,
     "is_active" => true,
-]);
-
-Identity::create([
-    "id" => 523,
-    "legal_name" => "Étude In-Deed notaires",
-    "address_street" => "Avenue de Tervuren 270",
-    "address_zip" => "1120",
-    "address_city" => "Woluwe-Saint-Pierre",
-    "website" => "https://notaire.be/Etude/in-deed-notaires",
-    "nationality" => "BE",
-    "lang_id" => 2,
-    "is_active" => true
-  ]);
-NotaryOffice::create([
-    "id" => 523,
-    "identity_id" => 523,
-    "supplier_type_id" => 6,
-    "is_active" => true,
+    "registry_ref" => "fednot:in-deed-notaires"
 ]);
 
 Identity::create([
@@ -484,6 +494,7 @@ NotaryOffice::create([
     "identity_id" => 524,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:maite-bouclier-societe-notariale"
 ]);
 
 Identity::create([
@@ -502,6 +513,7 @@ NotaryOffice::create([
     "identity_id" => 525,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:marc-wilmus-ludovic-du-bus-de-warnaffe-notaires-associes"
 ]);
 
 Identity::create([
@@ -519,6 +531,7 @@ NotaryOffice::create([
     "identity_id" => 526,
     "supplier_type_id" => 6,
     "is_active" => true,
+    "registry_ref" => "fednot:nathalie-dhennezel-societe-notariale"
 ]);
 
 
