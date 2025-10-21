@@ -12,6 +12,9 @@ use equal\orm\Model;
 
 class Server extends Model {
 
+    public static function constants() {
+        return ['FMT_INSTANCE_TYPE'];
+    }
 
     public static function getDescription() {
         return 'A Server hosts one or more instances.';

@@ -12,6 +12,10 @@ use equal\orm\Model;
 
 class Instance extends Model {
 
+    public static function constants() {
+        return ['FMT_INSTANCE_TYPE'];
+    }
+
     public static function getDescription() {
         return 'Instance manages service or product instances, detailing type, version, URL, access information, and running software.';
     }
