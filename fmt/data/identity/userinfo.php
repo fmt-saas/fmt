@@ -4,14 +4,17 @@
     (c) 2025–2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use equal\http\HttpRequest;
 use identity\User;
+use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Returns descriptor of current User, based on received access_token',
     'access'      => [
         'visibility' => 'public'
     ],
-    'constants'     => ['AUTH_ACCESS_TOKEN_VALIDITY', 'BACKEND_URL'],
+    'constants'     => ['AUTH_ACCESS_TOKEN_VALIDITY', 'BACKEND_URL', 'FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL'],
     'response'      => [
         'content-type'      => 'application/json',
         'charset'           => 'UTF-8',
@@ -31,14 +34,46 @@ $user_id = $auth->userId();
 
 // check if User is authenticated
 if($user_id <= 0) {
-    /** @var \equal\http\HttpRequest  */
-    $request = $context->httpRequest();
-    $global_token = $request->getCookie('global_token');
-    if(!$global_token) {
+    if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
         throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
     }
-    $jwt = $auth->decodeToken($global_token);
-    print_r($jwt);
+    else {
+        /** @var \equal\http\HttpRequest  */
+        $request = $context->httpRequest();
+        $global_token = $request->getCookie('global_token');
+        if(!$global_token) {
+            throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
+        }
+        $jwt = $auth->decodeToken($global_token);
+
+        if(!isset($jwt['payload']['user_uuid']) || strlen($jwt['payload']['user_uuid']) <= 0) {
+            throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
+        }
+
+        // #memo - on local instances there is a single Managing Agent object
+        $instance = Instance::search()->read(['uuid'])->first();
+
+        $user_uuid = $jwt['payload']['user_uuid'];
+        $instance_uuid = $instance['uuid'];
+
+        $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_user_resolve' .
+            '&user_uuid=' . $user_uuid . '&instance_uuid=' . $instance_uuid);
+        /** @var HttpResponse */
+        $response = $request->send();
+        $data = $response->body();
+
+        if(!is_array($data) || empty($data) || !isset($data['uuid'])) {
+            throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
+        }
+
+        $user = User::search(['uuid', '=', $data['uuid']])->first();
+        if(!$user) {
+            throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
+        }
+
+        $user_id = $user['id'];
+    }
+
 }
 
 // #memo - user has always READ right on its own object
