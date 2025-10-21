@@ -1,6 +1,18 @@
 {
     "name": "Owners",
     "description": "List of owners.",
+    "header": {
+        "selection": {
+            "actions" : [
+                {
+                    "id": "action.create_account",
+                    "label": "Create a User account",
+                    "icon": "play_arrow",
+                    "controller": "realestate_ownership_Owner_create-user"
+                }
+            ]
+        }
+    },
     "layout": {
         "items": [
             {

@@ -1,9 +1,8 @@
 <?php
 /*
-    This file is part of the Discope property management software <https://github.com/discope-pms/discope>
-    Some Rights Reserved, Discope PMS, 2020-2024
-    Original author(s): Yesbabylon SRL
-    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+    Developed by Yesbabylon - https://yesbabylon.com
+    (c) 2025-2026 Yesbabylon SA
+    Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
 use documents\DocumentSignature;

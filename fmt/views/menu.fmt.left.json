@@ -452,6 +452,17 @@
                         }
                     },
                     {
+                        "id": "owners",
+                        "type": "entry",
+                        "label": "Owners",
+                        "icon": "group",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\ownership\\Owner",
+                            "view": "list.default"
+                        }
+                    },
+                    {
                         "id": "suppliers",
                         "type": "entry",
                         "label": "All Suppliers",
