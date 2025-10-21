@@ -98,7 +98,7 @@ $user = User::id($user_id)
     ->read([
         'id', 'name', 'login', 'validated', 'language',
         'groups_ids' => ['name', 'display_name'],
-        'identity_id' => ['firstname', 'lastname'],
+        'identity_id' => ['firstname', 'lastname', 'employee_id', 'owner_id', 'tenant_id'],
         'instance_id' => ['url'],
         'organisation_id'
     ])
