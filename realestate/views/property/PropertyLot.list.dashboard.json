@@ -1,0 +1,47 @@
+{
+    "name": "Property Lot",
+    "description": "List of property lots.",
+    "header": {
+        "layout": "inline",
+        "actions": false
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "label": "Code",
+                "value": "code",
+                "width": "20%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "label": "Ref",
+                "value": "property_lot_ref",
+                "width": "20%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "label": "Owner",
+                "value": "active_ownership_id",
+                "width": "20%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "label": "Condominium",
+                "value": "condo_id",
+                "width": "25%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "label": "Nature",
+                "value": "nature_id",
+                "width": "25%",
+                "sortable": true
+            }
+        ]
+    }
+}
