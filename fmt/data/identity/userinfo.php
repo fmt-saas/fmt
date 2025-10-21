@@ -55,7 +55,7 @@ if($user_id <= 0) {
             throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
         }
 
-        // #memo - on local instances there is a single Managing Agent object
+        // #memo - on local instances there is a single Instance object
         $instance = Instance::search()->read(['uuid'])->first();
 
         if(!$instance) {
