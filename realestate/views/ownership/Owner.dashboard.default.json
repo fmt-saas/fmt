@@ -25,13 +25,13 @@
                                                 "domain": ["object_class", "=", "documents\\Document"]
                                             },
                                             {
-                                                "id": "item.documents2",
-                                                "label": "Documents",
+                                                "id": "item.property_lots",
+                                                "label": "Property Lots",
                                                 "description": "",
                                                 "width": "50%",
-                                                "entity": "documents\\Document",
+                                                "entity": "realestate\\property\\PropertyLot",
                                                 "view": "list.dashboard",
-                                                "domain": ["creator", "=", "user.id"]
+                                                "domain": ["active_ownership_id", "=", "user.ownerships_ids"]
                                             }
 
                                         ]

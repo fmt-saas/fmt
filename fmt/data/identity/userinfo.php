@@ -8,6 +8,7 @@
 use equal\http\HttpRequest;
 use identity\User;
 use infra\server\Instance;
+use realestate\ownership\Owner;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Returns descriptor of current User, based on received access_token',
@@ -105,10 +106,18 @@ $user = User::id($user_id)
     ->adapt('json')
     ->first(true);
 
+$owners = Owner::search(['identity_id', '=', $user['identity_id']['id']])->read(['ownership_id']);
+$ownerships_ids = [];
+
+foreach($owners as $owner) {
+    $ownerships_ids[] = $owner['ownership_id'];
+}
+
 $result = array_merge($user, [
         'groups'            => array_values(array_map(function ($a) {return $a['name'];}, $user['groups_ids'])),
         'identity_id'       => $user['identity_id'],
-        'organisation_id'   => $user['organisation_id']
+        'organisation_id'   => $user['organisation_id'],
+        'ownerships_ids'    => $ownerships_ids
     ]);
 
 // renew JWT access token
