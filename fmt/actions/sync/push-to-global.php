@@ -18,7 +18,7 @@ use fmt\setting\Setting;
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL', 'FMT_INTERNAL_API_TOKEN'],
+    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL', 'FMT_API_INTERNAL_TOKEN'],
     'providers'     => ['context', 'orm', 'auth']
 ]);
 
@@ -86,7 +86,7 @@ foreach($map_entities as $entity => $scope) {
                     'values'    => $object
                 ])
                 ->header('Content-Type', 'application/json')
-                ->header('Authorization', 'Bearer ' . constant('FMT_INTERNAL_API_TOKEN'));
+                ->header('Authorization', 'Bearer ' . constant('FMT_API_INTERNAL_TOKEN'));
 
             /** @var HttpResponse */
             $response = $request->send();

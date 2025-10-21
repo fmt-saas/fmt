@@ -14,7 +14,7 @@ use infra\server\Instance;
     'access'      => [
         'visibility' => 'public'
     ],
-    'constants'     => ['AUTH_ACCESS_TOKEN_VALIDITY', 'BACKEND_URL', 'FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL', 'FMT_INTERNAL_API_TOKEN'],
+    'constants'     => ['AUTH_ACCESS_TOKEN_VALIDITY', 'BACKEND_URL', 'FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL', 'FMT_API_INTERNAL_TOKEN'],
     'response'      => [
         'content-type'      => 'application/json',
         'charset'           => 'UTF-8',
@@ -64,9 +64,9 @@ if($user_id <= 0) {
             '&user_uuid=' . $user_uuid .
             '&instance_uuid=' . $instance_uuid);
 
-            $request
-                ->header('Content-Type', 'application/json')
-                ->header('Authorization', 'Bearer ' . constant('FMT_INTERNAL_API_TOKEN'));
+        $request
+            ->header('Content-Type', 'application/json')
+            ->header('Authorization', 'Bearer ' . constant('FMT_API_INTERNAL_TOKEN'));
 
         /** @var HttpResponse */
         $response = $request->send();
