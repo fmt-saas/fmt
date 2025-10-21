@@ -8,6 +8,9 @@ use identity\User;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Returns descriptor of current User, based on received access_token',
+    'access'      => [
+        'visibility' => 'public'
+    ],
     'constants'     => ['AUTH_ACCESS_TOKEN_VALIDITY', 'BACKEND_URL'],
     'response'      => [
         'content-type'      => 'application/json',
@@ -32,19 +35,19 @@ if($user_id <= 0) {
     $request = $context->httpRequest();
     $global_token = $request->getCookie('global_token');
     if(!$global_token) {
-        throw new Exception('user_unknown', EQ_ERROR_INVALID_USER);
+        throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
     }
     $jwt = $auth->decodeToken($global_token);
     print_r($jwt);
 }
 
-// user has always READ right on its own object
+// #memo - user has always READ right on its own object
 $user = User::id($user_id)
     ->read([
-        'identity_id' => ['firstname', 'lastname'],
-        'organisation_id',
         'id', 'name', 'login', 'validated', 'language',
-        'groups_ids' => ['name', 'display_name']
+        'groups_ids' => ['name', 'display_name'],
+        'identity_id' => ['firstname', 'lastname'],
+        'organisation_id'
     ])
     ->adapt('json')
     ->first(true);
