@@ -55,13 +55,13 @@ foreach($owners as $owner_id => $owner) {
     if(!$identity['user_id'] && $identity['email']) {
         // search for an email address
         User::create([
-                'identity_id'   => $identity['id'],
                 'login'         => $identity['email'],
                 'language'      => 'fr',
                 'validated'     => true,
                 // users
                 'groups_ids'    => [2]
-            ]);
+            ])
+            ->update(['identity_id' => $identity['id']]);
     }
 }
 
