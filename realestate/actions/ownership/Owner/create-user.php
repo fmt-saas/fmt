@@ -46,7 +46,7 @@ use realestate\governance\AssemblyAttendee;
 
 $ids = array_merge((array) ($params['id'] ?? []), $params['ids'] ?? []);
 
-$owners = Owner::ids($ids)->read(['identity_id'])->first();
+$owners = Owner::ids($ids)->read(['identity_id']);
 
 foreach($owners as $owner_id => $owner) {
     $identity = Identity::id($owner['identity_id'])->read(['email', 'user_id'])->first();
@@ -54,15 +54,14 @@ foreach($owners as $owner_id => $owner) {
     // #memo in cas the user already exists, simply ignore the request
     if(!$identity['user_id'] && $identity['email']) {
         // search for an email address
-        $user = User::create([
+        User::create([
                 'identity_id'   => $identity['id'],
                 'login'         => $identity['email'],
                 'language'      => 'fr',
                 'validated'     => true,
                 // users
                 'groups_ids'    => [2]
-            ])
-            ->first();
+            ]);
     }
 }
 
