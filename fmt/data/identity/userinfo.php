@@ -6,7 +6,7 @@
 */
 use identity\User;
 
-list($params, $providers) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description'   => 'Returns descriptor of current User, based on received access_token',
     'constants'     => ['AUTH_ACCESS_TOKEN_VALIDITY', 'BACKEND_URL'],
     'response'      => [

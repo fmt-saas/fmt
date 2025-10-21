@@ -142,9 +142,17 @@ if(constant('FMT_INSTANCE_TYPE') === 'global') {
             'exp'       => time() + constant('AUTH_ACCESS_TOKEN_VALIDITY'),
         ]);
 
+    $baseDomain = parse_url(constant('BACKEND_URL'), PHP_URL_HOST);
+
+    $domainParts = explode('.', $baseDomain);
+    if(count($domainParts) > 2) {
+        array_shift($domainParts);
+        $baseDomain = implode('.', $domainParts);
+    }
+
     $httpResponse->cookie('global_token',  $global_token, [
             'expires'   => time() + constant('AUTH_ACCESS_TOKEN_VALIDITY'),
-            'domain'    => parse_url(constant('BACKEND_URL'), PHP_URL_HOST),
+            'domain'    => $baseDomain,
             'httponly'  => true,
             'secure'    => constant('AUTH_TOKEN_HTTPS')
         ]);
