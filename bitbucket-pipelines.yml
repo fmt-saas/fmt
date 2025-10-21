@@ -37,13 +37,13 @@ pipelines:
           - php /var/www/html/run.php --do=init_package --package=core --ignore_platform=true
           # create temp config file for init with FMT specific constants
           - |
-            echo "{\"DEFAULT_LANG\": \"fr\", \"FMT_INSTANCE_TYPE\": \"agency\", \"FMT_API_URL_EDMS\": \"http://localhost/\", \"FMT_API_URL_GLOBAL\": \"http://localhost/\", \"MINDEE_API_KEY\": \"\"}" > /var/www/html/config/config.json
+            echo "{\"DEFAULT_LANG\": \"fr\", \"FMT_INSTANCE_TYPE\": \"global\", \"FMT_API_URL_EDMS\": \"http://localhost/\", \"FMT_API_URL_GLOBAL\": \"http://localhost/\", \"MINDEE_API_KEY\": \"\"}" > /var/www/html/config/config.json
           - set +e ; php /var/www/html/run.php --do=init_package --package=fmt --import=true --ignore_platform=true ; export FAILING=$? ; set -e
           - cp /var/www/html/log/equal.log artifacts/equal.log
           - if [ "$FAILING" -ne 0 ]; then exit $FAILING; fi
           # create a config file with FMT specific constants & specific services
           - |
-            echo "{\"DEFAULT_LANG\": \"fr\", \"FMT_INSTANCE_TYPE\": \"agency\", \"FMT_API_URL_EDMS\": \"http://localhost/\", \"FMT_API_URL_GLOBAL\": \"http://localhost/\", \"MINDEE_API_KEY\": \"\", \"SERVICE_ORM_COLLECTION_CLASS\": \"fmt\\\\orm\\\\Collection\", \"SERVICE_ACCESS_ACCESSCONTROLLER\": \"fmt\\\\access\\\\AccessController\"}" > /var/www/html/config/config.json
+            echo "{\"DEFAULT_LANG\": \"fr\", \"FMT_INSTANCE_TYPE\": \"global\", \"FMT_API_URL_EDMS\": \"http://localhost/\", \"FMT_API_URL_GLOBAL\": \"http://localhost/\", \"MINDEE_API_KEY\": \"\", \"SERVICE_ORM_COLLECTION_CLASS\": \"fmt\\\\orm\\\\Collection\", \"SERVICE_ACCESS_ACCESSCONTROLLER\": \"fmt\\\\access\\\\AccessController\"}" > /var/www/html/config/config.json
           # Verify the content of the file
           - cat /var/www/html/config/config.json
           - set +e ; php /var/www/html/run.php --do=init_package --package=fmt --force=true --import=false --demo=true ; export FAILING=$? ; set -e
