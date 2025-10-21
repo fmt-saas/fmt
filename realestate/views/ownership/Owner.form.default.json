@@ -1,6 +1,16 @@
 {
     "name": "Owner",
     "description": "Individual owner from ownership.",
+    "actions": [
+        {
+            "id": "action.create_account",
+            "label": "Create a User account",
+            "icon": "play_arrow",
+            "description": "Retry the check that generated the alert. Message will be dismissed if alert is no longer present.",
+            "controller": "realestate_ownership_Owner_create-user",
+            "confirm": false
+        }
+    ],
     "layout": {
         "groups": [
             {
