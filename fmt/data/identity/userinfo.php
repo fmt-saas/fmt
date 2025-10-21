@@ -14,7 +14,7 @@ use infra\server\Instance;
     'access'      => [
         'visibility' => 'public'
     ],
-    'constants'     => ['AUTH_ACCESS_TOKEN_VALIDITY', 'BACKEND_URL', 'FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL'],
+    'constants'     => ['AUTH_ACCESS_TOKEN_VALIDITY', 'BACKEND_URL', 'FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL', 'FMT_INTERNAL_API_TOKEN'],
     'response'      => [
         'content-type'      => 'application/json',
         'charset'           => 'UTF-8',
@@ -53,11 +53,21 @@ if($user_id <= 0) {
         // #memo - on local instances there is a single Managing Agent object
         $instance = Instance::search()->read(['uuid'])->first();
 
+        if(!$instance) {
+            throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
+        }
+
         $user_uuid = $jwt['payload']['user_uuid'];
         $instance_uuid = $instance['uuid'];
 
         $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_user_resolve' .
-            '&user_uuid=' . $user_uuid . '&instance_uuid=' . $instance_uuid);
+            '&user_uuid=' . $user_uuid .
+            '&instance_uuid=' . $instance_uuid);
+
+            $request
+                ->header('Content-Type', 'application/json')
+                ->header('Authorization', 'Bearer ' . constant('FMT_INTERNAL_API_TOKEN'));
+
         /** @var HttpResponse */
         $response = $request->send();
         $data = $response->body();
