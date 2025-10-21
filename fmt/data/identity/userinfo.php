@@ -82,6 +82,7 @@ if($user_id <= 0) {
         }
 
         $user_id = $user['id'];
+        $auth->su($user_id);
     }
 
 }
