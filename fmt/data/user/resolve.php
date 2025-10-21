@@ -1,4 +1,4 @@
-packages/fmt/actions/sync/push-from-local.php<?php
+<?php
 /*
     Developed by Yesbabylon – https://yesbabylon.com
     (c) 2025–2026 Yesbabylon SA

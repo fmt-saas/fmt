@@ -57,8 +57,8 @@ if($user_id <= 0) {
             throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
         }
 
-        $user_uuid = $jwt['payload']['user_uuid'];
-        $instance_uuid = $instance['uuid'];
+        $user_uuid = $jwt['payload']['user_uuid'] ?? null;
+        $instance_uuid = $instance['uuid'] ?? null;
 
         $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_user_resolve' .
             '&user_uuid=' . $user_uuid .
