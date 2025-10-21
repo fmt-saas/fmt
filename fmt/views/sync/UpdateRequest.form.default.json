@@ -1,6 +1,5 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Update Request",
     "layout": {
         "groups": [
             {
@@ -14,38 +13,33 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "condo_id",
+                                                "value": "object_class",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "ownership_id",
+                                                "value": "request_date",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "communication_reason",
+                                                "value": "instance_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "has_channel_email",
-                                                "width": "25%"
+                                                "value": "managing_agent_id",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "has_channel_postal",
-                                                "width": "25%"
+                                                "value": "status",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "has_channel_postal_registered",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_channel_postal_registered_receipt",
-                                                "width": "25%"
+                                                "value": "name",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

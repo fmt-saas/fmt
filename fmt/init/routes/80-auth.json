@@ -1,0 +1,8 @@
+{
+    "/auth/pwd": {
+        "POST": {
+            "description": "Attempt to authenticate user with credentials.",
+            "operation": "?do=fmt_user_auth_pwd"
+        }
+    }
+}

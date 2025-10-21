@@ -199,7 +199,11 @@ class Apportionment extends \equal\orm\Model {
     }
 
     public static function onbeforeValidate($self) {
-        $self->update(['code' => null, 'name' => null]);
+        $self->update([
+            // #memo - updated at creation & duplication
+            // 'code' => null,
+            'name' => null
+        ]);
     }
 
     public static function calcName($self) {

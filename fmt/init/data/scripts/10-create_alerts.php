@@ -8,7 +8,7 @@ use core\alert\MessageModel;
 
 // Incomplete sending of the invitations to an Assembly
 $model = MessageModel::create([
-        'name'          => 'realestate.governance.assembly.incomplete_sending',
+        'name'          => 'realestate.workflow.assembly.incomplete_sending',
         'type'          => 'governance',
         'label'         => 'Incomplete sending',
         'description'   => "At least one owner hasn't been contacted."
@@ -23,7 +23,7 @@ MessageModel::id($model['id'])->update([
 
 // The quorum of presence or represented shares is not reached
 $model = MessageModel::create([
-        'name'          => 'realestate.governance.assembly.invalid',
+        'name'          => 'realestate.workflow.assembly.invalid',
         'type'          => 'governance',
         'label'         => 'Quorum not reached',
         'description'   => "The quorum of presence or represented shares is not reached."
@@ -53,4 +53,35 @@ $model = MessageModel::create([
 MessageModel::id($model['id'])->update([
         'label'         => 'Facture incomplète',
         'description'   => "Une ou plusieurs informations obligatoires sont manquantes.",
+    ], 'fr');
+
+
+/**
+ * OWNERSHIPS
+ */
+
+$model = MessageModel::create([
+        'name'          => 'realestate.workflow.ownership.invalid_communication_prefs',
+        'type'          => 'ownership',
+        'label'         => 'Invalid preference',
+        'description'   => "One or more communication preferences are invalid."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Préférence invalide',
+        'description'   => "Au moins un canal de communication est invalide.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'realestate.workflow.communication_prefs.email_missing',
+        'type'          => 'ownership',
+        'label'         => 'Incomplete invoice',
+        'description'   => "One or more mandatory piece of information are missing."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Canal invalide',
+        'description'   => "Email non défini pour Le choix du canal est `email` mais aucun email n'est assigné à.",
     ], 'fr');

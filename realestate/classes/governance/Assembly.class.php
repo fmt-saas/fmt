@@ -869,29 +869,54 @@ class Assembly extends \equal\orm\Model {
                 if(!$ownership['representative_owner_id']) {
                     continue;
                 }
-                // if not requested otherwise, invite must be sent through registered postal mail
-                $communication_method = 'postal_registered';
+                // init prefs
+                $communication_methods = [
+                        'email'                     => false,
+                        'postal'                    => false,
+                        'postal_registered'         => false,
+                        'postal_registered_receipt' => false
+                    ];
+
                 // fetch Ownership communication preferences
                 $communicationPreference = OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $assembly['condo_id']],
                         ['ownership_id', '=', $ownership_id],
                         ['communication_reason', '=', 'general_assembly_call']
                     ])
-                    ->read(['communication_method'])
+                    ->read([
+                        'has_channel_email',
+                        'has_channel_postal',
+                        'has_channel_postal_registered',
+                        'has_channel_postal_registered_receipt'
+                    ])
                     ->first();
 
                 if($communicationPreference) {
-                    $communication_method = $communicationPreference['communication_method'];
+                    $communication_methods = [
+                            'email'                     => $communicationPreference['has_channel_email'],
+                            'postal'                    => $communicationPreference['has_channel_postal'],
+                            'postal_registered'         => $communicationPreference['has_channel_postal_registered'],
+                            'postal_registered_receipt' => $communicationPreference['has_channel_postal_registered_receipt']
+                        ];
                 }
 
-                AssemblyInvitation::create([
-                    'condo_id'              => $assembly['condo_id'],
-                    'assembly_id'           => $id,
-                    'ownership_id'          => $ownership_id,
-                    'owner_id'              => $ownership['representative_owner_id'],
-                    'communication_method'  => $communication_method
-                ]);
+                // if not requested otherwise, invite must be sent through registered postal mail
+                if(!in_array(true, $communication_methods, true)) {
+                    $communication_methods['postal_registered'] = true;
+                }
 
+                foreach($communication_methods as $communication_method => $communication_method_flag) {
+                    if(!$communication_method_flag) {
+                        continue;
+                    }
+                    AssemblyInvitation::create([
+                        'condo_id'              => $assembly['condo_id'],
+                        'assembly_id'           => $id,
+                        'ownership_id'          => $ownership_id,
+                        'owner_id'              => $ownership['representative_owner_id'],
+                        'communication_method'  => $communication_method
+                    ]);
+                }
             }
             self::id($id)->update(['assembly_invitation_date' => time()]);
         }

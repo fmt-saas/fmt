@@ -62,15 +62,6 @@ $mapSupplierRowToJson = function (array $row): array {
     ];
 };
 
-// #todo - use only registration_number (in case of identity, the citizen_identification is copied into registration_number
-$calcHashSha256 = function ($supplier) {
-    if(!$supplier['registration_number'] || strlen($supplier['registration_number']) <= 0) {
-        return null;
-    }
-    return hash('sha256', $supplier['registration_number'] . constant('AUTH_SECRET_KEY'));
-};
-
-
 try {
     // #todo - when PhpOffice version will support it, use memory stream instead of tmp file
     $reader = IOFactory::createReader('Xlsx');
@@ -124,13 +115,13 @@ for($i = 0, $n = count($lines); $i < $n; ++$i) {
     try {
         $values = $mapSupplierRowToJson($lines[$i]);
 
-        $hash_sha256 = $calcHashSha256($values);
         $identity = null;
         $supplier = null;
 
-        if($hash_sha256) {
-            $identity = Identity::search(['hash_sha256', '=', $hash_sha256])->first();
-            $supplier = Supplier::search(['hash_sha256', '=', $hash_sha256])->first();
+        // #memo - we use only registration_number (in case of identity, the citizen_identification is copied into registration_number
+        if($values['registration_number']) {
+            $identity = Identity::search(['registration_number', '=', $values['registration_number']])->first();
+            $supplier = Supplier::search(['registration_number', '=', $values['registration_number']])->first();
         }
 
         if(!$identity) {
@@ -156,3 +147,6 @@ $orm->enableEvents($events);
 $context->httpResponse()
         ->status(201)
         ->send();
+
+
+// #todo - créer un SupplierImport pour pouvoir associer des logs (lignes qui ne sont pas passées)

@@ -29,12 +29,27 @@
             {
                 "type": "field",
                 "value": "communication_reason",
-                "width": "30%"
+                "width": "25%"
             },
             {
                 "type": "field",
-                "value": "communication_method",
-                "width": "30%"
+                "value": "has_channel_email",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "has_channel_postal",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "has_channel_postal_registered",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "has_channel_postal_registered_receipt",
+                "width": "15%"
             }
         ]
     }

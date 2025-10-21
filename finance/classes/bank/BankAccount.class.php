@@ -12,6 +12,10 @@ use identity\Identity;
 
 class BankAccount extends Model {
 
+    public static function constant() {
+        return ['FMT_INSTANCE_TYPE'];
+    }
+
     public static function getColumns() {
 
         return [
@@ -243,6 +247,11 @@ class BankAccount extends Model {
     }
 
     public static function canupdate($self, $values) {
+        // modifications are only allowed on the master instance
+        if(constant('FMT_INSTANCE_TYPE') !== 'global') {
+            return ['id' => ['restricted_action' => 'Bank account cannot be updated directly.']];
+        }
+
         $self->read(['owner_identity_id']);
         foreach($self as $id => $bankAccount) {
             if(isset($values['is_primary']) && $values['is_primary']) {
@@ -262,13 +271,7 @@ class BankAccount extends Model {
     }
 
     public static function candelete($self) {
-        $self->read(['is_primary']);
-        foreach($self as $bankAccount) {
-            if($bankAccount['is_primary']) {
-                return ['id' => ['non_removable' => 'The primary bank account cannot be removed. Organizations must have at least one bank account.']];
-            }
-        }
-        return parent::candelete($self);
+        return ['id' => ['non_removable' => 'Bank accounts cannot be removed, but only archived.']];
     }
 
     private static function computeCountryFromIban($iban) {
@@ -327,7 +330,7 @@ class BankAccount extends Model {
      * Synchronize the primary bank account of the identity.
      *
      */
-    public static function onafterupdate($self, $values) {
+    protected static function onafterupdate($self, $values) {
         $self->read(['is_primary', 'owner_identity_id', 'bank_account_iban', 'bank_account_bic']);
         foreach($self as $id => $bankAccount) {
             if($bankAccount['is_primary']) {

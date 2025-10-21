@@ -1,0 +1,42 @@
+{
+    "name": "Update Request Line",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "update_request_id",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "object_field",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "new_value",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "old_value",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "7%"
+            },
+            {
+                "type": "field",
+                "value": "approval_reason",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "rejection_reason",
+                "width": "15%"
+            }
+        ]
+    }
+}

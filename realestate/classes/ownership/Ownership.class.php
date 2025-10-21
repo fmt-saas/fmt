@@ -153,6 +153,22 @@ class Ownership extends \equal\orm\Model {
                 'onupdate'          => 'onupdateCreationIdentityId'
             ],
 
+            'address_recipient' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'store'             => true,
+                'function'          => 'calcAddressRecipient',
+                // #memo - on n'a pas le lien de parenté
+                'description'       => "Line to be used for sending courier to the Ownership representative(s)."
+            ],
+
+            'has_representative' => [
+                'type'              => 'boolean',
+                'description'       => "Flag indicating if the ownership has a representative.",
+                'default'           => false,
+                'dependents'        => ['name']
+            ],
+
             'representative_identity_id' => [
                 'type'              => 'many2one',
                 'description'       => "External person that represents the ownership.",
@@ -163,38 +179,20 @@ class Ownership extends \equal\orm\Model {
                 'dependents'        => ['name']
             ],
 
-
-            // ajout d'infos de contact -> non, ajout dans les préférences de communication
-            'email' => [
-                'type'              => 'string',
-                'usage'             => 'email',
-                'onupdate'          => 'onupdateEmail',
-                'description'       => "Identity main email address."
-            ],
-        
-
-
-            // champ address_recipient - calculé ? !on n'a pas le lien de parenté
-
-// pouvoir renseigner des representative complémentaires
-
-
-            'has_representative' => [
-                'type'              => 'boolean',
-                'description'       => "Flag indicating if the ownership has a representative.",
-                'default'           => false,
-                'dependents'        => ['name']
-            ],
-
             'representative_owner_id' => [
                 'type'              => 'many2one',
-                'description'       => "Owner that represents the ownership.",
-                'help'              => "Owner (amongst the owners)designated by the joint ownership for representing the ownership.",
+                'description'       => "Main owner that represents the ownership.",
+                'help'              => "Owner (amongst the owners) designated by the joint ownership for representing the ownership.
+                    As of BE Law on Co-ownership - Article 3.87, § 1.",
                 'foreign_object'    => 'realestate\ownership\Owner',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.id']],
+                'dependents'        => ['address_recipient']
             ],
-// représentants secondaires (pour générer d'autres lignes de communication) - uniquement 
+
+            // représentants secondaires (pour générer d'autres lignes de communication) - uniquement
+            //  #todo - pas sûr : cela est peut être mieux géré dans les préférences de communication
             // 'representative_owners_ids' => [
+
             'fundings_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'sale\pay\Funding',
@@ -249,6 +247,152 @@ class Ownership extends \equal\orm\Model {
             ]
 
         ];
+    }
+
+    protected static function calcAddressRecipient($self) {
+        $result = [];
+
+        $self->read(['owners_ids' => ['firstname', 'lastname', 'gender', 'lang_id']]);
+
+        foreach($self as $id => $ownership) {
+            $owners = $ownership['owners_ids'];
+
+            if(empty($owners)) {
+                $result[$id] = '';
+                continue;
+            }
+
+            // Langue du premier owner (1=EN, 2=FR, 3=NL)
+            $firstOwner = reset($owners);
+            $langId = isset($firstOwner['lang_id']) ? (int) $firstOwner['lang_id'] : 2;
+
+            // Dictionnaire des titres selon la langue
+            $titles = [];
+            if($langId === 1) {
+                $titles = ['M' => 'Mr', 'F' => 'Mrs', 'X' => 'Mx', '' => ''];
+                $and = 'and';
+            }
+            elseif($langId === 3) {
+                $titles = ['M' => 'De heer', 'F' => 'Mevrouw', 'X' => '', '' => ''];
+                $and = 'en';
+            }
+            else {
+                $titles = ['M' => 'Monsieur', 'F' => 'Madame', 'X' => '', '' => ''];
+                $and = 'et';
+            }
+
+            // Regroupe les owners par genre
+            $groups = ['M' => [], 'F' => [], 'X' => [], '' => []];
+
+            foreach($owners as $owner) {
+                $gender = strtoupper(trim($owner['gender'] ?? ''));
+                if(!in_array($gender, ['M', 'F', 'X'])) {
+                    $gender = '';
+                }
+                $lastname = trim($owner['lastname'] ?? '');
+                $firstname = trim($owner['firstname'] ?? '');
+                if($lastname !== '') {
+                    $groups[$gender][] = [
+                        'firstname' => $firstname,
+                        'lastname'  => $lastname
+                    ];
+                }
+            }
+
+            $count = count($owners);
+
+            // Cas 1 : un seul propriétaire
+            if($count === 1) {
+                $owner = $firstOwner;
+                $gender = strtoupper(trim($owner['gender'] ?? ''));
+                $lastname = trim($owner['lastname'] ?? '');
+                $title = isset($titles[$gender]) ? $titles[$gender] : '';
+                $result[$id] = trim($title . ' ' . $lastname);
+                continue;
+            }
+
+            // Cas 2 : homme et femme avec même nom
+            if(!empty($groups['M']) && !empty($groups['F']) && empty($groups['X']) && empty($groups[''])) {
+                $lnM = array_column($groups['M'], 'lastname');
+                $lnF = array_column($groups['F'], 'lastname');
+                $merged = array_unique(array_merge($lnM, $lnF));
+                if(count($merged) === 1) {
+                    $lastname = $merged[0];
+                    $result[$id] = $titles['M'] . ' ' . $and . ' ' . $titles['F'] . ' ' . $lastname;
+                    continue;
+                }
+                $maleNames = [];
+                foreach($groups['M'] as $o) {
+                    $maleNames[] = trim($titles['M'] . ' ' . $o['lastname']);
+                }
+                $femaleNames = [];
+                foreach($groups['F'] as $o) {
+                    $femaleNames[] = trim($titles['F'] . ' ' . $o['lastname']);
+                }
+                $result[$id] = implode(' ' . $and . ' ', array_merge($maleNames, $femaleNames));
+                continue;
+            }
+
+            // Cas 3 : tous du même genre
+            $filtered = array_filter($groups);
+            if(count($filtered) === 1) {
+                $key = array_key_first($filtered);
+                $ownersList = $groups[$key];
+                $title = isset($titles[$key]) ? $titles[$key] : '';
+                $lastnames = array_unique(array_column($ownersList, 'lastname'));
+                if(count($lastnames) === 1) {
+                    switch($langId) {
+                        case 1: // EN
+                            if($key === 'M') {
+                                $title = 'Messrs';
+                            }
+                            elseif($key === 'F') {
+                                $title = 'Madams';
+                            }
+                            break;
+                        case 2: // FR
+                            if($key === 'M') {
+                                $title = 'Messieurs';
+                            }
+                            elseif($key === 'F') {
+                                $title = 'Mesdames';
+                            }
+                            break;
+                        case 3: // NL
+                            if($key === 'M') {
+                                $title = 'De heren';
+                            }
+                            elseif ($key === 'F') {
+                                $title = 'Dames';
+                            }
+                            break;
+                    }
+                    $result[$id] = trim($title . ' ' . $lastnames[0]);
+                    continue;
+                }
+                else {
+                    $formatted = [];
+                    foreach($ownersList as $o) {
+                        $formatted[] = trim($title . ' ' . $o['lastname']);
+                    }
+                    $result[$id] = implode(' ' . $and . ' ', $formatted);
+                    continue;
+                }
+            }
+
+            // Cas 4 : mélange ou inconnu
+            $names = [];
+            foreach($owners as $owner) {
+                $gender = strtoupper(trim($owner['gender'] ?? ''));
+                $lastname = trim($owner['lastname'] ?? '');
+                $title = isset($titles[$gender]) ? $titles[$gender] : '';
+                $names[] = trim($title . ' ' . $lastname);
+            }
+
+            $result[$id] = implode(' ' . $and . ' ', array_unique(array_filter($names)));
+        }
+
+        return $result;
     }
 
     public static function getWorkflow() {
@@ -544,43 +688,76 @@ class Ownership extends \equal\orm\Model {
      *  - only the representative can change the preferences
      */
     protected static function doGenerateCommunicationPrefs($self) {
-        $self->read(['condo_id', 'name']);
+        $self->read(['condo_id', 'name', 'has_representative', 'representative_identity_id', 'representative_owner_id' => ['identity_id']]);
 
         foreach($self as $id => $ownership) {
 
+            $identity_id = null;
+
+            if($ownership['has_representative']) {
+                $identity_id = $ownership['representative_identity_id'] ?? null;
+            }
+            else {
+                $identity_id = $ownership['representative_owner_id']['identity_id'] ?? null;
+            }
+
+            if(!$identity_id) {
+                continue;
+            }
+
             OwnershipCommunicationPreference::create([
-                    'condo_id'              => $ownership['condo_id'],
-                    'ownership_id'          => $id,
-                    'communication_reason'  => 'general_assembly_call',
-                    'communication_method'  => 'postal_registered'
+                    'condo_id'                              => $ownership['condo_id'],
+                    'ownership_id'                          => $id,
+                    'identity_id'                           => $identity_id,
+                    'communication_reason'                  => 'general_assembly_call',
+                    'has_channel_email'                     => false,
+                    'has_channel_postal'                    => false,
+                    'has_channel_postal_registered'         => true,
+                    'has_channel_postal_registered_receipt' => false
                 ]);
 
             OwnershipCommunicationPreference::create([
-                    'condo_id'              => $ownership['condo_id'],
-                    'ownership_id'          => $id,
-                    'communication_reason'  => 'general_assembly_minutes',
-                    'communication_method'  => 'postal'
+                    'condo_id'                              => $ownership['condo_id'],
+                    'ownership_id'                          => $id,
+                    'identity_id'                           => $identity_id,
+                    'communication_reason'                  => 'general_assembly_minutes',
+                    'has_channel_email'                     => false,
+                    'has_channel_postal'                    => true,
+                    'has_channel_postal_registered'         => false,
+                    'has_channel_postal_registered_receipt' => false
                 ]);
 
             OwnershipCommunicationPreference::create([
-                    'condo_id'              => $ownership['condo_id'],
-                    'ownership_id'          => $id,
-                    'communication_reason'  => 'expense_statement',
-                    'communication_method'  => 'postal'
+                    'condo_id'                              => $ownership['condo_id'],
+                    'ownership_id'                          => $id,
+                    'identity_id'                           => $identity_id,
+                    'communication_reason'                  => 'expense_statement',
+                    'has_channel_email'                     => false,
+                    'has_channel_postal'                    => true,
+                    'has_channel_postal_registered'         => false,
+                    'has_channel_postal_registered_receipt' => false
                 ]);
 
             OwnershipCommunicationPreference::create([
-                    'condo_id'              => $ownership['condo_id'],
-                    'ownership_id'          => $id,
-                    'communication_reason'  => 'fund_request',
-                    'communication_method'  => 'postal'
+                    'condo_id'                              => $ownership['condo_id'],
+                    'ownership_id'                          => $id,
+                    'identity_id'                           => $identity_id,
+                    'communication_reason'                  => 'fund_request',
+                    'has_channel_email'                     => false,
+                    'has_channel_postal'                    => true,
+                    'has_channel_postal_registered'         => false,
+                    'has_channel_postal_registered_receipt' => false
                 ]);
 
             OwnershipCommunicationPreference::create([
-                    'condo_id'              => $ownership['condo_id'],
-                    'ownership_id'          => $id,
-                    'communication_reason'  => 'technical_communication',
-                    'communication_method'  => 'postal'
+                    'condo_id'                              => $ownership['condo_id'],
+                    'ownership_id'                          => $id,
+                    'identity_id'                           => $identity_id,
+                    'communication_reason'                  => 'technical_communication',
+                    'has_channel_email'                     => false,
+                    'has_channel_postal'                    => true,
+                    'has_channel_postal_registered'         => false,
+                    'has_channel_postal_registered_receipt' => false
                 ]);
         }
     }

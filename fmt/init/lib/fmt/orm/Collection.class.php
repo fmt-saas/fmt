@@ -63,7 +63,7 @@ class Collection extends \equal\orm\Collection {
                 'purchase\supplier\SupplierType'        => 'private',
                 'finance\bank\Bank'                     => 'protected',
                 'realestate\property\NotaryOffice'      => 'protected',
-                'realestate\management\ManagingAgent'   => 'private',
+                'realestate\management\ManagingAgent'   => 'protected',
                 'realestate\property\Condominium'       => 'protected',
                 'documents\DocumentType'                => 'private',
                 'documents\DocumentSubtype'             => 'private'
