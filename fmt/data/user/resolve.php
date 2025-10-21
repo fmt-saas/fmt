@@ -17,7 +17,7 @@ use infra\server\Instance;
             'required'          => true
         ],
         'instance_uuid' => [
-            'type'              => 'integer',
+            'type'              => 'string',
             'description'       => 'Instance for which the User is to be resolved.',
             'required'          => true
         ]
