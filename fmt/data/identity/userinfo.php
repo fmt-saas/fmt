@@ -14,7 +14,7 @@ use infra\server\Instance;
     'access'      => [
         'visibility' => 'public'
     ],
-    'constants'     => ['AUTH_ACCESS_TOKEN_VALIDITY', 'BACKEND_URL', 'FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL', 'FMT_API_INTERNAL_TOKEN'],
+    'constants'     => ['AUTH_TOKEN_HTTPS', 'AUTH_ACCESS_TOKEN_VALIDITY', 'BACKEND_URL', 'FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL', 'FMT_API_INTERNAL_TOKEN'],
     'response'      => [
         'content-type'      => 'application/json',
         'charset'           => 'UTF-8',
@@ -38,15 +38,20 @@ if($user_id <= 0) {
         throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
     }
     else {
+        /*
+            We're on an agency instance:
+            Attempt to retrieve user uuid from the Global instance, based on global_token, if present.
+        */
+
         /** @var \equal\http\HttpRequest  */
         $request = $context->httpRequest();
-        $global_token = $request->getCookie('global_token');
-        if(!$global_token) {
+        $global_jwt = $request->getCookie('global_token');
+        if(!$global_jwt) {
             throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
         }
-        $jwt = $auth->decodeToken($global_token);
+        $token = $auth->decodeToken($global_jwt);
 
-        if(!isset($jwt['payload']['user_uuid']) || strlen($jwt['payload']['user_uuid']) <= 0) {
+        if(!isset($token['payload']['user_uuid']) || strlen($token['payload']['user_uuid']) <= 0) {
             throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
         }
 
@@ -57,12 +62,13 @@ if($user_id <= 0) {
             throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
         }
 
-        $user_uuid = $jwt['payload']['user_uuid'] ?? null;
+        $user_uuid = $token['payload']['user_uuid'] ?? null;
         $instance_uuid = $instance['uuid'] ?? null;
 
         $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_user_resolve' .
             '&user_uuid=' . $user_uuid .
-            '&instance_uuid=' . $instance_uuid);
+            '&instance_uuid=' . $instance_uuid .
+            '&token=' . $global_jwt);
 
         $request
             ->header('Content-Type', 'application/json')
@@ -105,7 +111,7 @@ $result = array_merge($user, [
     ]);
 
 // renew JWT access token
-$access_token = $auth->renewedToken(constant('AUTH_ACCESS_TOKEN_VALIDITY'));
+$access_token = $auth->token($user_id, constant('AUTH_ACCESS_TOKEN_VALIDITY'), ['auth_type' => 'pwd', 'auth_level' => 1]);
 
 // send back basic info of the User object
 $context->httpResponse()
