@@ -99,6 +99,7 @@ $user = User::id($user_id)
         'id', 'name', 'login', 'validated', 'language',
         'groups_ids' => ['name', 'display_name'],
         'identity_id' => ['firstname', 'lastname'],
+        'instance_id' => ['url'],
         'organisation_id'
     ])
     ->adapt('json')

@@ -160,19 +160,6 @@ if(constant('FMT_INSTANCE_TYPE') === 'global') {
             'secure'    => constant('AUTH_TOKEN_HTTPS')
         ]);
 
-
-    // #todo
-    // retrieve instances of User
-    /*
-    $users = User::search(['identity_id', '=', $user['identity_id']['id']])
-        ->read(['instance_id']);
-    */
-    // if a single instance, redirect to the corresponding URL
-
-    $url = $user['instance_id']['url'];
-
-    header('Location: ' . $url);
-    exit(0);
 }
 
 
