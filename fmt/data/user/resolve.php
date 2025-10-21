@@ -6,6 +6,7 @@ packages/fmt/actions/sync/push-from-local.php<?php
 */
 
 use identity\User;
+use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Request a resolution of a User on the  GLOBAL instance, based on user UUID, for a given instance.',
@@ -15,7 +16,7 @@ use identity\User;
             'description'       => 'UUID of the user to be resolved.',
             'required'          => true
         ],
-        'instance_id' => [
+        'instance_uuid' => [
             'type'              => 'integer',
             'description'       => 'Instance for which the User is to be resolved.',
             'required'          => true
@@ -46,9 +47,15 @@ if(!$user) {
     throw new Exception('unknown_user_uuid', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+$instance = Instance::search(['uuid', '=', $params['instance_uuid']])->first();
+
+if(!$instance) {
+    throw new Exception('unknown_instance_uuid', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
 $user = User::search([
         ['identity_id', '=', $user['identity_id']],
-        ['instance_id', '=', $params['instance_id']]
+        ['instance_id', '=', $instance['id']]
     ])
     ->read(['uuid'])
     ->adapt('json')

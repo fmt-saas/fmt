@@ -7,6 +7,7 @@
 
 namespace infra\server;
 
+use equal\data\DataGenerator;
 use equal\orm\Model;
 
 class Server extends Model {
@@ -24,6 +25,15 @@ class Server extends Model {
                 'type'              => 'string',
                 'description'       => 'Internal identification ex. trg.be-master.',
                 'unique'            => true
+            ],
+
+            'uuid' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:36',
+                // #memo - commented for testing because items are on the same instance
+                // #todo - uncomment for PROD
+                // 'unique'            => true,
+                'description'       => 'Unique identifier from the Master instance.'
             ],
 
             'description' => [
@@ -64,5 +74,22 @@ class Server extends Model {
         ];
     }
 
+
+
+    /**
+     * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
+     */
+    protected static function oncreate($self, $orm) {
+        foreach($self as $id => $object) {
+            if(constant('FMT_INSTANCE_TYPE') === 'global') {
+                do {
+                    $uuid = DataGenerator::uuid();
+                    $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
+                } while( $existing > 0 && count($existing) > 0 );
+
+                self::id($id)->update(['uuid' => $uuid]);
+            }
+        }
+    }
 
 }
