@@ -53,6 +53,13 @@ class Role extends Group {
                 'default'           => false
             ],
 
+            'is_mandatory' => [
+                'type'              => 'boolean',
+                'description'       => 'The role must be assigned at the creation of a new Condominium.',
+                'help'              => 'Some roles are mandatory for the management of a Condominium and must be assigned at all time.',
+                'default'           => false
+            ],
+
             'role_assignments_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'hr\role\RoleAssignment',

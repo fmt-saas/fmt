@@ -17,8 +17,20 @@
             },
             {
                 "type": "field",
+                "value": "is_external",
+                "width": "15%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "is_mandatory",
+                "width": "15%",
+                "sortable": true
+            },
+            {
+                "type": "field",
                 "value": "description",
-                "width": "85%"
+                "width": "65%"
             }
         ]
     }

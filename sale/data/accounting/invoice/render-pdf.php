@@ -7,7 +7,7 @@
 use core\setting\Setting;
 use Dompdf\Dompdf;
 use Dompdf\Options as DompdfOptions;
-use sale\accounting\invoice\Invoice;
+use sale\accounting\invoice\SaleInvoice;
 
 list($params, $providers) = eQual::announce([
     'description'   => 'Generate a pdf view of given invoice.',
@@ -51,7 +51,7 @@ list($params, $providers) = eQual::announce([
 /** @var \equal\php\Context $context */
 ['context' => $context] = $providers;
 
-$invoice = Invoice::id($params['id'])
+$invoice = SaleInvoice::id($params['id'])
     ->read(['id'])
     ->first();
 
@@ -62,7 +62,7 @@ if(empty($invoice)) {
 $lang = $params['lang'] ?? null;
 
 if(!$lang) {
-    $invoice = Invoice::id($params['id'])->read(['name', 'customer_id' => ['lang_id' => ['code']]])->first();
+    $invoice = SaleInvoice::id($params['id'])->read(['name', 'customer_id' => ['lang_id' => ['code']]])->first();
     $lang = $invoice['customer_id']['lang_id']['code'];
 }
 

@@ -19,12 +19,14 @@
                 "id": 3,
                 "name": "Accountant",
                 "code": "accountant",
+                "is_mandatory": true,
                 "description": "Accounting management."
             },
             {
                 "id": 4,
                 "name": "Condominium manager",
                 "code": "condo_manager",
+                "is_mandatory": true,
                 "description": "Condominium operational management."
             },
             {
@@ -32,6 +34,27 @@
                 "name": "Assistant",
                 "code": "assistant",
                 "description": "Assistant."
+            },
+            {
+                "id": 6,
+                "name": "Owner",
+                "code": "owner",
+                "is_external": true,
+                "description": "Property lot Owner."
+            },
+            {
+                "id": 7,
+                "name": "Statutory auditor",
+                "code": "statutory_auditor",
+                "is_external": true,
+                "description": "Statutory auditor."
+            },
+            {
+                "id": 8,
+                "name": "Council Member",
+                "code": "council_member",
+                "is_external": true,
+                "description": "Condominium council member."
             }
         ]
     },
@@ -63,6 +86,21 @@
                 "id": 5,
                 "name": "Assistant",
                 "description": "Assistant."
+            },
+            {
+                "id": 6,
+                "name": "Copropriétaire",
+                "description": "Copropriétaire."
+            },
+            {
+                "id": 7,
+                "name": "Commissaire aux comptes",
+                "description": "Commissaire aux comptes."
+            },
+            {
+                "id": 8,
+                "name": "Membre conseil copro",
+                "description": "Membre du conseil de copropriété."
             }
         ]
     }

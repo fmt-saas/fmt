@@ -99,9 +99,7 @@
                                                 "value": "role_assignments_ids",
                                                 "width": "100%",
                                                 "widget": {
-                                                    "header": {
-                                                        "view": "list.employee"
-                                                    }
+                                                    "view": "list.employee"
                                                 }
                                             }
                                         ]

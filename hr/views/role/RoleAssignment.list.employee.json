@@ -11,6 +11,7 @@
             ]
         }
     },
+    "domain": ["is_external", "=", false],
     "layout": {
         "items": [
             {
@@ -24,13 +25,18 @@
                 "value": "employee_id",
                 "label": "Employee",
                 "width": "25%",
-                "sortable": true
+                "visible": false
             },
             {
                 "type": "field",
                 "value": "role_id",
                 "label": "Role",
                 "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "is_external",
+                "width": "15%"
             }
         ]
     }

@@ -76,8 +76,7 @@ class RoleAssignment extends \equal\orm\Model {
                 'description'       => 'Role the assignment relates to.',
                 'onupdate'          => 'onupdateRoleId',
                 'ondelete'          => 'cascade',
-                'dependents'        => ['role_code'],
-                'domain'            => ['is_external', '=', 'object.is_external']
+                'dependents'        => ['role_code']
             ],
 
             'role_code' => [
@@ -121,4 +120,13 @@ class RoleAssignment extends \equal\orm\Model {
         }
     }
 
+
+    public static function onchange($event, $values): array {
+        $result = [];
+        if(isset($event['role_id'])) {
+            $role = Role::id($event['role_id'])->read(['is_external'])->first();
+            $result['is_external'] = $role['is_external'];
+        }
+        return $result;
+    }
 }

@@ -24,8 +24,7 @@ class MiscOperationLine extends Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the accounting entry line refers to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'readonly'          => true,
-                'default'           => 'defaultCondoId'
+                'readonly'          => true
             ],
 
             'name' => [

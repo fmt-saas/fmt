@@ -83,6 +83,15 @@ class Employee extends Identity {
                 'description'       => 'Roles assigned to the employee.'
             ],
 
+            'condominiums_ids' => [
+                'type'              => 'computed',
+                'result_type'       => 'one2many',
+                'foreign_object'    => 'realestate\property\Condominium',
+                'function'          => 'calcCondominiumsIds',
+                'store'             => false,
+                'description'       => 'Condominiums assigned to the employee, through role assignments.'
+            ],
+
             'relationship' => [
                 'deprecated'        => 'Employee uses its own table and Partner should not be used as a final entity.',
                 'type'              => 'string',
@@ -157,8 +166,22 @@ class Employee extends Identity {
         }
     }
 
-    private static function doSyncFromTeams($self) {
-        $self->read(['condo_id', 'teams_ids' => ['role_id']]);
+    protected static function calcCondominiumsIds($self) {
+        $result = [];
+        $self->read(['role_assignments_ids' => ['condo_id']]);
+        foreach($self as $id => $employee) {
+            $result[$id] = [];
+            foreach($employee['role_assignments_ids'] as $role_assignment_id => $roleAssignment) {
+                if($roleAssignment['condo_id']) {
+                    $result[$id][] = $roleAssignment['condo_id'];
+                }
+            }
+        }
+        return $result;
+    }
+
+    protected static function doSyncFromTeams($self) {
+        $self->read(['teams_ids' => ['role_id']]);
         foreach($self as $id => $employee) {
             if(!$employee['teams_ids'] || empty($employee['teams_ids'])) {
                 continue;
@@ -173,7 +196,6 @@ class Employee extends Identity {
                     continue;
                 }
                 $roleAssignment = RoleAssignment::create([
-                        'condo_id'      => $employee['condo_id'],
                         'employee_id'   => $id,
                         'role_id'       => $team['role_id']
                     ])

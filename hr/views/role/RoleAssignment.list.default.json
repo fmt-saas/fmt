@@ -21,6 +21,11 @@
                 "value": "role_id",
                 "label": "Role",
                 "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "is_external",
+                "width": "15%"
             }
         ]
     }

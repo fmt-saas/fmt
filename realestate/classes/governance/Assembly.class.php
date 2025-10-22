@@ -567,6 +567,7 @@ class Assembly extends \equal\orm\Model {
                 continue;
             }
 
+            // #todo - dans tous les cas on va créer un Employé et des Roles pour l'ACP
             if($assembly['condo_id']['managing_agent_id']['agent_identity_type'] === 'owner') {
                 $result[$id] = $assembly['condo_id']['managing_agent_id']['identity_id'];
             }
@@ -686,7 +687,6 @@ class Assembly extends \equal\orm\Model {
             ->read(['condo_id', 'assembly_organizer_identity_id', 'assembly_items_ids']);
 
         foreach($self as $id => $assembly) {
-            AssemblyItem::ids($assembly['assembly_items_ids'])->update(['is_assembly_open' => true]);
             // create a special attendee as 'secretary' relating to the organizer (can be manually modified afterwards)
             AssemblyAttendee::create([
                     'assembly_id'   => $id,
@@ -869,6 +869,10 @@ class Assembly extends \equal\orm\Model {
                 if(!$ownership['representative_owner_id']) {
                     continue;
                 }
+
+                // remove any previously created invite
+                AssemblyInvitation::search(['assembly_id', '=', $id])->delete(true);
+
                 // init prefs
                 $communication_methods = [
                         'email'                     => false,

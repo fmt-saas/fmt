@@ -167,6 +167,8 @@ $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']]
 $lang = $params['lang'];
 
 $values = [
+    'title'                     => 'Convocation',
+
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
 

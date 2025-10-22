@@ -35,12 +35,26 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'onupdate'          => 'onupdateAssemblyId'
             ],
 
+            'order' => [
+                'type'              => 'integer',
+                'description'       => "Order of the item in the assembly agenda.",
+                'default'           => 'defaultOrder'
+            ],
+
             'assembly_status' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
                 'description'       => "Status of the assembly.",
                 'relation'          => ['assembly_id' => 'status'],
                 'store'             => false
+            ],
+
+            'assembly_step' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'relation'          => ['assembly_id' => 'status'],
+                'store'             => false,
+                'description'       => 'Assembly status.',
             ],
 
             'assembly_template_id' => [
@@ -151,13 +165,6 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
-            'is_assembly_open' => [
-                'type'              => 'boolean',
-                'description'       => 'Flag telling if the assembly is in progress.',
-                'help'              => 'This flag is required to apply visibility on actions and fields, and is set byt he parent assembly, upon opening.',
-                'default'           => false
-            ],
-
             /**
              * Votes can be casted while the resolution is not closed
              * There should be only one resolution open (being discussed) at a time.
@@ -247,6 +254,26 @@ class AssemblyItem extends AssemblyItemTemplate {
         ];
     }
 
+    protected static function defaultOrder($values) {
+        $result = null;
+        if(isset($values['assembly_id'])) {
+            if(isset($values['parent_group_id'])) {
+                $assemblyItem = AssemblyItem::id($values['parent_group_id'])->read(['children_items_ids'])->first();
+                if($assemblyItem) {
+                    $result = count($assemblyItem['children_items_ids']) + 1;
+                }
+            }
+            else {
+                $assembly = Assembly::id($values['assembly_id'])->read(['assembly_items_ids'])->first();
+                if($assembly) {
+                    $result = count($assembly['assembly_items_ids']) + 1;
+                }
+            }
+        }
+        return $result;
+    }
+
+
     protected static function calcVotesCount($self) {
         $result = [];
         $self->read(['assembly_votes_ids']);
@@ -263,6 +290,7 @@ class AssemblyItem extends AssemblyItemTemplate {
         $self->read([
                 'has_choices',
                 'majority',
+                'count_represented_shares',
                 'assembly_id' => ['count_owners', 'count_represented_owners'],
                 'assembly_votes_ids' => ['vote_weight', 'vote_value', 'assembly_item_choice_id' => ['name']]
             ]);
@@ -307,15 +335,16 @@ class AssemblyItem extends AssemblyItemTemplate {
 
                 $majority = $item['majority'] ?? null;
 
+                $value = $weights['for'] * $item['count_represented_shares'] / ($item['count_represented_shares'] - ($weights['abstain'] * $item['count_represented_shares']));
                 $epsilon = 1e-6;
 
-                if($majority === 'absolute' && $weights['for'] > (0.5 + $epsilon)) {
+                if($majority === 'absolute' && $value > (0.5 + $epsilon)) {
                     $result = 'approved';
                 }
-                elseif($majority === '2_3' && $weights['for'] >= ((2/3) + $epsilon)) {
+                elseif($majority === '2_3' && $value >= ((2/3) + $epsilon)) {
                     $result = 'approved';
                 }
-                elseif($majority === '4_5' && $weights['for'] >= ((4/5) + $epsilon)) {
+                elseif($majority === '4_5' && $value >= ((4/5) + $epsilon)) {
                     $result = 'approved';
                 }
                 elseif($majority === 'unanimity'
@@ -336,6 +365,7 @@ class AssemblyItem extends AssemblyItemTemplate {
     }
 
     protected static function onbeforeClose($self) {
+        // #todo - si des owners représentés n'ont pas voté, on créée des votes 'abstention' pour eux
         $self->do('refresh_vote_result');
     }
 
