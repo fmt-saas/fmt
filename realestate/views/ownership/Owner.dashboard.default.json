@@ -20,7 +20,7 @@
                                                 "label": "Payments",
                                                 "description": "",
                                                 "width": "50%",
-                                                "entity": "realestate\\sale\\Pay\\Funding",
+                                                "entity": "realestate\\sale\\pay\\Funding",
                                                 "view": "list.dashboard",
                                                 "domain": ["ownership_id", "in", "user.ownerships_ids"]
                                             },
