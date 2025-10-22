@@ -16,13 +16,13 @@
                                         "width": "100%",
                                         "items": [
                                             {
-                                                "id": "item.documents",
-                                                "label": "Alertes",
+                                                "id": "item.fundings",
+                                                "label": "Payments",
                                                 "description": "",
                                                 "width": "50%",
-                                                "entity": "core\\alert\\Message",
+                                                "entity": "realestate\\sale\\Pay\\Funding",
                                                 "view": "list.dashboard",
-                                                "domain": ["object_class", "=", "documents\\Document"]
+                                                "domain": ["ownership_id", "in", "user.ownerships_ids"]
                                             },
                                             {
                                                 "id": "item.property_lots",
@@ -31,7 +31,7 @@
                                                 "width": "50%",
                                                 "entity": "realestate\\property\\PropertyLot",
                                                 "view": "list.dashboard",
-                                                "domain": ["active_ownership_id", "=", "user.ownerships_ids"]
+                                                "domain": ["active_ownership_id", "in", "user.ownerships_ids"]
                                             }
 
                                         ]
