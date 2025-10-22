@@ -22,7 +22,7 @@
                                                 "width": "50%",
                                                 "entity": "realestate\\sale\\pay\\Funding",
                                                 "view": "list.dashboard",
-                                                "domain": ["ownership_id", "in", "user.ownerships_ids"]
+                                                "domain": [ ["ownership_id", "in", "user.ownerships_ids"], ["status", "in", ["pending", "debit_balance"]] ]
                                             },
                                             {
                                                 "id": "item.property_lots",
