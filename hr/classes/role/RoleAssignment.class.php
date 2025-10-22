@@ -76,7 +76,8 @@ class RoleAssignment extends \equal\orm\Model {
                 'description'       => 'Role the assignment relates to.',
                 'onupdate'          => 'onupdateRoleId',
                 'ondelete'          => 'cascade',
-                'dependents'        => ['role_code']
+                'dependents'        => ['role_code'],
+                'domain'            => ['is_external', '=', 'object.is_external']
             ],
 
             'role_code' => [

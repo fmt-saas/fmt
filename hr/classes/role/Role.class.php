@@ -46,6 +46,13 @@ class Role extends Group {
                 'multilang'         => true
             ],
 
+            'is_external' => [
+                'type'              => 'boolean',
+                'description'       => 'The assignment is granted to an external User.',
+                'help'              => 'External Users do not relate to the Organization (not employees).',
+                'default'           => false
+            ],
+
             'role_assignments_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'hr\role\RoleAssignment',

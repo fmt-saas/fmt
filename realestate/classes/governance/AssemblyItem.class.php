@@ -70,7 +70,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'foreign_object'    => 'realestate\governance\AssemblyItem',
                 'foreign_field'     => 'parent_group_id',
                 'order'             => 'order',
-                'domain'            => [['assembly_id', '=', 'object.assembly_id'], ['has_parent_group', '=', true]],
+                'domain'            => [['assembly_id', '=', 'object.assembly_id'], ['has_parent_group', '=', true], ['condo_id', '=', 'object.condo_id']],
                 'visible'           => ['is_group', '=', true],
             ],
 
@@ -127,7 +127,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'type'              => 'many2one',
                 'description'       => "The apportionment key used for the item (statutory or not).",
                 'foreign_object'    => 'realestate\property\Apportionment',
-                'visible'           => ['has_vote_required', '=', true]
+                'visible'           => [['has_vote_required', '=', true], ['condo_id', '=', 'object.condo_id']]
             ],
 
             'count_represented_shares' => [
