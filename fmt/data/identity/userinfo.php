@@ -112,7 +112,7 @@ $user = User::id($user_id)
         'identity_id' => ['firstname', 'lastname', 'employee_id', 'owner_id', 'tenant_id'],
         'instance_id' => ['url'],
         'organisation_id',
-        'role_assignments_ids' => ['condo_id', 'role_code']
+        'role_assignments_ids' => ['condo_id', 'role_code', 'is_external']
     ])
     ->adapt('json')
     ->first(true);
@@ -124,9 +124,18 @@ foreach($owners as $owner) {
     $ownerships_ids[] = $owner['ownership_id'];
 }
 
+$is_employee = false;
+$is_owner = false;
+
 $map_roles = [];
 
 foreach($user['role_assignments_ids'] as $role_assignment) {
+    if($role_assignment['is_external']) {
+        $is_employee = true;
+    }
+    if($role_assignment['role_code'] === 'owner') {
+        $is_owner = true;
+    }
     $map_roles[$role_assignment['role_code']] = true;
 }
 
@@ -135,8 +144,13 @@ $result = array_merge($user, [
         'roles'             => array_keys($map_roles),
         'ownerships_ids'    => $ownerships_ids,
         'identity_id'       => $user['identity_id'],
-        'organisation_id'   => $user['organisation_id']
+        'organisation_id'   => $user['organisation_id'],
+        'is_owner'          => $is_owner,
+        'is_employee'       => $is_employee
     ]);
+
+unset($result['groups_ids']);
+unset($result['role_assignments_ids']);
 
 // renew JWT access token
 $access_token = $auth->token($user_id, constant('AUTH_ACCESS_TOKEN_VALIDITY'), ['auth_type' => 'pwd', 'auth_level' => 1]);
