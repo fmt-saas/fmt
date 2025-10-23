@@ -16,7 +16,7 @@ class Team extends \equal\orm\Model {
     }
 
     public static function getDescription() {
-        return "A Team is an arbitrary group of employees that can be used to assign tasks, projects, etc.";
+        return "A Team is an entity that can be used to assign a specific role to an arbitrary group of employees.";
     }
 
     public static function getColumns() {

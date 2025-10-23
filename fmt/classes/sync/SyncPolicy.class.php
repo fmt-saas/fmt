@@ -8,13 +8,13 @@ namespace fmt\sync;
 
 use equal\orm\Model;
 
-class UpdatePolicy extends Model {
+class SyncPolicy extends Model {
 
     public static function getColumns() {
         return [
 
             'name' => [
-                'type'              => 'alias',
+                'type'              => 'computed',
                 'result_type'       => 'string',
                 'relation'          => ['object_class'],
                 'store'             => true
@@ -34,16 +34,11 @@ class UpdatePolicy extends Model {
                 'required'          => true
             ],
 
-            'sync_direction' => [
-                'type'              => 'string',
-                'selection'         => [
-                    // Local > Global
-                    'ascending',
-                    // Global > Local
-                    'descending'
-                ],
-                'required'          => true,
-                'description'       => 'Direction of the synchronization.'
+            'sync_policy_lines_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'fmt\sync\SyncPolicyLine',
+                'foreign_field'     => 'sync_policy_id',
+                'description'       => 'Lines of the Update Policy.',
             ],
 
             'scope' => [
@@ -52,11 +47,11 @@ class UpdatePolicy extends Model {
                     // #memo - public is not relevant here (not synced)
                     // management on Local & Global
                     'protected',
-                    // management on Global only
+                    // management on origin only (ascending = Local, descending = Global)
                     'private'
                 ],
                 'required'          => true,
-                'description'       => 'Entity Control level.'
+                'description'       => 'Entity Control level - which instance has management.'
             ]
 
         ];

@@ -6,6 +6,8 @@
 */
 use equal\http\HttpRequest;
 use fmt\setting\Setting;
+use fmt\sync\SyncPolicy;
+use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Request a pull of changed data from GLOBAL instance to local FMT instance.',
@@ -28,20 +30,19 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-// #memo #config #sync - sync between controllers
-$map_entities = [
-    'identity\Identity'                     => 'protected',
-    'identity\User'                         => 'protected',
-    'purchase\supplier\Supplier'            => 'protected',
-    'purchase\supplier\SupplierType'        => 'private',
-    'finance\bank\Bank'                     => 'protected',
-    'realestate\property\NotaryOffice'      => 'protected',
-    'realestate\management\ManagingAgent'   => 'protected',
-    'realestate\property\Condominium'       => 'protected',
-    'documents\DocumentType'                => 'private',
-    'documents\DocumentSubtype'             => 'private'
-];
+// #memo - on local instances there is a single Instance object
+$instance = Instance::search()->read(['uuid'])->first();
 
+if(!$instance) {
+    throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
+}
+
+// retrieve SyncPolicy related to 'protected' entities
+$policies = SyncPolicy::search(['scope', '=', 'protected'])
+    ->read([
+        'object_class',
+        'sync_policy_lines_ids' => ['sync_direction', 'object_field', 'scope']
+    ]);
 
 $result = [
     'created'   => 0,
@@ -56,9 +57,20 @@ $now = time();
 
 $timestamp = Setting::get_value('fmt', 'system', 'sync.last_push_timestamp', 0);
 
-foreach($map_entities as $entity => $scope) {
-    if($scope != 'protected') {
-        continue;
+foreach($policies as $id => $policy) {
+
+    $entity = $policy['object_class'];
+
+    // discard private fields
+    $map_private_fields = [];
+
+    foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
+        if($policyLine['sync_direction'] !== 'ascending') {
+            continue;
+        }
+        if($policyLine['scope'] === 'private') {
+            $map_private_fields[$policyLine['object_field']] = true;
+        }
     }
 
     // retrieve all fields of the requested entity
@@ -67,6 +79,9 @@ foreach($map_entities as $entity => $scope) {
     // we're only interested in scalar fields and many2one relations
     foreach($schema as $field => $def) {
         if(!in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) {
+            unset($schema[$field]);
+        }
+        elseif(isset($map_private_fields[$field])) {
             unset($schema[$field]);
         }
     }
@@ -82,8 +97,9 @@ foreach($map_entities as $entity => $scope) {
 
             $request
                 ->body([
-                    'entity'    => $entity,
-                    'values'    => $object
+                    'entity'            => $entity,
+                    'values'            => $object,
+                    'instance_uuid'     => $instance
                 ])
                 ->header('Content-Type', 'application/json')
                 ->header('Authorization', 'Bearer ' . constant('FMT_API_INTERNAL_TOKEN'));

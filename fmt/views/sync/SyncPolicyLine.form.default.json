@@ -1,6 +1,5 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Update Policy Line",
     "layout": {
         "groups": [
             {
@@ -10,32 +9,27 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "name",
+                                                "value": "sync_policy_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "object_class",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "field_unique",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "sync_direction",
-                                                "width": "100%"
+                                                "value": "object_field",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "scope",
-                                                "width": "100%"
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "sync_direction",
+                                                "width": "33%"
                                             }
                                         ]
                                     }

@@ -5,6 +5,8 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use fmt\sync\SyncPolicy;
+
 [$params, $providers] = eQual::announce([
     'description'   => 'Request an update (or creation) of protected entities created on a LOCAL instance to GLOBAL instance.',
     'help'          => 'This action is expected to be called remotely from a LOCAL instance to the GLOBAL instance.',
@@ -16,8 +18,12 @@
         'values' => [
             'type'              => 'array',
             'required'          => true
+        ],
+        'instance_uuid' => [
+            'type'              => 'string',
+            'description'       => 'Instance for which the data are requested.',
+            'required'          => true
         ]
-
     ],
     'access' => [
         'visibility'        => 'protected'
@@ -36,52 +42,6 @@ if(constant('FMT_INSTANCE_TYPE') !== 'global') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-// #todo - depending on the entities, only certain fields may be allowed to be modified
-// except in the case of a new object: but then it must be flagged for verification
-$protected_fields = [
-        // system fields
-        'id', 'created', 'modified', 'creator', 'modifier', 'state', 'deleted',
-        // fields related to meta about the source of the data
-        'source', 'source_type', 'source_origin', 'source_date', 'source_verification_status'
-    ];
-
-// #memo #config #sync - sync between controllers
-$map_entities = [
-    'identity\Identity'                     => 'protected',
-    'identity\User'                         => 'protected',
-    'purchase\supplier\Supplier'            => 'protected',
-    'purchase\supplier\SupplierType'        => 'private',
-    'finance\bank\Bank'                     => 'protected',
-    'realestate\property\NotaryOffice'      => 'protected',
-    'realestate\management\ManagingAgent'   => 'protected',
-    'realestate\property\Condominium'       => 'protected',
-    'documents\DocumentType'                => 'private',
-    'documents\DocumentSubtype'             => 'private'
-];
-
-$map_entities_keys = [
-    // #memo - for convenience, citizen_identification (individuals only) is copied into registration_number
-    'identity\Identity'                     => 'registration_number',
-    'identity\User'                         => 'login',
-    'purchase\supplier\Supplier'            => 'vat_number',
-    'finance\bank\Bank'                     => 'bic',
-    'realestate\property\NotaryOffice'      => 'registry_ref'
-];
-
-// #TODO - pouvoir fusionner deux élements protected
-// créer des entités de synchronisation : 'en attente' -> valider avant synchro
-// pouvoir définir les champs qui priment toujours sur la GLOBAL (pas de remontée depuis les LOCAL)
-
-
-// pouvoir définir, pour chaque entité, les données accessibles au public et celles qui sont "protégées" / "non publiques"
-//  entité FieldAccess, object_class, object_field, scope, reason (gdpr, ...)
-// script pour envoyer un champ protégé vers une instance spécifique (pour l'entité concernée)
-
-//  si elles sont en local, on ne les envoie pas
-//  si elles sont en global, on ne les envoie pas
-// en cas de transfert d'une copropriété vers un autre, on copie toutes les infos (sur validation du syndic sortant)
-
-
 $entity = $params['entity'];
 
 // retrieve all fields of the requested entity
@@ -90,17 +50,55 @@ if(!$model) {
     throw new Exception('unknown_entity', EQ_ERROR_INVALID_PARAM);
 }
 
-// remove protected fields if present
-foreach($values as $field) {
-    if(in_array($field, $protected_fields)) {
+$schema = $model->getSchema();
+
+// retrieve SyncPolicy related to 'protected' entities
+// #memo - we expect SyncPolicies to remain identical across all instances
+$policy = SyncPolicy::search([
+        ['scope', '=', 'protected'],
+        ['entity', '=', $entity]
+    ])
+    ->read([
+        'object_class',
+        'field_unique',
+        'sync_policy_lines_ids' => ['sync_direction', 'object_field', 'scope']
+    ])
+    ->first();
+
+// #todo - pouvoir fusionner deux élements protected
+// créer des entités de synchronisation : 'en attente' -> valider avant synchro
+// pouvoir définir les champs qui priment toujours sur la GLOBAL (pas de remontée depuis les LOCAL)
+
+
+//  si elles sont en local, on ne les envoie pas
+//  si elles sont en global, on ne les envoie pas
+// en cas de transfert d'une copropriété vers un autre, on copie toutes les infos (sur validation du syndic sortant)
+
+$map_private_fields = [];
+
+foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
+    if($policyLine['sync_direction'] !== 'ascending') {
+        continue;
+    }
+    if($policyLine['scope'] === 'private') {
+        $map_private_fields[$policyLine['object_field']] = true;
+    }
+}
+
+// discard non relevant or private fields
+foreach($schema as $field => $def) {
+    if(!isset($values[$field])) {
+        continue;
+    }
+    if(!in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) {
+        unset($values[$field]);
+    }
+    elseif(isset($map_private_fields[$field])) {
         unset($values[$field]);
     }
 }
 
-$schema = $model->getSchema();
-
 $uuid = null;
-
 
 // if we have a UUID: search; if exists, update, otherwise error (UUIDs are issued by the master instance)
 if(isset($params['values']['uuid'])) {
@@ -109,7 +107,7 @@ if(isset($params['values']['uuid'])) {
     if(!$object) {
         throw new Exception('invalid_uuid', EQ_ERROR_INVALID_PARAM);
     }
-
+    // #todo - create UpdateRequest for followup
     // update target object
     $entity::id($object['id'])->update(array_merge($values, [
             'source_verification_status' => 'pending'
@@ -120,14 +118,15 @@ if(isset($params['values']['uuid'])) {
 // if it doesn't exist, create it
 // in both cases, retrieve the UUID
 else {
-    $key = $map_entities_keys[$entity];
+    $key = $policy['field_unique'];
+
+    if(!isset($values[$key])) {
+        throw new Exception('missing_unique_field', EQ_ERROR_INVALID_PARAM);
+    }
+
     $object = $entity::search([$key, '=', $values[$key]])
         ->read(['uuid'])
         ->first();
-
-    if(!$object && $entity === 'identity\Identity') {
-
-    }
 
     // manual verification will be required by default
     if(!$object) {

@@ -1377,12 +1377,25 @@ class Identity extends Model {
         return $result;
     }
 
+
+    protected static function oncreate($self, $orm) {
+        $self->read(['object_class', 'type_id', 'citizen_identification']);
+        foreach($self as $id => $identity) {
+            if($identity['object_class'] !== 'identity\Identity') {
+                continue;
+            }
+            if($identity['type_id'] === 1 && (!$identity['citizen_identification'] || strlen($identity['citizen_identification']) <= 0)) {
+                self::id($id)->update(['registration_number' => self::computeVirtualCitizenIdentification()]);
+            }
+        }
+    }
+
     /**
      * Handle creation of related identity for objects that inherit from Identity
      */
     public static function onafterupdate($self, $values, $orm) {
 
-        $self->read(['identity_id']);
+        $self->read(['identity_id', 'type_id', 'citizen_identification', 'registration_number']);
 
         // Class inherits from Identity but uses a distinct table: check if a new Identity should be created
         if(substr(self::getType(), strrpos(self::getType(), '\\') + 1) !== 'Identity') {
@@ -1429,7 +1442,16 @@ class Identity extends Model {
             self::updateField($self, 'name');
         }
 
-        foreach($self as $id => $identityObject) {
+        foreach($self as $id => $identity) {
+
+            // make sure a registration is present (if not, create a random fake one)
+            if($identity['type_id'] === 1
+                && (!$identity['citizen_identification'] || strlen($identity['citizen_identification']) <= 0)
+                && (!$identity['registration_number'] || strlen($identity['registration_number']) <= 0)
+            ) {
+                self::id($id)->update(['registration_number' => self::computeVirtualCitizenIdentification()]);
+            }
+
             // sync primary address
             $address_fields = ['address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_state', 'address_country'];
             $address_updates = [];
@@ -1440,8 +1462,8 @@ class Identity extends Model {
             }
 
             $identity_id = $id;
-            if(isset($identityObject['identity_id'])) {
-                $identity_id = $identityObject['identity_id'];
+            if(isset($identity['identity_id'])) {
+                $identity_id = $identity['identity_id'];
             }
 
             if(count($address_updates)) {
@@ -1679,4 +1701,66 @@ class Identity extends Model {
         }
         return $result;
     }
+
+    /**
+     * Génère un "numéro de registre national belge" virtuel (11 chiffres)
+     * - Les 6 premiers chiffres ne représentent pas une date réelle par défaut (mm=13, dd=90..99)
+     * - Les 3 chiffres de séquence sont pris dans une plage réservée (par défaut 900..998)
+     * - Les 2 derniers chiffres sont le checksum calculé par la règle mod-97.
+     *
+     * Retour : chaîne de 11 caractères (ex: "99139090523")
+     *
+     * Options possibles (passer un tableau associatif) :
+     *  - 'yy'       : int|null  => année courte 00..99 (si null: aléatoire)
+     *  - 'mm'       : int       => mois (default 13)
+     *  - 'dd_min'   : int       => borne min jour (default 90)
+     *  - 'dd_max'   : int       => borne max jour (default 99)
+     *  - 'seq_min'  : int       => séquence min (default 900)
+     *  - 'seq_max'  : int       => séquence max (default 998)
+     *  - 'century'  : '1900'|'2000' => règle du checksum (default '1900')
+     *
+     * Usage exemple:
+     *   echo generateVirtualBelgianNN(['yy'=>99]); // ex: 99139901234
+     */
+    private static function computeVirtualCitizenIdentification(): string {
+        $yy = mt_rand(0, 99);
+        $mm = mt_rand(13, 99);
+        $dd = mt_rand(39, 99);
+        $seq = mt_rand(0, 999);
+
+        $first9 = sprintf("%02d%02d%02d%03d", $yy, $mm, $dd, $seq);
+
+        $numStr =  $first9;
+
+        $remainder = self::computeMod97($numStr);
+        $cc = 97 - $remainder;
+
+        $ccStr = str_pad((string)$cc, 2, "0", STR_PAD_LEFT);
+
+        return $first9 . $ccStr;
+    }
+
+    /**
+     * Retourne (int) (number % 97) où number est une chaîne décimale arbitrairement longue.
+     * Méthode itérative par bloc (safe sur 32/64-bit, pas d'extension nécessaire).
+     */
+    private static function computeMod97(string $numStr): int {
+        $remainder = 0;
+        // On lit par blocs pour éviter de construire des entiers trop grands.
+        // Taille de bloc choisie : 7 chiffres (10^7 < PHP_INT_MAX sur 32/64), mais méthode marche avec n'importe quelle taille.
+        $len = strlen($numStr);
+        $pos = 0;
+        while ($pos < $len) {
+            $take = min(7, $len - $pos);
+            $chunk = substr($numStr, $pos, $take);
+            // concaténation du reste actuel et du chunk, calcul du modulo 97
+            $combined = (string)$remainder . $chunk;
+            // comme $combined peut être grand, on prend modulo en utilisant int sur la chaîne :
+            // PHP peut convertir en int tant que la valeur tient ; pour être sûr, on réduit progressivement :
+            $remainder = intval($combined) % 97;
+            $pos += $take;
+        }
+        return $remainder;
+    }
+
 }

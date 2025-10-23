@@ -140,7 +140,7 @@ class Employee extends Identity {
         ];
     }
 
-    protected static function oncreate($self) {
+    protected static function oncreate($self, $orm) {
         $self->read(['firstname', 'lastname', 'type_id', 'identity_id']);
         foreach($self as $id => $employee) {
             if($employee['identity_id']) {

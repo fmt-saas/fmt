@@ -1,6 +1,13 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Update Policy",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {"id": "SAVE_AND_CONTINUE"},
+                {"id": "SAVE_AND_CLOSE"}
+            ]
+        }
+    },
     "layout": {
         "groups": [
             {
@@ -10,26 +17,35 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "update_policy_id",
+                                                "value": "object_class",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "name",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "object_field",
-                                                "width": "100%"
+                                                "value": "field_unique",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "scope",
+                                                "width": "33%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "sync_policy_lines_ids",
                                                 "width": "100%"
                                             }
                                         ]

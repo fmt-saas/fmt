@@ -15,6 +15,11 @@
         'date_from' => [
             'type'              => 'datetime',
             'required'          => true
+        ],
+        'instance_uuid' => [
+            'type'              => 'string',
+            'description'       => 'Instance for which the data are requested.',
+            'required'          => true
         ]
     ],
     'access' => [

@@ -678,6 +678,35 @@
                         ]
                     },
                     {
+                        "id": "item.config.sync",
+                        "label": "Sync",
+                        "description": "",
+                        "icon": "sync",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "item.config.sync.policies",
+                                "type": "entry",
+                                "label": "Sync Policies",
+                                "description": "",
+                                "context": {
+                                    "entity": "fmt\\sync\\SyncPolicy",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "item.config.sync.requests",
+                                "type": "entry",
+                                "label": "Update Requests",
+                                "description": "",
+                                "context": {
+                                    "entity": "fmt\\sync\\UpdateRequest",
+                                    "view": "list.default"
+                                }
+                            }
+                        ]
+                    },
+                    {
                         "id": "item.documents",
                         "label": "Documents",
                         "description": "",

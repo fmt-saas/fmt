@@ -6,6 +6,7 @@
 */
 use equal\http\HttpRequest;
 use fmt\setting\Setting;
+use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Request a pull of changed data from GLOBAL instance to local FMT instance.',
@@ -18,7 +19,7 @@ use fmt\setting\Setting;
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL'],
+    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_INTERNAL_TOKEN', 'FMT_API_URL_GLOBAL'],
     'providers'     => ['context', 'orm', 'auth']
 ]);
 
@@ -73,9 +74,25 @@ $now = time();
 $timestamp = Setting::get_value('fmt', 'system', 'sync.last_pull_timestamp', 0);
 $date_from = date('c', $timestamp);
 
+// #memo - on local instances there is a single Instance object
+$instance = Instance::search()->read(['uuid'])->first();
+
+if(!$instance) {
+    throw new Exception('unknown_instance_uuid', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
 foreach($map_entities as $entity => $scope) {
     try {
-        $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_sync_pull-from-local&entity=' . urlencode($entity) . '&date_from=' . $date_from);
+        $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_sync_pull-from-local' .
+                '&entity=' . urlencode($entity) .
+                '&date_from=' . $date_from .
+                '&instance_uuid=' . $instance['uuid']
+            );
+
+        $request
+            ->header('Content-Type', 'application/json')
+            ->header('Authorization', 'Bearer ' . constant('FMT_API_INTERNAL_TOKEN'));
+
         /** @var HttpResponse */
         $response = $request->send();
         $data = $response->body();
