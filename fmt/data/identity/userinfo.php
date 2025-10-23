@@ -50,13 +50,23 @@ if($user_id <= 0) {
         if(!$global_jwt) {
             throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
         }
+
+        // #memo - we cannot verify token here (signed with Global private key)
         $token = $auth->decodeToken($global_jwt);
+
+        if(!isset($token['payload']['exp'])) {
+            throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
+        }
+
+        if($token['payload']['exp'] < time()) {
+            throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
+        }
 
         if(!isset($token['payload']['user_uuid']) || strlen($token['payload']['user_uuid']) <= 0) {
             throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
         }
 
-        // #memo - on local instances there is a single Instance object
+        // #memo - on Local instances there is a single Instance object
         $instance = Instance::search()->read(['uuid'])->first();
 
         if(!$instance) {

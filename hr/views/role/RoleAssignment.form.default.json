@@ -21,7 +21,10 @@
                                                 "type": "field",
                                                 "value": "role_id",
                                                 "label": "Role",
-                                                "width": "33%"
+                                                "width": "33%",
+                                                "widget": {
+                                                    "limit": 10
+                                                }
                                             },
                                             {
                                                 "type": "field",

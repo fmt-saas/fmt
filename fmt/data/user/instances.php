@@ -46,6 +46,14 @@ if($check === false || $check <= 0) {
 
 $token = $auth->decodeToken($global_jwt);
 
+if(!isset($token['payload']['exp'])) {
+    throw new Exception('invalid_token', EQ_ERROR_NOT_ALLOWED);
+}
+
+if($token['payload']['exp'] < time()) {
+    throw new Exception('expired_token', EQ_ERROR_NOT_ALLOWED);
+}
+
 if(!isset($token['payload']['user_uuid']) || strlen($token['payload']['user_uuid']) <= 0) {
     throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
 }

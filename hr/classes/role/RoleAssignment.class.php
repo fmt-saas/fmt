@@ -129,4 +129,11 @@ class RoleAssignment extends \equal\orm\Model {
         }
         return $result;
     }
+
+    public function getUnique() {
+        return [
+            ['condo_id', 'role_id', 'user_id'],
+            ['condo_id', 'role_id', 'employee_id']
+        ];
+    }
 }
