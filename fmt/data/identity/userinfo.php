@@ -130,7 +130,7 @@ $is_owner = false;
 $map_roles = [];
 
 foreach($user['role_assignments_ids'] as $role_assignment) {
-    if($role_assignment['is_external']) {
+    if(!$role_assignment['is_external']) {
         $is_employee = true;
     }
     if($role_assignment['role_code'] === 'owner') {
