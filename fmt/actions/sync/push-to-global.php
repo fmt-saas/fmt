@@ -43,6 +43,7 @@ if(!$instance) {
 $policies = SyncPolicy::search(['scope', '=', 'protected'])
     ->read([
         'object_class',
+        'field_unique',
         'sync_policy_lines_ids' => ['sync_direction', 'object_field', 'scope']
     ]);
 
@@ -94,6 +95,13 @@ foreach($policies as $id => $policy) {
         ->get(true);
 
     foreach($objects as $object) {
+
+        if(!isset($object[$policy['field_unique']])) {
+            ++$result['ignored'];
+            $result['logs'][] = "Ignored entity {$entity} object [{$object['id']}] with no value for unique key field `{$policy['field_unique']}`.";
+            continue;
+        }
+
         try {
             $request = new HttpRequest('POST ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?do=fmt_sync_push-from-local');
 
@@ -128,6 +136,10 @@ foreach($policies as $id => $policy) {
         }
     }
 
+}
+
+if($result['errors'] > 0) {
+    throw new Exception(serialize($result), EQ_ERROR_UNKNOWN);
 }
 
 // store last_sync_timestamp

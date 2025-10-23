@@ -56,7 +56,7 @@ $schema = $model->getSchema();
 // #memo - we expect SyncPolicies to remain identical across all instances
 $policy = SyncPolicy::search([
         ['scope', '=', 'protected'],
-        ['entity', '=', $entity]
+        ['object_class', '=', $entity]
     ])
     ->read([
         'object_class',
