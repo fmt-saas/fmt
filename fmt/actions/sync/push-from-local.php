@@ -85,6 +85,8 @@ foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
     }
 }
 
+$values = $params['values'];
+
 // discard non relevant or private fields
 foreach($schema as $field => $def) {
     if(!isset($values[$field])) {

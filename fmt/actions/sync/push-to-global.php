@@ -120,9 +120,7 @@ foreach($policies as $id => $policy) {
             $status = $response->getStatusCode();
 
             if($status != 200) {
-                ob_start();
-                print_r((array) $data);
-                $out = ob_get_clean();
+                $out = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                 throw new Exception("Error from GLOBAL instance: HTTP status $status: $out", EQ_ERROR_UNKNOWN);
             }
 
