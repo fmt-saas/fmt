@@ -86,7 +86,17 @@ class Identity extends Model {
                 'description'       => 'Identity the object relates to.',
                 'help'              => 'Meant for entities that inherit from `identity\Identity` and must be synced with parent Identity. Classes that inherit from Identity must implement `onupdateIdentityId()` method.',
                 'onupdate'          => 'onupdateIdentityId',
+                'dependents'        => ['identity_uuid'],
                 'visible'           => ['object_class', '<>', 'identity\Identity']
+            ],
+
+            'identity_uuid' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'store'             => true,
+                'instant'           => true,
+                'relation'          => ['identity_id' => 'uuid'],
+                'description'       => 'Identity the object relates to.',
             ],
 
             'owner_identity_id' => [
@@ -885,13 +895,15 @@ class Identity extends Model {
         return $result;
     }
 
-
     protected static function calcHashSha256($self) {
         $result = [];
-        $self->read(['citizen_identification']);
+        $self->read(['citizen_identification', 'registration_number']);
         foreach($self as $id => $identity) {
             $id_number = '';
-            if($identity['citizen_identification'] && strlen($identity['citizen_identification']) > 0) {
+            if($identity['registration_number'] && strlen($identity['registration_number']) > 0) {
+                $id_number = $identity['registration_number'];
+            }
+            elseif($identity['citizen_identification'] && strlen($identity['citizen_identification']) > 0) {
                 $id_number = $identity['citizen_identification'];
             }
             if(strlen($id_number) <= 0) {

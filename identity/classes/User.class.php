@@ -105,7 +105,16 @@ class User extends \core\User {
                 'description'       => 'The identity the user relates to.',
                 'help'              => 'The identity that this user relates to on the current instance. If set, the user details (name, email, etc.) will be synchronized from the identity.',  
                 'onupdate'          => 'onupdateIdentityId',
-                'dependencies'      => ['name', 'employee_id']
+                'dependents'        => ['name', 'employee_id', 'identity_uuid']
+            ],
+
+            'identity_uuid' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'store'             => true,
+                'instant'           => true,
+                'relation'          => ['identity_id' => 'uuid'],
+                'description'       => 'Identity the object relates to.',
             ],
 
             'setting_values_ids' => [
@@ -143,7 +152,7 @@ class User extends \core\User {
                 'store'             => true,
                 'relation'          => ['identity_id' => 'employee_id'],
                 'description'       => 'The employee relating to the user, if set.',
-            ],
+            ]
 
         ];
     }
