@@ -143,8 +143,12 @@ if($date_from <= 0 || $date_to <= 0) {
     throw new Exception('invalid_dates', EQ_ERROR_INVALID_PARAM);
 }
 
+$map_accounts_ids = [];
+$totals = [];
+$accounting_lines = [];
 
 if(!$is_fiscal_year) {
+    // retrieve most recent previous fiscal year
     $prevFiscalYear = FiscalYear::search([
             ['condo_id', '=', $params['condo_id']],
             ['date_to', '<', $date_from],
@@ -153,13 +157,28 @@ if(!$is_fiscal_year) {
         ->read(['id', 'date_to'])
         ->first();
 
+    if($prevFiscalYear) {
+        // read ClosingBalance + ClosingBalanceLine
+        $closingBalance = ClosingBalance::search(['fiscal_year_id', '=', $prevFiscalYear['id']])
+            ->read(['balance_lines_ids' => ['account_id', 'debit', 'credit']])
+            ->first();
 
-    // lire ClosingBalance
+        // 'account_id', 'debit', 'credit'
+        if($closingBalance) {
+            foreach($closingBalance['balance_lines_ids'] as $balance_line_id => $balanceLine) {
+                $map_accounts_ids[$balanceLine['account_id']] = true;
+                $accounting_lines[] = [
+                    'account_id'    => $balanceLine['account_id'],
+                    'debit'         => $balanceLine['debit'],
+                    'credit'        => $balanceLine['credit']
+                ];
+            }
+        }
 
-    // lire les ClosingBalanceLine
-    //    'account_id', 'debit', 'credit',
+        // update date_from to day following last day of $prevFiscalYear
+        $date_from = strtotime(date('Y-m-d 00:00:00', $prevFiscalYear['date_to']) . ' +1 day');
+    }
 
-    // modifier la date_from pour le jour suivant le jour de fin la $prevFiscalYear
 }
 
 
@@ -175,16 +194,17 @@ $domainEntries->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 
 $entries_ids = AccountingEntry::search($domainEntries->toArray())->ids();
 
-$entry_lines = AccountingEntryLine::search(['accounting_entry_id', 'in', $entries_ids])
-    ->read(['account_id', 'debit', 'credit'])
-    ->get();
+$accountingEntryLines = AccountingEntryLine::search(['accounting_entry_id', 'in', $entries_ids])
+    ->read(['account_id', 'debit', 'credit']);
 
-$map_accounts_ids = [];
-$totals = [];
-
-// pass-1 - identify involved accounts
-foreach($entry_lines as $line) {
+// append involved accounts
+foreach($accountingEntryLines as $accountingEntryLine) {
     $map_accounts_ids[$line['account_id']] = true;
+    $accounting_lines[] = [
+        'account_id'    => $accountingEntryLine['account_id'],
+        'debit'         => $accountingEntryLine['debit'],
+        'credit'        => $accountingEntryLine['credit']
+    ];
 }
 
 if($params['use_collectors']) {
@@ -196,8 +216,8 @@ if($params['use_collectors']) {
 // reset accounts map
 $map_accounts_ids = [];
 
-// pass-2 - compute totals
-foreach($entry_lines as $line) {
+// compute totals
+foreach($accounting_lines as $line) {
     $account_id = $line['account_id'];
 
     if($params['use_collectors']) {
@@ -208,9 +228,9 @@ foreach($entry_lines as $line) {
 
     $map_accounts_ids[$account_id] = true;
 
-    $debit   = $line['debit'];
-    $credit  = $line['credit'];
-    $delta = $debit - $credit;
+    $debit  = $line['debit'];
+    $credit = $line['credit'];
+    $delta  = $debit - $credit;
 
     $totals[$account_id]['debit']  = ($totals[$account_id]['debit'] ?? 0) + $debit;
     $totals[$account_id]['credit'] = ($totals[$account_id]['credit'] ?? 0) + $credit;
@@ -230,7 +250,7 @@ foreach($totals as $account_id => &$line) {
     $credit_balance = $line['credit_balance'] ?? 0.0;
     $delta = abs($debit_balance - $credit_balance);
 
-    // ignore balanced accoutns
+    // ignore balanced accounts
     if ($delta < 0.01) {
         unset($totals[$account_id]);
         continue;

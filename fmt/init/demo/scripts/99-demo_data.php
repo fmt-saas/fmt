@@ -50,6 +50,27 @@ $condominiums_ids = $condominiums->ids();
 // attach condos to default managing agent
 $condominiums->update(['managing_agent_id' => 1]);
 
+$user = User::search(['login', '=', 'admin@fmt.yb.run'])
+    ->read(['identity_id'])
+    ->first();
+
+$employee = Employee::search(['identity_id', '=', $user['identity_id']])
+    ->first();
+
+foreach($condominiums_ids as $condo_id) {
+    RoleAssignment::create([
+        'condo_id'      => $condo_id,
+        'employee_id'   => $employee['id'],
+        'role_id'       => 3
+    ]);
+
+    RoleAssignment::create([
+        'condo_id'      => $condo_id,
+        'employee_id'   => $employee['id'],
+        'role_id'       => 4
+    ]);
+}
+
 $condominiums
     // init condominiums (generate sequences, empty chart of accounts, journals, folders, ...)
     ->transition('validate');

@@ -89,7 +89,6 @@ $user = User::create([
     ])
     ->first();
 
-// will create related Identity
 $employee = Employee::create([
         'identity_id'   => $identity['id'],
     ])
