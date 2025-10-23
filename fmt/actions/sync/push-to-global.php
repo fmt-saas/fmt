@@ -109,7 +109,7 @@ foreach($policies as $id => $policy) {
                 ->body([
                     'entity'            => $entity,
                     'values'            => $object,
-                    'instance_uuid'     => $instance
+                    'instance_uuid'     => $instance['uuid']
                 ])
                 ->header('Content-Type', 'application/json')
                 ->header('Authorization', 'Bearer ' . constant('FMT_API_INTERNAL_TOKEN'));
@@ -120,7 +120,10 @@ foreach($policies as $id => $policy) {
             $status = $response->getStatusCode();
 
             if($status != 200) {
-                throw new Exception("unexpected error from GLOBAL instance: HTTP status $status", EQ_ERROR_UNKNOWN);
+                ob_start();
+                print_r((array) $data);
+                $out = ob_get_clean();
+                throw new Exception("Error from GLOBAL instance: HTTP status $status: $out", EQ_ERROR_UNKNOWN);
             }
 
             $res = $orm->update($entity, $object['id'], ['uuid' => $data['uuid']]);
