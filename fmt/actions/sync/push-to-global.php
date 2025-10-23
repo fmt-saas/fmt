@@ -81,8 +81,11 @@ foreach($policies as $id => $policy) {
 
     // we're only interested in scalar fields and many2one relations
     foreach($schema as $field => $def) {
-        if(!in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) {
-            unset($schema[$field]);
+        if(
+            (!isset($def['type']) || !in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) &&
+            (!isset($def['result_type']) || !in_array($def['result_type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one']))
+        ) {
+            unset($values[$field]);
         }
         elseif(isset($map_private_fields[$field])) {
             unset($schema[$field]);
