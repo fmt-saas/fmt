@@ -6,12 +6,13 @@
 */
 namespace realestate\ownership;
 
+use hr\role\Role;
+use hr\role\RoleAssignment;
 use identity\Identity;
 
 class Owner extends Identity {
 
     public function getTable() {
-        // force table name to use distinct tables and ID columns
         return 'realestate_ownership_owner';
     }
 
@@ -95,6 +96,44 @@ class Owner extends Identity {
             ]
 
         ];
+    }
+
+    public static function getActions() {
+        return array_merge(parent::getActions(), [
+            'refresh_roles' => [
+                'description'   => 'Refresh roles assignments based on related User account.',
+                'function'      => 'doRefreshRoles'
+            ]
+        ]);
+    }
+
+    protected static function doRefreshRoles($self) {
+        $self->read(['condo_id', 'identity_id' => ['user_id']]);
+        foreach($self as $id => $owner) {
+            if(!isset($owner['identity_id']['user_id'])) {
+                continue;
+            }
+            $has_owner_role = false;
+            $roleAssignments = RoleAssignment::search([['condo_id', '=', $owner['condo_id']], ['user_id', '=', $owner['identity_id']['user_id']]])
+                ->read(['role_code']);
+            foreach($roleAssignments as $roleAssignment) {
+                if($roleAssignment['role_code'] === 'owner') {
+                    $has_owner_role = true;
+                    break;
+                }
+            }
+            if(!$has_owner_role) {
+                $role = Role::search(['code', '=', 'owner'])->first();
+                if($role) {
+                    RoleAssignment::create([
+                        'condo_id'      => $owner['condo_id'],
+                        'role_id'       => $role['id'],
+                        'is_external'   => true,
+                        'user_id'       => $owner['identity_id']['user_id']
+                    ]);
+                }
+            }
+        }
     }
 
     public static function onrevertName($self) {

@@ -165,6 +165,12 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'logs' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain',
+                'description'       => 'Logs of the vote result computation.'
+            ],
+
             /**
              * Votes can be casted while the resolution is not closed
              * There should be only one resolution open (being discussed) at a time.
@@ -296,29 +302,49 @@ class AssemblyItem extends AssemblyItemTemplate {
             ]);
 
         foreach($self as $id => $item) {
+            $logs = [];
+
             if($item['has_choices']) {
+                $logs[] = "Resolution {$item['name']} [$id] with multiple choices:";
                 $result = '';
                 $weights = [];
+                $counts = [];
                 $map_assembly_items = [];
                 //#memo - multiple choices are not allowed for a voter attendee, and casting a vote implies that the choice is 'for'
+                $total_votes = count($item['assembly_votes_ids']);
+                $logs[] = "Total ballots received: {$total_votes}";
                 foreach($item['assembly_votes_ids'] as $vote) {
                     $assembly_item_choice_id = $vote['assembly_item_choice_id']['id'];
                     $map_assembly_items[$assembly_item_choice_id] = $vote['assembly_item_choice_id']['name'];
                     if(!isset($weights[$assembly_item_choice_id])) {
                         $weights[$assembly_item_choice_id] = 0.0;
+                        $counts[$assembly_item_choice_id] = 0;
                     }
+                    ++$counts[$assembly_item_choice_id];
                     $weights[$assembly_item_choice_id] += $vote['vote_weight'];
                 }
                 if(!empty($weights)) {
                     $selected_choice_id = array_keys($weights, max($weights))[0];
                     $result = $map_assembly_items[$selected_choice_id] ?? '';
+
+                    $logs[] = "Votes weights by choice:";
+                    foreach($weights as $choice_id => $sum_weight) {
+                        $logs[] = sprintf("  - %s (%d votes): %.2f", $map_assembly_items[$choice_id] ?? "choice#{$choice_id}", $counts[$choice_id], $sum_weight);
+                    }
+
+                    $logs[] = "Selected choice: {$result}";
+                }
+                else {
+                    $logs[] = "No valid votes recorded.";
                 }
                 self::id($id)->update(['vote_result_choice' => $result]);
             }
             else {
-                $result = 'rejected';
+                $logs[] = "Resolution {$item['name']} [{$id}] without choices:";
+                $result = '';
 
                 $weights = ['for' => 0.0, 'against' => 0.0, 'abstain' => 0.0];
+                $counts = ['for' => 0, 'against' => 0, 'abstain' => 0];
 
                 $count_votes = $item['assembly_votes_ids']->count();
                 $unanimity = true;
@@ -331,20 +357,34 @@ class AssemblyItem extends AssemblyItemTemplate {
                         $unanimity = false;
                     }
                     $weights[$vote['vote_value']] += $vote['vote_weight'];
+                    ++$counts[$vote['vote_value']];
                 }
+
+                $logs[] = sprintf(
+                        "Total ballots received: %d (for: %d, against: %d, abstain: %d)",
+                        $count_votes,
+                        $counts['for'],
+                        $counts['against'],
+                        $counts['abstain']
+                    );
 
                 $majority = $item['majority'] ?? null;
 
-                $value = $weights['for'] * $item['count_represented_shares'] / ($item['count_represented_shares'] - ($weights['abstain'] * $item['count_represented_shares']));
-                $epsilon = 1e-6;
+                // #memo - we have no guarantee that all concerned owners have taken part to the vote (abstention)
+                // #memo - Art. 3.87 §8 - Les décisions de l'assemblée générale sont prises à la majorité absolue des voix des copropriétaires présents ou représentés au moment du vote, sauf si la loi exige une majorité qualifiée. Les abstentions, les votes nuls et blancs ne sont pas considérés comme des voix émises pour le calcul de la majorité requise.
+                // (abstentions are not taken in account for computation of the majority)
+                $sum_votes = $weights['for'] + $weights['against'];
+                $ratio = $sum_votes > 0 ? ($weights['for'] / $sum_votes) : 0.0;
 
-                if($majority === 'absolute' && $value > (0.5 + $epsilon)) {
+                $epsilon = 1e-4;
+
+                if($majority === 'absolute' && $ratio > (0.5 + $epsilon)) {
                     $result = 'approved';
                 }
-                elseif($majority === '2_3' && $value >= ((2/3) + $epsilon)) {
+                elseif($majority === '2_3' && $ratio >= ((2/3) + $epsilon)) {
                     $result = 'approved';
                 }
-                elseif($majority === '4_5' && $value >= ((4/5) + $epsilon)) {
+                elseif($majority === '4_5' && $ratio >= ((4/5) + $epsilon)) {
                     $result = 'approved';
                 }
                 elseif($majority === 'unanimity'
@@ -357,15 +397,25 @@ class AssemblyItem extends AssemblyItemTemplate {
                 ) {
                     $result = 'approved';
                 }
+                else {
+                    $result = 'rejected';
+                }
+
+                $logs[] = "Vote weights summary:";
+                foreach($weights as $vote_value => $sum_weight) {
+                    $logs[] = sprintf("  - %s (%d votes): %.2f", ucfirst($vote_value), $counts[$vote_value], $sum_weight);
+                }
+                $logs[] = sprintf("  - ratio: %.2f%%", $ratio * 100);
+                $logs[] = "Resolution result: {$result}";
 
                 self::id($id)->update(['vote_result' => $result]);
             }
+            self::id($id)->update(['logs' => implode("\n", $logs)]);
         }
 
     }
 
     protected static function onbeforeClose($self) {
-        // #todo - si des owners représentés n'ont pas voté, on créée des votes 'abstention' pour eux
         $self->do('refresh_vote_result');
     }
 

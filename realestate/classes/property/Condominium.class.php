@@ -14,6 +14,8 @@ use finance\accounting\Journal;
 use finance\bank\Bank;
 use finance\bank\CondominiumBankAccount;
 use fmt\setting\Setting;
+use hr\role\Role;
+use hr\role\RoleAssignment;
 use identity\Identity;
 use purchase\supplier\Suppliership;
 
@@ -54,6 +56,16 @@ class Condominium extends Identity {
                 'help'              => "This is used to comply with the Role assignments at Access Control level.",
                 'instant'           => true,
                 'store'             => true
+            ],
+
+            // #memo - when a Condominium is transferred, its UUID must be set to null.
+            'is_active' => [
+                'type'              => 'boolean',
+                'description'       => "Is the Condominium actually managed on this instance.",
+                'help'              => "In case the management of a Condominium passes from one managing agent to another (+ instance transfer), the previous managing agent might keep a copy.
+                    In such case, the Condominium is marked as non-active not to be mixed up with its actual version on the new instance.
+                    (This fields inherits from Identity).",
+                'default'           => true
             ],
 
             'name' => [
@@ -464,18 +476,27 @@ class Condominium extends Identity {
 
     protected static function policyIsValid($self) {
         $result = [];
-        $self->read(['condo_id', 'managing_agent_id']);
+        $self->read(['managing_agent_id', 'role_assignments_ids' => ['role_id']]);
         foreach($self as $id => $condominium) {
-
-            if(!$condominium['condo_id']) {
-                $result[$id] = [
-                    'missing_cond_id' => 'The condominium must be provided.'
-                ];
-            }
 
             if(!$condominium['managing_agent_id']) {
                 $result[$id] = [
                     'missing_managing_agent_id' => 'The managing agent must be provided.'
+                ];
+            }
+
+            $mandatory_roles_ids = Role::search(['is_mandatory', '=', true])->ids();
+            $map_mandatory_roles_ids = array_fill_keys($mandatory_roles_ids, true);
+
+            foreach($condominium['role_assignments_ids'] as $roleAssignment) {
+                if(isset($map_mandatory_roles_ids[$roleAssignment['role_id']])) {
+                    unset($map_mandatory_roles_ids[$roleAssignment['role_id']]);
+                }
+            }
+
+            if(count($map_mandatory_roles_ids)) {
+                $result[$id] = [
+                    'missing_mandatory_role' => 'At least one mandatory role is missing.'
                 ];
             }
 

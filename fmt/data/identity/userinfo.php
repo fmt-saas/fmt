@@ -101,7 +101,8 @@ $user = User::id($user_id)
         'groups_ids' => ['name', 'display_name'],
         'identity_id' => ['firstname', 'lastname', 'employee_id', 'owner_id', 'tenant_id'],
         'instance_id' => ['url'],
-        'organisation_id'
+        'organisation_id',
+        'role_assignments_ids' => ['condo_id', 'role_code']
     ])
     ->adapt('json')
     ->first(true);
@@ -113,11 +114,18 @@ foreach($owners as $owner) {
     $ownerships_ids[] = $owner['ownership_id'];
 }
 
+$map_roles = [];
+
+foreach($user['role_assignments_ids'] as $role_assignment) {
+    $map_roles[$role_assignment['role_code']] = true;
+}
+
 $result = array_merge($user, [
         'groups'            => array_values(array_map(function ($a) {return $a['name'];}, $user['groups_ids'])),
+        'roles'             => array_keys($map_roles),
+        'ownerships_ids'    => $ownerships_ids,
         'identity_id'       => $user['identity_id'],
-        'organisation_id'   => $user['organisation_id'],
-        'ownerships_ids'    => $ownerships_ids
+        'organisation_id'   => $user['organisation_id']
     ]);
 
 // renew JWT access token
