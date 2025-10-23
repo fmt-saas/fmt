@@ -95,12 +95,17 @@ foreach($schema as $field => $def) {
     if(!in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) {
         unset($values[$field]);
     }
+    elseif($field === 'id') {
+        unset($values['id']);
+    }
     elseif(isset($map_private_fields[$field])) {
         unset($values[$field]);
     }
 }
 
 $uuid = null;
+
+$orm->disableEvents();
 
 // if we have a UUID: search; if exists, update, otherwise error (UUIDs are issued by the master instance)
 if(isset($params['values']['uuid'])) {
@@ -126,26 +131,33 @@ else {
         throw new Exception('missing_unique_field', EQ_ERROR_INVALID_PARAM);
     }
 
-    $object = $entity::search([$key, '=', $values[$key]])
-        ->read(['uuid'])
-        ->first();
-
-    // manual verification will be required by default
-    if(!$object) {
-        // add values for sourcing / verification
-        $object = $entity::create(array_merge($values, [
-                'source_origin'              => 'instance',
-                'source_verification_status' => 'pending',
-                'source_date'                => time()
-            ]))
+    try {
+        $object = $entity::search([$key, '=', $values[$key]])
             ->read(['uuid'])
             ->first();
+
+        // manual verification will be required by default
+        if(!$object) {
+            // add values for sourcing / verification
+            $object = $entity::create(array_merge($values, [
+                    'source_origin'              => 'instance',
+                    'source_verification_status' => 'pending',
+                    'source_date'                => time()
+                ]))
+                ->read(['uuid'])
+                ->first();
+        }
+        else {
+            $entity::id($object['id'])->update(array_merge($values, [
+                    'source_verification_status' => 'pending'
+                ]));
+        }
     }
-    else {
-        $entity::id($object['id'])->update(array_merge($values, [
-                'source_verification_status' => 'pending'
-            ]));
+    catch(Exception $e) {
+        trigger_error("APP::error while creating or updating object: " . $e->getMessage(), EQ_REPORT_ERROR);
+        throw new Exception('unable_to_create_object', EQ_ERROR_UNKNOWN);
     }
+
     $uuid = $object['uuid'];
 }
 
