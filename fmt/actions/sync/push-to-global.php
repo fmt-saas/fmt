@@ -14,7 +14,9 @@ use infra\server\Instance;
     'help'          => 'This action connects to the GLOBAL instance and pulls all changed data since last sync.',
     'params'        => [],
     'access' => [
-        'visibility'        => 'private'
+        'visibility'        => 'protected'
+        // #todo #temp - reverse to private after tests
+        // 'visibility'        => 'private'
     ],
     'response'      => [
         'accept-origin' => '*',
