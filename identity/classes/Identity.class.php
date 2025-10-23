@@ -6,6 +6,7 @@
 */
 namespace identity;
 
+use equal\data\DataGenerator;
 use equal\services\Container;
 use equal\orm\Model;
 use equal\text\TextTransformer;
@@ -33,7 +34,7 @@ class Identity extends Model {
     }
 
     public static function constants() {
-        return ['AUTH_SECRET_KEY'];
+        return ['AUTH_SECRET_KEY', 'FMT_INSTANCE_TYPE'];
     }
 
     public static function getColumns() {
@@ -73,7 +74,7 @@ class Identity extends Model {
                 'usage'             => 'text/plain:64',
                 'function'          => 'calcHashSha256',
                 'description'       => 'SHA256 hash of the identity.',
-                'help'              => 'This hash helps to identify and prevent duplicate identities within the current instance. It is based on registration_number and/or citizen_identification.',
+                'help'              => 'This hash is used to identify (external) identities when citizen_identification cannot be stored for data privacy compliancy reasons.',
                 'store'             => true,
                 'instant'           => true,
                 'readonly'          => true
@@ -261,7 +262,6 @@ class Identity extends Model {
                 'description'       => 'Organization registration number (company number).',
                 'visible'           => [ ['type', '<>', 'IN'] ],
                 'unique'            => true,
-                'dependents'        => ['hash_sha256'],
                 'onupdate'          => 'onupdateRegistrationNumber'
             ],
 
@@ -274,7 +274,6 @@ class Identity extends Model {
                 'description'       => 'Citizen registration number, if any.',
                 'visible'           => [ ['type', '=', 'IN'] ],
                 'unique'            => true,
-                'dependents'        => ['hash_sha256'],
                 'onupdate'          => 'onupdateCitizenIdentification'
             ],
 
@@ -886,19 +885,16 @@ class Identity extends Model {
         return $result;
     }
 
-// #todo - remove
+
     protected static function calcHashSha256($self) {
         $result = [];
-        $self->read(['registration_number', 'citizen_identification']);
+        $self->read(['citizen_identification']);
         foreach($self as $id => $identity) {
             $id_number = '';
-            if($identity['registration_number'] && strlen($identity['registration_number']) > 0) {
-                $id_number = $identity['registration_number'];
-            }
-            elseif($identity['citizen_identification'] && strlen($identity['citizen_identification']) > 0) {
+            if($identity['citizen_identification'] && strlen($identity['citizen_identification']) > 0) {
                 $id_number = $identity['citizen_identification'];
             }
-            if(!strlen($id_number)) {
+            if(strlen($id_number) <= 0) {
                 continue;
             }
             $result[$id] = hash('sha256', $id_number . constant('AUTH_SECRET_KEY'));
@@ -1381,6 +1377,14 @@ class Identity extends Model {
     protected static function oncreate($self, $orm) {
         $self->read(['object_class', 'type_id', 'citizen_identification']);
         foreach($self as $id => $identity) {
+            if(constant('FMT_INSTANCE_TYPE') === 'global') {
+                do {
+                    $uuid = DataGenerator::uuid();
+                    $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
+                } while( $existing > 0 && count($existing) > 0 );
+
+                self::id($id)->update(['uuid' => $uuid]);
+            }
             if($identity['object_class'] !== 'identity\Identity') {
                 continue;
             }

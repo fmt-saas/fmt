@@ -6,10 +6,16 @@
 */
 namespace identity;
 
+use equal\data\DataGenerator;
+
 class User extends \core\User {
 
     public static function getName() {
         return 'User';
+    }
+
+    public static function constants() {
+        return ['AUTH_SECRET_KEY', 'FMT_INSTANCE_TYPE'];
     }
 
     public static function getColumns() {
@@ -151,7 +157,21 @@ class User extends \core\User {
         ];
     }
 
-    public static function onupdateIdentityId($self) {
+    public static function oncreate($self, $values, $orm = null) {
+        foreach($self as $id => $user) {
+            if(constant('FMT_INSTANCE_TYPE') === 'global') {
+                do {
+                    $uuid = DataGenerator::uuid();
+                    $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
+                } while( $existing > 0 && count($existing) > 0 );
+
+                self::id($id)->update(['uuid' => $uuid]);
+            }
+        }
+        parent::oncreate($self, $values);
+    }
+
+    protected static function onupdateIdentityId($self) {
         $self->read(['identity_id']);
         foreach($self as $id => $user) {
             if($user['identity_id']) {

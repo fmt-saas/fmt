@@ -237,7 +237,7 @@ else {
                     'type_id'       => 1,
                     'firstname'     => $infos['firstname'],
                     'lastname'      => $infos['lastname'],
-                    // #memo - manually set the computed hash, since we cannot store the citizen identification number
+                    // #memo - store a computed hash for identitifcication, since we cannot store the citizen identification number
                     'hash_sha256'   => $hash
                 ])
                 ->first();
