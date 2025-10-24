@@ -25,7 +25,11 @@
                 "entity": "realestate\\governance\\AssemblyItem",
                 "transition": "open"
             },
-            "visible": [ ["pending", "=", "object.status"], ["in_progress", "=", "object.assembly_status"], ["agenda_processing", "=", "object.assembly_step"] ]
+            "visible": [
+                ["pending", "=", "object.status"],
+                ["in_progress", "=", "object.assembly_status"],
+                ["agenda_processing", "=", "object.assembly_step"]
+            ]
         },
         {
             "id": "action.close",
