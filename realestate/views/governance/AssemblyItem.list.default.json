@@ -72,6 +72,12 @@
             },
             {
                 "type": "field",
+                "value": "assembly_step",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "order",
                 "width": "10%"
             },
