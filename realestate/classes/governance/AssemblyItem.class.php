@@ -43,7 +43,7 @@ class AssemblyItem extends AssemblyItemTemplate {
 
             'assembly_status' => [
                 'type'              => 'computed',
-                'result_type'       => 'boolean',
+                'result_type'       => 'string',
                 'description'       => "Status of the assembly.",
                 'relation'          => ['assembly_id' => 'status'],
                 'store'             => false
@@ -51,10 +51,10 @@ class AssemblyItem extends AssemblyItemTemplate {
 
             'assembly_step' => [
                 'type'              => 'computed',
-                'result_type'       => 'boolean',
+                'result_type'       => 'string',
+                'description'       => 'Assembly step in the agenda processing.',
                 'relation'          => ['assembly_id' => 'status'],
-                'store'             => false,
-                'description'       => 'Assembly status.',
+                'store'             => false
             ],
 
             'assembly_template_id' => [
@@ -74,7 +74,11 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'type'              => 'many2one',
                 'description'       => "Parent group item for this item, if it is a sub-item.",
                 'foreign_object'    => 'realestate\governance\AssemblyItem',
-                'visible'           => [['is_group', '=', false], ['has_parent_group', '=', true]],
+                'visible'           => [
+                    ['is_group', '=', false],
+                    ['has_parent_group', '=', true],
+                    ['assembly_id', '=', 'object.assembly_id']
+                ],
                 'onupdate'          => 'onupdateParentGroupId'
             ],
 
@@ -84,7 +88,12 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'foreign_object'    => 'realestate\governance\AssemblyItem',
                 'foreign_field'     => 'parent_group_id',
                 'order'             => 'order',
-                'domain'            => [['assembly_id', '=', 'object.assembly_id'], ['has_parent_group', '=', true], ['condo_id', '=', 'object.condo_id']],
+// #todo -                'ondetach' -> delete
+                'domain'            => [
+                    ['assembly_id', '=', 'object.assembly_id'],
+                    ['has_parent_group', '=', true],
+                    ['condo_id', '=', 'object.condo_id']
+                ],
                 'visible'           => ['is_group', '=', true],
             ],
 
@@ -94,6 +103,14 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'foreign_object'    => 'realestate\governance\AssemblyVote',
                 'foreign_field'     => 'assembly_item_id',
                 'visible'           => ['has_vote_required', '=', true]
+            ],
+
+            'items_count' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => 'Number of items contained by the node.',
+                'store'             => true,
+                'function'          => 'calcItemsCount'
             ],
 
             'votes_count' => [
@@ -285,6 +302,15 @@ class AssemblyItem extends AssemblyItemTemplate {
         $self->read(['assembly_votes_ids']);
         foreach($self as $id => $assemblyItem) {
             $result[$id] = count($assemblyItem['assembly_votes_ids']);
+        }
+        return $result;
+    }
+
+    protected static function calcItemsCount($self) {
+        $result = [];
+        $self->read(['children_items_ids']);
+        foreach($self as $id => $assemblyItem) {
+            $result[$id] = count($assemblyItem['children_items_ids']);
         }
         return $result;
     }
