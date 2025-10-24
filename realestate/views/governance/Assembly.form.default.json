@@ -212,12 +212,17 @@
                                             {
                                                 "type": "field",
                                                 "value": "assembly_date",
-                                                "width": "50%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "assembly_type",
-                                                "width": "50%"
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "step",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
@@ -247,21 +252,15 @@
                                                 "value": "status",
                                                 "width": "100%",
                                                 "visible": false
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "step",
-                                                "width": "100%",
-                                                "visible": false
                                             }
                                         ]
                                     },
                                     {
-                                        "width": "25%",
+                                        "width": "16%",
                                         "items": []
                                     },
                                     {
-                                        "width": "25%",
+                                        "width": "33%",
                                         "items": [
                                             {
                                                 "type": "field",
