@@ -58,7 +58,8 @@ class Identity extends Model {
                 // #memo - commented for testing because items are on the same instance
                 // #todo - uncomment for PROD
                 // 'unique'            => true,
-                'description'       => 'Unique identifier from the Master instance.'
+                'description'       => 'Unique identifier from the Master instance.',
+                'onupdate'          => 'onupdateUuid'
             ],
 
             'object_class' => [
@@ -1022,6 +1023,47 @@ class Identity extends Model {
     /*
         Handlers for updates of scalar fields
     */
+
+    protected static function onupdateUuid($self, $orm) {
+        $self->read(['object_class', 'uuid', 'user_id', 'contact_id', 'owner_id', 'tenant_id', 'employee_id', 'managing_agent_id', 'customer_id', 'supplier_id', 'condominium_id', 'organisation_id']);
+        $events = $orm->disableEvents();
+        foreach($self as $id => $identity) {
+            if($identity['object_class'] !== 'identity\Identity') {
+                continue;
+            }
+            if($identity['user_id']) {
+                User::id($identity['user_id'])->update(['identity_uuid' => $identity['uuid']]);
+            }
+            if($identity['contact_id']) {
+                Contact::id($identity['contact_id'])->update(['identity_uuid' => $identity['uuid']]);
+            }
+            if($identity['employee_id']) {
+                Employee::id($identity['employee_id'])->update(['identity_uuid' => $identity['uuid']]);
+            }
+            if($identity['customer_id']) {
+                Customer::id($identity['customer_id'])->update(['identity_uuid' => $identity['uuid']]);
+            }
+            if($identity['condominium_id']) {
+                Condominium::id($identity['condominium_id'])->update(['identity_uuid' => $identity['uuid']]);
+            }
+            if($identity['supplier_id']) {
+                Supplier::id($identity['supplier_id'])->update(['identity_uuid' => $identity['uuid']]);
+            }
+            if($identity['organisation_id']) {
+                Organisation::id($identity['organisation_id'])->update(['identity_uuid' => $identity['uuid']]);
+            }
+            if($identity['managing_agent_id']) {
+                ManagingAgent::id($identity['managing_agent_id'])->update(['identity_uuid' => $identity['uuid']]);
+            }
+            if($identity['owner_id']) {
+                Owner::id($identity['owner_id'])->update(['identity_uuid' => $identity['uuid']]);
+            }
+            if($identity['tenant_id']) {
+                Tenant::id($identity['tenant_id'])->update(['identity_uuid' => $identity['uuid']]);
+            }
+        }
+        $orm->enableEvents($events);
+    }
 
     protected static function onupdateTypeId($self) {
         self::updateField($self, 'type_id');

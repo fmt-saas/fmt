@@ -51,15 +51,8 @@
                                                 "width": "50%",
                                                 "entity": "documents\\Document",
                                                 "view": "chart.default"
-                                            },
-                                            {
-                                                "id": "item.documents4",
-                                                "label": "Catégories de documents",
-                                                "description": "",
-                                                "width": "50%",
-                                                "entity": "documents\\DocumentCategory",
-                                                "view": "chart.default"
                                             }
+                                        
                                         ]
                                     }
                                 ]

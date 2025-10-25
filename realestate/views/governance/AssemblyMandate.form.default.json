@@ -27,7 +27,7 @@
                                                 "type": "field",
                                                 "value": "attendee_id",
                                                 "width": "100%",
-                                                "visible": false
+                                                "visible": true
                                             },
                                             {
                                                 "type": "field",

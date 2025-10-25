@@ -1,0 +1,18 @@
+{
+    "name": "Documents list",
+    "description": "This view displays the list of orders: the most recent on top.",
+    "access": {
+        "groups": ["documents.default.users"]
+    },
+    "controller": "core_model_chart",
+    "layout": {
+        "entity": "documents\\DocumentCategory",
+        "group_by": "parent_id",
+        "datasets": [
+            {
+                "label" : "Nombre de documents",
+                "operation": ["COUNT",["/", "object.documents_ids", 1000]]
+            }
+        ]
+    }
+}

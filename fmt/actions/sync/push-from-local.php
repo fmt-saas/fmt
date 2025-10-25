@@ -101,6 +101,9 @@ foreach($schema as $field => $def) {
     elseif($field === 'id') {
         unset($values['id']);
     }
+    elseif($field === 'uuid') {
+        unset($values['uuid']);
+    }
     elseif(isset($map_private_fields[$field])) {
         unset($values[$field]);
     }
@@ -108,9 +111,10 @@ foreach($schema as $field => $def) {
 
 $uuid = null;
 
+// prevent events triggering (to maintain single objects creation/update, with no side effect)
 $orm->disableEvents();
 
-// if we have a UUID: search; if exists, update, otherwise error (UUIDs are issued by the master instance)
+// if we received a UUID: search for it; if exists, update, otherwise issue an error (UUIDs are issued by the master instance)
 if(isset($params['values']['uuid'])) {
     $uuid = $params['values']['uuid'];
     $object = $entity::search(['uuid', '=', $uuid])->first();
@@ -123,7 +127,7 @@ if(isset($params['values']['uuid'])) {
             'source_verification_status' => 'pending'
         ]));
 }
-// if we don't have a UUID: in this case, check by other means whether the object already exists (depending on the class)
+// we don't have a UUID: in this case, check by other means whether the object already exists (depending on the class)
 // if it exists, update it
 // if it doesn't exist, create it
 // in both cases, retrieve the UUID

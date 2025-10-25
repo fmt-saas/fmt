@@ -37,6 +37,7 @@ class Assembly extends \equal\orm\Model {
                 'required'          => true
             ],
 
+// #todo - options a) pour l'invite : afficher les majorrités dans la convocation
             'assembly_organizer_identity_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
@@ -531,6 +532,9 @@ class Assembly extends \equal\orm\Model {
         ];
     }
 
+
+// #todo - utiliser une méthode compute pour avoir une policy qui permet de voir si la liste est correcte ou non
+// 
     protected static function doGenerateOwnerships($self) {
         $self->read(['condo_id', 'assembly_date', 'ownerships_ids']);
 
@@ -588,7 +592,8 @@ class Assembly extends \equal\orm\Model {
 
     protected static function onafterPublish($self) {
         // generate the ownerships_ids : list of expected Ownerships allowed to attend the Assembly
-        $self->do('generate_ownerships');
+        // #memo - uniquement besoin à partir de l'envoi des invitations
+        // $self->do('generate_ownerships');
     }
 
 
@@ -717,6 +722,7 @@ class Assembly extends \equal\orm\Model {
 
     protected static function onbeforeSending($self) {
         $self
+            ->do('generate_ownerships')
             ->do('generate_invites')
             // only owners with contact preference set as email will be handled
             ->do('send_invites');
@@ -1256,6 +1262,7 @@ class Assembly extends \equal\orm\Model {
                 continue;
             }
             /*
+            // #memo - secretary is left optional
             if($count_secretary < 1) {
                 $result[$id] = [
                     'missing_secretary' => 'A secretary must be selected amongst attendees.'

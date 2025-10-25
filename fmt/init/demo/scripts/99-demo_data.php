@@ -57,6 +57,7 @@ $user = User::search(['login', '=', 'admin@fmt.yb.run'])
 $employee = Employee::search(['identity_id', '=', $user['identity_id']])
     ->first();
 
+// assign accountant and condo_manager to default Employee to all Condominiums (mandatory for validation)
 foreach($condominiums_ids as $condo_id) {
     RoleAssignment::create([
         'condo_id'      => $condo_id,

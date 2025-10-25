@@ -150,7 +150,7 @@ $result = array_merge($user, [
     ]);
 
 unset($result['groups_ids']);
-unset($result['role_assignments_ids']);
+// unset($result['role_assignments_ids']);
 
 // renew JWT access token
 $access_token = $auth->token($user_id, constant('AUTH_ACCESS_TOKEN_VALIDITY'), ['auth_type' => 'pwd', 'auth_level' => 1]);
