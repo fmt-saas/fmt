@@ -575,7 +575,8 @@ class FiscalYear extends Model {
                     'fiscal_year_id'    => $id
                 ])
                 ->first();
-            self::id($id)->update(['current_balance_id' => $currentBalance['id']]);
+
+            self::id($id)->update(['name' => null, 'current_balance_id' => $currentBalance['id']]);
         }
 
         // 3) generate sequences for the fiscal year
@@ -679,6 +680,7 @@ class FiscalYear extends Model {
                     'current_fiscal_year_id' => $id
                 ]);
 
+            self::id($id)->update(['name' => null]);
         }
 
     }
@@ -917,6 +919,7 @@ class FiscalYear extends Model {
             self::id($nextFiscalYear['id'])->do('attempt_transition', ['status' => 'open']);
             self::id($postNextFiscalYear['id'])->do('attempt_transition', ['status' => 'preopen']);
 
+            self::id($id)->update(['name' => null]);
         }
     }
 
@@ -956,6 +959,8 @@ class FiscalYear extends Model {
             // attempt to transition following years according to logic (next to 'open' and post next to 'preopen')
             self::id($nextFiscalYear['id'])->do('attempt_transition', ['status' => 'open']);
             self::id($postNextFiscalYear['id'])->do('attempt_transition', ['status' => 'preopen']);
+
+            self::id($id)->update(['name' => null]);
         }
     }
 

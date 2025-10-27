@@ -70,6 +70,12 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "call_account_id",
+                                                "width": "100%",
+                                                "visible": ["status", "=", "validated"]
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "apportionment_id",
                                                 "width": "100%"
                                             }

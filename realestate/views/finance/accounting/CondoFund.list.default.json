@@ -27,6 +27,12 @@
             },
             {
                 "type": "field",
+                "label": "Call account",
+                "value": "call_account_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
                 "label": "Apportionment",
                 "value": "apportionment_id",
                 "width": "20%"
