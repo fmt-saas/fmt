@@ -248,9 +248,12 @@ class BankAccount extends Model {
 
     public static function canupdate($self, $values) {
         // modifications are only allowed on the master instance
+        // #todo - apply sync logic
+        /*
         if(constant('FMT_INSTANCE_TYPE') !== 'global') {
             return ['id' => ['restricted_action' => 'Bank account cannot be updated directly.']];
         }
+        */
 
         $self->read(['owner_identity_id']);
         foreach($self as $id => $bankAccount) {
