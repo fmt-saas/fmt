@@ -156,7 +156,7 @@
                             <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.document_signature_id.sig_drawn }}" />
                         {% else %}
                             Digitally signed by {{ attendee.name }} <br />
-                            Signature: {{ attendee.document_signature_id.sig_hash }}<br />
+                            Signature: {{ attendee.document_signature_id.sig_hash | slice(0, 100) }}<br />
                             Timestamp: {{ attendee.document_signature_id.sig_timestamp }}<br />
                             Algorithm: {{ attendee.document_signature_id.sig_algo }}
                         {% endif %}
