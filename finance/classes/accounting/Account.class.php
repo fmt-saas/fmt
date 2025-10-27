@@ -209,15 +209,16 @@ class Account extends Model {
                     'private_expenses',                 // used for purchase invoice
                     'reinvoiced_private_expenses',      // used for purchase invoice
                     'reserve_fund',                     // used for FundRequest
+                    'reserve_fund_variation',
                     'rounding_adjustment',
                     'suppliers',
                     'special_reserve_fund',             // used for FundRequest
+                    'special_reserve_fund_variation',
                     'work_expenses',
                     'work_provisions',                  // used for FundRequest
                     'working_fund',                     // used for FundRequest
-                    'consumption_statement',
-                    'reserve_fund_variation',
-                    'special_reserve_fund_variation'
+                    'working_fund_variation',
+                    'consumption_statement'
                 ]
             ],
 

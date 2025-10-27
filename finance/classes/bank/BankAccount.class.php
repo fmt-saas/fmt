@@ -87,6 +87,7 @@ class BankAccount extends Model {
             ],
 
             // #memo - unique key must be made on iban + suffix (to support composition identification)
+            // #todo - solve this - iban can be the same for several condo (compte de tiers) et pour several owners
             'bank_account_iban' => [
                 'type'              => 'string',
                 'usage'             => 'uri/urn.iban',

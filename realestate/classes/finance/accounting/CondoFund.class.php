@@ -32,7 +32,7 @@ class CondoFund extends \equal\orm\Model {
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'relation'          => ['fund_account_id' => 'name'],
+                'function'          => 'calcName',
                 'description'       => "Short description of the request, based on fiscal year and period.",
                 'instant'           => true,
                 'store'             => true
@@ -63,13 +63,31 @@ class CondoFund extends \equal\orm\Model {
                 'dependents'        => ['name']
             ],
 
+            'call_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Accounting account for fund call (if through MiscOp).",
+                'ondelete'          => 'null',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'dependents'        => ['expense_account_code']
+            ],
+
+            'call_account_code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['call_account_id' => 'code'],
+                'description'       => "Code of the call account associated to the Reserve Fund (if through MiscOp).",
+                'store'             => true,
+                'instant'           => true
+            ],
+
             'expense_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account for fund utilization.",
                 'ondelete'          => 'null',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'dependents'        => ['account_code']
+                'dependents'        => ['expense_account_code']
             ],
 
             'expense_account_code' => [
@@ -171,7 +189,7 @@ class CondoFund extends \equal\orm\Model {
      */
     protected static function onbeforeValidate($self) {
         // create related accounting accounts
-        $self->read(['condo_id' => ['account_chart_id'], 'fund_type', 'apportionment_id']);
+        $self->read(['condo_id' => ['account_chart_id'], 'description', 'fund_type', 'apportionment_id']);
         foreach($self as $id => $condoFund) {
 
             if($condoFund['fund_type'] === 'working_fund') {
@@ -223,7 +241,7 @@ class CondoFund extends \equal\orm\Model {
                     'condo_id'              => $condoFund['condo_id']['id'],
                     'code'                  => $account_code,
                     'is_control_account'    => false,
-                    'description'           => $templateAccount['description'],
+                    'description'           => $condoFund['description'] ?? $templateAccount['description'],
                     'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
                     'operation_assignment'  => $condoFund['fund_type'],
                     'apportionment_id'      => $condoFund['apportionment_id'],
@@ -232,14 +250,28 @@ class CondoFund extends \equal\orm\Model {
                 ])
                 ->first();
 
-            // create the expense account
+            // create the variation accounts
+
             $expenseAccount = Account::create([
                     'condo_id'              => $condoFund['condo_id']['id'],
                     'code'                  => '68' . $account_code . '1',
                     'is_control_account'    => false,
-                    'description'           => $templateAccount['description'] . ' variation',
+                    'description'           => $condoFund['description'] ?? $templateAccount['description'] . ' (prélèvement)',
                     'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
-                    'operation_assignment'  => $condoFund['fund_type'],
+                    'operation_assignment'  => $condoFund['fund_type'] . '_variation',
+                    'apportionment_id'      => $condoFund['apportionment_id'],
+                    'tenant_share'          => 0,
+                    'owner_share'           => 100
+                ])
+                ->first();
+
+            $callAccount = Account::create([
+                    'condo_id'              => $condoFund['condo_id']['id'],
+                    'code'                  => '68' . $account_code . '0',
+                    'is_control_account'    => false,
+                    'description'           => $condoFund['description'] ?? $templateAccount['description'] . ' (appel)',
+                    'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
+                    'operation_assignment'  => $condoFund['fund_type'] . '_variation',
                     'apportionment_id'      => $condoFund['apportionment_id'],
                     'tenant_share'          => 0,
                     'owner_share'           => 100
@@ -247,10 +279,22 @@ class CondoFund extends \equal\orm\Model {
                 ->first();
 
             self::id($id)->update([
+                    'call_account_id'       => $callAccount['id'],
                     'expense_account_id'    => $expenseAccount['id'],
                     'fund_account_id'       => $fundAccount['id']
                 ]);
         }
+    }
+
+    protected static function calcName($self) {
+        $result = [];
+        $self->read(['fund_account_id' => ['code'], 'description']);
+
+        foreach($self as $id => $condoFund) {
+            $result[$id] = $condoFund['fund_account_id']['code'] . ' - ' . $condoFund['description'];
+        }
+
+        return $result;
     }
 
     public static function canupdate($self, $values) {

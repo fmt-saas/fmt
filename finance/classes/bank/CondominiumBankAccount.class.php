@@ -49,6 +49,8 @@ class CondominiumBankAccount extends BankAccount {
                 'default'           => 'bank_current'
             ],
 
+            // #todo - replace bank_account_iban with 'iban' as computed (depends if account is tier or not)
+            // search on CondominiumBankAccount::
             'condominium_identity_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
