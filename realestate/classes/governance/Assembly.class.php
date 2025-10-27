@@ -321,7 +321,8 @@ class Assembly extends \equal\orm\Model {
                     'assembly_validation',
                     'agenda_processing'
                 ],
-                'visible'         => ['status', '=', 'in_progress']
+                'visible'         => ['status', '=', 'in_progress'],
+                'dependents'      => ['count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']
             ],
 
             'status' => [
