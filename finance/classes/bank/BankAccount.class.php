@@ -12,7 +12,7 @@ use identity\Identity;
 
 class BankAccount extends Model {
 
-    public static function constant() {
+    public static function constants() {
         return ['FMT_INSTANCE_TYPE'];
     }
 
