@@ -181,7 +181,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'date',
                 'description'       => 'The date on which the invoice is recorded in the accounting system.',
                 'default'           => function () { return time(); },
-                'visible'           => ['has_date_range', '=', false]
+                'visible'           => ['has_date_range', '=', false],
+                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
             ],
 
             'due_date' => [
