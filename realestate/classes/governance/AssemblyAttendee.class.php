@@ -80,8 +80,9 @@ class AssemblyAttendee extends \equal\orm\Model {
 
             'has_mandate' => [
                 'type'              => 'boolean',
-                'description'       => "Indicates whether the attendee has a mandate to represent one or more other ownerships.",
-                'help'              => "This field simply indicates whether proxies have been presented but does not guarantee their validity.",
+                'description'       => "Indicates whether the attendee has a mandate to represent other owner(s).",
+                'help'              => "If true, the attendee holds one or more mandate(s) to represent one or more other ownerships.
+                    This field simply indicates whether proxies have been presented but does not guarantee their validity.",
                 'default'           => false
             ],
 

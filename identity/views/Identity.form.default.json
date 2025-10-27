@@ -218,16 +218,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Owner",
-                                                "value": "owner_id",
-                                                "width": "100%",
-                                                "visible": ["object_class", "=", "identity\\Identity"],
-                                                "widget": {
-                                                    "domain": [ ["identity_id", "=", "object.id"] ]
-                                                }
-                                            },
-                                            {
-                                                "type": "field",
                                                 "label": "Supplier",
                                                 "value": "supplier_id",
                                                 "width": "100%",

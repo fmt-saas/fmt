@@ -1,0 +1,46 @@
+{
+    "name": "Assembly Vote Intention",
+    "limit": 500,
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "assembly_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "assembly_item_id",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "label": "Owner",
+                "value": "ownership_id",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "vote_value",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "vote_weight",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "vote_shares",
+                "width": "10%"
+            }
+        ]
+    }
+}

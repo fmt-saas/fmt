@@ -6,6 +6,7 @@
 */
 
 use equal\http\HttpRequest;
+use fmt\setting\Setting;
 use identity\User;
 use infra\server\Instance;
 use realestate\ownership\Owner;
@@ -146,7 +147,8 @@ $result = array_merge($user, [
         'identity_id'       => $user['identity_id'],
         'organisation_id'   => $user['organisation_id'],
         'is_owner'          => $is_owner,
-        'is_employee'       => $is_employee
+        'is_employee'       => $is_employee,
+        'selected_condo_id' => (int) Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id])
     ]);
 
 unset($result['groups_ids']);

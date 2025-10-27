@@ -55,6 +55,16 @@ class Owner extends Identity {
                 'readonly'          => true
             ],
 
+            'date_to' => [
+                'type'              => 'computed',
+                'result_type'       => 'date',
+                'relation'          => ['ownership_id' => 'date_to'],
+                'store'             => true,
+                'instant'           => true,
+                'description'       => "Date at which the last owned lot was sold by the owners.",
+                'help'              => "If set, targeted owner no longer own any lot in the condominium. But we keep it for consistency and historical purposes.",
+            ],
+
             'identity_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Identity',
@@ -107,9 +117,18 @@ class Owner extends Identity {
         ]);
     }
 
+    protected static function oncreate($self, $orm, $values=[]) {
+        if(isset($values['identity_id'])) {
+            $self->do('refresh_roles');
+        }
+    }
+
     protected static function doRefreshRoles($self) {
         $self->read(['condo_id', 'identity_id' => ['user_id']]);
         foreach($self as $id => $owner) {
+            if(!$owner['condo_id']) {
+                continue;
+            }
             if(!isset($owner['identity_id']['user_id'])) {
                 continue;
             }
@@ -159,6 +178,7 @@ class Owner extends Identity {
                 Identity::id($owner['identity_id'])->update(['owner_id' => $id]);
             }
         }
+        $self->do('refresh_roles');
     }
 
 }

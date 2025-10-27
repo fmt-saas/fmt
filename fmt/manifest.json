@@ -14,7 +14,8 @@
         "purchase",
         "realestate",
         "sale",
-        "stats"
+        "stats",
+        "infra"
     ],
     "requires_bin": {
         "qpdf": {

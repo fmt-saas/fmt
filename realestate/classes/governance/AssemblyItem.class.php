@@ -88,7 +88,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'foreign_object'    => 'realestate\governance\AssemblyItem',
                 'foreign_field'     => 'parent_group_id',
                 'order'             => 'order',
-// #todo -                'ondetach' -> delete
+                'ondetach'          => 'delete',
                 'domain'            => [
                     ['assembly_id', '=', 'object.assembly_id'],
                     ['has_parent_group', '=', true],
@@ -103,14 +103,6 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'foreign_object'    => 'realestate\governance\AssemblyVote',
                 'foreign_field'     => 'assembly_item_id',
                 'visible'           => ['has_vote_required', '=', true]
-            ],
-
-            'items_count' => [
-                'type'              => 'computed',
-                'result_type'       => 'integer',
-                'description'       => 'Number of items contained by the node.',
-                'store'             => true,
-                'function'          => 'calcItemsCount'
             ],
 
             'votes_count' => [
@@ -240,7 +232,7 @@ class AssemblyItem extends AssemblyItemTemplate {
         ];
     }
     public static function getActions() {
-        return [
+        return array_merge(parent::getActions(), [
             'cast_vote' => [
                 'description'   => 'Perform the update of the balance according to given accounting entry.',
                 'policies'      => ['can_vote'],
@@ -252,7 +244,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'policies'      => [],
                 'function'      => 'doRefreshVoteResult'
             ],
-        ];
+        ]);
     }
 
     public static function getPolicies(): array {
@@ -302,15 +294,6 @@ class AssemblyItem extends AssemblyItemTemplate {
         $self->read(['assembly_votes_ids']);
         foreach($self as $id => $assemblyItem) {
             $result[$id] = count($assemblyItem['assembly_votes_ids']);
-        }
-        return $result;
-    }
-
-    protected static function calcItemsCount($self) {
-        $result = [];
-        $self->read(['children_items_ids']);
-        foreach($self as $id => $assemblyItem) {
-            $result[$id] = count($assemblyItem['children_items_ids']);
         }
         return $result;
     }

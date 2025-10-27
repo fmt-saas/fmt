@@ -1,0 +1,85 @@
+{
+    "name": "Settings menu",
+    "access": {
+        "groups": ["setting.default.users"]
+    },
+    "search": true,
+    "layout": {
+        "items": [
+            {
+                "id": "item.followup",
+                "label": "Followup",
+                "description": "",
+                "icon": "rss_feed",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "payments_followups",
+                        "type": "entry",
+                        "label": "Payments followups",
+                        "icon": "euro_symbol",
+                        "description": "",
+                        "context": {
+                            "entity": "realestate\\sale\\pay\\Funding",
+                            "view": "list.default"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "item.documents",
+                "label": "Documents",
+                "description": "",
+                "icon": "picture_as_pdf",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "item.documents.email",
+                        "type": "entry",
+                        "label": "Emails",
+                        "icon": "email",
+                        "description": "",
+                        "context": {
+                            "entity": "communication\\email\\Email",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "item.documents.folders",
+                        "type": "entry",
+                        "label": "Folders",
+                        "icon": "folder",
+                        "description": "",
+                        "context": {
+                            "entity": "documents\\navigation\\Node",
+                            "view": "list.folders",
+                            "domain": [["node_type", "=", "folder"], ["parent_id", "=", null], ["condo_id", "<>", null]]
+                        }
+                    },
+                    {
+                        "id": "item.documents.documents",
+                        "type": "entry",
+                        "label": "All Documents",
+                        "icon": "file_present",
+                        "description": "",
+                        "context": {
+                            "view": "list.default",
+                            "entity": "documents\\Document"
+                        }
+                    },
+                    {
+                        "id": "item.documents.document_processings",
+                        "type": "entry",
+                        "label": "Doc Processing",
+                        "icon": "pending_actions",
+                        "description": "",
+                        "context": {
+                            "view": "list.default",
+                            "entity": "documents\\processing\\DocumentProcess"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

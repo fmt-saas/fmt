@@ -7,6 +7,8 @@
 
 use identity\User;
 use infra\server\Instance;
+use realestate\ownership\Owner;
+use realestate\ownership\Ownership;
 use realestate\property\Condominium;
 
 [$params, $providers] = eQual::announce([
@@ -26,26 +28,48 @@ use realestate\property\Condominium;
 
 ['context' => $context, 'orm' => $orm, 'auth' => $auth] = $providers;
 
-if(constant('FMT_INSTANCE_TYPE') !== 'global') {
-    throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
+$result = [];
+
+if(constant('FMT_INSTANCE_TYPE') === 'global') {
+    // fetch the instances of the user (based on global_token)
+    $instances = eQual::run('get', 'fmt_user_instances');
+
+    $instances_ids = [];
+
+    foreach($instances as $instance) {
+        $instances_ids[] = $instance['id'];
+    }
+
+    $result = Condominium::search(['instance_id', 'in', $instances_ids])
+        ->read(['id', 'name', 'code', 'instance_id' => ['id', 'name', 'url']])
+        ->adapt('json')
+        ->get(true);
 }
+else {
+    $owner_id = null;
+    $user_id = $auth->userId();
 
+    $user = User::id($user_id)
+        ->read(['identity_id' => ['owners_ids']])
+        ->first();
 
-// 1) fetch the instances of the user (based on global_token)
-$instances = eQual::run('get', 'fmt_user_instances');
+    if($user) {
+        $owners_ids = $user['identity_id']['owners_ids'] ?? [];
 
+        $condos_ids = array_filter(
+            array_column(
+                Owner::ids($owners_ids)->read(['condo_id'])->get(true),
+                'condo_id'
+            )
+        );
 
-$instances_ids = [];
+        $result = Condominium::ids($condos_ids)
+            ->read(['id', 'name', 'code'])
+            ->adapt('json')
+            ->get(true);
 
-foreach($instances as $instance) {
-    $instances_ids[] = $instance['id'];
+    }
 }
-
-
-$result = Condominium::search(['instance_id', 'in', $instances_ids])
-    ->read(['id', 'name', 'instance_id' => ['id', 'name', 'url']])
-    ->adapt('json')
-    ->get(true);
 
 
 $context

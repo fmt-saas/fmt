@@ -10,12 +10,15 @@ use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\property\PropertyLotApportionmentShare;
 
-// #memo - `created` date could be used to prioritize the mandates in case the amount exceeds the maximum allowed number of mandates.
+
 class AssemblyMandate extends \equal\orm\Model {
 
     public static function getColumns() {
 
         return [
+
+            // #memo - `created` date could be used to prioritize the mandates in case the amount exceeds the maximum allowed number of mandates.
+
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
@@ -92,10 +95,10 @@ class AssemblyMandate extends \equal\orm\Model {
             'has_wet_signature' => [
                 'type'              => 'boolean',
                 'description'       => "Mark the mandate as having a handwritten signature.",
-                'default'           => false
+                'default'           => true
             ],
 
-            'has_voting_instructions' => [
+            'has_vote_intentions' => [
                 'type'              => 'boolean',
                 'description'       => "Mark the mandate as having a handwritten signature.",
                 'default'           => false
@@ -122,13 +125,13 @@ class AssemblyMandate extends \equal\orm\Model {
                     'invalid_document',      // Incomplete or incorrect form
                     'expired_or_mismatch',   // Proxy expired or was issued for another assembly
                     'too_many_proxies',      // Too many proxies per proxy holder
-                    'duplicated_owner',      // owner has granted more than one mandate
+                    'duplicated_owner',      // Owner has granted more than one mandate
                     'not_owner',             // Grantor is not legitimate (not owner [anymore])
                     'invalid_attendee'       // Other : Attendee is not valid (missing ID or attendance signature)
                 ],
                 'description'       => "Reason for invalidity of the proxy (e.g. no signature, expired, too many mandates, etc.)",
                 'visible'           => ['is_valid', '=', false]
-            ],
+            ]
         ];
     }
 

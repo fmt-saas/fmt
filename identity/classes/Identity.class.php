@@ -656,11 +656,20 @@ class Identity extends Model {
                 'onupdate'          => 'onupdateManagingAgentId'
             ],
 
+            /*
             'owner_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'description'       => 'The Owner the identity refers to.',
                 'onupdate'          => 'onupdateOwnerId'
+            ],
+            */
+
+            'owners_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\ownership\Owner',
+                'foreign_field'     => 'identity_id',
+                'description'       => 'The Owners that relate to the identity.'
             ],
 
             'tenant_id' => [
@@ -971,7 +980,7 @@ class Identity extends Model {
     }
 
     protected static function updateField($self, $field) {
-        $self->read([$field, 'identity_id', 'user_id', 'contact_id', 'employee_id', 'customer_id', 'condominium_id', 'supplier_id', 'organisation_id', 'managing_agent_id', 'owner_id', 'tenant_id', ]);
+        $self->read([$field, 'identity_id', 'user_id', 'contact_id', 'employee_id', 'customer_id', 'condominium_id', 'supplier_id', 'organisation_id', 'managing_agent_id', 'tenant_id', ]);
         $orm = Container::getInstance()->get(['orm']);
         // prevent loop update propagation
         $events = $orm->disableEvents();
@@ -1010,9 +1019,6 @@ class Identity extends Model {
             if($identity['managing_agent_id']) {
                 ManagingAgent::id($identity['managing_agent_id'])->update([$field => $identity[$field]]);
             }
-            if($identity['owner_id']) {
-                Owner::id($identity['owner_id'])->update([$field => $identity[$field]]);
-            }
             if($identity['tenant_id']) {
                 Tenant::id($identity['tenant_id'])->update([$field => $identity[$field]]);
             }
@@ -1025,7 +1031,7 @@ class Identity extends Model {
     */
 
     protected static function onupdateUuid($self, $orm) {
-        $self->read(['object_class', 'uuid', 'user_id', 'contact_id', 'owner_id', 'tenant_id', 'employee_id', 'managing_agent_id', 'customer_id', 'supplier_id', 'condominium_id', 'organisation_id']);
+        $self->read(['object_class', 'uuid', 'user_id', 'contact_id', 'tenant_id', 'employee_id', 'managing_agent_id', 'customer_id', 'supplier_id', 'condominium_id', 'organisation_id']);
         $events = $orm->disableEvents();
         foreach($self as $id => $identity) {
             if($identity['object_class'] !== 'identity\Identity') {
@@ -1054,9 +1060,6 @@ class Identity extends Model {
             }
             if($identity['managing_agent_id']) {
                 ManagingAgent::id($identity['managing_agent_id'])->update(['identity_uuid' => $identity['uuid']]);
-            }
-            if($identity['owner_id']) {
-                Owner::id($identity['owner_id'])->update(['identity_uuid' => $identity['uuid']]);
             }
             if($identity['tenant_id']) {
                 Tenant::id($identity['tenant_id'])->update(['identity_uuid' => $identity['uuid']]);
@@ -1261,15 +1264,17 @@ class Identity extends Model {
         }
     }
 
+    /*
     public static function onupdateOwnerId($self) {
         $self->read(['owner_id']);
         foreach($self as $id => $identity) {
             Owner::id($identity['owner_id'])->update(['identity_id' => $id]);
         }
     }
+    */
 
     public static function onupdateTenantId($self) {
-        $self->read(['owner_id']);
+        $self->read(['tenant_id']);
         foreach($self as $id => $identity) {
             Tenant::id($identity['tenant_id'])->update(['identity_id' => $id]);
         }

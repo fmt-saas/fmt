@@ -37,7 +37,6 @@ class Assembly extends \equal\orm\Model {
                 'required'          => true
             ],
 
-// #todo - options a) pour l'invite : afficher les majorrités dans la convocation
             'assembly_organizer_identity_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
@@ -95,6 +94,12 @@ class Assembly extends \equal\orm\Model {
                 'usage'             => 'text/plain.small',
                 'description'       => "Closing text of the assembly call.",
                 'required'          => false
+            ],
+
+            'has_call_option_majority' => [
+                'type'              => 'boolean',
+                'description'       => "Show required majorities in the assembly call.",
+                'default'           => false
             ],
 
             'closing_text_minutes' => [
@@ -871,13 +876,13 @@ class Assembly extends \equal\orm\Model {
     protected static function doGenerateInvites($self) {
         $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
         foreach($self as $id => $assembly) {
+            // remove any previously created invite
+            AssemblyInvitation::search(['assembly_id', '=', $id])->delete(true);
+
             foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
                 if(!$ownership['representative_owner_id']) {
                     continue;
                 }
-
-                // remove any previously created invite
-                AssemblyInvitation::search(['assembly_id', '=', $id])->delete(true);
 
                 // init prefs
                 $communication_methods = [

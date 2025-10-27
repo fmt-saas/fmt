@@ -111,7 +111,11 @@ foreach($schema as $field => $def) {
 
 $uuid = null;
 
-// prevent events triggering (to maintain single objects creation/update, with no side effect)
+/**
+ * Disable all Events
+ *
+ * Prevent events triggering (to maintain single objects creation/update, with no side effect).
+ */
 $orm->disableEvents();
 
 // if we received a UUID: search for it; if exists, update, otherwise issue an error (UUIDs are issued by the master instance)

@@ -339,6 +339,19 @@
                                                 "type": "field",
                                                 "value": "closing_text_minutes",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "options",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "text_decoration": "underline"
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_call_option_majority",
+                                                "width": "25%"
                                             }
                                         ]
                                     }
@@ -370,7 +383,7 @@
                     {
                         "id": "section.owners",
                         "label": "Owners",
-                        "visible": ["status", "<>", "pending"],
+                        "visible": ["status", "not in", ["pending", "published"]],
                         "rows": [
                             {
                                 "columns": [

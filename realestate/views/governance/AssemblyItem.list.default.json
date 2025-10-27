@@ -116,6 +116,24 @@
             },
             {
                 "type": "field",
+                "label": "Items",
+                "value": "items_count",
+                "width": "10%",
+                "widget": {
+                    "align": "center",
+                    "text_align": "center",
+                    "text_width": "40px",
+                    "text_weight": "bold",
+                    "text_color": "white",
+                    "background_color": "#3f51b5",
+                    "border_radius": "40px",
+                    "padding": "4px",
+                    "margin": "auto"
+                },
+                "visible": [["parent_group_id", "=", null], ["items_count", ">", 0]]
+            },
+            {
+                "type": "field",
                 "label": "Vote",
                 "value": "has_vote_required",
                 "width": "10%"

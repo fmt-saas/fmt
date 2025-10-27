@@ -6,6 +6,11 @@
     "order": "name,level",
     "sort": "asc",
     "domain": ["is_visible", "=", true],
+    "header": {
+        "actions": {
+            "ACTION.CREATE" : false
+        }
+    },
     "layout": {
         "items": [
             {

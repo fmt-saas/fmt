@@ -53,14 +53,6 @@ class AssemblyVoteIntention extends \equal\orm\Model {
                 'visible'           => ['is_choice', '=', true]
             ],
 
-            'assembly_attendee_id' => [
-                'type'              => 'many2one',
-                'description'       => "The attendee who cast the vote (possibly as a proxy holder).",
-                'foreign_object'    => 'realestate\governance\AssemblyAttendee',
-                'required'          => true,
-                'dependents'        => ['has_mandate']
-            ],
-
             'ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The ownership concerned by the vote, via one of its lots.",

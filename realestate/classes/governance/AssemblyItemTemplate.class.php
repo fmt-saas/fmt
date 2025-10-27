@@ -34,6 +34,14 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
                 'default'           => 1
             ],
 
+            'items_count' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => 'Number of items contained by the node.',
+                'store'             => true,
+                'function'          => 'calcItemsCount'
+            ],
+
             'assembly_template_id' => [
                 'type'              => 'many2one',
                 'description'       => "The assembly template this item belongs to.",
@@ -140,10 +148,16 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
                 'description'   => 'Refresh order according to parent assembly & group.',
                 'policies'      => [],
                 'function'      => 'doRefreshOrder'
+            ],
+            'refresh_items_count'  => [
+                'description'   => 'Refresh sub-items count for parent groups.',
+                'policies'      => [],
+                'function'      => 'doRefreshItemsCount'
             ]
         ];
     }
 
+// refresh the whole list (children) if a parent is updated
     protected static function doRefreshOrder($self) {
         $self->read(['state', 'assembly_template_id', 'has_parent_group', 'parent_group_id']);
         foreach($self as $id => $item) {
@@ -173,18 +187,33 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
 
     }
 
+    protected static function doRefreshItemsCount($self) {
+        $self->update(['items_count' => null]);
+    }
+
     protected static function onupdateAssemblyTemplateId($self) {
         $self->do('refresh_order');
     }
 
     protected static function onupdateParentGroupId($self) {
-        $self->do('refresh_order');
+        $self
+            ->do('refresh_order')
+            ->do('refresh_items_count');
     }
 
     public static function onchange($event, $values) {
         $result = [];
         if(isset($event['is_group']) && $event['is_group'] === true) {
             $result['has_vote_required'] = false;
+        }
+        return $result;
+    }
+
+    protected static function calcItemsCount($self) {
+        $result = [];
+        $self->read(['children_items_ids']);
+        foreach($self as $id => $item) {
+            $result[$id] = count($item['children_items_ids']);
         }
         return $result;
     }
