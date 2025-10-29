@@ -1036,7 +1036,7 @@ class Assembly extends \equal\orm\Model {
             }
 
             AssemblyAttendee::ids($assembly['assembly_attendees_ids'])->update(['has_representation' => null]);
-            
+
         }
     }
 

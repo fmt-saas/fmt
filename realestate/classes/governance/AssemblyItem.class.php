@@ -10,6 +10,7 @@ use Exception;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\property\PropertyLotApportionmentShare;
+use realestate\property\PropertyLotOwnership;
 
 class AssemblyItem extends AssemblyItemTemplate {
 
@@ -97,6 +98,19 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'visible'           => ['is_group', '=', true],
             ],
 
+            'has_vote_required' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag indicating if a vote is required for this item.',
+                'default'           => false,
+                'onupdate'          => 'onupdateHasVoteRequired'
+            ],
+
+            'has_subvote_required' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag indicating if a vote is required for this item.',
+                'default'           => false
+            ],
+
             'assembly_votes_ids' => [
                 'type'              => 'one2many',
                 'description'       => "Votes cast related to the assembly item.",
@@ -150,7 +164,17 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'type'              => 'many2one',
                 'description'       => "The apportionment key used for the item (statutory or not).",
                 'foreign_object'    => 'realestate\property\Apportionment',
-                'visible'           => [['has_vote_required', '=', true], ['condo_id', '=', 'object.condo_id']]
+                'visible'           => [['has_vote_required', '=', true], ['condo_id', '=', 'object.condo_id']],
+                'help'              => "This field is mandatory in cas the item is subject to a vote."
+            ],
+
+            'involved_ownerships_ids' => [
+                'type'              => 'computed',
+                'result_type'       => 'one2many',
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'function'          => 'calcInvolvedOwnershipsIds',
+                'store'             => false,
+                'description'       => "Ownerships actually affected by the resolution, based on their property lots and the selected apportionment."
             ],
 
             'count_represented_shares' => [
@@ -207,7 +231,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                     'open' => [
                         'description'   => 'Marks the Assembly Item as open.',
                         'policies'      => ['can_open'],
-                        'onafter'       => '',
+                        'onafter'       => 'onafterOpen',
                         'status'        => 'open'
                     ]
                 ]
@@ -239,6 +263,12 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'function'      => 'doCastVote'
             ],
 
+            'refresh_has_vote' => [
+                'description'   => 'Only for groups (parent items), refresh has_vote based on sub-items.',
+                'policies'      => [],
+                'function'      => 'doRefreshHasVote'
+            ],
+
             'refresh_vote_result' => [
                 'description'   => 'Perform the update of the balance according to given accounting entry.',
                 'policies'      => [],
@@ -267,6 +297,116 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'function'    => 'policyCanVote'
             ]
         ];
+    }
+
+
+    protected static function onupdateHasVoteRequired($self) {
+        $self->read(['has_vote_required', 'has_parent_group', 'parent_group_id']);
+        foreach($self as $id => $assemblyItem) {
+            if($assemblyItem['has_parent_group'] && $assemblyItem['parent_group_id']) {
+                self::id($assemblyItem['parent_group_id'])->do('refresh_has_vote');
+            }
+        }
+    }
+
+    /**
+     * Create votes for all persons eligible to vote:
+     *  - one pending vote per ownership affected by the item and present or represented at the assembly
+     *  - if representation_type == 'proxy', verify assembly_mandate_id has status 'validated' and is_valid
+     *
+     * For each ownership, check whether a vote intention exists for this item; if so, use its values.
+     *
+     */
+    protected static function onafterOpen($self) {
+        $self->read(['has_vote_required', 'condo_id', 'assembly_id', 'involved_ownerships_ids']);
+
+        foreach($self as $id => $assemblyItem) {
+            if(!$assemblyItem['has_vote_required']) {
+                // discard resolutions not subject to a vote
+                continue;
+            }
+            $map_ownerships_ids = array_fill_keys($assemblyItem['involved_ownerships_ids'], true);
+
+            $representations = AssemblyRepresentation::search(['assembly_id', '=', $assemblyItem['assembly_id']])
+                ->read(['attendee_id', 'ownership_id', 'representation_type', 'assembly_mandate_id' => ['id', 'status', 'is_valid']]);
+
+            foreach($representations as $representation) {
+                $ownership_id = $representation['ownership_id'];
+                if(!isset($map_ownerships_ids[$ownership_id])) {
+                    // discard ownerships not affected by the resolution
+                    continue;
+                }
+
+                if($representation['representation_type'] === 'proxy') {
+                    if($representation['assembly_mandate_id']['status'] !== 'validated' || !$representation['assembly_mandate_id']['is_valid']) {
+                        // discard ownerships for which representation mandate is not valid
+                        continue;
+                    }
+                }
+
+                // create an empty vote (status = 'pending')
+                $assemblyVote = AssemblyVote::create([
+                        'condo_id'              => $assemblyItem['condo_id'],
+                        'assembly_id'           => $assemblyItem['assembly_id'],
+                        'assembly_item_id'      => $id,
+                        'ownership_id'          => $ownership_id,
+                        'assembly_attendee_id'  => $representation['attendee_id']
+                    ])
+                    ->first();
+
+                // search for a valid vote intention and, if it exists, assign values and cast the vote
+                $assemblyVoteIntention = AssemblyVoteIntention::search([
+                        ['condo_id', '=', $assemblyItem['condo_id']],
+                        ['assembly_id', '=', $assemblyItem['assembly_id']],
+                        ['assembly_item_id', '=', $id],
+                        ['ownership_id', '=', $ownership_id]
+                    ])
+                    ->read([
+                        'representation_type',
+                        'assembly_mandate_id',
+                        'assembly_item_choice_id',
+                        'vote_value'
+                    ])
+                    ->first();
+
+                if (
+                    $assemblyVoteIntention
+                    && $assemblyVoteIntention['representation_type'] === $representation['representation_type']
+                    && (
+                        $assemblyVoteIntention['representation_type'] !== 'proxy'
+                        || $assemblyVoteIntention['assembly_mandate_id'] === ($representation['assembly_mandate_id']['id'] ?? null)
+                    )
+                ) {
+                    AssemblyVote::id($assemblyVote['id'])
+                        ->update([
+                            'vote_value'                => $assemblyVoteIntention['vote_value'],
+                            // #memo - assembly_item_choice_id might be null
+                            'assembly_item_choice_id'   => $assemblyVoteIntention['assembly_item_choice_id']
+                        ])
+                        ->transition('cast');
+                }
+            }
+        }
+    }
+
+    protected static function doRefreshHasVote($self) {
+        $self->read(['has_parent_group', 'children_items_ids' => ['has_vote_required']]);
+        foreach($self as $id => $assemblyItem) {
+            // applies only on parents items/groups
+            if($assemblyItem['has_parent_group']) {
+                continue;
+            }
+            $has_vote = false;
+            foreach($assemblyItem['children_items_ids'] as $item) {
+                if($item['has_vote_required']) {
+                    $has_vote = true;
+                    break;
+                }
+            }
+            if($has_vote) {
+                self::id($id)->update(['has_subvote_required' =>  true]);
+            }
+        }
     }
 
     protected static function defaultOrder($values) {
@@ -541,12 +681,15 @@ class AssemblyItem extends AssemblyItemTemplate {
 
         foreach($self as $id => $assemblyItem) {
 
-            $votes = AssemblyVote::search([
-                ['assembly_item_id', '=', $id],
-                ['ownership_id', '=', $values['ownership_id']]
-            ]);
+            $vote = AssemblyVote::search([
+                    ['condo_id', '=', $assemblyItem['condo_id']],
+                    ['assembly_item_id', '=', $id],
+                    ['ownership_id', '=', $values['ownership_id']]
+                ])
+                ->read(['status'])
+                ->first();
 
-            if($votes->count() > 0) {
+            if($vote && $vote['status'] === 'casted') {
                 throw new \Exception('vote_already_casted', EQ_ERROR_NOT_ALLOWED);
             }
 
@@ -558,17 +701,22 @@ class AssemblyItem extends AssemblyItemTemplate {
                 ->first();
 
             if(!$representation) {
-                throw new \Exception('attendee_without_mandate', EQ_ERROR_NOT_ALLOWED);
+                throw new \Exception('attendee_not_allowed_to_vote', EQ_ERROR_NOT_ALLOWED);
             }
 
-            AssemblyVote::create([
-                'condo_id'              => $assemblyItem['condo_id'],
-                'assembly_id'           => $assemblyItem['assembly_id'],
-                'assembly_item_id'      => $id,
-                'assembly_attendee_id'  => $values['attendee_id'],
-                'ownership_id'          => $values['ownership_id'],
-                'vote_value'            => $values['vote_value']
-            ]);
+            if(!$vote) {
+                $vote = AssemblyVote::create([
+                        'condo_id'              => $assemblyItem['condo_id'],
+                        'assembly_id'           => $assemblyItem['assembly_id'],
+                        'assembly_item_id'      => $id,
+                        'assembly_attendee_id'  => $values['attendee_id'],
+                        'ownership_id'          => $values['ownership_id'],
+                        'vote_value'            => $values['vote_value']
+                    ])
+                    ->first();
+            }
+
+            AssemblyVote::id($vote['id'])->transition('cast');
 
         }
     }
@@ -628,6 +776,48 @@ class AssemblyItem extends AssemblyItemTemplate {
             }
 
             $result[$id] = $shares;
+        }
+        return $result;
+    }
+
+
+    /**
+     * Retrieve the ownerships that are affected by the Assembly Item (Resolution), no matter their represented or not.
+     *
+     */
+    protected static function calcInvolvedOwnershipsIds($self) {
+        $result = [];
+        $self->read(['apportionment_id', 'assembly_id' => ['assembly_date']]);
+
+        foreach($self as $id => $assemblyItem) {
+
+            $map_ownerships_ids = [];
+
+            // identify the lots
+            $property_lots_ids = [];
+
+            $apportionment = Apportionment::id($assemblyItem['apportionment_id'])
+                ->read(['apportionment_shares_ids' => ['property_lot_id']])
+                ->first();
+
+            if(!$apportionment) {
+                continue;
+            }
+
+            foreach($apportionment['apportionment_shares_ids'] as $apportionmentShare) {
+                $property_lots_ids[] = $apportionmentShare['property_lot_id'];
+            }
+
+            $propertyLotOwnerships = PropertyLotOwnership::search(['property_lot_id', 'in', $property_lots_ids])
+                ->read(['date_to', 'ownership_id']);
+
+            foreach($propertyLotOwnerships as $propertyLotOwnership) {
+                if(is_null($propertyLotOwnership['date_to']) || $propertyLotOwnership['date_to'] >= $assemblyItem['assembly_id']['assembly_date']) {
+                    $map_ownerships_ids[$propertyLotOwnership['ownership_id']] = true;
+                }
+            }
+
+            $result[$id] = array_keys($map_ownerships_ids);
         }
         return $result;
     }

@@ -66,7 +66,7 @@ class AssemblyVote extends \equal\orm\Model {
                 'result_type'       => 'boolean',
                 'description'       => 'Mark a vote as "represented" (vote by proxy), or "present".',
                 'stored'            => true,
-                'function'          => 'calcHasProxy'
+                'function'          => 'calcHasMandate'
             ],
 
             'ownership_id' => [
@@ -143,11 +143,57 @@ class AssemblyVote extends \equal\orm\Model {
                 'help'              => "Effective shares represented, with a maximum of 50% of the shares represented by the assembly.",
                 'function'          => 'calcVoteEffectiveShares',
                 'store'             => true
-            ]
+            ],
 
+            'status' => [
+                'type'           => 'string',
+                'description'    => "Workflow status of the vote.",
+                'default'        => 'pending',
+                'selection'      => [
+                    'pending',
+                    'casted'
+                ]
+            ]
         ];
     }
 
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => '',
+                'icon' => 'sent',
+                'transitions' => [
+                    'cast' => [
+                        'description'   => 'Marks the Assembly vote as casted.',
+                        'policies'      => ['can_cast'],
+                        'status'        => 'casted'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    public static function getPolicies(): array {
+        return [
+            'can_cast' => [
+                'description' => 'Verifies that a vote can be casted.',
+                'function'    => 'policyCanCast'
+            ]
+        ];
+    }
+
+    protected static function policyCanCast($self) {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $assemblyVote) {
+            if($assemblyVote['status'] === 'casted') {
+                $result[$id] = [
+                        'vote_already_casted' => 'Vote cannot be casted more than once.'
+                    ];
+                continue;
+            }
+        }
+    }
 
     protected static function calcVoteShares($self) {
         $result = [];
@@ -255,8 +301,7 @@ class AssemblyVote extends \equal\orm\Model {
         return $result;
     }
 
-
-    protected static function calcHasProxy($self) {
+    protected static function calcHasMandate($self) {
         $result = [];
         $self->read(['assembly_id', 'ownership_id', 'assembly_attendee_id']);
 

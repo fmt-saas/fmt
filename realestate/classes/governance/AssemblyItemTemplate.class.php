@@ -110,8 +110,7 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
             'has_vote_required' => [
                 'type'              => 'boolean',
                 'description'       => 'Flag indicating if a vote is required for this item.',
-                'default'           => false,
-                'visible'           => ['is_group', '=', false]
+                'default'           => false
             ],
 
             'majority' => [
@@ -157,7 +156,9 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
         ];
     }
 
-// refresh the whole list (children) if a parent is updated
+    /**
+     * Refresh the whole list (children) if a parent is updated
+     */
     protected static function doRefreshOrder($self) {
         $self->read(['state', 'assembly_template_id', 'has_parent_group', 'parent_group_id']);
         foreach($self as $id => $item) {
