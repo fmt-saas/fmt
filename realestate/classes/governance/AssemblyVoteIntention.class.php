@@ -29,10 +29,29 @@ class AssemblyVoteIntention extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'representation_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'owner',
+                    'proxy'
+                ],
+                'description'       => "The way the ownership is represented.",
+                'required'          => true
+            ],
+
+            'assembly_mandate_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\governance\AssemblyMandate',
+                'description'       => "Proxy the representation originates from, if any.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['attendee_id', '=', 'object.attendee_id'], ['ownership_id', '=', 'object.ownership_id']],
+                'visible'           => ['representation_type', '=', 'proxy']
+            ],
+
             'assembly_item_id' => [
                 'type'              => 'many2one',
                 'description'       => "The assembly item this vote refers to.",
                 'foreign_object'    => 'realestate\governance\AssemblyItem',
+                'domain'            => [['assembly_id', '=', 'object.assembly_id'], ['has_vote_required', '=', true]],
                 'required'          => true,
                 'dependents'        => ['vote_weight', 'is_choice']
             ],

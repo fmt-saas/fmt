@@ -1,5 +1,6 @@
 {
-    "name": "Assembly Proxy",
+    "name": "Assembly Mandate (proxy)",
+    "domain": ["status", "=", "validated"],
     "layout": {
         "items": [
             {

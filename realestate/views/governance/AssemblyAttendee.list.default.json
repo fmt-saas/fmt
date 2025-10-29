@@ -17,6 +17,13 @@
             },
             {
                 "type": "field",
+                "value": "has_representation",
+                "width": "12%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Identity",
                 "value": "identity_id",
                 "width": "12%"
             },
@@ -28,11 +35,6 @@
             {
                 "type": "field",
                 "value": "has_mandate",
-                "width": "12%"
-            },
-            {
-                "type": "field",
-                "value": "shares",
                 "width": "12%"
             },
             {

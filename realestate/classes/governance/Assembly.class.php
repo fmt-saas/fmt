@@ -175,7 +175,7 @@ class Assembly extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\governance\AssemblyRepresentation',
                 'foreign_field'     => 'assembly_id',
                 'description'       => "Validated representations for the assembly.",
-                'help'              => "Representations are generated automatically, based on assembly_proxies_ids, and are used to link the attendee to the ownerships they represent in the assembly (directly or with a mandate).",
+                'help'              => "Representations are generated automatically, based on assembly_mandates_ids, and are used to link the attendee to the ownerships they represent in the assembly (directly or with a mandate).",
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'] ]
             ],
 
@@ -263,7 +263,7 @@ class Assembly extends \equal\orm\Model {
                 'help'              => 'This field is filled automatically at assembly publication. Independently from attendance.'
             ],
 
-            'assembly_proxies_ids' => [
+            'assembly_mandates_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\governance\AssemblyMandate',
                 'foreign_field'     => 'assembly_id',
@@ -302,7 +302,7 @@ class Assembly extends \equal\orm\Model {
             'count_represented_owners' => [
                 'type'              => 'computed',
                 'result_type'       => 'integer',
-                'description'       => "The number of owners that are present or represented in the assembly.",
+                'description'       => "The number of ownerships that are present or represented in the assembly.",
                 'function'          => 'calcCountRepresentedOwners',
                 'store'             => true,
                 'readonly'          => true,
@@ -461,13 +461,13 @@ class Assembly extends \equal\orm\Model {
                 'function'      => 'doValidateAttendees'
             ],
 
-            'validate_proxies' => [
+            'validate_mandates' => [
                 'description'   => 'Verifies the validity of the proxies and generate links with ownerships.',
                 'help'          => "This action is meant to be performed at the mandate_validation step. We check the validity conditions of each proxy.
                     If a proxy is invalid, we mark it as invalid and add the reason.
                     Triggers representations generation, and step to `representation_validation`.",
                 'policies'      => [],
-                'function'      => 'doValidateProxies'
+                'function'      => 'doValidateMandates'
             ],
 
             'generate_representations' => [
@@ -507,7 +507,20 @@ class Assembly extends \equal\orm\Model {
                 'help'          => 'This action is meant to be invoked during step `assembly_validation`',
                 'policies'      => [ 'can_schedule_second_session' ],
                 'function'      => 'doScheduleSecondSession'
-            ]
+            ],
+
+            'generate_signable_minutes' => [
+                'description'   => 'Create immutable version of the minutes to be signed.',
+                'policies'      => [/* */],
+                'function'      => 'doGenerateSignableMinutes'
+            ],
+
+            'generate_printable_minutes' => [
+                'description'   => 'Create printable version of the minutes of the Assembly and store it to EDMS.',
+                'policies'      => [/* */],
+                'function'      => 'doGeneratePrintableMinutes'
+            ],
+
         ];
     }
 
@@ -534,38 +547,41 @@ class Assembly extends \equal\orm\Model {
                 'help'        => "In order to be valid, the assembly must meet the representation criteria depending on its type.",
                 'function'    => 'policyIsAssemblyValid'
             ],
+
             // 'can_be_open'
         ];
     }
 
 
-// #todo - utiliser une méthode compute pour avoir une policy qui permet de voir si la liste est correcte ou non
-// 
+    private static function computeOwnershipsIds($condo_id, $assembly_date) {
+        // generate the ownerships_ids : list of expected Ownerships allowed to attend the Assembly
+        $propertyLotOwnerships = PropertyLotOwnership::search([
+                ['condo_id', '=', $condo_id]
+            ])
+            ->read(['date_to', 'ownership_id', 'property_lot_id' => ['is_primary']]);
+
+        $map_ownerships_ids = [];
+
+        foreach($propertyLotOwnerships as $propertyLotOwnership) {
+            if(!$propertyLotOwnership['date_to'] || $propertyLotOwnership['date_to'] > $assembly_date) {
+                if($propertyLotOwnership['property_lot_id']['is_primary']) {
+                    $map_ownerships_ids[$propertyLotOwnership['ownership_id']] = true;
+                }
+            }
+        }
+        return array_keys($map_ownerships_ids);
+    }
+
     protected static function doGenerateOwnerships($self) {
         $self->read(['condo_id', 'assembly_date', 'ownerships_ids']);
 
         foreach($self as $id => $assembly) {
-
             // remove any previously retrieved ownership
             $ids_to_remove = array_map(function ($a) {return -$a;}, $assembly['ownerships_ids']);
             self::id($id)->update(['ownerships_ids' => $ids_to_remove]);
 
-            // generate the ownerships_ids : list of expected Ownerships allowed to attend the Assembly
-            $map_ownerships_ids = [];
-
-            $propertyLotOwnerships = PropertyLotOwnership::search([
-                    ['condo_id', '=', $assembly['condo_id']]
-                ])
-                ->read(['date_to', 'ownership_id', 'property_lot_id' => ['is_primary']]);
-
-            foreach($propertyLotOwnerships as $propertyLotOwnership) {
-                if(!$propertyLotOwnership['date_to'] || $propertyLotOwnership['date_to'] > $assembly['assembly_date']) {
-                    if($propertyLotOwnership['property_lot_id']['is_primary']) {
-                        $map_ownerships_ids[$propertyLotOwnership['ownership_id']] = true;
-                    }
-                }
-            }
-            self::id($id)->update(['ownerships_ids' => array_keys($map_ownerships_ids)]);
+            $ownerships_ids = self::computeOwnershipsIds($assembly['condo_id'], $assembly['assembly_date']);
+            self::id($id)->update(['ownerships_ids' => $ownerships_ids]);
         }
     }
 
@@ -942,7 +958,10 @@ class Assembly extends \equal\orm\Model {
 
     }
 
-    // on fait ceci lorsque les proxy ont été validés qu'on est prêt à finaliser les présences
+    /**
+     * This action is called when all mandates have been validated and that we're ready to finalize attendance
+     *
+     */
     protected static function doGenerateRepresentations($self) {
         $self->read(['condo_id', 'step', 'assembly_attendees_ids']);
         // Loop through all assembly attendees
@@ -962,7 +981,7 @@ class Assembly extends \equal\orm\Model {
                 continue;
             }
             $attendees = AssemblyAttendee::ids($assembly['assembly_attendees_ids'])
-                ->read(['identity_id', 'assembly_proxies_ids' => ['is_valid', 'ownership_id']]);
+                ->read(['identity_id', 'assembly_mandates_ids' => ['status', 'is_valid', 'ownership_id']]);
 
             foreach($attendees as $attendee_id => $attendee) {
 
@@ -977,8 +996,12 @@ class Assembly extends \equal\orm\Model {
                     $existingRepresentations = AssemblyRepresentation::search([['assembly_id', '=', $id], ['ownership_id', '=', $ownership_id]])->read(['representation_type']);
 
                     foreach($existingRepresentations as $representation_id => $representation) {
-                        if($representation['representation_type'] ===' proxy') {
+                        if($representation['representation_type'] === 'proxy') {
                             AssemblyRepresentation::id($representation_id)->delete(true);
+                        }
+                        else {
+                            // ownership is already represented by an owner, skip representation
+                            continue 2;
                         }
                     }
                     AssemblyRepresentation::create([
@@ -991,9 +1014,12 @@ class Assembly extends \equal\orm\Model {
                 }
 
                 // 2) add ownerships from valid proxies
-                foreach($attendee['assembly_proxies_ids'] as $mandate_id => $assemblyMandate) {
-                    if($assemblyMandate['is_valid'] && $assemblyMandate['ownership_id']) {
-                        $existingRepresentations = AssemblyRepresentation::search([['assembly_id', '=', $id], ['ownership_id', '=', $ownership_id]]);
+                foreach($attendee['assembly_mandates_ids'] as $mandate_id => $assemblyMandate) {
+                    if($assemblyMandate['status'] === 'validated' && $assemblyMandate['is_valid'] && $assemblyMandate['ownership_id']) {
+                        $existingRepresentations = AssemblyRepresentation::search([
+                                ['assembly_id', '=', $id],
+                                ['ownership_id', '=', $assemblyMandate['ownership_id']]
+                            ]);
                         if($existingRepresentations->count() > 0) {
                             continue;
                         }
@@ -1003,11 +1029,14 @@ class Assembly extends \equal\orm\Model {
                             'attendee_id'           => $attendee_id,
                             'ownership_id'          => $assemblyMandate['ownership_id'],
                             'representation_type'   => 'proxy',
-                            'assembly_mandate_id'     => $mandate_id
+                            'assembly_mandate_id'   => $mandate_id
                         ]);
                     }
                 }
             }
+
+            AssemblyAttendee::ids($assembly['assembly_attendees_ids'])->update(['has_representation' => null]);
+            
         }
     }
 
@@ -1018,7 +1047,7 @@ class Assembly extends \equal\orm\Model {
     }
 
     protected static function doValidateAttendees($self) {
-        $self->read(['condo_id', 'ownerships_ids', 'assembly_attendees_ids' => ['identity_id', 'attendee_role', 'assembly_proxies_ids']]);
+        $self->read(['condo_id', 'ownerships_ids', 'assembly_attendees_ids' => ['identity_id', 'attendee_role', 'assembly_mandates_ids']]);
         foreach($self as $id => $assembly) {
             /*
                     'invalid_attendee',      // Attendee not designated or not authorized
@@ -1036,11 +1065,11 @@ class Assembly extends \equal\orm\Model {
                     $attendee_ownerships_ids[] = $owner['ownership_id']['id'];
                 }
 
-                $assemblyProxies = AssemblyMandate::ids($assemblyAttendee['assembly_proxies_ids']);
+                $assemblyMandates = AssemblyMandate::ids($assemblyAttendee['assembly_mandates_ids']);
 
                 // an attendee who is not owner, has no proxy and is neither president nor secretary, is invalid
                 if(
-                    $assemblyProxies->count() <= 0
+                    $assemblyMandates->count() <= 0
                     && count(array_intersect($assembly['ownerships_ids'], $attendee_ownerships_ids)) <= 0
                     && !in_array($assemblyAttendee['attendee_role'], ['president', 'secretary'])
                 ) {
@@ -1058,20 +1087,20 @@ class Assembly extends \equal\orm\Model {
      *
      * #memo - we must wait before the assembly validation since encoding or choice of applicable mandate should be possible while assembly is not yet constituted
      */
-    protected static function doValidateProxies($self) {
-        $self->read(['count_shares', 'ownerships_ids', 'assembly_attendees_ids' => ['is_valid', 'assembly_proxies_ids']]);
+    protected static function doValidateMandates($self) {
+        $self->read(['count_shares', 'ownerships_ids', 'assembly_attendees_ids' => ['is_valid', 'assembly_mandates_ids']]);
         foreach($self as $id => $assembly) {
             $map_covered_ownerships_ids = [];
 
             foreach($assembly['assembly_attendees_ids'] as $assemblyAttendee) {
 
-                $assemblyProxies = AssemblyMandate::ids($assemblyAttendee['assembly_proxies_ids'])
+                $assemblyMandates = AssemblyMandate::ids($assemblyAttendee['assembly_mandates_ids'])
                     ->read(['mandate_shares', 'mandate_type', 'has_wet_signature', 'ownership_id', 'mandate_document_id']);
 
                 $count_mandate_shares = 0;
                 $count_proxies = 0;
 
-                foreach($assemblyProxies as $assembly_mandate_id => $assemblyMandate) {
+                foreach($assemblyMandates as $assembly_mandate_id => $assemblyMandate) {
                     if(!$assemblyAttendee['is_valid']) {
                         AssemblyMandate::id($assembly_mandate_id)->update(['is_valid' => false, 'invalidity_reason' => 'invalid_attendee']);
                         continue;
@@ -1200,7 +1229,7 @@ class Assembly extends \equal\orm\Model {
 
     protected static function policyIsAssemblyValid($self) {
         $result = [];
-        $self->read(['count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']);
+        $self->read(['condo_id', 'assembly_date', 'count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']);
 
         foreach($self as $id => $assembly) {
 
@@ -1238,7 +1267,16 @@ class Assembly extends \equal\orm\Model {
                 }
             }
 
-            // Among those present persons, there must be exactly one president and one secretary.
+            $ownerships_ids = self::computeOwnershipsIds($assembly['condo_id'], $assembly['assembly_date']);
+
+            if($assembly['count_owners'] != count($ownerships_ids)) {
+                $result[$id] = [
+                    'invalid_count_owners' => 'Some Owners should be present but are missing.'
+                ];
+                continue;
+            }
+
+            // Among the attendees, there must be exactly one president and one secretary.
             $attendees = AssemblyAttendee::search(['assembly_id', '=', $id])
                 ->read('attendee_role');
 
@@ -1256,10 +1294,13 @@ class Assembly extends \equal\orm\Model {
             }
 
             if($count_president < 1) {
+                // #memo - president might not be known yet at validation (an election might be required)
+                /*
                 $result[$id] = [
                     'missing_president' => 'A president must be selected amongst attendees.'
                 ];
                 continue;
+                */
             }
             elseif($count_president > 1) {
                 $result[$id] = [
@@ -1267,8 +1308,7 @@ class Assembly extends \equal\orm\Model {
                 ];
                 continue;
             }
-            /*
-            // #memo - secretary is left optional
+
             if($count_secretary < 1) {
                 $result[$id] = [
                     'missing_secretary' => 'A secretary must be selected amongst attendees.'
@@ -1281,7 +1321,7 @@ class Assembly extends \equal\orm\Model {
                 ];
                 continue;
             }
-            */
+
 
         }
         return $result;

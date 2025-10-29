@@ -64,16 +64,16 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\governance\AssemblyRepresentation',
                 'foreign_field'     => 'attendee_id',
                 'description'       => "Validated representations held by this attendee for the assembly.",
-                'help'              => "Representations are generated automatically, based on assembly_proxies_ids, and are used to link the attendee to the ownerships they represent in the assembly (directly or with a mandate).",
+                'help'              => "Representations are generated automatically, based on assembly_mandates_ids, and are used to link the attendee to the ownerships they represent in the assembly (directly or with a mandate).",
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'] ]
             ],
 
-            'assembly_proxies_ids' => [
+            'assembly_mandates_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\governance\AssemblyMandate',
                 'foreign_field'     => 'attendee_id',
-                'description'       => "Proxies held by this attendee for the assembly.",
-                'help'              => "This field is used to complete the list of ownerships based on the proxies held by the attendee.",
+                'description'       => "Mandates held by this attendee for the assembly.",
+                'help'              => "This field is used to complete the list of ownerships based on the mandates held by the attendee.",
                 'visible'           => ['has_mandate', '=', true],
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['assembly_id', '=', 'object.assembly_id']]
             ],
@@ -82,8 +82,18 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'type'              => 'boolean',
                 'description'       => "Indicates whether the attendee has a mandate to represent other owner(s).",
                 'help'              => "If true, the attendee holds one or more mandate(s) to represent one or more other ownerships.
-                    This field simply indicates whether proxies have been presented but does not guarantee their validity.",
+                    This field simply indicates whether mandates have been presented but does not guarantee their validity.",
                 'default'           => false
+            ],
+
+            'has_representation' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'function'          => 'calcHasRepresentation',
+                'description'       => 'Indicates whether the attendee represents at least one Ownership.',
+                'help'              => "Some attendee might be allowed ut not meant to cast any vote (e.g. secretary).",
+                'store'             => true,
+                'instant'           => true
             ],
 
             'document_signature_id' => [
@@ -103,6 +113,8 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'default'           => false
             ],
 
+            // #memo this has been disabled because it is already verified in Assembly, and it has no meaning while there are no representations
+            /*
             'shares' => [
                 'type'              => 'computed',
                 'result_type'       => 'float',
@@ -112,6 +124,7 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'readonly'          => true,
                 'visible'           => ['status', '=', 'validated']
             ],
+            */
 
             'attendee_role' => [
                 'type'              => 'string',
@@ -163,9 +176,8 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'transitions' => [
                     'validate' => [
                         'description' => 'Update the Attendee to `validated`.',
-                        'help'      => 'Validity check of mandates is performed at the Assembly level.',
-                        'onbefore'    => 'onbeforeValidate',
-                        'policies'    => [/*'is_valid'*/],
+                        'help'        => 'Validity check of mandates is performed at the Assembly level.',
+                        'policies'    => ['is_attendee_valid'],
                         'status'      => 'validated'
                     ]
                 ]
@@ -173,22 +185,76 @@ class AssemblyAttendee extends \equal\orm\Model {
         ];
     }
 
+    public static function getPolicies(): array {
+        return [
+            'is_attendee_valid' => [
+                'description' => 'Verifies that the encoded attendee is valid.',
+                'help'        => "In order to be valid, the assembly must meet the representation criteria depending on its type.",
+                'function'    => 'policyIsAttendeeValid'
+            ],
+        ];
+    }
     public static function getActions() {
         return [
 
         ];
     }
 
+    protected static function policyIsAttendeeValid($self) {
+        $result = [];
+        $self->read(['condo_id', 'identity_id' => ['owners_ids'], 'has_mandate', 'attendee_role']);
+
+        foreach($self as $id => $assemblyAttendee) {
+            // either an owner, or someone holding a mandate
+            if(!$assemblyAttendee['has_mandate'] && !in_array($assemblyAttendee['attendee_role'], ['president', 'secretary'], true)) {
+                $owners_ids = Owner::search([
+                        ['id', 'in', $assemblyAttendee['identity_id']['owners_ids']],
+                        ['condo_id', '=', $assemblyAttendee['condo_id']]
+                    ])
+                    ->ids();
+
+                if(count($owners_ids) >= 0) {
+                    $result[$id] = [
+                        'not_an_owner' => 'Attendee has no mandate nor is Owner.'
+                    ];
+                    continue;
+                }
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcHasRepresentation($self) {
+        $result = [];
+        $self->read(['status', 'assembly_representations_ids']);
+        foreach($self as $id => $assemblyAttendee) {
+            if($assemblyAttendee['status'] !== 'validated') {
+                continue;
+            }
+            $result[$id] = (bool) count($assemblyAttendee['assembly_representations_ids']);
+        }
+        return $result;
+    }
+
     /**
-     * Compute total statutory shares based on the lots of the ownerships represented by the Attendee (assembly_representations_ids is populated based on valid proxies)
+     * Compute total statutory shares based on the lots of the ownerships represented by the Attendee (assembly_representations_ids is populated based on valid mandates)
      *
      */
+    // #memo this has been disabled because it is already verified in Assembly, and it has no meaning while there are no representations
     protected static function calcShares($self) {
         $result = [];
-        $self->read(['status', 'condo_id', 'assembly_representations_ids' => ['ownership_id'], 'assembly_id' => ['assembly_date']]);
+        $self->read([
+                'status', 'condo_id',
+                'assembly_representations_ids' => ['ownership_id'],
+                'assembly_id' => ['status', 'step', 'assembly_date']
+            ]);
 
         foreach($self as $id => $assemblyAttendee) {
             if($assemblyAttendee['status'] !== 'validated') {
+                continue;
+            }
+
+            if($assemblyAttendee['assembly_representations_ids']->count() <= 0) {
                 continue;
             }
 
@@ -237,11 +303,6 @@ class AssemblyAttendee extends \equal\orm\Model {
             $result[$id] = $shares;
         }
         return $result;
-    }
-
-
-    protected static function onbeforeValidate($self) {
-        // #todo - on doit valider la cohérence de l'attendee
     }
 
 }

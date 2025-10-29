@@ -23,7 +23,10 @@ use realestate\property\PropertyLotOwnership;
             'foreign_object'   => 'realestate\governance\AssemblyAttendee',
             'description'      => 'Attendee casting the vote.',
             'required'         => true,
-            'domain'           => ['assembly_id', '=', 'object.assembly_id']
+            'domain'           => [
+                ['assembly_id', '=', 'object.assembly_id'],
+                ['has_representation', '=', true]
+            ]
         ],
         'ownership_id' => [
             'type'             => 'many2one',

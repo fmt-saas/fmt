@@ -35,9 +35,9 @@ class AssemblyMandate extends \equal\orm\Model {
 
             'attendee_id' => [
                 'type'              => 'many2one',
-                'description'       => "Attendee holder of the proxy.",
+                'description'       => "Attendee holder of the mandate.",
                 'foreign_object'    => 'realestate\governance\AssemblyAttendee',
-                'required'          => true,
+                // 'required'          => true,
                 'dependents'        => ['identity_id']
             ],
 
@@ -54,7 +54,7 @@ class AssemblyMandate extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The ownership that is represented by the proxy.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
-                'required'          => true,
+                // 'required'          => true,
                 'dependents'        => ['mandate_shares']
             ],
 
@@ -112,7 +112,8 @@ class AssemblyMandate extends \equal\orm\Model {
 
             'is_valid' => [
                 'type'              => 'boolean',
-                'description'       => "Can be invalidated after verification.",
+                'description'       => 'Can be invalidated after verification.',
+                'help'              => "This field is meant to describe the validity of the mandate according to legal rule (not consistency of the object, which is handled through `status`.)",
                 'default'           => true
             ],
 
@@ -131,13 +132,50 @@ class AssemblyMandate extends \equal\orm\Model {
                 ],
                 'description'       => "Reason for invalidity of the proxy (e.g. no signature, expired, too many mandates, etc.)",
                 'visible'           => ['is_valid', '=', false]
+            ],
+
+            'status' => [
+                'type'           => 'string',
+                'description'    => "Workflow status of the assembly.",
+                'default'        => 'pending',
+                'selection'      => [
+                    'pending',
+                    'validated'
+                ]
             ]
+        ];
+    }
+
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Validate a mandate (once all data have been received).',
+                'icon' => 'sent',
+                'transitions' => [
+                    'validate' => [
+                        'description'   => 'Marks the Assembly as open and start allowing attendee encoding.',
+                        'policies'      => ['can_validate'],
+                        'onafter'       => 'onafterPublish',
+                        'status'        => 'validated'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    public static function getPolicies(): array {
+        return [
+            'can_validate' => [
+                'description' => 'Verifies that the constituted assembly is valid, ',
+                'help'        => "In order to be valid, the assembly must met the representation criteria depending on its type.",
+                'function'    => 'policyCanValidate'
+            ],
         ];
     }
 
     protected static function calcProxyShares($self) {
         $result = [];
-        $self->read(['condo_id']);
+        $self->read(['condo_id', 'ownership_id', 'assembly_id' => ['assembly_date']]);
         foreach($self as $id => $assemblyMandate) {
             // 1) identify the lots
             $property_lots_ids = [];
@@ -176,4 +214,30 @@ class AssemblyMandate extends \equal\orm\Model {
         }
         return $result;
     }
+
+    // on doit créer l'objet en deux temps : 1) avec uniquement le assembly_id, 2) avec toutes les infos (attendee_id et ownership_id)
+    // à la validation il faut vérifier la cohérence
+    protected static function policyCanValidate($self) {
+        $result = [];
+        $self->read(['status', 'attendee_id', 'ownership_id']);
+
+        foreach($self as $id => $assemblyMandate) {
+
+            if(!$assemblyMandate['attendee_id']) {
+                $result[$id] = [
+                    'missing_attendee' => 'The attendee must be provided.'
+                ];
+                continue;
+            }
+            if(!$assemblyMandate['ownership_id']) {
+                $result[$id] = [
+                    'missing_ownership' => 'The ownership must be provided.'
+                ];
+                continue;
+            }
+        }
+
+        return $result;
+    }
+
 }

@@ -84,13 +84,13 @@
             "visible": [ ["status", "=", "in_progress"], ["step", "=", "opening"] ]
         },
         {
-            "id": "action.validate_proxies",
+            "id": "action.validate_mandates",
             "label": "Validate Mandates",
             "description": "Validate the Attendees' mandates and step to representation validation.",
             "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\governance\\Assembly",
-                "action": "validate_proxies"
+                "action": "validate_mandates"
             },
             "visible":  [ ["status", "=", "in_progress"], ["step", "=", "mandate_validation"] ]
         },
@@ -423,7 +423,10 @@
                                             {
                                                 "type": "field",
                                                 "value": "ownerships_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.assembly"
+                                                }
                                             }
                                         ]
                                     }
@@ -464,7 +467,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "assembly_proxies_ids",
+                                                "value": "assembly_mandates_ids",
                                                 "width": "100%"
                                             }
                                         ]

@@ -91,7 +91,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "assembly_proxies_ids",
+                                                "value": "assembly_mandates_ids",
                                                 "width": "100%"
                                             }
                                         ]

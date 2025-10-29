@@ -53,7 +53,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'description'       => 'Assembly step in the agenda processing.',
-                'relation'          => ['assembly_id' => 'status'],
+                'relation'          => ['assembly_id' => 'step'],
                 'store'             => false
             ],
 
