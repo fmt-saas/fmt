@@ -17,14 +17,14 @@
             },
             {
                 "type": "field",
-                "label": "Attendee",
-                "value": "attendee_id",
+                "label": "Ownership",
+                "value": "ownership_id",
                 "width": "33%"
             },
             {
                 "type": "field",
-                "label": "Ownership",
-                "value": "ownership_id",
+                "label": "Attendee",
+                "value": "attendee_id",
                 "width": "33%"
             },
             {

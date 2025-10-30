@@ -41,7 +41,8 @@
             "confirm": true,
             "params": {
                 "entity": "realestate\\governance\\AssemblyItem",
-                "transition": "close"
+                "transition": "close",
+                "ids": []
             },
             "visible": ["open", "=", "object.status"]
         },
