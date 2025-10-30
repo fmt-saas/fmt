@@ -1309,7 +1309,7 @@ class DocumentProcess extends Model {
                             'payment_reference'             => str_replace(['+', '/'], '', $data['payment']['payment_id'] ?? ''),
                             'payable_amount'                => $data['totals']['payable_amount'] ?? '',
                             'emission_date'                 => strtotime($data['issue_date']),
-                            'due_date'                      => strtotime($data['due_date']),
+                            'due_date'                      => $data['due_date'] ? strtotime($data['due_date']) : null,
                             'has_fund_usage'                => false,
                             'has_instant_reinvoice'         => false,
                             'document_process_id'           => $id,
