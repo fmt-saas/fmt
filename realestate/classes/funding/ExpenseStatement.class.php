@@ -108,13 +108,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             'common_total' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
-                'description'       => 'Total amount assigned from common expenses.'
+                'description'       => 'Total amount assigned from common expenses.',
+                'dependents'        => ['price', 'total']
             ],
 
             'private_total' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
-                'description'       => 'Total amount assigned from common expenses.'
+                'description'       => 'Total amount assigned from common expenses.',
+                'dependents'        => ['price', 'total']
             ],
 
             'assigned_delta' => [
@@ -319,7 +321,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             // remove any previously created owner statement
             ExpenseStatementOwner::search(['expense_statement_id', '=', $id])->delete(true);
             $data = self::computeExpenseStatementData($expenseStatement['fiscal_period_id']);
-            self::id($id)->update([
+            self::id($id)
+                ->update([
                     'private_total'  => $data['private_total'],
                     'common_total'   => $data['common_total'],
                     'assigned_delta' => $data['assigned_delta']

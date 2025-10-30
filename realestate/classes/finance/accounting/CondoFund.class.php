@@ -189,6 +189,8 @@ class CondoFund extends \equal\orm\Model {
      */
     protected static function onbeforeValidate($self) {
         // create related accounting accounts
+
+// #todo - ne fonctionne pas pour la création d'un fonds de roulement        
         $self->read(['condo_id' => ['account_chart_id'], 'description', 'fund_type', 'apportionment_id']);
         foreach($self as $id => $condoFund) {
 

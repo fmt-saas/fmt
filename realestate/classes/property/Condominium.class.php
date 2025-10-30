@@ -77,6 +77,7 @@ class Condominium extends Identity {
                 'description'       => 'The display name of the Condominium.',
             ],
 
+// #todo - permettre la modif + vérfier que le code est unique
             'code' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -476,12 +477,25 @@ class Condominium extends Identity {
 
     protected static function policyIsValid($self) {
         $result = [];
-        $self->read(['managing_agent_id', 'role_assignments_ids' => ['role_id']]);
+        $self->read(['code', 'managing_agent_id', 'role_assignments_ids' => ['role_id']]);
         foreach($self as $id => $condominium) {
 
             if(!$condominium['managing_agent_id']) {
                 $result[$id] = [
                     'missing_managing_agent_id' => 'The managing agent must be provided.'
+                ];
+            }
+
+            // #todo - vérfier que le code est unique
+            $duplicate = self::search([
+                    ['id', '<>', $id],
+                    ['code', 'ilike', $condominium['code']]
+                ])
+                ->first();
+
+            if($duplicate) {
+                $result[$id] = [
+                    'duplicate_code' => 'The code is already in use.'
                 ];
             }
 
