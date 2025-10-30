@@ -52,6 +52,13 @@ class Supplier extends Identity {
                 'default'           => 'purchase\supplier\Supplier'
             ],
 
+            'supplier_type_code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcSupplierTypeCode',
+                'store'             => true
+            ],
+
             /**
              * Specific Supplier columns
              */
@@ -135,6 +142,28 @@ class Supplier extends Identity {
         ];
     }
 
+    protected static function calcSupplierTypeCode($self) {
+        $result = [];
+        $self->read(['object_class']);
+        foreach($self as $id => $supplier) {
+            switch($supplier['object_class']) {
+                case 'finance\bank\Bank':
+                    $result[$id] = 'bank';
+                    break;
+                case 'realestate\property\NotaryOffice':
+                    $result[$id] = 'notary_office';
+                    break;
+                case 'realestate\management\ManagingAgent':
+                    $result[$id] = 'managing_agent';
+                    break;
+                case 'purchase\supplier\Supplier':
+                default:
+                    $result[$id] = 'supplier';
+                break;
+            }
+        }
+        return $result;
+    }
 
     public static function onrevertName($self) {
         $self->read(['supplierships_ids']);

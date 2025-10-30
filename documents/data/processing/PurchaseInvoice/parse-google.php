@@ -215,8 +215,11 @@ $formatDate = function ($dateText) {
  * Helper: map free-text payment method to UN/CEFACT code
  * 30 = Credit transfer (virement), 49 = Direct debit (domiciliation SEPA), 48 = Bank card
  */
-$mapPaymentTextToCode = function (?string $text) {
-    if (!$text) return null;
+$mapPaymentTextToCode = function (string $text = '') {
+    if(!$text) {
+        return null;
+    }
+
     $t = strtolower(trim($text));
 
     // French / EN variants
@@ -224,9 +227,15 @@ $mapPaymentTextToCode = function (?string $text) {
     $isDirectDebit = str_contains($t, 'domiciliation') || str_contains($t, 'prélèvement') || str_contains($t, 'sepa') || str_contains($t, 'direct debit');
     $isCard = str_contains($t, 'carte') || str_contains($t, 'card') || str_contains($t, 'visa') || str_contains($t, 'mastercard');
 
-    if ($isDirectDebit) return '49';
-    if ($isTransfer) return '30';
-    if ($isCard) return '48';
+    if($isDirectDebit) {
+        return '49';
+    }
+    if($isTransfer) {
+        return '30';
+    }
+    if($isCard) {
+        return '48';
+    }
 
     return null;
 };
@@ -251,7 +260,7 @@ $supplierPaymentRef = $getValue($getEntity('supplier_payment_ref'), '');
 $supplierAddress    = $extractAddress($getValue($getEntity('supplier_address')), $localeCountry);
 $currency           = $getValue($getEntity('currency'), 'EUR');
 $customerName       = str_replace("\n", ' ', $getValue($getEntity('customer_name'), ''));
-$customerAddress    = $extractAddress($getValue($getEntity('customer_address'), $localeCountry));
+$customerAddress    = $extractAddress($getValue($getEntity('customer_address')), $localeCountry);
 
 /**
  * Extract line items
@@ -260,16 +269,16 @@ $lines = [];
 foreach($entities as $entity) {
     if($entity['type'] === 'line_item') {
         $line = [
-            'id' => (string)($entity['id'] ?? count($lines) + 1),
-            'description' => $entity['mentionText'] ?? null,
-            'quantity' => 1,
-            'unit_code' => 'C62',
-            'unit_price' => null,
-            'amount' => null,
-            'tax' => [
-                'category_id' => 'S',
-                'percent' => 0,
-                'scheme_id' => 'VAT'
+            'id'            => (string)($entity['id'] ?? count($lines) + 1),
+            'description'   => $entity['mentionText'] ?? null,
+            'quantity'      => 1,
+            'unit_code'     => 'C62',
+            'unit_price'    => null,
+            'amount'        => null,
+            'tax'           => [
+                'category_id'   => 'S',
+                'percent'       => 0,
+                'scheme_id'     => 'VAT'
             ]
         ];
         foreach ($entity['properties'] ?? [] as $prop) {
@@ -306,7 +315,6 @@ $map_document_type = [
  */
 $paymentMeansCode = null;
 $paymentMethod = null;
-$paymentDueDate = $dueDate;
 
 $paymentTerms = $getEntity('payment_terms');
 if ($paymentTerms && isset($paymentTerms['properties'])) {
@@ -317,9 +325,6 @@ if ($paymentTerms && isset($paymentTerms['properties'])) {
                 break;
             case 'payment_method':
                 $paymentMethod = $getValue($prop, null, 'string', 0.0);
-                break;
-            case 'payment_due_date':
-                $paymentDueDate = $getValue($prop, $paymentDueDate, 'string', 0.0);
                 break;
         }
     }
@@ -336,13 +341,6 @@ if (!$paymentMeansCode && $paymentMethod) {
 
 if (!$paymentMeansCode && $paymentTerms) {
     $paymentMeansCode = $mapPaymentTextToCode($getValue($paymentTerms));
-}
-
-/**
- * Final fallback sensé: 30 = virement (le plus courant)
- */
-if (!$paymentMeansCode) {
-    $paymentMeansCode = '30';
 }
 
 
@@ -378,7 +376,7 @@ $output = [
         'iban'               => $supplierIban,
         'bic'                => $supplierBic,
         'payment_id'         => $supplierPaymentRef,
-        'payment_means_code' => $paymentMeansCode ?? '30' // fallback to direct debit
+        'payment_means_code' => $paymentMeansCode ?? '30' // fallback to bank transfer
     ]
 ];
 

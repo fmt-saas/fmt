@@ -2,7 +2,14 @@
     "name": "Assembly Vote Intention",
     "limit": 500,
     "header": {
-        "layout": "inline"
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE":  [
+                {
+                    "view": true
+                }
+            ]
+        }
     },
     "layout": {
         "items": [
