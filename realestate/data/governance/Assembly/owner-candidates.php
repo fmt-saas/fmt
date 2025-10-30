@@ -13,7 +13,7 @@ use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Retrieve the list of Owners that can be selected as attendee or .',
+    'description'   => 'Retrieve the list of Owners that can be selected as attendee or to be represented through a mandate.',
     'params'        => [
         'id' => [
             'description'       => 'Identifier of the specific Assembly to consider.',

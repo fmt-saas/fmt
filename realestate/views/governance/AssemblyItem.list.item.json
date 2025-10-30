@@ -31,6 +31,7 @@
             "icon": "done",
             "description": "Close the assembly point. No more vote will be allowed. This cannot be undone.",
             "controller": "core_model_transition",
+            "confirm": true,
             "params": {
                 "entity": "realestate\\governance\\AssemblyItem",
                 "transition": "close"

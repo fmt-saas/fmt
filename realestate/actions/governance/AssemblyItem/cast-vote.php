@@ -87,6 +87,7 @@ $apportionmentShares = PropertyLotApportionmentShare::search([
         ['apportionment_id', '=', $assemblyItem['apportionment_id']],
         ['property_lot_id', 'in', $property_lots_ids]
     ]);
+
 if($apportionmentShares->count() <= 0) {
     throw new Exception("ownership_without_shares", EQ_ERROR_INVALID_PARAM);
 }

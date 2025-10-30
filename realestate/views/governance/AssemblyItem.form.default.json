@@ -201,6 +201,7 @@
                                                 "value": "assembly_votes_ids",
                                                 "width": "100%",
                                                 "widget": {
+                                                    "view": "list.item",
                                                     "header": {
                                                         "actions": {
                                                             "ACTION.SELECT": false,

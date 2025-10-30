@@ -36,8 +36,9 @@
             "inline": true,
             "label": "Close",
             "icon": "done",
-            "description": "Close the assembly point. No more vote will be allowed. This cannot be undone.",
+            "description": "Close the assembly resolution. No more vote will be allowed. This cannot be undone.",
             "controller": "core_model_transition",
+            "confirm": true,
             "params": {
                 "entity": "realestate\\governance\\AssemblyItem",
                 "transition": "close"
@@ -45,12 +46,33 @@
             "visible": ["open", "=", "object.status"]
         },
         {
-            "id": "action.add_vote",
+            "id": "action.cast_vote",
             "inline": true,
             "label": "Vote",
             "icon": "how_to_vote",
             "description": "Cast a vote.",
-            "controller": "realestate_governance_AssemblyItem_cast-vote",
+            "component": {
+                "name": "castVote",
+                "data": {
+                    "assembly_id": "object.assembly_id",
+                    "assembly_item_id": "object.id"
+                }
+            },
+            "visible": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ]
+        },
+        {
+            "id": "action.votes_board",
+            "inline": true,
+            "label": "Vote",
+            "icon": "visibility",
+            "description": "Cast a vote.",
+            "component": {
+                "name": "voteBoard",
+                "data": {
+                    "assembly_id": "object.assembly_id",
+                    "assembly_item_id": "object.id"
+                }
+            },
             "visible": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ]
         }
     ],

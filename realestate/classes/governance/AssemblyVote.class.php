@@ -47,7 +47,7 @@ class AssemblyVote extends \equal\orm\Model {
 
             'assembly_item_choice_id' => [
                 'type'              => 'many2one',
-                'description'       => "The choice this vote refers to, if any.",
+                'description'       => "The choice this vote adds up to, if any.",
                 'help'              => "By convention, a choice is always specified for votes marked with `is_choice`. In this case, the vote value is forced to 'for'.",
                 'foreign_object'    => 'realestate\governance\AssemblyItemChoice',
                 'visible'           => ['is_choice', '=', true]
@@ -76,6 +76,14 @@ class AssemblyVote extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'vote_display' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "Printable choice/value of the Vote.",
+                'function'          => 'calcVoteDisplay',
+                'store'             => false
+            ],
+
             'vote_value' => [
                 'type'              => 'string',
                 'description'       => "Vote value ('for', 'against', or 'abstain').",
@@ -85,7 +93,8 @@ class AssemblyVote extends \equal\orm\Model {
                     'abstain'
                 ],
                 'default'           => 'abstain',
-                'dependents'        => ['vote_weight_for', 'vote_weight_against', 'vote_weight_abstain']
+                'dependents'        => ['vote_weight_for', 'vote_weight_against', 'vote_weight_abstain'],
+                'visible'           => ['status', '=', 'casted']
             ],
 
             'vote_weight' => [
@@ -104,7 +113,8 @@ class AssemblyVote extends \equal\orm\Model {
                 'description'       => "Weight of the vote, if the vote was 'for'.",
                 'help'              => "This is used to ease the reading of the results.",
                 'function'          => 'calcVoteWeightFor',
-                'store'             => true
+                'store'             => true,
+                'visible'           => ['status', '=', 'casted']
             ],
 
             'vote_weight_against' => [
@@ -114,7 +124,8 @@ class AssemblyVote extends \equal\orm\Model {
                 'description'       => "Weight of the vote, if the vote was 'against'.",
                 'help'              => "This is used to ease the reading of the results.",
                 'function'          => 'calcVoteWeightAgainst',
-                'store'             => true
+                'store'             => true,
+                'visible'           => ['status', '=', 'casted']
             ],
 
             'vote_weight_abstain' => [
@@ -124,7 +135,8 @@ class AssemblyVote extends \equal\orm\Model {
                 'description'       => "Weight of the vote, if the vote was 'abstain'.",
                 'help'              => "This is used to ease the reading of the results.",
                 'function'          => 'calcVoteWeightAbstain',
-                'store'             => true
+                'store'             => true,
+                'visible'           => ['status', '=', 'casted']
             ],
 
             'vote_shares' => [
@@ -193,6 +205,21 @@ class AssemblyVote extends \equal\orm\Model {
                 continue;
             }
         }
+    }
+
+    protected static function calcVoteDisplay($self) {
+        $result = [];
+        $self->read(['is_choice', 'vote_value', 'assembly_item_choice_id' => ['name']]);
+
+        foreach($self as $id => $assemblyVote) {
+            $value = $assemblyVote['vote_value'];
+            if($assemblyVote['is_choice']) {
+                $value = $assemblyVote['assembly_item_choice_id']['name'];
+            }
+            $result[$id] = $value;
+        }
+
+        return $result;
     }
 
     protected static function calcVoteShares($self) {
@@ -276,27 +303,36 @@ class AssemblyVote extends \equal\orm\Model {
 
     protected static function calcVoteWeightFor($self) {
         $result = [];
-        $self->read(['vote_value', 'vote_weight']);
-        foreach($self as $id => $vote) {
-            $result[$id] = ($vote['vote_value'] === 'for') ? $vote['vote_weight'] : 0.0;
+        $self->read(['status', 'vote_value', 'vote_weight']);
+        foreach($self as $id => $assemblyVote) {
+            if($assemblyVote['status'] !== 'casted') {
+                continue;
+            }
+            $result[$id] = ($assemblyVote['vote_value'] === 'for') ? $assemblyVote['vote_weight'] : 0.0;
         }
         return $result;
     }
 
     protected static function calcVoteWeightAgainst($self) {
         $result = [];
-        $self->read(['vote_value', 'vote_weight']);
-        foreach($self as $id => $vote) {
-            $result[$id] = ($vote['vote_value'] === 'against') ? $vote['vote_weight'] : 0.0;
+        $self->read(['status', 'vote_value', 'vote_weight']);
+        foreach($self as $id => $assemblyVote) {
+            if($assemblyVote['status'] !== 'casted') {
+                continue;
+            }
+            $result[$id] = ($assemblyVote['vote_value'] === 'against') ? $assemblyVote['vote_weight'] : 0.0;
         }
         return $result;
     }
 
     protected static function calcVoteWeightAbstain($self) {
         $result = [];
-        $self->read(['vote_value', 'vote_weight']);
-        foreach($self as $id => $vote) {
-            $result[$id] = ($vote['vote_value'] === 'abstain') ? $vote['vote_weight'] : 0.0;
+        $self->read(['status', 'vote_value', 'vote_weight']);
+        foreach($self as $id => $assemblyVote) {
+            if($assemblyVote['status'] !== 'casted') {
+                continue;
+            }
+            $result[$id] = ($assemblyVote['vote_value'] === 'abstain') ? $assemblyVote['vote_weight'] : 0.0;
         }
         return $result;
     }

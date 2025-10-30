@@ -447,7 +447,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'majority',
                 'count_represented_shares',
                 'assembly_id' => ['count_owners', 'count_represented_owners'],
-                'assembly_votes_ids' => ['vote_weight', 'vote_value', 'assembly_item_choice_id' => ['name']]
+                'assembly_votes_ids' => ['status', 'vote_weight', 'vote_value', 'assembly_item_choice_id' => ['name']]
             ]);
 
         foreach($self as $id => $item) {
@@ -460,9 +460,18 @@ class AssemblyItem extends AssemblyItemTemplate {
                 $counts = [];
                 $map_assembly_items = [];
                 //#memo - multiple choices are not allowed for a voter attendee, and casting a vote implies that the choice is 'for'
-                $total_votes = count($item['assembly_votes_ids']);
+                $total_votes = 0;
+                foreach($item['assembly_votes_ids'] as $vote) {
+                    if($vote['status'] === 'casted') {
+                        ++$total_votes;
+                    }
+                }
                 $logs[] = "Total ballots received: {$total_votes}";
                 foreach($item['assembly_votes_ids'] as $vote) {
+                    if($vote['status'] !== 'casted') {
+                        // discard non casted votes
+                        continue;
+                    }
                     $assembly_item_choice_id = $vote['assembly_item_choice_id']['id'];
                     $map_assembly_items[$assembly_item_choice_id] = $vote['assembly_item_choice_id']['name'];
                     if(!isset($weights[$assembly_item_choice_id])) {
@@ -715,9 +724,13 @@ class AssemblyItem extends AssemblyItemTemplate {
                     ])
                     ->first();
             }
+            else {
+                AssemblyVote::id($vote['id'])->update([
+                    'vote_value' => $values['vote_value']
+                ]);
+            }
 
             AssemblyVote::id($vote['id'])->transition('cast');
-
         }
     }
 

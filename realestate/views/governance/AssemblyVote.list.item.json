@@ -1,0 +1,103 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "operations": {
+        "total": {
+            "vote_weight": {
+                "operation": "SUM",
+                "usage": "number/real:6.5"
+            },
+            "vote_weight_for": {
+                "operation": "SUM",
+                "usage": "number/real:6.5"
+            },
+            "vote_weight_against": {
+                "operation": "SUM",
+                "usage": "number/real:6.5"
+            },
+            "vote_weight_abstain": {
+                "operation": "SUM",
+                "usage": "number/real:6.5"
+            }
+        }
+    },
+    "limit": 500,
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "assembly_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "assembly_item_id",
+                "width": "15%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Owner",
+                "value": "ownership_id",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "has_mandate",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Attendee",
+                "value": "assembly_attendee_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "vote_value",
+                "width": "10%",
+                "widget": {
+                    "type": "string",
+                    "usage": "icon"
+                }
+            },
+            {
+                "type": "field",
+                "value": "vote_weight",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "For",
+                "value": "vote_weight_for",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "Against",
+                "value": "vote_weight_against",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "Abstain",
+                "value": "vote_weight_abstain",
+                "width": "10%"
+            }
+        ]
+    }
+}
