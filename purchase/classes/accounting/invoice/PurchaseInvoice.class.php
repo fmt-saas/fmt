@@ -325,8 +325,15 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
 
     protected static function policyCanBeInvoiced($self, $dispatch): array {
         $result = [];
-        $self->read(['invoice_lines_ids' => ['vat_rate']]);
+        $self->read(['due_date', 'invoice_lines_ids' => ['vat_rate']]);
         foreach($self as $id => $invoice) {
+            if(!$invoice['due_date']) {
+                $result[$id] = [
+                    'missing_due_date' => 'Due date is mandatory for emitting the invoice.'
+                ];
+                continue;
+            }
+
             foreach($invoice['invoice_lines_ids'] as $line_id => $line) {
                 if($line['vat_rate'] >= 1) {
                     $result[$id] = [
