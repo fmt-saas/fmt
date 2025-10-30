@@ -212,6 +212,26 @@ $formatDate = function ($dateText) {
 };
 
 /**
+ * Helper: map free-text payment method to UN/CEFACT code
+ * 30 = Credit transfer (virement), 49 = Direct debit (domiciliation SEPA), 48 = Bank card
+ */
+$mapPaymentTextToCode = function (?string $text) {
+    if (!$text) return null;
+    $t = strtolower(trim($text));
+
+    // French / EN variants
+    $isTransfer = str_contains($t, 'virement') || str_contains($t, 'transfert') || str_contains($t, 'transfer') || str_contains($t, 'credit transfer') || str_contains($t, 'bank transfer');
+    $isDirectDebit = str_contains($t, 'domiciliation') || str_contains($t, 'prélèvement') || str_contains($t, 'sepa') || str_contains($t, 'direct debit');
+    $isCard = str_contains($t, 'carte') || str_contains($t, 'card') || str_contains($t, 'visa') || str_contains($t, 'mastercard');
+
+    if ($isDirectDebit) return '49';
+    if ($isTransfer) return '30';
+    if ($isCard) return '48';
+
+    return null;
+};
+
+/**
  * Extract base entities
  */
 $localeCountry = 'BE';
@@ -280,6 +300,52 @@ $map_document_type = [
     // 'invoice_statement'    => 'credit_note',
 ];
 
+
+/**
+ * Extract payment info (payment_terms → payment_method / payment_means_code / payment_due_date)
+ */
+$paymentMeansCode = null;
+$paymentMethod = null;
+$paymentDueDate = $dueDate;
+
+$paymentTerms = $getEntity('payment_terms');
+if ($paymentTerms && isset($paymentTerms['properties'])) {
+    foreach ($paymentTerms['properties'] as $prop) {
+        switch ($prop['type']) {
+            case 'payment_means_code':
+                $paymentMeansCode = $getValue($prop, null, 'string', 0.0);
+                break;
+            case 'payment_method':
+                $paymentMethod = $getValue($prop, null, 'string', 0.0);
+                break;
+            case 'payment_due_date':
+                $paymentDueDate = $getValue($prop, $paymentDueDate, 'string', 0.0);
+                break;
+        }
+    }
+}
+
+/**
+ * Fallbacks:
+ * - 1) si le code est absent mais qu'on a payment_method → on mappe (virement/dom/sepa/carte…)
+ * - 2) sinon on tente depuis le texte libre de payment_terms
+ */
+if (!$paymentMeansCode && $paymentMethod) {
+    $paymentMeansCode = $mapPaymentTextToCode($paymentMethod);
+}
+
+if (!$paymentMeansCode && $paymentTerms) {
+    $paymentMeansCode = $mapPaymentTextToCode($getValue($paymentTerms));
+}
+
+/**
+ * Final fallback sensé: 30 = virement (le plus courant)
+ */
+if (!$paymentMeansCode) {
+    $paymentMeansCode = '30';
+}
+
+
 /**
  * Final output structure (aligned with Mindee version)
  */
@@ -312,7 +378,7 @@ $output = [
         'iban'               => $supplierIban,
         'bic'                => $supplierBic,
         'payment_id'         => $supplierPaymentRef,
-        'payment_means_code' => '30'
+        'payment_means_code' => $paymentMeansCode ?? '30' // fallback to direct debit
     ]
 ];
 

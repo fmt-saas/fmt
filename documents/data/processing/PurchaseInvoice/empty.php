@@ -1,8 +1,8 @@
 <?php
 /*
-    Developed by Yesbabylon – https://yesbabylon.com
-    (c) 2025–2026 Yesbabylon SA
-    Licensed under the GNU AGPL v3 License – https://www.gnu.org/licenses/agpl-3.0.html
+    Developed by Yesbabylon - https://yesbabylon.com
+    (c) 2025-2026 Yesbabylon SA
+    Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 [$params, $providers] = eQual::announce([
     'description'   => 'Return an empty purchase-invoice JSON descriptor compliant with `urn:fmt:json-schema:finance:purchase-invoice`.',
@@ -79,9 +79,9 @@ $output = [
         'payable_amount'    => 0.0,
     ],
     'payment' => [
-        'iban'              => '',
-        'bic'               => '',
-        'payment_id'        => null,
+        'iban'               => '',
+        'bic'                => '',
+        'payment_id'         => null,
         'payment_means_code' => '30'
     ]
 ];
