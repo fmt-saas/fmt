@@ -7,7 +7,6 @@
         "invoice_number",
         "invoice_type",
         "issue_date",
-        "due_date",
         "currency",
         "supplier",
         "customer",

@@ -188,7 +188,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             'due_date' => [
                 'type'              => 'date',
                 'description'       => 'Deadline for the payment is expected.',
-                'required'          => true
+                // 'required'          => true
             ],
 
             'document_process_id' => [
