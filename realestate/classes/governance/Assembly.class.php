@@ -532,6 +532,12 @@ class Assembly extends \equal\orm\Model {
                 'function'      => 'doGenerateSignableMinutes'
             ],
 
+            'accept_minutes' => [
+                'description'   => 'Create immutable version of the minutes to be signed.',
+                'policies'      => ['can_generate_minutes'],
+                'function'      => 'doAcceptMinutes'
+            ],
+
             'generate_printable_minutes' => [
                 'description'   => 'Create printable version of the minutes of the Assembly and store it to EDMS.',
                 'policies'      => [/* */],
@@ -1520,6 +1526,10 @@ class Assembly extends \equal\orm\Model {
             // assembly is valid, move one step forward
             self::id($id)->update(['step' => 'agenda_processing']);
         }
+    }
+
+    protected static function doAcceptMinutes($self) {
+        $self->update(['step' => 'minutes_confirmation']);
     }
 
     protected static function doGenerateSignableMinutes($self) {

@@ -149,17 +149,11 @@ foreach($assembly['assembly_attendees_ids'] as $attendee_id => $attendee) {
     $map_attendees[$attendee_id] = $attendee;
 }
 
-$assembly_items_ids = [];
-foreach($assembly['assembly_items_ids'] as $assembly_item_id => $assemblyItem) {
-    if(!$assemblyItem['is_group']) {
-        $assembly_items_ids[] = $assembly_item_id;
-    }
-}
-
 $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']])
     ->read([
         'name',
         'order',
+        'status',
         'description_minutes',
         'has_vote_required',
         'majority',

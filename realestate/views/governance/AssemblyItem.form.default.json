@@ -22,6 +22,20 @@
                 "transition": "close"
             },
             "visible": ["status", "=", "open"]
+        },
+        {
+            "id": "action.cast_vote",
+            "label": "Cast a Vote",
+            "icon": "how_to_vote",
+            "description": "Cast a vote.",
+            "component": {
+                "name": "assemblyVoteCast",
+                "data": {
+                    "assembly_id": "object.assembly_id",
+                    "assembly_item_id": "object.id"
+                }
+            },
+            "visible": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ]
         }
     ],
     "layout": {

@@ -215,7 +215,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'selection'      => [
                     'pending',
                     'open',
-                    'voted',
+                    'adjourned',
                     'closed'
                 ]
             ]

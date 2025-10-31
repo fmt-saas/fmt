@@ -151,7 +151,7 @@
             "label": "Add attendee",
             "description": "Register an attendee, collect its mandates and its signature.",
             "component": {
-                "name": "addAttendee",
+                "name": "assemblyAddAttendee",
                 "data": {
                     "condo_id": "object.condo_id",
                     "assembly_id": "object.id"
@@ -168,7 +168,55 @@
                 "entity": "realestate\\governance\\Assembly",
                 "action": "generate_signable_minutes"
             },
-            "visible": [ ["status", "=", "in_progress"], ["step", "=", "agenda_processing"], ["is_complete", "=", true] ]
+            "visible": [
+                ["status", "=", "in_progress"],
+                ["step", "in", ["agenda_processing", "minutes_confirmation"]],
+                ["is_complete", "=", true]
+            ]
+        },
+        {
+            "id": "action.validate_minutes",
+            "label": "Accept minutes",
+            "description": "Generate the signable version of the minutes of the Assembly.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "action": "accept_minutes"
+            },
+            "visible": [
+                ["status", "=", "in_progress"],
+                ["step", "in", ["minutes_confirmation"]]
+            ]
+        },
+        {
+            "id": "action.add_signature",
+            "label": "Add a signature",
+            "description": "Add a signatory to the Assembly Minutes document.",
+            "component": {
+                "name": "assemblyAddSignatory",
+                "data": {
+                    "assembly_id": "object.assembly_id",
+                    "assembly_item_id": "object.id"
+                }
+            },
+            "visible": [
+                ["status", "=", "in_progress"],
+                ["step", "in", ["minutes_signature"]]
+            ]
+        },
+        {
+            "id": "action.close_minutes_signing",
+            "label": "Finish minutes signing",
+            "description": "Close the signing of the signable version of the minutes of the Assembly.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "action": "generate_printable_minutes"
+            },
+            "visible": [
+                ["status", "=", "in_progress"],
+                ["step", "in", ["minutes_signature"]]
+            ]
         }
     ],
     "routes": [

@@ -39,12 +39,18 @@
             "visible": ["open", "=", "object.status"]
         },
         {
-            "id": "action.add_vote",
+            "id": "action.cast_vote",
             "inline": true,
             "label": "Vote",
             "icon": "how_to_vote",
             "description": "Cast a vote.",
-            "controller": "realestate_governance_AssemblyItem_cast-vote",
+            "component": {
+                "name": "assemblyVoteCast",
+                "data": {
+                    "assembly_id": "object.assembly_id",
+                    "assembly_item_id": "object.id"
+                }
+            },
             "visible": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ]
         }
     ],

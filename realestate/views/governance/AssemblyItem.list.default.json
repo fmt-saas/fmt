@@ -54,7 +54,7 @@
             "icon": "how_to_vote",
             "description": "Cast a vote.",
             "component": {
-                "name": "castVote",
+                "name": "assemblyVoteCast",
                 "data": {
                     "assembly_id": "object.assembly_id",
                     "assembly_item_id": "object.id"
@@ -69,7 +69,7 @@
             "icon": "visibility",
             "description": "Cast a vote.",
             "component": {
-                "name": "voteBoard",
+                "name": "assemblyVoteBoard",
                 "data": {
                     "assembly_id": "object.assembly_id",
                     "assembly_item_id": "object.id"
