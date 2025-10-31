@@ -20,13 +20,19 @@ use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate an html view of the Attendance Register for a given Assembly.',
+    'description'   => 'Generate an html view of the Minutes for a given Assembly.',
     'params'        => [
         'id' => [
             'description'       => 'Identifier of the specific Assembly to consider.',
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\governance\Assembly',
             'required'          => true
+        ],
+
+        'signed' => [
+            'description'       => 'Flag for requesting the signed version of the register.',
+            'type'              => 'boolean',
+            'default'           => false
         ],
 
         'debug' => [

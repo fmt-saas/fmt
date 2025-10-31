@@ -105,12 +105,12 @@ $assembly = Assembly::id($params['id'])
         'assembly_type',
         'assembly_date',
         'assembly_location',
-        'attendance_register_document_id',
+        'register_document_id',
         'count_represented_shares',
         'assembly_attendees_ids' => [
             '@domain' => ['is_valid', '=', true],
             'name',
-            'document_signature_id' => ['sig_method', 'sig_drawn', 'sig_hash', 'sig_algo', 'sig_timestamp']
+            'register_document_signature_id' => ['sig_method', 'sig_drawn', 'sig_hash', 'sig_algo', 'sig_timestamp']
         ],
         'assembly_representations_ids' => ['attendee_id', 'ownership_id', 'representation_type'],
         'ownerships_ids' => ['id', 'name'],
@@ -133,7 +133,7 @@ if(!$assembly) {
     throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-if($params['signed'] && !$assembly['attendance_register_document_id']) {
+if($params['signed'] && !$assembly['register_document_id']) {
     throw new Exception('missing_original_document', EQ_ERROR_INVALID_PARAM);
 }
 
@@ -198,8 +198,8 @@ $map_ownership_representations = [];
 
 if($params['signed']) {
     foreach($assembly['assembly_attendees_ids'] as $assemblyAttendee) {
-        if($assemblyAttendee['document_signature_id'] && $assemblyAttendee['document_signature_id']['sig_method'] == 'ses') {
-            $assemblyAttendee['document_signature_id']['sig_drawn'] = base64_encode($assemblyAttendee['document_signature_id']['sig_drawn']);
+        if($assemblyAttendee['register_document_signature_id'] && $assemblyAttendee['register_document_signature_id']['sig_method'] == 'ses') {
+            $assemblyAttendee['register_document_signature_id']['sig_drawn'] = base64_encode($assemblyAttendee['register_document_signature_id']['sig_drawn']);
         }
         $map_attendees[$assemblyAttendee['id']] = $assemblyAttendee;
     }

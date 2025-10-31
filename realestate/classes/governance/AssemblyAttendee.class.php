@@ -34,15 +34,6 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'required'          => true
             ],
 
-            'attendance_register_document_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'foreign_object'    => 'documents\Document',
-                'description'       => "Original (immutable) attendance register document.",
-                'relation'          => ['assembly_id' => 'attendance_register_document_id'],
-                'store'             => true
-            ],
-
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -96,20 +87,57 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'instant'           => true
             ],
 
-            'document_signature_id' => [
+            'register_document_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => "Original (immutable) attendance register document.",
+                'relation'          => ['assembly_id' => 'register_document_id'],
+                'store'             => true
+            ],
+
+            'register_document_signature_id' => [
                 'type'              => 'many2one',
                 'description'       => "Signature made by the attendee, linked to original attendance register.",
                 'foreign_object'    => 'documents\DocumentSignature',
                 'domain'            => [
                         ['signer_identity_id', '=', 'object.identity_id'],
                         ['condo_id', '=', 'object.condo_id'],
-                        ['document_id', '=', 'object.attendance_register_document_id']
-                    ]
+                        ['document_id', '=', 'object.register_document_id']
+                    ],
+                'visible'           => ['has_signed_register', '=', true]
             ],
 
-            'has_signed' => [
+            'minutes_document_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => "Original (immutable) assembly minutes document.",
+                'relation'          => ['assembly_id' => 'minutes_document_id'],
+                'store'             => true
+            ],
+
+            'minutes_document_signature_id' => [
+                'type'              => 'many2one',
+                'description'       => "Signature made by the attendee, linked to original attendance register.",
+                'foreign_object'    => 'documents\DocumentSignature',
+                'domain'            => [
+                        ['signer_identity_id', '=', 'object.identity_id'],
+                        ['condo_id', '=', 'object.condo_id'],
+                        ['document_id', '=', 'object.minutes_document_id']
+                    ],
+                'visible'           => ['has_signed_minutes', '=', true]
+            ],
+
+            'has_signed_register' => [
                 'type'              => 'boolean',
                 'description'       => "Indicates whether the attendee has signed the attendance sheet.",
+                'default'           => false
+            ],
+
+            'has_signed_minutes' => [
+                'type'              => 'boolean',
+                'description'       => "Indicates whether the attendee has signed the assembly minutes.",
                 'default'           => false
             ],
 
@@ -192,12 +220,63 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'help'        => "In order to be valid, the assembly must meet the representation criteria depending on its type.",
                 'function'    => 'policyIsAttendeeValid'
             ],
+            'can_promote_president' => [
+                'description' => 'Verifies that the attendee can be promoted/marked as president of the Assembly.',
+                'help'        => "In order to be valid, the assembly must meet the representation criteria depending on its type.",
+                'function'    => 'policyCanPromotePresident'
+            ],
+
         ];
     }
     public static function getActions() {
         return [
-
+            'promote_president' => [
+                'description'   => 'Assign location based on Condominium address.',
+                'policies'      => ['can_promote_president'],
+                'function'      => 'doPromotePresident'
+            ],
+            'demote_president' => [
+                'description'   => 'Assign location based on Condominium address.',
+                'policies'      => [],
+                'function'      => 'doDemotePresident'
+            ]
         ];
+    }
+
+
+    protected static function doPromotePresident($self) {
+        $self->update(['attendee_role' => 'president']);
+    }
+
+    protected static function doDemotePresident($self) {
+        $self->update(['attendee_role' => 'attendee']);
+    }
+
+    protected static function policyCanPromotePresident($self) {
+        $result = [];
+        $self->read(['attendee_role', 'assembly_id']);
+
+        foreach($self as $id => $assemblyAttendee) {
+            if($assemblyAttendee['attendee_role'] === 'president') {
+                continue;
+            }
+
+            $presidentAttendee = self::search([
+                    ['assembly_id', '=', $assemblyAttendee['assembly_id']],
+                    ['attendee_role', '=', 'president']
+                ])
+                ->first();
+
+            if($presidentAttendee) {
+                $result[$id] = [
+                    'presidency_already_assigned' => 'An Attendee is already marked as president.'
+                ];
+                continue;
+            }
+
+        }
+
+        return $result;
     }
 
     protected static function policyIsAttendeeValid($self) {

@@ -47,14 +47,14 @@ class Assembly extends \equal\orm\Model {
                 'store'             => true
             ],
 
-            'attendance_register_document_id' => [
+            'register_document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Generated document to serve as attendance register.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
-            'signed_attendance_register_document_id' => [
+            'signed_register_document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Generated document to serve as attendance register.',
@@ -214,6 +214,15 @@ class Assembly extends \equal\orm\Model {
                 'default'        => true
             ],
 
+            'is_complete' => [
+                'type'           => 'computed',
+                'result_type'    => 'boolean',
+                'description'    => "Flag marking the assembly as completed (all items have been reviewed).",
+                'function'       => 'calcIsComplete',
+                'store'          => true,
+                'instant'        => true
+            ],
+
             'invalidity_reason' => [
                 'type'        => 'string',
                 'selection'   => [
@@ -319,7 +328,9 @@ class Assembly extends \equal\orm\Model {
                     'mandate_validation',
                     'representation_validation',
                     'assembly_validation',
-                    'agenda_processing'
+                    'agenda_processing',
+                    'minutes_confirmation',
+                    'minutes_signature'
                 ],
                 'visible'         => ['status', '=', 'in_progress'],
                 'dependents'      => ['count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']
@@ -509,9 +520,15 @@ class Assembly extends \equal\orm\Model {
                 'function'      => 'doScheduleSecondSession'
             ],
 
+            'refresh_is_complete' => [
+                'description'   => 'Force a re-compute of the completion status.',
+                'policies'      => [/* */],
+                'function'      => 'doRefreshIsComplete'
+            ],
+
             'generate_signable_minutes' => [
                 'description'   => 'Create immutable version of the minutes to be signed.',
-                'policies'      => [/* */],
+                'policies'      => ['can_generate_minutes'],
                 'function'      => 'doGenerateSignableMinutes'
             ],
 
@@ -543,10 +560,16 @@ class Assembly extends \equal\orm\Model {
             ],
 
             'is_assembly_valid' => [
-                'description' => 'Verifies that the constituted assembly is valid, ',
+                'description' => 'Verifies that the constituted assembly is valid.',
                 'help'        => "In order to be valid, the assembly must meet the representation criteria depending on its type.",
                 'function'    => 'policyIsAssemblyValid'
             ],
+
+            'can_generate_minutes' => [
+                'description' => 'Verifies that a signable document of the assembly minutes is allowed to be generated.',
+                'help'        => "If a minutes document has already been signed, a new one cannot be generated.",
+                'function'    => 'policyCanGenerateMinutes'
+            ]
 
             // 'can_be_open'
         ];
@@ -570,6 +593,10 @@ class Assembly extends \equal\orm\Model {
             }
         }
         return array_keys($map_ownerships_ids);
+    }
+
+    protected static function doRefreshIsComplete($self) {
+        $self->update(['is_complete' => null]);
     }
 
     protected static function doGenerateOwnerships($self) {
@@ -624,12 +651,12 @@ class Assembly extends \equal\orm\Model {
      *
      */
     protected static function doGenerateSignableAttendanceRegister($self) {
-        $self->read(['condo_id', 'attendance_register_document_id']);
+        $self->read(['condo_id', 'register_document_id']);
         foreach($self as $id => $assembly) {
 
             // remove previous version (there shouldn't be any)
-            if($assembly['attendance_register_document_id']) {
-                Document::id($assembly['attendance_register_document_id'])->delete(true);
+            if($assembly['register_document_id']) {
+                Document::id($assembly['register_document_id'])->delete(true);
             }
 
             // generate a new doc
@@ -646,26 +673,25 @@ class Assembly extends \equal\orm\Model {
                 // #memo - original documents remain "invisible", only signed version should be accessible through EDMS fs tree
                 self::id($id)
                     ->update([
-                        'attendance_register_document_id' => $document['id']
+                        'register_document_id' => $document['id']
                     ]);
             }
             catch(\Exception $e) {
                 trigger_error("APP::unable to generate attendance register:" . $e->getMessage(), EQ_REPORT_ERROR);
                 throw($e);
             }
-
         }
     }
 
     protected static function doGeneratePrintableAttendanceRegister($self) {
         $self->read([
                 'condo_id',
-                'attendance_register_document_id'
+                'register_document_id'
             ]);
 
         foreach($self as $id => $assembly) {
 
-            if(!$assembly['attendance_register_document_id']) {
+            if(!$assembly['register_document_id']) {
                 throw new \Exception('missing_mandatory_document', EQ_ERROR_INVALID_PARAM);
             }
 
@@ -694,10 +720,10 @@ class Assembly extends \equal\orm\Model {
 
                 // link back original doc to signed doc
                 // #memo - original documents remain "invisible", only signed version should be accessible through EDMS fs tree
-                Document::id($assembly['attendance_register_document_id'])
+                Document::id($assembly['register_document_id'])
                     ->update(['signed_document_id' => $document['id']]);
 
-                self::id($id)->update(['signed_attendance_register_document_id' => $document['id']]);
+                self::id($id)->update(['signed_register_document_id' => $document['id']]);
             }
             catch(\Exception $e) {
                 trigger_error("APP::unable to generate signed attendance register:" . $e->getMessage(), EQ_REPORT_ERROR);
@@ -732,13 +758,14 @@ class Assembly extends \equal\orm\Model {
     }
 
     protected static function onafterClose($self) {
-        // générer le PV
-        // générer un document de PV et l'associer à l'assembly
-
-// #todo - generate_minutes
+        // L'AG était valide et s'est bien tenue et est à présent terminée
+        // le PV a été généré et signé
 
         // faire signer le PV par le secrétaire et président + présents
         // -> il faut une trace des personnes ayant signé (ok)
+
+        // il faut générer les envois
+        // planifier les éventuelles tâches liées à des décisions prises durant l'assemblée
 
     }
 
@@ -1185,13 +1212,16 @@ class Assembly extends \equal\orm\Model {
 
         foreach($self as $id => $assembly) {
             if($assembly['status'] === 'in_progress' && $assembly['step'] === 'agenda_processing') {
-                foreach($assembly['assembly_items_ids'] as $assembly_item) {
-                    if($assembly_item['status'] !== 'closed') {
-                        $result[$id] = [
-                            'assembly_item_not_closed' => 'At least one assembly item is not closed.'
-                        ];
-                        continue 2;
-                    }
+                $result[$id] = [
+                    'wrong_status' => 'Assembly can only be closed while in progress.'
+                ];
+            }
+            foreach($assembly['assembly_items_ids'] as $assembly_item) {
+                if($assembly_item['status'] !== 'closed') {
+                    $result[$id] = [
+                        'assembly_item_not_closed' => 'At least one assembly item is not closed.'
+                    ];
+                    continue 2;
                 }
             }
         }
@@ -1224,6 +1254,21 @@ class Assembly extends \equal\orm\Model {
             }
         }
 
+        return $result;
+    }
+
+    protected static function policyCanGenerateMinutes($self) {
+        $result = [];
+        $self->read(['status', 'minutes_document_id', 'signed_minutes_document_id']);
+
+        foreach($self as $id => $assembly) {
+            if($assembly['signed_minutes_document_id']) {
+                $result[$id] = [
+                    'minutes_already_signed' => 'A signed version of the minutes already exists.'
+                ];
+                continue;
+            }
+        }
         return $result;
     }
 
@@ -1476,6 +1521,60 @@ class Assembly extends \equal\orm\Model {
             self::id($id)->update(['step' => 'agenda_processing']);
         }
     }
+
+    protected static function doGenerateSignableMinutes($self) {
+        $self
+            ->update(['step' => 'minutes_confirmation'])
+            ->read(['condo_id', 'minutes_document_id']);
+
+        foreach($self as $id => $assembly) {
+
+            // remove previous version (there shouldn't be any)
+            if($assembly['minutes_document_id']) {
+                Document::id($assembly['register_document_id'])->delete(true);
+            }
+
+            // generate a new doc
+            try {
+                $data = \eQual::run('get', 'realestate_governance_Assembly_minutes_render-pdf', ['id' => $id]);
+
+                $document = Document::create([
+                        'name'      => 'PV d\'Assemblée',
+                        'data'      => $data,
+                        'condo_id'  => $assembly['condo_id']
+                    ])
+                    ->first();
+
+                // #memo - original documents remain "invisible", only signed version should be accessible through EDMS fs tree
+                self::id($id)
+                    ->update([
+                        'minutes_document_id' => $document['id']
+                    ]);
+            }
+            catch(\Exception $e) {
+                trigger_error("APP::unable to generate minutes document:" . $e->getMessage(), EQ_REPORT_ERROR);
+                throw($e);
+            }
+        }
+    }
+
+    protected static function calcIsComplete($self) {
+        $result = [];
+        $self->read(['status', 'step', 'assembly_items_ids' => ['status', 'parent_group_id']]);
+
+        foreach($self as $id => $assembly) {
+            foreach($assembly['assembly_items_ids'] as $assembly_item) {
+                if(!$assembly_item['parent_group_id'] && $assembly_item['status'] !== 'closed') {
+                    $result[$id] = false;
+                    continue 2;
+                }
+            }
+            $result[$id] = true;
+        }
+
+        return $result;
+    }
+
 
     protected static function calcCountOwners($self) {
         $result = [];

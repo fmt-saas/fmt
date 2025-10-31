@@ -37,6 +37,7 @@
             "label": "Close",
             "icon": "done",
             "description": "Close the assembly resolution. No more vote will be allowed. This cannot be undone.",
+            "help": "peut on n'afficher la confirmation que si votes",
             "controller": "core_model_transition",
             "confirm": true,
             "params": {

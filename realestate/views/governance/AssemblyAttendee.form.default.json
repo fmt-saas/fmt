@@ -10,6 +10,30 @@
             ]
         }
     },
+    "actions": [
+        {
+            "id": "action.promote_president",
+            "label": "Promote as President",
+            "description": "Promote the attendee as president of the Assembly.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyAttendee",
+                "action": "promote_president"
+            },
+            "visible": ["attendee_role", "<>", "president"]
+        },
+        {
+            "id": "action.demote_president",
+            "label": "Demote presidency",
+            "description": "Remove the presidency role on the attendee.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyAttendee",
+                "action": "demote_president"
+            },
+            "visible": ["attendee_role", "=", "president"]
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -35,7 +59,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "attendance_register_document_id",
+                                                "value": "register_document_id",
                                                 "width": "100%",
                                                 "visible": false
                                             },
@@ -56,18 +80,15 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Signature",
-                                                "value": "document_signature_id",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "component": {
-                                                        "name": "createSignature",
-                                                        "data": {
-                                                            "document_id": "object.attendance_register_document_id",
-                                                            "identity_id": "object.identity_id"
-                                                        }
-                                                    }
-                                                }
+                                                "label": "Register Signature",
+                                                "value": "register_document_signature_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Minutes Signature",
+                                                "value": "minutes_document_signature_id",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

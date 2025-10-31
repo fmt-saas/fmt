@@ -7,7 +7,7 @@
 use realestate\governance\Assembly;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Retrieve the PDF version of the signed Attendance Register for a given Assembly.',
+    'description'   => 'Retrieve the PDF version of the Assembly Minutes for a given Assembly.',
     'params'        => [
         'id' => [
             'description'       => 'Identifier of the specific Assembly to consider.',
@@ -31,21 +31,27 @@ use realestate\governance\Assembly;
 $context = $providers['context'];
 
 $assembly = Assembly::id($params['id'])
-    ->read(['register_document_id' => ['signed_document_id']])
+    ->read(['status', 'step', 'minutes_document_id' => ['signed_document_id']])
     ->first();
 
 if(!$assembly) {
     throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-try {
-    $output = eQual::run('get', 'documents_document', ['id' => $assembly['register_document_id']['signed_document_id']]);
-}
-catch(Exception $e) {
-    trigger_error('APP::Error while retrieving printable attendance register: '.$e->getMessage(), EQ_ERROR_INVALID_CONFIG);
-    throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+// depending on the status of the Assembly, we fetch either the draft (signable) or the signed version
+$document_id = $assembly['minutes_document_id']['id'];
+
+if(in_array($assembly['status'], ['held', 'adjourned'], true)) {
+    $document_id = $assembly['minutes_document_id']['signed_document_id'];
 }
 
+try {
+    $output = eQual::run('get', 'documents_document', ['id' => $document_id]);
+}
+catch(Exception $e) {
+    trigger_error('APP::Error while retrieving minutes document: ' . $e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+    throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+}
 
 $context->httpResponse()
         ->header('Content-Disposition', 'inline; filename="document.pdf"')

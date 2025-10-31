@@ -288,14 +288,14 @@ class BankStatement extends Model {
         $self->read(['condo_id', 'bank_account_id', 'statement_number', 'opening_date', 'opening_balance', 'closing_balance']);
         foreach($self as $id => $bankStatement) {
 
-            if($bankStatement['condo_id']) {
+            if(!$bankStatement['condo_id']) {
                 $result[$id] = [
                     'missing_condo_id' => "Bank Statement ({$id}) is not linked to a condominium."
                 ];
                 continue;
             }
 
-            if($bankStatement['bank_account_id']) {
+            if(!$bankStatement['bank_account_id']) {
                 $result[$id] = [
                     'missing_bank_account_id' => "Bank Statement ({$id}) is not linked to a Bank Account."
                 ];

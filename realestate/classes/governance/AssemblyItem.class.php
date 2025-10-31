@@ -249,6 +249,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                         'description'   => 'Marks the Assembly Item as open.',
                         'policies'      => ['can_close'],
                         'onbefore'      => 'onbeforeClose',
+                        'onafter'       => 'onafterClose',
                         'status'        => 'closed'
                     ]
                 ]
@@ -575,6 +576,13 @@ class AssemblyItem extends AssemblyItemTemplate {
 
     protected static function onbeforeClose($self) {
         $self->do('refresh_vote_result');
+    }
+
+    protected static function onafterClose($self) {
+        $self->read(['assembly_id']);
+        foreach($self as $id => $assemblyItem) {
+            Assembly::id($assemblyItem['assembly_id'])->do('refresh_is_complete');
+        }
     }
 
     protected static function onupdateAssemblyId($self) {

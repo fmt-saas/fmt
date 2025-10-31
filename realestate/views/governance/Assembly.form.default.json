@@ -158,6 +158,17 @@
                 }
             },
             "visible": [ ["status", "=", "in_progress"], ["step", "=", "opening"] ]
+        },
+        {
+            "id": "action.generate_minutes",
+            "label": "Generate minutes",
+            "description": "Generate the signable version of the minutes of the Assembly.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "action": "generate_signable_minutes"
+            },
+            "visible": [ ["status", "=", "in_progress"], ["step", "=", "agenda_processing"], ["is_complete", "=", true] ]
         }
     ],
     "routes": [
@@ -169,7 +180,8 @@
             "description": "",
             "route": "/?get=realestate_governance_Assembly_invitation_render-pdf&id=object.id",
             "target": "_blank",
-            "absolute": true
+            "absolute": true,
+            "visible": ["status", "in", ["pending","published","sending"]]
         },
         {
             "id": "route.view_attendance_register",
@@ -187,6 +199,25 @@
                 [
                     ["status", "=", "in_progress"],
                     ["step", "=", "agenda_processing"]
+                ]
+            ]
+        },
+        {
+            "id": "route.view_minutes",
+            "type": "entry",
+            "label": "View Minutes",
+            "icon": "print",
+            "description": "View printable assembly minutes.",
+            "route": "/?get=realestate_governance_Assembly_minutes_fetch&id=object.id",
+            "target": "_blank",
+            "absolute": true,
+            "visible": [
+                [
+                    ["status", "in", ["held", "adjourned"]]
+                ],
+                [
+                    ["status", "=", "in_progress"],
+                    ["step", "=", "minutes_confirmation"]
                 ]
             ]
         }
@@ -310,6 +341,12 @@
                                                 "type": "field",
                                                 "value": "invalidity_reason",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_complete",
+                                                "width": "100%",
+                                                "visible": false
                                             }
                                         ]
                                     }
@@ -488,9 +525,9 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "signed_attendance_register_document_id",
+                                                "value": "signed_register_document_id",
                                                 "width": "50%",
-                                                "visible": ["signed_attendance_register_document_id", "is not", null]
+                                                "visible": ["signed_register_document_id", "is not", null]
                                             }
                                         ]
                                     }

@@ -12,12 +12,19 @@ use identity\Identity;
 use realestate\governance\AssemblyAttendee;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Checks if all owners have been invited to the target assembly.",
+    'description'   => "Add a signatory (attendee) to the Assembly Minutes of the given assembly.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
             'description'       => "The assembly the invitation refers to.",
             'foreign_object'    => 'realestate\governance\Assembly',
+            'required'          => true
+        ],
+
+        'attendee_id' =>  [
+            'type'              => 'many2one',
+            'description'       => "The assembly attendee that is signatory.",
+            'foreign_object'    => 'realestate\governance\AssemblyAttendee',
             'required'          => true
         ],
 
@@ -55,40 +62,6 @@ use realestate\governance\AssemblyAttendee;
             'selection'         => ['ses', 'qes'],
             'required'          => true,
             'description'       => 'eIDAS signature level (ses = drawn).'
-        ],
-
-        'has_mandate' => [
-            'type'              => 'boolean',
-            'description'       => "Indicates whether the attendee has a mandate to represent one or more other ownerships.",
-            'help'              => "This field simply indicates whether proxies have been presented but does not guarantee their validity.",
-            'default'           => false
-        ],
-
-        'is_owner' => [
-            'type'              => 'boolean',
-            'description'       => "Indicates whether the attendee is a property lot owner or not.",
-            'help'              => "If an attendee is not an owner, it is assumed that he has at least one mandate.",
-            'required'          => true
-        ],
-
-        'owner_id' => [
-            'type'              => 'many2one',
-            'description'       => "The owner concerned by the invitation.",
-            'help'              => 'A single invite is generated for each Ownership (representative).',
-            'foreign_object'    => 'realestate\ownership\Owner',
-            'visible'           => ['is_owner', '=', true]
-        ],
-
-        'firstname' => [
-            'type'              => 'string',
-            'description'       => "Full name of the contact (must be a person, not a role).",
-            'visible'           => [['is_owner', '=', true], ['sig_method', '=', 'ses']],
-        ],
-
-        'lastname' => [
-            'type'              => 'string',
-            'description'       => 'Reference contact surname.',
-            'visible'           => [['is_owner', '=', true], ['sig_method', '=', 'ses']],
         ]
 
     ],
@@ -147,11 +120,17 @@ $computeSignerInfoFromCert = function (string $cert): array {
 // 1) check parameters consistency
 
 $assembly = Assembly::id($params['id'])
-    ->read(['status', 'condo_id', 'register_document_id'])
+    ->read(['status', 'condo_id', 'minutes_document_id'])
     ->first(true);
 
 if(!$assembly) {
     throw new Exception("unknown_assembly", EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+$assemblyAttendee = AssemblyAttendee::id($params['attendee_id'])->first();
+
+if($assemblyAttendee) {
+    throw new Exception("unknown_attendee", EQ_ERROR_INVALID_PARAM);
 }
 
 if($params['sig_method'] === 'qes') {
@@ -175,97 +154,11 @@ else {
     }
 }
 
-if($params['is_owner']) {
-    if(!$params['owner_id']) {
-        throw new Exception("missing_owner_id", EQ_ERROR_MISSING_PARAM);
-    }
-}
-else {
-    if($params['sig_method'] === 'ses') {
-        if(empty($params['firstname'])) {
-            throw new Exception("missing_firstname", EQ_ERROR_INVALID_PARAM);
-        }
-        if(empty($params['lastname'])) {
-            throw new Exception("missing_lastname", EQ_ERROR_INVALID_PARAM);
-        }
 
-    }
-}
-
-// 2) identity retrieval
-
-$identity_id = 0;
-
-if($params['is_owner']) {
-    $owner = Owner::id($params['owner_id'])
-        ->read(['id', 'name', 'identity_id'])
-        ->first(true);
-
-    $identity_id = $owner['identity_id'];
-}
-else {
-    if($params['sig_method'] === 'ses') {
-        // external without citizen ID (only firstname, lastname & drawn signature)
-        // create a new identity
-        // #memo - we have no way to avoid duplicates here
-        $identity = Identity::create([
-                'type_id'       => 1,
-                'firstname'     => $params['firstname'],
-                'lastname'      => $params['lastname']
-            ])
-            ->first();
-
-        $identity_id = $identity['id'];
-    }
-    // retrieve info from the certificate
-    else {
-
-        $infos = $computeSignerInfoFromCert($params['sig_cert']);
-
-        // #memo - for GDPR compliance, we do not store the citizen identification number
-        // #memo - pseudonymization is acceptable & proportional to the finality (validate link between signature and identity)
-        $hash = hash('sha256', $infos['citizen_identification'] . constant('AUTH_SECRET_KEY'));
-
-        $identity = Identity::search(['hash_sha256', '=', $hash])->first();
-
-        if($identity) {
-            $identity_id = $identity['id'];
-        }
-        else {
-            // create a new identity
-            $identity = Identity::create([
-                    'type_id'       => 1,
-                    'firstname'     => $infos['firstname'],
-                    'lastname'      => $infos['lastname'],
-                    // #memo - store a computed hash for identitifcication, since we cannot store the citizen identification number
-                    'hash_sha256'   => $hash
-                ])
-                ->first();
-
-            $identity_id = $identity['id'];
-        }
-    }
-}
-
-if(!$identity_id) {
-    throw new Exception("failed_linking_identity", EQ_ERROR_UNKNOWN);
-}
-
-// make sure an attendee targeting the same identity is not already registered for the assembly
-$existingAttendee = AssemblyAttendee::search([
-        ['assembly_id', '=', $params['id']],
-        ['identity_id', '=', $identity_id]
-    ])
-    ->first();
-
-if($existingAttendee) {
-    throw new Exception("attendee_already_registered", EQ_ERROR_INVALID_PARAM);
-}
-
-// 3) create document signature
+// 2) create document signature
 
 $values = [
-    'document_id'           => $assembly['register_document_id'],
+    'document_id'           => $assembly['minutes_document_id'],
     'signer_identity_id'    => $identity_id,
     'sig_method'            => $params['sig_method'],
     'sig_timestamp'         => time()
@@ -282,15 +175,12 @@ else {
 
 $documentSignature = DocumentSignature::create($values)->first();
 
-// 4) create attendee
+// 3) update attendee
 
-$attendee = AssemblyAttendee::create([
-        'condo_id'                       => $assembly['condo_id'],
-        'assembly_id'                    => $params['id'],
-        'identity_id'                    => $identity_id,
-        'has_mandate'                    => $params['has_mandate'],
-        'register_document_signature_id' => $documentSignature['id'],
-        'has_signed_register'            => true
+$attendee = AssemblyAttendee::id($param['attendee_id'])
+    ->update([
+        'minutes_document_signature_id' => $documentSignature['id'],
+        'has_signed_minutes'            => true
     ])
     ->adapt('json')
     ->first(true);
