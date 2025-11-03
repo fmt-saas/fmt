@@ -19,16 +19,6 @@
                 "is_control_account": true,
                 "description": "WORKING CAPITAL",
                 "account_chart_id": 1,
-                "operation_assignment": "",
-                "tenant_share": 0,
-                "owner_share": 0
-            },
-            {
-                "id": 4,
-                "code": "100000",
-                "is_control_account": false,
-                "description": "Working capital",
-                "account_chart_id": 1,
                 "operation_assignment": "working_fund",
                 "tenant_share": 0,
                 "owner_share": 0

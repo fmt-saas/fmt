@@ -5,6 +5,16 @@
         "groups": ["hr.default.users"]
     },
     "header": {
+        "selection": {
+            "actions" : [
+                {
+                    "id": "action.create_account",
+                    "label": "Create a User account",
+                    "icon": "play_arrow",
+                    "controller": "hr_employee_Employee_create-user"
+                }
+            ]
+        },
         "actions": {
             "ACTION.CREATE" : [
                 {

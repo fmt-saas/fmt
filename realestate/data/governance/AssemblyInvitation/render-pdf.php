@@ -4,10 +4,10 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
-use realestate\property\OwnershipTransfer;
+
 use Dompdf\Dompdf;
 use Dompdf\Options as DompdfOptions;
-use realestate\governance\Assembly;
+use realestate\governance\AssemblyInvitation;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate a PDF Attendance Register for a given Assembly.',
@@ -33,11 +33,11 @@ use realestate\governance\Assembly;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-$assembly = Assembly::id($params['id'])
+$assembly = AssemblyInvitation::id($params['id'])
     ->first();
 
 if(!$assembly) {
-    throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
+    throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 try {
@@ -68,7 +68,7 @@ try {
     $output = $dompdf->output();
 }
 catch(Exception $e) {
-    trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+    trigger_error('APP::Error while rendering template' . $e->getMessage(), EQ_ERROR_INVALID_CONFIG);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 

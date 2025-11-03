@@ -32,6 +32,17 @@
                 "action": "demote_president"
             },
             "visible": ["attendee_role", "=", "president"]
+        },
+        {
+            "id": "action.validate",
+            "label": "Validate",
+            "description": "Validate the attendee.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyAttendee",
+                "transition": "validate"
+            },
+            "visible": ["status", "=", "pending"]
         }
     ],
     "layout": {

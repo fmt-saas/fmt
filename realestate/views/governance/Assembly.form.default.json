@@ -160,6 +160,19 @@
             "visible": [ ["status", "=", "in_progress"], ["step", "=", "opening"] ]
         },
         {
+            "id": "action.add_extra_attendee",
+            "label": "Add extra attendee",
+            "description": "Register an additional attendee, collect its mandates and its signature.",
+            "component": {
+                "name": "assemblyAddAttendee",
+                "data": {
+                    "condo_id": "object.condo_id",
+                    "assembly_id": "object.id"
+                }
+            },
+            "visible": [ ["status", "=", "in_progress"], ["step", "=", "agenda_processing"] ]
+        },
+        {
             "id": "action.generate_minutes",
             "label": "Generate minutes",
             "description": "Generate the signable version of the minutes of the Assembly.",
@@ -195,13 +208,13 @@
             "component": {
                 "name": "assemblyAddSignatory",
                 "data": {
-                    "assembly_id": "object.assembly_id",
-                    "assembly_item_id": "object.id"
+                    "condo_id": "object.condo_id",
+                    "assembly_id": "object.id"
                 }
             },
             "visible": [
                 ["status", "=", "in_progress"],
-                ["step", "in", ["minutes_signature"]]
+                ["step", "in", ["minutes_signing"]]
             ]
         },
         {
@@ -211,11 +224,11 @@
             "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\governance\\Assembly",
-                "action": "generate_printable_minutes"
+                "action": "close_minutes_signing"
             },
             "visible": [
                 ["status", "=", "in_progress"],
-                ["step", "in", ["minutes_signature"]]
+                ["step", "in", ["minutes_signing"]]
             ]
         }
     ],

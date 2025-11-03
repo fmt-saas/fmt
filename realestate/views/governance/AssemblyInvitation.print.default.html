@@ -98,7 +98,7 @@
 
             <div style="text-decoration: underline; font-weight: bold;">
                 {{ assemblyItem.order }}. {{ assemblyItem.name }}
-                {% if assemblyItem.has_vote_required && assembly.has_call_option_majority %}
+                {% if assemblyItem.has_vote_required and assembly.has_call_option_majority %}
                     &nbsp;-&nbsp;{{ majorityLabels[assemblyItem.majority] }}
                 {% endif %}
             </div>

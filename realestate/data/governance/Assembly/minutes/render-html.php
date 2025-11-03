@@ -108,10 +108,17 @@ $assembly = Assembly::id($params['id'])
         'assembly_type',
         'assembly_date',
         'assembly_location',
+        'minutes_document_id',
         'heading_text_minutes',
         'closing_text_minutes',
         'ownerships_ids' => ['name'],
-        'assembly_attendees_ids' => ['name'],
+        'assembly_attendees_ids' => [
+            '@domain' => ['is_valid', '=', true],
+            'name',
+            'attendee_role',
+            'has_signed_minutes',
+            'minutes_document_signature_id' => ['sig_method', 'sig_drawn', 'sig_hash', 'sig_algo', 'sig_timestamp']
+        ],
         'assembly_items_ids' => [
             '@domain' => ['parent_group_id', 'is', null],
             'id',
@@ -139,14 +146,25 @@ if(!$assembly) {
     throw new Exception('unknown_ownership_transfer', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+if($params['signed'] && !$assembly['minutes_document_id']) {
+    throw new Exception('missing_original_document', EQ_ERROR_INVALID_PARAM);
+}
+
 $map_ownerships = [];
 foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
     $map_ownerships[$ownership_id] = $ownership;
 }
 
+// list of attendees that signed the document
 $map_attendees = [];
-foreach($assembly['assembly_attendees_ids'] as $attendee_id => $attendee) {
-    $map_attendees[$attendee_id] = $attendee;
+
+if($params['signed']) {
+    foreach($assembly['assembly_attendees_ids'] as $assemblyAttendee) {
+        if($assemblyAttendee['minutes_document_signature_id'] && $assemblyAttendee['minutes_document_signature_id']['sig_method'] == 'ses') {
+            $assemblyAttendee['minutes_document_signature_id']['sig_drawn'] = base64_encode($assemblyAttendee['minutes_document_signature_id']['sig_drawn']);
+        }
+        $map_attendees[$assemblyAttendee['id']] = $assemblyAttendee;
+    }
 }
 
 $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']])
@@ -176,6 +194,8 @@ $values = [
 
     'organisation'              => $assembly['condo_id']['managing_agent_id'],
     'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
+
+    'signed'                    => $params['signed'],
 
     'map_ownerships'            => $map_ownerships,
     'map_attendees'             => $map_attendees,

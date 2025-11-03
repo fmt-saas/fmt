@@ -190,32 +190,8 @@ class CondoFund extends \equal\orm\Model {
     protected static function onbeforeValidate($self) {
         // create related accounting accounts
 
-// #todo - ne fonctionne pas pour la création d'un fonds de roulement        
         $self->read(['condo_id' => ['account_chart_id'], 'description', 'fund_type', 'apportionment_id']);
         foreach($self as $id => $condoFund) {
-
-            if($condoFund['fund_type'] === 'working_fund') {
-                $account = Account::search([
-                        ['condo_id', '=', $condoFund['condo_id']['id']],
-                        ['operation_assignment', '=', $condoFund['fund_type']]
-                    ])
-                    ->first();
-
-                if(!$account) {
-                    Account::create([
-                            'condo_id'              => $condoFund['condo_id']['id'],
-                            'code'                  => '100000',
-                            'is_control_account'    => false,
-                            'description'           => 'Working capital',
-                            'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
-                            'operation_assignment'  => 'working_fund',
-                            'apportionment_id'      => $condoFund['apportionment_id'],
-                            'tenant_share'          => 0,
-                            'owner_share'           => 100
-                        ]);
-                }
-                continue;
-            }
 
             $templateAccount = Account::search([
                     ['condo_id', '=', $condoFund['condo_id']['id']],
@@ -234,7 +210,7 @@ class CondoFund extends \equal\orm\Model {
                 ])
                 ->ids();
 
-            $index = count($accounts_ids) + 1;
+            $index = count($accounts_ids);
 
             $account_code = $templateAccount['code'] . str_pad($index, 2, '0', STR_PAD_LEFT);
 
@@ -254,6 +230,19 @@ class CondoFund extends \equal\orm\Model {
 
             // create the variation accounts
 
+            $callAccount = Account::create([
+                    'condo_id'              => $condoFund['condo_id']['id'],
+                    'code'                  => '68' . $account_code . '0',
+                    'is_control_account'    => false,
+                    'description'           => $condoFund['description'] ?? $templateAccount['description'] . ' (appel)',
+                    'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
+                    'operation_assignment'  => $condoFund['fund_type'] . '_variation',
+                    'apportionment_id'      => $condoFund['apportionment_id'],
+                    'tenant_share'          => 0,
+                    'owner_share'           => 100
+                ])
+                ->first();
+
             $expenseAccount = Account::create([
                     'condo_id'              => $condoFund['condo_id']['id'],
                     'code'                  => '68' . $account_code . '1',
@@ -267,18 +256,6 @@ class CondoFund extends \equal\orm\Model {
                 ])
                 ->first();
 
-            $callAccount = Account::create([
-                    'condo_id'              => $condoFund['condo_id']['id'],
-                    'code'                  => '68' . $account_code . '0',
-                    'is_control_account'    => false,
-                    'description'           => $condoFund['description'] ?? $templateAccount['description'] . ' (appel)',
-                    'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
-                    'operation_assignment'  => $condoFund['fund_type'] . '_variation',
-                    'apportionment_id'      => $condoFund['apportionment_id'],
-                    'tenant_share'          => 0,
-                    'owner_share'           => 100
-                ])
-                ->first();
 
             self::id($id)->update([
                     'call_account_id'       => $callAccount['id'],

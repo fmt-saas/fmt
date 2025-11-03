@@ -292,7 +292,7 @@ class AssemblyAttendee extends \equal\orm\Model {
                     ])
                     ->ids();
 
-                if(count($owners_ids) >= 0) {
+                if(count($owners_ids) <= 0) {
                     $result[$id] = [
                         'not_an_owner' => 'Attendee has no mandate nor is Owner.'
                     ];

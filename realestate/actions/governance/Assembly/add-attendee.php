@@ -147,7 +147,7 @@ $computeSignerInfoFromCert = function (string $cert): array {
 // 1) check parameters consistency
 
 $assembly = Assembly::id($params['id'])
-    ->read(['status', 'condo_id', 'register_document_id'])
+    ->read(['status', 'step', 'condo_id', 'register_document_id'])
     ->first(true);
 
 if(!$assembly) {
@@ -295,6 +295,10 @@ $attendee = AssemblyAttendee::create([
     ->adapt('json')
     ->first(true);
 
+// attendee arriving after the attendance closing - attempt to create instant representation
+if($assembly['step'] === 'agenda_processing') {
+    Assembly::id($assembly['id'])->do('generate_extra_representations', ['assembly_attendee_id', $attendee['id']]);
+}
 
 $context->httpResponse()
         ->body($attendee)

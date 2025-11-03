@@ -1,16 +1,6 @@
 {
-    "name": "Owner",
-    "description": "Individual owner from ownership.",
-    "actions": [
-        {
-            "id": "action.create_account",
-            "label": "Create a User account",
-            "icon": "play_arrow",
-            "description": "Create a user account relating to the Owner.",
-            "controller": "realestate_ownership_Owner_create-user",
-            "confirm": false
-        }
-    ],
+    "name": "Model",
+    "description": "Interface for model definition classes.",
     "layout": {
         "groups": [
             {
@@ -20,35 +10,37 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "identity_id",
-                                                "width": "50%",
-                                                "widget": {
-                                                    "heading": true
-                                                }
+                                                "value": "name",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "owner_type",
-                                                "width": "50%"
+                                                "value": "exporting_task_id",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "owner_shares",
-                                                "width": "50%"
+                                                "value": "pid",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "ownership_id",
-                                                "width": "50%"
+                                                "value": "controller",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "condo_id",
-                                                "width": "50%"
+                                                "value": "params",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "status",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

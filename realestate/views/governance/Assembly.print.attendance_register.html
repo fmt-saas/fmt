@@ -152,13 +152,13 @@
             <td>
                 {% if signed %}
                     {% if representation is not null %}
-                        {% if attendee.document_signature_id.sig_method == 'ses' %}
-                            <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.document_signature_id.sig_drawn }}" />
+                        {% if attendee.register_document_signature_id.sig_method == 'ses' %}
+                            <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.register_document_signature_id.sig_drawn }}" />
                         {% else %}
                             Digitally signed by {{ attendee.name }} <br />
-                            Signature: {{ attendee.document_signature_id.sig_hash | slice(0, 40) }} ...<br />
-                            Timestamp: {{ attendee.document_signature_id.sig_timestamp }}<br />
-                            Algorithm: {{ attendee.document_signature_id.sig_algo }}
+                            Signature: {{ attendee.register_document_signature_id.sig_hash | slice(0, 40) }} ...<br />
+                            Timestamp: {{ attendee.register_document_signature_id.sig_timestamp }}<br />
+                            Algorithm: {{ attendee.register_document_signature_id.sig_algo }}
                         {% endif %}
                     {% endif %}
                 {% endif %}

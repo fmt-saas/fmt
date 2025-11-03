@@ -241,12 +241,17 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'icon'          => 'done',
                 'transitions'   => [
                     'revert' => [
-                        'description'   => 'Marks the Assembly Item as open.',
+                        'description'   => 'Marks the Resolution as open.',
                         'policies'      => ['can_revert'],
                         'status'        => 'pending'
                     ],
+                    'adjourn' => [
+                        'description'   => 'Marks the Resolution as adjourned.',
+                        'policies'      => ['can_adjourn'],
+                        'status'        => 'adjourned'
+                    ],
                     'close' => [
-                        'description'   => 'Marks the Assembly Item as open.',
+                        'description'   => 'Marks the Resolution as open.',
                         'policies'      => ['can_close'],
                         'onbefore'      => 'onbeforeClose',
                         'onafter'       => 'onafterClose',
@@ -292,6 +297,11 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'description' => 'Verifies that an assembly item can be closed.',
                 'help'        => 'A resolution can be closed even if some votes have not been casted.',
                 'function'    => 'policyCanClose'
+            ],
+            'can_adjourn' => [
+                'description' => 'Verifies that an assembly item can be closed.',
+                'help'        => 'A resolution can be closed even if some votes have not been casted.',
+                'function'    => 'policyCanAdjourn'
             ],
             'can_vote' => [
                 'description' => 'Verifies that a vote can be casted for the resolution.',
@@ -595,11 +605,31 @@ class AssemblyItem extends AssemblyItemTemplate {
      */
     protected static function policyCanClose($self) {
         $result = [];
-        $self->read(['has_vote_required', 'votes_count']);
+        $self->read(['status', 'has_vote_required', 'votes_count']);
         foreach($self as $id => $assemblyItem) {
+            if($assemblyItem['status'] !== 'open') {
+                $result[$id] = [
+                        'not_open' => 'Assembly item must be open to be closed.'
+                    ];
+                continue;
+            }
             if($assemblyItem['has_vote_required'] && $assemblyItem['votes_count'] <= 0) {
                 $result[$id] = [
                         'no_votes' => 'Assembly item requires to be voted.'
+                    ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyCanAdjourn($self) {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $assemblyItem) {
+            if($assemblyItem['status'] !== 'open') {
+                $result[$id] = [
+                        'not_open' => 'Assembly item must be open to be marked as adjourned.'
                     ];
                 continue;
             }

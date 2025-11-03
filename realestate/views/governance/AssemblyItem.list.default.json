@@ -37,12 +37,41 @@
             "label": "Close",
             "icon": "done",
             "description": "Close the assembly resolution. No more vote will be allowed. This cannot be undone.",
-            "help": "peut on n'afficher la confirmation que si votes",
             "controller": "core_model_transition",
             "confirm": true,
             "params": {
                 "entity": "realestate\\governance\\AssemblyItem",
                 "transition": "close",
+                "ids": []
+            },
+            "visible": [ ["open", "=", "object.status"], [true, "=", "object.has_vote_required"] ]
+        },
+        {
+            "id": "action.close_without_confirmation",
+            "inline": true,
+            "label": "Close",
+            "icon": "done",
+            "description": "Close the assembly resolution. No more vote will be allowed. This cannot be undone.",
+            "controller": "core_model_transition",
+            "confirm": false,
+            "params": {
+                "entity": "realestate\\governance\\AssemblyItem",
+                "transition": "close",
+                "ids": []
+            },
+            "visible": [ ["open", "=", "object.status"], [false, "=", "object.has_vote_required"] ]
+        },
+        {
+            "id": "action.adjourn",
+            "inline": true,
+            "label": "Adjourn",
+            "icon": "event_repeat",
+            "description": "Adjourn the assembly resolution. No vote will be allowed. This cannot be undone.",
+            "controller": "core_model_transition",
+            "confirm": true,
+            "params": {
+                "entity": "realestate\\governance\\AssemblyItem",
+                "transition": "adjourn",
                 "ids": []
             },
             "visible": ["open", "=", "object.status"]
@@ -65,9 +94,9 @@
         {
             "id": "action.votes_board",
             "inline": true,
-            "label": "Vote",
+            "label": "Show board",
             "icon": "visibility",
-            "description": "Cast a vote.",
+            "description": "Show votes board.",
             "component": {
                 "name": "assemblyVoteBoard",
                 "data": {

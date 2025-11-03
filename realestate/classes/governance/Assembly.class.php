@@ -330,7 +330,8 @@ class Assembly extends \equal\orm\Model {
                     'assembly_validation',
                     'agenda_processing',
                     'minutes_confirmation',
-                    'minutes_signature'
+                    'minutes_signing',
+                    'assembly_closing'
                 ],
                 'visible'         => ['status', '=', 'in_progress'],
                 'dependents'      => ['count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']
@@ -487,6 +488,12 @@ class Assembly extends \equal\orm\Model {
                 'function'      => 'doGenerateRepresentations'
             ],
 
+            'generate_extra_representations' => [
+                'description'   => 'Generate a representation for an extra attendee (added after attendance closing).',
+                'policies'      => [/* */],
+                'function'      => 'doAddExtraRepresentation'
+            ],
+
             'validate_representations' => [
                 'description'   => '.',
                 'help'          => ".",
@@ -534,15 +541,21 @@ class Assembly extends \equal\orm\Model {
 
             'accept_minutes' => [
                 'description'   => 'Create immutable version of the minutes to be signed.',
-                'policies'      => ['can_generate_minutes'],
+                'policies'      => [],
                 'function'      => 'doAcceptMinutes'
+            ],
+
+            'close_minutes_signing' => [
+                'description'   => 'Create immutable version of the minutes to be signed.',
+                'policies'      => [ 'can_close_minutes_signing' ],
+                'function'      => 'doCloseMinutesSigning'
             ],
 
             'generate_printable_minutes' => [
                 'description'   => 'Create printable version of the minutes of the Assembly and store it to EDMS.',
                 'policies'      => [/* */],
                 'function'      => 'doGeneratePrintableMinutes'
-            ],
+            ]
 
         ];
     }
@@ -575,6 +588,11 @@ class Assembly extends \equal\orm\Model {
                 'description' => 'Verifies that a signable document of the assembly minutes is allowed to be generated.',
                 'help'        => "If a minutes document has already been signed, a new one cannot be generated.",
                 'function'    => 'policyCanGenerateMinutes'
+            ],
+
+            'can_close_minutes_signing' => [
+                'description' => 'Verifies that the signin of the minutes is complete (mandatory signatures have been collected).',
+                'function'    => 'policyCanCloseMinutesSigning'
             ]
 
             // 'can_be_open'
@@ -734,7 +752,6 @@ class Assembly extends \equal\orm\Model {
             catch(\Exception $e) {
                 trigger_error("APP::unable to generate signed attendance register:" . $e->getMessage(), EQ_REPORT_ERROR);
             }
-
         }
     }
 
@@ -994,6 +1011,7 @@ class Assembly extends \equal\orm\Model {
     /**
      * This action is called when all mandates have been validated and that we're ready to finalize attendance
      *
+     *
      */
     protected static function doGenerateRepresentations($self) {
         $self->read(['condo_id', 'step', 'assembly_attendees_ids']);
@@ -1002,13 +1020,13 @@ class Assembly extends \equal\orm\Model {
         //   1. If the attendee is a direct owner of a single ownership (i.e. not in conflict or co-representation):
         //      - Create a representation (type: OWNER)
         //      - If a proxy-based representation already exists for this ownership, remove it
-        //        (since the physical presence of the owner overrides any proxy).
+        //        (since the physical presence of the owner overrides any mandate).
         //
-        //   2. For each valid proxy that the attendee holds (i.e. person gave power to represent):
-        //      - Create a representation (type: PROXY) for the ownership covered by the proxy,
+        //   2. For each valid mandate that the attendee holds (i.e. person gave power to represent):
+        //      - Create a representation (type: PROXY) for the ownership covered by the mandate,
         //        BUT only if no representation already exists for this ownership:
         //          - If the owner is present (representation type: OWNER) → skip
-        //          - If the ownership is already represented by someone else via a valid proxy → skip
+        //          - If the ownership is already represented by someone else via a valid mandate → skip
         foreach($self as $id => $assembly) {
             if(in_array($assembly['step'], ['opening', 'attendance_closure', 'mandate_validation'])) {
                 continue;
@@ -1046,7 +1064,7 @@ class Assembly extends \equal\orm\Model {
                     ]);
                 }
 
-                // 2) add ownerships from valid proxies
+                // 2) add ownerships from valid mandates
                 foreach($attendee['assembly_mandates_ids'] as $mandate_id => $assemblyMandate) {
                     if($assemblyMandate['status'] === 'validated' && $assemblyMandate['is_valid'] && $assemblyMandate['ownership_id']) {
                         $existingRepresentations = AssemblyRepresentation::search([
@@ -1072,6 +1090,59 @@ class Assembly extends \equal\orm\Model {
 
         }
     }
+
+    protected static function doAddExtraRepresentation($self, $values) {
+        $self->read(['condo_id', 'step']);
+        foreach($self as $id => $assembly) {
+            if(in_array($assembly['step'], ['opening', 'attendance_closure', 'mandate_validation'])) {
+                continue;
+            }
+
+            $attendee_id = $values['assembly_attendee_id'];
+
+            if(!$attendee_id) {
+                continue;
+            }
+
+            $attendee = AssemblyAttendee::id($attendee_id)
+                ->read(['identity_id']);
+
+            // 1) add the ownerships corresponding to the identity of the attendee
+            $owners = Owner::search([['condo_id', '=', $assembly['condo_id']], ['identity_id', '=', $attendee['identity_id']]])
+                ->read(['ownership_id' => ['id', 'ownership_type', 'representative_owner_id']]);
+
+            foreach($owners as $owner_id => $owner) {
+                // #todo - add only if owner is the official mandatory for the joint ownership
+                // if ($owner['ownership_id']['ownership_type'] === 'joint' && $owner['ownership_id']['representative_owner_id'] === $owner_id) {}
+                $ownership_id = $owner['ownership_id']['id'];
+                $existingRepresentations = AssemblyRepresentation::search([['assembly_id', '=', $id], ['ownership_id', '=', $ownership_id]])->read(['representation_type']);
+
+
+                // #todo - ? allow to void mandate representation and replace with the actual attendee
+                foreach($existingRepresentations as $representation_id => $representation) {
+                    if($representation['representation_type'] === 'proxy') {
+                        AssemblyRepresentation::id($representation_id)->delete(true);
+                    }
+                    else {
+                        // ownership is already represented by an owner, skip representation
+                        continue 2;
+                    }
+                }
+
+                AssemblyRepresentation::create([
+                    'condo_id'              => $assembly['condo_id'],
+                    'assembly_id'           => $id,
+                    'attendee_id'           => $attendee_id,
+                    'ownership_id'          => $ownership_id,
+                    'representation_type'   => 'owner'
+                ]);
+            }
+
+            AssemblyAttendee::ids($attendee_id)->update(['has_representation' => null]);
+
+        }
+    }
+
 
     protected static function doCloseAttendance($self) {
         $self
@@ -1263,11 +1334,73 @@ class Assembly extends \equal\orm\Model {
         return $result;
     }
 
-    protected static function policyCanGenerateMinutes($self) {
+
+    protected static function policyCanCloseMinutesSigning($self) {
         $result = [];
-        $self->read(['status', 'minutes_document_id', 'signed_minutes_document_id']);
+        $self->read(['step', 'assembly_attendees_ids' => ['attendee_role', 'has_signed_minutes']]);
 
         foreach($self as $id => $assembly) {
+            if($assembly['step'] !== 'minutes_signing') {
+                $result[$id] = [
+                    'invalid_step' => 'Current step prohibits creation of the minutes document.'
+                ];
+                continue;
+            }
+
+            $count_president = 0;
+            $count_secretary = 0;
+
+            foreach($assembly['assembly_attendees_ids'] as $attendee_id => $assemblyAttendee) {
+                if($assemblyAttendee['attendee_role'] === 'president') {
+                    ++$count_president;
+                    if(!$assemblyAttendee['has_signed_minutes']) {
+                        $result[$id] = [
+                            'missing_president_signature' => 'President must sign the minutes.'
+                        ];
+                        continue 2;
+                    }
+                }
+                if($assemblyAttendee['attendee_role'] === 'secretary') {
+                    ++$count_secretary;
+                    if(!$assemblyAttendee['has_signed_minutes']) {
+                        $result[$id] = [
+                            'missing_secretary_signature' => 'Secretary must sign the minutes.'
+                        ];
+                        continue 2;
+                    }
+                }
+
+            }
+
+            if($count_president <= 0) {
+                $result[$id] = [
+                    'missing_president_attendee' => 'A president must be elected amongst the attendees.'
+                ];
+                continue;
+            }
+
+            if($count_secretary <= 0) {
+                $result[$id] = [
+                    'missing_secretary_attendee' => 'A secretary must be chosen amongst the attendees.'
+                ];
+                continue;
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanGenerateMinutes($self) {
+        $result = [];
+        $self->read(['status', 'step', 'minutes_document_id', 'signed_minutes_document_id']);
+
+        foreach($self as $id => $assembly) {
+            if(in_array($assembly['step'], ["agenda_processing", "minutes_confirmation"])) {
+                $result[$id] = [
+                    'minutes_generation_not_allowed' => 'Current step prohibits creation of the minutes document.'
+                ];
+                continue;
+            }
             if($assembly['signed_minutes_document_id']) {
                 $result[$id] = [
                     'minutes_already_signed' => 'A signed version of the minutes already exists.'
@@ -1529,7 +1662,62 @@ class Assembly extends \equal\orm\Model {
     }
 
     protected static function doAcceptMinutes($self) {
-        $self->update(['step' => 'minutes_confirmation']);
+        $self->update(['step' => 'minutes_signing']);
+    }
+
+
+    protected static function doCloseMinutesSigning($self) {
+        $self
+            ->update(['step' => 'assembly_closing'])
+            ->do('generate_printable_minutes');
+    }
+
+    protected static function doGeneratePrintableMinutes($self) {
+        $self->read([
+                'condo_id',
+                'minutes_document_id'
+            ]);
+
+        foreach($self as $id => $assembly) {
+
+            if(!$assembly['minutes_document_id']) {
+                throw new \Exception('missing_mandatory_document', EQ_ERROR_INVALID_PARAM);
+            }
+
+            // generate a new doc
+            try {
+                $data = \eQual::run('get', 'realestate_governance_Assembly_minutes_render-pdf', [
+                        'id'                    => $id,
+                        'signed'                => true
+                    ]);
+
+                // store document in related General Assembly folder
+                $parentNode = Node::search([
+                        ['condo_id', '=', $assembly['condo_id']],
+                        ['node_type', '=', 'folder'],
+                        ['code', '=', 'general_meetings']
+                    ])
+                    ->first();
+
+                $document = Document::create([
+                        'name'           => 'PV d\'Assemblée signé',
+                        'data'           => $data,
+                        'condo_id'       => $assembly['condo_id'],
+                    ])
+                    ->update(['parent_node_id' => $parentNode['id'] ?? null])
+                    ->first();
+
+                // link back original doc to signed doc
+                // #memo - original documents remain "invisible", only signed version should be accessible through EDMS fs tree
+                Document::id($assembly['minutes_document_id'])
+                    ->update(['signed_document_id' => $document['id']]);
+
+                self::id($id)->update(['signed_minutes_document_id' => $document['id']]);
+            }
+            catch(\Exception $e) {
+                trigger_error("APP::unable to generate signed minutes:" . $e->getMessage(), EQ_REPORT_ERROR);
+            }
+        }
     }
 
     protected static function doGenerateSignableMinutes($self) {

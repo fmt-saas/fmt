@@ -5,25 +5,25 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use realestate\ownership\Owner;
+use hr\employee\Employee;
 use identity\Identity;
 use identity\User;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Create a User account for a single Owner or a group of Owners.",
+    'description'   => "Create a User account for a single Employee or a group of Employees.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
-            'description'       => "The specific Owner the requests refers to.",
-            'foreign_object'    => 'realestate\ownership\Owner',
+            'description'       => "The specific Employee the requests refers to.",
+            'foreign_object'    => 'hr\employee\Employee',
             'required'          => true
         ],
         'ids' => [
             'type'              => 'one2many',
-            'foreign_object'    => 'realestate\ownership\Owner',
-            'description'       => 'List of Owners the requests refers to.',
+            'foreign_object'    => 'hr\employee\Employee',
+            'description'       => 'List of Employees the requests refers to.',
             'default'           => []
-        ],
+        ]
     ],
     'constants'     => ['AUTH_SECRET_KEY'],
     'response'      => [
@@ -43,7 +43,7 @@ use identity\User;
 
 $ids = array_merge((array) ($params['id'] ?? []), $params['ids'] ?? []);
 
-$owners = Owner::ids($ids)->read(['identity_id']);
+$employees = Employee::ids($ids)->read(['identity_id']);
 
 foreach($owners as $owner_id => $owner) {
     $identity = Identity::id($owner['identity_id'])->read(['email', 'user_id'])->first();

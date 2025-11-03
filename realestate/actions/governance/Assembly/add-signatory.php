@@ -127,9 +127,11 @@ if(!$assembly) {
     throw new Exception("unknown_assembly", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$assemblyAttendee = AssemblyAttendee::id($params['attendee_id'])->first();
+$assemblyAttendee = AssemblyAttendee::id($params['attendee_id'])
+    ->read(['identity_id'])
+    ->first();
 
-if($assemblyAttendee) {
+if(!$assemblyAttendee) {
     throw new Exception("unknown_attendee", EQ_ERROR_INVALID_PARAM);
 }
 
@@ -159,7 +161,7 @@ else {
 
 $values = [
     'document_id'           => $assembly['minutes_document_id'],
-    'signer_identity_id'    => $identity_id,
+    'signer_identity_id'    => $assemblyAttendee['identity_id'],
     'sig_method'            => $params['sig_method'],
     'sig_timestamp'         => time()
 ];
@@ -177,7 +179,7 @@ $documentSignature = DocumentSignature::create($values)->first();
 
 // 3) update attendee
 
-$attendee = AssemblyAttendee::id($param['attendee_id'])
+$attendee = AssemblyAttendee::id($params['attendee_id'])
     ->update([
         'minutes_document_signature_id' => $documentSignature['id'],
         'has_signed_minutes'            => true

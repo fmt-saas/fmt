@@ -214,7 +214,7 @@ try {
     $html = $template->render($values);
 }
 catch(Exception $e) {
-    trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+    trigger_error('APP::Error while rendering template' . $e->getMessage(), EQ_ERROR_INVALID_CONFIG);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 

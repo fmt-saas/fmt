@@ -68,7 +68,6 @@
 
         table.attendance-table tr.first {
             background-color: #f4f4f4;
-
         }
 
         table.attendance-table td {
@@ -227,6 +226,37 @@
     <p>
         {{ assembly.closing_text_minutes }}
     </p>
+
+    {% if signed %}
+        <table class="attendance-table">
+
+            <tr class="first">
+                <td style="width: 55%;"><b>Participant</b></td>
+                <td style="width: 20%;"><b>Role</b></td>
+                <td style="width: 25%;"><b>Signature</b></td>
+            </tr>
+            {% for attendee_id, attendee in map_attendees %}
+            <tr>
+                <td>
+                    {{ attendee.name }}
+                </td>
+                <td>
+                    {{ attendee.attendee_role }}
+                </td>
+                <td>
+                    {% if attendee.minutes_document_signature_id.sig_method == 'ses' %}
+                        <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.minutes_document_signature_id.sig_drawn }}" />
+                    {% else %}
+                        Digitally signed by {{ attendee.name }} <br />
+                        Signature: {{ attendee.minutes_document_signature_id.sig_hash | slice(0, 40) }} ...<br />
+                        Timestamp: {{ attendee.minutes_document_signature_id.sig_timestamp }}<br />
+                        Algorithm: {{ attendee.minutes_document_signature_id.sig_algo }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
 
     {% include 'footer.html.twig' %}
 

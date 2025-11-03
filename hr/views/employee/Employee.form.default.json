@@ -8,6 +8,16 @@
         "entity": "identity\\Identity",
         "view": "form.default"
     },
+    "actions": [
+        {
+            "id": "action.create_account",
+            "label": "Create a User account",
+            "icon": "play_arrow",
+            "description": "Create a user account relating to the Employee.",
+            "controller": "hr_employee_Employee_create-user",
+            "confirm": false
+        }
+    ],
     "layout": {
         "remove": [
             "field.type_id",
