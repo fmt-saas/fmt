@@ -15,19 +15,26 @@ class ExportingTask extends \equal\orm\Model {
     public static function getColumns() {
         return [
             'condo_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
+                'type'              => 'many2one',
                 'description'       => "The condominium the document belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'relation'          => ['document_id' => 'condo_id'],
-                'store'             => true,
-                'instant'           => true
+                'required'          => true
             ],
 
             'name' => [
                 'type'              => 'string',
                 'description'       => 'Name of the task, as set at creation.',
                 'required'          => true
+            ],
+
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Class of the object object_id points to.'
+            ],
+
+            'object_id' => [
+                'type'              => 'integer',
+                'description'       => 'Identifier of the object the email originates from.'
             ],
 
             'exporting_task_lines_ids' => [
@@ -37,12 +44,24 @@ class ExportingTask extends \equal\orm\Model {
                 'description'       => 'Lines of the task.'
             ],
 
+            'download_link' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/url.relative',
+                'description'       => 'URL for downloading the export.',
+                'function'          => 'calcDownloadLink',
+                'store'             => true,
+                'readonly'          => true,
+                'visible'           => ['status', '=', 'ready']
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
                     'idle',
                     'running',
-                    'ready'
+                    'ready',
+                    'failing'
                 ],
                 'default'           => 'idle',
                 'description'       => 'Current status of the processing (to avoid concurrent executions).',
@@ -51,6 +70,18 @@ class ExportingTask extends \equal\orm\Model {
 
 
         ];
+    }
+
+    protected static function calcDownloadLink($self) {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $exportingTask) {
+            if($exportingTask['status'] !== 'ready') {
+                continue;
+            }
+            $result[$id] = '/?get=documents_export_ExportingTask_download&id=' . $id;
+        }
+        return $result;
     }
 
 }

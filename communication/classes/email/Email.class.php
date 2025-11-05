@@ -1,9 +1,8 @@
 <?php
 /*
-    This file is part of the eQual framework <http://www.github.com/equalframework/equal>
-    Some Rights Reserved, eQual framework, 2010-2024
-    Original author(s): Cédric FRANCOYS
-    Licensed under GNU GPL 3 license <http://www.gnu.org/licenses/>
+    Developed by Yesbabylon - https://yesbabylon.com
+    (c) 2025-2026 Yesbabylon SA
+    Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 namespace communication\email;
 
@@ -17,8 +16,14 @@ class Email extends Model {
         return [
             'condo_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
+                'description'       => "The condominium the email relates to.",
                 'foreign_object'    => 'realestate\property\Condominium'
+            ],
+
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['subject']
             ],
 
             'ownership_id' => [
@@ -30,8 +35,8 @@ class Email extends Model {
 
             'suppliership_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the property lot belongs to.",
-                'foreign_object'    => 'purchase\supplier\Supplier',
+                'description'       => "The suppliership the email relates to, if any.",
+                'foreign_object'    => 'purchase\supplier\Suppliership',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
@@ -54,12 +59,6 @@ class Email extends Model {
                 'default'           => 'time'
             ],
 
-            'name' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'relation'          => ['subject']
-            ],
-
             'direction' => [
                 'type'              => 'string',
                 'selection'         => ['outgoing', 'incoming'],
@@ -70,6 +69,7 @@ class Email extends Model {
             'thread_hash' => [
                 'type'              => 'string',
                 'description'       => 'Hash of the cleaned subject to group conversations.',
+                'help'              => 'The hash is base on the email subject, discarding any `Re` and `Fwd`',
                 'function'          => 'calcThreadHash',
                 'store'             => true
             ],
@@ -163,7 +163,7 @@ class Email extends Model {
         $self->read(['response_status']);
         foreach($self as $id => $email) {
             if($email['response_status']) {
-                $result[$id] = $email['response_status'] !== 250;
+                $result[$id] = ($email['response_status'] !== 250);
             }
         }
         return $result;
@@ -180,7 +180,6 @@ class Email extends Model {
         }
         return $result;
     }
-
 
 
 }

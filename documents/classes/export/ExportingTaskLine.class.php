@@ -21,6 +21,7 @@ class ExportingTaskLine extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\export\ExportingTask',
                 'description'       => 'Parent exporting task.',
+                'ondelete'          => 'cascade',
                 'required'          => true
             ],
 
@@ -42,6 +43,14 @@ class ExportingTaskLine extends \equal\orm\Model {
                 'default'           => '{}'
             ],
 
+            'document_id' => [
+                'type'              => 'many2one',
+                'description'       => 'The document (PDF) of the invitation, if any.',
+                'foreign_object'    => 'documents\Document',
+                'onupdate'          => 'onupdateDocumentId',
+                'visible'           => [['status', '=', 'ready']]
+            ],
+
             'logs_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'core\TaskLog',
@@ -52,7 +61,9 @@ class ExportingTaskLine extends \equal\orm\Model {
                 'type'              => 'string',
                 'selection'         => [
                     'idle',
-                    'running'
+                    'running',
+                    'ready',
+                    'failing'
                 ],
                 'default'           => 'idle',
                 'description'       => 'Current status of the processing (to avoid concurrent executions).'

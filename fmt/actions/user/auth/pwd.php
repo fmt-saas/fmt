@@ -1,9 +1,8 @@
 <?php
 /*
-    This file is part of the eQual framework <http://www.github.com/equalframework/equal>
-    Some Rights Reserved, eQual framework, 2010-2024
-    Original author(s): Cédric FRANCOYS
-    Licensed under GNU LGPL 3 license <http://www.gnu.org/licenses/>
+    Developed by Yesbabylon - https://yesbabylon.com
+    (c) 2025-2026 Yesbabylon SA
+    Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 use identity\User;
 

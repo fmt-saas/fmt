@@ -32,8 +32,7 @@ use equal\http\HttpRequest;
 
 $now = time();
 
-// check if a task is already active, if so, do nothing
-
+// check if a task is already active, if so, do nothing and wait for the next cycle
 $runningExportingTask = ExportingTask::search(['status', '=', 'running'])->first();
 
 if($runningExportingTask) {
@@ -55,6 +54,8 @@ if(!$exportingTask) {
 }
 
 
+$has_failing_line = false;
+
 foreach($exportingTask['exporting_task_lines_ids'] as $exporting_task_line_id => $exportingTaskLine) {
 
     [$status, $log] = ['', ''];
@@ -67,14 +68,25 @@ foreach($exportingTask['exporting_task_lines_ids'] as $exporting_task_line_id =>
 
     try {
         $body = json_decode($exportingTaskLine['params'], true);
-        // run the task
-        $data = \eQual::run('do', $exportingTaskLine['controller'], $body, true);
+        // run the task - expected to generate a PDF document
+        $data = \eQual::run('do', $exportingTaskLine['controller'], $body);
         $status = 'success';
         $log = (string) json_encode($data, JSON_PRETTY_PRINT);
+        if(!$data['document_id'] ?? null) {
+            throw new Exception('missing_document_in_response', EQ_ERROR_UNKNOWN);
+        }
+        // assign generated document to Export
+        // #memo - documents linked to ExportingTaskLine are not visible in the EDMS, and are meant to be removed when at ExportingTask expiry
+        ExportingTaskLine::id($exporting_task_line_id)
+            ->update([
+                'document_id'   => $data['document_id'],
+                'status'        => 'ready'
+            ]);
     }
     catch(\Exception $e) {
         // error occurred during execution
         trigger_error("PHP::Error while running scheduled job [{$exportingTaskLine['id']}]: ".$e->getMessage(), QN_REPORT_ERROR);
+        $has_failing_line = true;
         $status = 'error';
         $msg = $e->getMessage();
         $data = @unserialize($msg);
@@ -82,6 +94,10 @@ foreach($exportingTask['exporting_task_lines_ids'] as $exporting_task_line_id =>
             $data = json_encode($data, JSON_PRETTY_PRINT);
         }
         $log = ($data) ? $data : $msg;
+        ExportingTaskLine::id($exporting_task_line_id)
+            ->update([
+                'status'    => 'failing'
+            ]);
     }
 
     // create a new TaskLog holding result
@@ -92,12 +108,11 @@ foreach($exportingTask['exporting_task_lines_ids'] as $exporting_task_line_id =>
             'log'           => "<pre>{$log}</pre>"
         ]);
 
-    ExportingTaskLine::id($exporting_task_line_id)->update(['status' => 'idle']);
-
 }
 
+
 ExportingTask::id($exportingTask['id'])
-    ->update(['status' => 'ready']);
+    ->update(['status' => $has_failing_line ? 'failing' : 'ready']);
 
 
 $context->httpResponse()

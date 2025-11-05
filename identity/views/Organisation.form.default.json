@@ -1,6 +1,16 @@
 {
     "name": "Organisation",
     "description": "Form holding basic information about an Organisation.",
+    "actions": [
+        {
+            "id": "action.add_mailbox",
+            "label": "Add mailbox",
+            "description": "Add a new mailbox for emails fetching automation.",
+            "component": {
+                "name": "communicationAddMailbox"
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {

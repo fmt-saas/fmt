@@ -18,7 +18,7 @@
                         "type": "entry",
                         "label": "Payments followups",
                         "icon": "euro_symbol",
-                        "description": "",
+                        "description": "Monitor unpaid calls and reminders.",
                         "context": {
                             "entity": "realestate\\sale\\pay\\Funding",
                             "view": "list.default"
@@ -38,7 +38,7 @@
                         "type": "entry",
                         "label": "Invoice",
                         "icon": "receipt_long",
-                        "description": "",
+                        "description": "Import supplier or expense invoices.",
                         "context": {
                             "view": "form.import",
                             "entity": "documents\\processing\\DocumentProcess",
@@ -50,7 +50,7 @@
                         "type": "entry",
                         "label": "Bank Statements",
                         "icon": "receipt",
-                        "description": "",
+                        "description": "Import and reconcile bank statements.",
                         "context": {
                             "view": "form.import",
                             "entity": "finance\\bank\\BankStatementImport",
@@ -71,7 +71,7 @@
                         "type": "entry",
                         "label": "Condominiums",
                         "icon": "location_city",
-                        "description": "",
+                        "description": "List and manage condominiums.",
                         "context": {
                             "entity": "realestate\\property\\Condominium",
                             "view": "list.default"
@@ -82,7 +82,7 @@
                         "type": "entry",
                         "label": "Property Lots",
                         "icon": "apartment",
-                        "description": "",
+                        "description": "Define and manage property lots.",
                         "context": {
                             "entity": "realestate\\property\\PropertyLot",
                             "view": "list.default"
@@ -93,7 +93,7 @@
                         "type": "entry",
                         "label": "Property Entrances",
                         "icon": "door_front",
-                        "description": "",
+                        "description": "Register entrances or buildings.",
                         "context": {
                             "entity": "realestate\\property\\PropertyEntrance",
                             "view": "list.default"
@@ -104,7 +104,7 @@
                         "type": "entry",
                         "label": "Owners",
                         "icon": "group",
-                        "description": "",
+                        "description": "Manage property owners and shares.",
                         "context": {
                             "entity": "realestate\\ownership\\Ownership",
                             "view": "list.default"
@@ -115,7 +115,7 @@
                         "type": "entry",
                         "label": "Tenants",
                         "icon": "supervisor_account",
-                        "description": "",
+                        "description": "List tenants and rental contracts.",
                         "context": {
                             "entity": "realestate\\property\\Tenancy",
                             "view": "list.default"
@@ -126,7 +126,7 @@
                         "type": "entry",
                         "label": "Owner Transfers",
                         "icon": "swap_horiz",
-                        "description": "",
+                        "description": "Track ownership transfers and sales.",
                         "context": {
                             "entity": "realestate\\property\\OwnershipTransfer",
                             "view": "list.default"
@@ -144,7 +144,7 @@
                                 "type": "entry",
                                 "label": "Assembly templates",
                                 "icon": "checklist",
-                                "description": "",
+                                "description": "Define templates for general meetings.",
                                 "context": {
                                     "entity": "realestate\\governance\\AssemblyTemplate",
                                     "view": "list.default"
@@ -164,7 +164,7 @@
                                 "type": "entry",
                                 "label": "Cons. Meters",
                                 "icon": "gas_meter",
-                                "description": "",
+                                "description": "List and configure energy meters.",
                                 "context": {
                                     "entity": "realestate\\utility\\energy\\ConsumptionMeter",
                                     "view": "list.default"
@@ -175,7 +175,7 @@
                                 "type": "entry",
                                 "label": "Cons. Statements",
                                 "icon": "calculate",
-                                "description": "",
+                                "description": "Generate and review consumption data.",
                                 "context": {
                                     "entity": "realestate\\utility\\energy\\ConsumptionStatement",
                                     "view": "list.default"
@@ -195,7 +195,7 @@
                                 "type": "entry",
                                 "label": "Apportionments",
                                 "icon": "account_tree",
-                                "description": "",
+                                "description": "Define and maintain allocation keys.",
                                 "context": {
                                     "entity": "realestate\\property\\Apportionment",
                                     "view": "list.default"
@@ -206,7 +206,7 @@
                                 "type": "entry",
                                 "label": "Lot natures",
                                 "icon": "domain_add",
-                                "description": "",
+                                "description": "Define lot natures for allocations.",
                                 "context": {
                                     "entity": "realestate\\property\\PropertyLotNature"
                                 }
@@ -227,7 +227,7 @@
                         "type": "entry",
                         "label": "Organisation",
                         "icon": "corporate_fare",
-                        "description": "",
+                        "description": "View and edit organisation details.",
                         "context": {
                             "entity": "identity\\Organisation",
                             "view": "form.default",
@@ -242,7 +242,7 @@
                         "type": "entry",
                         "label": "Employees",
                         "icon": "person",
-                        "description": "",
+                        "description": "List and manage employees.",
                         "context": {
                             "entity": "hr\\employee\\Employee",
                             "view": "list.default"
@@ -253,7 +253,7 @@
                         "type": "entry",
                         "label": "Teams",
                         "icon": "groups",
-                        "description": "",
+                        "description": "Manage work teams and groups.",
                         "context": {
                             "entity": "hr\\Team",
                             "view": "list.default"
@@ -264,7 +264,7 @@
                         "type": "entry",
                         "label": "Roles",
                         "icon": "assignment_ind",
-                        "description": "",
+                        "description": "Define and assign employee roles.",
                         "context": {
                             "entity": "hr\\role\\Role",
                             "view": "list.default"
@@ -275,7 +275,7 @@
                         "type": "entry",
                         "label": "Assignments",
                         "icon": "group_add",
-                        "description": "",
+                        "description": "Manage role assignments.",
                         "context": {
                             "entity": "hr\\role\\RoleAssignment",
                             "view": "list.default"
@@ -295,7 +295,7 @@
                         "type": "entry",
                         "label": "Fiscal Years",
                         "icon": "date_range",
-                        "description": "",
+                        "description": "Manage and define fiscal years.",
                         "context": {
                             "entity": "finance\\accounting\\FiscalYear",
                             "view": "list.default"
@@ -306,7 +306,7 @@
                         "type": "entry",
                         "label": "Chart of accounts",
                         "icon": "menu_book",
-                        "description": "",
+                        "description": "Manage chart of accounts.",
                         "context": {
                             "entity": "finance\\accounting\\AccountChart",
                             "view": "list.default"
@@ -315,7 +315,7 @@
                     {
                         "id": "item.accounting.accounting_entries",
                         "label": "Acct. entries",
-                        "description": "",
+                        "description": "View and manage accounting entries.",
                         "icon": "edit_note",
                         "context": {
                             "entity": "finance\\accounting\\AccountingEntry",
@@ -325,7 +325,7 @@
                     {
                         "id": "item.accounting.misc_operations",
                         "label": "Misc Operations",
-                        "description": "",
+                        "description": "Handle miscellaneous operations.",
                         "icon": "edit_note",
                         "context": {
                             "entity": "finance\\accounting\\MiscOperation",
@@ -338,7 +338,7 @@
                         "type": "entry",
                         "label": "Fund requests",
                         "icon": "savings",
-                        "description": "",
+                        "description": "Manage fund requests for properties.",
                         "context": {
                             "entity": "realestate\\funding\\FundRequest",
                             "view": "list.default"
@@ -349,7 +349,7 @@
                         "type": "entry",
                         "label": "Expense Statements",
                         "icon": "receipt",
-                        "description": "",
+                        "description": "View and approve expense statements.",
                         "context": {
                             "entity": "realestate\\funding\\ExpenseStatement",
                             "view": "list.default",
@@ -361,7 +361,7 @@
                         "type": "entry",
                         "label": "Purchase Invoices",
                         "icon": "receipt_long",
-                        "description": "",
+                        "description": "Manage supplier purchase invoices.",
                         "context": {
                             "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                             "view": "list.default",
@@ -380,7 +380,7 @@
                                 "type": "entry",
                                 "label": "Journals",
                                 "icon": "auto_stories",
-                                "description": "",
+                                "description": "Manage accounting journals.",
                                 "context": {
                                     "entity": "finance\\accounting\\Journal",
                                     "domain": ["condo_id", "=", null],
@@ -392,7 +392,7 @@
                                 "type": "entry",
                                 "label": "Template Chart",
                                 "icon": "import_contacts",
-                                "description": "",
+                                "description": "Manage account chart templates.",
                                 "context": {
                                     "entity": "finance\\accounting\\AccountChartTemplate",
                                     "view": "list.default"
@@ -403,7 +403,7 @@
                                 "type": "entry",
                                 "label": "VAT rules",
                                 "icon": "price_check",
-                                "description": "",
+                                "description": "Configure VAT and tax rules.",
                                 "context": {
                                     "entity": "finance\\tax\\VatRule",
                                     "view": "list.default"
@@ -425,7 +425,7 @@
                         "type": "entry",
                         "label": "Identities",
                         "icon": "person",
-                        "description": "",
+                        "description": "Manage all registered identities.",
                         "context": {
                             "entity": "identity\\Identity",
                             "view": "list.default"
@@ -436,7 +436,7 @@
                         "type": "entry",
                         "label": "Users",
                         "icon": "person",
-                        "description": "",
+                        "description": "Manage application user accounts.",
                         "context": {
                             "entity": "identity\\User",
                             "view": "list.default"
@@ -447,7 +447,7 @@
                         "type": "entry",
                         "label": "Owners",
                         "icon": "group",
-                        "description": "",
+                        "description": "List and manage property owners.",
                         "context": {
                             "entity": "realestate\\ownership\\Owner",
                             "view": "list.default"
@@ -458,7 +458,7 @@
                         "type": "entry",
                         "label": "All Suppliers",
                         "icon": "local_shipping",
-                        "description": "",
+                        "description": "Manage all registered suppliers.",
                         "context": {
                             "entity": "purchase\\supplier\\Supplier",
                             "view": "list.default"
@@ -469,7 +469,7 @@
                         "type": "entry",
                         "label": "Banks",
                         "icon": "account_balance",
-                        "description": "",
+                        "description": "List and manage bank institutions.",
                         "context": {
                             "entity": "finance\\bank\\Bank",
                             "view": "list.default",
@@ -481,7 +481,7 @@
                         "type": "entry",
                         "label": "Managing Agents",
                         "icon": "badge",
-                        "description": "",
+                        "description": "Manage real estate managing agents.",
                         "context": {
                             "entity": "realestate\\management\\ManagingAgent",
                             "view": "list.default",
@@ -493,7 +493,7 @@
                         "type": "entry",
                         "label": "Notary Offices",
                         "icon": "balance",
-                        "description": "",
+                        "description": "List and manage notary offices.",
                         "context": {
                             "entity": "realestate\\property\\NotaryOffice",
                             "view": "list.default",
@@ -514,9 +514,20 @@
                         "type": "entry",
                         "label": "Emails",
                         "icon": "email",
-                        "description": "",
+                        "description": "View and manage sent or received emails.",
                         "context": {
                             "entity": "communication\\email\\Email",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "item.documents.exports",
+                        "type": "entry",
+                        "label": "Exports",
+                        "icon": "file_download",
+                        "description": "",
+                        "context": {
+                            "entity": "documents\\export\\ExportingTask",
                             "view": "list.default"
                         }
                     },
@@ -525,11 +536,15 @@
                         "type": "entry",
                         "label": "Folders",
                         "icon": "folder",
-                        "description": "",
+                        "description": "Browse and organize document folders.",
                         "context": {
                             "entity": "documents\\navigation\\Node",
                             "view": "list.folders",
-                            "domain": [["node_type", "=", "folder"], ["parent_id", "=", null], ["condo_id", "<>", null]]
+                            "domain": [
+                                ["node_type", "=", "folder"],
+                                ["parent_id", "=", null],
+                                ["condo_id", "<>", null]
+                            ]
                         }
                     },
                     {
@@ -537,7 +552,7 @@
                         "type": "entry",
                         "label": "All Documents",
                         "icon": "file_present",
-                        "description": "",
+                        "description": "List and manage all documents.",
                         "context": {
                             "view": "list.default",
                             "entity": "documents\\Document"
@@ -548,7 +563,7 @@
                         "type": "entry",
                         "label": "Doc Processing",
                         "icon": "pending_actions",
-                        "description": "",
+                        "description": "Monitor and manage document processing.",
                         "context": {
                             "view": "list.default",
                             "entity": "documents\\processing\\DocumentProcess"
@@ -568,7 +583,7 @@
                         "type": "entry",
                         "label": "Bank Accounts",
                         "icon": "account_balance",
-                        "description": "",
+                        "description": "List and manage bank accounts.",
                         "context": {
                             "entity": "finance\\bank\\BankAccount",
                             "view": "list.default"
@@ -579,7 +594,7 @@
                         "type": "entry",
                         "label": "Suppliers Bank Accounts",
                         "icon": "assured_workload",
-                        "description": "",
+                        "description": "Manage suppliers' bank account details.",
                         "context": {
                             "entity": "finance\\bank\\SuppliershipBankAccount",
                             "view": "list.default"
@@ -590,7 +605,7 @@
                         "type": "entry",
                         "label": "Bank Statements",
                         "icon": "receipt",
-                        "description": "",
+                        "description": "View and reconcile bank statements.",
                         "context": {
                             "entity": "finance\\bank\\BankStatement",
                             "view": "list.default"
@@ -617,7 +632,7 @@
                                 "type": "entry",
                                 "label": "Permissions",
                                 "icon": "how_to_reg",
-                                "description": "",
+                                "description": "Manage access and permissions.",
                                 "context": {
                                     "entity": "core\\Permission",
                                     "view": "list.default"
@@ -628,7 +643,7 @@
                                 "type": "entry",
                                 "label": "Users",
                                 "icon": "person",
-                                "description": "",
+                                "description": "List and manage system users.",
                                 "context": {
                                     "entity": "core\\User",
                                     "view": "list.default"
@@ -639,7 +654,7 @@
                                 "type": "entry",
                                 "label": "Groups",
                                 "icon": "group",
-                                "description": "",
+                                "description": "Manage user groups and roles.",
                                 "context": {
                                     "entity": "core\\Group",
                                     "view": "list.default"
@@ -658,7 +673,7 @@
                                 "id": "item.config.scheduler.cron_tasks",
                                 "type": "entry",
                                 "label": "Scheduled tasks",
-                                "description": "",
+                                "description": "View and manage scheduled tasks.",
                                 "context": {
                                     "entity": "core\\Task",
                                     "view": "list.default"
@@ -668,7 +683,7 @@
                                 "id": "item.config.scheduler.cron_tasks_recurring",
                                 "type": "entry",
                                 "label": "Recurring tasks",
-                                "description": "",
+                                "description": "Manage recurring scheduled tasks.",
                                 "context": {
                                     "entity": "core\\Task",
                                     "view": "list.default",
@@ -688,7 +703,7 @@
                                 "id": "item.config.sync.policies",
                                 "type": "entry",
                                 "label": "Sync Policies",
-                                "description": "",
+                                "description": "Define synchronization policies.",
                                 "context": {
                                     "entity": "fmt\\sync\\SyncPolicy",
                                     "view": "list.default"
@@ -698,7 +713,7 @@
                                 "id": "item.config.sync.requests",
                                 "type": "entry",
                                 "label": "Update Requests",
-                                "description": "",
+                                "description": "Track synchronization requests.",
                                 "context": {
                                     "entity": "fmt\\sync\\UpdateRequest",
                                     "view": "list.default"
@@ -718,7 +733,7 @@
                                 "type": "entry",
                                 "label": "Document Types",
                                 "icon": "book",
-                                "description": "",
+                                "description": "Manage document type definitions.",
                                 "context": {
                                     "entity": "documents\\DocumentType"
                                 }
@@ -728,7 +743,7 @@
                                 "type": "entry",
                                 "label": "Document Subtypes",
                                 "icon": "book",
-                                "description": "",
+                                "description": "Manage document subtype definitions.",
                                 "context": {
                                     "entity": "documents\\DocumentSubtype"
                                 }
@@ -738,7 +753,7 @@
                                 "type": "entry",
                                 "label": "Recording Rules",
                                 "icon": "auto_awesome",
-                                "description": "",
+                                "description": "Configure document recording rules.",
                                 "context": {
                                     "entity": "documents\\recording\\RecordingRule"
                                 }
@@ -750,7 +765,7 @@
                         "type": "entry",
                         "label": "Price list",
                         "icon": "price_check",
-                        "description": "",
+                        "description": "Manage organisation price lists.",
                         "context": {
                             "entity": "sale\\price\\PriceList",
                             "view": "list.org",
@@ -762,7 +777,7 @@
                         "type": "entry",
                         "label": "Payment terms",
                         "icon": "payments",
-                        "description": "",
+                        "description": "Define customer payment terms.",
                         "context": {
                             "entity": "sale\\pay\\PaymentTerms"
                         }
@@ -772,10 +787,126 @@
                         "type": "entry",
                         "label": "Supplier Types",
                         "icon": "category",
-                        "description": "",
+                        "description": "Manage supplier type categories.",
                         "context": {
                             "entity": "purchase\\supplier\\SupplierType"
                         }
+                    },
+                    {
+                        "id": "communication",
+                        "label": "Communication",
+                        "description": "",
+                        "icon": "mode_comment",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "communication.templates",
+                                "label": "Templates",
+                                "description": "",
+                                "icon": "chrome_reader_mode",
+                                "type": "parent",
+                                "children": [
+                                    {
+                                        "id": "communication.templates.templates",
+                                        "type": "entry",
+                                        "label": "All templates",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "communication\\template\\Template",
+                                            "view": "list.default"
+                                        }
+                                    },
+                                    {
+                                        "id": "communication.templates.categories",
+                                        "type": "entry",
+                                        "label": "Templates categories",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "communication\\template\\TemplateCategory",
+                                            "view": "list.default"
+                                        }
+                                    },
+                                    {
+                                        "id": "communication.templates.types",
+                                        "type": "entry",
+                                        "label": "Templates types",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "communication\\template\\TemplateType",
+                                            "view": "list.default"
+                                        }
+                                    },
+                                    {
+                                        "id": "communication.templates.parts",
+                                        "type": "entry",
+                                        "label": "All template parts",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "communication\\template\\TemplatePart",
+                                            "view": "list.default"
+                                        }
+                                    },
+                                    {
+                                        "id": "communication.templates.attachments",
+                                        "type": "entry",
+                                        "label": "All attachments",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "communication\\template\\TemplateAttachment",
+                                            "view": "list.default"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "communication.alerts",
+                                "label": "Alerts",
+                                "description": "",
+                                "icon": "chrome_reader_mode",
+                                "type": "parent",
+                                "children": [
+                                    {
+                                        "id": "communication.alert.messages",
+                                        "type": "entry",
+                                        "label": "All messages",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "core\\alert\\Message",
+                                            "view": "list.default"
+                                        }
+                                    },
+                                    {
+                                        "id": "communication.alert.message_models",
+                                        "type": "entry",
+                                        "label": "Message models",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "core\\alert\\MessageModel",
+                                            "view": "list.default"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "communication.emails",
+                                "label": "Emails",
+                                "description": "",
+                                "icon": "alternate_email",
+                                "type": "parent",
+                                "children": [
+                                    {
+                                        "id": "communication.emails.all",
+                                        "type": "entry",
+                                        "label": "All emails",
+                                        "description": "",
+                                        "context": {
+                                            "entity": "core\\Mail",
+                                            "view": "list.default"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -792,7 +923,7 @@
                         "type": "entry",
                         "label": "Servers",
                         "icon": "storage",
-                        "description": "",
+                        "description": "List and manage infrastructure servers.",
                         "context": {
                             "view": "list.default",
                             "entity": "infra\\server\\Server"
@@ -803,7 +934,7 @@
                         "type": "entry",
                         "label": "Instances",
                         "icon": "settings_system_daydream",
-                        "description": "",
+                        "description": "Manage server instances and configs.",
                         "context": {
                             "view": "list.default",
                             "entity": "infra\\server\\Instance"

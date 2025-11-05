@@ -6,13 +6,18 @@
             {
                 "type": "field",
                 "value": "name",
-                "width": "33%",
+                "width": "25%",
                 "sortable": true
             },
             {
                 "type": "field",
+                "value": "template_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
                 "value": "excerpt",
-                "width": "66%"
+                "width": "55%"
             }
         ]
     }

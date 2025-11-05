@@ -8,7 +8,10 @@ namespace realestate\governance;
 
 use documents\Document;
 use documents\DocumentSignature;
+use documents\export\ExportingTask;
+use documents\export\ExportingTaskLine;
 use documents\navigation\Node;
+use equal\html\HtmlTemplate;
 use hr\role\RoleAssignment;
 use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
@@ -161,6 +164,12 @@ class Assembly extends \equal\orm\Model {
                 'description'    => "Invitations sent for the assembly.",
                 'foreign_object' => 'realestate\governance\AssemblyInvitation',
                 'foreign_field'  => 'assembly_id'
+            ],
+
+            'invitations_exporting_task_id' => [
+                'type'              => 'many2one',
+                'description'       => "Reference to the assembly template, if any.",
+                'foreign_object'    => 'documents\export\ExportingTask'
             ],
 
             'assembly_votes_ids' => [
@@ -382,19 +391,20 @@ class Assembly extends \equal\orm\Model {
                     'send' => [
                         'description'   => 'Send the invitations, and mark the Assembly as sent.',
                         'policies'      => [/**/],
-                        'onbefore'      => 'onbeforeSending',
+                        'onbefore'      => 'onbeforeSend',
                         'status'        => 'sending'
                     ]
                 ]
             ],
             'sending' => [
-                'description' => 'Assembly calls are being sent.',
+                'description' => 'Invites for Assembly call have been generated are being sent.',
                 'icon' => 'sent',
                 'transitions' => [
                     'sent' => [
                         'description'   => 'Marks the Assembly invites as sent.',
                         'help'          => 'This transition is meant to be done automatically when all invites have been marked as sent.',
                         'policies'      => [/**/],
+                        'onafter'       => 'onafterSent',
                         'status'        => 'sent'
                     ]
                 ]
@@ -449,6 +459,7 @@ class Assembly extends \equal\orm\Model {
 
             'generate_invites' => [
                 'description'   => 'Generate invites.',
+                'help'          => 'This is called in `onbeforeSend` handler.',
                 'policies'      => [],
                 'function'      => 'doGenerateInvites'
             ],
@@ -671,6 +682,29 @@ class Assembly extends \equal\orm\Model {
 
 
     /**
+     * Mark all invitations as sent.
+     */
+    protected static function onafterSent($self) {
+        $self->read(['assembly_invitations_ids' => ['communication_method']]);
+        $map_invitations_ids = [];
+
+        foreach($self as $id => $assembly) {
+            foreach($assembly['assembly_invitations_ids'] as $assembly_invitation_id => $assemblyInvitation) {
+                if($assemblyInvitation['communication_method'] === 'email') {
+                    continue;
+                }
+                $map_invitations_ids[$assembly_invitation_id] = true;
+            }
+        }
+
+        AssemblyInvitation::ids(array_keys($map_invitations_ids))
+            ->update([
+                    'is_sent'   => true,
+                    'sent_date' => time()
+                ]);
+    }
+
+    /**
      * Generate the attendance document (required for signatures)
      *
      */
@@ -792,11 +826,10 @@ class Assembly extends \equal\orm\Model {
 
     }
 
-    protected static function onbeforeSending($self) {
+    protected static function onbeforeSend($self) {
         $self
             ->do('generate_ownerships')
             ->do('generate_invites')
-            // only owners with contact preference set as email will be handled
             ->do('send_invites');
     }
 
@@ -940,8 +973,12 @@ class Assembly extends \equal\orm\Model {
         }
     }
 
+
+    /**
+     * Generate invites for each ownership.
+     */
     protected static function doGenerateInvites($self) {
-        $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
+        $self->read(['condo_id', 'invitations_exporting_task_id', 'ownerships_ids' => ['representative_owner_id']]);
         foreach($self as $id => $assembly) {
             // remove any previously created invite
             AssemblyInvitation::search(['assembly_id', '=', $id])->delete(true);
@@ -991,6 +1028,7 @@ class Assembly extends \equal\orm\Model {
                     if(!$communication_method_flag) {
                         continue;
                     }
+
                     AssemblyInvitation::create([
                         'condo_id'              => $assembly['condo_id'],
                         'assembly_id'           => $id,
@@ -1000,12 +1038,67 @@ class Assembly extends \equal\orm\Model {
                     ]);
                 }
             }
-            self::id($id)->update(['assembly_invitation_date' => time()]);
+
         }
     }
 
+    /**
+     * Handle invites sending for each ownership.
+     *   - Queue Emails (Only owners with contact preference set as email will be handled)
+     *   - Create an exporting task that will asynchronously generate the export lines & related documents.
+     *
+     */
     protected static function doSendInvites($self) {
+        $self->read([
+            'name',
+            'condo_id',
+            'assembly_invitations_ids' => ['communication_method']
+        ]);
 
+        foreach($self as $id => $assembly) {
+
+            // remove previously created exporting task (and lines), if any
+            if($assembly['invitations_exporting_task_id']) {
+                ExportingTask::id($assembly['invitations_exporting_task_id'])->delete(true);
+            }
+
+            $exportingTask = ExportingTask::create([
+                    'name'          => "{$assembly['name']} - Export invitations",
+                    'condo_id'      => $assembly['condo_id'],
+                    'object_class'  => static::class,
+                    'object_id'     => $id
+                ])
+                ->first();
+
+            $map_communication_methods = [];
+
+            foreach($assembly['assembly_invitations_ids'] as $assembly_invitation_id => $assemblyInvitation) {
+                if($assemblyInvitation['communication_method'] !== 'email') {
+                    // update global map to acknowledge that at least one invitation uses that communication method
+                    $map_communication_methods[$assemblyInvitation['communication_method']] = true;
+                    continue;
+                }
+
+                \eQual::run('do', 'realestate_governance_AssemblyInvitation_send', ['id' => $assembly_invitation_id]);
+            }
+
+            foreach($map_communication_methods as $communication_method => $flag) {
+                ExportingTaskLine::create([
+                        'exporting_task_id' => $exportingTask['id'],
+                        'name'              => "{$assembly['name']} - Export des invitations - {$communication_method}",
+                        'controller'        => 'realestate_governance_Assembly_export-invitations',
+                        'params'            => json_encode([
+                                'id'                    => $id,
+                                'communication_method'  => $communication_method
+                            ])
+                    ]);
+            }
+
+            self::id($id)->update([
+                    'assembly_invitation_date'      => time(),
+                    'invitations_exporting_task_id' => $exportingTask['id']
+                ]);
+        }
     }
 
     /**

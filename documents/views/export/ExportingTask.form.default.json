@@ -1,6 +1,18 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Exporting Task",
+    "routes": [
+        {
+            "id": "route.download",
+            "type": "entry",
+            "label": "Download",
+            "icon": "download",
+            "description": "",
+            "route": "/?get=documents_export_ExportingTask_download&id=object.id",
+            "target": "_blank",
+            "absolute": true,
+            "visible": ["status", "=", "ready"]
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -25,6 +37,31 @@
                                             {
                                                 "type": "field",
                                                 "value": "status",
+                                                "width": "100%",
+                                                "visible": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.export_lines",
+                        "label": "Jobs",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "exporting_task_lines_ids",
                                                 "width": "100%"
                                             }
                                         ]

@@ -45,7 +45,8 @@
             {
                 "type": "field",
                 "value": "is_acknowledged",
-                "width": "12%"
+                "width": "12%",
+                "visible": false
             }
         ]
     }

@@ -489,18 +489,21 @@ class Document extends Model {
         }
     }
 
-    public static function onupdateParentNodeId($self) {
+    protected static function onupdateParentNodeId($self) {
         $self->read(['name', 'parent_node_id', 'node_id', 'condo_id']);
         foreach($self as $id => $document) {
             if(!$document['node_id']) {
-                Node::create([
+                $node = Node::create([
                         'name'          => $document['name'],
                         'node_type'     => 'document',
                         'document_id'   => $id,
                         'condo_id'      => $document['condo_id']
                     ])
                     // #memo - triggers nodes_count update
-                    ->update(['parent_id' => $document['parent_node_id']]);
+                    ->update(['parent_id' => $document['parent_node_id']])
+                    ->first();
+
+                self::id($id)->update(['node_id' => $node['id']]);
             }
             else {
                 Node::id($document['node_id'])->update(['parent_id' => $document['parent_node_id']]);
@@ -508,13 +511,13 @@ class Document extends Model {
         }
     }
 
-    public static function onupdateData($self, $adapt) {
+    protected static function onupdateData($self, $adapt) {
         if(constant('FMT_INSTANCE_TYPE') === 'agency') {
             self::attemptToPush($self, $adapt);
         }
     }
 
-    public static function onupdateCondoId($self, $adapt) {
+    protected static function onupdateCondoId($self, $adapt) {
         $self->read(['condo_id', 'document_type_id', 'parent_node_id']);
         foreach($self as $id => $document) {
             if(!$document['parent_node_id'] && isset($document['document_type_id'], $document['condo_id'])) {
@@ -532,8 +535,9 @@ class Document extends Model {
     }
 
     private static function attemptToPush($self, $adapt) {
+        // #memo - disabled for now - see @sync
+        /*
         if(constant('FMT_INSTANCE_TYPE') === 'agency' && constant('ENV_MODE') === 'production') {
-            /** @var \equal\data\adapt\DataAdapter */
             $adapter = $adapt->get('json');
 
             $self->read(['condo_id', 'name', 'data']);
@@ -577,6 +581,7 @@ class Document extends Model {
                 }
             }
         }
+        */
     }
 
     protected static function calcSuppliershipId($self) {

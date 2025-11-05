@@ -40,6 +40,28 @@ class AssemblyInvitation extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'document_id' => [
+                'type'              => 'many2one',
+                'description'       => 'The document (PDF) of the invitation, if any.',
+                'foreign_object'    => 'documents\Document',
+                'onupdate'          => 'onupdateDocumentId',
+                'visible'           => [['has_document', '=', true], ['communication_method', '<>', 'email']]
+            ],
+
+            'has_document' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag telling if the document of the invitation has been generated.',
+                'default'           => false
+            ],
+
+            'mails_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'core\Mail',
+                'foreign_field'     => 'object_id',
+                'domain'            => ['object_class', '=', 'realestate\governance\AssemblyInvitation'],
+                'visible'           => ['communication_method', '=', 'email']
+            ],
+
             'sent_date' => [
                 'type'              => 'string',
                 'description'       => "Date at which the original (first) invite was sent.",
@@ -60,7 +82,7 @@ class AssemblyInvitation extends \equal\orm\Model {
 
             'is_sent' => [
                 'type'              => 'boolean',
-                'description'       => "Indicates whether the invitation has been acknowledged by the owner.",
+                'description'       => "Indicates whether the invitation has been sent.",
                 'default'           => false
             ],
 
@@ -73,11 +95,21 @@ class AssemblyInvitation extends \equal\orm\Model {
         ];
     }
 
+    protected static function onupdateDocumentId($self) {
+        $self->read(['document_id']);
+        foreach($self as $id => $assemblyInvitation) {
+            self::id($id)->update(['has_document' => (bool) $assemblyInvitation['document_id']]);
+        }
+    }
+
     protected static function canupdate($self, $values) {
         $self->read(['is_sent']);
+        $allowed = ['is_acknowledged'];
         foreach($self as $id => $assemblyInvitation) {
-            if(isset($values['sent_date']) && $self['is_sent']) {
-                return ['sent_date' => ['not_allowed' => 'Sent date cannot be changed after first sending.']];
+            if($assemblyInvitation['is_sent']) {
+                if(count(array_diff(array_keys($values), $allowed)) > 0) {
+                    return ['status' => ['non_editable' => 'Invite cannot be changed once sent.']];
+                }
             }
         }
         return [];

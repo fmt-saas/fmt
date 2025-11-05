@@ -92,8 +92,11 @@ class Template extends Model {
 
     public static function calcName($self) {
         $result = [];
-        $self->read(['code', 'type', 'category']);
+        $self->read(['state', 'code', 'type', 'category']);
         foreach($self as $id => $template) {
+            if($template['state'] !== 'instance') {
+                continue;
+            }
             $result[$id] = $template['category'] . '.' . $template['type'] . '.' . $template['code'];
         }
         return $result;

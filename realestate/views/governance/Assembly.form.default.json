@@ -544,6 +544,12 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "invitations_exporting_task_id",
+                                                "width": "50%",
+                                                "visible": ["invitations_exporting_task_id", "<>", null]
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "assembly_invitations_ids",
                                                 "width": "100%"
                                             }

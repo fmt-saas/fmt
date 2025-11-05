@@ -26,6 +26,28 @@ class Node extends Model {
                 'description'       => 'Arbitrary name of the node.'
             ],
 
+/*
+    #memo - initially created nodes (per condominium)
+    #todo - maintain list
+        "code": "general_meetings",
+        "code": "tender_documents",
+        "code": "maintenance_logs",
+        "code": "council_minutes",
+        "code": "legal_followup",
+        "code": "insurance_contracts",
+        "code": "syndic_contracts",
+        "code": "works_and_repairs",
+        "code": "sepa_mandates",
+        "code": "regulations",
+        "code": "operation_statements",
+        "code": "bank_statements",
+        "code": "supplier_contracts",
+        "code": "justifications",
+        "code": "internal_memos",
+        "code": "supplier_invoices",
+        "code": "ownership_transfers",
+*/
+
             'code' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain:25',
