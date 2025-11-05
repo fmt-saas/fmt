@@ -10,6 +10,11 @@ use identity\User;
 [$params, $providers] = eQual::announce([
     'description'	=>	"Callback for receiving confirmation from Google OAuth.",
     'params' 		=>	[
+        'code' => [
+            'type'          => 'string',
+            'usage'         => 'text/plain:3000',
+            //'required'      => true
+        ],
         'access_token' => [
             'type'          => 'string',
             'usage'         => 'text/plain:3000',
