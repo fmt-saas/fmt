@@ -66,13 +66,14 @@ try {
     $cm = new ClientManager();
 
     $client = $cm->make([
-        'host'          => $mailbox['imap_server'],
-        'port'          => $mailbox['imap_port'],
-        'encryption'    => 'ssl',
-        'validate_cert' => true,
-        'username'      => $mailbox['email'],           // adresse email
-        'password'      => $mailbox['access_token'],    // access token OAuth2 ou mot de passe
-        'protocol'      => 'imap'
+        'host'           => $mailbox['imap_server'],
+        'port'           => $mailbox['imap_port'],
+        'encryption'     => 'ssl',
+        'validate_cert'  => true,
+        'username'       => $mailbox['email'],           // adresse email
+        'password'       => $mailbox['access_token'],    // access token OAuth2 ou mot de passe
+        'authentication' => "oauth",
+        'protocol'       => 'imap'
     ]);
 
     $client->connect();
