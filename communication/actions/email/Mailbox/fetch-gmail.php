@@ -5,6 +5,8 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use Webklex\PHPIMAP\ClientManager;
+
 use communication\email\Email;
 use communication\email\Mailbox;
 use documents\Document;
@@ -60,63 +62,59 @@ if($mailbox['refresh_token_expiry'] < time()) {
     throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
 }
 
+try {
+    $cm = new ClientManager();
 
-$imap = imap_open(
-    '{' . $mailbox['imap_server'] . ':' . $mailbox['imap_port'] . '/imap/ssl}INBOX',
-    $mailbox['imap_server'],
-    $mailbox['access_token'],
-    OP_READONLY,
-    1,
-    [
-        'DISABLE_AUTHENTICATOR' => ['PLAIN', 'LOGIN']
-    ]
-);
+    $client = $cm->make([
+        'host'          => $mailbox['imap_server'],
+        'port'          => $mailbox['imap_port'],
+        'encryption'    => 'ssl',
+        'validate_cert' => true,
+        'username'      => $mailbox['email'],           // adresse email
+        'password'      => $mailbox['access_token'],    // access token OAuth2 ou mot de passe
+        'protocol'      => 'imap'
+    ]);
 
-if(!$imap) {
-    trigger_error('APP::Unable to connect to IMAP server' . imap_last_error(), EQ_REPORT_ERROR);
-    throw new Exception("imap_connect_error", EQ_ERROR_INVALID_PARAM);
-}
+    $client->connect();
 
-Mailbox::id($mailbox['id'])->update(['date_last_sync' => time()]);
+    // Récupère la boîte de réception
+    $inbox = $client->getFolder('INBOX');
 
+    // Recherche des messages reçus depuis la dernière synchro
+    $messages = $inbox->query()->since($mailbox['date_last_sync'])->get();
 
-$messages = imap_search($imap, 'SINCE "' . date('d-M-Y', $mailbox['date_last_sync']) . '"');
+    // Met à jour la date de synchro
+    Mailbox::id($mailbox['id'])->update(['date_last_sync' => time()]);
 
+    foreach ($messages as $message) {
+        $email = Email::create([
+                'subject'   => $message->getSubject() ?: '(no subject)',
+                'from'      => $message->getFrom()[0]->mail ?? '',
+                'to'        => $message->getTo()[0]->mail ?? '',
+                'direction' => 'incoming',
+                'date'      => $message->getDate()->format('Y-m-d H:i:s'),
+                'body'      => $message->getTextBody() ?? $message->getHTMLBody(),
+            ])
+            ->first();
 
-foreach($messages ?? [] as $num) {
-    $overview = imap_fetch_overview($imap, $num, 0)[0];
-    $structure  = imap_fetchstructure($imap, $num);
-
-    $email = Email::create([
-            'subject'   => isset($overview->subject) ? imap_utf8($overview->subject) : '(no subject)',
-            'from'      => $overview->from ?? '',
-            'to'        => $overview->to ?? '',
-            'direction' => 'incoming',
-            'date'      => $overview->date ?? ''
-        ])
-        ->first();
-
-    if(!isset($structure->parts)) {
-        $body = imap_body($imap, $num);
-        Email::id($email['id'])->update(['body' => $body]);
-    }
-    else {
-        foreach($structure->parts as $i => $part) {
-            if (isset($part->disposition) && strtolower($part->disposition) === 'attachment') {
-                $filename = $part->dparameters[0]->value ?? "attachment_$i";
-                $content = imap_fetchbody($imap, $num, $i+1);
-                $data = base64_decode($content);
-                Document::create([
-                        'name'      => $filename,
-                        'data'      => $data,
-                        'email_id'  => $email['id']
-                    ])
-                    ->do('start_processing');
-            }
+        // Gestion des pièces jointes
+        foreach($message->getAttachments() as $attachment) {
+            Document::create([
+                    'name'      => $attachment->name,
+                    'data'      => $attachment->content,
+                    'email_id'  => $email['id']
+                ])
+                ->do('start_processing');
         }
     }
-}
 
+    $client->disconnect();
+
+}
+catch(\Exception $e) {
+    trigger_error('APP::Unable to connect to IMAP server: ' . $e->getMessage(), EQ_REPORT_ERROR);
+    throw new Exception("imap_connect_error", EQ_ERROR_INVALID_PARAM);
+}
 
 $context->httpResponse()
         ->status(204)
