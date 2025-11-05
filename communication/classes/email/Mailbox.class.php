@@ -85,7 +85,7 @@ class Mailbox extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'pending',
-                    'ready'
+                    'validated'
                 ],
                 'default'           => 'pending',
                 'description'       => 'Status of the mailbox.'
