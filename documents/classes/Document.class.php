@@ -465,9 +465,9 @@ class Document extends Model {
 
         foreach($self as $id => $document) {
             DocumentProcess::create([
-                    'condo_id'              => $document['condo_id'],
+                    'condo_id'              => $document['condo_id'] ?? null,
                     'name'                  => $document['name'],
-                    'assigned_employee_id'  => $user['employee_id']
+                    'assigned_employee_id'  => $user['employee_id'] ?? null
                 ])
                 // #memo - this will sync back the document_process_id
                 ->update(['document_id' => $id]);

@@ -24,6 +24,18 @@
                 }
             },
             "visible": ["status", "=", "pending"]
+        },
+        {
+            "id": "action.fetch_emails",
+            "inline": true,
+            "label": "Download",
+            "icon": "login",
+            "description": "Fetch latest emails and import attachments.",
+            "controller": "communication_email_Mailbox_fetch-gmail",
+            "params": {
+                "id": "object.id"
+            },
+            "visible": ["status", "=", "validated"]
         }
     ],
     "layout": {
@@ -31,12 +43,12 @@
             {
                 "type": "field",
                 "value": "email",
-                "width": "25%"
+                "width": "33%"
             },
             {
                 "type": "field",
                 "value": "imap_server",
-                "width": "25%"
+                "width": "20%"
             },
             {
                 "type": "field",
