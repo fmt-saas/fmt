@@ -65,11 +65,13 @@ if($mailbox['refresh_token_expiry'] < time()) {
 try {
 
     $cm = new ClientManager([
+        /*
         'options' => [
-            'debug' => true,                // 🔥 active le debug interne
-            'log'   => true,                // 🔥 écrit les logs
-            'log_channel' => 'imap',        // canal de log (fichier ou stdout)
+            'debug' => true,
+            'log'   => true,
+            'log_channel' => 'imap',
         ]
+        */
     ]);
 
     $client = $cm->make([
@@ -100,7 +102,7 @@ try {
                 'from'      => $message->getFrom()[0]->mail ?? '',
                 'to'        => $message->getTo()[0]->mail ?? '',
                 'direction' => 'incoming',
-                'date'      => $message->getDate()->format('Y-m-d H:i:s'),
+                'date'      => strtotime($message->getDate()),
                 'body'      => $message->getTextBody() ?? $message->getHTMLBody(),
             ])
             ->first();
