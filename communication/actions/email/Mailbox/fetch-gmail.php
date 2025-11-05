@@ -41,7 +41,7 @@ use documents\Document;
 
 
 $mailbox = Mailbox::id($params['id'])
-    ->read(['status', 'auth_type', 'imap_server', 'imap_port', 'email', 'access_token', 'access_token_expiry', 'date_last_sync'])
+    ->read(['status', 'auth_type', 'imap_server', 'imap_port', 'email', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'date_last_sync'])
     ->first();
 
 if(!$mailbox) {
