@@ -67,21 +67,24 @@ use identity\User;
 
 if($params['code']) {
  // constant('BACKEND_URL')
+
+    $body = [
+        'grant_type' => 'authorization_code',
+        'code' => $params['code'],
+        'redirect_uri' => 'https://'.constant('BACKEND_URL').'/oauth/gmail',
+        'client_id' => '24230475119-6fabc7k3lh9v9u3aa01im86d48bsudp0.apps.googleusercontent.com',
+        'client_secret' => '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'
+    ];
     $oauthRequest = new HttpRequest('POST https://oauth2.googleapis.com/token');
     $response = $oauthRequest
                 ->header('Content-Type', 'application/x-www-form-urlencoded')
-                ->setBody([
-                    'grant_type' => 'authorization_code',
-                    'code' => $params['code'],
-                    'redirect_uri' => 'https://'.constant('BACKEND_URL').'/oauth/gmail',
-                    'client_id' => '24230475119-6fabc7k3lh9v9u3aa01im86d48bsudp0.apps.googleusercontent.com',
-                    'client_secret' => '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'
-                ])
+                ->setBody($body)
                 ->send();
 
     $data = $response->body();
     $status = $response->getStatusCode();
     ob_start();
+    var_dump($body);
     var_dump($data);
     $out = ob_get_clean();
 
