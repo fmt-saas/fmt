@@ -39,7 +39,7 @@ $mailbox = Mailbox::id($params['id'])
     ->first(true);
 
 if(!$mailbox) {
-    throw new Exception("unknown_assembly_invitation", EQ_ERROR_INVALID_PARAM);
+    throw new Exception("unknown_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
 $context->httpResponse()
