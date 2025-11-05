@@ -63,7 +63,7 @@ ob_start();
 print_r($params);
 $out = ob_get_clean();
 
-file_put_contents('test.gmail.txt', $out);
+file_put_contents(EQ_BASEDIR.'/log/test.gmail.txt', $out);
 
 $httpResponse
         ->status(204)
