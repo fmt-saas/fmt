@@ -29,7 +29,7 @@
             "id": "action.fetch_emails",
             "inline": true,
             "label": "Download",
-            "icon": "login",
+            "icon": "sync",
             "description": "Fetch latest emails and import attachments.",
             "controller": "communication_email_Mailbox_fetch-gmail",
             "params": {
