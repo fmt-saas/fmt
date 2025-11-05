@@ -1,6 +1,5 @@
 {
     "name": "Mailbox",
-    "description": "Interface for model definition classes.",
     "header": {
         "layout": "inline",
         "actions": {
@@ -23,7 +22,8 @@
                 "data": {
                     "mailbox_id": "object.id"
                 }
-            }
+            },
+            "visible": ["status", "=", "pending"]
         }
     ],
     "layout": {
