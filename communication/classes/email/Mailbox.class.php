@@ -14,22 +14,19 @@ class Mailbox extends Model {
 
     public static function getColumns() {
         return [
-            'condo_id' => [
-                'type'              => 'many2one',
-                'description'       => "The condominium the email relates to.",
-                'foreign_object'    => 'realestate\property\Condominium'
-            ],
 
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'relation'          => ['subject']
+                'relation'          => ['email'],
+                'store'             => true
             ],
 
             'email' => [
                 'type'              => 'string',
                 'usage'             => 'email',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['name']
             ],
 
             'login' => [
