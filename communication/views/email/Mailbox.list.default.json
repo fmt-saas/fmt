@@ -23,7 +23,7 @@
                     "mailbox_id": "object.id"
                 }
             },
-            "visible": ["status", "=", "pending"]
+            "visible": ["pending", "=", "object.status"]
         },
         {
             "id": "action.fetch_emails",
@@ -35,7 +35,7 @@
             "params": {
                 "id": "object.id"
             },
-            "visible": ["status", "=", "validated"]
+            "visible": ["validated", "=", "object.status"]
         }
     ],
     "layout": {
