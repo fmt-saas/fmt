@@ -67,7 +67,7 @@ use identity\User;
 
 if($params['code']) {
  // constant('BACKEND_URL')
-    $oauthRequest = new HttpRequest('https://oauth2.googleapis.com/token', ['Host' => 'graph.facebook.com:443']);
+    $oauthRequest = new HttpRequest('POST https://oauth2.googleapis.com/token');
     $response = $oauthRequest
                 ->header('Content-Type', 'application/x-www-form-urlencoded')
                 ->setBody([
