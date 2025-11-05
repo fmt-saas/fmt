@@ -26,7 +26,6 @@ class Mailbox extends Model {
                 'relation'          => ['subject']
             ],
 
-
             'email' => [
                 'type'              => 'string',
                 'usage'             => 'email',
@@ -35,15 +34,16 @@ class Mailbox extends Model {
 
             'login' => [
                 'type'              => 'string',
+                'visible'           => ['auth_type', '=', 'basic']
             ],
 
             'password' => [
                 'type'              => 'string',
+                'visible'           => ['auth_type', '=', 'basic']
             ],
 
             'imap_server' => [
                 'type'              => 'string',
-                'default'           => 'imap.office365.com',
                 'description'       => 'IMAP server hostname.'
             ],
 
@@ -55,24 +55,33 @@ class Mailbox extends Model {
 
             'auth_type' => [
                 'type'              => 'string',
-                'selection'         => ['basic', 'oauth2'],
+                'selection'         => ['basic', 'oauth'],
                 'default'           => 'basic',
                 'description'       => 'Authentication type.'
             ],
 
             'access_token' => [
                 'type'              => 'string',
-                'description'       => 'OAuth2 access token (if applicable).'
+                'description'       => 'OAuth2 access token (if applicable).',
+                'visible'           => ['auth_type', '=', 'oauth']
             ],
 
             'refresh_token' => [
                 'type'              => 'string',
-                'description'       => 'OAuth2 refresh token (if applicable).'
+                'description'       => 'OAuth2 refresh token (if applicable).',
+                'visible'           => ['auth_type', '=', 'oauth']
             ],
 
-            'token_expiry' => [
+            'access_token_expiry' => [
                 'type'              => 'datetime',
-                'description'       => 'Token expiration date/time.'
+                'description'       => 'Token expiration date/time.',
+                'visible'           => ['auth_type', '=', 'oauth']
+            ],
+
+            'refresh_token_expiry' => [
+                'type'              => 'datetime',
+                'description'       => 'Token expiration date/time.',
+                'visible'           => ['auth_type', '=', 'oauth']
             ],
 
             'status' => [

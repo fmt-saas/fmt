@@ -514,7 +514,7 @@
                         "type": "entry",
                         "label": "Emails",
                         "icon": "email",
-                        "description": "View and manage sent or received emails.",
+                        "description": "View and manage received emails.",
                         "context": {
                             "entity": "communication\\email\\Email",
                             "view": "list.default"
@@ -895,10 +895,21 @@
                                 "type": "parent",
                                 "children": [
                                     {
+                                        "id": "communication.emails.mailboxes",
+                                        "type": "entry",
+                                        "label": "Mailboxes",
+                                        "icon": "local_post_office",
+                                        "description": "Mailboxes for incoming emails messages.",
+                                        "context": {
+                                            "entity": "communication\\email\\Mailbox",
+                                            "view": "list.default"
+                                        }
+                                    },
+                                    {
                                         "id": "communication.emails.all",
                                         "type": "entry",
-                                        "label": "All emails",
-                                        "description": "",
+                                        "label": "Outgoing emails",
+                                        "description": "History of all outgoing email messages.",
                                         "context": {
                                             "entity": "core\\Mail",
                                             "view": "list.default"
