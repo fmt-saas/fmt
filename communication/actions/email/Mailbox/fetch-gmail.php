@@ -63,15 +63,22 @@ if($mailbox['refresh_token_expiry'] < time()) {
 }
 
 try {
-    $cm = new ClientManager();
+
+    $cm = new ClientManager([
+        'options' => [
+            'debug' => true,                // 🔥 active le debug interne
+            'log'   => true,                // 🔥 écrit les logs
+            'log_channel' => 'imap',        // canal de log (fichier ou stdout)
+        ]
+    ]);
 
     $client = $cm->make([
         'host'           => $mailbox['imap_server'],
         'port'           => $mailbox['imap_port'],
         'encryption'     => 'ssl',
-        'validate_cert'  => true,
-        'username'       => $mailbox['email'],           // adresse email
-        'password'       => $mailbox['access_token'],    // access token OAuth2 ou mot de passe
+        'validate_cert'  => false,
+        'username'       => $mailbox['email'],
+        'password'       => $mailbox['access_token'],
         'authentication' => "oauth",
         'protocol'       => 'imap'
     ]);
