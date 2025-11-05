@@ -71,7 +71,7 @@ if($params['code']) {
     $body = [
         'grant_type' => 'authorization_code',
         'code' => $params['code'],
-        'redirect_uri' => 'https://'.constant('BACKEND_URL').'/oauth/gmail',
+        'redirect_uri' => constant('BACKEND_URL').'/oauth/gmail',
         'client_id' => '24230475119-6fabc7k3lh9v9u3aa01im86d48bsudp0.apps.googleusercontent.com',
         'client_secret' => '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'
     ];
