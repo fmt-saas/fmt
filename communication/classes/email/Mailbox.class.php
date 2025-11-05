@@ -26,6 +26,7 @@ class Mailbox extends Model {
                 'type'              => 'string',
                 'usage'             => 'email',
                 'required'          => true,
+                'unique'            => true,
                 'dependents'        => ['name']
             ],
 

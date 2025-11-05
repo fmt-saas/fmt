@@ -1,72 +1,57 @@
 {
-    "name": "Model",
+    "name": "Mailbox",
     "description": "Interface for model definition classes.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE":  [
+                {
+                    "view": false
+                }
+            ]
+        }
+    },
+    "actions": [
+        {
+            "id": "action.connect",
+            "inline": true,
+            "label": "Auth",
+            "icon": "login",
+            "description": "Provide authentication info for connection.",
+            "component": {
+                "name": "communicationAddMailbox",
+                "data": {
+                    "mailbox_id": "object.id"
+                }
+            }
+        }
+    ],
     "layout": {
         "items": [
             {
                 "type": "field",
-                "value": "condo_id",
-                "width": "7%"
-            },
-            {
-                "type": "field",
-                "value": "name",
-                "width": "7%"
-            },
-            {
-                "type": "field",
                 "value": "email",
-                "width": "7%"
-            },
-            {
-                "type": "field",
-                "value": "login",
-                "width": "7%"
-            },
-            {
-                "type": "field",
-                "value": "password",
-                "width": "7%"
+                "width": "25%"
             },
             {
                 "type": "field",
                 "value": "imap_server",
-                "width": "7%"
+                "width": "25%"
             },
             {
                 "type": "field",
                 "value": "imap_port",
-                "width": "7%"
+                "width": "15%"
             },
             {
                 "type": "field",
                 "value": "auth_type",
-                "width": "7%"
-            },
-            {
-                "type": "field",
-                "value": "access_token",
-                "width": "7%"
-            },
-            {
-                "type": "field",
-                "value": "refresh_token",
-                "width": "7%"
-            },
-            {
-                "type": "field",
-                "value": "access_token_expiry",
-                "width": "7%"
-            },
-            {
-                "type": "field",
-                "value": "refresh_token_expiry",
-                "width": "7%"
+                "width": "15%"
             },
             {
                 "type": "field",
                 "value": "status",
-                "width": "7%"
+                "width": "15%"
             }
         ]
     }
