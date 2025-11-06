@@ -63,7 +63,7 @@ class AssemblyInvitation extends \equal\orm\Model {
             ],
 
             'sent_date' => [
-                'type'              => 'string',
+                'type'              => 'datetime',
                 'description'       => "Date at which the original (first) invite was sent.",
                 'help'              => 'This date is immutable (@see `canupdate`). The original date must remain the same in case of multiple generation.'
             ],

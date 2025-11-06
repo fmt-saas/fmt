@@ -45,6 +45,20 @@
                                         ]
                                     }
                                 ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "logs_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     }
