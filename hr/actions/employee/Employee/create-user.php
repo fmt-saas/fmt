@@ -45,8 +45,8 @@ $ids = array_merge((array) ($params['id'] ?? []), $params['ids'] ?? []);
 
 $employees = Employee::ids($ids)->read(['identity_id']);
 
-foreach($owners as $owner_id => $owner) {
-    $identity = Identity::id($owner['identity_id'])->read(['email', 'user_id'])->first();
+foreach($employees as $employee_id => $employee) {
+    $identity = Identity::id($employee['identity_id'])->read(['email', 'user_id'])->first();
 
     // #memo in case the user already exists, simply ignore the request
     if(!$identity['user_id'] && $identity['email']) {
