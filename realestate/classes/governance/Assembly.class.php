@@ -1435,7 +1435,7 @@ class Assembly extends \equal\orm\Model {
         foreach($self as $id => $assembly) {
             if($assembly['step'] !== 'minutes_signing') {
                 $result[$id] = [
-                    'invalid_step' => 'Current step prohibits creation of the minutes document.'
+                    'invalid_step' => 'Current step prohibits closing the signing of the minutes document.'
                 ];
                 continue;
             }
@@ -1488,7 +1488,7 @@ class Assembly extends \equal\orm\Model {
         $self->read(['status', 'step', 'minutes_document_id', 'signed_minutes_document_id']);
 
         foreach($self as $id => $assembly) {
-            if(in_array($assembly['step'], ["agenda_processing", "minutes_confirmation"])) {
+            if(!in_array($assembly['step'], ["agenda_processing", "minutes_confirmation"])) {
                 $result[$id] = [
                     'minutes_generation_not_allowed' => 'Current step prohibits creation of the minutes document.'
                 ];

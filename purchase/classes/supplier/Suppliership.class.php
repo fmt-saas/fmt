@@ -73,6 +73,15 @@ class Suppliership extends \equal\orm\Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'suppliership_property_lot_references_ids' => [
+// #todo
+                'type'              => 'one2many',
+                'description'       => "The contracts of the condominium for the supplier.",
+                'foreign_object'    => 'purchase\supplier\SuppliershipContract',
+                'foreign_field'     => 'suppliership_id',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'suppliership_bank_accounts_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\bank\SuppliershipBankAccount',

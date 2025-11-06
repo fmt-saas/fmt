@@ -147,6 +147,7 @@ class ConsumptionMeter extends \equal\orm\Model {
                 'description'       => 'List of readings of the consumption meter.'
             ],
 
+            // #todo - généraliser ceci pour avoir un PropertyLotSuppliershipReference
             'property_lot_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\PropertyLot',

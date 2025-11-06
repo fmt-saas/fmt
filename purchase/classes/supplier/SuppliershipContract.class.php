@@ -26,6 +26,11 @@ class SuppliershipContract extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'name' => [
+                'type'              => 'string',
+                'description'       => "Name identifying the contract, if any."
+            ],
+
             'supplier_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
@@ -40,7 +45,8 @@ class SuppliershipContract extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'purchase\supplier\Suppliership',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['supplier_id']
             ],
 
             'date_from' => [

@@ -66,6 +66,7 @@ try {
 
     $cm = new ClientManager([
         /*
+        // #debug
         'options' => [
             'debug' => true,
             'log'   => true,

@@ -59,6 +59,21 @@ class PropertyLot extends \equal\orm\Model {
                 'description'       => 'Number of the cadastral register of the property.',
             ],
 
+            'lot_floor' => [
+                'type'              => 'string',
+                'description'       => 'Level/floor at which the lot is located (if apartment).',
+            ],
+
+            'lot_column' => [
+                'type'              => 'string',
+                'description'       => 'Grid reference as given in notary deed, if any.',
+            ],
+
+            'lot_letterbox' => [
+                'type'              => 'string',
+                'description'       => 'Number or ref of the mailbox relating to the lot, if any.',
+            ],
+
             'lot_area' => [
                 'type'              => 'float',
                 'usage'             => 'number/float:3.2',

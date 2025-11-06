@@ -19,7 +19,17 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "code",
+                                                "value": "contract_ref",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_from",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_to",
                                                 "width": "25%"
                                             },
                                             {
@@ -29,7 +39,12 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "supplier_id",
+                                                "value": "suppliership_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_active",
                                                 "width": "50%"
                                             }
                                         ]
