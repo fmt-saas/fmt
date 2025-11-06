@@ -68,7 +68,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "emails_ids",
-                                                "width": "50%"
+                                                "width": "100%"
                                             }
                                         ]
                                     }

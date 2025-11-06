@@ -124,7 +124,7 @@ try {
                 'to'            => $message->getTo()[0]->mail ?? '',
                 'direction'     => 'incoming',
                 'date'          => strtotime($message->getDate()),
-                'body'          => $message->getTextBody() ?? $message->getHTMLBody(),
+                'body'          => $message->getHTMLBody() ?? ($message->getTextBody() ?? ''),
             ])
             ->read(['thread_hash'])
             ->first();

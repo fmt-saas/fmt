@@ -120,8 +120,7 @@ class Email extends Model {
 
             'body' => [
                 'type'              => 'string',
-                'usage'             => 'text/html',
-                'required'          => true
+                'usage'             => 'text/html'
             ],
 
             'object_class' => [
