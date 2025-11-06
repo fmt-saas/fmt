@@ -10,6 +10,17 @@
             },
             {
                 "type": "field",
+                "value": "thread_hash",
+                "width": "20%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "to",
+                "width": "20%"
+            },
+            {
+                "type": "field",
                 "value": "from",
                 "width": "20%"
             },

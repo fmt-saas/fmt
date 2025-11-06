@@ -152,7 +152,8 @@ class Email extends Model {
                     'processed'
                 ],
                 'default'           => 'pending',
-                'description'       => 'Sending status of the mail.'
+                'description'       => 'Sending status of the mail.',
+                'visible'           => [['direction', '=', 'outgoing']]
             ]
 
         ];
@@ -173,6 +174,9 @@ class Email extends Model {
         $result = [];
         $self->read(['subject']);
         foreach($self as $id => $email) {
+            if(!$email['subject']) {
+                continue;
+            }
             $cleaned_subject = preg_replace('/^((re|fwd)\s*:\s*)+/i', '', $email['subject']);
             if(strlen($cleaned_subject) > 0) {
                 $result[$id] = hash('sha1', strtolower(trim($cleaned_subject)));

@@ -87,13 +87,13 @@ try {
 
     $client->connect();
 
-    // Récupère la boîte de réception
+    // limit requests on main inbox
     $inbox = $client->getFolder('INBOX');
 
-    // Recherche des messages reçus depuis la dernière synchro
+    // limit query to messages received since last sync
     $messages = $inbox->query()->since($mailbox['date_last_sync'])->get();
 
-    // Met à jour la date de synchro
+    // update date of last synchro (before hand so that)
     Mailbox::id($mailbox['id'])->update(['date_last_sync' => time()]);
 
     foreach ($messages as $message) {
@@ -107,13 +107,14 @@ try {
             ])
             ->first();
 
-        // Gestion des pièces jointes
+        // handle attachments
         foreach($message->getAttachments() as $attachment) {
             Document::create([
                     'name'      => $attachment->name,
                     'data'      => $attachment->content,
                     'email_id'  => $email['id']
                 ])
+                // create related DocumentProcess object
                 ->do('start_processing');
         }
     }
