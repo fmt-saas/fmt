@@ -1,5 +1,15 @@
 {
-    "name": "Mailbox",
+    "name": "Mailboxes",
+    "actions": [
+        {
+            "id": "action.add_mailbox",
+            "label": "Add mailbox",
+            "description": "Add a new mailbox for emails fetching automation.",
+            "component": {
+                "name": "communicationAddMailbox"
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -9,13 +19,22 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "email",
                                                 "width": "100%"
-                                            },
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
                                             {
                                                 "type": "field",
                                                 "value": "auth_type",
@@ -38,8 +57,8 @@
             {
                 "sections": [
                     {
-                        "id": "section.parameters",
-                        "label": "Parameters",
+                        "id": "section.messages",
+                        "label": "Messages",
                         "rows": [
                             {
                                 "columns": [
@@ -48,7 +67,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "imap_server",
+                                                "value": "emails_ids",
                                                 "width": "50%"
                                             }
                                         ]
@@ -64,18 +83,23 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "imap_server",
-                                                "width": "50%"
+                                                "width": "75%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "imap_port",
-                                                "width": "50%"
-                                            },
+                                                "width": "25%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
                                             {
                                                 "type": "field",
                                                 "value": "login",
@@ -89,12 +113,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "access_token",
-                                                "width": "50%"
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "refresh_token",
-                                                "width": "50%"
+                                                "width": "100%"
                                             }
                                         ]
                                     }
