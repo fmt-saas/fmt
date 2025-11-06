@@ -58,7 +58,8 @@ foreach($employees as $employee_id => $employee) {
                 // users
                 'groups_ids'    => [2]
             ])
-            ->update(['identity_id' => $identity['id']]);
+            ->update(['identity_id' => $identity['id']])
+            ->do('sync_from_identity');
     }
 }
 

@@ -26,6 +26,12 @@ class Email extends Model {
                 'relation'          => ['subject']
             ],
 
+            'message_id' => [
+                'type'              => 'string',
+                'description'       => "Unique string identifier of the message as per RFC 5322.",
+                'unique'            => true
+            ],
+
             'ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The ownership that the owner refers to.",

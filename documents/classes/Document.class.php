@@ -430,7 +430,7 @@ class Document extends Model {
         return [
             'can_start_processing' => [
                 'description' => 'Verifies that the state of the processing allows drafting.',
-                'function'    => 'policyCanStarProcessing'
+                'function'    => 'policyCanStartProcessing'
             ]
         ];
     }
@@ -445,7 +445,7 @@ class Document extends Model {
         ];
     }
 
-    protected static function policyCanStarProcessing($self) {
+    protected static function policyCanStartProcessing($self) {
         $result = [];
         $self->read(['document_process_id']);
         foreach($self as $id => $document) {
@@ -512,9 +512,11 @@ class Document extends Model {
     }
 
     protected static function onupdateData($self, $adapt) {
+        /*
         if(constant('FMT_INSTANCE_TYPE') === 'agency') {
             self::attemptToPush($self, $adapt);
         }
+        */
     }
 
     protected static function onupdateCondoId($self, $adapt) {
@@ -529,9 +531,11 @@ class Document extends Model {
                 }
             }
         }
+        /*
         if(constant('FMT_INSTANCE_TYPE') === 'agency') {
             self::attemptToPush($self, $adapt);
         }
+        */
     }
 
     private static function attemptToPush($self, $adapt) {

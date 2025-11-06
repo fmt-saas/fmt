@@ -512,7 +512,7 @@
                     {
                         "id": "item.documents.email",
                         "type": "entry",
-                        "label": "Emails",
+                        "label": "Incoming Emails",
                         "icon": "email",
                         "description": "View and manage received emails.",
                         "context": {

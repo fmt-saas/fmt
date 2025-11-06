@@ -97,7 +97,15 @@ try {
     // update date of last synchro (before hand so that)
     Mailbox::id($mailbox['id'])->update(['date_last_sync' => time()]);
 
-    foreach ($messages as $message) {
+    foreach($messages as $message) {
+        $message_id = $message->getMessageId();
+
+        $email = Email::search(['message_id', '=', $message_id])->first();
+
+        if($email) {
+            continue;
+        }
+
         $email = Email::create([
                 'subject'   => $message->getSubject() ?: '(no subject)',
                 'from'      => $message->getFrom()[0]->mail ?? '',
@@ -106,6 +114,7 @@ try {
                 'date'      => strtotime($message->getDate()),
                 'body'      => $message->getTextBody() ?? $message->getHTMLBody(),
             ])
+            ->read(['thread_hash'])
             ->first();
 
         // handle attachments

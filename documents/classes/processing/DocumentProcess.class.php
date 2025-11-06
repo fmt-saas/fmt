@@ -388,6 +388,22 @@ class DocumentProcess extends Model {
             }
             // assign back document to the process
             Document::id($documentProcess['document_id']['id'])->update(['document_process_id' => $id]);
+
+            // #todo - check if completion.auto enabled
+
+            try {
+                $self
+                    ->do('perform_identification')
+                    ->do('perform_extraction')
+                    ->do('perform_matching')
+                    ->do('perform_drafting');
+            }
+            catch(\Exception $e) {
+                // do not interrupt - Documents might not be automatically analyzed
+                // at early stage, user is allowed to manually encode data
+                trigger_error("APP::issue in automated tasks" . $e->getMessage(), EQ_REPORT_WARNING);
+            }
+
         }
     }
 
@@ -767,25 +783,12 @@ class DocumentProcess extends Model {
             // remove data from current object (to avoid data redundancy)
             self::id($id)
                 ->update([
+                    // #memo - this will trigger onupdateDocumentId, and subsequent auto-completion process
                     'document_id' => $document['id'],
                     'data'        => null
                 ]);
         }
 
-        // #todo - check if completion.auto enabled
-
-        try {
-            $self
-                ->do('perform_identification')
-                ->do('perform_extraction')
-                ->do('perform_matching')
-                ->do('perform_drafting');
-        }
-        catch(\Exception $e) {
-            // do not interrupt - Documents might not be automatically analyzed
-            // at early stage, user is allowed to manually encode data
-            trigger_error("APP::issue in automated tasks" . $e->getMessage(), EQ_REPORT_WARNING);
-        }
     }
 
     public static function onupdateCondoId($self) {
