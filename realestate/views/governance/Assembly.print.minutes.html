@@ -98,8 +98,8 @@
     } %}
 
     {% set voteResultLabels = {
-        'approved': 'Approuvée',
-        'rejected': 'Rejetée',
+        'approved': 'Approuvé',
+        'rejected': 'Rejeté',
     } %}
 
     <p>
@@ -150,13 +150,13 @@
 
             {% if ownerships_against is not empty %}
                 <p><strong>Contre :</strong>
-                    {{ ownerships_against|join(', ') }}
+                    <span style="font-size: 10px;">{{ ownerships_against|join(', ') }}</span>
                 </p>
             {% endif %}
 
             {% if ownerships_abstain is not empty %}
                 <p><strong>Abstention :</strong>
-                    {{ ownerships_abstain|join(', ') }}
+                    <span style="font-size: 10px;">{{ ownerships_abstain|join(', ') }}</span>
                 </p>
             {% endif %}
 
@@ -202,13 +202,13 @@
 
                                         {% if ownerships_against is not empty %}
                                             <p><strong>Contre :</strong>
-                                                {{ ownerships_against|join(', ') }}
+                                                <span style="font-size: 10px;">{{ ownerships_against|join(', ') }}</span>
                                             </p>
                                         {% endif %}
 
                                         {% if ownerships_abstain is not empty %}
                                             <p><strong>Abstention :</strong>
-                                                {{ ownerships_abstain|join(', ') }}
+                                                <span style="font-size: 10px;">{{ ownerships_abstain|join(', ') }}</span>
                                             </p>
                                         {% endif %}
                                     </td>

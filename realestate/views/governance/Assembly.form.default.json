@@ -222,9 +222,11 @@
             "label": "Finish minutes signing",
             "description": "Close the signing of the signable version of the minutes of the Assembly.",
             "controller": "core_model_do",
+            "confirm": true,
             "params": {
                 "entity": "realestate\\governance\\Assembly",
-                "action": "close_minutes_signing"
+                "action": "close_minutes_signing",
+                "ids": []
             },
             "visible": [
                 ["status", "=", "in_progress"],
@@ -268,7 +270,7 @@
             "type": "entry",
             "label": "View Minutes",
             "icon": "print",
-            "description": "View printable assembly minutes.",
+            "description": "Preview of the signable assembly minutes.",
             "route": "/?get=realestate_governance_Assembly_minutes_fetch&id=object.id",
             "target": "_blank",
             "absolute": true,
@@ -279,6 +281,25 @@
                 [
                     ["status", "=", "in_progress"],
                     ["step", "=", "minutes_confirmation"]
+                ]
+            ]
+        },
+        {
+            "id": "route.view_minutes",
+            "type": "entry",
+            "label": "View Minutes",
+            "icon": "print",
+            "description": "View printable assembly minutes.",
+            "route": "/?get=realestate_governance_Assembly_minutes_fetch&id=object.id",
+            "target": "_blank",
+            "absolute": true,
+            "visible": [
+                [
+                    ["status", "in", ["held", "adjourned"]]
+                ],
+                [
+                    ["status", "=", "in_progress"],
+                    ["step", "=", "assembly_closing"]
                 ]
             ]
         }

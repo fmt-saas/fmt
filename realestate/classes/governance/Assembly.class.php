@@ -1762,7 +1762,9 @@ class Assembly extends \equal\orm\Model {
     protected static function doCloseMinutesSigning($self) {
         $self
             ->update(['step' => 'assembly_closing'])
-            ->do('generate_printable_minutes');
+            ->do('generate_printable_minutes')
+            ->transition('close');
+        // #todo - use a specific controller for confirming the auto actions to perform
     }
 
     protected static function doGeneratePrintableMinutes($self) {
@@ -1815,7 +1817,10 @@ class Assembly extends \equal\orm\Model {
 
     protected static function doGenerateSignableMinutes($self) {
         $self
-            ->update(['step' => 'minutes_confirmation'])
+            ->update([
+                'step'              => 'minutes_confirmation',
+                'session_time_end'  => time()
+            ])
             ->read(['condo_id', 'minutes_document_id']);
 
         foreach($self as $id => $assembly) {
