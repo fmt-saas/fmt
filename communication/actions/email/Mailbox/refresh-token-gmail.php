@@ -38,7 +38,6 @@ use equal\http\HttpRequest;
 ['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
 
 
-
 if(!isset($params['id'])) {
     throw new Exception("missing_id", EQ_ERROR_INVALID_PARAM);
 }
@@ -66,8 +65,8 @@ if($mailbox['refresh_token_expiry'] < time()) {
 
 
 $body = [
-    'grant_type' => 'refresh_token',
-    'client_id' => '24230475119-6fabc7k3lh9v9u3aa01im86d48bsudp0.apps.googleusercontent.com',
+    'grant_type'    => 'refresh_token',
+    'client_id'     => '24230475119-6fabc7k3lh9v9u3aa01im86d48bsudp0.apps.googleusercontent.com',
     'client_secret' => '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',
     'refresh_token' => $mailbox['refresh_token']
 ];

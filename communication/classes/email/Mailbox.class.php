@@ -89,7 +89,7 @@ class Mailbox extends Model {
             ],
 
             'emails_ids' => [
-                'type'              => 'many2one',
+                'type'              => 'one2many',
                 'description'       => "The email received from the Mailbox.",
                 'foreign_object'    => 'communication\email\Email',
                 'foreign_field'     => 'mailbox_id'

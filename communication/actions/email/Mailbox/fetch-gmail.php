@@ -41,9 +41,9 @@ use documents\Document;
  */
 ['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
 
-
+// check consistency
 $mailbox = Mailbox::id($params['id'])
-    ->read(['status', 'auth_type', 'imap_server', 'imap_port', 'email', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'date_last_sync'])
+    ->read(['status', 'auth_type', 'access_token_expiry', 'refresh_token_expiry'])
     ->first();
 
 if(!$mailbox) {
@@ -61,6 +61,16 @@ if($mailbox['auth_type'] !== 'oauth') {
 if($mailbox['refresh_token_expiry'] < time()) {
     throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
 }
+
+if($mailbox['access_token_expiry'] < time()) {
+    eQual::run('do', 'communication_email_Mailbox_refresh-token-gmail', ['id' => $params['id']]);
+}
+
+
+$mailbox = Mailbox::id($params['id'])
+    ->read(['imap_server', 'imap_port', 'email', 'access_token', 'date_last_sync'])
+    ->first();
+
 
 try {
 
