@@ -26,6 +26,12 @@ class Email extends Model {
                 'relation'          => ['subject']
             ],
 
+            'mailbox_id' => [
+                'type'              => 'many2one',
+                'description'       => "The mailbox the email relates to, if any.",
+                'foreign_object'    => 'communication\email\Mailbox'
+            ],
+
             'message_id' => [
                 'type'              => 'string',
                 'description'       => "Unique string identifier of the message as per RFC 5322.",

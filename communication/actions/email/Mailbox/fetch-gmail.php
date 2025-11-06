@@ -107,12 +107,14 @@ try {
         }
 
         $email = Email::create([
-                'subject'   => $message->getSubject() ?: '(no subject)',
-                'from'      => $message->getFrom()[0]->mail ?? '',
-                'to'        => $message->getTo()[0]->mail ?? '',
-                'direction' => 'incoming',
-                'date'      => strtotime($message->getDate()),
-                'body'      => $message->getTextBody() ?? $message->getHTMLBody(),
+                'mailbox_id'    => $mailbox['id'],
+                'message_id'    => $message_id,
+                'subject'       => $message->getSubject() ?: '(no subject)',
+                'from'          => $message->getFrom()[0]->mail ?? '',
+                'to'            => $message->getTo()[0]->mail ?? '',
+                'direction'     => 'incoming',
+                'date'          => strtotime($message->getDate()),
+                'body'          => $message->getTextBody() ?? $message->getHTMLBody(),
             ])
             ->read(['thread_hash'])
             ->first();

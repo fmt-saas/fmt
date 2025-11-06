@@ -88,6 +88,13 @@ class Mailbox extends Model {
                 'default'           => 0
             ],
 
+            'emails_ids' => [
+                'type'              => 'many2one',
+                'description'       => "The email received from the Mailbox.",
+                'foreign_object'    => 'communication\email\Email',
+                'foreign_field'     => 'mailbox_id'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [

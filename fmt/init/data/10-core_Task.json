@@ -1,0 +1,33 @@
+[
+    {
+        "name": "core\\Task",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "name": "email spooler",
+                "moment": "2025-11-06T13:55:08+00:00",
+                "is_active": true,
+                "is_recurring": true,
+                "repeat_axis": "minute",
+                "repeat_step": 1,
+                "is_exclusive": false,
+                "controller": "core_spool_run"
+            },
+            {
+                "id": 2,
+                "name": "export de documents",
+                "status": "idle",
+                "pid": 450,
+                "last_run": "2025-11-06T13:54:01+00:00",
+                "moment": "2025-11-07T13:52:41+00:00",
+                "is_active": true,
+                "is_recurring": true,
+                "repeat_axis": "minute",
+                "repeat_step": 1,
+                "is_exclusive": false,
+                "controller": "documents_export_cron"
+            }
+        ]
+    }
+]
