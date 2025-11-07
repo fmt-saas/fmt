@@ -118,14 +118,16 @@ $normalize_number = function(string $input): ?float {
 $extract_address = function($text) {
     $result = null;
 
-    $clean = preg_replace('/\s+/', ' ', trim($text));
+    $clean = str_replace('  ', ';', trim($text));
+    $clean = preg_replace('/\s+/', ' ', $clean);
 
     // Expression régulière : détecte rue, code postal, ville
-    $pattern = '/(?P<street>(?:rue|avenue|boulevard|chaussée|place|allée|square|impasse)\s+[A-Za-z\'\-\s]+,\s*\d+[A-Z]?)'
-            . '\s+(?P<zip>\d{4})\s+(?P<city>[A-Za-z\'\-\s]+)/ui';
+    $pattern = '/((?:\d+\s*(?:rue|avenue|boulevard|chaussee|place|allee|square|impasse)\s+[A-Za-z\'\-\s]+|'  // ex: "211 avenue Albert"
+              . '(?:rue|avenue|boulevard|chaussee|place|allee|square|impasse)\s+[A-Za-z\'\-\s]+,\s*\d+))'  // ex: "avenue Albert, 211"
+              . '.*?\s+(\d{4})\s+([A-Za-z\'\-]+)/im';
 
     if(preg_match($pattern, $clean, $matches)) {
-        $result = trim($matches['street']) . ' ' . trim($matches['zip']) . ' ' . trim($matches['city']);
+        $result = trim($matches[1]) . ' ' . trim($matches[2]) . ' ' . trim($matches[3]);
     }
 
     return $result;
@@ -171,7 +173,7 @@ $patterns = [
 
     'consumption_address' => [
         // #memo - this might take several lines, in case of match an additional extract is required
-        '/adresse\s+(?:de)\s+(?:fourniture)([^:])*/i',
+        '/\badresse\s+(?:de)\s+(?:fourniture)([^:])*/im',
     ],
 
     'period_start' => [
