@@ -141,12 +141,12 @@ $patterns = [
     ],
 
     'customer_number' => [
-        '/\b[^0-9]*\sclient\s*[:\-]?\s*(\d{4,})/i',
+        '/\b(?:numero|code)\s+client[^\nA-Z0-9]*([A-Z0-9\-\/]+)/i',
     ],
 
     'customer_reference' => [
-        '/\b(reference|ref)\s+client[e]?[:\-]?\s*([A-Z0-9\-\/]+)\b/i',
-        '/\bclient?\s+reference[:\-]?\s*([A-Z0-9\-\/]+)\b/i',
+        '/\b(?:reference|ref)\s+client[^\nA-Z0-9]*([A-Z0-9\-\/]+)/i',
+        '/\bclient\s+(?:ref)[^\nA-Z0-9]*([A-Z0-9\-\/]+)/i'
     ],
 
     'contract_number' => [
