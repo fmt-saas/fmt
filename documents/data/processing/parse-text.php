@@ -76,48 +76,59 @@ $toIsoDate = function (string $input): ?string {
 };
 
 $normalize_number = function(string $input): ?float {
-    // Détecter si la valeur est négative (signe '-' n'importe où avant les chiffres)
+    // Detect if the value is negative (a '-' sign anywhere before the digits)
     $isNegative = preg_match('/-\s*\d/', $input) || str_starts_with(trim($input), '-');
 
-    // Supprimer tout sauf chiffres, points et virgules
+    // Remove everything except digits, dots and commas
     $clean = preg_replace('/[^0-9.,]/', '', $input);
 
     if ($clean === '') {
         return null;
     }
 
-    // Si les deux séparateurs sont présents
+    // If both separators are present
     if (strpos($clean, ',') !== false && strpos($clean, '.') !== false) {
-        // Le dernier séparateur rencontré est le séparateur décimal
-        $lastComma = strrpos($clean, ',');
-        $lastDot   = strrpos($clean, '.');
-        $decimalPos = max($lastComma, $lastDot);
-
-        // Supprimer tous les séparateurs
+        // Remove all separators
         $digitsOnly = str_replace(['.', ','], '', $clean);
 
-        // Réinsérer un séparateur décimal à 2 chiffres de la fin si cohérent
+        // Reinsert a decimal separator 2 digits from the end if appropriate
         $intPart = substr($digitsOnly, 0, -2);
         $decPart = substr($digitsOnly, -2);
         $normalized = $intPart . '.' . $decPart;
     }
-    // Si seulement une virgule (format européen)
+    // If only a comma (European format)
     elseif(strpos($clean, ',') !== false) {
         $normalized = str_replace('.', '', $clean);
         $normalized = str_replace(',', '.', $normalized);
     }
-    // Si seulement un point (format anglo-saxon)
+    // If only a dot (Anglo-Saxon format)
     else {
         $normalized = str_replace(',', '', $clean);
     }
 
-    // Conversion en float
+    // Convert to float
     if(is_numeric($normalized)) {
         $value = (float)$normalized;
         return $isNegative ? -$value : $value;
     }
 
     return null;
+};
+
+$extract_address = function($text) {
+    $result = null;
+
+    $clean = preg_replace('/\s+/', ' ', trim($text));
+
+    // Expression régulière : détecte rue, code postal, ville
+    $pattern = '/(?P<street>(?:rue|avenue|boulevard|chaussée|place|allée|square|impasse)\s+[A-Za-z\'\-\s]+,\s*\d+[A-Z]?)'
+            . '\s+(?P<zip>\d{4})\s+(?P<city>[A-Za-z\'\-\s]+)/ui';
+
+    if(preg_match($pattern, $clean, $matches)) {
+        $result = trim($matches['street']) . ' ' . trim($matches['zip']) . ' ' . trim($matches['city']);
+    }
+
+    return $result;
 };
 
 $output = [];
@@ -159,7 +170,8 @@ $patterns = [
     ],
 
     'consumption_address' => [
-        '/adresse\s+[^:]*:?[^A-Z]*([0-9A-Z ,-]*)/i',
+        // #memo - this might take several lines, in case of match an additional extract is required
+        '/adresse\s+(?:de)\s+(?:fourniture)([^:])*/i',
     ],
 
     'period_start' => [
@@ -203,6 +215,7 @@ $patterns = [
     // ex. +++140/3598/57438+++
     'payment_id' => [
         '/(\+{3}\d{3}\/\d{4}\/\d{5})/',
+        '/(\d{3}\/\d{4}\/\d{5}\+{3})/',
     ],
 
     'seller_vat' => [
@@ -227,6 +240,9 @@ foreach($patterns as $field => $regexList) {
             }
             elseif(preg_match('/period_/', $field)) {
                 $value = $toIsoDate($value);
+            }
+            elseif(preg_match('/_address/', $field)) {
+                $value = $extract_address($value);
             }
             elseif($field === 'seller_vat') {
                 $value = str_replace(' ', '', $value);
