@@ -76,7 +76,10 @@ $toIsoDate = function (string $input): ?string {
 };
 
 $normalize_number = function(string $input): ?float {
-    // Supprimer les caractères non numériques sauf . et ,
+    // Détecter si la valeur est négative (signe '-' n'importe où avant les chiffres)
+    $isNegative = preg_match('/-\s*\d/', $input) || str_starts_with(trim($input), '-');
+
+    // Supprimer tout sauf chiffres, points et virgules
     $clean = preg_replace('/[^0-9.,]/', '', $input);
 
     if ($clean === '') {
@@ -89,29 +92,29 @@ $normalize_number = function(string $input): ?float {
         $lastComma = strrpos($clean, ',');
         $lastDot   = strrpos($clean, '.');
         $decimalPos = max($lastComma, $lastDot);
-        $decimalSep = $clean[$decimalPos];
 
         // Supprimer tous les séparateurs
         $digitsOnly = str_replace(['.', ','], '', $clean);
 
-        // Réinsérer le bon séparateur décimal à la bonne position (2 chiffres après si possible)
+        // Réinsérer un séparateur décimal à 2 chiffres de la fin si cohérent
         $intPart = substr($digitsOnly, 0, -2);
         $decPart = substr($digitsOnly, -2);
         $normalized = $intPart . '.' . $decPart;
-    } 
+    }
     // Si seulement une virgule (format européen)
-    elseif (strpos($clean, ',') !== false) {
+    elseif(strpos($clean, ',') !== false) {
         $normalized = str_replace('.', '', $clean);
         $normalized = str_replace(',', '.', $normalized);
-    } 
+    }
     // Si seulement un point (format anglo-saxon)
     else {
         $normalized = str_replace(',', '', $clean);
     }
 
     // Conversion en float
-    if (is_numeric($normalized)) {
-        return (float)$normalized;
+    if(is_numeric($normalized)) {
+        $value = (float)$normalized;
+        return $isNegative ? -$value : $value;
     }
 
     return null;
@@ -161,31 +164,33 @@ $patterns = [
 
     'period_start' => [
         '/periode[\s\S]*?\s+de\s+(\d{2}\/\d{4})\s+/i',
-        '/periode[\s\S]*?\s+du\s+(\d{2}\/\d{4})\s+/i'
+        '/periode[\s\S]*?\s+du\s+(\d{2}\/\d{4})\s+/i',
+        '/periode[\s\S]*?\s+du\s+(\d{2}\/\d{2}\/\d{4})\s+/i',
     ],
 
     'period_end' => [
         '/periode[\s\S]*?a\s+(\d{2}\/\d{4})/i',
         '/periode[\s\S]*?au\s+(\d{2}\/\d{4})/i',
+        '/periode[\s\S]*?au\s+(\d{2}\/\d{2}\/\d{4})/i'
     ],
 
     'amount_htva' => [
-        '/\btotal.*:?(htva)[^\n]*?([\d.,]+)\s*€(?!.*€)/i'
+        '/\btotal.*(?:htva)[^\n]*?([\d.,]+)\s*€(?!.*€)/i'
     ],
 
     'amount_tva' => [
         // Ligne "TVA", "T.V.A.", etc.
-        '/\btv[a.]?[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
+        '/\btva[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
     ],
 
     'amount_tvac' => [
-        '/\btotal.*:?(facture)[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
-        '/\btotal.*:?(a payer)[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
+        '/\btotal.*(?:facture)[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
+        '/\btotal.*(?:a payer)[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
         '/\ba payer[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
     ],
 
     'due_date' => [
-        '/\b(?:date\s+d[’\'e]cheance|d[’\'e]cheance|date\s+limite\s+de\s+paiement)\s*[:\-]?\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
+        '/\b(?:date\s+d[’\']echeance|d[’\']echeance|date\s+limite\s+de\s+paiement)\s*[:\-]?\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
         '/\bpaiement\s+(avant|pour)\s+le\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
         '/\bavant\s+le\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
     ],
@@ -228,6 +233,9 @@ foreach($patterns as $field => $regexList) {
             }
             elseif($field === 'iban') {
                 $value = str_replace(' ', '', $value);
+            }
+            elseif($field === 'payment_id') {
+                $value = str_replace('+', '', $value);
             }
 
             $output[$field] = trim($value);
