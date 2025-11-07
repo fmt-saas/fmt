@@ -125,6 +125,7 @@ class ConsumptionMeter extends \equal\orm\Model {
             'meter_ean' => [
                 'type'              => 'string',
                 'description'       => 'The code identifying  for the European Article Numbering of the consumption meter.',
+                'unique'            => true,
                 'visible'           => ['has_ean' , '=', true]
             ],
 

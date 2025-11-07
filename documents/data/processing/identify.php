@@ -7,6 +7,7 @@
 use documents\Document;
 use documents\DocumentSubtype;
 use documents\DocumentType;
+use realestate\utility\energy\ConsumptionMeter;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Attempt to identify document type and subtype.',
@@ -40,8 +41,10 @@ if(!$document) {
 }
 
 $result = [
+    // if found, will contain id & code
     'document_type'      => [],
-    'document_subtype'   => []
+    'document_subtype'   => [],
+    'condominium'        => []
 ];
 
 // extract data (based on content-type)
@@ -51,6 +54,8 @@ $document_type = null;
 $document_subtype = null;
 
 // use clues in order to attempt retrieving document type and subtype
+
+// check based on content type
 if(!$document_type) {
 
     if(in_array($document['content_type'], ['text/plain', 'text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'], true)) {
@@ -89,6 +94,7 @@ if(!$document_type) {
     }
 }
 
+// check based on text clues ("signatures")
 if(!$document_type) {
 
     $map_signatures = [
@@ -162,6 +168,8 @@ if(!$document_type) {
     }
 }
 
+
+// attempt to retrieve IDs of document type and subtype
 if($document_type) {
 
     $documentTypes = DocumentType::search()->read(['code'])->get();
@@ -190,6 +198,24 @@ if($document_type) {
     }
 
 }
+
+// attempt to retrieve condominium based on text preliminary parsing
+$info = eQual::run('get', 'documents_processing_parse-text', ['text' => $text]);
+
+$consumptionMeter = null;
+
+// #todo - increase coverage of retrieval
+if(isset($info['ean_code']) ) {
+    $consumptionMeter = ConsumptionMeter::search(['meter_ean', '=', $info['ean_code']])->read(['condo_id' => ['id', 'name']])->first();
+}
+
+if($consumptionMeter) {
+    $result['condominium'] = [
+        'id'    => $consumptionMeter['condo_id']['id'],
+        'name'  => $consumptionMeter['condo_id']['name']
+    ];
+}
+
 
 $context->httpResponse()
         ->body($result)

@@ -917,10 +917,11 @@ class DocumentProcess extends Model {
             $logs = [];
             $logs[] = "<b>Identification</b>";
 
+            $report_html = $documentProcess['report_html'];
+
             $identification = \eQual::run('get', 'documents_processing_identify', ['id' => $documentProcess['document_id']]);
 
             if(isset($identification['document_type']['id'])) {
-
                 $values['document_type_id'] = $identification['document_type']['id'];
                 $logs[] = "Retrieved document type: " . $identification['document_type']['code'];
 
@@ -928,17 +929,15 @@ class DocumentProcess extends Model {
                     $values['document_subtype_id'] = $identification['document_subtype']['id'];
                     $logs[] = "Retrieved document sub-type: " . $identification['document_subtype']['code'];
                 }
-
-                $report_html = $documentProcess['report_html'];
-                if(strlen($report_html) > 0) {
-                    $report_html .= "<br />";
-                }
-
             }
 
-            $report_html = $documentProcess['report_html'];
+            if(isset($identification['condominium']['id'])) {
+                $values['condo_id'] = $identification['condominium']['id'];
+                $logs[] = "Retrieved condominium: " . $identification['condominium']['name'];
+            }
+
             if(strlen($report_html) > 0) {
-                $report_html .= "<br />";
+                $logs[] = "";
             }
 
             $values['report_html'] = $report_html . implode("<br />", $logs);
