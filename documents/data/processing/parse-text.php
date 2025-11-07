@@ -129,17 +129,16 @@ $patterns = [
         // "Invoice number : 2024-00215"
         // "Invoice Ref: 24/159-A"
         '/\bfacture\b[^\n]{0,20}?(?:n[o°]?|numero|ref(?:erence)?)?\s*[:\-]?\s*([A-Z]{0,3}\d{2,}[A-Z0-9\/\-]*)/i',
-        '/reference\s+facture\s*[:\-]?\s*([A-Z]{0,3}\d{2,}[A-Z0-9\/\-]*)/i',
-        '/invoice\s*(?:number|ref(?:erence)?)?\s*[:\-]?\s*([A-Z]{0,3}\d{2,}[A-Z0-9\/\-]*)/i',
+        '/\breference\s+facture\s*[:\-]?\s*([A-Z]{0,3}\d{2,}[A-Z0-9\/\-]*)/i'
     ],
 
     'invoice_date' => [
-        '/facture\s+[^0-9]*\d*\s+du\s+(\d{2}\/\d{2}\/\d{4})/i',
-        '/date\s*[:]?\s*(\d{2}\/\d{2}\/\d{4})/i',
+        '/\bfacture\s+[^0-9]*\d*\s+du\s+(\d{2}\/\d{2}\/\d{4})/i',
+        '/\bdate\s*[:]?\s*(\d{2}\/\d{2}\/\d{4})/i',
     ],
 
     'customer_number' => [
-        '/[^0-9]*\sclient\s*[:\-]?\s*(\d{4,})/i',
+        '/\b[^0-9]*\sclient\s*[:\-]?\s*(\d{4,})/i',
     ],
 
     'customer_reference' => [
@@ -148,47 +147,47 @@ $patterns = [
     ],
 
     'contract_number' => [
-        '/[^0-9]*\scontrat\s*[:\-]?\s*(\d{4,})/i',
+        '/\b[^0-9]*\scontrat\s*[:\-]?\s*(\d{4,})/i',
     ],
 
     'installation_number' => [
-        '/installation\s*[:\-]?\s*(\d{3,})/mi',
-        '/\s+EAN\s*[:\-]?\s*(\d{3,})/mi',
+        '/installation\s*[:\-]?\s*(\d{3,})/i',
+        '/\s+EAN\s*[:\-]?\s*(\d{3,})/i',
     ],
 
     'consumption_address' => [
-        '/adresse\s+[^:]*:?[^A-Z]*([0-9A-Z ,-]*)/mi',
+        '/adresse\s+[^:]*:?[^A-Z]*([0-9A-Z ,-]*)/i',
     ],
 
     'period_start' => [
-        '/periode[\s\S]*?\s+de\s+(\d{2}\/\d{4})\s+/mi',
-        '/periode[\s\S]*?\s+du\s+(\d{2}\/\d{4})\s+/mi'
+        '/periode[\s\S]*?\s+de\s+(\d{2}\/\d{4})\s+/i',
+        '/periode[\s\S]*?\s+du\s+(\d{2}\/\d{4})\s+/i'
     ],
 
     'period_end' => [
-        '/periode[\s\S]*?a\s+(\d{2}\/\d{4})/mi',
-        '/periode[\s\S]*?au\s+(\d{2}\/\d{4})/mi',
+        '/periode[\s\S]*?a\s+(\d{2}\/\d{4})/i',
+        '/periode[\s\S]*?au\s+(\d{2}\/\d{4})/i',
     ],
 
     'amount_htva' => [
-        '/total.*:?(htva)[^\n]*?([\d.,]+)\s*€(?!.*€)/im'
+        '/\btotal.*:?(htva)[^\n]*?([\d.,]+)\s*€(?!.*€)/i'
     ],
 
     'amount_tva' => [
         // Ligne "TVA", "T.V.A.", etc.
-        '/\btv[a.]?[^\n]*?([\d.,]+)\s*€(?!.*€)/im',
+        '/\btv[a.]?[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
     ],
 
     'amount_tvac' => [
-        '/total.*:?(facture)[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
-        '/total.*:?(a payer)[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
-        '/a payer[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
+        '/\btotal.*:?(facture)[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
+        '/\btotal.*:?(a payer)[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
+        '/\ba payer[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
     ],
 
     'due_date' => [
-        '/(?:date\s+d[’\'e]ch[ée]ance|d[’\'e]ch[ée]ance|date\s+limite\s+de\s+paiement)\s*[:\-]?\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
-        '/paiement\s+(avant|pour)\s+le\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
-        '/avant\s+le\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
+        '/\b(?:date\s+d[’\'e]cheance|d[’\'e]cheance|date\s+limite\s+de\s+paiement)\s*[:\-]?\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
+        '/\bpaiement\s+(avant|pour)\s+le\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
+        '/\bavant\s+le\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
     ],
 
     // ex. BE38 0015 0942 4272
@@ -198,7 +197,7 @@ $patterns = [
 
     // ex. +++140/3598/57438+++
     'payment_id' => [
-        '/(\+{3}\d{3}\/\d{4}\/\d{5}\+{3})/',
+        '/(\+{3}\d{3}\/\d{4}\/\d{5})/',
     ],
 
     'seller_vat' => [
