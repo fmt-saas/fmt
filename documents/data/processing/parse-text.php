@@ -173,7 +173,7 @@ $patterns = [
 
     'consumption_address' => [
         // #memo - this might take several lines, in case of match an additional extract is required
-        '/\badresse\s+(?:de)\s+(?:fourniture)([^:])*/im',
+        '/\badresse\s+(?:de)\s+(?:fourniture)([^:]*?)(?:\s{2,})/imU',
     ],
 
     'period_start' => [
