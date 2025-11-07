@@ -75,11 +75,62 @@ $toIsoDate = function (string $input): ?string {
     return $ts ? date('Y-m-01\T00:00:00\Z', $ts) : null;
 };
 
+$normalize_number = function(string $input): ?float {
+    // Supprimer les caractères non numériques sauf . et ,
+    $clean = preg_replace('/[^0-9.,]/', '', $input);
+
+    if ($clean === '') {
+        return null;
+    }
+
+    // Si les deux séparateurs sont présents
+    if (strpos($clean, ',') !== false && strpos($clean, '.') !== false) {
+        // Le dernier séparateur rencontré est le séparateur décimal
+        $lastComma = strrpos($clean, ',');
+        $lastDot   = strrpos($clean, '.');
+        $decimalPos = max($lastComma, $lastDot);
+        $decimalSep = $clean[$decimalPos];
+
+        // Supprimer tous les séparateurs
+        $digitsOnly = str_replace(['.', ','], '', $clean);
+
+        // Réinsérer le bon séparateur décimal à la bonne position (2 chiffres après si possible)
+        $intPart = substr($digitsOnly, 0, -2);
+        $decPart = substr($digitsOnly, -2);
+        $normalized = $intPart . '.' . $decPart;
+    } 
+    // Si seulement une virgule (format européen)
+    elseif (strpos($clean, ',') !== false) {
+        $normalized = str_replace('.', '', $clean);
+        $normalized = str_replace(',', '.', $normalized);
+    } 
+    // Si seulement un point (format anglo-saxon)
+    else {
+        $normalized = str_replace(',', '', $clean);
+    }
+
+    // Conversion en float
+    if (is_numeric($normalized)) {
+        return (float)$normalized;
+    }
+
+    return null;
+};
+
 $output = [];
 
 $patterns = [
     'invoice_number' => [
-        '/facture\s+[^0-9]*([A-Z0-9\/\-]{4,})/i',
+        // Exemples pris en charge :
+        // "Facture n° 744000399977"
+        // "Facture numero : 2024-00215"
+        // "Facture ref : E24/03598574"
+        // "Reference facture : E24/03598574"
+        // "Invoice number : 2024-00215"
+        // "Invoice Ref: 24/159-A"
+        '/\bfacture\b[^\n]{0,20}?(?:n[o°]?|numero|ref(?:erence)?)?\s*[:\-]?\s*([A-Z]{0,3}\d{2,}[A-Z0-9\/\-]*)/i',
+        '/reference\s+facture\s*[:\-]?\s*([A-Z]{0,3}\d{2,}[A-Z0-9\/\-]*)/i',
+        '/invoice\s*(?:number|ref(?:erence)?)?\s*[:\-]?\s*([A-Z]{0,3}\d{2,}[A-Z0-9\/\-]*)/i',
     ],
 
     'invoice_date' => [
@@ -92,8 +143,8 @@ $patterns = [
     ],
 
     'customer_reference' => [
-        '/\b(r[eé]f[ée]rence|ref)\s+client[e]?[:\-]?\s*([A-Z0-9\-\/]+)\b/i',
-        '/\bclient[e]?\s+r[eé]f[ée]rence[:\-]?\s*([A-Z0-9\-\/]+)\b/i',
+        '/\b(reference|ref)\s+client[e]?[:\-]?\s*([A-Z0-9\-\/]+)\b/i',
+        '/\bclient?\s+reference[:\-]?\s*([A-Z0-9\-\/]+)\b/i',
     ],
 
     'contract_number' => [
@@ -120,16 +171,18 @@ $patterns = [
     ],
 
     'amount_htva' => [
-        '/total de la facture\s*\(htva\)\s*([\d\s.,]+) ?€/i',
+        '/total.*:?(htva)[^\n]*?([\d.,]+)\s*€(?!.*€)/im'
     ],
 
     'amount_tva' => [
-        '/tva\s*\d{1,2}%\s*([\d\s.,]+) ?€/i',
+        // Ligne "TVA", "T.V.A.", etc.
+        '/\btv[a.]?[^\n]*?([\d.,]+)\s*€(?!.*€)/im',
     ],
 
     'amount_tvac' => [
-        '/total de la facture\s*\(tvac\)\s*([\d\s.,]+) ?€/i',
-        '/a payer\s*([\d\s.,]+) ?€/i',
+        '/total.*:?(facture)[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
+        '/total.*:?(a payer)[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
+        '/a payer[^\n]*?([\d.,]+)\s*€(?!.*€)/i',
     ],
 
     'due_date' => [
@@ -166,7 +219,7 @@ foreach($patterns as $field => $regexList) {
             $value = trim($match[1]);
 
             if(preg_match('/amount_/', $field)) {
-                $value = str_replace([' ', ','], ['', '.'], $value);
+                $value = $normalize_number($value);
             }
             elseif(preg_match('/period_/', $field)) {
                 $value = $toIsoDate($value);

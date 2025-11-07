@@ -63,7 +63,7 @@ $extractTxtFromPdf = function ($document_data) {
             throw new Exception('missing_mandatory_pdftotext_library', EQ_ERROR_INVALID_CONFIG);
         }
 
-        $command = escapeshellcmd("pdftotext -enc UTF-8 " . escapeshellarg($output_file) . " -");
+        $command = escapeshellcmd("pdftotext -enc UTF-8 -layout -nopgbrk " . escapeshellarg($output_file) . " -");
         $raw_text = shell_exec($command);
 
         unlink($output_file);
