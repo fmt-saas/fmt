@@ -5,8 +5,8 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 [$params, $providers] = eQual::announce([
-    'description'   => 'Return a partial map of purchase-invoice JSON descriptor values from a raw text.',
-    'help'          => 'Extracted values are meant to be used as complementary information and do not provide all invoice mandatory details.',
+    'description'   => 'Attempt to retrieve relevant information from a raw text and return it as a partial map.',
+    'help'          => 'Extracted values are meant to be used as complementary information for identifying a document or auto-completion of a document from a given type.',
     'params'        => [
         'text' =>  [
             'type'              => 'string',
@@ -31,9 +31,12 @@ $text = $params['text'];
 
 
 /*
+    Possible properties returned in the Response :
+
     [invoice_number] => 744000399977
     [invoice_date] => 15/12/2024
     [customer_number] => 1000328782
+    customer_reference
     [contract_number] =>
     [installation_number] => 4000232058
     [consumption_address] => CHEE DE LOUVAIN 261, 1210 SAINT-JOSSE-TEN-NOODE
@@ -84,12 +87,17 @@ $patterns = [
         '/date\s*[:]?\s*(\d{2}\/\d{2}\/\d{4})/i',
     ],
 
-    'contract_number' => [
-        '/[^0-9]*\scontrat\s*[:\-]?\s*(\d{4,})/i',
-    ],
-
     'customer_number' => [
         '/[^0-9]*\sclient\s*[:\-]?\s*(\d{4,})/i',
+    ],
+
+    'customer_reference' => [
+        '/\b(r[eé]f[ée]rence|ref)\s+client[e]?[:\-]?\s*([A-Z0-9\-\/]+)\b/i',
+        '/\bclient[e]?\s+r[eé]f[ée]rence[:\-]?\s*([A-Z0-9\-\/]+)\b/i',
+    ],
+
+    'contract_number' => [
+        '/[^0-9]*\scontrat\s*[:\-]?\s*(\d{4,})/i',
     ],
 
     'installation_number' => [
@@ -125,20 +133,24 @@ $patterns = [
     ],
 
     'due_date' => [
-        '/avant le\s+(\d{2}\/\d{2}\/\d{4})/i',
+        '/(?:date\s+d[’\'e]ch[ée]ance|d[’\'e]ch[ée]ance|date\s+limite\s+de\s+paiement)\s*[:\-]?\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
+        '/paiement\s+(avant|pour)\s+le\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
+        '/avant\s+le\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i',
     ],
 
+    // ex. BE38 0015 0942 4272
     'iban' => [
         '/(BE\d{2} ?\d{4} ?\d{4} ?\d{4})/i',
     ],
 
+    // ex. +++140/3598/57438+++
     'payment_id' => [
         '/(\+{3}\d{3}\/\d{4}\/\d{5}\+{3})/',
     ],
 
     'seller_vat' => [
-        '/TVA\s*BE\s*0\d{2}[ .]?\d{3}[ .]?\d{3}/i',
-        '/\bBE\s*0\d{2}[ .]?\d{3}[ .]?\d{3}\b/i',
+        '/(?:TVA|BTW|TVA\/BTW)\s*[:\-]?\s*(BE\s*0?\s*\d{3}[ .]?\d{3}[ .]?\d{3})/i',
+        '/\b(BE\s*0?\s*\d{3}[ .]?\d{3}[ .]?\d{3})\b/i',
     ],
 
     'ean_code' => [
@@ -147,6 +159,7 @@ $patterns = [
     ]
 ];
 
+// additional specific treatments
 foreach($patterns as $field => $regexList) {
     foreach($regexList as $regex) {
         if(preg_match($regex, $text, $match)) {
@@ -157,6 +170,9 @@ foreach($patterns as $field => $regexList) {
             }
             elseif(preg_match('/period_/', $field)) {
                 $value = $toIsoDate($value);
+            }
+            elseif($field === 'seller_vat') {
+                $value = str_replace(' ', '', $value);
             }
             elseif($field === 'iban') {
                 $value = str_replace(' ', '', $value);

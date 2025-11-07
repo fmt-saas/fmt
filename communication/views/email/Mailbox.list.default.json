@@ -1,16 +1,20 @@
 {
-    "name": "Mailbox",
+    "name": "Mailboxes",
     "header": {
         "layout": "inline",
         "actions": {
-            "ACTION.CREATE_INLINE":  [
-                {
-                    "view": false
-                }
-            ]
+            "ACTION.CREATE_INLINE":  false
         }
     },
     "actions": [
+        {
+            "id": "action.add_mailbox",
+            "label": "Add mailbox",
+            "description": "Add a new mailbox for emails fetching automation.",
+            "component": {
+                "name": "communicationAddMailbox"
+            }
+        },
         {
             "id": "action.connect",
             "inline": true,

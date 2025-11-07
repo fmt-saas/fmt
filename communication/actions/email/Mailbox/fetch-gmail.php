@@ -23,7 +23,7 @@ use documents\Document;
     ],
     'constants'     => ['BACKEND_URL'],
     'access'        => [
-        'visibility' => 'public'
+        'visibility' => 'protected'
     ],
     'response'      => [
         'content-type'      => 'application/json',
@@ -66,7 +66,7 @@ if($mailbox['access_token_expiry'] < time()) {
     eQual::run('do', 'communication_email_Mailbox_refresh-token-gmail', ['id' => $params['id']]);
 }
 
-
+// load info required for fetching emails
 $mailbox = Mailbox::id($params['id'])
     ->read(['imap_server', 'imap_port', 'email', 'access_token', 'date_last_sync'])
     ->first();

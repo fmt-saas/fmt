@@ -81,7 +81,7 @@ $data = eQual::run('get', 'documents_processing_PurchaseInvoice_parse-google', [
 
 // attempt to enrich with additional data
 $text = eQual::run('get', 'documents_processing_dump-text', ['id' =>  $document['id']]);
-$info = eQual::run('get', 'documents_processing_PurchaseInvoice_parse-text', ['text' => $text]);
+$info = eQual::run('get', 'documents_processing_parse-text', ['text' => $text]);
 
 if(!isset($data['supplier']['vat_id']) && isset($info['seller_vat'])) {
     $data['supplier']['vat_id'] = $info['seller_vat'];
