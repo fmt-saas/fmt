@@ -42,7 +42,11 @@ if($runningExportingTask) {
 
 
 // take the first one by creation date
-$exportingTask = ExportingTask::search(['status', '=', 'idle'], ['limit' => 1, 'sort' => ['created' => 'asc']])
+$exportingTask = ExportingTask::search([
+            ['status', '=', 'idle'],
+        ],
+        ['limit' => 1, 'sort' => ['created' => 'asc']]
+    )
     ->update(['status' => 'running'])
     ->read(['exporting_task_lines_ids' => ['controller', 'params']])
     ->first();

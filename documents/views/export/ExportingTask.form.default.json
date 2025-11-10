@@ -1,5 +1,20 @@
 {
     "name": "Exporting Task",
+    "actions": [
+        {
+            "id": "action.retry",
+            "inline": true,
+            "label": "Retry",
+            "icon": "sync",
+            "description": "Fetch latest emails and import attachments.",
+            "controller": "core_model_do",
+            "params": {
+                "action": "retry",
+                "id": "object.id"
+            },
+            "visible": ["failing", "=", "object.status"]
+        }
+    ],
     "routes": [
         {
             "id": "route.download",

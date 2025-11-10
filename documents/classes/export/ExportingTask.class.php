@@ -68,8 +68,26 @@ class ExportingTask extends \equal\orm\Model {
                 'help'              => "Remains `running` while all lines haven't been processed."
             ],
 
-
         ];
+    }
+
+    public static function getActions() {
+        return [
+            'retry' => [
+                'description'   => 'Request a new export attempt, by resetting status to `idle`.',
+                'policies'      => [],
+                'function'      => 'doRetry'
+            ]
+        ];
+    }
+
+    protected static function doRetry($self) {
+        $self->read(['status']);
+        foreach($self as $id => $exportingTask) {
+            if($exportingTask['status'] === 'failing') {
+                self::id($id)->update(['status' => 'idle']);
+            }
+        }
     }
 
     protected static function calcDownloadLink($self) {

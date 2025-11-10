@@ -26,7 +26,7 @@
                 "repeat_axis": "minute",
                 "repeat_step": 1,
                 "is_exclusive": false,
-                "controller": "documents_export_cron"
+                "controller": "documents_export_cron_run"
             }
         ]
     }
