@@ -6,7 +6,6 @@
 */
 
 use documents\Document;
-use documents\navigation\Node;
 use realestate\governance\Assembly;
 use realestate\governance\AssemblyInvitation;
 
@@ -60,14 +59,14 @@ $assemblyInvitations = AssemblyInvitation::search([
         [ 'assembly_id', '=', $assembly['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
-    ->read(['document_id']);
+    ->read(['is_sent', 'document_id']);
 
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
 
 foreach($assemblyInvitations as $assembly_invitation_id => $assemblyInvitation) {
 
-    if(!$assemblyInvitation['document_id']) {
+    if(!$assemblyInvitation['is_sent'] && !$assemblyInvitation['document_id']) {
         // generate document, add it to EDMS, and attach it to invitation
         eQual::run('do', 'realestate_governance_AssemblyInvitation_generate-document', ['id' => $assembly_invitation_id]);
     }

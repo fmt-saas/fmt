@@ -108,7 +108,7 @@ class AssemblyInvitation extends \equal\orm\Model {
         foreach($self as $id => $assemblyInvitation) {
             if($assemblyInvitation['is_sent']) {
                 if(count(array_diff(array_keys($values), $allowed)) > 0) {
-                    return ['status' => ['non_editable' => 'Invite cannot be changed once sent.']];
+                    return ['is_sent' => ['non_editable' => 'Invite cannot be changed once sent.']];
                 }
             }
         }
