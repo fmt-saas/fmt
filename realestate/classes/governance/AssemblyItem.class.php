@@ -540,7 +540,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 $majority = $item['majority'] ?? null;
 
                 // #memo - we have no guarantee that all concerned owners have taken part to the vote (abstention)
-                // #memo - Art. 3.87 §8 - Les décisions de l'assemblée générale sont prises à la majorité absolue des voix des copropriétaires présents ou représentés au moment du vote, sauf si la loi exige une majorité qualifiée. Les abstentions, les votes nuls et blancs ne sont pas considérés comme des voix émises pour le calcul de la majorité requise.
+                // #memo - Art. 3.87 §8 - "Les décisions de l'assemblée générale sont prises à la majorité absolue des voix des copropriétaires présents ou représentés au moment du vote, sauf si la loi exige une majorité qualifiée. Les abstentions, les votes nuls et blancs ne sont pas considérés comme des voix émises pour le calcul de la majorité requise".
                 // (abstentions are not taken in account for computation of the majority)
                 $sum_votes = $weights['for'] + $weights['against'];
                 $ratio = $sum_votes > 0 ? ($weights['for'] / $sum_votes) : 0.0;

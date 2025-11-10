@@ -132,21 +132,58 @@
                 {{ majorityLabels[assemblyItem.majority] }} <br /><br />
             {% endif %}
 
-            {% if assemblyItem.description_minutes is not empty %}
-                {{ assemblyItem.description_minutes | raw }}
-            {% endif %}
-
-
             {% set ownerships_against = [] %}
             {% set ownerships_abstain = [] %}
+            {% set weights_for = 0.0 %}
+            {% set weights_against = 0.0 %}
+            {% set weights_abstain = 0.0 %}
 
             {% for vote in assemblyItem.assembly_votes_ids %}
                 {% if vote.vote_value == 'against' %}
                     {% set ownerships_against = ownerships_against | merge([map_ownerships[vote.ownership_id].name]) %}
+                    {% set weights_against = weights_against + vote.vote_weight %}
                 {% elseif vote.vote_value == 'abstain' %}
                     {% set ownerships_abstain = ownerships_abstain | merge([map_ownerships[vote.ownership_id].name]) %}
+                    {% set weights_abstain = weights_abstain + vote.vote_weight %}
+                {% elseif vote.vote_value == 'for' %}
+                    {% set weights_for = weights_for + vote.vote_weight %}
                 {% endif %}
             {% endfor %}
+
+            {% set sum_votes = weights_for + weights_against %}
+            {% set ratio = sum_votes > 0 ? (weights_for / sum_votes) : 0.0 %}
+
+            <!-- #todo - ajouter un mini détail du résultat des votes -->
+            {% if assemblyItem.has_vote_required %}
+            <div class="vote-summary">
+                <strong>Résultat du vote :</strong>
+                {% if assemblyItem.assembly_votes_ids.length > 0 %}
+                <table>
+                    <tr>
+                        <td>Pour</td>
+                        <td>Contre</td>
+                        <td>Abstention</td>
+                    </tr>
+                    <tr>
+                        <td>{{ weights_for | number_format(2, ',', ' ') }} %</td>
+                        <td>{{ weights_against | number_format(2, ',', ' ') }} %</td>
+                        <td>{{ weights_abstain | number_format(2, ',', ' ') }} %</td>
+                    </tr>
+                    <tr>
+                        <td>{{ (weights_for / sum_votes * 100) | number_format(1, ',', ' ') }} %</td>
+                        <td>{{ (weights_against / sum_votes * 100) | number_format(1, ',', ' ') }} %</td>
+                        <td></td>
+                    </tr>
+                </table>
+                {% else %}
+                    Aucun vote enregistré.
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if assemblyItem.description_minutes is not empty %}
+                {{ assemblyItem.description_minutes | raw }}
+            {% endif %}
 
             {% if ownerships_against is not empty %}
                 <p><strong>Contre :</strong>

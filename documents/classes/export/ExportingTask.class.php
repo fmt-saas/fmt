@@ -97,6 +97,7 @@ class ExportingTask extends \equal\orm\Model {
             if($exportingTask['status'] !== 'ready') {
                 continue;
             }
+            // #memo - `download` controller groups all documents from lines into a single .zip archive
             $result[$id] = '/?get=documents_export_ExportingTask_download&id=' . $id;
         }
         return $result;

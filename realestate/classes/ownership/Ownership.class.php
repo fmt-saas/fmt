@@ -264,15 +264,15 @@ class Ownership extends \equal\orm\Model {
 
             // Langue du premier owner (1=EN, 2=FR, 3=NL)
             $firstOwner = reset($owners);
-            $langId = isset($firstOwner['lang_id']) ? (int) $firstOwner['lang_id'] : 2;
+            $lang_id = isset($firstOwner['lang_id']) ? (int) $firstOwner['lang_id'] : 2;
 
-            // Dictionnaire des titres selon la langue
+            // map of salutation titles, based on lang
             $titles = [];
-            if($langId === 1) {
+            if($lang_id === 1) {
                 $titles = ['M' => 'Mr', 'F' => 'Mrs', 'X' => 'Mx', '' => ''];
                 $and = 'and';
             }
-            elseif($langId === 3) {
+            elseif($lang_id === 3) {
                 $titles = ['M' => 'De heer', 'F' => 'Mevrouw', 'X' => '', '' => ''];
                 $and = 'en';
             }
@@ -281,7 +281,7 @@ class Ownership extends \equal\orm\Model {
                 $and = 'et';
             }
 
-            // Regroupe les owners par genre
+            // group owners by gender
             $groups = ['M' => [], 'F' => [], 'X' => [], '' => []];
 
             foreach($owners as $owner) {
@@ -341,7 +341,7 @@ class Ownership extends \equal\orm\Model {
                 $title = isset($titles[$key]) ? $titles[$key] : '';
                 $lastnames = array_unique(array_column($ownersList, 'lastname'));
                 if(count($lastnames) === 1) {
-                    switch($langId) {
+                    switch($lang_id) {
                         case 1: // EN
                             if($key === 'M') {
                                 $title = 'Messrs';

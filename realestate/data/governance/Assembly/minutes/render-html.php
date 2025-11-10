@@ -178,6 +178,7 @@ $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']]
         'vote_result',
         'assembly_votes_ids' => [
             'vote_value',
+            'vote_weight',
             'assembly_attendee_id',
             'ownership_id'
         ]
