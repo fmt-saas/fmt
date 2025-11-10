@@ -59,14 +59,18 @@ if(!$assembly) {
 $assemblyInvitations = AssemblyInvitation::search([
         [ 'assembly_id', '=', $assembly['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
-    ]);
+    ])
+    ->read(['document_id']);
 
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
 
 foreach($assemblyInvitations as $assembly_invitation_id => $assemblyInvitation) {
-    // generate document, add it to EDMS, and attach it to invitation
-    eQual::run('do', 'realestate_governance_AssemblyInvitation_generate-document', ['id' => $assembly_invitation_id]);
+
+    if(!$assemblyInvitation['document_id']) {
+        // generate document, add it to EDMS, and attach it to invitation
+        eQual::run('do', 'realestate_governance_AssemblyInvitation_generate-document', ['id' => $assembly_invitation_id]);
+    }
 
     $assemblyInvitation = AssemblyInvitation::id($assembly_invitation_id)
         ->read(['document_id' => ['data']])

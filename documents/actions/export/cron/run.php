@@ -62,7 +62,7 @@ $has_failing_line = false;
 
 foreach($exportingTask['exporting_task_lines_ids'] as $exporting_task_line_id => $exportingTaskLine) {
 
-    [$status, $log] = ['', ''];
+    [$status, $log] = ['ready', ''];
 
     ExportingTaskLine::id($exporting_task_line_id)
         ->update([
@@ -89,19 +89,21 @@ foreach($exportingTask['exporting_task_lines_ids'] as $exporting_task_line_id =>
     }
     catch(\Exception $e) {
         // error occurred during execution
-        trigger_error("PHP::Error while running scheduled job [{$exportingTaskLine['id']}]: ".$e->getMessage(), QN_REPORT_ERROR);
+        trigger_error("PHP::Error while running scheduled job [{$exportingTaskLine['id']}]: ".$e->getMessage(), EQ_REPORT_ERROR);
         $has_failing_line = true;
-        $status = 'error';
+        if($e->getCode() !== 0) {
+            $status = 'error';
+            ExportingTaskLine::id($exporting_task_line_id)
+                ->update([
+                    'status'    => 'failing'
+                ]);
+        }
         $msg = $e->getMessage();
         $data = @unserialize($msg);
         if(is_array($data)) {
             $data = json_encode($data, JSON_PRETTY_PRINT);
         }
         $log = ($data) ? $data : $msg;
-        ExportingTaskLine::id($exporting_task_line_id)
-            ->update([
-                'status'    => 'failing'
-            ]);
     }
 
     // create a new TaskLog holding result
