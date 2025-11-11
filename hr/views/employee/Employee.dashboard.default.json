@@ -1,0 +1,63 @@
+{
+    "name": "Employee dashboard",
+    "description": "",
+    "layout": {
+        "groups": [
+			{
+                "label": "test",
+                "height": "100%",
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "height": "50%",
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "id": "item.alerts",
+                                                "label": "Alerts",
+                                                "description": "",
+                                                "width": "50%",
+                                                "entity": "core\\alert\\Message",
+                                                "view": "list.employee"
+                                            },
+                                            {
+                                                "id": "item.fundings",
+                                                "label": "Payments",
+                                                "description": "",
+                                                "width": "50%",
+                                                "entity": "realestate\\sale\\pay\\Funding",
+                                                "view": "list.dashboard",
+                                                "domain": [ ["ownership_id", "in", "user.ownerships_ids"], ["status", "in", ["pending", "debit_balance"]] ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "height": "50%",
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "id": "item.documents",
+                                                "label": "Documents",
+                                                "description": "",
+                                                "width": "50%",
+                                                "entity": "documents\\Document",
+                                                "view": "list.default"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

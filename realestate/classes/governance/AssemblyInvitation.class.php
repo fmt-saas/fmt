@@ -104,7 +104,7 @@ class AssemblyInvitation extends \equal\orm\Model {
 
     protected static function canupdate($self, $values) {
         $self->read(['is_sent']);
-        $allowed = ['is_acknowledged'];
+        $allowed = ['document_id', 'is_acknowledged'];
         foreach($self as $id => $assemblyInvitation) {
             if($assemblyInvitation['is_sent']) {
                 if(count(array_diff(array_keys($values), $allowed)) > 0) {

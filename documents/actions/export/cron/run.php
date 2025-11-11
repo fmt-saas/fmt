@@ -24,10 +24,10 @@ use equal\http\HttpRequest;
     ],
     // #todo - mark as private (only from scheduler)
     'access'        => [ 'visibility' => 'protected' ],
-    'providers'     => ['context', 'orm']
+    'providers'     => ['context', 'orm', 'dispatch']
 ]);
 
-['context' => $context, 'orm' => $orm] = $providers;
+['context' => $context, 'orm' => $orm, 'dispatch' => $dispatch] = $providers;
 
 
 $now = time();
@@ -39,6 +39,8 @@ if($runningExportingTask) {
     // exit wit no error code
     throw new Exception('task_in_progress', 0);
 }
+
+// #todo - handle optional param `id`
 
 
 // take the first one by creation date
@@ -117,8 +119,19 @@ foreach($exportingTask['exporting_task_lines_ids'] as $exporting_task_line_id =>
 }
 
 
-ExportingTask::id($exportingTask['id'])
-    ->update(['status' => $has_failing_line ? 'failing' : 'ready']);
+// at least one line in failing
+if($has_failing_line) {
+    ExportingTask::id($exportingTask['id'])
+        ->update(['status' => 'failing']);
+
+    $dispatch->dispatch('documents.export.export_failing', 'documents\export\ExportingTask', $$exportingTask['id'], 'important');
+}
+else {
+    ExportingTask::id($exportingTask['id'])
+        ->update(['status' => 'ready']);
+
+    $dispatch->dispatch('documents.export.export_ready', 'realestate\governance\Assembly', $exportingTask['id'], 'notice');
+}
 
 
 $context->httpResponse()

@@ -1044,11 +1044,11 @@ class Assembly extends \equal\orm\Model {
 
     /**
      * Handle invites sending for each ownership.
-     *   - Queue Emails (Only owners with contact preference set as email will be handled)
+     *   - Queue Emails (Only owners with contact preference set as email are handled)
      *   - Create an exporting task that will asynchronously generate the export lines & related documents.
      *
      */
-    protected static function doSendInvites($self) {
+    protected static function doSendInvites($self, $cron) {
         $self->read([
             'name',
             'condo_id',
@@ -1062,42 +1062,55 @@ class Assembly extends \equal\orm\Model {
                 ExportingTask::id($assembly['invitations_exporting_task_id'])->delete(true);
             }
 
-            $exportingTask = ExportingTask::create([
-                    'name'          => "{$assembly['name']} - Export invitations",
-                    'condo_id'      => $assembly['condo_id'],
-                    'object_class'  => static::class,
-                    'object_id'     => $id
-                ])
-                ->first();
-
             $map_communication_methods = [];
 
             foreach($assembly['assembly_invitations_ids'] as $assembly_invitation_id => $assemblyInvitation) {
-                if($assemblyInvitation['communication_method'] !== 'email') {
-                    // update global map to acknowledge that at least one invitation uses that communication method
-                    $map_communication_methods[$assemblyInvitation['communication_method']] = true;
-                    continue;
+                // update global map to acknowledge that at least one invitation uses that communication method
+                $map_communication_methods[$assemblyInvitation['communication_method']] = true;
+            }
+
+            if(isset($map_communication_methods['email'])) {
+                $cron->schedule(
+                    "realestate.assembly.send-invitations.{$id}",
+                    time() + (5*60),
+                    'realestate_governance_Assembly_send-invitations',
+                    [
+                        'id'  => $id
+                    ]
+                );
+            }
+
+            // handle non-digital communication methods
+            if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
+
+                $exportingTask = ExportingTask::create([
+                        'name'          => "{$assembly['name']} - Export invitations",
+                        'condo_id'      => $assembly['condo_id'],
+                        'object_class'  => static::class,
+                        'object_id'     => $id
+                    ])
+                    ->first();
+
+                foreach($map_communication_methods as $communication_method => $flag) {
+                    if($communication_method === 'email') {
+                        continue;
+                    }
+                    ExportingTaskLine::create([
+                            'exporting_task_id' => $exportingTask['id'],
+                            'name'              => "{$assembly['name']} - Export des invitations - {$communication_method}",
+                            'controller'        => 'realestate_governance_Assembly_export-invitations',
+                            'params'            => json_encode([
+                                    'id'                    => $id,
+                                    'communication_method'  => $communication_method
+                                ])
+                        ]);
                 }
 
-                \eQual::run('do', 'realestate_governance_AssemblyInvitation_send', ['id' => $assembly_invitation_id]);
-            }
-
-            foreach($map_communication_methods as $communication_method => $flag) {
-                ExportingTaskLine::create([
-                        'exporting_task_id' => $exportingTask['id'],
-                        'name'              => "{$assembly['name']} - Export des invitations - {$communication_method}",
-                        'controller'        => 'realestate_governance_Assembly_export-invitations',
-                        'params'            => json_encode([
-                                'id'                    => $id,
-                                'communication_method'  => $communication_method
-                            ])
+                self::id($id)->update([
+                        'assembly_invitation_date'      => time(),
+                        'invitations_exporting_task_id' => $exportingTask['id']
                     ]);
             }
-
-            self::id($id)->update([
-                    'assembly_invitation_date'      => time(),
-                    'invitations_exporting_task_id' => $exportingTask['id']
-                ]);
         }
     }
 

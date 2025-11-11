@@ -83,5 +83,36 @@ $model = MessageModel::create([
 
 MessageModel::id($model['id'])->update([
         'label'         => 'Canal invalide',
-        'description'   => "Email non défini pour Le choix du canal est `email` mais aucun email n'est assigné à.",
+        'description'   => "Email non défini pour le choix du canal `email` (aucun email assigné).",
+    ], 'fr');
+
+
+/**
+ * DOCUMENTS
+ */
+
+$model = MessageModel::create([
+        'name'          => 'documents.export.export_failing',
+        'type'          => 'export',
+        'label'         => 'Export failing',
+        'description'   => "One or more exports could not be completed."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Echec d\'un export',
+        'description'   => "Au moins un export n\'a pas pu être complété.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'documents.export.export_ready',
+        'type'          => 'export',
+        'label'         => 'Export complete',
+        'description'   => "A requested export is ready for download."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Export terminé',
+        'description'   => "L\'export demandé est prêt pour le téléchargement.",
     ], 'fr');

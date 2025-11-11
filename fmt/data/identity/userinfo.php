@@ -129,6 +129,7 @@ $is_employee = false;
 $is_owner = false;
 
 $map_roles = [];
+$map_condos = [];
 
 foreach($user['role_assignments_ids'] as $role_assignment) {
     if(!$role_assignment['is_external']) {
@@ -138,6 +139,7 @@ foreach($user['role_assignments_ids'] as $role_assignment) {
         $is_owner = true;
     }
     $map_roles[$role_assignment['role_code']] = true;
+    $map_condos[$role_assignment['condo_id']] = true;
 }
 
 $result = array_merge($user, [
@@ -148,6 +150,7 @@ $result = array_merge($user, [
         'organisation_id'   => $user['organisation_id'],
         'is_owner'          => $is_owner,
         'is_employee'       => $is_employee,
+        'condos_ids'        => array_keys($map_condos),
         'selected_condo_id' => (int) Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id])
     ]);
 

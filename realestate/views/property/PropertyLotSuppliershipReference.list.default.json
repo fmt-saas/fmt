@@ -1,0 +1,31 @@
+{
+    "name": "Property Lot Suppliership Reference",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "label": "Condominium",
+                "value": "condo_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Property Lot",
+                "value": "property_lot_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Supplier",
+                "value": "suppliership_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Reference",
+                "value": "property_lot_ref",
+                "width": "20%"
+            }
+        ]
+    }
+}

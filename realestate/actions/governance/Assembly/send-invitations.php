@@ -14,7 +14,7 @@ use realestate\governance\AssemblyInvitation;
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
-            'description'       => "The assembly the export refers to.",
+            'description'       => "The assembly the invitation sending refers to.",
             'foreign_object'    => 'realestate\governance\Assembly',
             'required'          => true
         ],
@@ -22,6 +22,7 @@ use realestate\governance\AssemblyInvitation;
         'communication_method' => [
             'type'              => 'string',
             'description'       => 'Method of sending.',
+            'help'              => 'This controllers expect only digital communication methods (e.g. email).',
             'selection'         => [
                 'email',
                 'postal',
@@ -61,11 +62,14 @@ $assemblyInvitations = AssemblyInvitation::search([
     ])
     ->read(['is_sent', 'document_id']);
 
-// merge all generated documents (for each ownership) into a single PDF
-$temp_files = [];
-$output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
+$assembly_invitations_ids = [];
 
 foreach($assemblyInvitations as $assembly_invitation_id => $assemblyInvitation) {
+
+    // limit to digital communication methods
+    if(!in_array($assemblyInvitation['communication_method'], ['email'], true)) {
+        continue;
+    }
 
     // #memo - `export-invitations` and `send-invitations` are the only controllers where documents are generated for Assembly invites
     if(!$assemblyInvitation['document_id']) {
@@ -81,50 +85,20 @@ foreach($assemblyInvitations as $assembly_invitation_id => $assemblyInvitation) 
         continue;
     }
 
-    $temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
-    file_put_contents($temp, $assemblyInvitation['document_id']['data'] ?? '');
-    $temp_files[] = $temp;
+    $assembly_invitations_ids[] = $assembly_invitation_id;
 }
 
-// merge all generated documents
-try {
-    if(!count($temp_files)) {
-        throw new Exception('no_files_generated', EQ_ERROR_UNKNOWN);
+// send all generated documents
+foreach($assembly_invitations_ids as $assembly_invitation_id) {
+    try {
+        eQual::run('do', 'realestate_governance_AssemblyInvitation_send', ['id' => $assembly_invitation_id]);
     }
-    $escaped_files = array_map('escapeshellarg', $temp_files);
-    $escaped_output = escapeshellarg($output_file);
-    $cmd = 'qpdf --empty --pages ' . implode(' ', $escaped_files) . ' -- ' . $escaped_output . ' 2>&1';
-
-    exec($cmd, $output_lines, $result_code);
-
-    if($result_code !== 0 || !file_exists($output_file)) {
-        trigger_error("APP::qpdf merge failed:\n" . implode("\n", $output_lines), EQ_REPORT_ERROR);
-        throw new Exception('pdf_merge_failed', EQ_ERROR_UNKNOWN);
+    catch(Exception $e) {
+        trigger_error('APP::Error while sending documents ' . $e->getMessage(), EQ_REPORT_ERROR);
+        throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
     }
-
-    $output = file_get_contents($output_file);
 }
-catch(Exception $e) {
-    trigger_error('APP::Error while merging documents ' . $e->getMessage(), EQ_REPORT_ERROR);
-    throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
-}
-finally {
-    foreach($temp_files as $file) {
-        @unlink($file);
-    }
-    @unlink($output_file);
-}
-
-// store final result as a document (not visible through EDMS)
-$document = Document::create([
-        'name'          => 'Export - ' . $assembly['name'] . ' (' . $params['communication_method'] . ')',
-        'data'          => $output,
-        'condo_id'      => $assembly['condo_id']
-    ])
-    ->first();
 
 $context->httpResponse()
-        ->body([
-            'document_id' => $document['id']
-        ])
+        ->status(204)
         ->send();
