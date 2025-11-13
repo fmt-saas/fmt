@@ -282,7 +282,7 @@ if($dataImport['import_type'] === 'condominium_import') {
             continue;
         }
 
-        $propertyLotNature = PropertyLotNature::search(['name', '=', $nature])
+        $propertyLotNature = PropertyLotNature::search(['code', '=', $nature])
             ->read(['id'])
             ->first();
 

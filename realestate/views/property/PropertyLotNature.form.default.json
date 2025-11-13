@@ -22,6 +22,11 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "code",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "hierarchy",
                                                 "width": "50%"
                                             }
