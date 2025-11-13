@@ -135,7 +135,7 @@ if($dataImport['import_type'] === 'condominium_import') {
             }
 
             $identity = Identity::create([
-                    "type_id"                   => 1,
+                    "type_id"                   => $type['id'],
                     "bank_account_iban"         => $owner['owner_iban_1'],
                     "has_vat"                   => $owner['owner_num_tva'] ? true : false,
                     "vat_number"                => $owner['owner_num_tva'],
@@ -393,6 +393,7 @@ if($dataImport['import_type'] === 'condominium_import') {
 
     // sync owners from identities
     Owner::ids(array_values($map_owners))->do('sync_from_identity');
+    Identity::ids(array_values($map_owners_identity))->read(['slug_hash']);
 }
 
 
