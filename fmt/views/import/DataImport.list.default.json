@@ -1,0 +1,37 @@
+{
+    "name": "Data Import",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "data",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "document_id",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "import_type",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "16%"
+            }
+        ]
+    }
+}

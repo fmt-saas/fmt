@@ -20,7 +20,7 @@
                                                 "label": "Alerts",
                                                 "description": "",
                                                 "width": "50%",
-                                                "entity": "core\\alert\\Message",
+                                                "entity": "fmt\\core\\alert\\Message",
                                                 "view": "list.employee"
                                             },
                                             {
@@ -48,7 +48,7 @@
                                                 "description": "",
                                                 "width": "50%",
                                                 "entity": "documents\\Document",
-                                                "view": "list.default"
+                                                "view": "list.dashboard"
                                             }
                                         ]
                                     }

@@ -100,7 +100,7 @@ class BankStatementImport extends Model {
     }
 
     /**
-     * DocumentProcess is used to upload and create a new Document.
+     * BankStatementImport is used to upload and create a new Document.
      * We rely on the same strategy than regular Document upload, by receiving document meta from UI with onchange event.
      */
     public static function onchange($event, $values) {

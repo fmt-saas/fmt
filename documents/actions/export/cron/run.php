@@ -7,7 +7,6 @@
 
 use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
-use equal\http\HttpRequest;
 
 [$params, $providers] = eQual::announce([
     'description' => 'Envoie un document PDF à Google Document AI et retourne le résultat.',
@@ -50,7 +49,7 @@ $exportingTask = ExportingTask::search([
         ['limit' => 1, 'sort' => ['created' => 'asc']]
     )
     ->update(['status' => 'running'])
-    ->read(['exporting_task_lines_ids' => ['controller', 'params']])
+    ->read(['condo_id', 'exporting_task_lines_ids' => ['controller', 'params']])
     ->first();
 
 // no task in queue
@@ -124,13 +123,13 @@ if($has_failing_line) {
     ExportingTask::id($exportingTask['id'])
         ->update(['status' => 'failing']);
 
-    $dispatch->dispatch('documents.export.export_failing', 'documents\export\ExportingTask', $$exportingTask['id'], 'important');
+    $dispatch->dispatch('documents.export.export_failing', 'documents\export\ExportingTask', $exportingTask['id'], 'important', null, [], [], null, $exportingTask['condo_id']);
 }
 else {
     ExportingTask::id($exportingTask['id'])
         ->update(['status' => 'ready']);
 
-    $dispatch->dispatch('documents.export.export_ready', 'realestate\governance\Assembly', $exportingTask['id'], 'notice');
+    $dispatch->dispatch('documents.export.export_ready', 'documents\export\ExportingTask', $exportingTask['id'], 'notice', null, [], [], null, $exportingTask['condo_id']);
 }
 
 

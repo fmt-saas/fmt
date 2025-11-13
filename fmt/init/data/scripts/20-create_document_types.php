@@ -181,6 +181,24 @@ DocumentType::create([
 
 
 
+DocumentType::create([
+    'id'            => 31,
+    'name'          => 'Import Fournisseurs',
+    'code'          => 'suppliers_import',
+    'folder_code'   => 'imports',
+    'description'   => "Fichiers d'imports (temporaire)."
+]);
+
+
+DocumentType::create([
+    'id'            => 32,
+    'name'          => 'Import Copropriété',
+    'code'          => 'condominium_import',
+    'folder_code'   => 'imports',
+    'description'   => "Fichiers d'imports (temporaire)."
+]);
+
+
 $documentType = DocumentType::create([
         'id'            => 18,
         'name'          => 'Procès Verbaux',

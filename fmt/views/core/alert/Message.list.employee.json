@@ -10,9 +10,8 @@
         ]
     ],
     "header": {
-        "actions": {
-            "ACTION.CREATE": false
-        },
+        "layout": "inline",
+        "actions": false,
         "selection": {
             "default" : false,
             "actions" : [
@@ -27,7 +26,6 @@
     },
     "order": "created",
     "sort": "asc",
-    "controller": "discope_core_alert_collect",
     "layout": {
         "items": [
             {

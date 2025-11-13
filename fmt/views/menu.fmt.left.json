@@ -56,6 +56,32 @@
                             "entity": "finance\\bank\\BankStatementImport",
                             "purpose": "create"
                         }
+                    },
+                    {
+                        "id": "item.imports.data_import.condominium",
+                        "type": "entry",
+                        "label": "Import Condo",
+                        "icon": "drive_folder_upload",
+                        "description": "Import data from XLS file.",
+                        "context": {
+                            "view": "form.import",
+                            "entity": "fmt\\import\\DataImport",
+                            "purpose": "create",
+                            "domain": ["import_type", "=", "condominium_import"]
+                        }
+                    },
+                    {
+                        "id": "item.imports.data_import.suppliers",
+                        "type": "entry",
+                        "label": "Import Suppliers",
+                        "icon": "drive_folder_upload",
+                        "description": "Import data from XLS file.",
+                        "context": {
+                            "view": "form.import",
+                            "entity": "fmt\\import\\DataImport",
+                            "purpose": "create",
+                            "domain": ["import_type", "=", "suppliers_import"]
+                        }
                     }
                 ]
             },

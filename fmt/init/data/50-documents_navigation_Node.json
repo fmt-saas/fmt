@@ -104,6 +104,12 @@
         "node_type": "folder",
         "name": "Mutations",
         "description": "Documents et échanges relatifs aux mutations."
+      },
+      {
+        "code": "imports",
+        "node_type": "folder",
+        "name": "Imports",
+        "description": "Documents d'import de données (temp)."
       }
     ]
   }

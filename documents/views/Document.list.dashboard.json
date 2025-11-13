@@ -1,0 +1,57 @@
+{
+    "name": "Documents",
+    "description": "This view is intended for displaying the list of documents.",
+    "header": {
+        "layout": "inline",
+        "actions": false
+    },
+    "order": "created",
+    "sort": "desc",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "label": "Preview",
+                "value": "preview_image",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "33%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "label": "Created",
+                "value": "created",
+                "width": "25%",
+                "readonly": true,
+                "widget": {
+                    "usage": "date/short"
+                }
+            },
+            {
+                "type": "field",
+                "label": "Type",
+                "value": "content_type",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Language",
+                "value": "readable_size",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "link",
+                "width": "10%",
+                "readonly": true,
+                "widget": {
+                    "link": "icon"
+                }
+            }
+        ]
+    }
+}

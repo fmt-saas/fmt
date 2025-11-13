@@ -75,7 +75,8 @@ class Identity extends Model {
                 'usage'             => 'text/plain:64',
                 'function'          => 'calcHashSha256',
                 'description'       => 'SHA256 hash of the identity.',
-                'help'              => 'This hash is used to identify (external) identities when citizen_identification cannot be stored for data privacy compliancy reasons.',
+                'help'              => 'Generated SHA256 hash is based on unique identity attributes (registration_number and citizen_identification).
+                    This hash is also used to identify (external) identities when citizen_identification cannot be stored for data privacy compliancy reasons.',
                 'store'             => true,
                 'instant'           => true,
                 'readonly'          => true
@@ -98,6 +99,27 @@ class Identity extends Model {
                 'instant'           => true,
                 'relation'          => ['identity_id' => 'uuid'],
                 'description'       => 'Identity the object relates to.',
+            ],
+
+            'identity_slug' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcIdentitySlug',
+                'store'             => true,
+                'instant'           => true,
+                'description'       => 'Slug for helping identifying duplicates.',
+                // #memo - legal_name is always set
+                'help'              => '{type-legal_name-zip-country}'
+            ],
+
+            'slug_hash' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'text/plain:32',
+                'function'          => 'calcSlugHash',
+                'store'             => true,
+                'instant'           => true,
+                'description'       => 'Slug for helping identifying duplicates.',
             ],
 
             'owner_identity_id' => [
@@ -166,7 +188,7 @@ class Identity extends Model {
                 'foreign_object'    => 'identity\IdentityType',
                 'onupdate'          => 'onupdateTypeId',
                 'default'           => Setting::get_value('identity', 'organization', 'identity_type_default', 1),
-                'dependents  '      => ['type', 'name'],
+                'dependents  '      => ['type', 'name', 'identity_slug'],
                 'description'       => 'Type of identity.'
             ],
 
@@ -239,7 +261,7 @@ class Identity extends Model {
                 'type'              => 'string',
                 'description'       => 'Full name of the Identity.',
                 'visible'           => [ ['type', '<>', 'IN'] ],
-                'dependents'        => ['name'],
+                'dependents'        => ['name', 'identity_slug'],
                 'onupdate'          => 'onupdateLegalName'
             ],
 
@@ -293,6 +315,7 @@ class Identity extends Model {
                 'usage'             => 'country/iso-3166:2',
                 'description'       => 'The country the person is citizen of.',
                 'default'           => 'BE',
+                'dependents'        => ['identity_slug'],
                 'onupdate'          => 'onupdateNationality'
             ],
 
@@ -453,7 +476,7 @@ class Identity extends Model {
                 'type'              => 'string',
                 'description'       => 'Postal code.',
                 'onupdate'          => 'onupdateAddressZip',
-                'dependents'        => ['address_hash']
+                'dependents'        => ['address_hash', 'identity_slug']
             ],
 
             'address_state' => [
@@ -924,8 +947,7 @@ class Identity extends Model {
         return $result;
     }
 
-
-// il faudrait un format lisible et systématique, en majuscule et sans ponctuation, 
+    // il faut un format lisible et systématique, en majuscule et sans ponctuation
     public static function calcAddress($self) {
         $result = [];
         $self->read(['address_street', 'address_dispatch', 'address_city', 'address_zip', 'address_country']);
@@ -1079,22 +1101,16 @@ class Identity extends Model {
     protected static function onupdateFirstname($self) {
         $self->read(['firstname', 'lastname', 'type']);
         self::updateField($self, 'firstname');
-        // for individuals: sync legal name
         foreach($self as $id => $identity) {
-            if($identity['type'] === 'IN') {
-                self::id($id)->update(['legal_name' => $identity['firstname'] . ' ' . mb_strtoupper($identity['lastname'])]);
-            }
+            self::id($id)->update(['legal_name' => trim($identity['firstname'] . ' ' . mb_strtoupper($identity['lastname']))]);
         }
     }
 
     protected static function onupdateLastname($self) {
         $self->read(['firstname', 'lastname', 'type']);
         self::updateField($self, 'lastname');
-        // for individuals: sync legal name
         foreach($self as $id => $identity) {
-            if($identity['type'] === 'IN') {
-                self::id($id)->update(['legal_name' => $identity['firstname'] . ' ' . mb_strtoupper($identity['lastname'])]);
-            }
+            self::id($id)->update(['legal_name' => trim($identity['firstname'] . ' ' . mb_strtoupper($identity['lastname']))]);
         }
     }
 
@@ -1707,6 +1723,60 @@ class Identity extends Model {
                 ]
             ]
         ];
+    }
+
+    /**
+     * Slug is used to identify identities for which there is a high probability of duplicates.
+     * It is based on type, legal name, zip code and country.
+     */
+    protected static function calcIdentitySlug($self) {
+        $result = [];
+
+        $self->read(['type', 'legal_name', 'address_zip', 'address_country']);
+        foreach($self as $id => $identity) {
+
+            // make sur to compute only if all fields are present
+            if( ! $identity['type']
+                || ! $identity['legal_name']
+                || ! $identity['address_zip']
+                || ! $identity['address_country']
+            ) {
+                continue;
+            }
+
+            $legal_name = strtolower(TextTransformer::toAscii($identity['legal_name']));
+            $legal_name = str_replace(['\'', ' '], '-', $legal_name);
+
+            $slug_parts = [
+                    $identity['type'],
+                    $legal_name,
+                    $identity['address_zip'],
+                    strtolower($identity['address_country'])
+                ];
+            $slug = implode('-', array_filter($slug_parts));
+
+            // limit length
+            if(strlen($slug) > 255) {
+                $slug = substr($slug, 0, 255);
+            }
+            $result[$id] = $slug;
+        }
+
+        return $result;
+    }
+
+    protected static function calcSlugHash($self) {
+        $result = [];
+
+        $self->read(['identity_slug']);
+
+        foreach($self as $id => $identity) {
+            if(!$identity['identity_slug']) {
+                continue;
+            }
+            $result[$id] = md5($identity['identity_slug']);
+        }
+        return $result;
     }
 
     protected static function calcAddressHash($self) {

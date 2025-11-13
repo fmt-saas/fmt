@@ -46,9 +46,24 @@ class PropertyEntrance extends \equal\orm\Model {
             ],
 
             'address_street' => [
+                'type'              => 'string',
+                'description'       => 'Street and number.',
+                'help'              => "It is assumed that zip and city remain the same as the Condominium address. This field is deduced from parent Condominium but can be manually edited.",
+            ],
+
+            'address_city' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'function'          => 'calcAddressStreet',
+                'relation'          => ['condo_id' => 'address_city'],
+                'store'             => true,
+                'description'       => 'Street and number.',
+                'help'              => "It is assumed that zip and city remain the same as the Condominium address. This field is deduced from parent Condominium but can be manually edited.",
+            ],
+
+            'address_zip' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['condo_id' => 'address_zip'],
                 'store'             => true,
                 'description'       => 'Street and number.',
                 'help'              => "It is assumed that zip and city remain the same as the Condominium address. This field is deduced from parent Condominium but can be manually edited.",
@@ -91,14 +106,5 @@ class PropertyEntrance extends \equal\orm\Model {
         return $result;
     }
 
-    protected static function calcAddressStreet($self) {
-        $result = [];
-        $self->read(['condo_id' => 'address_street']);
-        foreach($self as $id => $propertyEntrance) {
-            if(strlen($propertyEntrance['condo_id']['address_street'] ?? '') > 0) {
-                $result[$id] = $propertyEntrance['condo_id']['address_street'];
-            }
-        }
-        return $result;
-    }
+
 }
