@@ -6,6 +6,6 @@ namespace documents\import;
 
 use equal\orm\Model;
 
-class ImportingTaskLog extends Model {
+class ImportingTask extends Model {
 
 }
