@@ -6,60 +6,70 @@
             {
                 "id": 1,
                 "name": "APARTMENT",
+                "code": "apartment",
                 "hierarchy": 1,
                 "description": "Residential unit in a building."
             },
             {
                 "id": 2,
                 "name": "SHOP",
+                "code": "shop",
                 "hierarchy": 1,
                 "description": "Retail space for selling goods."
             },
             {
                 "id": 3,
                 "name": "OFFICE",
+                "code": "office",
                 "hierarchy": 1,
                 "description": "Workspace for business or professional activities."
             },
             {
                 "id": 4,
                 "name": "WORKSHOP",
+                "code": "workshop",
                 "hierarchy": 1,
                 "description": "Workspace for business or professional activities."
             },
             {
                 "id": 5,
                 "name": "BUILDING",
+                "code": "building",
                 "hierarchy": 1,
                 "description": "Structure with a roof and walls."
             },
             {
                 "id": 6,
                 "name": "GARAGE",
+                "code": "garage",
                 "hierarchy": 2,
                 "description": "Parking lot for vehicles."
             },
             {
                 "id": 7,
                 "name": "PARKING",
+                "code": "parking",
                 "hierarchy": 2,
                 "description": "Parking lot for vehicles."
             },
             {
                 "id": 8,
                 "name": "BASEMENT",
+                "code": "basement",
                 "hierarchy": 2,
                 "description": "Storage space for documents or records."
             },
             {
                 "id": 9,
                 "name": "TERRACE",
+                "code": "terrace",
                 "hierarchy": 3,
                 "description": "Apartment with a terrace."
             },
             {
                 "id": 10,
                 "name": "BALCONY",
+                "code": "balcony",
                 "hierarchy": 3,
                 "description": "Apartment with both a terrace and a balcony."
             }

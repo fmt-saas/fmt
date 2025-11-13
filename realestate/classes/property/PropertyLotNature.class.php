@@ -18,6 +18,13 @@ class PropertyLotNature extends \equal\orm\Model {
                 'multilang'         => true
             ],
 
+            'code' => [
+                'type'              => 'string',
+                'description'       => 'Code of the property lot nature.',
+                'unique'            => true,
+                'required'          => true
+            ],
+
             'description' => [
                 'type'              => 'string',
                 'description'       => 'Short description of the nature.',

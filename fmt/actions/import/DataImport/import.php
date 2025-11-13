@@ -274,7 +274,8 @@ if($dataImport['import_type'] === 'condominium_import') {
     // Lots
     foreach($data['Lots'] as $lot) {
 
-        $nature = ['APPARTEMENT' => 'APARTMENT', 'PARKING' => 'PARKING', 'GARAGE' => 'GARAGE'][$lot['lot_nature']] ?? null;
+        // #todo - complete
+        $nature = ['APPARTEMENT' => 'apartment', 'PARKING' => 'parking', 'GARAGE' => 'garage'][$lot['lot_nature']] ?? null;
 
         if(!$nature) {
             // alert: should not happen
