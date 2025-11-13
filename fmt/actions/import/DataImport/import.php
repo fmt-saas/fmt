@@ -100,7 +100,10 @@ if($dataImport['import_type'] === 'condominium_import') {
 
         // attempt to find existing identity by registration number
         $registration_number = $owner['owner_num_entreprise'] ?? $owner['owner_num_national'];
-        $identity = Identity::search(['registration_number', '=', $registration_number])->read(['id'])->first();
+
+        if($registration_number  && strlen($registration_number) > 0) {
+            $identity = Identity::search(['registration_number', '=', $registration_number])->read(['id'])->first();
+        }
 
         if(!$identity) {
 
@@ -131,63 +134,65 @@ if($dataImport['import_type'] === 'condominium_import') {
                 $slug_hash = md5($slug);
                 $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
             }
-            // create a new identity
-            if(!$identity) {
-                $type = IdentityType::search(['code', '=', $owner['owner_type']])
-                    ->read(['id'])
-                    ->first();
+        }
 
-                $date_of_birth = null;
+        // create a new identity
+        if(!$identity) {
+            $type = IdentityType::search(['code', '=', $owner['owner_type']])
+                ->read(['id'])
+                ->first();
 
-                if($owner['owner_date_naissance']) {
-                    $date_of_birth = strtotime($owner['owner_date_naissance']);
+            $date_of_birth = null;
+
+            if($owner['owner_date_naissance']) {
+                $date_of_birth = strtotime($owner['owner_date_naissance']);
+            }
+
+            $identity = Identity::create([
+                    "type_id"                   => $type['id'],
+                    "bank_account_iban"         => $owner['owner_iban_1'],
+                    "has_vat"                   => $owner['owner_num_tva'] ? true : false,
+                    "vat_number"                => $owner['owner_num_tva'],
+                    "registration_number"       => $owner['owner_num_entreprise'],
+                    "citizen_identification"    => $owner['owner_num_national'],
+                    "firstname"                 => $owner['owner_prenom'],
+                    "lastname"                  => $owner['owner_nom'],
+                    "gender"                    => ['Madame' => 'F', 'Monsieur' => 'M'][$owner['owner_civilite']],
+                    "title"                     => ['Madame' => 'Mrs', 'Monsieur' => 'Mr'][$owner['owner_civilite']],
+                    "date_of_birth"             => $date_of_birth,
+                    "lang_id"                   => ['en' => 1, 'fr' => 2, 'nl' => 3][$owner['owner_langue']],
+                    "address_street"            => $owner['owner_rue'],
+                    "address_city"              => $owner['owner_ville'],
+                    "address_zip"               => $owner['owner_code_postal'],
+                    "address_country"           => $owner['owner_pays'],
+                    "email"                     => $owner['owner_email_1'],
+                    "email_alt"                 => $owner['owner_email_2'],
+                    "phone"                     => ($owner['owner_tel_1']) ?: $owner['owner_mobile_2'],
+                    "mobile"                    => ($owner['owner_mobile_1']) ?: $owner['owner_tel_2'],
+                ])
+                ->first();
+
+            try {
+
+                if($owner['owner_iban_2']) {
+                    BankAccount::create([
+                        'identity_id'       => $identity['id'],
+                        'iban'              => $owner['owner_iban_2'],
+                    ]);
+                }
+                if($owner['owner_iban_3']) {
+                    BankAccount::create([
+                        'identity_id'       => $identity['id'],
+                        'iban'              => $owner['owner_iban_3'],
+                    ]);
                 }
 
-                $identity = Identity::create([
-                        "type_id"                   => $type['id'],
-                        "bank_account_iban"         => $owner['owner_iban_1'],
-                        "has_vat"                   => $owner['owner_num_tva'] ? true : false,
-                        "vat_number"                => $owner['owner_num_tva'],
-                        "registration_number"       => $owner['owner_num_entreprise'],
-                        "citizen_identification"    => $owner['owner_num_national'],
-                        "firstname"                 => $owner['owner_prenom'],
-                        "lastname"                  => $owner['owner_nom'],
-                        "gender"                    => ['Madame' => 'F', 'Monsieur' => 'M'][$owner['owner_civilite']],
-                        "title"                     => ['Madame' => 'Mrs', 'Monsieur' => 'Mr'][$owner['owner_civilite']],
-                        "date_of_birth"             => $date_of_birth,
-                        "lang_id"                   => ['en' => 1, 'fr' => 2, 'nl' => 3][$owner['owner_langue']],
-                        "address_street"            => $owner['owner_rue'],
-                        "address_city"              => $owner['owner_ville'],
-                        "address_zip"               => $owner['owner_code_postal'],
-                        "address_country"           => $owner['owner_pays'],
-                        "email"                     => $owner['owner_email_1'],
-                        "email_alt"                 => $owner['owner_email_2'],
-                        "phone"                     => ($owner['owner_tel_1']) ?: $owner['owner_mobile_2'],
-                        "mobile"                    => ($owner['owner_mobile_1']) ?: $owner['owner_tel_2'],
-                    ])
-                    ->first();
-
-                try {
-
-                    if($owner['owner_iban_2']) {
-                        BankAccount::create([
-                            'identity_id'       => $identity['id'],
-                            'iban'              => $owner['owner_iban_2'],
-                        ]);
-                    }
-                    if($owner['owner_iban_3']) {
-                        BankAccount::create([
-                            'identity_id'       => $identity['id'],
-                            'iban'              => $owner['owner_iban_3'],
-                        ]);
-                    }
-
-                }
-                catch(Exception $e) {
-                    // do nothing
-                }
+            }
+            catch(Exception $e) {
+                // do nothing
             }
         }
+
 
         $map_owners_identity[$owner['owner_code']] = $identity['id'];
     }
