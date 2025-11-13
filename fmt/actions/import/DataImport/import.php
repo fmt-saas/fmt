@@ -186,11 +186,17 @@ if($dataImport['import_type'] === 'condominium_import') {
     foreach($data['Ownership_histo'] as $ownership_history) {
         $ownership_id = $map_ownerships[$ownership_history['ownership_code']] ?? null;
 
+        $date_to = strtotime($ownership_history['date_to']);
+
+        if(!$date_to) {
+            $date_to = null;
+        }
+
         if(!$ownership_id) {
             $ownershipObject = Ownership::create([
                     'condo_id'  => $condominium['id'],
                     'date_from' => strtotime($ownership_history['date_from']),
-                    'date_to'   => $ownership_history['date_to'] ? strtotime($ownership_history['date_to']) : null
+                    'date_to'   => $date_to
                 ])
                 ->first();
 
@@ -307,12 +313,18 @@ if($dataImport['import_type'] === 'condominium_import') {
             continue;
         }
 
+        $date_to = strtotime($ownership_history['date_to']);
+
+        if(!$date_to) {
+            $date_to = null;
+        }
+
         PropertyLotOwnership::create([
                 'condo_id'          => $condominium['id'],
                 'property_lot_id'   => $property_lot_id,
                 'ownership_id'      => $ownership_id,
                 'date_from'         => strtotime($ownership_history['date_from']),
-                'date_to'           => $ownership_history['date_to'] ? strtotime($ownership_history['date_to']) : null
+                'date_to'           => $date_to
             ]);
 
     }
