@@ -97,85 +97,93 @@ if($dataImport['import_type'] === 'condominium_import') {
     foreach($data['Owner'] as $owner) {
 
         $type = $owner['owner_type'];
-        $zip = $owner['owner_code_postal'];
-        $country = $owner['owner_pays'];
 
-        if($type == 'IN') {
-            $legal_name = strtolower(TextTransformer::toAscii($owner_nom['owner_nom'] . ' ' . $owner_nom['owner_prenom']));
-        }
-        else {
-            $legal_name = strtolower(TextTransformer::toAscii($identity['owner_nom']));
-        }
+        $registration_number = $owner['owner_num_entreprise'] ?? $owner['owner_num_national'];
 
-        $legal_name = str_replace(['\'', ' '], '-', $legal_name);
-
-        $slug_parts = [
-                $type,
-                $legal_name,
-                $zip,
-                $country
-            ];
-
-        $slug = implode('-', array_filter($slug_parts));
-        if(strlen($slug) > 255) {
-            $slug = substr($slug, 0, 255);
-        }
-        $slug_hash = md5($slug);
-        $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
+        $identity = Identity::search(['registration_number', '=', $registration_number])->read(['id'])->first();
 
         if(!$identity) {
-            $type = IdentityType::search(['code', '=', $owner['owner_type']])
-                ->read(['id'])
-                ->first();
 
-            $date_of_birth = null;
+            $zip = $owner['owner_code_postal'];
+            $country = $owner['owner_pays'];
 
-            if($owner['owner_date_naissance']) {
-                $date_of_birth = strtotime($owner['owner_date_naissance']);
+            if($type == 'IN') {
+                $legal_name = strtolower(TextTransformer::toAscii($owner_nom['owner_nom'] . ' ' . $owner_nom['owner_prenom']));
+            }
+            else {
+                $legal_name = strtolower(TextTransformer::toAscii($identity['owner_nom']));
             }
 
-            $identity = Identity::create([
-                    "type_id"                   => $type['id'],
-                    "bank_account_iban"         => $owner['owner_iban_1'],
-                    "has_vat"                   => $owner['owner_num_tva'] ? true : false,
-                    "vat_number"                => $owner['owner_num_tva'],
-                    "registration_number"       => $owner['owner_num_entreprise'],
-                    "citizen_identification"    => $owner['owner_num_national'],
-                    "firstname"                 => $owner['owner_prenom'],
-                    "lastname"                  => $owner['owner_nom'],
-                    "gender"                    => ['Madame' => 'F', 'Monsieur' => 'M'][$owner['owner_civilite']],
-                    "title"                     => ['Madame' => 'Mrs', 'Monsieur' => 'Mr'][$owner['owner_civilite']],
-                    "date_of_birth"             => $date_of_birth,
-                    "lang_id"                   => ['en' => 1, 'fr' => 2, 'nl' => 3][$owner['owner_langue']],
-                    "address_street"            => $owner['owner_rue'],
-                    "address_city"              => $owner['owner_ville'],
-                    "address_zip"               => $owner['owner_code_postal'],
-                    "address_country"           => $owner['owner_pays'],
-                    "email"                     => $owner['owner_email_1'],
-                    "email_alt"                 => $owner['owner_email_2'],
-                    "phone"                     => ($owner['owner_tel_1']) ?: $owner['owner_mobile_2'],
-                    "mobile"                    => ($owner['owner_mobile_1']) ?: $owner['owner_tel_2'],
-                ])
-                ->first();
+            $legal_name = str_replace(['\'', ' '], '-', $legal_name);
 
-            try {
+            $slug_parts = [
+                    $type,
+                    $legal_name,
+                    $zip,
+                    $country
+                ];
 
-                if($owner['owner_iban_2']) {
-                    BankAccount::create([
-                        'identity_id'       => $identity['id'],
-                        'iban'              => $owner['owner_iban_2'],
-                    ]);
-                }
-                if($owner['owner_iban_3']) {
-                    BankAccount::create([
-                        'identity_id'       => $identity['id'],
-                        'iban'              => $owner['owner_iban_3'],
-                    ]);
-                }
-
+            $slug = implode('-', array_filter($slug_parts));
+            if(strlen($slug) > 255) {
+                $slug = substr($slug, 0, 255);
             }
-            catch(Exception $e) {
-                // do nothing
+            $slug_hash = md5($slug);
+            $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
+
+            if(!$identity) {
+                $type = IdentityType::search(['code', '=', $owner['owner_type']])
+                    ->read(['id'])
+                    ->first();
+
+                $date_of_birth = null;
+
+                if($owner['owner_date_naissance']) {
+                    $date_of_birth = strtotime($owner['owner_date_naissance']);
+                }
+
+                $identity = Identity::create([
+                        "type_id"                   => $type['id'],
+                        "bank_account_iban"         => $owner['owner_iban_1'],
+                        "has_vat"                   => $owner['owner_num_tva'] ? true : false,
+                        "vat_number"                => $owner['owner_num_tva'],
+                        "registration_number"       => $owner['owner_num_entreprise'],
+                        "citizen_identification"    => $owner['owner_num_national'],
+                        "firstname"                 => $owner['owner_prenom'],
+                        "lastname"                  => $owner['owner_nom'],
+                        "gender"                    => ['Madame' => 'F', 'Monsieur' => 'M'][$owner['owner_civilite']],
+                        "title"                     => ['Madame' => 'Mrs', 'Monsieur' => 'Mr'][$owner['owner_civilite']],
+                        "date_of_birth"             => $date_of_birth,
+                        "lang_id"                   => ['en' => 1, 'fr' => 2, 'nl' => 3][$owner['owner_langue']],
+                        "address_street"            => $owner['owner_rue'],
+                        "address_city"              => $owner['owner_ville'],
+                        "address_zip"               => $owner['owner_code_postal'],
+                        "address_country"           => $owner['owner_pays'],
+                        "email"                     => $owner['owner_email_1'],
+                        "email_alt"                 => $owner['owner_email_2'],
+                        "phone"                     => ($owner['owner_tel_1']) ?: $owner['owner_mobile_2'],
+                        "mobile"                    => ($owner['owner_mobile_1']) ?: $owner['owner_tel_2'],
+                    ])
+                    ->first();
+
+                try {
+
+                    if($owner['owner_iban_2']) {
+                        BankAccount::create([
+                            'identity_id'       => $identity['id'],
+                            'iban'              => $owner['owner_iban_2'],
+                        ]);
+                    }
+                    if($owner['owner_iban_3']) {
+                        BankAccount::create([
+                            'identity_id'       => $identity['id'],
+                            'iban'              => $owner['owner_iban_3'],
+                        ]);
+                    }
+
+                }
+                catch(Exception $e) {
+                    // do nothing
+                }
             }
         }
 
@@ -393,7 +401,10 @@ if($dataImport['import_type'] === 'condominium_import') {
 
     // sync owners from identities
     Owner::ids(array_values($map_owners))->do('sync_from_identity');
-    Identity::ids(array_values($map_owners_identity))->read(['slug_hash']);
+    Identity::ids(array_values($map_owners_identity))
+        ->read(['slug_hash'])
+        ->do('refresh_legal_name')
+        ->do('refresh_registration_number');
 }
 
 

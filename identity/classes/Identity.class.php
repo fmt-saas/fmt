@@ -722,6 +722,14 @@ class Identity extends Model {
             'generate_profile_image' => [
                 'description'   => 'Generate resized profile images based on profile image document.',
                 'function'      => 'doGenerateProfileImage'
+            ],
+            'refresh_legal_name' => [
+                'description'   => '.',
+                'function'      => 'doRefreshLegalName'
+            ],
+            'refresh_registration_number' => [
+                'description'   => '.',
+                'function'      => 'doRefreshRegistrationNumber'
             ]
         ];
     }
@@ -775,6 +783,33 @@ class Identity extends Model {
         }
     }
 
+    protected static function doRefreshLegalName($self) {
+        $self->read(['type', 'firstname', 'lastname']);
+
+        foreach($self as $id => $identity) {
+            $parts = [];
+            if(isset($identity['firstname']) && strlen($identity['firstname'])) {
+                $parts[] = ucfirst($identity['firstname']);
+            }
+            if(isset($identity['lastname']) && strlen($identity['lastname']) ) {
+                $parts[] = mb_strtoupper($identity['lastname']);
+            }
+            $legal_name = implode(' ', $parts);
+            if(strlen($legal_name)) {
+                self::id($id)->update(['legal_name' => $legal_name]);
+            }
+        }
+    }
+
+    protected static function doRefreshRegistrationNumber($self) {
+        $self->read(['type', 'citizen_identification']);
+
+        foreach($self as $id => $identity) {
+            if($identity['type'] === 'IN') {
+                self::id($id)->update(['registration_number' => $identity['citizen_identification']]);
+            }
+        }
+    }
     protected static function doSyncFromIdentity($self, $orm) {
         static $common_fields = [
                 'name',
