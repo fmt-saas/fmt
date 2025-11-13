@@ -152,7 +152,7 @@ if($dataImport['import_type'] === 'condominium_import') {
                     "type_id"                   => $type['id'],
                     "bank_account_iban"         => $owner['owner_iban_1'],
                     "has_vat"                   => $owner['owner_num_tva'] ? true : false,
-                    "vat_number"                => $owner['owner_num_tva'],
+                    "vat_number"                => $owner['owner_num_tva'] ?? null,
                     "registration_number"       => $owner['owner_num_entreprise'],
                     "citizen_identification"    => $owner['owner_num_national'],
                     "firstname"                 => $owner['owner_prenom'],

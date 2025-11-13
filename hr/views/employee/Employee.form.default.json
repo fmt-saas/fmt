@@ -43,7 +43,12 @@
                                                 "type": "field",
                                                 "label": "Role",
                                                 "value": "role_id",
-                                                "width": "100%"
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "code",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",

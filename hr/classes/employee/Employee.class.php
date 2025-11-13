@@ -153,7 +153,10 @@ class Employee extends Identity {
                     'lastname'      => $employee['lastname']
                 ])
                 ->first();
-            self::id($id)->update(['identity_id' => $identity['id']]);
+            self::id($id)->update([
+                    'code'        => sprintf("%03d", $id),
+                    'identity_id' => $identity['id']
+                ]);
         }
     }
 
