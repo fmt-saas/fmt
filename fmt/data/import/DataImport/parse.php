@@ -71,7 +71,8 @@ $mapXlsToJson = function (string $import_type, string $sheet, string $field, $va
             }
             if(is_numeric($value)) {
                 // raw Excel value
-                return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value)->format('Y-m-d');
+                $date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value)->getTimestamp();
+                return date('Y-m-d', $date);
             }
             if(is_string($value)) {
                 $v = trim($value);
@@ -79,25 +80,15 @@ $mapXlsToJson = function (string $import_type, string $sheet, string $field, $va
                 // Normalize separators
                 $v = str_replace(['.', '\\'], '/', $v);
 
-                // Case DD/MM/YYYY or D/M/YYYY
-                if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/', $v, $m)) {
-                    // Heuristic: if first > 12, it's definitely day/month/year
-                    if ((int)$m[1] > 12) {
-                        [$d, $mth, $y] = [$m[1], $m[2], $m[3]];
-                    } else {
-                        // Ambiguous: rely on locale (often FR → DD/MM/YYYY)
-                        [$d, $mth, $y] = [$m[1], $m[2], $m[3]];
+                // support only case DD/MM/YYYY
+                if(preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $v, $matches)) {
+                    if ((int)$matches[2] > 12) {
+                        [$d, $mth, $y] = [$matches[2], $matches[1], $matches[3]];
+                    } 
+                    else {
+                        [$d, $mth, $y] = [$matches[1], $matches[2], $matches[3]];
                     }
-                    if (strlen($y) === 2) $y = '20' . $y;
                     return sprintf('%04d-%02d-%02d', $y, $mth, $d);
-                }
-
-                // Case MM/DD/YYYY (US) — detect when ambiguous
-                if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $v, $m)) {
-                    // If month <= 12 and day <= 31
-                    if ((int)$m[1] <= 12 && (int)$m[2] <= 31) {
-                        return sprintf('%04d-%02d-%02d', $m[3], $m[1], $m[2]);
-                    }
                 }
 
                 // Last attempt with strtotime

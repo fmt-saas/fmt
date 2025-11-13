@@ -98,8 +98,8 @@ if($dataImport['import_type'] === 'condominium_import') {
 
         $type = $owner['owner_type'];
 
+        // attempt to find existing identity by registration number
         $registration_number = $owner['owner_num_entreprise'] ?? $owner['owner_num_national'];
-
         $identity = Identity::search(['registration_number', '=', $registration_number])->read(['id'])->first();
 
         if(!$identity) {
@@ -107,7 +107,7 @@ if($dataImport['import_type'] === 'condominium_import') {
             $zip = $owner['owner_code_postal'];
             $country = $owner['owner_pays'];
 
-            if($type == 'IN') {
+            if($type === 'IN') {
                 $legal_name = strtolower(TextTransformer::toAscii($owner_nom['owner_nom'] . ' ' . $owner_nom['owner_prenom']));
             }
             else {
@@ -115,21 +115,23 @@ if($dataImport['import_type'] === 'condominium_import') {
             }
 
             $legal_name = str_replace(['\'', ' '], '-', $legal_name);
+            // attempt to find existing identity by slug
+            if(strlen($type) > 0 && strlen($legal_name) > 0 && strlen($zip) > 0 && strlen($country) > 0) {
+                $slug_parts = [
+                        $type,
+                        $legal_name,
+                        $zip,
+                        $country
+                    ];
 
-            $slug_parts = [
-                    $type,
-                    $legal_name,
-                    $zip,
-                    $country
-                ];
-
-            $slug = implode('-', array_filter($slug_parts));
-            if(strlen($slug) > 255) {
-                $slug = substr($slug, 0, 255);
+                $slug = implode('-', array_filter($slug_parts));
+                if(strlen($slug) > 255) {
+                    $slug = substr($slug, 0, 255);
+                }
+                $slug_hash = md5($slug);
+                $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
             }
-            $slug_hash = md5($slug);
-            $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
-
+            // create a new identity
             if(!$identity) {
                 $type = IdentityType::search(['code', '=', $owner['owner_type']])
                     ->read(['id'])
