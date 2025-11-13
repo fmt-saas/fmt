@@ -133,7 +133,7 @@ class DocumentProcess extends Model {
 
             'report_html' => [
                 'type'              => 'string',
-                'usage'             => 'text/html',
+                'usage'             => 'text/html.medium',
                 'description'       => 'Human readable descriptor of the processing result.'
             ],
 

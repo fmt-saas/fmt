@@ -230,6 +230,16 @@ class CondoFund extends \equal\orm\Model {
 
             // create the variation accounts
 
+            $collectorAccount = Account::create([
+                    'condo_id'              => $condoFund['condo_id']['id'],
+                    'code'                  => '68' . $account_code,
+                    'is_control_account'    => true,
+                    'description'           => $condoFund['description'] ?? $templateAccount['description'],
+                    'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
+                    'apportionment_id'      => $condoFund['apportionment_id']
+                ])
+                ->first();
+
             $callAccount = Account::create([
                     'condo_id'              => $condoFund['condo_id']['id'],
                     'code'                  => '68' . $account_code . '0',
@@ -239,7 +249,8 @@ class CondoFund extends \equal\orm\Model {
                     'operation_assignment'  => $condoFund['fund_type'] . '_variation',
                     'apportionment_id'      => $condoFund['apportionment_id'],
                     'tenant_share'          => 0,
-                    'owner_share'           => 100
+                    'owner_share'           => 100,
+                    'parent_account_id'     => $collectorAccount['id']
                 ])
                 ->first();
 
@@ -252,7 +263,8 @@ class CondoFund extends \equal\orm\Model {
                     'operation_assignment'  => $condoFund['fund_type'] . '_variation',
                     'apportionment_id'      => $condoFund['apportionment_id'],
                     'tenant_share'          => 0,
-                    'owner_share'           => 100
+                    'owner_share'           => 100,
+                    'parent_account_id'     => $collectorAccount['id']
                 ])
                 ->first();
 

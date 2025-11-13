@@ -714,6 +714,8 @@ class Condominium extends Identity {
         }
     }
 
+
+    // #todo - add support for city
     public static function onchange($self, $event, $values, $lang) {
         $result = [];
 

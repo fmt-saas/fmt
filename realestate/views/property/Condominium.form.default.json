@@ -149,13 +149,18 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "code",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "registration_number",
-                                                "width": "50%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "cadastral_number",
-                                                "width": "50%"
+                                                "width": "33%"
                                             }
                                         ]
                                     },
