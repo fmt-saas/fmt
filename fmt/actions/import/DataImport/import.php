@@ -128,6 +128,12 @@ if($dataImport['import_type'] === 'condominium_import') {
                 ->read(['id'])
                 ->first();
 
+            $date_of_birth = null;
+
+            if($owner['owner_date_naissance']) {
+                $date_of_birth = strtotime($owner['owner_date_naissance']);
+            }
+
             $identity = Identity::create([
                     "type_id"                   => 1,
                     "bank_account_iban"         => $owner['owner_iban_1'],
@@ -139,7 +145,7 @@ if($dataImport['import_type'] === 'condominium_import') {
                     "lastname"                  => $owner['owner_nom'],
                     "gender"                    => ['Madame' => 'F', 'Monsieur' => 'M'][$owner['owner_civilite']],
                     "title"                     => ['Madame' => 'Mrs', 'Monsieur' => 'Mr'][$owner['owner_civilite']],
-                    "date_of_birth"             => strtotime($owner['owner_date_naissance']),
+                    "date_of_birth"             => $date_of_birth,
                     "lang_id"                   => ['en' => 1, 'fr' => 2, 'nl' => 3][$owner['owner_langue']],
                     "address_street"            => $owner['owner_rue'],
                     "address_city"              => $owner['owner_ville'],
