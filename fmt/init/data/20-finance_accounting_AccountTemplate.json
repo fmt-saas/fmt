@@ -3314,26 +3314,6 @@
                 "owner_share": 100
             },
             {
-                "id": 338,
-                "code": "681000",
-                "is_control_account": true,
-                "description": "WORKING CAPITAL VARIATION",
-                "account_chart_id": 1,
-                "operation_assignment": null,
-                "tenant_share": 0,
-                "owner_share": 0
-            },
-            {
-                "id": 339,
-                "code": "6810000",
-                "is_control_account": false,
-                "description": "Working capital call",
-                "account_chart_id": 1,
-                "operation_assignment": null,
-                "tenant_share": 0,
-                "owner_share": 100
-            },
-            {
                 "id": 340,
                 "code": "6816",
                 "is_control_account": true,
