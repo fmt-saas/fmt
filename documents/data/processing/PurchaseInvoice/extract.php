@@ -83,6 +83,9 @@ $data = eQual::run('get', 'documents_processing_PurchaseInvoice_parse-google', [
 $text = eQual::run('get', 'documents_processing_dump-text', ['id' =>  $document['id']]);
 $info = eQual::run('get', 'documents_processing_parse-text', ['text' => $text]);
 
+
+// #todo : conserver des données identifiées sur base du format (IBAN, EAN, REGISTRY_NUMBER), mais non rattachées à un champ précis
+
 if(!isset($data['supplier']['vat_id']) && isset($info['seller_vat'])) {
     $data['supplier']['vat_id'] = $info['seller_vat'];
 }

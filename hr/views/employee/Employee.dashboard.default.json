@@ -44,7 +44,7 @@
                                         "items": [
                                             {
                                                 "id": "item.documents",
-                                                "label": "Documents",
+                                                "label": "Derniers documents",
                                                 "description": "",
                                                 "width": "50%",
                                                 "entity": "documents\\Document",

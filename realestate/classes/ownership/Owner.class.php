@@ -75,6 +75,7 @@ class Owner extends Identity {
                 'visible'           => ['object_class', '<>', 'identity\Identity']
             ],
 
+            // #deprecated
             'owner_shares' => [
                 'type'              => 'integer',
                 'usage'             => 'amount/natural',
@@ -94,6 +95,7 @@ class Owner extends Identity {
                 'default'           => 1.0
             ],
 
+            // #deprecated
             'owner_type' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -103,7 +105,32 @@ class Owner extends Identity {
                 ],
                 'description'       => "Type of ownership that applies to the owner.",
                 'default'           => 'full'
-            ]
+            ],
+
+            'shares_full_property' => [
+                'type'              => 'integer',
+                'usage'             => 'amount/natural',
+                'description'       => "Amount of shares the owner has on the ownership",
+                'default'           => 0,
+                'dependents'        => ['ownership_percentage']
+            ],
+
+            'shares_bare_property' => [
+                'type'              => 'integer',
+                'usage'             => 'amount/natural',
+                'description'       => "Amount of shares the owner has on the ownership",
+                'default'           => 0,
+                'dependents'        => ['ownership_percentage']
+            ],
+
+            'shares_usufruct' => [
+                'type'              => 'integer',
+                'usage'             => 'amount/natural',
+                'description'       => "Amount of shares the owner has on the ownership",
+                'default'           => 0,
+                'dependents'        => ['ownership_percentage']
+            ],
+
 
         ];
     }
@@ -164,9 +191,21 @@ class Owner extends Identity {
 
     public static function calcOwnershipPercentage($self) {
         $result = [];
-        $self->read(['owner_shares', 'ownership_id' => ['ownership']]);
+        $self->read(['owner_shares', 'shares_full_property', 'shares_bare_property', 'shares_usufruct', 'ownership_id' => ['ownership_shares']]);
         foreach($self as $id => $owner) {
-            $result[$id] = round($owner['ownership_id']['ownership'] / $owner['owner_shares'], 2);
+            $owner_shares =
+                ($owner['shares_full_property'] ?? 0) +
+                ($owner['shares_bare_property'] ?? 0) +
+                ($owner['shares_usufruct'] ?? 0);
+
+            $total_shares = $owner['ownership_id']['ownership_shares'] ?? 0;
+
+            if($total_shares > 0) {
+                $result[$id] = round(($owner_shares / $total_shares) * 100, 2);
+            }
+            else {
+                $result[$id] = 0;
+            }
         }
         return $result;
     }

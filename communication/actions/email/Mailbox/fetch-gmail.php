@@ -107,6 +107,14 @@ try {
     // update date of last synchro (before hand so that)
     Mailbox::id($mailbox['id'])->update(['date_last_sync' => time()]);
 
+    $allowed_mime_types = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+
     foreach($messages as $message) {
         $message_id = $message->getMessageId();
 
@@ -130,7 +138,16 @@ try {
             ->first();
 
         // handle attachments
+
+        // #todo - réponse automatique pour dire donnant le cadre dans lequel ce mail sera traité (pas lu, uniq pièce jointe) -> si info importante : envoyer sur autre adresse
+
+
         foreach($message->getAttachments() as $attachment) {
+            // #todo - limit to "doc" attachments : pdf, doc(x), xls(x)
+            if(!in_array($attachment->mime, $allowed_mime_types)) {
+                continue;
+            }
+
             Document::create([
                     'name'      => $attachment->name,
                     'data'      => $attachment->content,

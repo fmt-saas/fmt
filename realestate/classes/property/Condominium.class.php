@@ -53,7 +53,7 @@ class Condominium extends Identity {
                 'result_type'       => 'integer',
                 'relation'          => ['id'],
                 'description'       => "Alias of the `id` field.",
-                'help'              => "This is used to comply with the Role assignments at Access Control level.",
+                'help'              => "This is used to comply with the logic used for Role assignments at Access Control level.",
                 'instant'           => true,
                 'store'             => true
             ],

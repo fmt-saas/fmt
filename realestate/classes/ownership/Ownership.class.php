@@ -162,9 +162,9 @@ class Ownership extends \equal\orm\Model {
                 'description'       => "Line to be used for sending courier to the Ownership representative(s)."
             ],
 
-            'has_representative' => [
+            'has_external_representative' => [
                 'type'              => 'boolean',
-                'description'       => "Flag indicating if the ownership has a representative.",
+                'description'       => "Flag indicating if the ownership has a (internal) representative.",
                 'default'           => false,
                 'dependents'        => ['name']
             ],
@@ -175,7 +175,15 @@ class Ownership extends \equal\orm\Model {
                 'help'              => "External person that has a mandate for representing the ownership, but is not amongst the owners.",
                 'foreign_object'    => 'identity\Identity',
                 'domain'            => ['type_id', '=', 1],
-                'visible'           => ['has_representative', '=', true],
+                'visible'           => ['has_external_representative', '=', true],
+                'dependents'        => ['name']
+            ],
+
+            'has_representative' => [
+                'type'              => 'boolean',
+                'description'       => "Flag indicating if the ownership has a (internal) representative.",
+                'help'              => "Law states that there should be one representative for a joint-ownership, but if owners cannot agree, Syndic has to send documents to all owners.",
+                'default'           => false,
                 'dependents'        => ['name']
             ],
 
@@ -465,7 +473,7 @@ class Ownership extends \equal\orm\Model {
     protected static function policyIsValid($self) {
         $result = [];
 
-        $self->read(['condo_id', 'ownership_type', 'owners_ids', 'date_from', 'has_representative', 'representative_identity_id']);
+        $self->read(['condo_id', 'ownership_type', 'owners_ids', 'date_from', 'has_external_representative', 'representative_identity_id']);
         foreach($self as $id => $ownership) {
 
             if(!$ownership['condo_id']) {
@@ -495,7 +503,7 @@ class Ownership extends \equal\orm\Model {
                 ];
             }
 
-            if($ownership['has_representative']) {
+            if($ownership['has_external_representative']) {
                 if(!$ownership['representative_identity_id']) {
                     $result[$id] = [
                         'missing_representative_id' => 'The representative identity must be provided.'
@@ -508,33 +516,29 @@ class Ownership extends \equal\orm\Model {
 
     protected static function calcName($self) {
         $result = [];
-        $self->read(['code', 'has_representative', 'representative_identity_id' => ['name'], 'owners_ids' => ['name']]);
+        $self->read(['code', 'owners_ids' => ['name']]);
         foreach($self as $id => $ownership) {
             if(!$ownership['code']) {
                 continue;
             }
 
-            if($ownership['has_representative'] && isset($ownership['representative_identity_id']['name'])) {
-                $result[$id] = $ownership['representative_identity_id']['name'];
+            $names = [];
+            foreach($ownership['owners_ids'] as $owner_id => $owner) {
+                if($owner['name'] && strlen($owner['name'])) {
+                    $names[] = $owner['name'];
+                }
+            }
+            $name = implode(', ', $names);
+            if(strlen($name) > 128) {
+                $name = substr($name, 0, 128) . '...';
+            }
+            if(strlen($name) > 0) {
+                $result[$id] = $ownership['code'] . ' - ' . $name;
             }
             else {
-                $names = [];
-                foreach($ownership['owners_ids'] as $owner_id => $owner) {
-                    if($owner['name'] && strlen($owner['name'])) {
-                        $names[] = $owner['name'];
-                    }
-                }
-                $name = implode(', ', $names);
-                if(strlen($name) > 128) {
-                    $name = substr($name, 0, 128) . '...';
-                }
-                if(strlen($name) > 0) {
-                    $result[$id] = $ownership['code'] . ' - ' . $name;
-                }
-                else {
-                    $result[$id] = $ownership['code'];
-                }
+                $result[$id] = $ownership['code'];
             }
+
         }
         return $result;
     }
@@ -688,13 +692,13 @@ class Ownership extends \equal\orm\Model {
      *  - only the representative can change the preferences
      */
     protected static function doGenerateCommunicationPrefs($self) {
-        $self->read(['condo_id', 'name', 'has_representative', 'representative_identity_id', 'representative_owner_id' => ['identity_id']]);
+        $self->read(['condo_id', 'name', 'has_external_representative', 'representative_identity_id', 'representative_owner_id' => ['identity_id']]);
 
         foreach($self as $id => $ownership) {
 
             $identity_id = null;
 
-            if($ownership['has_representative']) {
+            if($ownership['has_external_representative']) {
                 $identity_id = $ownership['representative_identity_id'] ?? null;
             }
             else {

@@ -115,7 +115,7 @@ $tests = [
             'help'              => "Load a bank statement, validate it, and account for the validation of the Money Transfer.",
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
-                    $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_isabel_demo.xlsx');
+                    $data = file_get_contents(EQ_BASEDIR . '/packages/fmt/tests/' . 'bank_isabel_demo.xlsx');
                     BankStatementImport::create()
                         ->update(['name' => 'Bank statement import'])
                         ->update(['data' => $data]);

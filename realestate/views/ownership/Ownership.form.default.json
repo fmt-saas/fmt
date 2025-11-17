@@ -129,7 +129,7 @@
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
-                                                            "ACTION.SELECT": true,
+                                                            "ACTION.SELECT": false,
                                                             "ACTION.CREATE": [ {
                                                                 "view": "form.create"
                                                             } ]
@@ -188,8 +188,8 @@
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
-                                                            "ACTION.SELECT": true,
-                                                            "ACTION.CREATE": true
+                                                            "ACTION.SELECT": false,
+                                                            "ACTION.CREATE": false
                                                         }
                                                     }
                                                 }

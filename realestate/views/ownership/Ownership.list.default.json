@@ -17,6 +17,13 @@
             },
             {
                 "type": "field",
+                "label": "Representative",
+                "value": "representative_identity_id",
+                "width": "20%",
+                "visible": ["has_representative", "=", true]
+            },
+            {
+                "type": "field",
                 "value": "ownership_type",
                 "width": "20%"
             },
@@ -34,6 +41,12 @@
                 "type": "field",
                 "value": "status",
                 "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "has_representative",
+                "width": "0%",
+                "visible": false
             }
         ]
     }

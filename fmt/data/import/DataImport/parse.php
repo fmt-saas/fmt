@@ -84,7 +84,7 @@ $mapXlsToJson = function (string $import_type, string $sheet, string $field, $va
                 if(preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $v, $matches)) {
                     if ((int)$matches[2] > 12) {
                         [$d, $mth, $y] = [$matches[2], $matches[1], $matches[3]];
-                    } 
+                    }
                     else {
                         [$d, $mth, $y] = [$matches[1], $matches[2], $matches[3]];
                     }
@@ -159,22 +159,22 @@ catch(Exception $e) {
 //3) parse XLSX data into JSON structure
 $map = [
     'condominium_import' => [
-        'Owner'            => ['owner_code', 'owner_type', 'owner_nom', 'owner_prenom', 'owner_civilite', 'owner_rue', 'owner_code_postal', 'owner_ville', 'owner_pays', 'owner_langue', 'owner_tel_1', 'owner_tel_2', 'owner_mobile_1', 'owner_mobile_2', 'owner_email_1', 'owner_email_2', 'owner_iban_1', 'owner_iban_2', 'owner_iban_3', 'owner_date_naissance', 'owner_num_national', 'owner_num_tva', 'owner_num_entreprise'],
-        'Ownership'        => ['ownership_code', 'owner_code', 'PP', 'NP', 'Ust'],
-        'Ownership_com'    => ['ownership_code', 'representative_owner_1', 'representative_owner_2', 'general_assembly_call', 'general_assembly_minutes', 'expense_statement', 'fund_request', 'technical_communication', 'ownership_name'],
-        'Entrances'        => ['entrance_code', 'entrance_rue', 'entrance_code_postal', 'entrance_ville', 'entrance_pays'],
-        'Lots'             => ['lot_code', 'lot_ref', 'lot_nature', 'entrance_code', 'lot_etage', 'lot_column', 'lot_letterbox', 'lot_area', 'lot_principal_code', 'lot_cadastral_number'],
-        'Ownership_histo'  => ['lot_code', 'ownership_code', 'date_from', 'date_to'],
-        'Apport_keys'      => ['apport_keys_code', 'apport_keys_description', 'apport_keys_total_shares'],
-        'Apport_shares'    => ['apport_keys_code', 'lot_code', 'lot_apport_shares'],
-        'suppliership'     => ['supplier_code']
+        'Condominium'          => ['code', 'name', 'registration_number', 'cadastral_number', 'has_vat', 'vat_number', 'street', 'zip', 'city', 'country', 'lang', 'manager_code', 'accountant_code', 'fiscal_year_start', 'fiscal_year_end', 'fiscal_period', 'expense_mode', 'chart_accounts_code'],
+        'Bank_accounts'        => ['description', 'type', 'iban', 'is_primary'],
+        'Owners'               => ['code', 'type', 'lastname', 'firstname', 'title', 'street', 'zip', 'city', 'country', 'lang', 'phone_1', 'phone_2', 'mobile_1', 'mobile_2', 'email_1', 'email_2', 'iban_1', 'iban_2', 'iban_3', 'date_of_birth', 'citizen_identification', 'vat_number', 'registration_number'],
+        'Ownerships'           => ['code', 'owner_code', 'shares_full_property', 'shares_bare_property', 'shares_usufruct', 'representative_owner_code', 'extref'],
+        'Ownerships_com_prefs' => ['ownership_code', 'representative_owner_1', 'representative_owner_2', 'general_assembly_call', 'general_assembly_minutes', 'expense_statement', 'fund_request', 'technical_communication', 'ownership_title'],
+        'Entrances'            => ['code', 'street', 'zip', 'city', 'country'],
+        'Lots'                 => ['code', 'ref', 'nature', 'entrance_code', 'floor', 'column', 'letterbox', 'area', 'primary_lot_code', 'cadastral_number'],
+        'Ownerships_history'   => ['lot_code', 'ownership_code', 'date_from', 'date_to'],
+        'Apport_keys'          => ['code', 'description', 'total_shares'],
+        'Apport_shares'        => ['apport_key_code', 'lot_code', 'lot_shares'],
+        'Supplierships'        => ['supplier_code']
     ],
     'suppliers_import' => [
         'supplier'  => ['fournisseur_code', 'fournisseur_type', 'fournisseur_nom', 'fournisseur_nom_usuel', 'fournisseur_rue', 'fournisseur_code_postal', 'fournisseur_ville', 'fournisseur_pays', 'fournisseur_tel_1', 'fournisseur_tel_2', 'fournisseur_mobile_1', 'fournisseur_mobile_2', 'fournisseur_email_1', 'fournisseur_email_2', 'fournisseur_iban_1', 'fournisseur_iban_2', 'fournisseur_iban_3', 'fournisseur_num_tva', 'fournisseur_num_entreprise']
     ]
 ];
-
-
 
 
 $result = [];

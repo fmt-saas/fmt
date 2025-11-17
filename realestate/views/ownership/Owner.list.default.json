@@ -22,17 +22,22 @@
             },
             {
                 "type": "field",
-                "value": "owner_type",
-                "width": "20%"
-            },
-            {
-                "type": "field",
-                "value": "owner_shares",
-                "width": "20%"
-            },
-            {
-                "type": "field",
                 "value": "ownership_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "shares_full_property",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "shares_bare_property",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "shares_usufruct",
                 "width": "20%"
             }
         ]
