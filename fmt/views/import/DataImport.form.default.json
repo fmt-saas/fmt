@@ -1,5 +1,27 @@
 {
     "name": "Data Import",
+    "actions": [
+        {
+            "id": "action.check",
+            "label": "Check",
+            "description": "Check consistency of uploaded data.",
+            "controller": "fmt_import_DataImport_check",
+            "params": {
+                "id": "object.id"
+            },
+            "visible": ["status", "=", "pending"]
+        },
+        {
+            "id": "action.import",
+            "label": "Import",
+            "description": "Import the uploaded data.",
+            "controller": "fmt_import_DataImport_import",
+            "params": {
+                "id": "object.id"
+            },
+            "visible": ["status", "=", "ready"]
+        }
+    ],
     "layout": {
         "groups": [
             {

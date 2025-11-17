@@ -82,6 +82,17 @@
                             "purpose": "create",
                             "domain": ["import_type", "=", "suppliers_import"]
                         }
+                    },
+                    {
+                        "id": "item.imports.data_imports",
+                        "type": "entry",
+                        "label": "All Imports",
+                        "icon": "drive_folder_upload",
+                        "description": "Imports from XLS file.",
+                        "context": {
+                            "view": "list.default",
+                            "entity": "fmt\\import\\DataImport"
+                        }
                     }
                 ]
             },

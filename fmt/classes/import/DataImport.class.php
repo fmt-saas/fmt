@@ -140,17 +140,19 @@ class DataImport extends \equal\orm\Model {
     }
 
 
-    /*
     public static function getActions() {
         return [
+        /*
             'retry' => [
                 'description'   => 'Request a new export attempt, by resetting status to `idle`.',
                 'policies'      => [],
                 'function'      => 'doRetry'
-            ]
+            ],
+        */
         ];
     }
 
+    /*
     protected static function doRetry($self) {
         $self->read(['status']);
         foreach($self as $id => $exportingTask) {
