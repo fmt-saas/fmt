@@ -165,14 +165,14 @@ try {
 
             if($accountantEmployee) {
                 RoleAssignment::create([
-                    'condo_id'      => $condo_id,
+                    'condo_id'      => $condominium['id'],
                     'employee_id'   => $accountantEmployee['id'],
                     'role_id'       => $map_roles_ids['accountant']
                 ]);
             }
             else {
                 RoleAssignment::create([
-                    'condo_id'      => $condo_id,
+                    'condo_id'      => $condominium['id'],
                     'employee_id'   => $defaultEmployee['id'],
                     'role_id'       => $map_roles_ids['accountant']
                 ]);
@@ -180,14 +180,14 @@ try {
 
             if($managerEmployee) {
                 RoleAssignment::create([
-                    'condo_id'      => $condo_id,
+                    'condo_id'      => $condominium['id'],
                     'employee_id'   => $managerEmployee['id'],
                     'role_id'       => $map_roles_ids['condo_manager']
                 ]);
             }
             else {
                 RoleAssignment::create([
-                    'condo_id'      => $condo_id,
+                    'condo_id'      => $condominium['id'],
                     'employee_id'   => $defaultEmployee['id'],
                     'role_id'       => $map_roles_ids['condo_manager']
                 ]);
@@ -209,7 +209,12 @@ try {
                     'condo_id'          => $condominium['id'],
                     'owner_identity_id' => $condominiumIdentity['id'],
                     'description'       => $bank_account['description'],
-                    'bank_account_type' => ['current' => 'bank_current', 'savings' => 'bank_savings'][$bank_account['type']],
+                    'bank_account_type' => [
+                            'current'       => 'bank_current',
+                            'bank_current'  => 'bank_current',
+                            'savings'       => 'bank_savings',
+                            'bank_savings'  => 'bank_savings'
+                        ][$bank_account['type']],
                     'bank_account_iban' => $bank_account['iban'],
                     'is_primary'        => (bool) $bank_account['is_primary']
                 ]);
@@ -404,8 +409,8 @@ try {
                         'citizen_identification'    => $owner['citizen_identification'],
                         'firstname'                 => $owner['firstname'],
                         'lastname'                  => $owner['lastname'],
-                        'gender'                    => ['Madame' => 'F', 'Monsieur' => 'M'][$owner['title']],
-                        'title'                     => ['Madame' => 'Mrs', 'Monsieur' => 'Mr'][$owner['title']],
+                        'gender'                    => ['Madame' => 'F', 'Monsieur' => 'M'][$owner['title'] ?? ''] ?? null,
+                        'title'                     => ['Madame' => 'Mrs', 'Monsieur' => 'Mr'][$owner['title'] ?? ''] ?? null,
                         'date_of_birth'             => $date_of_birth,
                         'lang_id'                   => ['en' => 1, 'fr' => 2, 'nl' => 3][$owner['lang']],
                         'address_street'            => $owner['street'],
