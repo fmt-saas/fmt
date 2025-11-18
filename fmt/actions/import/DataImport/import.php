@@ -80,6 +80,7 @@ if($dataImport['status'] !== 'ready') {
 // fetch parsed JSON
 $data = eQual::run('get', 'fmt_import_DataImport_parse', ['id' => $params['id']]);
 
+$is_success = false;
 
 try {
 
@@ -822,20 +823,33 @@ try {
 
         $result['logs'][] = "INFO- created & validated reserve fund";
 
+        $result['logs'][] = "---";
+        $result['logs'][] = "INFO- Condominium imported successfully";
+
+        $is_success = true;
     }
 }
 catch(Exception $e) {
     $result['logs'][] = "ERR - Unexpected error :" . $e->getMessage();
 }
 finally {
-    if(count($result['logs'])) {
-        $logs = json_decode($dataImport['logs'], true);
+    $logs = json_decode($dataImport['logs'], true);
 
-        DataImport::id($params['id'])
-            ->update([
-                'logs'      => json_encode(array_merge($logs, $result['logs']), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-            ]);
+    $values = [
+        'logs' => json_encode(array_merge($logs, $result['logs']), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+    ];
+
+    if($condominium) {
+        $values['condo_id'] = $condominium['id'];
     }
+
+    if($is_success) {
+        $values['status'] = 'imported';
+    }
+
+    DataImport::id($params['id'])
+        ->update($values);
+
 }
 
 
