@@ -537,9 +537,15 @@ class Condominium extends Identity {
     protected static function policyCanOpenFiscalYear($self, $user_id, $access) {
         $result = [];
 
+        $self->read(['creator']);
         $authorized_roles = ['director', 'manager', 'condo_manager'];
 
         foreach($self as $id => $condominium) {
+            if($condominium['creator'] === $user_id) {
+                // #memo - this is to allow auto opening at Condo import from an XLS file
+                continue;
+            }
+
             if(!$access->userHasCondoRole($user_id, $authorized_roles, $id)) {
                 $result[$id] = [
                     'not_allowed' => 'User missing mandatory role.'
