@@ -60,7 +60,7 @@
                                             {
                                                 "type": "field",
                                                 "label": "External representative",
-                                                "value": "has_representative",
+                                                "value": "has_external_representative",
                                                 "width": "50%"
                                             },
                                             {
@@ -72,7 +72,7 @@
                                                 "type": "label",
                                                 "value": "",
                                                 "width": "50%",
-                                                "visible": ["has_representative", "=", false]
+                                                "visible": ["has_external_representative", "=", false]
                                             },
                                             {
                                                 "type": "field",

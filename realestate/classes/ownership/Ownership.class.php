@@ -709,60 +709,99 @@ class Ownership extends \equal\orm\Model {
                 continue;
             }
 
-            OwnershipCommunicationPreference::create([
-                    'condo_id'                              => $ownership['condo_id'],
-                    'ownership_id'                          => $id,
-                    'identity_id'                           => $identity_id,
-                    'communication_reason'                  => 'general_assembly_call',
-                    'has_channel_email'                     => false,
-                    'has_channel_postal'                    => false,
-                    'has_channel_postal_registered'         => true,
-                    'has_channel_postal_registered_receipt' => false
-                ]);
+            if(OwnershipCommunicationPreference::search([
+                        ['condo_id', '=', $ownership['condo_id']],
+                        ['ownership_id', '=', $id],
+                        ['identity_id', '=', $identity_id],
+                        ['communication_reason', '=', 'general_assembly_call']
+                    ])->count() <= 0) {
 
-            OwnershipCommunicationPreference::create([
-                    'condo_id'                              => $ownership['condo_id'],
-                    'ownership_id'                          => $id,
-                    'identity_id'                           => $identity_id,
-                    'communication_reason'                  => 'general_assembly_minutes',
-                    'has_channel_email'                     => false,
-                    'has_channel_postal'                    => true,
-                    'has_channel_postal_registered'         => false,
-                    'has_channel_postal_registered_receipt' => false
-                ]);
+                OwnershipCommunicationPreference::create([
+                        'condo_id'                              => $ownership['condo_id'],
+                        'ownership_id'                          => $id,
+                        'identity_id'                           => $identity_id,
+                        'communication_reason'                  => 'general_assembly_call',
+                        'has_channel_email'                     => false,
+                        'has_channel_postal'                    => false,
+                        'has_channel_postal_registered'         => true,
+                        'has_channel_postal_registered_receipt' => false
+                    ]);
+            }
 
-            OwnershipCommunicationPreference::create([
-                    'condo_id'                              => $ownership['condo_id'],
-                    'ownership_id'                          => $id,
-                    'identity_id'                           => $identity_id,
-                    'communication_reason'                  => 'expense_statement',
-                    'has_channel_email'                     => false,
-                    'has_channel_postal'                    => true,
-                    'has_channel_postal_registered'         => false,
-                    'has_channel_postal_registered_receipt' => false
-                ]);
+            if(OwnershipCommunicationPreference::search([
+                        ['condo_id', '=', $ownership['condo_id']],
+                        ['ownership_id', '=', $id],
+                        ['identity_id', '=', $identity_id],
+                        ['communication_reason', '=', 'general_assembly_minutes']
+                    ])->count() <= 0) {
 
-            OwnershipCommunicationPreference::create([
-                    'condo_id'                              => $ownership['condo_id'],
-                    'ownership_id'                          => $id,
-                    'identity_id'                           => $identity_id,
-                    'communication_reason'                  => 'fund_request',
-                    'has_channel_email'                     => false,
-                    'has_channel_postal'                    => true,
-                    'has_channel_postal_registered'         => false,
-                    'has_channel_postal_registered_receipt' => false
-                ]);
+                OwnershipCommunicationPreference::create([
+                        'condo_id'                              => $ownership['condo_id'],
+                        'ownership_id'                          => $id,
+                        'identity_id'                           => $identity_id,
+                        'communication_reason'                  => 'general_assembly_minutes',
+                        'has_channel_email'                     => false,
+                        'has_channel_postal'                    => true,
+                        'has_channel_postal_registered'         => false,
+                        'has_channel_postal_registered_receipt' => false
+                    ]);
+            }
 
-            OwnershipCommunicationPreference::create([
-                    'condo_id'                              => $ownership['condo_id'],
-                    'ownership_id'                          => $id,
-                    'identity_id'                           => $identity_id,
-                    'communication_reason'                  => 'technical_communication',
-                    'has_channel_email'                     => false,
-                    'has_channel_postal'                    => true,
-                    'has_channel_postal_registered'         => false,
-                    'has_channel_postal_registered_receipt' => false
-                ]);
+            if(OwnershipCommunicationPreference::search([
+                        ['condo_id', '=', $ownership['condo_id']],
+                        ['ownership_id', '=', $id],
+                        ['identity_id', '=', $identity_id],
+                        ['communication_reason', '=', 'expense_statement']
+                    ])->count() <= 0) {
+
+                OwnershipCommunicationPreference::create([
+                        'condo_id'                              => $ownership['condo_id'],
+                        'ownership_id'                          => $id,
+                        'identity_id'                           => $identity_id,
+                        'communication_reason'                  => 'expense_statement',
+                        'has_channel_email'                     => false,
+                        'has_channel_postal'                    => true,
+                        'has_channel_postal_registered'         => false,
+                        'has_channel_postal_registered_receipt' => false
+                    ]);
+            }
+            if(OwnershipCommunicationPreference::search([
+                        ['condo_id', '=', $ownership['condo_id']],
+                        ['ownership_id', '=', $id],
+                        ['identity_id', '=', $identity_id],
+                        ['communication_reason', '=', 'fund_request']
+                    ])->count() <= 0) {
+
+                OwnershipCommunicationPreference::create([
+                        'condo_id'                              => $ownership['condo_id'],
+                        'ownership_id'                          => $id,
+                        'identity_id'                           => $identity_id,
+                        'communication_reason'                  => 'fund_request',
+                        'has_channel_email'                     => false,
+                        'has_channel_postal'                    => true,
+                        'has_channel_postal_registered'         => false,
+                        'has_channel_postal_registered_receipt' => false
+                    ]);
+            }
+
+            if(OwnershipCommunicationPreference::search([
+                        ['condo_id', '=', $ownership['condo_id']],
+                        ['ownership_id', '=', $id],
+                        ['identity_id', '=', $identity_id],
+                        ['communication_reason', '=', 'technical_communication']
+                    ])->count() <= 0) {
+
+                OwnershipCommunicationPreference::create([
+                        'condo_id'                              => $ownership['condo_id'],
+                        'ownership_id'                          => $id,
+                        'identity_id'                           => $identity_id,
+                        'communication_reason'                  => 'technical_communication',
+                        'has_channel_email'                     => false,
+                        'has_channel_postal'                    => true,
+                        'has_channel_postal_registered'         => false,
+                        'has_channel_postal_registered_receipt' => false
+                    ]);
+            }
         }
     }
 
