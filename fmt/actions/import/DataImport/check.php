@@ -274,18 +274,24 @@ if($dataImport['import_type'] == 'condominium_import') {
         $condominium = null;
         if(isset($condo['registration_number'])) {
             $condominium = Condominium::search(['registration_number', '=', $condo['registration_number']])->first();
-            ++$result['errors'];
-            $result['logs'][] = "ERR - a condominium with same registration number already exists [{$condo['registration_number']}]";
+            if($condominium) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - a condominium with same registration number already exists [{$condo['registration_number']}]";
+            }
         }
         if(!$condominium && isset($condo['cadastral_number'])) {
             $condominium = Condominium::search(['cadastral_number', '=', $condo['cadastral_number']])->first();
-            ++$result['errors'];
-            $result['logs'][] = "ERR - a condominium with same cadastral number already exists [{$condo['cadastral_number']}]";
+            if($condominium) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - a condominium with same cadastral number already exists [{$condo['cadastral_number']}]";
+            }
         }
-        if(isset($condo['vat_number'])) {
+        if(!$condominium && isset($condo['vat_number'])) {
             $condominium = Condominium::search(['vat_number', '=', $condo['vat_number']])->first();
-            ++$result['errors'];
-            $result['logs'][] = "ERR - a condominium with same VAT number already exists [{$condo['vat_number']}]";
+            if($condominium) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - a condominium with same VAT number already exists [{$condo['vat_number']}]";
+            }
         }
     }
 
