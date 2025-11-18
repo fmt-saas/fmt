@@ -273,7 +273,7 @@ elseif($dataImport['import_type'] == 'suppliers_import') {
 
 DataImport::id($params['id'])
     ->update([
-        'logs'      => json_encode($result['logs']),
+        'logs'      => json_encode($result['logs'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
         'status'    => ($result['errors'] > 0) ? 'failing' : 'ready'
     ]);
 
