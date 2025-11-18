@@ -1016,6 +1016,7 @@ class FiscalYear extends Model {
                 ++$i;
             }
             if(!$i) {
+                trigger_error("APP::Failed creating periods from {$fiscalYear['date_from']} to {$fiscalYear['date_to']} for condo {$fiscalYear['condo_id']['id']}", EQ_REPORT_ERROR);
                 throw new \Exception('failed_creating_fiscal_periods', EQ_ERROR_UNKNOWN);
             }
         }

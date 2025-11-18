@@ -159,10 +159,21 @@ try {
                 ])
                 ->first();
 
+            $defaultEmployee = Employee::search([], ['limit' => 1])->first();
+            $managerEmployee = Employee::search(['id', '=', $condominium_data['manager_code']])->first();
+            $accountantEmployee = Employee::search(['id', '=', $condominium_data['accountant_code']])->first();
+
             if($accountantEmployee) {
                 RoleAssignment::create([
                     'condo_id'      => $condo_id,
                     'employee_id'   => $accountantEmployee['id'],
+                    'role_id'       => $map_roles_ids['accountant']
+                ]);
+            }
+            else {
+                RoleAssignment::create([
+                    'condo_id'      => $condo_id,
+                    'employee_id'   => $defaultEmployee['id'],
                     'role_id'       => $map_roles_ids['accountant']
                 ]);
             }
@@ -171,6 +182,13 @@ try {
                 RoleAssignment::create([
                     'condo_id'      => $condo_id,
                     'employee_id'   => $managerEmployee['id'],
+                    'role_id'       => $map_roles_ids['condo_manager']
+                ]);
+            }
+            else {
+                RoleAssignment::create([
+                    'condo_id'      => $condo_id,
+                    'employee_id'   => $defaultEmployee['id'],
                     'role_id'       => $map_roles_ids['condo_manager']
                 ]);
             }
@@ -707,6 +725,9 @@ try {
         Condominium::id($condominium['id'])->do('sync_from_identity');
 
         Owner::ids(array_values($map_owners))->do('sync_from_identity');
+
+
+
 
         Apportionment::ids(array_values($map_apportionments))
             ->transition('validate');

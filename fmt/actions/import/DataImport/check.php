@@ -6,6 +6,7 @@
 */
 
 use fmt\import\DataImport;
+use hr\employee\Employee;
 use purchase\supplier\Supplier;
 use realestate\property\Condominium;
 
@@ -120,6 +121,21 @@ if($dataImport['import_type'] == 'condominium_import') {
             ++$result['errors'];
             $result['logs'][] = "ERR - more than one Condominium found in Condominium sheet at row " . ($index + 2);
         }
+        if(isset($condo['manager_code'])) {
+            $managerEmployee = Employee::search(['id', '=', $condo['manager_code']])->first();
+            if(!$managerEmployee) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - referenced manager employee with code {$condo['manager_code']} in Condominium sheet at row " . ($index + 2);
+            }
+        }
+        if(isset($condo['accountant_code'])) {
+            $accountantEmployee = Employee::search(['id', '=', $condo['accountant_code']])->first();
+            if(!$accountantEmployee) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - referenced accountant employee with code {$condo['accountant_code']} in Condominium sheet at row " . ($index + 2);
+            }
+        }
+
     }
 
     foreach($data['Bank_accounts'] as $index => $bank_account) {
