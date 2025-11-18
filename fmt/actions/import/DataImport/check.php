@@ -69,8 +69,8 @@ if($dataImport['import_type'] == 'condominium_import') {
 
     $map_owners_codes = [];
     foreach($data['Owners'] as $owner) {
-        if(isset($owner['owner_code'])) {
-            $map_owners_codes[$owner['owner_code']] = true;
+        if(isset($owner['code'])) {
+            $map_owners_codes[$owner['code']] = true;
         }
     }
 
@@ -83,22 +83,22 @@ if($dataImport['import_type'] == 'condominium_import') {
 
     $map_property_entrances_codes = [];
     foreach($data['Entrances'] as $property_entrance) {
-        if(isset($property_entrance['entrance_code'])) {
-            $map_property_entrances_codes[$property_entrance['entrance_code']] = true;
+        if(isset($property_entrance['code'])) {
+            $map_property_entrances_codes[$property_entrance['code']] = true;
         }
     }
 
     $map_property_lots_codes = [];
     foreach($data['Lots'] as $property_lot) {
-        if(isset($property_lot['lot_code'])) {
-            $map_property_lots_codes[$property_lot['lot_code']] = true;
+        if(isset($property_lot['code'])) {
+            $map_property_lots_codes[$property_lot['code']] = true;
         }
     }
 
     $map_apportionment_keys_codes = [];
     foreach($data['Apport_keys'] as $apportionment_key) {
-        if(isset($apportionment_key['apport_key_code'])) {
-            $map_apportionment_keys_codes[$apportionment_key['apport_key_code']] = true;
+        if(isset($apportionment_key['code'])) {
+            $map_apportionment_keys_codes[$apportionment_key['code']] = true;
         }
     }
 
@@ -111,8 +111,8 @@ if($dataImport['import_type'] == 'condominium_import') {
 
     // 2) - check mandatory fields & cross-references consistency
 
-    foreach($data['Condominium'] as $index => $bank_account) {
-        if(!isset($owner['code'])) {
+    foreach($data['Condominium'] as $index => $condo) {
+        if(!isset($condo['code'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing `code` in Condominium sheet at row " . ($index + 2);
         }
@@ -123,11 +123,11 @@ if($dataImport['import_type'] == 'condominium_import') {
     }
 
     foreach($data['Bank_accounts'] as $index => $bank_account) {
-        if(!isset($owner['code'])) {
+        if(!isset($bank_account['code'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing `code` in Bank_accounts sheet at row " . ($index + 2);
         }
-        if(!isset($owner['iban'])) {
+        if(!isset($bank_account['iban'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing `iban` in Bank_accounts sheet at row " . ($index + 2);
         }
