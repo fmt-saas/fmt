@@ -98,7 +98,7 @@ if($dataImport['import_type'] == 'condominium_import') {
     $map_apportionment_keys_codes = [];
     foreach($data['Apport_keys'] as $apportionment_key) {
         if(isset($apportionment_key['code'])) {
-            $map_apportionment_keys_codes[$apportionment_key['code']] = true;
+            $map_apportionment_keys_codes[$apportionment_key['code']] = $apportionment_key;
         }
     }
 
@@ -295,6 +295,22 @@ if($dataImport['import_type'] == 'condominium_import') {
         }
     }
 
+
+    $map_apport_shares_totals = [];
+    foreach($data['Apport_shares'] as $index => $apportionment_share) {
+        if(!isset($map_share_totals[$apportionment_share['apport_key_code']])) {
+            $map_share_totals[$apportionment_share['apport_key_code']] = 0;
+        }
+        $map_share_totals[$apportionment_share['apport_key_code']] += $apportionment_share['lot_shares'];
+    }
+
+    foreach($map_apport_shares_totals as $apport_key_code => $total) {
+        $apport_key = $map_apportionment_keys_codes[$apport_key_code];
+        if($apport_key['total_shares'] != $total) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - unknown `total_shares` for apportionment key '" . $apport_key_code . "' ({$apport_key['total_shares']}) does not match total of shares ({$total})";
+        }
+    }
 }
 elseif($dataImport['import_type'] == 'suppliers_import') {
 }

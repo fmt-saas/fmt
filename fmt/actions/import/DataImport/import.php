@@ -85,6 +85,7 @@ if($dataImport['import_type'] === 'condominium_import') {
 
     $map_roles_ids = [];
 
+    $map_external_representatives = [];
     $map_owners_identity = [];
     $map_ownerships = [];
     $map_owners = [];
@@ -194,6 +195,108 @@ if($dataImport['import_type'] === 'condominium_import') {
             ]);
     }
 
+    foreach($data['External_representative'] as $external_representative) {
+
+        $type = $external_representative['type'];
+
+        // attempt to find existing identity by registration number
+        $registration_number = $external_representative['registration_number'] ?? $external_representative['citizen_identification'];
+
+        if($registration_number && strlen($registration_number) > 0) {
+            $identity = Identity::search(['registration_number', '=', $registration_number])->read(['id'])->first();
+        }
+
+        if(!$identity) {
+
+            $zip = $external_representative['zip'];
+            $country = $external_representative['country'];
+
+            if($type === 'IN') {
+                $legal_name = strtolower(TextTransformer::toAscii($external_representative['lastname'] . ' ' . $external_representative['firstname']));
+            }
+            else {
+                $legal_name = strtolower(TextTransformer::toAscii($external_representative['lastname']));
+            }
+
+            $legal_name = str_replace(['\'', ' '], '-', $legal_name);
+            // attempt to find existing identity by slug
+            if(strlen($type) > 0 && strlen($legal_name) > 0 && strlen($zip) > 0 && strlen($country) > 0) {
+                $slug_parts = [
+                        $type,
+                        $legal_name,
+                        $zip,
+                        $country
+                    ];
+
+                $slug = implode('-', array_filter($slug_parts));
+                if(strlen($slug) > 255) {
+                    $slug = substr($slug, 0, 255);
+                }
+                $slug_hash = md5($slug);
+                $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
+            }
+        }
+
+        // create a new identity
+        if(!$identity) {
+            $type = IdentityType::search(['code', '=', $external_representative['type']])
+                ->read(['id'])
+                ->first();
+
+            $date_of_birth = null;
+            if($external_representative['date_of_birth']) {
+                $date_of_birth = strtotime($external_representative['date_of_birth']);
+            }
+
+            $identity = Identity::create([
+                    'type_id'                   => $type['id'],
+                    'bank_account_iban'         => $external_representative['iban_1'],
+                    'has_vat'                   => $external_representative['vat_number'] ? true : false,
+                    'vat_number'                => $external_representative['vat_number'] ?? null,
+                    'registration_number'       => $external_representative['registration_number'],
+                    'citizen_identification'    => $external_representative['citizen_identification'],
+                    'firstname'                 => $external_representative['firstname'],
+                    'lastname'                  => $external_representative['lastname'],
+                    'gender'                    => ['Madame' => 'F', 'Monsieur' => 'M'][$external_representative['title']],
+                    'title'                     => ['Madame' => 'Mrs', 'Monsieur' => 'Mr'][$external_representative['title']],
+                    'date_of_birth'             => $date_of_birth,
+                    'lang_id'                   => ['en' => 1, 'fr' => 2, 'nl' => 3][$external_representative['lang']],
+                    'address_street'            => $external_representative['street'],
+                    'address_city'              => $external_representative['city'],
+                    'address_zip'               => $external_representative['zip'],
+                    'address_country'           => $external_representative['country'],
+                    'email'                     => $external_representative['email_1'],
+                    'email_alt'                 => $external_representative['email_2'],
+                    'phone'                     => ($external_representative['phone_1']) ?: $external_representative['mobile_2'],
+                    'mobile'                    => ($external_representative['mobile_1']) ?: $external_representative['phone_2'],
+                ])
+                ->first();
+
+            try {
+
+                if($external_representative['iban_2']) {
+                    BankAccount::create([
+                        'owner_identity_id' => $identity['id'],
+                        'iban'              => $external_representative['iban_2'],
+                    ]);
+                }
+                if($external_representative['iban_3']) {
+                    BankAccount::create([
+                        'owner_identity_id' => $identity['id'],
+                        'iban'              => $external_representative['iban_3'],
+                    ]);
+                }
+
+            }
+            catch(Exception $e) {
+                // do nothing
+            }
+        }
+
+
+        $map_external_representatives[$external_representative['code']] = $identity['id'];
+    }
+
     foreach($data['Owners'] as $owner) {
 
         $type = $owner['type'];
@@ -238,7 +341,7 @@ if($dataImport['import_type'] === 'condominium_import') {
 
         // create a new identity
         if(!$identity) {
-            $type = IdentityType::search(['code', '=', $owner['owner_type']])
+            $type = IdentityType::search(['code', '=', $owner['type']])
                 ->read(['id'])
                 ->first();
 
@@ -259,7 +362,7 @@ if($dataImport['import_type'] === 'condominium_import') {
                     'gender'                    => ['Madame' => 'F', 'Monsieur' => 'M'][$owner['title']],
                     'title'                     => ['Madame' => 'Mrs', 'Monsieur' => 'Mr'][$owner['title']],
                     'date_of_birth'             => $date_of_birth,
-                    'lang_id'                   => ['en' => 1, 'fr' => 2, 'nl' => 3][$owner['owner_langue']],
+                    'lang_id'                   => ['en' => 1, 'fr' => 2, 'nl' => 3][$owner['lang']],
                     'address_street'            => $owner['street'],
                     'address_city'              => $owner['city'],
                     'address_zip'               => $owner['zip'],
@@ -319,6 +422,7 @@ if($dataImport['import_type'] === 'condominium_import') {
     }
 
     // ownerships pass 2 - link ownerships and owners
+    $map_ownership_count_owners = [];
     foreach($data['Ownership'] as $ownership) {
 
         $ownership_id = $map_ownerships[$ownership['code']] ?? null;
@@ -335,7 +439,12 @@ if($dataImport['import_type'] === 'condominium_import') {
             continue;
         }
 
-        $owner_type = 'full';
+        if(!isset($map_ownership_count_owners[$ownership['code']])) {
+            $map_ownership_count_owners[$ownership['code']] = 0;
+        }
+
+        ++$map_ownership_count_owners[$ownership['code']];
+
         $owner_shares = 100;
 
         $ownerObject = Owner::create([
@@ -349,6 +458,60 @@ if($dataImport['import_type'] === 'condominium_import') {
             ->first();
 
         $map_owners[$ownership['owner_code']] = $ownerObject['id'];
+    }
+
+    // ownerships pass 3 - set ownership_type
+    foreach($data['Ownership'] as $ownership) {
+        $ownership_id = $map_ownerships[$ownership['code']] ?? null;
+
+        if(!$ownership_id) {
+            // alert: should not happen
+            continue;
+        }
+
+        if($map_ownership_count_owners[$ownership['code']] < 2) {
+            Ownership::id($ownership_id)->update(['ownership_type' => 'unique']);
+        }
+    }
+
+    // ownerships pass 4 - link representatives
+    foreach($data['Ownership'] as $ownership) {
+
+        $ownership_id = $map_ownerships[$ownership['code']] ?? null;
+
+        if(!$ownership_id) {
+            // alert: should not happen
+            continue;
+        }
+
+        if(isset($ownership['representative_owner_code'])) {
+            $owner_id = $map_owners[$ownership['representative_owner_code']] ?? null;
+
+            if(!$owner_id) {
+                // alert: should not happen
+                continue;
+            }
+
+            Ownership::id($ownership_id)->update([
+                    'has_representative'        => true,
+                    'representative_owner_id'   => $owner_id
+                ]);
+        }
+
+        if(isset($ownership['external_representative_code'])) {
+            $identity_id = $map_external_representatives[$ownership['external_representative_code']];
+
+            if(!$identity_id) {
+                // alert: should not happen
+                continue;
+            }
+
+            Ownership::id($ownership_id)->update([
+                    'has_external_representative'   => true,
+                    'representative_identity_id'    => $identity_id
+                ]);
+
+        }
     }
 
     // Entrances
