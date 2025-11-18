@@ -153,7 +153,7 @@ try {
                     'cadastral_number'          => $condominium_data['cadastral_number'],
                     'fiscal_year_start'         => $fiscal_year_start,
                     'fiscal_year_end'           => $fiscal_year_end,
-                    'fiscal_period_frequency'   => $condominium_data['fiscal_period'],
+                    'fiscal_period_frequency'   => ['Quarterly' => 'Q', 'Tertially' => 'T', 'Semi-Annually' => 'S', 'Annually' => 'A'][$condominium_data['fiscal_period'] ?? ''] ?? 'A',
                     'expense_management_mode'   => $condominium_data['expense_mode'],
                     'identity_id'               => $condominiumIdentity['id']
                 ])
