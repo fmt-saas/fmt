@@ -354,6 +354,7 @@ if($dataImport['import_type'] === 'condominium_import') {
     // Entrances
     foreach($data['Entrances'] as $entrance) {
         $propertyEntrance = PropertyEntrance::create([
+                'name'              => $entrance['name'],
                 'address_street'    => $entrance['street'],
                 'address_city'      => $entrance['city'],
                 'address_zip'       => $entrance['zip'],

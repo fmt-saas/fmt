@@ -22,11 +22,7 @@ class PropertyEntrance extends \equal\orm\Model {
             ],
 
             'name' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'relation'          => ['address'],
-                'store'             => true,
-                'instant'           => true,
+                'type'              => 'string',
                 'description'       => "Name of the Entrance."
             ],
 
@@ -65,8 +61,15 @@ class PropertyEntrance extends \equal\orm\Model {
                 'result_type'       => 'string',
                 'relation'          => ['condo_id' => 'address_zip'],
                 'store'             => true,
-                'description'       => 'Street and number.',
-                'help'              => "It is assumed that zip and city remain the same as the Condominium address. This field is deduced from parent Condominium but can be manually edited.",
+                'description'       => 'Postal code of the entrance (fall back to Condominium address).'
+            ],
+
+            'address_country' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['condo_id' => 'address_country'],
+                'store'             => true,
+                'description'       => 'Country of the entrance (fall back to Condominium address).'
             ],
 
             'property_lots_ids' => [
