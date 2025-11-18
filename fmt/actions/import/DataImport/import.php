@@ -722,12 +722,11 @@ try {
 
         // trigger refresh & sync events on created objects
 
-        Condominium::id($condominium['id'])->do('sync_from_identity');
-
         Owner::ids(array_values($map_owners))->do('sync_from_identity');
 
-
-
+        Condominium::id($condominium['id'])
+            ->do('sync_from_identity')
+            ->transition('validate');
 
         Apportionment::ids(array_values($map_apportionments))
             ->transition('validate');
