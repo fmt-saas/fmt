@@ -123,10 +123,12 @@ if($dataImport['import_type'] == 'condominium_import') {
     }
 
     foreach($data['Bank_accounts'] as $index => $bank_account) {
+        /*
         if(!isset($bank_account['code'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing `code` in Bank_accounts sheet at row " . ($index + 2);
         }
+        */
         if(!isset($bank_account['iban'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing `iban` in Bank_accounts sheet at row " . ($index + 2);
