@@ -29,6 +29,7 @@ use realestate\property\PropertyLot;
 use realestate\property\PropertyLotApportionmentShare;
 use realestate\property\PropertyLotNature;
 use realestate\property\PropertyLotOwnership;
+use realestate\ownership\OwnershipCommunicationPreference;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Return a JSON structure describing the import.',
@@ -97,6 +98,7 @@ try {
         $map_apportionments = [];
 
         $condominium = null;
+        $representative_identity_id = null;
 
         $roles = Role::search()->read(['id', 'code']);
         foreach($roles as $role_id => $role) {
@@ -550,6 +552,8 @@ try {
                     continue;
                 }
 
+                $representative_identity_id = $map_owners_identity[$ownership['representative_owner_code']] ?? null;
+
                 Ownership::id($ownership_id)->update([
                         'has_representative'        => true,
                         'representative_owner_id'   => $owner_id
@@ -564,6 +568,8 @@ try {
                     $result['logs'][] = "ERR - unable to retrieve identity_id for external_representative with code {$ownership['external_representative_code']}";
                     continue;
                 }
+
+                $representative_identity_id = $identity_id;
 
                 Ownership::id($ownership_id)->update([
                         'has_external_representative'   => true,
@@ -629,8 +635,7 @@ try {
             $map_property_lots[$lot['code']] = $propertyLot['id'];
         }
 
-
-        // ownerships pass 3 - create ownerships
+        // ownerships history
         foreach($data['Ownerships_history'] as $ownership_history) {
             $ownership_id = $map_ownerships[$ownership_history['ownership_code']] ?? null;
 
@@ -659,6 +664,61 @@ try {
                     'date_to'           => $date_to
                 ]);
 
+        }
+
+        foreach($data['Ownerships_com_prefs'] as $communication_preferences) {
+            $ownership_id = $map_ownerships[$communication_preferences['ownership_code']] ?? null;
+
+            if(!$ownership_id) {
+                // alert: should not happen
+                continue;
+            }
+
+            $preferences = ['general_assembly_call', 'general_assembly_minutes', 'expense_statement', 'fund_request', 'technical_communication'];
+
+            foreach($preferences as $preference) {
+                if(!$communication_preferences[$preference]) {
+                    continue;
+                }
+
+                $values = [
+                    'condo_id'                              => $condominium['id'],
+                    'ownership_id'                          => $ownership_id,
+                    'identity_id'                           => $representative_identity_id,
+                    'communication_reason'                  => strtolower($preference),
+                    'has_channel_email'                     => false,
+                    'has_channel_postal'                    => false,
+                    'has_channel_postal_registered'         => false,
+                    'has_channel_postal_registered_receipt' => false
+                ];
+
+                $parts = explode(',', $communication_preferences[$preference]);
+                foreach($parts as $part) {
+                    $channel = trim($part);
+                    if($channel === 'email') {
+                        $values['has_channel_email'] = true;
+                        continue;
+                    }
+                    if($channel === 'postal') {
+                        $values['has_channel_postal'] = true;
+                        continue;
+                    }
+                    if($channel === 'registered') {
+                        $values['has_channel_postal_registered'] = true;
+                        continue;
+                    }
+                    if($channel === 'registered_receipt') {
+                        $values['has_channel_postal_registered_receipt'] = true;
+                        continue;
+                    }
+                }
+            }
+
+            if($communication_preferences['ownership_title']) {
+                $values['communication_title'] = $communication_preferences['ownership_title'];
+            }
+
+            OwnershipCommunicationPreference::create($values);
         }
 
         // Apport_keys

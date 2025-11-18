@@ -84,7 +84,6 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'description'       => "Identity of an external person.",
                 'foreign_object'    => 'identity\Identity',
                 'domain'            => ['type_id', '=', 1],
-                'visible'           => ['has_representative', '=', true],
                 'dependents'        => ['name', 'email', 'address_street', 'address_city', 'address_zip']
             ],
 
