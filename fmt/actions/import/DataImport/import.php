@@ -65,7 +65,7 @@ $result = [
 
 // fetch DataImport object
 $dataImport = DataImport::id($params['id'])
-    ->read(['name', 'status', 'import_type'])
+    ->read(['name', 'status', 'import_type', 'logs'])
     ->first();
 
 if(!$dataImport) {
@@ -395,13 +395,14 @@ if($dataImport['import_type'] === 'condominium_import') {
             }
         }
 
-
         $map_owners_identity[$owner['code']] = $identity['id'];
+
+        $result['logs'][] = "INFO- assigned identity id {$identity['id']} to owner with code {$owner['code']}";
     }
 
     // ownerships pass 1 - create ownerships
     foreach($data['Ownerships_history'] as $ownership_history) {
-        // prevented creating same ownership multiple times
+        // prevent creating same ownership multiple times
         $ownership_id = $map_ownerships[$ownership_history['ownership_code']] ?? null;
 
         $date_to = strtotime($ownership_history['date_to']);
@@ -418,6 +419,7 @@ if($dataImport['import_type'] === 'condominium_import') {
                 ->first();
 
             $map_ownerships[$ownership_history['ownership_code']] = $ownershipObject['id'];
+            $result['logs'][] = "INFO- assigned id {$ownershipObject['id']} to ownership with code {$ownership_history['ownership_code']}";
         }
     }
 
@@ -429,6 +431,7 @@ if($dataImport['import_type'] === 'condominium_import') {
 
         if(!$ownership_id) {
             // alert: should not happen
+            $result['logs'][] = "ERR - unable to retrieve ownership with code {$ownership['code']}";
             continue;
         }
 
@@ -436,16 +439,13 @@ if($dataImport['import_type'] === 'condominium_import') {
 
         if(!$identity_id) {
             // alert: should not happen
+            $result['logs'][] = "ERR - unable to retrieve identity for owner with code {$ownership['owner_code']}";
             continue;
         }
 
         if(!isset($map_ownership_count_owners[$ownership['code']])) {
             $map_ownership_count_owners[$ownership['code']] = 0;
         }
-
-        ++$map_ownership_count_owners[$ownership['code']];
-
-        $owner_shares = 100;
 
         $ownerObject = Owner::create([
                 'condo_id'              => $condominium['id'],
@@ -458,6 +458,8 @@ if($dataImport['import_type'] === 'condominium_import') {
             ->first();
 
         $map_owners[$ownership['owner_code']] = $ownerObject['id'];
+
+        ++$map_ownership_count_owners[$ownership['code']];
     }
 
     // ownerships pass 3 - set ownership_type
@@ -466,6 +468,7 @@ if($dataImport['import_type'] === 'condominium_import') {
 
         if(!$ownership_id) {
             // alert: should not happen
+            $result['logs'][] = "ERR - unable to retrieve ownership with code {$ownership['code']}";
             continue;
         }
 
@@ -481,6 +484,7 @@ if($dataImport['import_type'] === 'condominium_import') {
 
         if(!$ownership_id) {
             // alert: should not happen
+            $result['logs'][] = "ERR - unable to retrieve ownership with code {$ownership['code']}";
             continue;
         }
 
@@ -489,6 +493,7 @@ if($dataImport['import_type'] === 'condominium_import') {
 
             if(!$owner_id) {
                 // alert: should not happen
+                $result['logs'][] = "ERR - unable to retrieve owner with code {$ownership['representative_owner_code']}";
                 continue;
             }
 
@@ -503,6 +508,7 @@ if($dataImport['import_type'] === 'condominium_import') {
 
             if(!$identity_id) {
                 // alert: should not happen
+                $result['logs'][] = "ERR - unable to retrieve identity_id for external_representative with code {$ownership['external_representative_code']}";
                 continue;
             }
 
@@ -744,6 +750,14 @@ if($dataImport['import_type'] === 'condominium_import') {
 }
 
 
+if(count($result['logs'])) {
+    $logs = json_decode($dataImport['logs'], true);
+
+    DataImport::id($params['id'])
+        ->update([
+            'logs'      => json_encode(array_merge($logs, $result['logs']), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+        ]);
+}
 
 
 $context->httpResponse()
