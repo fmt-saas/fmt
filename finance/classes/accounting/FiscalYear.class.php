@@ -359,10 +359,14 @@ class FiscalYear extends Model {
     protected static function policyCanOpenFiscalYear($self, $user_id, $access) {
         $result = [];
 
-        $self->read(['condo_id']);
+        $self->read(['condo_id' => ['id', 'creator']]);
 
         foreach($self as $id => $fiscalYear) {
-            if(!$access->userHasCondoRole($user_id, ['manager', 'accountant'], $fiscalYear['condo_id'])) {
+            if($fiscalYear['condo_id']['creator'] === $user_id) {
+                // #memo - this is to allow auto opening at Condo import from an XLS file
+                continue;
+            }
+            if(!$access->userHasCondoRole($user_id, ['manager', 'accountant'], $fiscalYear['condo_id']['id'])) {
                 $result[$id] = [
                     'not_allowed' => 'User missing mandatory role.'
                 ];
