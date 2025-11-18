@@ -199,6 +199,7 @@ try {
 
         foreach($data['External_representative'] as $external_representative) {
 
+            $identity = null;
             $type = $external_representative['type'];
 
             // attempt to find existing identity by registration number
@@ -316,6 +317,7 @@ try {
 
         foreach($data['Owners'] as $owner) {
 
+            $identity = null;
             $type = $owner['type'];
 
             // attempt to find existing identity by registration number
