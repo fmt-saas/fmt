@@ -469,8 +469,8 @@ if($dataImport['import_type'] === 'condominium_import') {
             continue;
         }
 
-        if($map_ownership_count_owners[$ownership['code']] < 2) {
-            Ownership::id($ownership_id)->update(['ownership_type' => 'unique']);
+        if($map_ownership_count_owners[$ownership['code']] > 1) {
+            Ownership::id($ownership_id)->update(['ownership_type' => 'joint']);
         }
     }
 
