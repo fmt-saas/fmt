@@ -36,27 +36,22 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "100%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "name",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "data",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "document_id",
-                                                "width": "100%"
+                                                "width": "66%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "import_type",
-                                                "width": "100%"
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_id",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
@@ -76,7 +71,10 @@
                                             {
                                                 "type": "field",
                                                 "value": "logs",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "height": 400
+                                                }
                                             }
                                         ]
                                     }

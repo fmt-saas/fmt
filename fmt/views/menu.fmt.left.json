@@ -28,7 +28,7 @@
             },
             {
                 "id": "item.imports",
-                "label": "Import Docs",
+                "label": "Imports",
                 "description": "",
                 "icon": "file_upload",
                 "type": "parent",
