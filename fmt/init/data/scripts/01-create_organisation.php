@@ -1,5 +1,6 @@
 <?php
 
+use hr\employee\Employee;
 use identity\Identity;
 use identity\Organisation;
 
@@ -18,6 +19,28 @@ $identity = Identity::create([
     ->first();
 
 Organisation::create([
+        "identity_id" => $identity['id']
+    ])
+    ->first();
+
+
+// first Employee
+
+$identity = Identity::create([
+        'type_id'           => 1,
+        'type'              => 'IN',
+        'firstname'         => 'First',
+        'lastname'          => 'Employee',
+        'has_parent'        => false,
+        'nationality'       => 'BE',
+        'lang_id'           => 2,
+        'address_country'   => 'BE',
+        'has_vat'           => false,
+        'is_active'         => true
+    ])
+    ->first();
+
+Employee::create([
         "identity_id" => $identity['id']
     ])
     ->first();
