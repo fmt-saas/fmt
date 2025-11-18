@@ -372,6 +372,7 @@ if($dataImport['import_type'] === 'condominium_import') {
         // #todo - complete
         $nature = [
             'APPARTEMENT'   => 'apartment',
+            'APARTMENT'     => 'apartment',
             'PARKING'       => 'parking',
             'GARAGE'        => 'garage'
             ][$lot['nature']] ?? null;
