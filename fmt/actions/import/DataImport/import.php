@@ -197,7 +197,7 @@ try {
                 ]);
         }
 
-        foreach($data['External_representative'] as $external_representative) {
+        foreach($data['External_representatives'] as $external_representative) {
 
             $identity = null;
             $type = $external_representative['type'];
@@ -456,9 +456,9 @@ try {
             }
         }
 
-        // ownerships pass 2 - link ownerships and owners
+        // ownerships pass 2 - create owners and link to ownerships
         $map_ownership_count_owners = [];
-        foreach($data['Ownership'] as $ownership) {
+        foreach($data['Ownerships'] as $ownership) {
 
             $ownership_id = $map_ownerships[$ownership['code']] ?? null;
 
@@ -496,7 +496,7 @@ try {
         }
 
         // ownerships pass 3 - set ownership_type
-        foreach($data['Ownership'] as $ownership) {
+        foreach($data['Ownerships'] as $ownership) {
             $ownership_id = $map_ownerships[$ownership['code']] ?? null;
 
             if(!$ownership_id) {
@@ -511,7 +511,7 @@ try {
         }
 
         // ownerships pass 4 - link representatives
-        foreach($data['Ownership'] as $ownership) {
+        foreach($data['Ownerships'] as $ownership) {
 
             $ownership_id = $map_ownerships[$ownership['code']] ?? null;
 
