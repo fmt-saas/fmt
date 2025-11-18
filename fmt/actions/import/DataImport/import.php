@@ -732,27 +732,39 @@ try {
         Condominium::id($condominium['id'])
             ->do('sync_from_identity')
             ->transition('validate');
+        
+        $result['logs'][] = "INFO- validated condominium ({$condominium['id']})";
 
         Apportionment::ids(array_values($map_apportionments))
             ->transition('validate');
+
+        $result['logs'][] = "INFO- validated apportionments";
 
         AccountChart::search(['condo_id', '=', $condominium['id']])
             ->do('import_accounts', ['chart_template_id' => 1])
             ->transition('activation');
 
+        $result['logs'][] = "INFO- activated chart of accounts";
+
         PropertyLot::search(['condo_id', '=', $condominium['id']])
             ->read(['code']);
+
+        $result['logs'][] = "INFO- assigned property lots codes";
 
         Ownership::search(['condo_id', '=', $condominium['id']])
             ->read(['code'])
             ->transition('validate');
 
+        $result['logs'][] = "INFO- validated ownerships";
+
+        // create supplierships for managing agent
+        Suppliership::create(["condo_id" => $condominium['id'], "supplier_id" => 1]);
+
         Suppliership::search(['condo_id', '=', $condominium['id']])
             ->read(['code'])
             ->transition('validate');
 
-        // create supplierships for managing agent
-        Suppliership::create(["condo_id" => $condominium['id'], "supplier_id" => 1]);
+        $result['logs'][] = "INFO- validated supplierships";
 
 
         $condominiums = Condominium::id($condominium['id']);
@@ -760,18 +772,28 @@ try {
         // create first fiscal year draft
         $condominiums->do('create_draft_fiscal_year');
 
+        $result['logs'][] = "INFO- created draft fiscal year";
+
         FiscalYear::search([['condo_id', '=', $condominium['id']], ['status', '=', 'draft']])
             ->do('generate_periods')
             ->transition('preopen');
 
+        $result['logs'][] = "INFO- generated fiscal year periods & preopen";
+
         // create following fiscal year draft
         $condominiums->do('create_draft_fiscal_year');
+
+        $result['logs'][] = "INFO- created next fiscal year periods";
 
         FiscalYear::search([['condo_id', '=', $condominium['id']], ['status', '=', 'draft']])
             ->do('generate_periods');
 
+        $result['logs'][] = "INFO- generated fiscal year periods";
+
         // open candidate fiscal year
         $condominiums->do('open_fiscal_year');
+
+        $result['logs'][] = "INFO- opened fiscal year";
 
         // force computing names
         FiscalPeriod::search([['condo_id', '=', $condominium['id']], ['status', '=', 'pending']])
@@ -792,6 +814,8 @@ try {
             ])
             ->transition('validate');
 
+        $result['logs'][] = "INFO- created & validated working fund";
+
         CondoFund::create([
                 'description'           => 'Fonds de réserve',
                 'condo_id'              => $condominium['id'],
@@ -799,6 +823,8 @@ try {
                 'fund_type'             => 'reserve_fund'
             ])
             ->transition('validate');
+
+        $result['logs'][] = "INFO- created & validated reserve fund";
 
     }
 }

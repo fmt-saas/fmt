@@ -214,9 +214,14 @@ class PropertyLot extends \equal\orm\Model {
         $self->read(['property_lot_ref', 'code', 'nature_id' => ['name'], 'active_ownership_id' => ['name']]);
         foreach($self as $id => $propertyLot) {
             if(isset($propertyLot['code'], $propertyLot['property_lot_ref'], $propertyLot['nature_id'])) {
-                $result[$id] = $propertyLot['code'] . ' - ' .
-                    $propertyLot['property_lot_ref'] . ' (' . $propertyLot['nature_id']['name'] . ')' . ' - ' .
-                    $propertyLot['active_ownership_id']['name'];
+                $parts = [];
+                $parts[] = $propertyLot['code'];
+                $parts[] = $propertyLot['property_lot_ref'];
+                $parts[] = '(' . $propertyLot['nature_id']['name'] . ')';
+                if($propertyLot['active_ownership_id']['name'] ?? null) {
+                    $parts[] = $propertyLot['active_ownership_id']['name'];
+                }
+                $result[$id] = implode(' - ', $parts);
             }
         }
         return $result;
