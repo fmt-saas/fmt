@@ -206,6 +206,10 @@ try {
 
             if($registration_number && strlen($registration_number) > 0) {
                 $identity = Identity::search(['registration_number', '=', $registration_number])->read(['id'])->first();
+
+                if($identity) {
+                    $result['logs'][] = "INFO- retrieved identity id {$identity['id']} for external representative with code {$external_representative['code']} based on registration_number `{$registration_number}`";
+                }
             }
 
             if(!$identity) {
@@ -236,6 +240,11 @@ try {
                     }
                     $slug_hash = md5($slug);
                     $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
+
+                    if($identity) {
+                        $result['logs'][] = "INFO- retrieved identity id {$identity['id']} for owner with code {$owner['code']} based on hash `{$slug_hash}`";
+                    }
+
                 }
             }
 
@@ -272,7 +281,13 @@ try {
                         'phone'                     => ($external_representative['phone_1']) ?: $external_representative['mobile_2'],
                         'mobile'                    => ($external_representative['mobile_1']) ?: $external_representative['phone_2'],
                     ])
+                    // #memo - events are deactivated
+                    ->read(['slug_hash'])
+                    ->do('refresh_legal_name')
+                    ->do('refresh_registration_number')
                     ->first();
+
+                $result['logs'][] = "INFO- created new identity id {$identity['id']} for external representative with code {$external_representative['code']}";
 
                 try {
 
@@ -308,6 +323,10 @@ try {
 
             if($registration_number && strlen($registration_number) > 0) {
                 $identity = Identity::search(['registration_number', '=', $registration_number])->read(['id'])->first();
+
+                if($identity) {
+                    $result['logs'][] = "INFO- retrieved identity id {$identity['id']} for owner with code {$owner['code']} based on registration_number `{$registration_number}`";
+                }
             }
 
             if(!$identity) {
@@ -338,6 +357,10 @@ try {
                     }
                     $slug_hash = md5($slug);
                     $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
+
+                    if($identity) {
+                        $result['logs'][] = "INFO- retrieved identity id {$identity['id']} for owner with code {$owner['code']} based on hash `{$slug_hash}`";
+                    }
                 }
             }
 
@@ -374,7 +397,13 @@ try {
                         'phone'                     => ($owner['phone_1']) ?: $owner['mobile_2'],
                         'mobile'                    => ($owner['mobile_1']) ?: $owner['phone_2'],
                     ])
+                    // #memo - events are deactivated
+                    ->read(['slug_hash'])
+                    ->do('refresh_legal_name')
+                    ->do('refresh_registration_number')
                     ->first();
+
+                $result['logs'][] = "INFO- created new identity id {$identity['id']} for owner with code {$owner['code']}";
 
                 try {
 
@@ -676,11 +705,6 @@ try {
         Condominium::id($condominium['id'])->do('sync_from_identity');
 
         Owner::ids(array_values($map_owners))->do('sync_from_identity');
-
-        Identity::ids(array_values($map_owners_identity))
-            ->read(['slug_hash'])
-            ->do('refresh_legal_name')
-            ->do('refresh_registration_number');
 
         Apportionment::ids(array_values($map_apportionments))
             ->transition('validate');
