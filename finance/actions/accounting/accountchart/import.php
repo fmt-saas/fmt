@@ -21,7 +21,7 @@ use finance\accounting\AccountChartTemplate;
             'type'           => 'many2one',
             'foreign_object' => 'finance\accounting\AccountChartTemplate',
             'description'    => 'Template to use to populate Chart of Accounts.',
-            'default'           => function ($id=null) {
+            'default'        => function ($id=null) {
                 $accountCharts = AccountChartTemplate::search();
                 if($accountCharts->count() === 1) {
                     return ($accountCharts->first())['id'];

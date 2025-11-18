@@ -193,11 +193,7 @@ try {
                 ]);
             }
 
-            $accountChart = AccountChart::create([
-                    'name'          => "Plan comptable",
-                    'condo_id'      => $condominium['id']
-                ])
-                ->first();
+            // #memo - chart of accounts is created at Condominium validation
 
             // #memo - only one condominium is expected
             break;
@@ -732,7 +728,7 @@ try {
         Condominium::id($condominium['id'])
             ->do('sync_from_identity')
             ->transition('validate');
-        
+
         $result['logs'][] = "INFO- validated condominium ({$condominium['id']})";
 
         Apportionment::ids(array_values($map_apportionments))
