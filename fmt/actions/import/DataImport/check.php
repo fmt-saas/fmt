@@ -245,14 +245,14 @@ if($dataImport['import_type'] == 'condominium_import') {
             'PARKING'       => 'parking',
             'GARAGE'        => 'garage',
             'ROOM'          => 'room'
-            ][$lot['nature']] ?? strtolower($lot['nature']);
+            ][$property_lot['nature']] ?? strtolower($property_lot['nature']);
 
         $propertyLotNature = PropertyLotNature::search(['code', '=', $nature])
             ->first();
 
         if(!$propertyLotNature) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - unknown code ({$lot['nature']}) for `nature` in `Lots` sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - unknown code ({$property_lot['nature']}) for `nature` in `Lots` sheet at row " . ($index + 2);
         }
     }
 
