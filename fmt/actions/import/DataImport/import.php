@@ -210,18 +210,19 @@ try {
 
         foreach($data['Bank_accounts'] as $bank_account) {
 
-            CondominiumBankAccount::create([
-                    'condo_id'          => $condominium['id'],
-                    'owner_identity_id' => $condominiumIdentity['id'],
-                    'description'       => $bank_account['description'],
-                    'bank_account_type' => [
+            $bank_account_type = [
                             'current'       => 'bank_current',
-                            'bank_current'  => 'bank_current',
                             'savings'       => 'bank_savings',
-                            'bank_savings'  => 'bank_savings'
-                        ][$bank_account['type']],
-                    'bank_account_iban' => $bank_account['iban'],
-                    'is_primary'        => (bool) $bank_account['is_primary']
+                        ][$bank_account['type']] ?? strtolower($bank_account['type']);
+
+            CondominiumBankAccount::create([
+                    'condo_id'              => $condominium['id'],
+                    'owner_identity_id'     => $condominiumIdentity['id'],
+                    'description'           => $bank_account['description'],
+                    'bank_account_type'     => $bank_account_type,
+                    'bank_account_iban'     => $bank_account['iban'],
+                    'is_primary'            => (bool) $bank_account['is_primary'] && $bank_account_type === 'bank_current',
+                    'is_primary_reserve'    => (bool) $bank_account['is_primary'] && $bank_account_type === 'bank_savings'
                 ]);
         }
 
