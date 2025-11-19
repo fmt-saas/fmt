@@ -560,10 +560,13 @@ try {
 
                 $representative_identity_id = $map_owners_identity[$ownership['representative_owner_code']] ?? null;
 
-                Ownership::id($ownership_id)->update([
-                        'has_representative'        => true,
-                        'representative_owner_id'   => $owner_id
-                    ]);
+                if($representative_identity_id) {
+                    Ownership::id($ownership_id)
+                        ->update([
+                            'has_representative'        => true,
+                            'representative_owner_id'   => $owner_id
+                        ]);
+                }
             }
 
             if(isset($ownership['external_representative_code'])) {

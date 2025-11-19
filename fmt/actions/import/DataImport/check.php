@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use core\Lang;
 use fmt\import\DataImport;
 use hr\employee\Employee;
 use purchase\supplier\Supplier;
@@ -155,6 +156,18 @@ if($dataImport['import_type'] == 'condominium_import') {
         if(!isset($owner['code'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing `code` in Owner sheet at row " . ($index + 2);
+        }
+
+        if(preg_match('/^[a-z]{2}$/', $owner['lang'])) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid `lang` ({$owner['lang']}) in Owner sheet at row " . ($index + 2);
+
+        }
+
+        if(preg_match('/^[A-Z]{2}$/', $owners['country'])) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing `country` ({$owner['country']}) in Owner sheet at row " . ($index + 2);
+
         }
     }
 

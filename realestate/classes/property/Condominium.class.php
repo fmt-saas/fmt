@@ -71,7 +71,7 @@ class Condominium extends Identity {
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'function'          => 'calcName',
+                'relation'          => ['legal_name'],
                 'store'             => true,
                 'instant'           => true,
                 'description'       => 'The display name of the Condominium.',
@@ -580,20 +580,6 @@ class Condominium extends Identity {
         $self->read(['id']);
         foreach($self as $id => $condominium) {
             $result[$id] = str_pad((string) $id, 6, '0', STR_PAD_LEFT);
-        }
-        return $result;
-    }
-
-    /**
-     * #memo - Condominium is a PRIVATE entity : only MASTER instance can provide an ID. By convention, PRIVATE ID start at 1.000.001.
-     */
-    public static function calcName($self) {
-        $result = [];
-        $self->read(['legal_name', 'code']);
-        foreach($self as $id => $condominium) {
-            if($condominium['legal_name'] && strlen($condominium['legal_name'])) {
-                $result[$id] = $condominium['code'] . ' - ' . $condominium['legal_name'];
-            }
         }
         return $result;
     }
