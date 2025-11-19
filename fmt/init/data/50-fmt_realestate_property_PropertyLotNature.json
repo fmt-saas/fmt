@@ -72,6 +72,13 @@
                 "code": "balcony",
                 "hierarchy": 3,
                 "description": "Apartment with both a terrace and a balcony."
+            },
+            {
+                "id": 11,
+                "name": "ROOM",
+                "code": "room",
+                "hierarchy": 2,
+                "description": "Room."
             }
         ]
     },
@@ -128,6 +135,11 @@
                 "id": 10,
                 "name": "BALCON",
                 "description": "Appartement avec une terrasse et un balcon."
+            },
+            {
+                "id": 11,
+                "name": "CHAMBRE",
+                "description": "Chambre mansardée."
             }
         ]
     }

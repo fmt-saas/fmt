@@ -271,7 +271,7 @@ try {
                     $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
 
                     if($identity) {
-                        $result['logs'][] = "INFO- retrieved identity id {$identity['id']} for owner with code {$owner['code']} based on hash `{$slug_hash}`";
+                        $result['logs'][] = "INFO- retrieved identity id {$identity['id']} for external representative with code {$external_representative['code']} based on hash `{$slug_hash}`";
                     }
 
                 }
@@ -611,12 +611,15 @@ try {
                 'APPARTEMENT'   => 'apartment',
                 'APARTMENT'     => 'apartment',
                 'PARKING'       => 'parking',
-                'GARAGE'        => 'garage'
+                'GARAGE'        => 'garage',
+                'ROOM'          => 'room'
                 ][$lot['nature']] ?? null;
+
+// #todo - recherche sur base du nom
 
             if(!$nature) {
                 // alert: should not happen
-                $result['logs'][] = "ERR - unable to retrieve nature for property_lot with nature {$lot['nature']} in 'Lots' at line " + ($index + 2);
+                $result['logs'][] = "ERR - unable to retrieve nature for property_lot with nature {$lot['nature']} in 'Lots' at line " . ($index + 2);
                 continue;
             }
 
