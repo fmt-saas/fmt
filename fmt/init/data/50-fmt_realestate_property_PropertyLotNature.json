@@ -79,6 +79,13 @@
                 "code": "room",
                 "hierarchy": 2,
                 "description": "Room."
+            },
+            {
+                "id": 12,
+                "name": "RETAIL",
+                "code": "retail",
+                "hierarchy": 1,
+                "description": "Retail for generic commerce purpose."
             }
         ]
     },
@@ -140,6 +147,11 @@
                 "id": 11,
                 "name": "CHAMBRE",
                 "description": "Chambre mansardée."
+            },
+            {
+                "id": 12,
+                "name": "COMMERCE",
+                "description": "Retail for generic commerce purpose."
             }
         ]
     }

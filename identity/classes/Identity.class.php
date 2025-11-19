@@ -188,7 +188,7 @@ class Identity extends Model {
                 'foreign_object'    => 'identity\IdentityType',
                 'onupdate'          => 'onupdateTypeId',
                 'default'           => Setting::get_value('identity', 'organization', 'identity_type_default', 1),
-                'dependents  '      => ['type', 'name', 'identity_slug'],
+                'dependents  '      => ['type', 'name', 'identity_slug', 'slug_hash'],
                 'description'       => 'Type of identity.'
             ],
 
@@ -261,7 +261,7 @@ class Identity extends Model {
                 'type'              => 'string',
                 'description'       => 'Full name of the Identity.',
                 'visible'           => [ ['type', '<>', 'IN'] ],
-                'dependents'        => ['name', 'identity_slug'],
+                'dependents'        => ['name', 'identity_slug', 'slug_hash'],
                 'onupdate'          => 'onupdateLegalName'
             ],
 
@@ -476,7 +476,7 @@ class Identity extends Model {
                 'type'              => 'string',
                 'description'       => 'Postal code.',
                 'onupdate'          => 'onupdateAddressZip',
-                'dependents'        => ['address_hash', 'identity_slug']
+                'dependents'        => ['address_hash', 'identity_slug', 'slug_hash']
             ],
 
             'address_state' => [
@@ -491,6 +491,7 @@ class Identity extends Model {
                 'usage'             => 'country/iso-3166:2',
                 'description'       => 'Country.',
                 'default'           => 'BE',
+                'dependents'        => ['address_hash', 'identity_slug', 'slug_hash'],
                 'onupdate'          => 'onupdateAddressCountry'
             ],
 

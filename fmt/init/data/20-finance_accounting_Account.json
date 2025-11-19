@@ -3304,26 +3304,6 @@
                 "owner_share": 0
             },
             {
-                "id": 341,
-                "code": "68160",
-                "is_control_account": true,
-                "description": "Reserve fund variation",
-                "account_chart_id": 1,
-                "operation_assignment": "reserve_fund_variation",
-                "tenant_share": 0,
-                "owner_share": 100
-            },
-            {
-                "id": 342,
-                "code": "68161",
-                "is_control_account": true,
-                "description": "Special Reserve fund variation",
-                "account_chart_id": 1,
-                "operation_assignment": "special_reserve_fund_variation",
-                "tenant_share": 0,
-                "owner_share": 100
-            },
-            {
                 "id": 343,
                 "code": "69",
                 "is_control_account": true,
