@@ -269,6 +269,9 @@ try {
                         $slug = substr($slug, 0, 255);
                     }
                     $slug_hash = md5($slug);
+
+                    $result['logs'][] = "INFO- searching identity for external representative  with code {$external_representative['code']} with hash `{$slug_hash}`";
+
                     $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
 
                     if($identity) {
@@ -387,6 +390,9 @@ try {
                         $slug = substr($slug, 0, 255);
                     }
                     $slug_hash = md5($slug);
+
+                    $result['logs'][] = "INFO- searching identity for owner with code {$owner['code']} with hash `{$slug_hash}`";
+
                     $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
 
                     if($identity) {

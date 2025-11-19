@@ -139,6 +139,7 @@ if($dataImport['import_type'] == 'condominium_import') {
 
     }
 
+    $map_bank_accounts_primary = [];
     foreach($data['Bank_accounts'] as $index => $bank_account) {
         /*
         if(!isset($bank_account['code'])) {
@@ -146,6 +147,14 @@ if($dataImport['import_type'] == 'condominium_import') {
             $result['logs'][] = "ERR - missing `code` in Bank_accounts sheet at row " . ($index + 2);
         }
         */
+        if($bank_account['is_primary']) {
+            if(isset($map_bank_accounts_primary[$bank_account['type']])) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - duplicate `is_primary` in Bank_accounts sheet at row " . ($index + 2);
+                continue;
+            }
+            $map_bank_accounts_primary[$bank_account['type']] = true;
+        }
         if(!isset($bank_account['iban'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing `iban` in Bank_accounts sheet at row " . ($index + 2);
