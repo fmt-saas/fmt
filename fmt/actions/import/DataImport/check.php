@@ -10,6 +10,7 @@ use fmt\import\DataImport;
 use hr\employee\Employee;
 use purchase\supplier\Supplier;
 use realestate\property\Condominium;
+use realestate\property\PropertyLotNature;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Return a JSON structure describing the import.',
@@ -216,23 +217,42 @@ if($dataImport['import_type'] == 'condominium_import') {
     foreach($data['Lots'] as $index => $property_lot) {
         if(!isset($property_lot['code'])) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - missing `code` in Lots sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - missing `code` in `Lots` sheet at row " . ($index + 2);
         }
         if(!isset($property_lot['entrance_code'])) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - missing `entrance_code` in Lots sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - missing `entrance_code` in `Lots` sheet at row " . ($index + 2);
         }
         if(!isset($map_property_entrances_codes[$property_lot['entrance_code']])) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - unknown `entrance_code` '" . $property_lot['entrance_code'] . "' in Lots sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - unknown `entrance_code` '" . $property_lot['entrance_code'] . "' in `Lots` sheet at row " . ($index + 2);
         }
         if(!isset($property_lot['ref'])) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - missing `ref` in Lots sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - missing `ref` in `Lots` sheet at row " . ($index + 2);
         }
         if(!isset($property_lot['nature'])) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - missing `ref` in Lots sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - missing `nature` in `Lots` sheet at row " . ($index + 2);
+        }
+
+        // check nature consistency
+
+        // #todo - complete
+        $nature = [
+            'APPARTEMENT'   => 'apartment',
+            'APARTMENT'     => 'apartment',
+            'PARKING'       => 'parking',
+            'GARAGE'        => 'garage',
+            'ROOM'          => 'room'
+            ][$lot['nature']] ?? strtolower($lot['nature']);
+
+        $propertyLotNature = PropertyLotNature::search(['code', '=', $nature])
+            ->first();
+
+        if(!$propertyLotNature) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - unknown code ({$lot['nature']}) for `nature` in `Lots` sheet at row " . ($index + 2);
         }
     }
 
