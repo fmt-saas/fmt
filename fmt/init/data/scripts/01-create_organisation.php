@@ -3,6 +3,7 @@
 use hr\employee\Employee;
 use identity\Identity;
 use identity\Organisation;
+use realestate\management\ManagingAgent;
 
 // Main organisation
 $identity = Identity::create([
@@ -23,6 +24,9 @@ Organisation::create([
     ])
     ->first();
 
+ManagingAgent::create([
+    "identity_id" => $identity['id']
+]);
 
 // first Employee
 

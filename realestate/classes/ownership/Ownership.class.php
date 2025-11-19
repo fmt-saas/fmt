@@ -765,6 +765,7 @@ class Ownership extends \equal\orm\Model {
                         'has_channel_postal_registered_receipt' => false
                     ]);
             }
+
             if(OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $ownership['condo_id']],
                         ['ownership_id', '=', $id],

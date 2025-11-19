@@ -132,27 +132,33 @@ try {
             }
 
             $condominiumIdentity = Identity::create([
-                    'type_id'           => 3,
-                    'type'              => "CO",
-                    'description'       => null,
-                    'bank_account_iban' => null,
-                    'bank_account_bic'  => null,
-                    'legal_name'        => $condominium_data['name'],
-                    'nationality'       => "BE",
-                    'has_vat'           => $condominium_data['has_vat'],
-                    'vat_number'        => $condominium_data['vat_number'],
-                    'lang_id'           => ['en' => 1, 'fr' => 2, 'nl' => 3][$condominium_data['lang']],
-                    'address_street'    => $condominium_data['street'],
-                    'address_city'      => $condominium_data['city'],
-                    'address_zip'       => $condominium_data['zip'],
-                    'address_country'   => $condominium_data['country'],
+                    'type_id'                   => 3,
+                    'type'                      => "CO",
+                    'description'               => null,
+                    'bank_account_iban'         => null,
+                    'bank_account_bic'          => null,
+                    'legal_name'                => $condominium_data['name'],
+                    'nationality'               => "BE",
+                    'has_vat'                   => $condominium_data['has_vat'],
+                    'vat_number'                => $condominium_data['vat_number'],
+                    'registration_number'       => $condominium_data['registration_number'],
+                    'lang_id'                   => ['en' => 1, 'fr' => 2, 'nl' => 3][$condominium_data['lang']],
+                    'address_street'            => $condominium_data['street'],
+                    'address_city'              => $condominium_data['city'],
+                    'address_zip'               => $condominium_data['zip'],
+                    'address_country'           => $condominium_data['country'],
                 ])
                 ->first();
 
+            $condo_code = null;
+            if($condominium_data['code']) {
+                $condo_code = str_pad((string) $condominium_data['code'], 6, '0', STR_PAD_LEFT);
+            }
+
             $condominium = Condominium::create([
+                    'code'                      => $condo_code,
                     'legal_name'                => $condominium_data['name'],
                     'managing_agent_id'         => 1,
-                    'registration_number'       => $condominium_data['registration_number'],
                     'cadastral_number'          => $condominium_data['cadastral_number'],
                     'fiscal_year_start'         => $fiscal_year_start,
                     'fiscal_year_end'           => $fiscal_year_end,
@@ -595,7 +601,7 @@ try {
         }
 
         // Lots
-        foreach($data['Lots'] as $lot) {
+        foreach($data['Lots'] as $index => $lot) {
 
             // #todo - complete
             $nature = [
@@ -607,6 +613,7 @@ try {
 
             if(!$nature) {
                 // alert: should not happen
+                $result['logs'][] = "ERR - unable to retrieve nature for property_lot with nature {$lot['nature']} in 'Lots' at line " + ($index + 2);
                 continue;
             }
 
@@ -636,15 +643,16 @@ try {
         }
 
         // ownerships history
-        foreach($data['Ownerships_history'] as $ownership_history) {
+        foreach($data['Ownerships_history'] as $index => $ownership_history) {
             $ownership_id = $map_ownerships[$ownership_history['ownership_code']] ?? null;
 
             if(!$ownership_id) {
                 // alert: should not happen
+                $result['logs'][] = "ERR - unable to retrieve ownership_id for ownership_history {$ownership_history['ownership_code']} in 'Ownerships_history' at line " + ($index + 2);
                 continue;
             }
 
-            $property_lot_id = $map_ownerships[$ownership_history['lot_code']] ?? null;
+            $property_lot_id = $map_property_lots[$ownership_history['lot_code']] ?? null;
 
             if(!$property_lot_id) {
                 // alert: should not happen
@@ -663,6 +671,10 @@ try {
                     'date_from'         => strtotime($ownership_history['date_from']),
                     'date_to'           => $date_to
                 ]);
+
+            if(!$date_to) {
+                PropertyLot::id($property_lot_id)->update(['active_ownership_id' => $ownership_id]);
+            }
 
         }
 
@@ -761,7 +773,6 @@ try {
                 ]);
 
         }
-
 
         // Supplierships
         foreach($data['Supplierships'] as $suppliership) {
@@ -879,6 +890,10 @@ try {
                 'apportionment_id'      => $apportionment_id,
                 'fund_type'             => 'reserve_fund'
             ])
+            ->transition('validate');
+
+        // validate bank accounts & assign accounting accounts
+        CondominiumBankAccount::search(['condo_id', '=', $condominium['id']])
             ->transition('validate');
 
         $result['logs'][] = "INFO- created & validated reserve fund";

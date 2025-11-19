@@ -78,12 +78,12 @@ class Condominium extends Identity {
             ],
 
 // #todo - permettre la modif + vérfier que le code est unique
+// -> canupdate
             'code' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'function'          => 'calcCode',
                 'store'             => true,
-                'readonly'          => true,
                 'description'       => 'The unique code of the Condominium, for global identification.',
             ],
 
