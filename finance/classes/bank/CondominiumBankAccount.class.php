@@ -350,23 +350,6 @@ class CondominiumBankAccount extends BankAccount {
         return null;
     }
 
-    public static function canupdate($self, $values) {
-        $self->read(['condo_id', 'bank_account_type', 'is_primary']);
-        foreach($self as $id => $condoBankAccount) {
-            $primaryBankAccount = self::search([
-                    ['condo_id', '=', $condoBankAccount['condo_id']],
-                    ['bank_account_type', '=', $condoBankAccount['bank_account_type']],
-                    ['id', '<>', $id],
-                    ['is_primary', '=', true]
-                ])
-                ->first();
-            if($primaryBankAccount) {
-                return ['is_primary' => ['not_allowed' => 'Another bank account of this condominium is already primary.']];
-            }
-        }
-        return parent::canupdate($self, $values);
-    }
-
     // #todo -to complete
     public static function candelete($self) {
         $self->read(['is_primary']);

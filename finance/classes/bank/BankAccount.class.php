@@ -256,18 +256,18 @@ class BankAccount extends Model {
         }
         */
 
-        $self->read(['owner_identity_id']);
+        $self->read(['owner_identity_id', 'bank_account_type']);
         foreach($self as $id => $bankAccount) {
             if(isset($values['is_primary']) && $values['is_primary']) {
-                $bankAccounts = self::search(['owner_identity_id', '=', $bankAccount['owner_identity_id']])
-                    ->read(['id', 'is_primary']);
-                foreach($bankAccounts as $otherBankAccount) {
-                    if($otherBankAccount['id'] == $id) {
-                        continue;
-                    }
-                    if($otherBankAccount['is_primary']) {
-                        return ['is_primary' => ['duplicate_primary' => 'Only one primary account can be defined.']];
-                    }
+                $otherBankAccount = self::search([
+                        ['id', '<>', $id],
+                        ['owner_identity_id', '=', $bankAccount['owner_identity_id']],
+                        ['bank_account_type', '=', $bankAccount['bank_account_type']],
+                        ['is_primary', '=', true],
+                    ])
+                    ->first();
+                if($otherBankAccount) {
+                    return ['is_primary' => ['duplicate_primary' => 'Only one primary account can be defined.']];
                 }
             }
             return parent::canupdate($self);
