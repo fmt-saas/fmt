@@ -52,6 +52,7 @@ BankAccount::create([
         "bank_account_iban" =>  "BE23510349013565"
     ]);
 
+/*
 $managingAgent = ManagingAgent::create([
         "id"                    => 1,
         "supplier_type_id"      => 1,
@@ -59,6 +60,7 @@ $managingAgent = ManagingAgent::create([
         'agent_identity_type'   => 'professional'
     ])
     ->first();
+*/
 
 Identity::search()->do('refresh_bank_accounts');
 
