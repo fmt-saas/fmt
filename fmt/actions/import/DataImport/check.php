@@ -158,15 +158,15 @@ if($dataImport['import_type'] == 'condominium_import') {
             $result['logs'][] = "ERR - missing `code` in Owner sheet at row " . ($index + 2);
         }
 
-        if(preg_match('/^[a-z]{2}$/', $owner['lang'])) {
+        if(!preg_match('/^[a-z]{2}$/', $owner['lang'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid `lang` ({$owner['lang']}) in Owner sheet at row " . ($index + 2);
 
         }
 
-        if(preg_match('/^[A-Z]{2}$/', $owners['country'])) {
+        if(!preg_match('/^[A-Z]{2}$/', $owners['country'])) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - missing `country` ({$owner['country']}) in Owner sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - invalid `country` ({$owner['country']}) in Owner sheet at row " . ($index + 2);
 
         }
     }
