@@ -164,7 +164,7 @@ if($dataImport['import_type'] == 'condominium_import') {
 
         }
 
-        if(!preg_match('/^[A-Z]{2}$/', $owners['country'])) {
+        if(!preg_match('/^[A-Z]{2}$/', $owner['country'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid `country` ({$owner['country']}) in Owner sheet at row " . ($index + 2);
 
