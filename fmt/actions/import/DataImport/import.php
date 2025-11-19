@@ -248,10 +248,10 @@ try {
                 $country = $external_representative['country'];
 
                 if($type === 'IN') {
-                    $legal_name = strtolower(TextTransformer::toAscii($external_representative['lastname'] . ' ' . $external_representative['firstname']));
+                    $legal_name = TextTransformer::toAscii($external_representative['lastname'] . ' ' . $external_representative['firstname']);
                 }
                 else {
-                    $legal_name = strtolower(TextTransformer::toAscii($external_representative['lastname']));
+                    $legal_name = TextTransformer::toAscii($external_representative['lastname']);
                 }
 
                 $legal_name = str_replace(['\'', ' '], '-', $legal_name);
@@ -264,13 +264,13 @@ try {
                             $country
                         ];
 
-                    $slug = implode('-', array_filter($slug_parts));
+                    $slug = strtolower(implode('-', array_filter($slug_parts)));
                     if(strlen($slug) > 255) {
                         $slug = substr($slug, 0, 255);
                     }
                     $slug_hash = md5($slug);
 
-                    $result['logs'][] = "INFO- searching identity for external representative  with code {$external_representative['code']} with hash `{$slug_hash}`";
+                    $result['logs'][] = "INFO- searching identity for external representative  with code {$external_representative['code']} with hash `{$slug_hash}` (slug `$slug`)";
 
                     $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
 
@@ -369,10 +369,10 @@ try {
                 $country = $owner['country'];
 
                 if($type === 'IN') {
-                    $legal_name = strtolower(TextTransformer::toAscii($owner['lastname'] . ' ' . $owner['firstname']));
+                    $legal_name = TextTransformer::toAscii($owner['lastname'] . ' ' . $owner['firstname']);
                 }
                 else {
-                    $legal_name = strtolower(TextTransformer::toAscii($owner['lastname']));
+                    $legal_name = TextTransformer::toAscii($owner['lastname']);
                 }
 
                 $legal_name = str_replace(['\'', ' '], '-', $legal_name);
@@ -385,13 +385,13 @@ try {
                             $country
                         ];
 
-                    $slug = implode('-', array_filter($slug_parts));
+                    $slug = strtolower(implode('-', array_filter($slug_parts)));
                     if(strlen($slug) > 255) {
                         $slug = substr($slug, 0, 255);
                     }
                     $slug_hash = md5($slug);
 
-                    $result['logs'][] = "INFO- searching identity for owner with code {$owner['code']} with hash `{$slug_hash}`";
+                    $result['logs'][] = "INFO- searching identity for owner with code {$owner['code']} with hash `{$slug_hash}` (slug `$slug`)";
 
                     $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
 

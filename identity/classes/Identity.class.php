@@ -1779,16 +1779,16 @@ class Identity extends Model {
                 continue;
             }
 
-            $legal_name = strtolower(TextTransformer::toAscii($identity['legal_name']));
+            $legal_name = TextTransformer::toAscii($identity['legal_name']);
             $legal_name = str_replace(['\'', ' '], '-', $legal_name);
 
             $slug_parts = [
                     $identity['type'],
                     $legal_name,
                     $identity['address_zip'],
-                    strtolower($identity['address_country'])
+                    $identity['address_country']
                 ];
-            $slug = implode('-', array_filter($slug_parts));
+            $slug = strtolower(implode('-', array_filter($slug_parts)));
 
             // limit length
             if(strlen($slug) > 255) {
