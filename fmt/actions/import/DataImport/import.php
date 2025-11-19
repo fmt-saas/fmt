@@ -613,19 +613,17 @@ try {
                 'PARKING'       => 'parking',
                 'GARAGE'        => 'garage',
                 'ROOM'          => 'room'
-                ][$lot['nature']] ?? null;
-
-// #todo - recherche sur base du nom
-
-            if(!$nature) {
-                // alert: should not happen
-                $result['logs'][] = "ERR - unable to retrieve nature for property_lot with nature {$lot['nature']} in 'Lots' at line " . ($index + 2);
-                continue;
-            }
+                ][$lot['nature']] ?? strtolower($lot['nature']);
 
             $propertyLotNature = PropertyLotNature::search(['code', '=', $nature])
                 ->read(['id'])
                 ->first();
+
+            if(!$propertyLotNature) {
+                // alert: should not happen
+                $result['logs'][] = "ERR - unable to retrieve nature for property_lot with nature {$lot['nature']} in 'Lots' at line " . ($index + 2);
+                continue;
+            }
 
             $is_primary = (bool) $lot['primary_lot_code'];
             $primary_lot_id = $map_property_lots[$lot['primary_lot_code']] ?? null;
