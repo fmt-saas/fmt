@@ -311,9 +311,9 @@ try {
                         'mobile'                    => ($external_representative['mobile_1']) ?: $external_representative['phone_2'],
                     ])
                     // #memo - events are deactivated
-                    ->read(['slug_hash'])
                     ->do('refresh_legal_name')
                     ->do('refresh_registration_number')
+                    ->read(['slug_hash'])
                     ->first();
 
                 $result['logs'][] = "INFO- created new identity id {$identity['id']} for external representative with code {$external_representative['code']}";
@@ -428,9 +428,9 @@ try {
                         'mobile'                    => ($owner['mobile_1']) ?: $owner['phone_2'],
                     ])
                     // #memo - events are deactivated
-                    ->read(['slug_hash'])
                     ->do('refresh_legal_name')
                     ->do('refresh_registration_number')
+                    ->read(['slug_hash'])
                     ->first();
 
                 $result['logs'][] = "INFO- created new identity id {$identity['id']} for owner with code {$owner['code']}";
