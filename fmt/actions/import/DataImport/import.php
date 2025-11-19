@@ -248,7 +248,7 @@ try {
                 $country = $external_representative['country'];
 
                 if($type === 'IN') {
-                    $legal_name = TextTransformer::toAscii($external_representative['lastname'] . ' ' . $external_representative['firstname']);
+                    $legal_name = TextTransformer::toAscii($external_representative['firstname'] . ' ' . $external_representative['lastname']);
                 }
                 else {
                     $legal_name = TextTransformer::toAscii($external_representative['lastname']);
@@ -369,7 +369,7 @@ try {
                 $country = $owner['country'];
 
                 if($type === 'IN') {
-                    $legal_name = TextTransformer::toAscii($owner['lastname'] . ' ' . $owner['firstname']);
+                    $legal_name = TextTransformer::toAscii($owner['firstname'] . ' ' . $owner['lastname']);
                 }
                 else {
                     $legal_name = TextTransformer::toAscii($owner['lastname']);
