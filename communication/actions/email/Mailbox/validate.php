@@ -30,11 +30,12 @@ use communication\email\Mailbox;
         ],
         'access_token_expiry' => [
             'type'          => 'integer',
+            'usage'         => 'number/integer:10',
             'required'      => true
-
         ],
         'refresh_token_expiry' => [
             'type'          => 'integer',
+            'usage'         => 'number/integer:10',
             'required'      => true
         ]
     ],
