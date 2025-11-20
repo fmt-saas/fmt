@@ -19,8 +19,7 @@ use equal\http\HttpRequest;
             'required'      => true
         ],
         'state' => [
-            'type'          => 'string',
-            'required'      => true
+            'type'          => 'string'
         ]
     ],
     'constants'     => ['BACKEND_URL'],
