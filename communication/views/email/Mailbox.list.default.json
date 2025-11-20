@@ -1,9 +1,8 @@
 {
     "name": "Mailboxes",
     "header": {
-        "layout": "inline",
         "actions": {
-            "ACTION.CREATE_INLINE":  false
+            "ACTION.CREATE":  true
         }
     },
     "actions": [
