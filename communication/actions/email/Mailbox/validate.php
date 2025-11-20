@@ -78,8 +78,8 @@ if($mailbox) {
         ->update([
             'access_token'          => $params['access_token'],
             'refresh_token'         => $params['refresh_token'],
-            'access_token_expiry'   => $params['expires_in'],
-            'refresh_token_expiry'  => $params['refresh_token_expires_in'],
+            'access_token_expiry'   => $params['access_token_expiry'],
+            'refresh_token_expiry'  => $params['refresh_token_expiry'],
             'imap_server'           => $map_providers[$params['provider']],
             'status'                => 'validated'
         ]);
