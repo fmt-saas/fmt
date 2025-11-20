@@ -85,7 +85,7 @@ $email = $identity_jwt['payload']['email'];
 
 // retrieve the target instance based on state
 $origin_url = $params['state'];
-$domain = parse_url($url, PHP_URL_HOST);
+$domain = parse_url($origin_url, PHP_URL_HOST);
 
 $instance = Instance::search(['name', '=', $domain])->first();
 
