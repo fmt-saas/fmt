@@ -92,8 +92,11 @@ $instance = Instance::search(['name', '=', $domain])->first();
 if($instance) {
     $data['email'] = $email;
     $data['provider'] = 'google';
-    $oauthRequest = new HttpRequest('POST https://' . $domain . '/?do=communication_email_Mailbox_validate');
-    $response = $oauthRequest
+    $data['access_token_expiry'] = time() + $data['expires_in'];
+    $data['refresh_token_expiry'] = time() + $data['refresh_token_expires_in'];
+
+    $validationRequest = new HttpRequest('POST https://' . $domain . '/?do=communication_email_Mailbox_validate');
+    $response = $validationRequest
                 ->header('Content-Type', 'application/json')
                 ->setBody($data)
                 ->send();
