@@ -67,7 +67,7 @@ $map_providers = [
 
 // attempt to retrieve a matching Mailbox
 $mailbox = Mailbox::search([
-        ['email', '=', $email],
+        ['email', '=', $params['email']],
         ['auth_type', '=', 'oauth'],
         ['status', '=', 'pending']
     ])
