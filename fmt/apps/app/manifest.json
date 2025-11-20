@@ -1,11 +1,14 @@
 {
-    "name": "fmt",
-    "description": "FMT Immo Management.",
+    "name": "FMT",
+    "description": "FMT Syndic.",
     "version": "1.0",
     "authors": ["Yesbabylon SA"],
     "license": "LGPL-3",
     "repository": "https://github.com/fmt-saas/apps-fmt-app.git",
     "url": "/app",
+    "icon": "emoji_objects",
+    "color": "#8ca7a8",
+    "text_color": "white",
     "access": {
         "groups": [
             "users"
