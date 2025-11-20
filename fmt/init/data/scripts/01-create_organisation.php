@@ -44,7 +44,10 @@ $identity = Identity::create([
     ])
     ->first();
 
-Employee::create([
+$employee = Employee::create([
         "identity_id" => $identity['id']
     ])
+    ->do('sync_from_identity')
     ->first();
+
+eQual::run('do', 'hr_employee_Employee_create-user', ['id' => $employee]);
