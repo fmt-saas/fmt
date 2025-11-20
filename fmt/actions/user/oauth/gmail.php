@@ -17,6 +17,10 @@ use equal\http\HttpRequest;
             'type'          => 'string',
             'usage'         => 'text/plain:3000',
             'required'      => true
+        ],
+        'state' => [
+            'type'          => 'string',
+            'required'      => true
         ]
     ],
     'constants'     => ['BACKEND_URL'],
@@ -29,7 +33,7 @@ use equal\http\HttpRequest;
         'accept-origin'     => '*'
     ],
     'providers'     => ['context', 'auth', 'orm'],
-    'constants'     => ['BACKEND_URL', 'AUTH_ACCESS_TOKEN_VALIDITY', 'AUTH_TOKEN_HTTPS', 'FMT_INSTANCE_TYPE']
+    'constants'     => ['BACKEND_URL', 'AUTH_ACCESS_TOKEN_VALIDITY', 'AUTH_TOKEN_HTTPS', 'FMT_INSTANCE_TYPE', 'GOOGLE_GMAIL_CLIENT_ID', 'GOOGLE_GMAIL_CLIENT_SECRET']
 ]);
 
 /**
@@ -40,12 +44,12 @@ use equal\http\HttpRequest;
 ['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
 
 $body = [
-    'grant_type' => 'authorization_code',
-    'code' => $params['code'],
+    'grant_type'    => 'authorization_code',
+    'code'          => $params['code'],
     // #todo - utiliser global.fmt.yb.run (puis rediriger les réponses vers les instances concernées)
-    'redirect_uri' => constant('BACKEND_URL').'/oauth/gmail',
-    'client_id' => '24230475119-6fabc7k3lh9v9u3aa01im86d48bsudp0.apps.googleusercontent.com',
-    'client_secret' => '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'
+    'redirect_uri'  => constant('BACKEND_URL').'/oauth/gmail',
+    'client_id'     => constant('GOOGLE_GMAIL_CLIENT_ID'),
+    'client_secret' => constant('GOOGLE_GMAIL_CLIENT_SECRET')
 ];
 
 $oauthRequest = new HttpRequest('POST https://oauth2.googleapis.com/token');
@@ -56,6 +60,16 @@ $response = $oauthRequest
 
 $data = $response->body();
 $status = $response->getStatusCode();
+
+if($status < 200 || $status > 299) {
+    // error
+}
+
+file_put_contents('gmail.txt', json_encode($params, JSON_PRETTY_PRINT));
+
+// retrieve the target instance based on state
+
+
 
 $identity_jwt = JWT::decode($data['id_token']);
 

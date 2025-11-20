@@ -2,7 +2,7 @@
     "name": "Mailboxes",
     "header": {
         "actions": {
-            "ACTION.CREATE":  true
+            "ACTION.CREATE":  false
         }
     },
     "actions": [

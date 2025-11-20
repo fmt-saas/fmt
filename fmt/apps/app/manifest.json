@@ -1,6 +1,6 @@
 {
-    "name": "FMT",
-    "description": "FMT Syndic.",
+    "name": "fmt",
+    "description": "FMT Immo Management.",
     "version": "1.0",
     "authors": ["Yesbabylon SA"],
     "license": "LGPL-3",
