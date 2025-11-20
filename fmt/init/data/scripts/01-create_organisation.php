@@ -1,8 +1,11 @@
 <?php
 
 use hr\employee\Employee;
+use hr\role\RoleAssignment;
+use hr\Team;
 use identity\Identity;
 use identity\Organisation;
+use identity\User;
 use realestate\management\ManagingAgent;
 
 // Main organisation
@@ -35,6 +38,7 @@ $identity = Identity::create([
         'type'              => 'IN',
         'firstname'         => 'First',
         'lastname'          => 'Employee',
+        'email'             => 'user@fmtsolutions.be',
         'has_parent'        => false,
         'nationality'       => 'BE',
         'lang_id'           => 2,
@@ -42,6 +46,7 @@ $identity = Identity::create([
         'has_vat'           => false,
         'is_active'         => true
     ])
+    ->read(['name', 'email'])
     ->first();
 
 $employee = Employee::create([
@@ -50,4 +55,28 @@ $employee = Employee::create([
     ->do('sync_from_identity')
     ->first();
 
-eQual::run('do', 'hr_employee_Employee_create-user', ['id' => $employee]);
+User::create([
+                'login'         => $identity['email'],
+                'language'      => 'fr',
+                'validated'     => true,
+                // users
+                'groups_ids'    => [2]
+            ])
+            ->update(['identity_id' => $identity['id']])
+            ->do('sync_from_identity');
+
+
+// create Team
+$team = Team::create([
+        'name' => 'Equipe principale'
+    ])
+    ->update(['employees_ids' => [$employee['id']]])
+    ->first();
+
+// assign employee as manager for all condos
+RoleAssignment::create([
+        'condo_id'      => null,
+        'employee_id'   => $employee['id'],
+        // condo_manager
+        'role_id'       => 4
+    ]);

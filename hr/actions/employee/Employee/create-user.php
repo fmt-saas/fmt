@@ -46,10 +46,14 @@ $ids = array_merge((array) ($params['id'] ?? []), $params['ids'] ?? []);
 $employees = Employee::ids($ids)->read(['identity_id']);
 
 foreach($employees as $employee_id => $employee) {
-    $identity = Identity::id($employee['identity_id'])->read(['email', 'user_id'])->first();
+    $identity = Identity::id($employee['identity_id'])->read(['name', 'email', 'user_id'])->first();
 
     // #memo in case the user already exists, simply ignore the request
-    if(!$identity['user_id'] && $identity['email']) {
+    if(!$identity['user_id']) {
+        if(!$identity['email']) {
+            trigger_error("APP::ignored user creation for identity {$identity['name']} with no email.", EQ_REPORT_WARNING);
+            continue;
+        }
         // search for an email address
         User::create([
                 'login'         => $identity['email'],
