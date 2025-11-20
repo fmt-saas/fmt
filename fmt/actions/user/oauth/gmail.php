@@ -42,6 +42,21 @@ use equal\http\HttpRequest;
  */
 ['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
 
+
+/*
+Example of received params:
+
+    "state": "https://platform.fmtsolutions.be/",
+    "code": "4/0Ab32j92b4Yh_NL_2UyNlp3GZwJCNUWGVRNN2Izsd7VzmQp2IBdj7h_omtkaG_cRLC1jZtw",
+    "scope": "email profile https://mail.google.com/ https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email openid",
+    "authuser": "1",
+    "prompt": "consent",
+    "system_info": "{\"resolution\":\"1920x1080\",\"platform\":\"Windows 19.0.0\",\"vendor\":\"Google Inc. (Intel)\",\"renderer\":\"ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A1) Direct3D11 vs_5_0 ps_5_0, D3D11)\"}",
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiYW1yIjp7ImF1dGhfdHlwZSI6InB3ZCIsImF1dGhfbGV2ZWwiOjF9LCJleHAiOjE3NjM3NDU2OTJ9.yiqiey9NRKj6jZTktqgaph4kI6UB8Y9Xu046gC_5KQA"
+
+*/
+
+
 $body = [
     'grant_type'    => 'authorization_code',
     'code'          => $params['code'],
@@ -64,7 +79,7 @@ if($status < 200 || $status > 299) {
     // error
 }
 
-file_put_contents('gmail.txt', json_encode($params, JSON_PRETTY_PRINT));
+file_put_contents(EQ_BASEDIR.'/gmail.txt', json_encode($params, JSON_PRETTY_PRINT));
 
 // retrieve the target instance based on state
 
