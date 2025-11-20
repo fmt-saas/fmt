@@ -8,6 +8,7 @@
 use communication\email\Mailbox;
 use equal\auth\JWT;
 use equal\http\HttpRequest;
+use infra\server\Instance;
 
 // announce script and fetch parameters values
 [$params, $providers] = eQual::announce([
@@ -19,7 +20,8 @@ use equal\http\HttpRequest;
             'required'      => true
         ],
         'state' => [
-            'type'          => 'string'
+            'type'          => 'string',
+            'required'      => true
         ]
     ],
     'constants'     => ['BACKEND_URL'],
@@ -57,19 +59,17 @@ Example of received params:
 */
 
 
-$body = [
-    'grant_type'    => 'authorization_code',
-    'code'          => $params['code'],
-    // #todo - utiliser global.fmt.yb.run (puis rediriger les réponses vers les instances concernées)
-    'redirect_uri'  => constant('BACKEND_URL').'/oauth/gmail',
-    'client_id'     => constant('GOOGLE_GMAIL_CLIENT_ID'),
-    'client_secret' => constant('GOOGLE_GMAIL_CLIENT_SECRET')
-];
 
 $oauthRequest = new HttpRequest('POST https://oauth2.googleapis.com/token');
 $response = $oauthRequest
             ->header('Content-Type', 'application/x-www-form-urlencoded')
-            ->setBody($body)
+            ->setBody([
+                'grant_type'    => 'authorization_code',
+                'code'          => $params['code'],
+                'redirect_uri'  => constant('BACKEND_URL') . '/oauth/gmail',
+                'client_id'     => constant('GOOGLE_GMAIL_CLIENT_ID'),
+                'client_secret' => constant('GOOGLE_GMAIL_CLIENT_SECRET')
+            ])
             ->send();
 
 $data = $response->body();
@@ -79,15 +79,26 @@ if($status < 200 || $status > 299) {
     // error
 }
 
-file_put_contents(EQ_BASEDIR.'/gmail.txt', json_encode($params, JSON_PRETTY_PRINT));
+$identity_jwt = JWT::decode($data['id_token']);
+$email = $identity_jwt['payload']['email'];
+
 
 // retrieve the target instance based on state
+$origin_url = $params['state'];
+$domain = parse_url($url, PHP_URL_HOST);
 
+$instance = Instance::search(['name', '=', $domain])->first();
 
+if($instance) {
+    $data['email'] = $email;
+    $data['provider'] = 'google';
+    $oauthRequest = new HttpRequest('POST https://' . $domain . '/?do=communication_email_Mailbox_validate');
+    $response = $oauthRequest
+                ->header('Content-Type', 'application/json')
+                ->setBody($data)
+                ->send();
+}
 
-$identity_jwt = JWT::decode($data['id_token']);
-
-$email = $identity_jwt['payload']['email'];
 
 /*
 Response example:
