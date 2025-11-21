@@ -17,10 +17,8 @@
             "label": "Type",
             "description": "Type d'instance.",
             "selection": {
-                "dev": "Développement",
-                "staging": "Staging",
-                "prod": "Production",
-                "replica": "Réplique"
+                "global": "Globale",
+                "agency": "Agence"
             },
             "help": ""
         },

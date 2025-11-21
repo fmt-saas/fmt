@@ -48,7 +48,10 @@ class Instance extends Model {
 
             'instance_type' => [
                 'type'              => 'string',
-                'selection'         => ['master', 'agency'],
+                'selection'         => [
+                    'global',
+                    'agency'
+                ],
                 'description'       => 'Type of instance.',
                 'default'           => 'agency'
             ],
