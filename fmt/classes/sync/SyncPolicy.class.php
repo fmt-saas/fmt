@@ -34,6 +34,18 @@ class SyncPolicy extends Model {
                 'required'          => true
             ],
 
+            'sync_direction' => [
+                'type'              => 'string',
+                'selection'         => [
+                    // Local > Global
+                    'ascending',
+                    // Global > Local
+                    'descending'
+                ],
+                'required'          => true,
+                'description'       => 'Direction of the synchronization.'
+            ],
+
             'sync_policy_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'fmt\sync\SyncPolicyLine',
@@ -47,7 +59,7 @@ class SyncPolicy extends Model {
                     // #memo - public is not relevant here (not synced)
                     // management on Local & Global
                     'protected',
-                    // management on origin only (ascending = Local, descending = Global)
+                    // management on origin only (based sync direction : ascending = Local, descending = Global)
                     'private'
                 ],
                 'required'          => true,

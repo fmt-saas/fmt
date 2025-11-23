@@ -6,10 +6,13 @@
 */
 
 use fmt\sync\SyncPolicy;
+use fmt\sync\UpdateRequest;
+use fmt\sync\UpdateRequestLine;
+use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Request an update (or creation) of protected entities created on a LOCAL instance to GLOBAL instance.',
-    'help'          => 'This action is expected to be called remotely from a LOCAL instance to the GLOBAL instance.',
+    'help'          => 'This action is meant for the GLOBAL instance and is expected to be called remotely from a LOCAL instance.',
     'params'        => [
         'entity' => [
             'type'              => 'string',
@@ -42,6 +45,12 @@ if(constant('FMT_INSTANCE_TYPE') !== 'global') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
+$instance = Instance::search([['uuid', '=', $params['instance_uuid']]])->first();
+
+if(!$instance) {
+    throw new Exception('unknown_instance', EQ_ERROR_INVALID_PARAM);
+}
+
 $entity = $params['entity'];
 
 // retrieve all fields of the requested entity
@@ -52,34 +61,30 @@ if(!$model) {
 
 $schema = $model->getSchema();
 
+// #memo - 'public' entities are local-only and are not synchronized
+
 // retrieve SyncPolicy related to 'protected' entities
 // #memo - we expect SyncPolicies to remain identical across all instances
 $policy = SyncPolicy::search([
         ['scope', '=', 'protected'],
-        ['object_class', '=', $entity]
+        ['object_class', '=', $entity],
+        ['sync_direction', '=', 'ascending']
     ])
     ->read([
         'object_class',
         'field_unique',
-        'sync_policy_lines_ids' => ['sync_direction', 'object_field', 'scope']
+        'sync_policy_lines_ids' => ['object_field', 'scope']
     ])
     ->first();
 
-// #todo - pouvoir fusionner deux élements protected
-// créer des entités de synchronisation : 'en attente' -> valider avant synchro
-// pouvoir définir les champs qui priment toujours sur la GLOBAL (pas de remontée depuis les LOCAL)
+// #todo - pouvoir fusionner deux éléments protected
+// #todo - in case of transferring a condominium to another, copy all information (upon validation by the outgoing property manager)
 
 
-//  si elles sont en local, on ne les envoie pas
-//  si elles sont en global, on ne les envoie pas
-// en cas de transfert d'une copropriété vers un autre, on copie toutes les infos (sur validation du syndic sortant)
-
+// identify 'private' fields (for which GLOBAL value always take precedence, and which can never be updated via sync)
 $map_private_fields = [];
 
 foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
-    if($policyLine['sync_direction'] !== 'ascending') {
-        continue;
-    }
     if($policyLine['scope'] === 'private') {
         $map_private_fields[$policyLine['object_field']] = true;
     }
@@ -92,6 +97,7 @@ foreach($schema as $field => $def) {
     if(!isset($values[$field])) {
         continue;
     }
+    // discard non-scalar fields
     if(
         (!isset($def['type']) || !in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) &&
         (!isset($def['result_type']) || !in_array($def['result_type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one']))
@@ -101,35 +107,44 @@ foreach($schema as $field => $def) {
     elseif($field === 'id') {
         unset($values['id']);
     }
-    elseif($field === 'uuid') {
-        unset($values['uuid']);
-    }
     elseif(isset($map_private_fields[$field])) {
         unset($values[$field]);
     }
 }
 
-$uuid = null;
+// create a new update request (will be removed is empty)
+$updateRequest = UpdateRequest::create([
+        'object_class'  => $policy['object_class'],
+        'request_date'  => time(),
+        'instance_id'   => $instance['id'],
+        'source_type'   => 'local',
+        'source_origin' => 'sync'
+    ])
+    ->first();
 
-/**
- * Disable all Events
- *
- * Prevent events triggering (to maintain single objects creation/update, with no side effect).
- */
-$orm->disableEvents();
+$is_empty = true;
 
 // if we received a UUID: search for it; if exists, update, otherwise issue an error (UUIDs are issued by the master instance)
 if(isset($params['values']['uuid'])) {
+    $fields = array_keys($params['values']);
     $uuid = $params['values']['uuid'];
-    $object = $entity::search(['uuid', '=', $uuid])->first();
+    $object = $entity::search(['uuid', '=', $uuid])->read($fields)->first();
     if(!$object) {
         throw new Exception('invalid_uuid', EQ_ERROR_INVALID_PARAM);
     }
-    // #todo - create UpdateRequest for followup
-    // update target object
-    $entity::id($object['id'])->update(array_merge($values, [
-            'source_verification_status' => 'pending'
-        ]));
+
+    UpdateRequest::id($updateRequest['id'])->update(['object_id' => $object['id']]);
+
+    foreach($params['values'] as $field => $value) {
+        UpdateRequestLine::create([
+            'update_request_id'         => $updateRequest['id'],
+            'object_field'              => $field,
+            'old_value'                 => $object[$field],
+            'new_value'                 => $value
+        ]);
+        $is_empty = false;
+    }
+
 }
 // we don't have a UUID: in this case, check by other means whether the object already exists (depending on the class)
 // if it exists, update it
@@ -138,30 +153,42 @@ if(isset($params['values']['uuid'])) {
 else {
     $key = $policy['field_unique'];
 
-    if(!isset($values[$key])) {
+    if(!isset($values[$key]) || empty($values[$key])) {
         throw new Exception('missing_unique_field', EQ_ERROR_INVALID_PARAM);
     }
 
     try {
         $object = $entity::search([$key, '=', $values[$key]])
-            ->read(['uuid'])
+            ->read(array_merge(['uuid'], array_keys($values)))
             ->first();
 
         // manual verification will be required by default
         if(!$object) {
-            // add values for sourcing / verification
-            $object = $entity::create(array_merge($values, [
-                    'source_origin'              => 'instance',
-                    'source_verification_status' => 'pending',
-                    'source_date'                => time()
-                ]))
-                ->read(['uuid'])
-                ->first();
+            UpdateRequest::id($updateRequest['id'])
+                ->update(['is_new' => true]);
+
+            foreach($params['values'] as $field => $value) {
+                UpdateRequestLine::create([
+                    'update_request_id'         => $updateRequest['id'],
+                    'object_field'              => $field,
+                    'new_value'                 => $value
+                ]);
+                $is_empty = false;
+            }
         }
         else {
-            $entity::id($object['id'])->update(array_merge($values, [
-                    'source_verification_status' => 'pending'
-                ]));
+            UpdateRequest::id($updateRequest['id'])
+                ->update(['object_id' => $object['id']]);
+
+            foreach($params['values'] as $field => $value) {
+                UpdateRequestLine::create([
+                    'update_request_id'         => $updateRequest['id'],
+                    'object_field'              => $field,
+                    'old_value'                 => $object[$field],
+                    'new_value'                 => $value
+                ]);
+                $is_empty = false;
+            }
         }
     }
     catch(Exception $e) {
@@ -169,12 +196,14 @@ else {
         throw new Exception('unable_to_create_object', EQ_ERROR_UNKNOWN);
     }
 
-    $uuid = $object['uuid'];
 }
 
+// remove update request if empty
+if($is_empty) {
+    UpdateRequest::id($updateRequest['id'])->delete(true);
+}
 
 $context
     ->httpResponse()
-    ->status(200)
-    ->body(['uuid' => $uuid])
+    ->status(204)
     ->send();

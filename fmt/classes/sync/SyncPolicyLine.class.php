@@ -19,7 +19,7 @@ class SyncPolicyLine extends Model {
                 'description'       => 'Reference to the parent update request.',
                 'required'          => true,
                 'ondelete'          => 'cascade',
-                'dependents'        => ['object_class']
+                'dependents'        => ['object_class', 'sync_direction']
             ],
 
             'name' => [
@@ -30,14 +30,11 @@ class SyncPolicyLine extends Model {
             ],
 
             'sync_direction' => [
-                'type'              => 'string',
-                'selection'         => [
-                    // Local > Global
-                    'ascending',
-                    // Global > Local
-                    'descending'
-                ],
-                'required'          => true,
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['sync_policy_id' => 'sync_direction'],
+                'store'             => true,
+                'instant'           => true,
                 'description'       => 'Direction of the synchronization.'
             ],
 
@@ -46,6 +43,7 @@ class SyncPolicyLine extends Model {
                 'result_type'       => 'string',
                 'relation'          => ['sync_policy_id' => 'object_class'],
                 'store'             => true,
+                'instant'           => true,
                 'description'       => 'Targeted Entity.'
             ],
 
@@ -63,7 +61,7 @@ class SyncPolicyLine extends Model {
                     'public',
                     // data requiring a supervision before being updated
                     'protected',
-                    // data the must remain on current instance (Global or Local)
+                    // data that must remain on current instance (depending on direction : descending = Global or ascending = Local)
                     'private'
                 ],
                 'required'          => true,

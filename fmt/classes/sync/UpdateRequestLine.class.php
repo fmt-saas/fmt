@@ -18,7 +18,16 @@ class UpdateRequestLine extends Model {
                 'foreign_object'    => 'fmt\sync\UpdateRequest',
                 'description'       => 'Reference to the parent update request.',
                 'required'          => true,
-                'ondelete'          => 'cascade'
+                'ondelete'          => 'cascade',
+                'dependents'        => ['object_class', 'is_new']
+            ],
+
+            'object_class' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['update_request_id' => 'object_class'],
+                'description'       => 'Field name of the targeted object.',
+                'store'             => true
             ],
 
             'object_field' => [
@@ -27,10 +36,13 @@ class UpdateRequestLine extends Model {
                 'required'          => true
             ],
 
-            'object_id' => [
-                'type'              => 'integer',
-                'description'       => 'Identifier of the targeted object.',
-                'required'          => true
+            'is_new' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'relation'          => ['update_request_line_id' => 'is_new'],
+                'store'             => true,
+                'description'       => 'JSON encoded new proposed value for the field.',
+                'default'           => false
             ],
 
             'new_value' => [
@@ -41,69 +53,8 @@ class UpdateRequestLine extends Model {
             'old_value' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'description'       => 'Old (computed) JSON value currently stored.'
-            ],
-
-            'status' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'pending',
-                    'approved',
-                    'rejected'
-                ],
-                'default'           => 'pending',
-                'description'       => 'Current status of the update line.'
-            ],
-
-            'source_type' => [
-                'type'              => 'string',
-                'description'       => 'Type of source (local, global, etc.).'
-            ],
-
-            'source_origin' => [
-                'type'              => 'string',
-                'description'       => 'Origin of the data (system, user, integration, etc.).'
-            ],
-
-            'source_date' => [
-                'type'              => 'datetime',
-                'description'       => 'Date of the source data.'
-            ],
-
-            'approval_user_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'core\user\User',
-                'description'       => 'User who approved this update.',
-                'visible'           => ['status', '=', 'approved']
-            ],
-
-            'approval_reason' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'unsupervised',
-                    'verified'
-                ],
-                'description'       => 'Reason for approval.',
-                'visible'           => ['status', '=', 'approved']
-            ],
-
-            'rejection_user_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'core\user\User',
-                'description'       => 'User who rejected this update.',
-                'visible'           => ['status', '=', 'rejected']
-            ],
-
-            'rejection_reason' => [
-                'type'              => 'string',
-                'description'       => 'Reason for rejection.',
-                'selection'         => [
-                    'conflict',
-                    'incorrect_data',
-                    'outdated_data',
-                    'duplicate_request'
-                ],
-                'visible'           => ['status', '=', 'rejected']
+                'description'       => 'Old (computed) JSON value currently stored.',
+                'visible'           => ['is_new', '=', false]
             ]
 
         ];

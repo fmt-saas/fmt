@@ -34,12 +34,8 @@
                                             {
                                                 "type": "field",
                                                 "value": "status",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "name",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             }
                                         ]
                                     }

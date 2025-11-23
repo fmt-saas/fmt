@@ -18,5 +18,101 @@
                 "scope": "protected"
             }
         ]
+    },
+    {
+        "name": "fmt\\sync\\SyncPolicyLine",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "sync_policy_id": 1,
+                "object_class": "identity\\User",
+                "object_field": "login",
+                "name": "login",
+                "sync_direction": "ascending",
+                "scope": "public"
+            },
+            {
+                "id": 2,
+                "sync_policy_id": 1,
+                "object_class": "identity\\User",
+                "object_field": "firstname",
+                "name": "firstname",
+                "sync_direction": "ascending",
+                "scope": "public"
+            },
+            {
+                "id": 3,
+                "sync_policy_id": 1,
+                "object_class": "identity\\User",
+                "object_field": "lastname",
+                "name": "lastname",
+                "sync_direction": "ascending",
+                "scope": "public"
+            },
+            {
+                "id": 4,
+                "sync_policy_id": 1,
+                "object_class": "identity\\User",
+                "object_field": "uuid",
+                "name": "uuid",
+                "sync_direction": "ascending",
+                "scope": "protected"
+            },
+            {
+                "id": 5,
+                "sync_policy_id": 2,
+                "object_class": "identity\\Identity",
+                "object_field": "firstname",
+                "name": "firstname",
+                "sync_direction": "ascending",
+                "scope": "public"
+            },
+            {
+                "id": 6,
+                "sync_policy_id": 2,
+                "object_class": "identity\\Identity",
+                "object_field": "lastname",
+                "name": "lastname",
+                "sync_direction": "ascending",
+                "scope": "public"
+            },
+            {
+                "id": 7,
+                "sync_policy_id": 2,
+                "object_class": "identity\\Identity",
+                "object_field": "registration_number",
+                "name": "lastname",
+                "sync_direction": "ascending",
+                "scope": "public"
+            },
+            {
+                "id": 8,
+                "sync_policy_id": 2,
+                "object_class": "identity\\Identity",
+                "object_field": "legal_name",
+                "name": "legal_name",
+                "sync_direction": "ascending",
+                "scope": "public"
+            },
+            {
+                "id": 9,
+                "sync_policy_id": 2,
+                "object_class": "identity\\Identity",
+                "object_field": "short_name",
+                "name": "short_name",
+                "sync_direction": "ascending",
+                "scope": "public"
+            },
+            {
+                "id": 10,
+                "sync_policy_id": 2,
+                "object_class": "identity\\Identity",
+                "object_field": "uuid",
+                "name": "uuid",
+                "sync_direction": "ascending",
+                "scope": "protected"
+            }
+        ]
     }
 ]

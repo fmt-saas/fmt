@@ -6,6 +6,9 @@
 */
 use equal\http\HttpRequest;
 use fmt\setting\Setting;
+use fmt\sync\SyncPolicy;
+use fmt\sync\UpdateRequest;
+use fmt\sync\UpdateRequestLine;
 use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
@@ -29,36 +32,16 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-// #memo #config #sync - sync between controllers
-$map_entities = [
-    'identity\Identity'                     => 'protected',
-    'identity\User'                         => 'protected',
-    'purchase\supplier\Supplier'            => 'protected',
-    'purchase\supplier\SupplierType'        => 'private',
-    'finance\bank\Bank'                     => 'protected',
-    'realestate\property\NotaryOffice'      => 'protected',
-    'realestate\management\ManagingAgent'   => 'protected',
-    'realestate\property\Condominium'       => 'protected',
-    'documents\DocumentType'                => 'private',
-    'documents\DocumentSubtype'             => 'private'
-];
-
-
-// For some entities, import and synchronize everything that exists on the GLOBAL instance.
-// For others, only synchronize what exists locally, without retrieving all data
-$map_entities_scopes = [
-    'identity\Identity'                     => 'local',
-    'identity\User'                         => 'local',
-    'purchase\supplier\Supplier'            => 'global',
-    'purchase\supplier\SupplierType'        => 'global',
-    'finance\bank\Bank'                     => 'global',
-    'realestate\property\NotaryOffice'      => 'global',
-    'realestate\management\ManagingAgent'   => 'local',
-    'realestate\property\Condominium'       => 'local',
-    'documents\DocumentType'                => 'global',
-    'documents\DocumentSubtype'             => 'global'
-];
-
+// retrieve SyncPolicy related to 'protected' entities
+$policies = SyncPolicy::search([
+        ['scope', 'in', ['protected', 'private']],
+        ['sync_direction', '=', 'descending']
+    ])
+    ->read([
+        'object_class',
+        'field_unique',
+        'sync_policy_lines_ids' => ['object_field', 'scope']
+    ]);
 
 $result = [
     'created'   => 0,
@@ -77,14 +60,31 @@ $date_from = date('c', $timestamp);
 // #memo - on local instances there is a single Instance object
 $instance = Instance::search()->read(['uuid'])->first();
 
-if(!$instance) {
+if(!$instance || !isset($instance['uuid']) || empty($instance['uuid'])) {
     throw new Exception('unknown_instance_uuid', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-foreach($map_entities as $entity => $scope) {
+foreach($policies as $id => $policy) {
+    $map_private_fields = [];
+
+    foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
+        if($policyLine['scope'] === 'private') {
+            $map_private_fields[$policyLine['object_field']] = true;
+        }
+    }
+
+    $entity = $policy['object_class'];
+
     try {
+        $model = $orm->getModel($entity);
+        if(!$model) {
+            throw new Exception('unknown_entity', EQ_ERROR_INVALID_PARAM);
+        }
+
+        $schema = $model->getSchema();
+
         $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_sync_pull-from-local' .
-                '&entity=' . urlencode($entity) .
+                '&entity=' . urlencode($policy['object_class']) .
                 '&date_from=' . $date_from .
                 '&instance_uuid=' . $instance['uuid']
             );
@@ -98,24 +98,80 @@ foreach($map_entities as $entity => $scope) {
         $data = $response->body();
 
         foreach($data as $object) {
+
+            $updateRequest = UpdateRequest::create([
+                    'object_class'  => $policy['object_class'],
+                    'request_date'  => time(),
+                    'source_type'   => 'global',
+                    'source_origin' => 'sync'
+                ])
+                ->first();
+
             // remove local fields
             foreach($local_fields as $field) {
                 if(isset($object[$field])) {
                     unset($object[$field]);
                 }
             }
+
+            // discard non relevant or private fields
+            foreach($schema as $field => $def) {
+                // #todo - keep field manually set to null?
+                /*
+                if(!isset($object[$field])) {
+                    continue;
+                }
+                */
+                // discard non-scalar fields
+                if(
+                    (!isset($def['type']) || !in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) &&
+                    (!isset($def['result_type']) || !in_array($def['result_type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one']))
+                ) {
+                    unset($object[$field]);
+                }
+                elseif($field === 'id') {
+                    unset($object['id']);
+                }
+                elseif(isset($map_private_fields[$field])) {
+                    unset($object[$field]);
+                }
+            }
+
             // local search
             $localObject = $entity::search($object['uuid'])->first();
             if($localObject) {
                 // update
-                $entity::id($localObject['id'])->update($object);
-                $result['logs'][] = "Update object of entity {$entity} with UUID {$localObject['id']}: " . $e->getMessage();
+                UpdateRequest::id($updateRequest['id'])
+                    ->update(['object_id' => $localObject['id']]);
+
+                foreach($object as $field => $value) {
+                        UpdateRequestLine::create([
+                            'update_request_id'         => $updateRequest['id'],
+                            'object_field'              => $field,
+                            'old_value'                 => $object[$field],
+                            'new_value'                 => $value
+                        ]);
+                    }
+
+
+                $result['logs'][] = "Requested update of object of entity {$entity} with id {$localObject['id']}: " . $e->getMessage();
                 ++$result['updated'];
             }
             else {
                 //create
-                $localObject = $entity::create($object)->first();
-                $result['logs'][] = "Created object of entity {$entity} with UUID {$localObject['id']}: " . $e->getMessage();
+                UpdateRequest::id($updateRequest['id'])
+                    ->update(['is_new' => true]);
+
+                foreach($object as $field => $value) {
+                    UpdateRequestLine::create([
+                        'update_request_id'         => $updateRequest['id'],
+                        'object_field'              => $field,
+                        'new_value'                 => $value
+                    ]);
+                    $is_empty = false;
+                }
+
+                $result['logs'][] = "Requested creation of new object of entity {$entity}: " . $e->getMessage();
                 ++$result['created'];
             }
         }

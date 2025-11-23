@@ -36,15 +36,18 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
 $instance = Instance::search()->read(['uuid'])->first();
 
 if(!$instance) {
-    throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
+    throw new Exception('no_instance_id', EQ_ERROR_INVALID_CONFIG);
 }
 
 // retrieve SyncPolicy related to 'protected' entities
-$policies = SyncPolicy::search(['scope', '=', 'protected'])
+$policies = SyncPolicy::search([
+        ['scope', '=', 'protected'],
+        ['sync_direction', '=', 'ascending']
+    ])
     ->read([
         'object_class',
         'field_unique',
-        'sync_policy_lines_ids' => ['sync_direction', 'object_field', 'scope']
+        'sync_policy_lines_ids' => ['object_field', 'scope']
     ]);
 
 $result = [
@@ -68,9 +71,6 @@ foreach($policies as $id => $policy) {
     $map_private_fields = [];
 
     foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
-        if($policyLine['sync_direction'] !== 'ascending') {
-            continue;
-        }
         if($policyLine['scope'] === 'private') {
             $map_private_fields[$policyLine['object_field']] = true;
         }
