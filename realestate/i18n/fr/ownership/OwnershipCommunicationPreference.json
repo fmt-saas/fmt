@@ -1,0 +1,89 @@
+{
+    "name": "Préférence de communication",
+    "plural": "Préférences de communication",
+    "description": "Définit, pour un ownership et un motif précis (convocation, procès-verbal, appels de fonds…), le destinataire et les canaux autorisés.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Ownership auquel la préférence s’applique.",
+            "help": ""
+        },
+        "communication_reason": {
+            "label": "Motif",
+            "description": "Type de communication visé.",
+            "selection": {
+                "general_assembly_call": "Convocation d’AG",
+                "general_assembly_minutes": "Procès-verbal d’AG",
+                "expense_statement": "Décompte / relevé de charges",
+                "fund_request": "Appel de fonds",
+                "technical_communication": "Communication technique"
+            },
+            "help": ""
+        },
+        "communication_title": {
+            "label": "Titre d’adresse",
+            "description": "Formule d’appel utilisée dans le corps du courrier.",
+            "help": ""
+        },
+        "identity_id": {
+            "label": "Destinataire",
+            "description": "Identité (propriétaire ou mandataire) à contacter.",
+            "help": ""
+        },
+        "email": {
+            "label": "Courriel",
+            "description": "Adresse e-mail récupérée depuis l’identité.",
+            "help": ""
+        },
+        "address_street": {
+            "label": "Rue et numéro",
+            "description": "Adresse postale utilisée pour les envois courrier.",
+            "help": ""
+        },
+        "address_city": {
+            "label": "Ville",
+            "description": "",
+            "help": ""
+        },
+        "address_zip": {
+            "label": "Code postal",
+            "description": "",
+            "help": ""
+        },
+        "has_channel_email": {
+            "label": "Envoi par e-mail",
+            "description": "Autorise l’envoi électronique pour ce motif.",
+            "help": ""
+        },
+        "has_channel_postal": {
+            "label": "Courrier simple",
+            "description": "Autorise l’envoi postal standard.",
+            "help": ""
+        },
+        "has_channel_postal_registered": {
+            "label": "Recommandé",
+            "description": "Autorise l’envoi postal recommandé.",
+            "help": ""
+        },
+        "has_channel_postal_registered_receipt": {
+            "label": "Recommandé avec accusé",
+            "description": "Autorise l’envoi recommandé avec accusé de réception.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Préférence de communication",
+            "description": "Sélection du destinataire et des canaux pour un motif donné."
+        },
+        "list.default": {
+            "name": "Préférences de communication",
+            "description": "Vue liste des préférences par dossier et type de communication."
+        }
+    }
+}

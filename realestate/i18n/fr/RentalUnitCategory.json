@@ -1,30 +1,46 @@
 {
-	"name": "Catégorie d'unité locative",
-	"plural": "Catégories d'unités locative",
-	"description": "Une unité locative est une ressource qui peut être louée à un client.",
-	"model": {
-		"name": {
-			"label": "Nom",
-			"description": "Code abrégé de la catégorie d'unité locatif.",
-			"help": ""
-		},
+    "name": "Catégorie d’unité locative",
+    "plural": "Catégories d’unités locatives",
+    "description": "Une catégorie permet de regrouper les unités locatives partageant des caractéristiques communes (tarification, confort, destination).",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Texte calculé combinant le code et la description.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Identifiant court de la catégorie.",
+            "help": ""
+        },
         "description": {
-			"label": "Description",
-			"description": "Raison de la catégorisation des logements locatifs.",
-			"help": ""
-		}
-	},
-	"view": {
-		"form.default": {
-			"name": "Catégorie d'unité locative",
-			"description": "Une unité locative est une ressource qui peut être louée à un client.",
-			"layout": {}
-		},
-		"list.default": {
-			"name": "Catégories d'unité locative",
-			"description": "Liste des logements locatifs.",
-			"layout": {}
-		}
-	},
-	"error": {}
+            "label": "Description",
+            "description": "Raison ou critères utilisés pour classer les unités.",
+            "help": ""
+        },
+        "rental_units_ids": {
+            "label": "Unités associées",
+            "description": "Unités locatives rattachées à cette catégorie.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Catégorie d’unité locative",
+            "description": "Définition d’une catégorie (code, description, unités liées).",
+            "layout": {
+                "section.details": {
+                    "label": "Informations"
+                },
+                "section.rental_units": {
+                    "label": "Unités rattachées"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Catégories d’unités locatives",
+            "description": "Vue liste des catégories et de leur description."
+        }
+    },
+    "error": {}
 }

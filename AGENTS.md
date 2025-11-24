@@ -248,12 +248,19 @@ They follow a strict JSON structure and must be placed at a precise location wit
 #### 📁 File Location
 
 ```
-packages/{package}/i18n/{lang}/{Class}.json
+packages/{package}/i18n/{lang}/{path?}/{Class}.json
 ```
 
 - `{package}` = module name (e.g., `sale.booking`)
 - `{lang}` = language code (e.g., `fr`, `en`, `nl`)
+- `{path}` = path within the `class` folder of the package (might be absent)
 - `{Class}` = ORM class name in CamelCase
+
+Example:
+```
+packages/inventory/i18n/fr/server/Instance.json
+```
+
 
 ---
 
@@ -339,7 +346,7 @@ The `view` block includes translations for **all UI views** associated with the 
 - `form.*`
 - `list.*`
 - `chart.*`
-- `dashboard.*` (rare)
+- `dashboard.*`
 - Others defined in the package
 
 Each entry maps directly to a JSON view definition.
@@ -361,13 +368,11 @@ Each entry maps directly to a JSON view definition.
 
 | Property      | Required | Description                     |
 | ------------- | -------- | ------------------------------- |
-| `name`        | ✔️        | Title of the view               |
+| `name`        | ✔️        | Title of the view              |
 | `description` | Optional | Short explanation               |
 | `actions`     | Optional | Buttons/actions inside the view |
 | `routes`      | Optional | Secondary view navigation       |
-| `layout`      | Optional | Labels of form sections         |
-| `exports`     | Optional | Export options                  |
-| `widgets`     | Optional | Specific widget labels (if any) |
+| `layout`      | Optional | Labels of form sections. Required if sections with ID are present in the view |
 
 ---
 

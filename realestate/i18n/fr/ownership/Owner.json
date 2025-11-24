@@ -1,0 +1,80 @@
+{
+    "name": "Propriétaire",
+    "plural": "Propriétaires",
+    "description": "Personne physique ou morale associée à une quote-part d’un lot dans une copropriété.",
+    "model": {
+        "identity_id": {
+            "label": "Identité",
+            "description": "Fiche identité (personne physique) correspondant au propriétaire.",
+            "help": "Permet de réutiliser les coordonnées, les accès portail et de synchroniser les informations avec l’entité Identity."
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Ownership auquel ce propriétaire est rattaché.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété dans laquelle se situe le lot détenu.",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Date de sortie",
+            "description": "Date à laquelle le propriétaire n’a plus aucun lot actif.",
+            "help": "Utile pour conserver l’historique même après cession."
+        },
+        "owner_shares": {
+            "label": "Parts",
+            "description": "Ancien champ représentant le nombre total de parts attribuées.",
+            "help": "Demeure visible pour compatibilité, mais privilégier le découpage par nue-propriété/usufruit."
+        },
+        "owner_type": {
+            "label": "Type",
+            "description": "Nature du droit détenu.",
+            "selection": {
+                "full": "Pleine propriété",
+                "bare": "Nue-propriété",
+                "usufruct": "Usufruit"
+            },
+            "help": ""
+        },
+        "shares_full_property": {
+            "label": "Parts en pleine propriété",
+            "description": "Nombre de quotes-parts détenues en pleine propriété.",
+            "help": ""
+        },
+        "shares_bare_property": {
+            "label": "Parts en nue-propriété",
+            "description": "Nombre de quotes-parts détenues en nue-propriété.",
+            "help": ""
+        },
+        "shares_usufruct": {
+            "label": "Parts en usufruit",
+            "description": "Nombre de quotes-parts détenues en usufruit.",
+            "help": ""
+        },
+        "ownership_percentage": {
+            "label": "Pourcentage de détention",
+            "description": "Part du propriétaire dans l’ownership en pourcentage.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Propriétaire",
+            "description": "Fiche détaillée d’un propriétaire (identité et quotes-parts)."
+        },
+        "form.create": {
+            "name": "Nouveau propriétaire",
+            "description": "Assistant de création d’un propriétaire et de ses parts."
+        },
+        "list.default": {
+            "name": "Liste des propriétaires",
+            "description": "Vue tableau des propriétaires (identité, ownership et répartition des parts)."
+        },
+        "dashboard.default": {
+            "name": "Tableau de bord propriétaire",
+            "description": "Entrées et widgets consultés côté portail propriétaire."
+        }
+    }
+}

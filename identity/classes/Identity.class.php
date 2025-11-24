@@ -613,9 +613,9 @@ class Identity extends Model {
 
 
             /*
-                On Master instance (only), there might be several User accounts linked to a single Identity.
+                On Global instance (only), there might be several User accounts linked to a single Identity.
             */
-            'users_ids' => [
+            'global_users_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'identity\User',
                 'foreign_field'     => 'identity_id',

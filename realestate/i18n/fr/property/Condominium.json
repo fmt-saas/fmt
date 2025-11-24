@@ -1,16 +1,101 @@
 {
     "name": "Copropriété",
     "plural": "Copropriétés",
-    "description": "Les propriétés qui existent.",
+    "description": "Structure représentant une copropriété et l'ensemble de ses paramètres métiers.",
     "model": {
         "name": {
             "label": "Nom",
-            "description": "Nom de la Copropriété.",
+            "description": "Nom présenté dans les listes et les écrans.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code copropriété",
+            "description": "Identifiant court utilisé pour les échanges inter-instances.",
+            "help": "Ce code est calculé automatiquement à partir de la dénomination officielle."
+        },
+        "is_active": {
+            "label": "Actif",
+            "description": "Indique si la copropriété est gérée sur l'instance courante.",
+            "help": "Décochez ce champ lorsqu'une gestion a été transférée vers un autre syndic afin de conserver l'historique sans créer de doublon."
+        },
+        "instance_id": {
+            "label": "Instance",
+            "description": "Instance FMT hébergeant actuellement la copropriété.",
+            "help": ""
+        },
+        "managing_agent_id": {
+            "label": "Syndic",
+            "description": "Gestionnaire (interne ou externe) en charge de la copropriété.",
+            "help": ""
+        },
+        "managing_agent_contracts_ids": {
+            "label": "Contrats de syndic",
+            "description": "Historique des contrats signés avec les différents syndics.",
+            "help": ""
+        },
+        "role_assignments_ids": {
+            "label": "Équipe en charge",
+            "description": "Collaborateurs assignés à la gestion de la copropriété.",
+            "help": ""
+        },
+        "council_members_ids": {
+            "label": "Conseil de copropriété",
+            "description": "Membres du conseil ou du comité consultatif.",
+            "help": ""
+        },
+        "assemblies_ids": {
+            "label": "Assemblées",
+            "description": "Assemblées générales planifiées ou passées.",
+            "help": ""
+        },
+        "total_shares": {
+            "label": "Total des quotes-parts",
+            "description": "Nombre total de quotes-parts statutaires.",
+            "help": ""
+        },
+        "construction_permit_date": {
+            "label": "Permis d'urbanisme",
+            "description": "Date d'obtention du permis de construire.",
+            "help": ""
+        },
+        "construction_start_date": {
+            "label": "Début des travaux",
+            "description": "Date officielle de démarrage du chantier.",
+            "help": ""
+        },
+        "construction_compliance_date": {
+            "label": "Attestation de conformité",
+            "description": "Date de réception de la conformité urbanistique.",
+            "help": ""
+        },
+        "construction_completion_date": {
+            "label": "Fin des travaux",
+            "description": "Date de fin de construction.",
+            "help": ""
+        },
+        "condo_creation_date": {
+            "label": "Création de la copropriété",
+            "description": "Date de constitution légale de la copropriété.",
+            "help": ""
+        },
+        "condo_regulations_date": {
+            "label": "Dernier règlement",
+            "description": "Date d'entrée en vigueur de la dernière version du règlement de copropriété.",
+            "help": ""
+        },
+        "general_assembly_date": {
+            "label": "Prochaine AG",
+            "description": "Fenêtre prévue pour la prochaine assemblée générale.",
+            "help": ""
+        },
+        "cadastral_number": {
+            "label": "Numéro cadastral",
+            "description": "Référence cadastrale officielle de l'immeuble.",
             "help": ""
         },
         "address_street": {
-            "label": "Rue",
-            "description": "",
+            "label": "Rue et numéro",
+            "description": "Adresse principale de la copropriété.",
             "help": ""
         },
         "address_city": {
@@ -19,27 +104,134 @@
             "help": ""
         },
         "address_zip": {
-            "label": "CP",
+            "label": "Code postal",
             "description": "",
+            "help": ""
+        },
+        "fiscal_year_start": {
+            "label": "Début du premier exercice",
+            "description": "Date de début de l'exercice de référence.",
+            "help": ""
+        },
+        "fiscal_year_end": {
+            "label": "Fin du premier exercice",
+            "description": "Date de clôture de l'exercice de référence.",
+            "help": ""
+        },
+        "fiscal_period_frequency": {
+            "label": "Nombre de périodes",
+            "description": "Fréquence de découpage d'un exercice comptable.",
+            "selection": {
+                "Q": "Trimestriel",
+                "T": "Quadrimestriel",
+                "S": "Semestriel",
+                "A": "Annuel"
+            },
+            "help": ""
+        },
+        "expense_management_mode": {
+            "label": "Mode de gestion des charges",
+            "description": "Gestion en réel ou par appels de provisions.",
+            "selection": {
+                "real_expenses": "Dépenses réelles",
+                "provisions": "Appels de provisions"
+            },
             "help": ""
         },
         "account_chart_id": {
             "label": "Plan comptable",
-            "description": "",
+            "description": "Plan comptable dédié à la copropriété.",
+            "help": ""
+        },
+        "fiscal_years_ids": {
+            "label": "Exercices comptables",
+            "description": "Historique des exercices créés dans FMT.",
+            "help": ""
+        },
+        "current_fiscal_year_id": {
+            "label": "Exercice courant",
+            "description": "Exercice utilisé pour les écritures en cours.",
+            "help": ""
+        },
+        "common_areas_ids": {
+            "label": "Parties communes",
+            "description": "Espaces communs enregistrés (parkings, chaufferie, ...).",
+            "help": ""
+        },
+        "apportionments_ids": {
+            "label": "Clés de répartition",
+            "description": "Modèles utilisés pour répartir les charges entre copropriétaires.",
+            "help": ""
+        },
+        "setting_values_ids": {
+            "label": "Paramètres dédiés",
+            "description": "Valeurs de configuration propres à la copropriété.",
+            "help": ""
+        },
+        "ownerships_ids": {
+            "label": "Lots / propriétaires",
+            "description": "Liste des relations copropriétaires-lots.",
+            "help": ""
+        },
+        "property_lots_ids": {
+            "label": "Lots privatifs",
+            "description": "Lots privatifs rattachés à la copropriété.",
+            "help": ""
+        },
+        "property_entrances_ids": {
+            "label": "Entrées",
+            "description": "Entrées/blocs qui composent l'immeuble.",
+            "help": ""
+        },
+        "bank_accounts_ids": {
+            "label": "Comptes bancaires",
+            "description": "Comptes bancaires ouverts au nom de la copropriété.",
+            "help": ""
+        },
+        "suppliers_ids": {
+            "label": "Fournisseurs",
+            "description": "Prestataires liés à la copropriété.",
+            "help": ""
+        },
+        "condo_funds_ids": {
+            "label": "Fonds dédiés",
+            "description": "Fonds de réserve ou de roulement gérés pour la copropriété.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "État du cycle de vie de la copropriété.",
+            "selection": {
+                "pending": "En préparation",
+                "validated": "Validée"
+            },
             "help": ""
         }
     },
     "view": {
         "form.default": {
             "name": "Copropriété",
-            "description": "Copropriétés disponibles.",
-            "layout": [],
-            "actions": [],
-            "routes": []
+            "description": "Fiche d'identité et informations générales de la copropriété."
+        },
+        "form.config": {
+            "name": "Configuration",
+            "description": "Paramètres juridiques, clés de répartition et référentiels liés."
+        },
+        "form.accounting": {
+            "name": "Paramètres comptables",
+            "description": "Plan comptable, journaux et comptes bancaires."
+        },
+        "form.fiscalYears": {
+            "name": "Exercices",
+            "description": "Création et suivi des exercices comptables."
+        },
+        "form.governance": {
+            "name": "Gouvernance",
+            "description": "Assemblées, mandats et représentants de la copropriété."
         },
         "list.default": {
-            "name": "Liste des Copropriétés",
-            "description": "Liste des copropriétés."
+            "name": "Liste des copropriétés",
+            "description": "Vue synthétique des copropriétés suivies."
         }
     }
 }

@@ -1,0 +1,162 @@
+{
+    "name": "Dossier de propriété",
+    "plural": "Dossiers de propriété",
+    "description": "Regroupe un ou plusieurs propriétaires et les lots (actifs ou historiques) qu’ils détiennent au sein d’une copropriété.",
+    "model": {
+        "code": {
+            "label": "Code",
+            "description": "Identifiant interne du dossier.",
+            "help": "Attribué automatiquement pour faciliter les échanges et imports."
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle ce dossier est rattaché.",
+            "help": ""
+        },
+        "extref_owner_reference": {
+            "label": "Référence externe",
+            "description": "Référence utilisée par un système tiers (import, migration…).",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Commentaires internes sur le dossier.",
+            "help": ""
+        },
+        "property_lots_ids": {
+            "label": "Lots actifs",
+            "description": "Lots actuellement détenus (ownership actif).",
+            "help": ""
+        },
+        "property_lot_ownerships_ids": {
+            "label": "Historique des lots",
+            "description": "Relations historisées entre lots et ownership.",
+            "help": ""
+        },
+        "owners_ids": {
+            "label": "Propriétaires",
+            "description": "Liste des propriétaires liés au dossier.",
+            "help": ""
+        },
+        "ownership_type": {
+            "label": "Type d’ownership",
+            "description": "Détermine si la propriété est unique ou en indivision.",
+            "selection": {
+                "unique": "Propriété unique",
+                "joint": "Propriété conjointe"
+            },
+            "help": ""
+        },
+        "ownership_shares": {
+            "label": "Total des parts",
+            "description": "Nombre total de quotes-parts déclarées pour le dossier.",
+            "help": ""
+        },
+        "date_from": {
+            "label": "Date d’entrée",
+            "description": "Date à partir de laquelle au moins un lot est détenu.",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Date de sortie",
+            "description": "Date de cession du dernier lot détenu.",
+            "help": "Quand renseignée, le dossier reste accessible mais est marqué comme historique."
+        },
+        "transfer_from_id": {
+            "label": "Dossier d’acquisition",
+            "description": "Acte ou procédure via laquelle le lot a été acquis.",
+            "help": ""
+        },
+        "transfer_to_id": {
+            "label": "Dossier de cession",
+            "description": "Acte ou procédure via laquelle le lot a été cédé.",
+            "help": ""
+        },
+        "creation_identity_id": {
+            "label": "Identité à convertir",
+            "description": "Identité utilisée lors de la création pour générer un premier propriétaire.",
+            "help": ""
+        },
+        "address_recipient": {
+            "label": "Destinataire courrier",
+            "description": "Ligne (civilité + nom) utilisée pour les envois postaux.",
+            "help": ""
+        },
+        "has_external_representative": {
+            "label": "Mandataire externe",
+            "description": "Indique si une personne externe représente l’ownership.",
+            "help": ""
+        },
+        "representative_identity_id": {
+            "label": "Identité mandataire externe",
+            "description": "Identité (hors propriétaires) mandatée pour représenter l’ownership.",
+            "help": ""
+        },
+        "has_representative": {
+            "label": "Représentant interne",
+            "description": "Indique si l’un des propriétaires est désigné comme représentant officiel.",
+            "help": ""
+        },
+        "representative_owner_id": {
+            "label": "Propriétaire référent",
+            "description": "Propriétaire désigné en tant que représentant légal du dossier.",
+            "help": ""
+        },
+        "fundings_ids": {
+            "label": "Appels de fonds",
+            "description": "Historique des appels de fonds liés à ce dossier.",
+            "help": ""
+        },
+        "ownership_bank_accounts_ids": {
+            "label": "Comptes bancaires",
+            "description": "Comptes bancaires ouverts au nom du ou des propriétaires.",
+            "help": ""
+        },
+        "ownership_communication_preferences_ids": {
+            "label": "Préférences de communication",
+            "description": "Canaux et destinataires à utiliser selon le type de communication.",
+            "help": ""
+        },
+        "assemblies_ids": {
+            "label": "Assemblées concernées",
+            "description": "Assemblées générales auxquelles le dossier a été convié.",
+            "help": ""
+        },
+        "attendees_ids": {
+            "label": "Participants",
+            "description": "Participants ayant représenté l’ownership lors des assemblées.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "État du dossier (préparation ou validé).",
+            "selection": {
+                "pending": "En préparation",
+                "validated": "Validé"
+            },
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Dossier de propriété",
+            "description": "Fiche complète du dossier (propriétaires, lots, représentants, finances)."
+        },
+        "form.create": {
+            "name": "Création d’un dossier",
+            "description": "Assistant permettant de créer rapidement un ownership et ses propriétaires."
+        },
+        "form.transfer_create": {
+            "name": "Création via transfert",
+            "description": "Saisie d’un nouveau dossier lors d’une acquisition/cession."
+        },
+        "list.default": {
+            "name": "Dossiers de propriété",
+            "description": "Vue liste des ownerships avec références, copropriété et statut."
+        },
+        "list.assembly": {
+            "name": "Ownerships pour assemblée",
+            "description": "Filtre dédié aux convocations d’assemblées générales."
+        }
+    }
+}
