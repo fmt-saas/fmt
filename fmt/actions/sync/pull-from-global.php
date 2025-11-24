@@ -32,7 +32,7 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-// retrieve SyncPolicy related to 'protected' entities
+// retrieve SyncPolicy related to 'protected' & 'private' entities
 $policies = SyncPolicy::search([
         ['scope', 'in', ['protected', 'private']],
         ['sync_direction', '=', 'descending']
@@ -98,6 +98,10 @@ foreach($policies as $id => $policy) {
         $data = $response->body();
 
         foreach($data as $object) {
+            // discard object that do not have a UUID (yet)
+            if(!$object['uuid'] || empty($object['uuid'])) {
+                continue;
+            }
 
             $updateRequest = UpdateRequest::create([
                     'object_class'  => $policy['object_class'],
@@ -106,36 +110,6 @@ foreach($policies as $id => $policy) {
                     'source_origin' => 'sync'
                 ])
                 ->first();
-
-            // remove local fields
-            foreach($local_fields as $field) {
-                if(isset($object[$field])) {
-                    unset($object[$field]);
-                }
-            }
-
-            // discard non relevant or private fields
-            foreach($schema as $field => $def) {
-                // #todo - keep field manually set to null?
-                /*
-                if(!isset($object[$field])) {
-                    continue;
-                }
-                */
-                // discard non-scalar fields
-                if(
-                    (!isset($def['type']) || !in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) &&
-                    (!isset($def['result_type']) || !in_array($def['result_type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one']))
-                ) {
-                    unset($object[$field]);
-                }
-                elseif($field === 'id') {
-                    unset($object['id']);
-                }
-                elseif(isset($map_private_fields[$field])) {
-                    unset($object[$field]);
-                }
-            }
 
             // local search
             $localObject = $entity::search($object['uuid'])->first();

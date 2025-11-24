@@ -5,8 +5,12 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use fmt\sync\SyncPolicy;
+use infra\server\Instance;
+
 [$params, $providers] = eQual::announce([
-    'description'   => 'Return raw data (with original MIME) of a document identified by given hash.',
+    'description'   => 'Return an array of objects that have been updated since the given date (`date_from`).',
+    'help'          => 'This controller is intended to GLOBAL instance and expected to generate a response to a `pull-from-global` request from a LOCAL instance.',
     'params'        => [
         'entity' => [
             'type'              => 'string',
@@ -40,22 +44,29 @@ if(constant('FMT_INSTANCE_TYPE') !== 'global') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-// #memo #config #sync - sync between controllers
-$map_entities = [
-    'identity\Identity'                     => 'protected',
-    'identity\User'                         => 'protected',
-    'purchase\supplier\Supplier'            => 'protected',
-    'purchase\supplier\SupplierType'        => 'private',
-    'finance\bank\Bank'                     => 'protected',
-    'realestate\property\NotaryOffice'      => 'protected',
-    'realestate\management\ManagingAgent'   => 'protected',
-    'realestate\property\Condominium'       => 'protected',
-    'documents\DocumentType'                => 'private',
-    'documents\DocumentSubtype'             => 'private'
-];
+// #memo - on local instances there is a single Instance object
+$instance = Instance::search(['uuid', '=', $params['instance_uuid']])->first();
 
-if(!isset($map_entities[$params['entity']])) {
-    throw new Exception('non_supported_entity', EQ_ERROR_INVALID_PARAM);
+if(!$instance) {
+    throw new Exception('unknown_instance_uuid', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+// retrieve SyncPolicy related to 'protected' & 'private' entities
+$policy = SyncPolicy::search([
+        ['object_class', '=', $params['entity']],
+        ['scope', 'in', ['protected', 'private']],
+        ['sync_direction', '=', 'descending']
+    ])
+    ->read([
+        'object_class',
+        'field_unique',
+        'sync_policy_lines_ids' => ['object_field', 'scope']
+    ])
+    ->first();
+
+
+if(!$policy) {
+    throw new Exception('missing_policy', EQ_ERROR_INVALID_CONFIG);
 }
 
 // retrieve all fields of the requested entity
@@ -68,16 +79,42 @@ foreach($schema as $field => $def) {
     }
 }
 
-$domain = [];
+// on va récupérer les détails de l'entité sur base des sync policies
 
-if(isset($params['date_from'])) {
-    $domain[] = ['modified', '>=', $params['date_from']];
+$entity = $params['entity'];
+
+// discard private fields
+$map_private_fields = [];
+
+foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
+    if($policyLine['scope'] === 'private') {
+        $map_private_fields[$policyLine['object_field']] = true;
+    }
 }
 
-$objects = $params['entity']::search($domain)
+// retrieve all fields of the requested entity
+$schema = $orm->getModel($entity)->getSchema();
+
+// we're only interested in scalar fields and many2one relations
+foreach($schema as $field => $def) {
+    if(
+        (!isset($def['type']) || !in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) &&
+        (!isset($def['result_type']) || !in_array($def['result_type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one']))
+    ) {
+        unset($schema[$field]);
+    }
+    elseif(isset($map_private_fields[$field])) {
+        unset($schema[$field]);
+    }
+}
+
+$timestamp = $params['date_from'];
+
+$objects = $entity::search(['modified', '>=', $timestamp])
     ->read(array_keys($schema))
     ->adapt('json')
     ->get(true);
+
 
 $context->httpResponse()
         ->body($objects)

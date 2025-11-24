@@ -59,13 +59,20 @@ class SyncPolicy extends Model {
                     // #memo - public is not relevant here (not synced)
                     // management on Local & Global
                     'protected',
-                    // management on origin only (based sync direction : ascending = Local, descending = Global)
+                    // management on origin only (based sync direction : `ascending` = Local, `descending` = Global)
                     'private'
                 ],
                 'required'          => true,
                 'description'       => 'Entity Control level - which instance has management.'
             ]
 
+        ];
+    }
+
+
+    public function getUnique() {
+        return [
+            ['object_class', 'sync_direction']
         ];
     }
 

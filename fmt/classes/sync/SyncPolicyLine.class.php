@@ -61,7 +61,7 @@ class SyncPolicyLine extends Model {
                     'public',
                     // data requiring a supervision before being updated
                     'protected',
-                    // data that must remain on current instance (depending on direction : descending = Global or ascending = Local)
+                    // data that must remain on current instance (depending on direction : `descending` = Global or `ascending` = Local)
                     'private'
                 ],
                 'required'          => true,
@@ -73,7 +73,7 @@ class SyncPolicyLine extends Model {
 
     public function getUnique() {
         return [
-            ['sync_policy_id', 'object_field', 'sync_direction']
+            ['sync_policy_id', 'object_field']
         ];
     }
 
