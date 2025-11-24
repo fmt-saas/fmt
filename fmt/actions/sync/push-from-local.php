@@ -82,33 +82,38 @@ $policy = SyncPolicy::search([
 
 
 // identify 'private' fields (for which GLOBAL value always take precedence, and which can never be updated via sync)
-$map_private_fields = [];
+$map_fields = [];
 
 foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
-    if($policyLine['scope'] === 'private') {
-        $map_private_fields[$policyLine['object_field']] = true;
-    }
+    $map_fields[$policyLine['object_field']] = $policyLine['scope'];
 }
 
 $values = $params['values'];
 
-// discard non relevant or private fields
+// we're only interested in scalar fields and many2one relations
+
 foreach($schema as $field => $def) {
     if(!isset($values[$field])) {
         continue;
     }
+    if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+        continue;
+    }
     // discard non-scalar fields
-    if(
+    elseif(
         (!isset($def['type']) || !in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) &&
         (!isset($def['result_type']) || !in_array($def['result_type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one']))
     ) {
         unset($values[$field]);
     }
-    elseif($field === 'id') {
-        unset($values['id']);
-    }
-    elseif(isset($map_private_fields[$field])) {
+    elseif(!isset($map_fields[$field])) {
         unset($values[$field]);
+    }
+    else {
+        $scope = $map_fields[$field];
+        if($scope === 'private') {
+            unset($values[$field]);
+        }
     }
 }
 

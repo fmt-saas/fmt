@@ -68,12 +68,10 @@ foreach($policies as $id => $policy) {
     $entity = $policy['object_class'];
 
     // discard private fields
-    $map_private_fields = [];
+    $map_fields = [];
 
     foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
-        if($policyLine['scope'] === 'private') {
-            $map_private_fields[$policyLine['object_field']] = true;
-        }
+        $map_fields[$policyLine['object_field']] = $policyLine['object_field'];
     }
 
     // retrieve all fields of the requested entity
@@ -81,14 +79,23 @@ foreach($policies as $id => $policy) {
 
     // we're only interested in scalar fields and many2one relations
     foreach($schema as $field => $def) {
-        if(
+        if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted', 'uuid'])) {
+            unset($schema[$field]);
+        }
+        elseif(
             (!isset($def['type']) || !in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) &&
             (!isset($def['result_type']) || !in_array($def['result_type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one']))
         ) {
             unset($schema[$field]);
         }
-        elseif(isset($map_private_fields[$field])) {
+        elseif(!isset($map_fields[$field])) {
             unset($schema[$field]);
+        }
+        else {
+            $scope = $map_fields[$field];
+            if($scope === 'private') {
+                unset($schema[$field]);
+            }
         }
     }
 

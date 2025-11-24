@@ -10,7 +10,7 @@ use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Return an array of objects that have been updated since the given date (`date_from`).',
-    'help'          => 'This controller is intended to GLOBAL instance and expected to generate a response to a `pull-from-global` request from a LOCAL instance.',
+    'help'          => 'This controller is intended for GLOBAL instance and expected to generate a response to a `pull-from-global` request from a LOCAL instance.',
     'params'        => [
         'entity' => [
             'type'              => 'string',
@@ -79,39 +79,48 @@ foreach($schema as $field => $def) {
     }
 }
 
-// on va récupérer les détails de l'entité sur base des sync policies
 
 $entity = $params['entity'];
 
-// discard private fields
-$map_private_fields = [];
+// remember how to handle fields
+$map_fields = [];
 
 foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
-    if($policyLine['scope'] === 'private') {
-        $map_private_fields[$policyLine['object_field']] = true;
-    }
+    $map_fields[$policyLine['object_field']] = $policyLine['scope'];
 }
 
 // retrieve all fields of the requested entity
 $schema = $orm->getModel($entity)->getSchema();
 
 // we're only interested in scalar fields and many2one relations
+$fields = ['uuid'];
+
 foreach($schema as $field => $def) {
-    if(
+    if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+        continue;
+    }
+    elseif(
         (!isset($def['type']) || !in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) &&
         (!isset($def['result_type']) || !in_array($def['result_type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one']))
     ) {
-        unset($schema[$field]);
+        continue;
     }
-    elseif(isset($map_private_fields[$field])) {
-        unset($schema[$field]);
+    elseif(!isset($map_fields[$field])) {
+        continue;
     }
+    else {
+        $scope = $map_fields[$field];
+        if($scope === 'private') {
+            continue;
+        }
+    }
+    $fields[] = $field;
 }
 
 $timestamp = $params['date_from'];
 
 $objects = $entity::search(['modified', '>=', $timestamp])
-    ->read(array_keys($schema))
+    ->read($fields)
     ->adapt('json')
     ->get(true);
 

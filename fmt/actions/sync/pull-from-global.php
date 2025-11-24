@@ -65,13 +65,6 @@ if(!$instance || !isset($instance['uuid']) || empty($instance['uuid'])) {
 }
 
 foreach($policies as $id => $policy) {
-    $map_private_fields = [];
-
-    foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
-        if($policyLine['scope'] === 'private') {
-            $map_private_fields[$policyLine['object_field']] = true;
-        }
-    }
 
     $entity = $policy['object_class'];
 
@@ -126,7 +119,6 @@ foreach($policies as $id => $policy) {
                             'new_value'                 => $value
                         ]);
                     }
-
 
                 $result['logs'][] = "Requested update of object of entity {$entity} with id {$localObject['id']}: " . $e->getMessage();
                 ++$result['updated'];
