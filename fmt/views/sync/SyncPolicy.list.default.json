@@ -1,5 +1,10 @@
 {
-    "name": "Update Policy",
+    "name": "Sync Policy",
+    "header": {
+        "actions": {
+            "ACTION.CREATE": ["global", "=", "env.instance_type"]
+        }
+    },
     "layout": {
         "items": [
             {

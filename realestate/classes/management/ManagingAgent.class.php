@@ -44,6 +44,11 @@ class ManagingAgent extends \purchase\supplier\Supplier {
                 'default'           => 'realestate\management\ManagingAgent'
             ],
 
+            'supplier_type_code' => [
+                'type'              => 'string',
+                'default'           => 'managing_agent'
+            ],
+
             'agent_identity_type' => [
                 'type'              => 'string',
                 'selection'         => [

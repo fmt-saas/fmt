@@ -39,12 +39,9 @@ class NotaryOffice extends \purchase\supplier\Supplier {
                 'default'           => 'realestate\property\NotaryOffice'
             ],
 
-            'supplier_type_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'purchase\supplier\SupplierType',
-                'description'       => "Suppliership items relating to the Supplier.",
-                'dependents'        => ['supplier_type_code'],
-                'default'           => 'defaultSupplierTypeId'
+            'supplier_type_code' => [
+                'type'              => 'string',
+                'default'           => 'notary_office'
             ],
 
             'registry_ref' => [

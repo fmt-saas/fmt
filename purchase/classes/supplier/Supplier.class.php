@@ -53,10 +53,8 @@ class Supplier extends Identity {
             ],
 
             'supplier_type_code' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'function'          => 'calcSupplierTypeCode',
-                'store'             => true
+                'type'              => 'string',
+                'default'           => 'supplier'
             ],
 
             /**
@@ -102,7 +100,6 @@ class Supplier extends Identity {
                 'rel_table'         => 'purchase_supplier_rel_suppliertype',
                 'rel_foreign_key'   => 'type_id',
                 'rel_local_key'     => 'supplier_id'
-
             ],
 
             'recording_rules_ids' => [
