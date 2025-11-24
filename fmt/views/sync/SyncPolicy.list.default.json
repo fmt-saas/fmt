@@ -14,6 +14,11 @@
             },
             {
                 "type": "field",
+                "value": "sync_direction",
+                "width": "25%"
+            },
+            {
+                "type": "field",
                 "value": "scope",
                 "width": "20%"
             }

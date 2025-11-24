@@ -33,6 +33,11 @@
                                                 "type": "field",
                                                 "value": "scope",
                                                 "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "sync_direction",
+                                                "width": "33%"
                                             }
                                         ]
                                     }
