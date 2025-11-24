@@ -2,7 +2,9 @@
     "name": "Sync Policy",
     "header": {
         "actions": {
-            "ACTION.CREATE": ["global", "=", "env.instance_type"]
+            "ACTION.CREATE": {
+                "visible": ["global", "=", "env.instance_type"]
+            }
         }
     },
     "layout": {
