@@ -1,0 +1,72 @@
+{
+    "name": "Type de document",
+    "plural": "Types de documents",
+    "description": "Gabarit principal décrivant comment classifier les documents (code unique, schéma JSON attendu, dossier de classement et sous-types éventuels).",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Intitulé lisible du type (ex. Facture fournisseur).",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Identifiant unique utilisé pour synchroniser ou référencer le type.",
+            "help": ""
+        },
+        "uuid": {
+            "label": "UUID",
+            "description": "Identifiant global généré côté instance maître.",
+            "help": ""
+        },
+        "folder_code": {
+            "label": "Code dossier",
+            "description": "Noeud de navigation où ranger automatiquement les documents de ce type.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Objectif du type et informations complémentaires.",
+            "help": ""
+        },
+        "json_schema": {
+            "label": "Schéma JSON",
+            "description": "URN du schéma (json-schema.org) décrivant les métadonnées attendues.",
+            "help": ""
+        },
+        "has_subtype": {
+            "label": "Possède des sous-types",
+            "description": "Indique si ce type propose des déclinaisons obligatoires.",
+            "help": ""
+        },
+        "documents_ids": {
+            "label": "Documents liés",
+            "description": "Documents déjà classés avec ce type.",
+            "help": ""
+        },
+        "document_subtypes_ids": {
+            "label": "Sous-types",
+            "description": "Déclinaisons disponibles pour ce type (si `has_subtype`).",
+            "help": ""
+        },
+        "recording_rules_ids": {
+            "label": "Règles d’enregistrement",
+            "description": "Règles métiers déclenchées lors de l’import d’un document de ce type.",
+            "help": ""
+        },
+        "labeling_rules_ids": {
+            "label": "Règles d’étiquetage",
+            "description": "Règles d’indexation/nommage associées au type.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Type de document",
+            "description": "Fiche de configuration du type (code, dossier de classement, schéma et règles)."
+        },
+        "list.default": {
+            "name": "Types de documents",
+            "description": "Liste des types déclarés avec leurs codes, dossiers et descriptions."
+        }
+    }
+}

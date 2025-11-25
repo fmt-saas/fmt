@@ -1,0 +1,51 @@
+{
+    "name": "Type de fournisseur",
+    "plural": "Types de fournisseurs",
+    "description": "Catégories qui permettent de classer les fournisseurs (maintenance, services, énergie...) et d’appliquer des règles spécifiques (étiquetage, workflows).",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Libellé lisible du type (ex. Fournisseur d’électricité).",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Identifiant unique servant aux synchronisations ou intégrations.",
+            "help": ""
+        },
+        "uuid": {
+            "label": "UUID",
+            "description": "Identifiant global fourni par l’instance maître.",
+            "help": ""
+        },
+        "category": {
+            "label": "Catégorie",
+            "description": "Famille fonctionnelle utilisée pour déclencher des règles métier.",
+            "help": "",
+            "selection": {
+                "maintenance": "Maintenance",
+                "utilities": "Services publics / utilités",
+                "works": "Travaux",
+                "equipment": "Équipements",
+                "services": "Prestations de services",
+                "finance": "Financement",
+                "metering": "Mesurage / comptage"
+            }
+        },
+        "suppliers_ids": {
+            "label": "Fournisseurs associés",
+            "description": "Liste des fournisseurs qui utilisent ce type.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Type de fournisseur",
+            "description": "Formulaire pour définir le nom, le code, la catégorie et visualiser les fournisseurs liés."
+        },
+        "list.default": {
+            "name": "Types de fournisseurs",
+            "description": "Vue tabulaire présentant les différents types et leurs catégories."
+        }
+    }
+}

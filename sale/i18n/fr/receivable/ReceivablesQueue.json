@@ -1,0 +1,51 @@
+{
+    "name": "File de receivables",
+    "plural": "Files de receivables",
+    "description": "File d’attente par client regroupant toutes les lignes en attente de facturation, avec indicateurs de statut (pending/invoiced).",
+    "model": {
+        "customer_id": {
+            "label": "Client",
+            "description": "Client auquel la file est dédiée.",
+            "help": ""
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Libellé calculé (généralement le nom du client).",
+            "help": ""
+        },
+        "receivables_ids": {
+            "label": "Recevables",
+            "description": "Toutes les lignes rattachées (peu importe leur statut).",
+            "help": ""
+        },
+        "pending_receivables_ids": {
+            "label": "Recevables en attente",
+            "description": "Sous-liste des receivables `pending`.",
+            "help": ""
+        },
+        "invoiced_receivables_ids": {
+            "label": "Recevables facturés",
+            "description": "Lignes déjà transférées sur facture.",
+            "help": ""
+        },
+        "pending_receivables_count": {
+            "label": "Nb. en attente",
+            "description": "Compteur automatique des receivables non facturés.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "File de receivables",
+            "description": "Vue regroupant le client, les receivables attachés et les métriques."
+        },
+        "list.default": {
+            "name": "Files de receivables",
+            "description": "Tableau des files par client avec nombre d’items en attente."
+        },
+        "receivables-queue-collect.search.default": {
+            "name": "Recherche de files",
+            "description": "Filtres avancés pour sélectionner les files à collecter/facturer."
+        }
+    }
+}

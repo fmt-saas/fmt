@@ -1,0 +1,33 @@
+{
+    "name": "Transfert de location",
+    "plural": "Transferts de location",
+    "description": "Permet de tracer le passage d’un contrat de location à un autre (états des lieux, entrées/sorties).",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par le transfert.",
+            "help": ""
+        },
+        "date": {
+            "label": "Date du transfert",
+            "description": "Date à laquelle le transfert a eu lieu.",
+            "help": ""
+        },
+        "property_lot_id": {
+            "label": "Lot privatif",
+            "description": "Lot pour lequel le transfert est réalisé.",
+            "help": ""
+        },
+        "tenancy_from_id": {
+            "label": "Contrat sortant",
+            "description": "Tenancy précédent (locataires sortants).",
+            "help": ""
+        },
+        "tenancy_to_id": {
+            "label": "Contrat entrant",
+            "description": "Tenancy suivant (nouveaux locataires).",
+            "help": ""
+        }
+    },
+    "view": {}
+}

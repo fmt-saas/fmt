@@ -1,0 +1,138 @@
+{
+    "name": "Recevable",
+    "plural": "Recevables",
+    "description": "Ligne représentant un bien ou service vendu à un client et en attente de facturation (quantités issues des entrées de vente, tarification, remises et regroupements d’invoice).",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Texte calculé depuis l’entrée de vente / produit.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Commentaire détaillant la prestation (copié depuis l’entrée de vente).",
+            "help": ""
+        },
+        "receivables_queue_id": {
+            "label": "File de receivables",
+            "description": "Queue à laquelle la ligne est attachée (une queue par client).",
+            "help": ""
+        },
+        "date": {
+            "label": "Date",
+            "description": "Date de création de la ligne (peut différer de la date de vente).",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "État du receivable (pending, invoiced, cancelled).",
+            "help": ""
+        },
+        "sale_entry_id": {
+            "label": "Entrée de vente",
+            "description": "Origine de la ligne (vente ou abonnement) – lecture seule.",
+            "help": ""
+        },
+        "sale_entry_class": {
+            "label": "Classe d’origine",
+            "description": "Classe PHP utilisée pour générer l’entrée (pour logiques custom).",
+            "help": ""
+        },
+        "subscription_entry_id": {
+            "label": "Entrée d’abonnement",
+            "description": "Lien éventuel vers la ligne d’abonnement correspondante.",
+            "help": ""
+        },
+        "invoice_group": {
+            "label": "Groupe d’invoicing",
+            "description": "Texte utilisé pour regrouper plusieurs receivables sur une facture.",
+            "help": ""
+        },
+        "customer_id": {
+            "label": "Client",
+            "description": "Client auquel le receivable appartient (dérivé de l’entrée de vente).",
+            "help": ""
+        },
+        "product_id": {
+            "label": "Produit",
+            "description": "SKU concerné par la ligne.",
+            "help": ""
+        },
+        "price_id": {
+            "label": "Tarif",
+            "description": "Tarif appliqué lors de la vente.",
+            "help": ""
+        },
+        "unit_price": {
+            "label": "Prix unitaire",
+            "description": "Montant unitaire hors remise.",
+            "help": ""
+        },
+        "vat_rate": {
+            "label": "TVA",
+            "description": "Taux de TVA appliqué au receivable.",
+            "help": ""
+        },
+        "qty": {
+            "label": "Quantité",
+            "description": "Quantité facturable.",
+            "help": ""
+        },
+        "free_qty": {
+            "label": "Quantité offerte",
+            "description": "Quantité non facturée (offre commerciale).",
+            "help": ""
+        },
+        "discount": {
+            "label": "Remise %",
+            "description": "Remise proportionnelle appliquée.",
+            "help": ""
+        },
+        "total": {
+            "label": "Total HT",
+            "description": "Montant total hors TVA (prise en compte des remises).",
+            "help": ""
+        },
+        "price": {
+            "label": "Prix TTC",
+            "description": "Montant TTC calculé.",
+            "help": ""
+        },
+        "invoice_id": {
+            "label": "Facture",
+            "description": "Facture sur laquelle la ligne a été transférée (si déjà invoicée).",
+            "help": ""
+        },
+        "invoice_line_id": {
+            "label": "Ligne de facture",
+            "description": "Ligne générée dans la facture cible.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Recevable",
+            "description": "Fiche détaillée (quantités, tarifs, statut, regroupements)."
+        },
+        "list.default": {
+            "name": "Recevables",
+            "description": "Liste complète des receivables (produit, client, montant)."
+        },
+        "list.pending": {
+            "name": "Recevables en attente",
+            "description": "Filtre les lignes non encore facturées."
+        },
+        "list.queue-selection": {
+            "name": "Sélection de file",
+            "description": "Permet de choisir la queue d’affectation pour les receivables."
+        },
+        "receivable-collect.search.default": {
+            "name": "Recherche de receveur (collecte)",
+            "description": "Critères avancés pour filtrer les receivables lors d’une collecte."
+        },
+        "receivable-pending-collect.search.default": {
+            "name": "Recherche receveur (en attente)",
+            "description": "Recherche focalisée sur les receivables non facturés."
+        }
+    }
+}

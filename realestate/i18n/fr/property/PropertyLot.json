@@ -1,0 +1,130 @@
+{
+    "name": "Lot privatif",
+    "plural": "Lots privatifs",
+    "description": "Représente un lot tel que défini dans l’acte de base (appartement, parking, cave…) et suivi dans une copropriété.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle le lot appartient.",
+            "help": ""
+        },
+        "property_lot_ref": {
+            "label": "Référence notariale",
+            "description": "Référence utilisée dans l’acte pour identifier le lot.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code interne",
+            "description": "Code unique généré automatiquement pour les échanges internes.",
+            "help": ""
+        },
+        "comments": {
+            "label": "Commentaires",
+            "description": "Notes internes liées au lot.",
+            "help": ""
+        },
+        "cadastral_number": {
+            "label": "Numéro cadastral",
+            "description": "Référence cadastrale du lot.",
+            "help": ""
+        },
+        "lot_floor": {
+            "label": "Étage / niveau",
+            "description": "Niveau sur lequel se situe le lot.",
+            "help": ""
+        },
+        "lot_letterbox": {
+            "label": "Boîte aux lettres",
+            "description": "Numéro/identifiant de boîte aux lettres associé.",
+            "help": ""
+        },
+        "lot_area": {
+            "label": "Surface",
+            "description": "Surface totale du lot (m²).",
+            "help": ""
+        },
+        "is_primary": {
+            "label": "Lot principal",
+            "description": "Indique si le lot peut regrouper des lots secondaires.",
+            "help": ""
+        },
+        "secondary_lots_ids": {
+            "label": "Lots secondaires",
+            "description": "Lots liés et dépendants de ce lot principal.",
+            "help": ""
+        },
+        "primary_lot_id": {
+            "label": "Lot parent",
+            "description": "Lot principal auquel celui-ci est rattaché.",
+            "help": ""
+        },
+        "nature_id": {
+            "label": "Nature",
+            "description": "Nature (habitation, parking, cave…) du lot.",
+            "help": ""
+        },
+        "property_lot_nature": {
+            "label": "Libellé de nature",
+            "description": "Nom de la nature (copié pour faciliter les listes).",
+            "help": ""
+        },
+        "has_tenancy": {
+            "label": "Lot loué",
+            "description": "Indique si le lot est actuellement loué.",
+            "help": ""
+        },
+        "active_tenancy_id": {
+            "label": "Occupation en cours",
+            "description": "Contrat d’occupation actif (le cas échéant).",
+            "help": ""
+        },
+        "active_ownership_id": {
+            "label": "Ownership actif",
+            "description": "Dossier de propriété actuellement associé à ce lot.",
+            "help": ""
+        },
+        "ownership_transfers_ids": {
+            "label": "Transferts",
+            "description": "Historique des actes de cession impliquant ce lot.",
+            "help": ""
+        },
+        "property_lot_ownerships_ids": {
+            "label": "Historique de propriété",
+            "description": "Liens détaillés entre owners et ce lot (dates, quotes-parts).",
+            "help": ""
+        },
+        "apportionment_shares_ids": {
+            "label": "Clés de répartition",
+            "description": "Clés auxquelles le lot participe.",
+            "help": ""
+        },
+        "has_grouped_statements": {
+            "label": "Regrouper sur l’état",
+            "description": "Permet de regrouper ce lot et ses dépendances sur un même décompte.",
+            "help": ""
+        },
+        "property_entrance_id": {
+            "label": "Entrée",
+            "description": "Entrée / bloc auquel le lot est rattaché.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Lot privatif",
+            "description": "Fiche complète du lot (données juridiques, propriétaires, clés, dépendances)."
+        },
+        "form.create": {
+            "name": "Création de lot",
+            "description": "Assistant pour encoder un nouveau lot et ses paramètres principaux."
+        },
+        "list.default": {
+            "name": "Liste des lots",
+            "description": "Vue tabulaire des lots (codes, références, surfaces, natures)."
+        },
+        "list.dashboard": {
+            "name": "Lots – tableau de bord",
+            "description": "Vue synthétique utilisée dans le portail (répartition par nature/ownership)."
+        }
+    }
+}

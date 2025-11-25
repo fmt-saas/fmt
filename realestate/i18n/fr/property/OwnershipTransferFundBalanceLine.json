@@ -1,0 +1,52 @@
+{
+    "name": "Ligne de balance de fonds",
+    "plural": "Lignes de balance de fonds",
+    "description": "Répartition des soldes de fonds de la copropriété entre les lots transférés.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel le fonds appartient.",
+            "help": ""
+        },
+        "ownership_transfer_id": {
+            "label": "Transfert lié",
+            "description": "Dossier de transfert qui utilise cette ligne.",
+            "help": ""
+        },
+        "condo_fund_id": {
+            "label": "Fonds de copropriété",
+            "description": "Fonds (réserve, travaux…) décrit par la ligne.",
+            "help": ""
+        },
+        "condo_fund_balance": {
+            "label": "Solde du fonds",
+            "description": "Solde du fonds au moment de la création de la ligne.",
+            "help": ""
+        },
+        "condo_fund_shares": {
+            "label": "Quotes-parts du fonds",
+            "description": "Nombre total de quotes-parts utilisées pour le fonds.",
+            "help": ""
+        },
+        "property_lots_shares": {
+            "label": "Quotes-parts des lots",
+            "description": "Somme des quotes-parts détenues par les lots transférés.",
+            "help": ""
+        },
+        "property_lots_amount": {
+            "label": "Montant attribué aux lots",
+            "description": "Part du solde attribuée aux lots transférés.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Modèle",
+            "description": "Formulaire technique listant la ventilation des fonds."
+        },
+        "list.default": {
+            "name": "Modèle",
+            "description": "Vue générique pour contrôler les soldes répartis par fonds."
+        }
+    }
+}

@@ -1,0 +1,67 @@
+{
+    "name": "Compte bancaire fournisseur",
+    "plural": "Comptes bancaires fournisseur",
+    "description": "Coordonnées bancaires utilisées pour payer un fournisseur donné dans une copropriété (référence à la relation fournisseur, IBAN, BIC, type de compte).",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble pour lequel le compte est enregistré.",
+            "help": ""
+        },
+        "suppliership_id": {
+            "label": "Relation fournisseur",
+            "description": "Relation (fournisseur + copropriété) associée à ce compte.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libellé",
+            "description": "Nom calculé à partir du compte bancaire sélectionné.",
+            "help": ""
+        },
+        "bank_account_id": {
+            "label": "Compte bancaire",
+            "description": "Compte bancaire de référence (IBAN/BIC).",
+            "help": "Seuls les comptes actifs peuvent être sélectionnés."
+        },
+        "bank_account_iban": {
+            "label": "IBAN",
+            "description": "IBAN du compte (lecture seule).",
+            "help": ""
+        },
+        "bank_account_bic": {
+            "label": "BIC",
+            "description": "Code BIC associé à la banque (lecture seule).",
+            "help": ""
+        },
+        "bank_account_type": {
+            "label": "Type de compte",
+            "description": "Type du compte bancaire (à vue, épargne…).",
+            "help": ""
+        },
+        "is_primary": {
+            "label": "Compte principal",
+            "description": "Indique si ce compte est privilégié pour les paiements.",
+            "help": ""
+        },
+        "supplier_identity_id": {
+            "label": "Identité fournisseur",
+            "description": "Identité du fournisseur (calculée via la relation).",
+            "help": ""
+        },
+        "owner_identity_id": {
+            "label": "Propriétaire du compte",
+            "description": "Identité qui détient le compte bancaire (normalement le fournisseur).",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Compte bancaire fournisseur",
+            "description": "Formulaire pour sélectionner l’IBAN utilisé par un fournisseur et marquer le compte principal."
+        },
+        "list.default": {
+            "name": "Comptes bancaires fournisseurs",
+            "description": "Liste des comptes utilisés par fournisseur / copropriété pour les paiements."
+        }
+    }
+}

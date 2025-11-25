@@ -1,0 +1,62 @@
+{
+    "name": "Sous-type de document",
+    "plural": "Sous-types de document",
+    "description": "Classement supplémentaire pour affiner un type de document (variation de dossier, règles d’enregistrement/étiquetage, description).",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Libellé lisible du sous-type (ex. Facture électricité).",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Identifiant unique utilisé dans les synchronisations.",
+            "help": ""
+        },
+        "uuid": {
+            "label": "UUID",
+            "description": "Identifiant global fourni par l’instance maître.",
+            "help": ""
+        },
+        "folder_code": {
+            "label": "Code dossier",
+            "description": "Noeud de classement spécifique à ce sous-type (facultatif).",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Usage du sous-type ou exemples de documents attendus.",
+            "help": ""
+        },
+        "document_type_id": {
+            "label": "Type parent",
+            "description": "Type de document auquel ce sous-type est rattaché.",
+            "help": ""
+        },
+        "recording_rules_ids": {
+            "label": "Règles d’enregistrement",
+            "description": "Règles métiers déclenchées lors d’un import pour ce sous-type.",
+            "help": ""
+        },
+        "labeling_rules_ids": {
+            "label": "Règles d’étiquetage",
+            "description": "Règles de nommage/étiquettes appliquées sur ce sous-type.",
+            "help": ""
+        },
+        "documents_ids": {
+            "label": "Documents liés",
+            "description": "Documents déjà classés avec ce sous-type.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Sous-type de document",
+            "description": "Formulaire pour décrire une déclinaison (code, dossier, type parent, règles associées)."
+        },
+        "list.default": {
+            "name": "Sous-types de document",
+            "description": "Vue synthétique des sous-types avec leurs codes et types parents."
+        }
+    }
+}

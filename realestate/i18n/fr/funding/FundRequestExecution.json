@@ -1,0 +1,67 @@
+{
+    "name": "Exécution d’appel de fonds",
+    "plural": "Exécutions d’appel de fonds",
+    "description": "Document généré pour notifier chaque copropriétaire (équivalent à une facture de vente) et enregistrer les écritures comptables correspondant à un appel de fonds.",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Généré automatiquement (période, copropriété, ownership).",
+            "help": ""
+        },
+        "invoice_type": {
+            "label": "Type de document",
+            "description": "Toujours `fund_request` car traité comme facture de vente.",
+            "help": ""
+        },
+        "fund_request_id": {
+            "label": "Appel de fonds",
+            "description": "Appel dont découle cette exécution.",
+            "help": ""
+        },
+        "called_amount": {
+            "label": "Montant appelé",
+            "description": "Alias du prix total hors TVA facturé au copropriétaire.",
+            "help": ""
+        },
+        "execution_lines_ids": {
+            "label": "Lignes d’exécution",
+            "description": "Lignes regroupant les montants par ownership.",
+            "help": ""
+        },
+        "execution_line_entries_ids": {
+            "label": "Entrées détaillées",
+            "description": "Ventilation par lot pour chaque ligne d’exécution.",
+            "help": ""
+        },
+        "fundings_ids": {
+            "label": "Financements liés",
+            "description": "Paiements générés lors de la validation de l’exécution.",
+            "help": ""
+        },
+        "logs": {
+            "label": "Journal d’exécution",
+            "description": "Traces des opérations (génération d’écriture, notifications).",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "État du document (proforma, comptabilisé, annulé).",
+            "help": "",
+            "selection": {
+                "proforma": "Brouillon (proforma)",
+                "posted": "Comptabilisé",
+                "cancelled": "Annulé"
+            }
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Exécution d’appel",
+            "description": "Fiche complète présentant les lignes, montants appelés et actions comptables (validation, annulation)."
+        },
+        "list.default": {
+            "name": "Exécutions d’appel",
+            "description": "Liste des exécutions par copropriété/ownership avec statut et montants."
+        }
+    }
+}

@@ -1,0 +1,56 @@
+{
+    "name": "Référence fournisseur",
+    "plural": "Références fournisseur",
+    "description": "Valeurs attribuées par un fournisseur à une copropriété (numéro d’installation, EAN, code client…) pour faciliter l’échange de données et le guichet unique.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel la référence s’applique.",
+            "help": ""
+        },
+        "suppliership_id": {
+            "label": "Relation fournisseur",
+            "description": "Relation fournisseur depuis laquelle est dérivée la référence.",
+            "help": ""
+        },
+        "supplier_id": {
+            "label": "Fournisseur",
+            "description": "Fournisseur concerné (calculé automatiquement).",
+            "help": ""
+        },
+        "reference_type": {
+            "label": "Type de référence",
+            "description": "Nature de la donnée fournie (numéro EAN, compteur, code client...).",
+            "help": "",
+            "selection": {
+                "installation_number": "Numéro d’installation",
+                "ean_number": "Numéro EAN",
+                "meter_number": "Numéro de compteur",
+                "customer_number": "Numéro client",
+                "phone_number": "Numéro de téléphone",
+                "elevator_number": "Numéro d’ascenseur",
+                "building_code": "Code immeuble"
+            }
+        },
+        "reference_value": {
+            "label": "Valeur",
+            "description": "Valeur exacte communiquée par le fournisseur.",
+            "help": ""
+        },
+        "is_unique": {
+            "label": "Unique",
+            "description": "Indique si cette référence doit être utilisée une seule fois.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Référence fournisseur",
+            "description": "Formulaire pour encoder ou consulter les références utilisées par le fournisseur."
+        },
+        "list.default": {
+            "name": "Références fournisseur",
+            "description": "Liste des références disponibles pour chaque relation fournisseur."
+        }
+    }
+}

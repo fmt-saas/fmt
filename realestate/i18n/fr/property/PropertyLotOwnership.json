@@ -1,0 +1,42 @@
+{
+    "name": "Historique lot / ownership",
+    "plural": "Historique lot / ownership",
+    "description": "Table de liaison permettant de retracer quels lots ont appartenu à quel dossier de propriété et sur quelles périodes.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée.",
+            "help": ""
+        },
+        "property_lot_id": {
+            "label": "Lot privatif",
+            "description": "Lot lié à l’ownership sur la période donnée.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Ownership auquel le lot est/était rattaché.",
+            "help": ""
+        },
+        "date_from": {
+            "label": "Date d’entrée",
+            "description": "Date à partir de laquelle le lot est détenu par ce dossier.",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Date de sortie",
+            "description": "Date de fin de détention (si cédé).",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Lien lot / ownership",
+            "description": "Formulaire affichant la relation entre un lot et un dossier (avec dates)."
+        },
+        "list.default": {
+            "name": "Historique des liens",
+            "description": "Liste chronologique des liens lot ↔ ownership."
+        }
+    }
+}

@@ -1,0 +1,52 @@
+{
+    "name": "Ligne d’appel de fonds",
+    "plural": "Lignes d’appel de fonds",
+    "description": "Segment d’un appel de fonds correspondant à une clé de répartition (apportionment) avec son montant prévu et la somme réellement affectée aux copropriétaires.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel la ligne est rattachée.",
+            "help": ""
+        },
+        "fund_request_id": {
+            "label": "Appel de fonds",
+            "description": "Appel parent dont la ligne fait partie.",
+            "help": ""
+        },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé utilisée pour calculer les quotes-parts (charges, travaux, etc.).",
+            "help": ""
+        },
+        "request_amount": {
+            "label": "Montant planifié",
+            "description": "Budget total affecté à cette clé.",
+            "help": ""
+        },
+        "allocated_amount": {
+            "label": "Montant réparti",
+            "description": "Somme déjà ventilée entre les copropriétaires.",
+            "help": ""
+        },
+        "line_entries_ids": {
+            "label": "Entrées ownership",
+            "description": "Liste des montants calculés par ownership.",
+            "help": ""
+        },
+        "entry_lots_ids": {
+            "label": "Entrées lots",
+            "description": "Détail par lot privatif pour la clé concernée.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Ligne d’appel",
+            "description": "Formulaire technique listant la clé utilisée, les montants planifiés et la ventilation générée."
+        },
+        "list.default": {
+            "name": "Lignes d’appel",
+            "description": "Vue tabulaire des lignes (copropriété, clé, montants planifiés/répartis)."
+        }
+    }
+}

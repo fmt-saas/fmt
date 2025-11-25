@@ -1,0 +1,37 @@
+{
+    "name": "Contact de transfert",
+    "plural": "Contacts de transfert",
+    "description": "Contacts identifiés pour recevoir les communications liées à un transfert de propriété (notaire, acquéreur, intermédiaire).",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle le dossier est rattaché.",
+            "help": ""
+        },
+        "name": {
+            "label": "Nom / société",
+            "description": "Nom du destinataire lorsque l’information est disponible.",
+            "help": ""
+        },
+        "ownership_transfer_id": {
+            "label": "Transfert lié",
+            "description": "Dossier de transfert auquel ce contact est associé.",
+            "help": ""
+        },
+        "email": {
+            "label": "Adresse e-mail",
+            "description": "Courriel utilisé pour l’envoi automatique des documents.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Contacts du transfert",
+            "description": "Encodage d’un destinataire (notaire, acquéreur, fournisseur d’information)."
+        },
+        "list.default": {
+            "name": "Contacts du transfert",
+            "description": "Liste des contacts qui recevront les communications liées au dossier."
+        }
+    }
+}

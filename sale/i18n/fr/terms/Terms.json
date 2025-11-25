@@ -1,0 +1,47 @@
+{
+    "name": "Conditions de vente",
+    "plural": "Conditions de vente",
+    "description": "Document décrivant les modalités d’un vendeur (délais de paiement, remises, pénalités) et référencé sur les ventes/factures.",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Intitulé court pour reconnaître ces conditions.",
+            "help": ""
+        },
+        "organisation_id": {
+            "label": "Organisation",
+            "description": "Entité juridique qui publie les conditions.",
+            "help": ""
+        },
+        "publication_date": {
+            "label": "Date de publication",
+            "description": "Date d’entrée en vigueur du document.",
+            "help": ""
+        },
+        "lang_id": {
+            "label": "Langue",
+            "description": "Langue utilisée pour le document joint.",
+            "help": ""
+        },
+        "document_id": {
+            "label": "Document associé",
+            "description": "Document stocké dans le GED décrivant précisément les conditions.",
+            "help": ""
+        },
+        "url": {
+            "label": "Lien externe",
+            "description": "URL publique pour consulter les conditions (optionnel).",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Conditions de vente",
+            "description": "Fiche permettant d’encapsuler un document ou un lien détaillant les conditions commerciales."
+        },
+        "list.default": {
+            "name": "Conditions de vente",
+            "description": "Tableau des différents jeux de conditions publiés (organisation, date, langue)."
+        }
+    }
+}

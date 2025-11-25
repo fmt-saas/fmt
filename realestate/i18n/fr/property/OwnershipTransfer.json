@@ -1,0 +1,267 @@
+{
+    "name": "Transfert de propriété",
+    "plural": "Transferts de propriété",
+    "description": "Dossier complet qui centralise les échanges notariaux, les pièces justificatives et les calculs financiers nécessaires au transfert d’un ou plusieurs lots privatifs.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par la cession.",
+            "help": ""
+        },
+        "is_notary_request": {
+            "label": "Demande d’un notaire",
+            "description": "Indique si la demande initiale provient directement d’une étude notariale.",
+            "help": ""
+        },
+        "request_contact_name": {
+            "label": "Nom du contact",
+            "description": "Personne qui a introduit la demande lorsque celle-ci ne vient pas d’un notaire.",
+            "help": ""
+        },
+        "request_contact_address_street": {
+            "label": "Rue du contact",
+            "description": "Adresse postale du contact d’origine.",
+            "help": ""
+        },
+        "request_contact_address_zip": {
+            "label": "Code postal du contact",
+            "description": "Code postal associé à l’adresse du contact.",
+            "help": ""
+        },
+        "request_contact_address_city": {
+            "label": "Ville du contact",
+            "description": "Localité liée à l’adresse du contact.",
+            "help": ""
+        },
+        "request_contact_email": {
+            "label": "E-mail du contact",
+            "description": "Adresse électronique principale utilisée pour les échanges.",
+            "help": ""
+        },
+        "request_notary_office_id": {
+            "label": "Étude notariale (demande)",
+            "description": "Étude notariale à l’origine de la requête.",
+            "help": ""
+        },
+        "confirmation_notary_office_id": {
+            "label": "Étude notariale (confirmation)",
+            "description": "Étude notariale qui réceptionne les informations et gère la signature de l’acte.",
+            "help": ""
+        },
+        "request_date": {
+            "label": "Date de demande",
+            "description": "Date d’envoi de la demande d’informations.",
+            "help": ""
+        },
+        "confirmation_date": {
+            "label": "Date de confirmation",
+            "description": "Date d’envoi de la confirmation par le notaire.",
+            "help": ""
+        },
+        "transfer_date": {
+            "label": "Date de transfert",
+            "description": "Date à laquelle la cession de propriété est effective.",
+            "help": "Cette date correspond à la date de l’acte et n’est connue qu’en fin de processus."
+        },
+        "seller_documents_sent_date": {
+            "label": "Envoi des documents vendeur",
+            "description": "Date d’expédition du dossier vendeur vers le notaire.",
+            "help": ""
+        },
+        "financial_statement_sent_date": {
+            "label": "Envoi de l’état financier",
+            "description": "Date d’envoi des documents de clôture financière au notaire.",
+            "help": ""
+        },
+        "fiscal_year_id": {
+            "label": "Exercice comptable",
+            "description": "Exercice auquel se rattache le transfert.",
+            "help": "Assigné automatiquement sur base des dates encodées."
+        },
+        "fiscal_period_id": {
+            "label": "Période fiscale",
+            "description": "Période de l’exercice concernée par le transfert.",
+            "help": "Sélectionnée automatiquement en fonction des dates fournies."
+        },
+        "description": {
+            "label": "Description",
+            "description": "Résumé libre du dossier de transfert.",
+            "help": ""
+        },
+        "property_lot_id": {
+            "label": "Lot principal",
+            "description": "Premier lot concerné lors de la création du dossier.",
+            "help": ""
+        },
+        "property_lots_ids": {
+            "label": "Lots transférés",
+            "description": "Ensemble des lots inclus dans ce transfert.",
+            "help": ""
+        },
+        "old_ownership_id": {
+            "label": "Ownership cédant",
+            "description": "Dossier de propriété actuel (avant transfert).",
+            "help": ""
+        },
+        "new_ownership_id": {
+            "label": "Ownership acquéreur",
+            "description": "Dossier de propriété de l’acquéreur.",
+            "help": ""
+        },
+        "condo_shares": {
+            "label": "Quotes-parts copropriété",
+            "description": "Total des quotes-parts statutaires impliquées.",
+            "help": ""
+        },
+        "ownership_shares": {
+            "label": "Quotes-parts ownership",
+            "description": "Quotes-parts détenues par le dossier cédant.",
+            "help": ""
+        },
+        "transfer_fees_ids": {
+            "label": "Frais imputés",
+            "description": "Frais administratifs liés au traitement du dossier.",
+            "help": ""
+        },
+        "fund_balances_description": {
+            "label": "Solde des fonds",
+            "description": "Texte décrivant l’état actuel des fonds de la copropriété.",
+            "help": ""
+        },
+        "has_seller_arrears": {
+            "label": "Arriérés vendeur",
+            "description": "Indique si le vendeur présente des arriérés (section 3.94.1.2).",
+            "help": ""
+        },
+        "seller_arrears_description": {
+            "label": "Détails arriérés vendeur",
+            "description": "Résumé des arriérés en cours et des montants associés.",
+            "help": ""
+        },
+        "scheduled_fund_requests_description": {
+            "label": "Appels programmés",
+            "description": "Description des appels de fonds planifiés (section 3.94.1.3).",
+            "help": ""
+        },
+        "has_judiciary_procedures": {
+            "label": "Procédures judiciaires",
+            "description": "Indique l’existence de procédures judiciaires en cours (3.94.1.4).",
+            "help": ""
+        },
+        "judiciary_procedures_description": {
+            "label": "Détails procédures",
+            "description": "Résumé des procédures judiciaires et montants concernés.",
+            "help": ""
+        },
+        "general_assembly_minutes_description": {
+            "label": "PV d’Assemblée",
+            "description": "Introduction aux derniers procès-verbaux communiqués (3.94.1.5).",
+            "help": ""
+        },
+        "latest_balance_sheet_description": {
+            "label": "Dernier bilan",
+            "description": "Texte accompagnant le dernier bilan partagé (3.94.1.6).",
+            "help": ""
+        },
+        "maintenance_expenses_description": {
+            "label": "Délais d’entretien",
+            "description": "État synthétique des dépenses de maintenance (3.94.2.1).",
+            "help": ""
+        },
+        "fund_requests_description": {
+            "label": "Appels de fonds",
+            "description": "Texte introductif aux appels de fonds en cours (3.94.2.2).",
+            "help": ""
+        },
+        "commons_acquisitions_description": {
+            "label": "Achats communs",
+            "description": "Statut des acquisitions communes récentes (3.94.2.3).",
+            "help": ""
+        },
+        "condominium_debts_description": {
+            "label": "Dettes de copropriété",
+            "description": "Résumé des dettes vis-à-vis des fournisseurs ou tiers (3.94.2.4).",
+            "help": ""
+        },
+        "has_seller_arrears_2": {
+            "label": "Arriérés vendeur (post-acte)",
+            "description": "Indique si d’autres montants restent dus par le vendeur (3.94.2.5).",
+            "help": ""
+        },
+        "seller_arrears_description_2": {
+            "label": "Détails arriérés post-acte",
+            "description": "Informations complémentaires sur les arriérés détectés après facturation.",
+            "help": ""
+        },
+        "has_fuel_tank": {
+            "label": "Citerne présente",
+            "description": "Spécifie si la copropriété dispose d’une citerne (mazout, gaz…).",
+            "help": ""
+        },
+        "fuel_tank_capacity": {
+            "label": "Capacité de la citerne",
+            "description": "Volume de la citerne lorsque le paramètre est activé.",
+            "help": ""
+        },
+        "has_intervention_record": {
+            "label": "Carnet d’intervention",
+            "description": "Indique si un carnet d’entretien futur existe pour l’immeuble.",
+            "help": ""
+        },
+        "adjustments_ids": {
+            "label": "Ajustements",
+            "description": "Calculs d’ajustements générés pour équilibrer le transfert.",
+            "help": ""
+        },
+        "fund_balances_ids": {
+            "label": "Balances des fonds",
+            "description": "Lignes reprenant la répartition des soldes de fonds entre les lots.",
+            "help": ""
+        },
+        "fund_requests_ids": {
+            "label": "Lignes d’appels de fonds",
+            "description": "Historique des appels de fonds utilisés pour établir le dossier.",
+            "help": ""
+        },
+        "arrear_fundings_ids": {
+            "label": "Financements en retard",
+            "description": "Demandes de paiement non soldées liées à l’ownership cédant.",
+            "help": ""
+        },
+        "mails_ids": {
+            "label": "Courriels envoyés",
+            "description": "Messages transmis depuis le dossier de transfert.",
+            "help": ""
+        },
+        "document_id": {
+            "label": "Document GED",
+            "description": "Document principal lié dans le système documentaire.",
+            "help": ""
+        },
+        "attached_documents_ids": {
+            "label": "Pièces jointes",
+            "description": "Documents sélectionnés comme annexes lors des envois.",
+            "help": ""
+        },
+        "contacts_ids": {
+            "label": "Contacts ciblés",
+            "description": "Destinataires enregistrés pour recevoir les communications.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Étape actuelle du processus (brouillon, ouvert, confirmé, etc.).",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Transfert de propriété",
+            "description": "Fiche complète du dossier (contacts, pièces, ajustements et processus)."
+        },
+        "list.default": {
+            "name": "Historique des transferts",
+            "description": "Vue tabulaire des dossiers avec dates clés, notaires et statuts."
+        }
+    }
+}

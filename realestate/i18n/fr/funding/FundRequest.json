@@ -1,0 +1,139 @@
+{
+    "name": "Appel de fonds",
+    "plural": "Appels de fonds",
+    "description": "Demande formelle envoyée aux copropriétaires pour financer les dépenses communes (fonds de roulement, réserve, provisions, travaux). Le montant appelé est réparti selon les quotes-parts configurées pour chaque ownership.",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Titre court basé sur l’exercice/période (ex. FY2025 - T1).",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble géré par le syndic pour lequel l’appel est généré.",
+            "help": ""
+        },
+        "fiscal_year_id": {
+            "label": "Exercice comptable",
+            "description": "Exercice auquel l’appel se rattache.",
+            "help": "Proposé automatiquement en fonction de la copropriété."
+        },
+        "fiscal_period_id": {
+            "label": "Période",
+            "description": "Période (mois/trimestre) utilisée pour dater l’appel et l’écriture comptable.",
+            "help": "La date de comptabilisation est positionnée sur le dernier jour de la période."
+        },
+        "request_type": {
+            "label": "Type d’appel",
+            "description": "Nature de l’appel pour identifier le fonds ciblé.",
+            "help": "",
+            "selection": {
+                "working_fund": "Appel fonds de roulement",
+                "reserve_fund": "Appel fonds de réserve",
+                "special_reserve_fund": "Appel réserve spéciale",
+                "expense_provisions": "Provision pour charges",
+                "work_provisions": "Provision charges exceptionnelles"
+            }
+        },
+        "request_account_id": {
+            "label": "Compte comptable",
+            "description": "Compte opérationnel lié au type d’appel.",
+            "help": ""
+        },
+        "request_date": {
+            "label": "Date d’appel",
+            "description": "Date d’émission lorsque l’appel n’est pas périodique.",
+            "help": ""
+        },
+        "request_bank_account_id": {
+            "label": "Compte bancaire",
+            "description": "Compte de la copropriété sur lequel les paiements seront reçus.",
+            "help": ""
+        },
+        "payment_terms_id": {
+            "label": "Conditions de paiement",
+            "description": "Échéance appliquée aux propriétaires pour solder l’appel.",
+            "help": ""
+        },
+        "has_date_range": {
+            "label": "Appel périodique",
+            "description": "Active la génération d’exécutions récurrentes (mensuel, trimestriel...).",
+            "help": ""
+        },
+        "date_range_frequency": {
+            "label": "Fréquence (mois)",
+            "description": "Intervalle en mois entre deux exécutions successives.",
+            "help": ""
+        },
+        "date_from": {
+            "label": "Date de début",
+            "description": "Début de la période couverte par l’appel périodique.",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Date de fin",
+            "description": "Fin de période des montants appelés.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Étape de vie de l’appel (brouillon, actif, annulé).",
+            "help": "",
+            "selection": {
+                "draft": "Brouillon",
+                "active": "Actif",
+                "cancelled": "Annulé"
+            }
+        },
+        "request_amount": {
+            "label": "Montant planifié",
+            "description": "Total budgété pour l’appel avant répartition.",
+            "help": ""
+        },
+        "allocated_amount": {
+            "label": "Montant appelé",
+            "description": "Somme actuellement répartie entre l’ensemble des copropriétaires.",
+            "help": ""
+        },
+        "request_lines_ids": {
+            "label": "Lignes d’appel",
+            "description": "Découpe de l’appel par clé de répartition (apportionment).",
+            "help": ""
+        },
+        "request_executions_ids": {
+            "label": "Exécutions",
+            "description": "Documents / factures générés pour notifier les propriétaires.",
+            "help": ""
+        },
+        "execution_lines_ids": {
+            "label": "Lignes d’exécution",
+            "description": "Détail des montants appelés par propriétaire et par exécution.",
+            "help": ""
+        },
+        "line_entries_ids": {
+            "label": "Entrées par ownership",
+            "description": "Ventilation des montants par ownership avant passage en exécution.",
+            "help": ""
+        },
+        "entry_lots_ids": {
+            "label": "Entrées par lot",
+            "description": "Répartition détaillée par lot privatif.",
+            "help": ""
+        },
+        "fundings_ids": {
+            "label": "Encaissements liés",
+            "description": "Paiements reçus en réponse à cet appel.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Appel de fonds",
+            "description": "Fiche complète pour préparer un appel, paramétrer la période et générer les allocations/exécutions."
+        },
+        "list.default": {
+            "name": "Appels de fonds",
+            "description": "Liste des appels par copropriété avec type, dates, statuts et montants appelés."
+        }
+    }
+}

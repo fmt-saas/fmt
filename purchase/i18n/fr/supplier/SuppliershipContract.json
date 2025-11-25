@@ -1,0 +1,57 @@
+{
+    "name": "Contrat fournisseur",
+    "plural": "Contrats fournisseurs",
+    "description": "Contrat liant une copropriété à un fournisseur (période de validité, références et statut).",
+    "model": {
+        "name": {
+            "label": "Nom du contrat",
+            "description": "Libellé interne permettant d’identifier le service.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble bénéficiaire du contrat.",
+            "help": ""
+        },
+        "suppliership_id": {
+            "label": "Relation fournisseur",
+            "description": "Relation (fournisseur + copropriété) à laquelle ce contrat est rattaché.",
+            "help": ""
+        },
+        "supplier_id": {
+            "label": "Fournisseur",
+            "description": "Fournisseur dérivé de la relation (lecture seule).",
+            "help": ""
+        },
+        "date_from": {
+            "label": "Début de validité",
+            "description": "Date d’entrée en vigueur.",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Fin de validité",
+            "description": "Date théorique de fin (peut être prolongée ou révoquée par AG).",
+            "help": ""
+        },
+        "is_active": {
+            "label": "Actif",
+            "description": "Indique si le contrat est toujours en cours.",
+            "help": ""
+        },
+        "contract_ref": {
+            "label": "Référence fournisseur",
+            "description": "Identifiant communiqué par le fournisseur (numéro de contrat).",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Contrat fournisseur",
+            "description": "Formulaire pour encoder les dates, références et statut d’un contrat."
+        },
+        "list.default": {
+            "name": "Contrats fournisseurs",
+            "description": "Vue synthétique des contrats par copropriété et fournisseur."
+        }
+    }
+}

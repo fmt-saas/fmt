@@ -1,0 +1,22 @@
+{
+    "name": "Étude notariale",
+    "plural": "Études notariales",
+    "description": "Spécialisation du fournisseur pour référencer les études/notaires intervenant dans les transferts de lots.",
+    "model": {
+        "registry_ref": {
+            "label": "Référence registre",
+            "description": "Identifiant unique de l’étude (ex. slug Fednot).",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Étude notariale",
+            "description": "Reprend le formulaire fournisseur standard avec les champs spécifiques (réf. registre…)."
+        },
+        "list.default": {
+            "name": "Études notariales",
+            "description": "Liste des études avec leurs coordonnées."
+        }
+    }
+}

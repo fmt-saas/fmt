@@ -1,0 +1,57 @@
+{
+    "name": "Signature de document",
+    "plural": "Signatures de document",
+    "description": "Trace cryptographique associée à un document archivé (identité du signataire, méthode de signature, empreinte SHA-256, horodatage et relation avec la copropriété).",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Chaîne calculée combinant signataire, document et date de signature.",
+            "help": ""
+        },
+        "document_id": {
+            "label": "Document signé",
+            "description": "Version immuable du document à laquelle la signature se rattache.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété propriétaire du document (dérivée du document).",
+            "help": ""
+        },
+        "sig_method": {
+            "label": "Méthode",
+            "description": "Type de signature (ex. simple, AES, QES).",
+            "help": ""
+        },
+        "sig_timestamp": {
+            "label": "Horodatage",
+            "description": "Date/heure exacte de la signature.",
+            "help": ""
+        },
+        "data_digest": {
+            "label": "Empreinte SHA-256",
+            "description": "Digest hexadécimal du document signé (visible uniquement pour AES/QES).",
+            "help": "Hash sur 64 caractères correspondant au contenu original."
+        },
+        "sig_cert": {
+            "label": "Certificat",
+            "description": "Certificat public utilisé lors de la signature (si fourni).",
+            "help": ""
+        },
+        "signer_identity_id": {
+            "label": "Signataire",
+            "description": "Identité (personne ou représentant) ayant signé le document.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Signature de document",
+            "description": "Fiche détaillant le signataire, le document associé, l’empreinte et les métadonnées techniques."
+        },
+        "list.default": {
+            "name": "Signatures",
+            "description": "Liste des signatures enregistrées (document, méthode, signataire, date)."
+        }
+    }
+}

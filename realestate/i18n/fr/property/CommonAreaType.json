@@ -1,0 +1,13 @@
+{
+    "name": "Type de partie commune",
+    "plural": "Types de parties communes",
+    "description": "Typologie simple utilisée pour classer les parties communes (hall, toiture, jardin…).",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom du type de partie commune.",
+            "help": ""
+        }
+    },
+    "view": {}
+}

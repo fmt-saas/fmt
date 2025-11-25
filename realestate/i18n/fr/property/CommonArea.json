@@ -1,0 +1,28 @@
+{
+    "name": "Partie commune",
+    "plural": "Parties communes",
+    "description": "Objet décrivant une zone commune (hall, jardin, toiture…) utilisée pour les clés de répartition ou la documentation.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle la partie commune est rattachée.",
+            "help": ""
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Libellé de la partie commune.",
+            "help": ""
+        },
+        "area_type_id": {
+            "label": "Type",
+            "description": "Type/famille de la partie commune.",
+            "help": ""
+        },
+        "total_shares": {
+            "label": "Total de parts",
+            "description": "Nombre total de parts/quotités définies pour cette zone.",
+            "help": ""
+        }
+    },
+    "view": {}
+}

@@ -1,0 +1,75 @@
+{
+    "name": "Relation fournisseur",
+    "plural": "Relations fournisseurs",
+    "description": "Lien entre un fournisseur et une copropriété : codes internes, contrats, références et comptes bancaires utilisés pour la facturation.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble pour lequel le fournisseur propose ses services.",
+            "help": ""
+        },
+        "supplier_id": {
+            "label": "Fournisseur",
+            "description": "Fournisseur concerné par la relation.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libellé",
+            "description": "Nom calculé combinant le code interne et le fournisseur.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code interne",
+            "description": "Identifiant généré pour distinguer le fournisseur au sein de la copropriété.",
+            "help": "Attribué automatiquement, non modifiable."
+        },
+        "suppliership_contracts_ids": {
+            "label": "Contrats",
+            "description": "Liste des contrats enregistrés pour ce fournisseur.",
+            "help": ""
+        },
+        "suppliership_references_ids": {
+            "label": "Références fournisseur",
+            "description": "Identifiants fournis par le fournisseur pour cibler la copropriété.",
+            "help": ""
+        },
+        "suppliership_property_lot_references_ids": {
+            "label": "Références par lot",
+            "description": "Correspondances entre lots privatifs et codes du fournisseur.",
+            "help": ""
+        },
+        "suppliership_bank_accounts_ids": {
+            "label": "Comptes bancaires",
+            "description": "Coordonnées bancaires dédiées à cette relation fournisseur.",
+            "help": ""
+        },
+        "accounting_account_id": {
+            "label": "Compte comptable",
+            "description": "Compte général utilisé pour les écritures liées à ce fournisseur.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "État du dossier (en préparation ou validé).",
+            "help": "",
+            "selection": {
+                "pending": "Brouillon",
+                "validated": "Validé"
+            }
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Relation fournisseur",
+            "description": "Fiche complète avec infos copropriété, codes internes, contrats et références."
+        },
+        "form.create": {
+            "name": "Créer une relation fournisseur",
+            "description": "Assistant pour lier un nouveau fournisseur à une copropriété."
+        },
+        "list.default": {
+            "name": "Relations fournisseurs",
+            "description": "Vue tabulaire des fournisseurs actifs par copropriété (nom, code, statut)."
+        }
+    }
+}

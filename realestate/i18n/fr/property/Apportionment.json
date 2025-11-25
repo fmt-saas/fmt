@@ -1,0 +1,75 @@
+{
+    "name": "Clé de répartition",
+    "plural": "Clés de répartition",
+    "description": "Décrit une clé (statutaire ou technique) utilisée pour répartir les charges ou les droits entre les lots.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété sur laquelle la clé s’applique.",
+            "help": ""
+        },
+        "description": {
+            "label": "Libellé",
+            "description": "Nom court de la clé (affiché aux utilisateurs).",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Identifiant interne (utilisé pour faire correspondre la clé avec les comptes comptables).",
+            "help": ""
+        },
+        "is_statutory": {
+            "label": "Quotas statutaires",
+            "description": "Indique s’il s’agit des quotes-parts issues de l’acte de base.",
+            "help": ""
+        },
+        "common_area_id": {
+            "label": "Zone commune",
+            "description": "Zone / type de partie commune concernée (pour les clés techniques).",
+            "help": ""
+        },
+        "apportionment_shares_ids": {
+            "label": "Quotes-parts",
+            "description": "Lots et montants associés à cette clé.",
+            "help": ""
+        },
+        "count_property_lots": {
+            "label": "Nombre de lots",
+            "description": "Compteur des lots rattachés à cette clé.",
+            "help": ""
+        },
+        "total_shares": {
+            "label": "Total de parts",
+            "description": "Nombre total de parts à atteindre (doit être égal à la somme assignée).",
+            "help": ""
+        },
+        "assigned_shares": {
+            "label": "Parts assignées",
+            "description": "Somme des parts actuellement distribuées aux lots.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "État du cycle de vie de la clé.",
+            "selection": {
+                "pending": "Brouillon",
+                "validated": "Publié"
+            },
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Clé de répartition",
+            "description": "Configuration d’une clé (quotas, total, lots)."
+        },
+        "form.statutory": {
+            "name": "Clé statutaire",
+            "description": "Gestion spécifique des quotes-parts statutaires."
+        },
+        "list.default": {
+            "name": "Clés de répartition",
+            "description": "Vue liste des clés avec leur statut et leur total de parts."
+        }
+    }
+}

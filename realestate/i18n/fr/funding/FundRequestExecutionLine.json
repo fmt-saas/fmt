@@ -1,0 +1,57 @@
+{
+    "name": "Ligne d’exécution d’appel",
+    "plural": "Lignes d’exécution d’appel",
+    "description": "Ligne de facture générée pour un ownership lors de l’exécution d’un appel (montant appelé, lien vers les entrées calculées).",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par la ligne.",
+            "help": ""
+        },
+        "fund_request_id": {
+            "label": "Appel de fonds",
+            "description": "Appel dont provient cette ligne d’exécution.",
+            "help": ""
+        },
+        "request_execution_id": {
+            "label": "Exécution liée",
+            "description": "Référence à la facture d’exécution (alias de `invoice_id`).",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Ownership",
+            "description": "Propriétaire concerné par la ligne.",
+            "help": ""
+        },
+        "called_amount": {
+            "label": "Montant appelé",
+            "description": "Montant HTVA facturé (alias du prix).",
+            "help": ""
+        },
+        "line_entries_ids": {
+            "label": "Entrées d’appel",
+            "description": "Entrées provenant de la phase d’allocation ayant alimenté cette ligne.",
+            "help": ""
+        },
+        "execution_line_entries_ids": {
+            "label": "Détail par lot",
+            "description": "Ventilation par lot pour la ligne d’exécution.",
+            "help": ""
+        },
+        "funding_id": {
+            "label": "Financement",
+            "description": "Paiement généré suite à cette ligne (le cas échéant).",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Ligne d’exécution",
+            "description": "Vue détaillée des montants facturés à un ownership et des entrées associées."
+        },
+        "list.default": {
+            "name": "Lignes d’exécution",
+            "description": "Tableau des lignes avec copropriété, ownership et montants appelés."
+        }
+    }
+}

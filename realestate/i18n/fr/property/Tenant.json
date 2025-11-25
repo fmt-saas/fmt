@@ -1,0 +1,42 @@
+{
+    "name": "Locataire",
+    "plural": "Locataires",
+    "description": "Personne (ou co-occupant) liée à un contrat de location et responsable des charges associées.",
+    "model": {
+        "tenant_identity_id": {
+            "label": "Identité",
+            "description": "Fiche identité représentant le locataire.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété dans laquelle le locataire occupe un lot.",
+            "help": ""
+        },
+        "property_lot_id": {
+            "label": "Lot privatif",
+            "description": "Lot concerné par le locataire.",
+            "help": ""
+        },
+        "tenancy_id": {
+            "label": "Contrat de location",
+            "description": "Contrat (Tenancy) auquel le locataire est rattaché.",
+            "help": ""
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Nom calculé d’après l’identité sélectionnée.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Locataire",
+            "description": "Formulaire locataire (identité, lot, contrat)."
+        },
+        "list.default": {
+            "name": "Locataires",
+            "description": "Liste des locataires/cohabitants par copropriété."
+        }
+    }
+}

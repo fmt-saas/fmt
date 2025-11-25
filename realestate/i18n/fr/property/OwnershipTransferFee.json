@@ -1,0 +1,42 @@
+{
+    "name": "Frais de transfert",
+    "plural": "Frais de transfert",
+    "description": "Lignes de frais administratifs facturés dans le cadre du traitement d’un transfert de propriété.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par le frais.",
+            "help": ""
+        },
+        "ownership_transfer_id": {
+            "label": "Transfert lié",
+            "description": "Dossier de transfert auquel le frais est associé.",
+            "help": ""
+        },
+        "fee_date": {
+            "label": "Date du frais",
+            "description": "Date de réception de la demande/la facture du notaire.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Objet du frais (ex. ouverture de dossier, copie d’acte, etc.).",
+            "help": ""
+        },
+        "price": {
+            "label": "Montant TVAC",
+            "description": "Montant facturé (TVAC) pour ce frais.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Frais de transfert",
+            "description": "Fiche simple pour encoder un frais administratif imputé au dossier."
+        },
+        "list.default": {
+            "name": "Frais de transfert",
+            "description": "Tableau des frais associés à un dossier (date, description, montant)."
+        }
+    }
+}

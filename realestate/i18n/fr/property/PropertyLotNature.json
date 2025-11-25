@@ -1,0 +1,52 @@
+{
+    "name": "Nature de lot",
+    "plural": "Natures de lot",
+    "description": "Typologie permettant de classer les lots (logement, parking, dépendance…).",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom de la nature (affiché dans les listes de lots).",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Identifiant unique de la nature.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Détails complémentaires sur la nature.",
+            "help": ""
+        },
+        "hierarchy": {
+            "label": "Hiérarchie",
+            "description": "Catégorie de la nature (usage principal, dépendance, divers).",
+            "selection": {
+                "1": "Lot principal",
+                "2": "Dépendance",
+                "3": "Autre"
+            },
+            "help": "Utilisée pour empêcher l’affectation incohérente de lots principaux comme dépendances."
+        },
+        "property_lots_ids": {
+            "label": "Lots associés",
+            "description": "Lots utilisant cette nature.",
+            "help": ""
+        },
+        "count_property_lots": {
+            "label": "Nombre de lots",
+            "description": "Compteur automatique de lots rattachés.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Nature de lot",
+            "description": "Formulaire de gestion d’une nature (code, hiérarchie, description)."
+        },
+        "list.default": {
+            "name": "Natures de lot",
+            "description": "Vue liste des natures disponibles."
+        }
+    }
+}

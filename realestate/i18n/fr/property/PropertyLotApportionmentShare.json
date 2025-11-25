@@ -1,0 +1,42 @@
+{
+    "name": "Quote-part de lot",
+    "plural": "Quotes-parts de lot",
+    "description": "Association entre un lot privatif et une clé de répartition avec le nombre de parts qui lui sont attribuées.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété sur laquelle s’applique la quote-part.",
+            "help": ""
+        },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé (statutaire ou technique) à laquelle le lot participe.",
+            "help": ""
+        },
+        "is_statutory": {
+            "label": "Statutaire",
+            "description": "Indique si la clé correspond aux quotes-parts légales.",
+            "help": ""
+        },
+        "property_lot_id": {
+            "label": "Lot privatif",
+            "description": "Lot concerné par la quote-part.",
+            "help": ""
+        },
+        "property_lot_shares": {
+            "label": "Nombre de parts",
+            "description": "Parts attribuées à ce lot dans la clé donnée.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Quote-part de lot",
+            "description": "Formulaire d’édition d’une quote-part (lot, clé, nombre de parts)."
+        },
+        "list.default": {
+            "name": "Quotes-parts",
+            "description": "Liste des quotes-parts avec totaliseur pour vérifier la cohérence."
+        }
+    }
+}

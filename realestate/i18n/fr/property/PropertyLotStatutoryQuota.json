@@ -1,0 +1,23 @@
+{
+    "name": "Quote-part statutaire",
+    "plural": "Quotes-parts statutaires",
+    "description": "Stocke, lot par lot, les quotes-parts issues de l’acte de base (répartition légale).",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée.",
+            "help": ""
+        },
+        "property_lot_id": {
+            "label": "Lot privatif",
+            "description": "Lot auquel la quote-part est associée.",
+            "help": ""
+        },
+        "property_lot_shares": {
+            "label": "Parts statutaires",
+            "description": "Nombre de parts selon l’acte (utilisé pour contrôle ou migration).",
+            "help": ""
+        }
+    },
+    "view": {}
+}

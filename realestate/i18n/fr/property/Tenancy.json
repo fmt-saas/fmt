@@ -1,0 +1,61 @@
+{
+    "name": "Contrat de location",
+    "plural": "Contrats de location",
+    "description": "Dossier regroupant un ou plusieurs occupants pour un lot donné ainsi que la période d’occupation.",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom calculé à partir des locataires (affiché dans les listes).",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété dans laquelle se situe le lot loué.",
+            "help": ""
+        },
+        "property_lot_id": {
+            "label": "Lot privatif",
+            "description": "Lot concerné par le contrat.",
+            "help": ""
+        },
+        "tenants_ids": {
+            "label": "Locataires",
+            "description": "Liste des locataires/cohabitants liés à ce contrat.",
+            "help": ""
+        },
+        "date_from": {
+            "label": "Début de bail",
+            "description": "Date d’entrée en vigueur du contrat.",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Fin de bail",
+            "description": "Date de sortie (si connue).",
+            "help": ""
+        },
+        "transfer_from_id": {
+            "label": "Transfert d’entrée",
+            "description": "Référence du dossier d’entrée (état des lieux, transfert, etc.).",
+            "help": ""
+        },
+        "transfer_to_id": {
+            "label": "Transfert de sortie",
+            "description": "Référence du dossier de sortie.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Contrat de location",
+            "description": "Formulaire principal (lot, locataires, période, transferts)."
+        },
+        "form.create": {
+            "name": "Nouveau contrat",
+            "description": "Assistant de création d’un contrat de location."
+        },
+        "list.default": {
+            "name": "Contrats de location",
+            "description": "Vue liste des baux actifs ou historiques."
+        }
+    }
+}

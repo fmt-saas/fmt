@@ -1,0 +1,37 @@
+{
+    "name": "Référence fournisseur / lot",
+    "plural": "Références fournisseur / lot",
+    "description": "Permet de stocker le code d’identification d’un lot utilisé par un fournisseur (suppliership).",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée.",
+            "help": ""
+        },
+        "property_lot_id": {
+            "label": "Lot privatif",
+            "description": "Lot auquel se rapporte la référence fournisseur.",
+            "help": ""
+        },
+        "suppliership_id": {
+            "label": "Fournisseur / contrat",
+            "description": "Suppliership ou contrat fournisseur utilisant cette référence.",
+            "help": ""
+        },
+        "property_lot_ref": {
+            "label": "Référence fournisseur",
+            "description": "Code ou identifiant utilisé par le fournisseur pour ce lot.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Référence fournisseur / lot",
+            "description": "Formulaire d’édition du code fournisseur pour un lot donné."
+        },
+        "list.default": {
+            "name": "Références fournisseur / lot",
+            "description": "Liste des correspondances lot ↔ suppliership."
+        }
+    }
+}
