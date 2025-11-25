@@ -22,7 +22,9 @@ $tests = [
             'help'              => "Create an accounting entry, with 2 balanced lines. Entry balance test is expected to return true.",
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
-                    $condo = Condominium::create(['name' => 'test condo', 'managing_agent_id' => 1])->first(true);
+                    $condo = Condominium::create(['name' => 'test condo', 'managing_agent_id' => 1])
+                        ->do('generate_journals')
+                        ->first(true);
                     $fiscalYear = FiscalYear::create([
                             'date_from' => strtotime(date('Y-01-01')),
                             'date_to'   => strtotime(date('Y-12-31')),
