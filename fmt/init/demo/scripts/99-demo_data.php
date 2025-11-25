@@ -271,7 +271,7 @@ $purchaseInvoice = PurchaseInvoice::create([
         'description'                   => 'services',
         'supplier_invoice_number'       => '1234567',
         'suppliership_id'               => $suppliership['id'],
-        'suppliership_bank_account_id'  => current($suppliership['supplier_id']['identity_id']['bank_accounts_ids'] ?? [])
+        'suppliership_bank_account_id'  => $suppliership['supplier_id']['identity_id']['bank_accounts_ids'][0] ?? null
     ])
     ->first();
 
