@@ -91,10 +91,6 @@ foreach($policies as $id => $policy) {
         $data = $response->body();
 
         foreach($data as $object) {
-            // discard object that do not have a UUID (yet)
-            if(!$object['uuid'] || empty($object['uuid'])) {
-                continue;
-            }
 
             $updateRequest = UpdateRequest::create([
                     'object_class'  => $policy['object_class'],
@@ -104,8 +100,24 @@ foreach($policies as $id => $policy) {
                 ])
                 ->first();
 
-            // local search
-            $localObject = $entity::search($object['uuid'])->first();
+            if($object['uuid'] && !empty($object['uuid'])) {
+                // local search
+                $localObject = $entity::search($object['uuid'])->first();
+            }
+            else {
+                if(!isset($object[$policy['field_unique']]) && isset($object['slug_hash'])) {
+                    if($policy['object_class'] === 'identity\Identity') {
+                        $localObject = $entity::search(['slug_hash', '=', $object['slug_hash']])->first();
+                    }
+                    else {
+                        ++$result['ignored'];
+                        $result['logs'][] = "Ignored entity {$entity} object [{$object['id']}] with no value for unique key field `{$policy['field_unique']}`.";
+                        continue;
+                    }
+                }
+                $localObject = $entity::search([$policy['field_unique'], '=', $object[$policy['field_unique']]])->first();
+            }
+
             if($localObject) {
                 // update
                 UpdateRequest::id($updateRequest['id'])
@@ -123,7 +135,7 @@ foreach($policies as $id => $policy) {
                 $result['logs'][] = "Requested update of object of entity {$entity} with id {$localObject['id']}: " . $e->getMessage();
                 ++$result['updated'];
             }
-            else {
+            elseif($policy['scope'] === 'private') {
                 //create
                 UpdateRequest::id($updateRequest['id'])
                     ->update(['is_new' => true]);

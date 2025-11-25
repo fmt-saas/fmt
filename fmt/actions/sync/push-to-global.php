@@ -79,7 +79,7 @@ foreach($policies as $id => $policy) {
 
     // we're only interested in scalar fields and many2one relations
     foreach($schema as $field => $def) {
-        if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted', 'uuid'])) {
+        if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
             unset($schema[$field]);
         }
         elseif(

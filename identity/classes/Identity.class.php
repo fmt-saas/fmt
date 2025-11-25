@@ -58,7 +58,7 @@ class Identity extends Model {
                 // #memo - commented for testing because items are on the same instance
                 // #todo - uncomment for PROD
                 // 'unique'            => true,
-                'description'       => 'Unique identifier from the Master instance.',
+                'description'       => 'Unique identifier from the Global instance.',
                 'onupdate'          => 'onupdateUuid'
             ],
 
@@ -82,11 +82,28 @@ class Identity extends Model {
                 'readonly'          => true
             ],
 
+            'instance_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'infra\server\Instance',
+                'description'       => 'Instance the object relates to (origin).',
+                'dependents'        => ['instance_uuid']
+            ],
+
+            'instance_uuid' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'store'             => true,
+                'instant'           => true,
+                'relation'          => ['instance_id' => 'uuid'],
+                'description'       => 'UUID of the origin instance the object comes from.'
+            ],
+
             'identity_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Identity',
                 'description'       => 'Identity the object relates to.',
-                'help'              => 'Meant for entities that inherit from `identity\Identity` and must be synced with parent Identity. Classes that inherit from Identity must implement `onupdateIdentityId()` method.',
+                'help'              => 'Meant for entities that inherit from `identity\Identity` and must be synced with parent Identity.
+                    Classes that inherit from `identity\Identity` must implement `onupdateIdentityId()` method.',
                 'onupdate'          => 'onupdateIdentityId',
                 'dependents'        => ['identity_uuid'],
                 'visible'           => ['object_class', '<>', 'identity\Identity']
@@ -99,6 +116,8 @@ class Identity extends Model {
                 'instant'           => true,
                 'relation'          => ['identity_id' => 'uuid'],
                 'description'       => 'Identity the object relates to.',
+                'help'              => 'Meant for entities that inherit from `identity\Identity` and must be synced with parent Identity.
+                    An object with an identity_uuid set but no identity_id means a descending sync is required.',
             ],
 
             'identity_slug' => [

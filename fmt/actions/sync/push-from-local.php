@@ -88,6 +88,12 @@ foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
     $map_fields[$policyLine['object_field']] = $policyLine['scope'];
 }
 
+$$uid = null;
+
+if(isset($params['values']['uuid']) && !empty($params['values']['uuid'])) {
+    $uuid = $params['values']['uuid'];
+}
+
 $values = $params['values'];
 
 // we're only interested in scalar fields and many2one relations
@@ -96,8 +102,8 @@ foreach($schema as $field => $def) {
     if(!isset($values[$field])) {
         continue;
     }
-    if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
-        continue;
+    if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+        unset($values[$field]);
     }
     // discard non-scalar fields
     elseif(
@@ -130,17 +136,18 @@ $updateRequest = UpdateRequest::create([
 $is_empty = true;
 
 // if we received a UUID: search for it; if exists, update, otherwise issue an error (UUIDs are issued by the master instance)
-if(isset($params['values']['uuid'])) {
-    $fields = array_keys($params['values']);
-    $uuid = $params['values']['uuid'];
+if($uuid) {
+    $fields = array_keys($values);
+
     $object = $entity::search(['uuid', '=', $uuid])->read($fields)->first();
+
     if(!$object) {
         throw new Exception('invalid_uuid', EQ_ERROR_INVALID_PARAM);
     }
 
     UpdateRequest::id($updateRequest['id'])->update(['object_id' => $object['id']]);
 
-    foreach($params['values'] as $field => $value) {
+    foreach($values as $field => $value) {
         UpdateRequestLine::create([
             'update_request_id'         => $updateRequest['id'],
             'object_field'              => $field,
@@ -149,12 +156,10 @@ if(isset($params['values']['uuid'])) {
         ]);
         $is_empty = false;
     }
-
 }
 // we don't have a UUID: in this case, check by other means whether the object already exists (depending on the class)
-// if it exists, update it
-// if it doesn't exist, create it
-// in both cases, retrieve the UUID
+// if it exists, issue a request to update it
+// if it doesn't exist, issue a request to create it
 else {
     $key = $policy['field_unique'];
 
@@ -168,20 +173,7 @@ else {
             ->first();
 
         // manual verification will be required by default
-        if(!$object) {
-            UpdateRequest::id($updateRequest['id'])
-                ->update(['is_new' => true]);
-
-            foreach($params['values'] as $field => $value) {
-                UpdateRequestLine::create([
-                    'update_request_id'         => $updateRequest['id'],
-                    'object_field'              => $field,
-                    'new_value'                 => $value
-                ]);
-                $is_empty = false;
-            }
-        }
-        else {
+        if($object) {
             UpdateRequest::id($updateRequest['id'])
                 ->update(['object_id' => $object['id']]);
 
@@ -190,6 +182,19 @@ else {
                     'update_request_id'         => $updateRequest['id'],
                     'object_field'              => $field,
                     'old_value'                 => $object[$field],
+                    'new_value'                 => $value
+                ]);
+                $is_empty = false;
+            }
+        }
+        else {
+            UpdateRequest::id($updateRequest['id'])
+                ->update(['is_new' => true]);
+
+            foreach($values as $field => $value) {
+                UpdateRequestLine::create([
+                    'update_request_id'         => $updateRequest['id'],
+                    'object_field'              => $field,
                     'new_value'                 => $value
                 ]);
                 $is_empty = false;

@@ -92,7 +92,7 @@ foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
 // retrieve all fields of the requested entity
 $schema = $orm->getModel($entity)->getSchema();
 
-// we're only interested in scalar fields and many2one relations
+// we're only interested in scalar fields
 $fields = ['uuid'];
 
 foreach($schema as $field => $def) {
