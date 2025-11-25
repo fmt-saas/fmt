@@ -1,0 +1,149 @@
+{
+    "name": "Suivi de paiement",
+    "plural": "Suivis de paiement",
+    "description": "Entité reliant factures/appels (fonds, relevés, transferts...) aux encaissements et écritures pour savoir ce qui reste dû.",
+    "model": {
+        "funding_type": {
+            "label": "Type",
+            "description": "Nature du mouvement suivi (appel, facture, remboursement, transfert, etc.).",
+            "help": "",
+            "selection": {
+                "installment": "Échéance",
+                "refund": "Remboursement",
+                "transfer": "Transfert interne",
+                "purchase_invoice": "Facture fournisseur",
+                "sale_invoice": "Facture client",
+                "fund_request": "Appel de fonds",
+                "expense_statement": "Relevé de charges",
+                "purchase_invoice": "Facture fournisseur",
+                "misc": "Opération diverse",
+                "statement_line": "Ligne de relevé bancaire"
+            }
+        },
+        "payment_reference": {
+            "label": "Référence de paiement",
+            "description": "Message communiqué au débiteur/créditeur (référence SEPA, communication structurée...).",
+            "help": ""
+        },
+        "due_amount": {
+            "label": "Montant dû",
+            "description": "Somme attendue pour solder le document.",
+            "help": ""
+        },
+        "paid_amount": {
+            "label": "Montant encaissé",
+            "description": "Montant déjà réglé (via paiements ou contrepassations).",
+            "help": ""
+        },
+        "remaining_amount": {
+            "label": "Reste à payer",
+            "description": "Différence entre le dû et les règlements enregistrés.",
+            "help": ""
+        },
+        "due_date": {
+            "label": "Échéance",
+            "description": "Date limite avant relance ou action complémentaire.",
+            "help": ""
+        },
+        "issue_date": {
+            "label": "Date d'émission",
+            "description": "Date d'envoi ou de création de la demande de paiement.",
+            "help": ""
+        },
+        "payments_ids": {
+            "label": "Paiements",
+            "description": "Liste des paiements ou remboursements rattachés.",
+            "help": ""
+        },
+        "accounting_entry_lines_ids": {
+            "label": "Écritures liées",
+            "description": "Lignes comptables marquées comme couvrant ce funding.",
+            "help": ""
+        },
+        "bank_account_id": {
+            "label": "Compte bancaire",
+            "description": "Compte de trésorerie attendu pour le règlement.",
+            "help": ""
+        },
+        "counterpart_bank_account_id": {
+            "label": "Compte de contrepartie",
+            "description": "Compte utilisé en face (transferts internes, remboursements).",
+            "help": ""
+        },
+        "fund_request_execution_id": {
+            "label": "Exécution d'appel",
+            "description": "Facture d'appel de fonds à l'origine du montant.",
+            "help": ""
+        },
+        "expense_statement_id": {
+            "label": "Relevé de charges",
+            "description": "Relevé associé lorsqu'il s'agit d'un solde de charges.",
+            "help": ""
+        },
+        "purchase_invoice_id": {
+            "label": "Facture fournisseur",
+            "description": "Facture à rembourser (mandat SEPA éventuel).",
+            "help": ""
+        },
+        "money_transfer_id": {
+            "label": "Transfert",
+            "description": "Opération de transfert interne correspondante.",
+            "help": ""
+        },
+        "money_refund_id": {
+            "label": "Remboursement",
+            "description": "Opération de remboursement associée.",
+            "help": ""
+        },
+        "bank_statement_line_id": {
+            "label": "Ligne de relevé",
+            "description": "Ligne bancaire pointée lors du lettrage automatique.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Propriété",
+            "description": "Copropriétaire concerné par l'appel.",
+            "help": ""
+        },
+        "suppliership_id": {
+            "label": "Fournisseur",
+            "description": "Tiers fournisseur lié (pour les sorties).",
+            "help": ""
+        },
+        "has_mandate": {
+            "label": "Mandat SEPA",
+            "description": "Indique si un mandat est disponible pour débiter/créditer automatiquement.",
+            "help": ""
+        },
+        "is_sent": {
+            "label": "Envoi SEPA",
+            "description": "Devient vrai quand le flux SEPA a été généré.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Position actuelle (encours, avance, soldé).",
+            "help": "",
+            "selection": {
+                "pending": "À recevoir",
+                "debit_balance": "Solde débiteur",
+                "credit_balance": "Solde créditeur",
+                "balanced": "Soldé"
+            }
+        }
+    },
+    "view": {
+        "Funding.form.default": {
+            "name": "Suivi de paiement",
+            "description": "Formulaire complet (montant dû, type, comptes bancaires, liens vers appels/factures et tableau des paiements)."
+        },
+        "Funding.list.arrears": {
+            "name": "Funding en retard",
+            "description": "Vue dédiée aux échéances en souffrance (copropriétaires, montants restant)."
+        },
+        "Funding.list.dashboard": {
+            "name": "Funding tableau de bord",
+            "description": "Liste synthétique pour le tableau de bord (statut, échéance, montant dû)."
+        }
+    }
+}

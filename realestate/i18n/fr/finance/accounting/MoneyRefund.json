@@ -1,0 +1,92 @@
+{
+    "name": "Remboursement",
+    "plural": "Remboursements",
+    "description": "Opération de type MiscOperation dédiée aux remboursements externes (propriétaire ou fournisseur) avec génération des fundings et écritures associées.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel se rattache le remboursement.",
+            "help": ""
+        },
+        "amount": {
+            "label": "Montant",
+            "description": "Somme à rembourser.",
+            "help": ""
+        },
+        "posting_date": {
+            "label": "Date comptable",
+            "description": "Date prévue pour l'écriture du remboursement.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Motif ou remarque interne.",
+            "help": ""
+        },
+        "refund_type": {
+            "label": "Type de remboursement",
+            "description": "Détermine si la cible est un propriétaire ou un fournisseur.",
+            "help": "",
+            "selection": {
+                "owner_refund": "Remboursement copropriétaire",
+                "supplier_refund": "Remboursement fournisseur"
+            }
+        },
+        "bank_account_id": {
+            "label": "Compte origine",
+            "description": "Compte bancaire de la copropriété utilisé pour payer.",
+            "help": ""
+        },
+        "account_available_balance": {
+            "label": "Solde disponible",
+            "description": "Solde actuel du compte d'origine.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Propriété",
+            "description": "Propriétaire concerné (pour un remboursement copropriétaire).",
+            "help": ""
+        },
+        "ownership_bank_account_id": {
+            "label": "Compte du propriétaire",
+            "description": "Compte bancaire cible lorsque le remboursement est versé à un copropriétaire.",
+            "help": ""
+        },
+        "suppliership_id": {
+            "label": "Fournisseur",
+            "description": "Fournisseur concerné (pour un remboursement fournisseur).",
+            "help": ""
+        },
+        "suppliership_bank_account_id": {
+            "label": "Compte du fournisseur",
+            "description": "Compte bancaire cible lorsqu'on rembourse un fournisseur.",
+            "help": ""
+        },
+        "fundings_ids": {
+            "label": "Fundings",
+            "description": "Funding(s) créés pour suivre le paiement.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Workflow (pending → proforma → posted → completed).",
+            "help": "",
+            "selection": {
+                "pending": "Brouillon",
+                "proforma": "Publié",
+                "posted": "Initié",
+                "completed": "Terminé"
+            }
+        }
+    },
+    "view": {
+        "MoneyRefund.form.default": {
+            "name": "Remboursement",
+            "description": "Formulaire de remboursement (montant, compte origine, bénéficiaire et sections fundings/écritures)."
+        },
+        "MoneyRefund.list.default": {
+            "name": "Remboursements",
+            "description": "Liste des remboursements avec leur statut, comptes et dates clés."
+        }
+    }
+}

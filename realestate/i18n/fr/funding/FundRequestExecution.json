@@ -1,67 +1,77 @@
 {
-    "name": "Exécution d’appel de fonds",
-    "plural": "Exécutions d’appel de fonds",
-    "description": "Document généré pour notifier chaque copropriétaire (équivalent à une facture de vente) et enregistrer les écritures comptables correspondant à un appel de fonds.",
+    "name": "Exécution d'appel de fonds",
+    "plural": "Exécutions d'appel de fonds",
+    "description": "Transformation d'un appel de fonds en facture (génère écritures comptables et fundings selon le plan de répartition).",
     "model": {
-        "name": {
-            "label": "Libellé",
-            "description": "Généré automatiquement (période, copropriété, ownership).",
-            "help": ""
-        },
-        "invoice_type": {
-            "label": "Type de document",
-            "description": "Toujours `fund_request` car traité comme facture de vente.",
-            "help": ""
-        },
         "fund_request_id": {
             "label": "Appel de fonds",
-            "description": "Appel dont découle cette exécution.",
+            "description": "Demande d'appel dont cette exécution provient.",
             "help": ""
         },
-        "called_amount": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom calculé combinant appel, période et type.",
+            "help": ""
+        },
+        "posting_date": {
+            "label": "Date de comptabilisation",
+            "description": "Date utilisée pour générer les écritures.",
+            "help": ""
+        },
+        "fiscal_year_id": {
+            "label": "Exercice",
+            "description": "Exercice sur lequel l'appel est enregistré.",
+            "help": ""
+        },
+        "price": {
             "label": "Montant appelé",
-            "description": "Alias du prix total hors TVA facturé au copropriétaire.",
+            "description": "Total de l'exécution (alias de `called_amount`).",
             "help": ""
         },
         "execution_lines_ids": {
-            "label": "Lignes d’exécution",
-            "description": "Lignes regroupant les montants par ownership.",
+            "label": "Lignes d'exécution",
+            "description": "Ventilations par copropriétaire.",
             "help": ""
         },
         "execution_line_entries_ids": {
             "label": "Entrées détaillées",
-            "description": "Ventilation par lot pour chaque ligne d’exécution.",
+            "description": "Décomposition des lignes par lot/compte.",
             "help": ""
         },
         "fundings_ids": {
-            "label": "Financements liés",
-            "description": "Paiements générés lors de la validation de l’exécution.",
+            "label": "Fundings générés",
+            "description": "Fundings créés lors de l'exécution (un par copropriétaire).",
+            "help": ""
+        },
+        "accounting_entry_id": {
+            "label": "Écriture comptable",
+            "description": "Écriture générée après validation.",
             "help": ""
         },
         "logs": {
-            "label": "Journal d’exécution",
-            "description": "Traces des opérations (génération d’écriture, notifications).",
+            "label": "Journal",
+            "description": "Trace textuelle de la génération (utilisée pour le dépannage).",
             "help": ""
         },
         "status": {
             "label": "Statut",
-            "description": "État du document (proforma, comptabilisé, annulé).",
+            "description": "Workflow (brouillon, exécuté, annulé).",
             "help": "",
             "selection": {
-                "proforma": "Brouillon (proforma)",
-                "posted": "Comptabilisé",
+                "proforma": "Préparation",
+                "posted": "Exécuté",
                 "cancelled": "Annulé"
             }
         }
     },
     "view": {
-        "form.default": {
-            "name": "Exécution d’appel",
-            "description": "Fiche complète présentant les lignes, montants appelés et actions comptables (validation, annulation)."
+        "FundRequestExecution.form.default": {
+            "name": "Exécution d'appel",
+            "description": "Formulaire avec consolidation (date, exercice, montant), ventilations et fundings."
         },
-        "list.default": {
-            "name": "Exécutions d’appel",
-            "description": "Liste des exécutions par copropriété/ownership avec statut et montants."
+        "FundRequestExecution.list.default": {
+            "name": "Exécutions d'appel",
+            "description": "Liste avec période, statut, montant appelé et écriture associée."
         }
     }
 }

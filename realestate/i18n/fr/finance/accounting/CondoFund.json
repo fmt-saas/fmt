@@ -1,0 +1,81 @@
+{
+    "name": "Fonds de copropriété",
+    "plural": "Fonds de copropriété",
+    "description": "Référence un fonds (courant, réserve ou spécial) avec ses comptes comptables associés et la clé de répartition utilisée pour les appels/prélèvements.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel est rattaché le fonds.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libellé",
+            "description": "Nom calculé combinant le code du compte et la description.",
+            "help": ""
+        },
+        "fund_type": {
+            "label": "Type de fonds",
+            "description": "Catégorie du fonds (trésorerie, réserve générale, réserve spéciale).",
+            "help": "",
+            "selection": {
+                "working_fund": "Fonds de roulement",
+                "reserve_fund": "Fonds de réserve",
+                "special_reserve_fund": "Fonds spécial"
+            }
+        },
+        "description": {
+            "label": "Description",
+            "description": "Texte descriptif du fonds.",
+            "help": ""
+        },
+        "fund_account_id": {
+            "label": "Compte de fonds",
+            "description": "Compte comptable représentant le fonds.",
+            "help": ""
+        },
+        "call_account_id": {
+            "label": "Compte d'appel",
+            "description": "Compte utilisé pour enregistrer les appels de fonds.",
+            "help": ""
+        },
+        "call_account_code": {
+            "label": "Code appel",
+            "description": "Code calculé du compte d'appel.",
+            "help": ""
+        },
+        "expense_account_id": {
+            "label": "Compte d'utilisation",
+            "description": "Compte comptable pour les prélèvements sur le fonds.",
+            "help": ""
+        },
+        "expense_account_code": {
+            "label": "Code utilisation",
+            "description": "Code calculé du compte de prélèvement.",
+            "help": ""
+        },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé appliquée par défaut lors des appels liés à ce fonds.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Étape du workflow (brouillon ou validé).",
+            "help": "",
+            "selection": {
+                "pending": "En préparation",
+                "validated": "Validé"
+            }
+        }
+    },
+    "view": {
+        "CondoFund.form.default": {
+            "name": "Fonds de copropriété",
+            "description": "Formulaire de configuration du fonds (type, comptes générés, clé de répartition)."
+        },
+        "CondoFund.list.default": {
+            "name": "Fonds de copropriété",
+            "description": "Liste des fonds avec leurs comptes d'appel/utilisation et la clé associée."
+        }
+    }
+}

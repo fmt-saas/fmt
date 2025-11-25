@@ -1,0 +1,46 @@
+{
+    "name": "Conditions de paiement",
+    "plural": "Conditions de paiement",
+    "description": "Règles appliquées aux factures (délai accordé, point de départ et activation).",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Intitulé court des conditions (visible dans les listes et formulaires).",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Phrase indiquant les modalités (affichée sur les documents clients).",
+            "help": ""
+        },
+        "delay_from": {
+            "label": "Point de départ",
+            "description": "Événement à partir duquel on compte le délai.",
+            "help": "",
+            "selection": {
+                "created": "Date de création",
+                "next_month": "Début du mois suivant"
+            }
+        },
+        "delay_count": {
+            "label": "Nombre de jours",
+            "description": "Nombre de jours avant l’échéance.",
+            "help": ""
+        },
+        "is_active": {
+            "label": "Actif",
+            "description": "Permet d’autoriser ou non l’utilisation de ces conditions.",
+            "help": ""
+        }
+    },
+    "view": {
+        "PaymentTerms.form.default": {
+            "name": "Conditions de paiement",
+            "description": "Formulaire simple (libellé, délai, description, activation)."
+        },
+        "PaymentTerms.list.default": {
+            "name": "Conditions de paiement",
+            "description": "Liste des conditions disponibles avec délai et statut actif."
+        }
+    }
+}

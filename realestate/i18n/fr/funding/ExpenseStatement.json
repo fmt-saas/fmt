@@ -1,0 +1,77 @@
+{
+    "name": "Relevé de charges",
+    "plural": "Relevés de charges",
+    "description": "Document émis en fin de période fiscale pour répartir les dépenses communes/privatives entre copropriétaires et générer les appels correspondants.",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom calculé du relevé (période, exercice, type).",
+            "help": ""
+        },
+        "fiscal_period_id": {
+            "label": "Période fiscale",
+            "description": "Période couverte par le relevé (détermine la date de comptabilisation).",
+            "help": ""
+        },
+        "statement_bank_account_id": {
+            "label": "Compte bancaire",
+            "description": "Compte de la copropriété sur lequel les appels seront encaissés.",
+            "help": ""
+        },
+        "invoice_lines_ids": {
+            "label": "Lignes",
+            "description": "Détail des charges réparties (une ligne par propriétaire).",
+            "help": ""
+        },
+        "statement_owners_ids": {
+            "label": "Sous-relevés propriétaires",
+            "description": "Synthèse par propriétaire avec ses lignes détaillées.",
+            "help": ""
+        },
+        "fundings_ids": {
+            "label": "Fundings générés",
+            "description": "Appels de fonds créés après validation du relevé.",
+            "help": ""
+        },
+        "common_total": {
+            "label": "Total charges communes",
+            "description": "Montant global imputé aux charges communes.",
+            "help": ""
+        },
+        "private_total": {
+            "label": "Total charges privatives",
+            "description": "Montant global imputé aux charges privatives.",
+            "help": ""
+        },
+        "assigned_delta": {
+            "label": "Delta d'affectation",
+            "description": "Écart éventuel lié aux arrondis entre charges et répartition.",
+            "help": ""
+        },
+        "schema": {
+            "label": "Schéma",
+            "description": "Structure JSON utilisée pour exporter le détail des répartitions.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Workflow du relevé (brouillon, validé, annulé).",
+            "help": "",
+            "selection": {
+                "proforma": "Préparé",
+                "posted": "Validé",
+                "cancelled": "Annulé"
+            }
+        }
+    },
+    "view": {
+        "ExpenseStatement.form.default": {
+            "name": "Relevé de charges",
+            "description": "Formulaire complet : période, banque, sections propriétaires, fundings et écritures."
+        },
+        "ExpenseStatement.list.default": {
+            "name": "Relevés de charges",
+            "description": "Liste des relevés avec période, statut et montants clés."
+        }
+    }
+}

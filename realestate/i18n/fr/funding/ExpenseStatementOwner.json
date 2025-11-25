@@ -1,0 +1,67 @@
+{
+    "name": "Relevé propriétaire",
+    "plural": "Relevés propriétaires",
+    "description": "Synthèse des charges imputées à un copropriétaire pour un relevé donné (période, lots, montant, clés).",
+    "model": {
+        "expense_statement_id": {
+            "label": "Relevé parent",
+            "description": "Relevé de charges auquel ce sous-relevé est rattaché.",
+            "help": ""
+        },
+        "fiscal_period_id": {
+            "label": "Période fiscale",
+            "description": "Période couverte pour ce propriétaire (utile en cas de mutation en cours d'exercice).",
+            "help": ""
+        },
+        "statement_owner_lines_ids": {
+            "label": "Lignes détaillées",
+            "description": "Charges ventilées par compte/lot pour ce propriétaire.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Propriété",
+            "description": "Dossier de copropriétaire concerné.",
+            "help": ""
+        },
+        "property_lots_count": {
+            "label": "Nombre de lots",
+            "description": "Nombre de lots rattachés au propriétaire dans ce relevé.",
+            "help": ""
+        },
+        "expense_amount": {
+            "label": "Montant imputé",
+            "description": "Total des charges pour ce propriétaire (communes + privatives).",
+            "help": ""
+        },
+        "date_from": {
+            "label": "Date de début",
+            "description": "Date d'effet utilisée pour proratér le propriétaire.",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Date de fin",
+            "description": "Date de fin de prise en compte.",
+            "help": ""
+        },
+        "nb_days": {
+            "label": "Nombre de jours",
+            "description": "Durée couverte sur la période fiscale.",
+            "help": ""
+        },
+        "schema": {
+            "label": "Schéma",
+            "description": "Structure JSON exportable (montants, lots, clés...).",
+            "help": ""
+        }
+    },
+    "view": {
+        "ExpenseStatementOwner.form.default": {
+            "name": "Relevé propriétaire",
+            "description": "Vue détaillée (propriété, période, lots, montants)."
+        },
+        "ExpenseStatementOwner.list.default": {
+            "name": "Relevés propriétaires",
+            "description": "Liste des propriétaires avec montants imputés et périodes."
+        }
+    }
+}

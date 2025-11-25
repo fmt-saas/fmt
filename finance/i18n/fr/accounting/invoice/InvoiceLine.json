@@ -1,0 +1,87 @@
+{
+    "name": "Ligne de facture",
+    "plural": "Lignes de facture",
+    "description": "Detail (produit, quantite et montants) faisant partie d'une facture.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriete",
+            "description": "Immeuble concerne par la ligne.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libelle",
+            "description": "Libelle principal affiche sur la facture.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Complement eventuel independant du produit.",
+            "help": ""
+        },
+        "invoice_line_group_id": {
+            "label": "Groupe",
+            "description": "Groupe de lignes auquel la ligne appartient.",
+            "help": ""
+        },
+        "invoice_id": {
+            "label": "Facture",
+            "description": "Facture associee.",
+            "help": ""
+        },
+        "unit_price": {
+            "label": "Prix unitaire",
+            "description": "Prix unitaire hors taxes.",
+            "help": ""
+        },
+        "vat_rate": {
+            "label": "Taux TVA",
+            "description": "Taux de TVA applique.",
+            "help": ""
+        },
+        "qty": {
+            "label": "Quantite",
+            "description": "Quantite facturee.",
+            "help": ""
+        },
+        "free_qty": {
+            "label": "Quantite offerte",
+            "description": "Quantite exclue de la facturation.",
+            "help": ""
+        },
+        "discount": {
+            "label": "Remise",
+            "description": "Taux de remise a appliquer.",
+            "help": ""
+        },
+        "vat": {
+            "label": "Montant TVA",
+            "description": "TVA calculee sur la ligne.",
+            "help": ""
+        },
+        "total": {
+            "label": "Total HT",
+            "description": "Montant hors taxes calcule.",
+            "help": ""
+        },
+        "price": {
+            "label": "Total TVAC",
+            "description": "Montant toutes taxes comprises calcule.",
+            "help": ""
+        },
+        "downpayment_invoice_id": {
+            "label": "Facture d'acompte",
+            "description": "Facture d'acompte rattachee a la ligne.",
+            "help": ""
+        }
+    },
+    "view": {
+        "InvoiceLine.form.default": {
+            "name": "Ligne de facture",
+            "description": "Fiche ligne de facture (prix, quantites, groupe et TVA)."
+        },
+        "InvoiceLine.list.default": {
+            "name": "Lignes de facture",
+            "description": "Liste des lignes groupees avec montants unitaires et totaux."
+        }
+    }
+}

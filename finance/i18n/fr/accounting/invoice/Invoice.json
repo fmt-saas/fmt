@@ -1,0 +1,180 @@
+{
+    "name": "Facture",
+    "plural": "Factures",
+    "description": "Document comptable emis pour enregistrer une vente ou une note de credit.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriete",
+            "description": "Immeuble ou copropriete reference(e) par la facture.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libelle",
+            "description": "Libelle calcule (numero ou mention pro forma).",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Texte interne pour reconnaitre la facture.",
+            "help": "Utilise comme pense bête pour identifier la facture plus facilement."
+        },
+        "reference": {
+            "label": "Reference client",
+            "description": "Note a afficher sur le document pour le destinataire.",
+            "help": "Reference libre (ex. communication, reference client ou consignes)."
+        },
+        "organisation_id": {
+            "label": "Organisation",
+            "description": "Organisation qui emet ou recoit la facture.",
+            "help": ""
+        },
+        "fiscal_year_id": {
+            "label": "Exercice",
+            "description": "Exercice comptable lie a la facture.",
+            "help": ""
+        },
+        "fiscal_period_id": {
+            "label": "Periode comptable",
+            "description": "Periode deduite de la date de comptabilisation.",
+            "help": "Attribue automatiquement lors de la validation."
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Etat du document (brouillon, valide, annule).",
+            "help": "",
+            "selection": {
+                "proforma": "Pro forma",
+                "posted": "Validee",
+                "cancelled": "Annulee",
+                "pending": "En cours"
+            }
+        },
+        "invoice_type": {
+            "label": "Type de document",
+            "description": "Nature de la facture (standard, note de credit, appel de fonds, etat).",
+            "help": "",
+            "selection": {
+                "invoice": "Facture",
+                "credit_note": "Note de credit",
+                "fund_request": "Appel de fonds",
+                "expense_statement": "Etat de depenses"
+            }
+        },
+        "invoice_number": {
+            "label": "Numero",
+            "description": "Numero unique attribue lors de la validation.",
+            "help": ""
+        },
+        "funding_id": {
+            "label": "Financement",
+            "description": "Financement a l'origine de la facture (le cas echeant).",
+            "help": ""
+        },
+        "reversed_invoice_id": {
+            "label": "Note de credit associee",
+            "description": "Document ayant annule la facture.",
+            "help": ""
+        },
+        "payment_status": {
+            "label": "Statut de paiement",
+            "description": "Equilibre entre sommes dues et montants rembourses.",
+            "help": "",
+            "selection": {
+                "debit_balance": "Solde a recevoir",
+                "credit_balance": "Solde a rembourser",
+                "balanced": "Solde nul",
+                "pending": "Paiement en cours"
+            }
+        },
+        "payment_reference": {
+            "label": "Reference de paiement",
+            "description": "Communication a utiliser lors du paiement.",
+            "help": "Peut contenir une communication structuree, RF ou texte libre (140 caracteres max)."
+        },
+        "posting_date": {
+            "label": "Date comptable",
+            "description": "Date de comptabilisation (impacte l'exercice/la periode).",
+            "help": ""
+        },
+        "emission_date": {
+            "label": "Date d'emission",
+            "description": "Date d'emission dans le systeme d'origine.",
+            "help": ""
+        },
+        "due_date": {
+            "label": "Date d'echeance",
+            "description": "Date limite attendue pour le paiement.",
+            "help": ""
+        },
+        "has_date_range": {
+            "label": "Service sur periode",
+            "description": "Indique si la facture couvre une periode de prestation.",
+            "help": ""
+        },
+        "date_from": {
+            "label": "Debut de periode",
+            "description": "Premiere date couverte par la facture.",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Fin de periode",
+            "description": "Derniere date couverte par la facture.",
+            "help": ""
+        },
+        "total": {
+            "label": "Total HT",
+            "description": "Montant hors taxes calcule sur les lignes.",
+            "help": ""
+        },
+        "price": {
+            "label": "Total TVAC",
+            "description": "Montant toutes taxes comprises calcule sur les lignes.",
+            "help": ""
+        },
+        "invoice_lines_ids": {
+            "label": "Lignes",
+            "description": "Lignes detaillees composant la facture.",
+            "help": ""
+        },
+        "invoice_line_groups_ids": {
+            "label": "Groupes de lignes",
+            "description": "Regroupements hierarchiques des lignes.",
+            "help": ""
+        },
+        "accounting_entry_id": {
+            "label": "Ecriture comptable",
+            "description": "Ecriture validee associee a la facture.",
+            "help": ""
+        }
+    },
+    "view": {
+        "Invoice.form.default": {
+            "name": "Facture",
+            "description": "Fiche facture avec statut, dates clefs, lignes et ecritures."
+        },
+        "Invoice.list.default": {
+            "name": "Factures",
+            "description": "Liste des factures avec date, statut et montants HT/TVAC."
+        },
+        "Invoice.list.dashboard": {
+            "name": "Factures (tableau)",
+            "description": "Liste compacte des factures a afficher sur un tableau de bord."
+        },
+        "Invoice.dashboard.default": {
+            "name": "Tableau factures",
+            "description": "Dashboard combinant alertes, listes et graphiques des factures."
+        },
+        "Invoice.chart.invoicedTotal": {
+            "name": "Total facture",
+            "description": "Graphique cumule des montants HT/TVAC emis sur la periode."
+        },
+        "Invoice.chart.creditNote": {
+            "name": "Notes de credit",
+            "description": "Graphique des notes de credit emises (HT/TVAC)."
+        },
+        "Invoice.chart.invoicedCA": {
+            "name": "Volume de factures",
+            "description": "Graphique du nombre de factures validees par plage de temps."
+        }
+    }
+}

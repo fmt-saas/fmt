@@ -1,0 +1,98 @@
+{
+    "name": "Ligne de relevé propriétaire",
+    "plural": "Lignes de relevé propriétaire",
+    "description": "Ligne élémentaire d'un relevé (compte, clé, lot, montants propriétaire/locataire, type de dépense).",
+    "model": {
+        "invoice_id": {
+            "label": "Relevé",
+            "description": "Relevé de charges (facture) auquel la ligne appartient.",
+            "help": ""
+        },
+        "statement_owner_id": {
+            "label": "Sous-relevé",
+            "description": "Relevé propriétaire regroupant cette ligne.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Propriété",
+            "description": "Copropriétaire imputé.",
+            "help": ""
+        },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé utilisée pour calculer les parts.",
+            "help": ""
+        },
+        "account_id": {
+            "label": "Compte comptable",
+            "description": "Compte impacté par la dépense.",
+            "help": ""
+        },
+        "property_lot_id": {
+            "label": "Lot",
+            "description": "Lot concerné lorsqu'il s'agit d'une charge privative.",
+            "help": ""
+        },
+        "shares": {
+            "label": "Millièmes",
+            "description": "Nombre de millièmes/parts pris en compte pour la ligne.",
+            "help": ""
+        },
+        "price": {
+            "label": "Montant total",
+            "description": "Somme propriétaire + locataire utilisée pour l'écriture.",
+            "help": ""
+        },
+        "total_amount": {
+            "label": "Montant global",
+            "description": "Montant total ventilé entre copropriétaires pour cette charge.",
+            "help": ""
+        },
+        "owner_amount": {
+            "label": "Part propriétaire",
+            "description": "Somme à charge du copropriétaire.",
+            "help": ""
+        },
+        "tenant_amount": {
+            "label": "Part locataire",
+            "description": "Somme imputée au locataire.",
+            "help": ""
+        },
+        "vat_amount": {
+            "label": "TVA",
+            "description": "TVA incluse dans les montants (pour récupération éventuelle).",
+            "help": ""
+        },
+        "date": {
+            "label": "Date de dépense",
+            "description": "Date d'origine de la charge (utile pour les charges privatives).",
+            "help": ""
+        },
+        "assigned_delta": {
+            "label": "Delta de répartition",
+            "description": "Écart dû aux arrondis entre montant global et affectations.",
+            "help": ""
+        },
+        "expense_type": {
+            "label": "Type de dépense",
+            "description": "Nature de la ligne (privative, commune, réserve, consommation).",
+            "help": "",
+            "selection": {
+                "private_expense": "Charge privative",
+                "common_expense": "Charge commune",
+                "reserve_fund": "Fonds de réserve",
+                "consumptions": "Consommation"
+            }
+        }
+    },
+    "view": {
+        "ExpenseStatementOwnerLine.form.default": {
+            "name": "Ligne de relevé",
+            "description": "Formulaire de saisie (compte, clé, lot, montants)."
+        },
+        "ExpenseStatementOwnerLine.list.default": {
+            "name": "Lignes de relevé",
+            "description": "Liste des lignes avec montants débiteur/locataire et totaux."
+        }
+    }
+}

@@ -1,0 +1,57 @@
+{
+    "name": "Groupe de lignes",
+    "plural": "Groupes de lignes",
+    "description": "Regroupement de lignes de facture servant a structurer le document.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriete",
+            "description": "Immeuble concerne par le groupe.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libelle",
+            "description": "Libelle affiche sur la facture.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Texte explicatif facultatif pour le groupe.",
+            "help": ""
+        },
+        "order": {
+            "label": "Ordre",
+            "description": "Position du groupe dans la facture.",
+            "help": ""
+        },
+        "invoice_id": {
+            "label": "Facture",
+            "description": "Facture rattachee.",
+            "help": ""
+        },
+        "invoice_lines_ids": {
+            "label": "Lignes du groupe",
+            "description": "Lignes rattachees a ce groupe.",
+            "help": ""
+        },
+        "is_visible": {
+            "label": "Visible sur facture",
+            "description": "Afficher ou masquer le groupe sur le document.",
+            "help": ""
+        },
+        "is_aggregate": {
+            "label": "Groupe agrege",
+            "description": "Indique si le groupe sert uniquement au regroupement.",
+            "help": ""
+        }
+    },
+    "view": {
+        "InvoiceLineGroup.form.default": {
+            "name": "Groupe de lignes",
+            "description": "Fiche groupe (nom, ordre, visibilite et description)."
+        },
+        "InvoiceLineGroup.list.default": {
+            "name": "Groupes de lignes",
+            "description": "Liste des groupes rattaches a leurs factures."
+        }
+    }
+}

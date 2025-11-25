@@ -1,0 +1,50 @@
+{
+    "name": "Garantie",
+    "plural": "Garanties",
+    "description": "Moyen de garantie associé à une commande (carte bancaire, référence, dates d’expiration).",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom calculé (titulaire + type) pour identifier la garantie.",
+            "help": ""
+        },
+        "mode": {
+            "label": "Mode",
+            "description": "Type de garantie (carte, dépôt, etc.).",
+            "help": "",
+            "selection": {
+                "card": "Carte bancaire"
+            }
+        },
+        "holder": {
+            "label": "Titulaire",
+            "description": "Nom ou référence donnée à la garantie.",
+            "help": ""
+        },
+        "card_number": {
+            "label": "Numéro de carte",
+            "description": "Numéro masqué/ou identifié de la carte pour le mode « carte ».",
+            "help": ""
+        },
+        "card_type": {
+            "label": "Type de carte",
+            "description": "Code OTA indiquant le réseau de la carte (Visa, Mastercard…).",
+            "help": ""
+        },
+        "card_expire": {
+            "label": "Expiration",
+            "description": "Date d’expiration de la carte (MM/AA).",
+            "help": ""
+        }
+    },
+    "view": {
+        "Guarantee.form.default": {
+            "name": "Garantie",
+            "description": "Formulaire pour saisir le mode de garantie et les informations carte."
+        },
+        "Guarantee.list.default": {
+            "name": "Garanties",
+            "description": "Liste des garanties enregistrées (titulaire, type, expiration)."
+        }
+    }
+}

@@ -1,0 +1,42 @@
+{
+    "name": "Plan de financement",
+    "plural": "Plans de financement",
+    "description": "Gabarit d’échéancier utilisé pour générer automatiquement les fundings (acomptes, solde) d’une commande/client.",
+    "model": {
+        "name": {
+            "label": "Nom du plan",
+            "description": "Libellé multilingue affiché lors du choix d’un échéancier.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Texte explicatif optionnel présenté aux utilisateurs.",
+            "help": ""
+        },
+        "rate_class_id": {
+            "label": "Classe tarifaire",
+            "description": "Catégorie de clients à laquelle ce plan est réservé.",
+            "help": ""
+        },
+        "order_type_id": {
+            "label": "Type de commande",
+            "description": "Type d’ordre ou de contrat sur lequel appliquer ce plan.",
+            "help": ""
+        },
+        "payment_deadlines_ids": {
+            "label": "Échéances",
+            "description": "Liste des échéances (avec délais et pourcentages) générées par le plan.",
+            "help": ""
+        }
+    },
+    "view": {
+        "FundingPlan.form.default": {
+            "name": "Plan de financement",
+            "description": "Formulaire de définition (libellé, classe, type de commande, description et échéances)."
+        },
+        "FundingPlan.list.default": {
+            "name": "Plans de financement",
+            "description": "Liste des plans disponibles avec leur classe tarifaire et type de commande."
+        }
+    }
+}

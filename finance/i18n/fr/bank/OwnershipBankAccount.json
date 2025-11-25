@@ -1,0 +1,87 @@
+{
+    "name": "Compte bancaire coproprietaire",
+    "plural": "Comptes bancaires coproprietaires",
+    "description": "Coordonnees bancaires renseignees par une copropriete/ownership pour remboursements.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriete",
+            "description": "Immeuble rattache au compte.",
+            "help": "Champs affiche uniquement lorsque le compte n'est pas lie a une organisation."
+        },
+        "bank_account_type": {
+            "label": "Type de compte",
+            "description": "Type operationnel (courant, epargne, ...).",
+            "help": "Doit correspondre au code d'affectation utilise dans le plan comptable."
+        },
+        "ownership_id": {
+            "label": "Ownership",
+            "description": "Ownership proprietaire du compte.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Libelle calcule reprenant le nom de l'ownership.",
+            "help": ""
+        },
+        "ownership_code": {
+            "label": "Code ownership",
+            "description": "Code unique associe a l'ownership.",
+            "help": ""
+        },
+        "owner_identity_id": {
+            "label": "Identite rattachee",
+            "description": "Identite a laquelle le compte bancaire appartient.",
+            "help": ""
+        },
+        "accounting_account_id": {
+            "label": "Compte comptable",
+            "description": "Compte comptable deduit via le type de compte.",
+            "help": ""
+        },
+        "is_validated": {
+            "label": "Compte valide",
+            "description": "Confirme par le proprietaire via le self service.",
+            "help": "Permet de limiter les remboursements aux comptes approuves."
+        },
+        "bank_account_iban": {
+            "label": "IBAN",
+            "description": "Numero IBAN du compte.",
+            "help": ""
+        },
+        "bank_account_bic": {
+            "label": "BIC",
+            "description": "Code BIC lie a la banque.",
+            "help": ""
+        },
+        "bank_name": {
+            "label": "Banque",
+            "description": "Nom de la banque detenant le compte.",
+            "help": ""
+        },
+        "bank_country": {
+            "label": "Pays banque",
+            "description": "Pays ou se trouve la banque.",
+            "help": ""
+        },
+        "is_primary": {
+            "label": "Compte principal",
+            "description": "Indique si ce compte est definie par defaut pour l'ownership.",
+            "help": ""
+        },
+        "available_balance": {
+            "label": "Solde disponible",
+            "description": "Solde calcule pour information.",
+            "help": ""
+        }
+    },
+    "view": {
+        "OwnershipBankAccount.form.default": {
+            "name": "Compte ownership",
+            "description": "Fiche des coordonnees bancaires (IBAN, BIC, coproprietaire, validation)."
+        },
+        "OwnershipBankAccount.list.default": {
+            "name": "Comptes ownership",
+            "description": "Liste etendue des comptes bancaires d'ownership avec solde."
+        }
+    }
+}

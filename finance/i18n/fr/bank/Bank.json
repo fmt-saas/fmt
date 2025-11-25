@@ -1,0 +1,32 @@
+{
+    "name": "Banque",
+    "plural": "Banques",
+    "description": "Banque referencee comme fournisseur avec champs specifiques (BIC).",
+    "model": {
+        "object_class": {
+            "label": "Classe objet",
+            "description": "Classe technique rattachee a l'identite.",
+            "help": "Permet d'afficher les champs specifiques dans les formulaires."
+        },
+        "bic": {
+            "label": "BIC / SWIFT",
+            "description": "Code officiel de la banque.",
+            "help": ""
+        },
+        "supplier_type_code": {
+            "label": "Type fournisseur",
+            "description": "Code interne utilises pour categoriser les banques.",
+            "help": ""
+        }
+    },
+    "view": {
+        "Bank.form.default": {
+            "name": "Banque",
+            "description": "Fiche banque etendue depuis l'identite (coordonnees + BIC)."
+        },
+        "Bank.list.default": {
+            "name": "Banques",
+            "description": "Liste des banques avec adresse, statut et code BIC."
+        }
+    }
+}

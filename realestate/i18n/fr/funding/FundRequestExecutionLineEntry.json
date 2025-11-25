@@ -1,52 +1,38 @@
 {
-    "name": "Entrée de ligne d’exécution",
-    "plural": "Entrées de ligne d’exécution",
-    "description": "Ventilation la plus fine d’une exécution : montant appelé pour un lot précis, rattaché à un ownership et à la facture générée.",
+    "name": "Entrée de ligne d'exécution",
+    "plural": "Entrées de ligne d'exécution",
+    "description": "Plus petit niveau de détail d'une exécution (montant appelé pour un lot donné, sur une ligne donnée).",
     "model": {
-        "condo_id": {
-            "label": "Copropriété",
-            "description": "Immeuble auquel se rattache la ventilation.",
-            "help": ""
-        },
         "fund_request_id": {
             "label": "Appel de fonds",
-            "description": "Appel source (lecture seule).",
+            "description": "Appel source de l'entrée.",
             "help": ""
         },
         "request_execution_id": {
             "label": "Exécution",
-            "description": "Facture d’exécution à laquelle l’entrée est rattachée.",
+            "description": "Exécution à laquelle cette entrée appartient.",
             "help": ""
         },
         "request_execution_line_id": {
-            "label": "Ligne d’exécution",
-            "description": "Ligne parent dont provient cette ventilation.",
+            "label": "Ligne d'exécution",
+            "description": "Ligne parente qui regroupe les montants d'un copropriétaire.",
             "help": ""
         },
         "ownership_id": {
-            "label": "Ownership",
-            "description": "Propriétaire imputé (lecture seule).",
+            "label": "Propriété",
+            "description": "Copropriétaire associé à cette entrée.",
             "help": ""
         },
         "property_lot_id": {
             "label": "Lot",
-            "description": "Lot privatif correspondant au montant appelé.",
+            "description": "Lot précis correspondant à ce montant appelé.",
             "help": ""
         },
         "called_amount": {
             "label": "Montant appelé",
-            "description": "Montant HTVA affecté à ce lot.",
+            "description": "Somme demandée pour ce lot.",
             "help": ""
         }
     },
-    "view": {
-        "form.default": {
-            "name": "Entrée de ligne d’exécution",
-            "description": "Formulaire technique listant copropriété, ownership, lot et montant imputé."
-        },
-        "list.default": {
-            "name": "Entrées de ligne d’exécution",
-            "description": "Vue détaillée des ventilations par lot (utile pour retracer la facture)."
-        }
-    }
+    "view": {}
 }

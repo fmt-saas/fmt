@@ -1,0 +1,118 @@
+{
+    "name": "Paiement",
+    "plural": "Paiements",
+    "description": "Encaissements ou décaissements enregistrés pour solder un funding (appel de fonds, facture, transfert…).",
+    "model": {
+        "funding_id": {
+            "label": "Funding lié",
+            "description": "Suivi de paiement auquel ce mouvement se rattache.",
+            "help": ""
+        },
+        "amount": {
+            "label": "Montant",
+            "description": "Somme encaissée ou payée.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Commentaire libre (référence de l’opération).",
+            "help": ""
+        },
+        "receipt_date": {
+            "label": "Date de réception",
+            "description": "Horodatage de la prise en compte du paiement.",
+            "help": ""
+        },
+        "payment_origin": {
+            "label": "Origine",
+            "description": "Source du mouvement (banque ou caisse).",
+            "help": "",
+            "selection": {
+                "bank": "Banque",
+                "cashdesk": "Caisse"
+            }
+        },
+        "payment_method": {
+            "label": "Méthode",
+            "description": "Mode de paiement (cash, carte, virement…).",
+            "help": "",
+            "selection": {
+                "cash": "Espèces",
+                "bank_card": "Carte bancaire",
+                "voucher": "Chèque/bon",
+                "wire_transfer": "Virement"
+            }
+        },
+        "bank_statement_line_id": {
+            "label": "Ligne de relevé",
+            "description": "Ligne bancaire correspondante lorsqu’il provient d’un relevé.",
+            "help": ""
+        },
+        "receipt_bank_account_id": {
+            "label": "Compte bancaire",
+            "description": "Compte sur lequel la somme a transité.",
+            "help": ""
+        },
+        "customer_id": {
+            "label": "Tiers client",
+            "description": "Client identifié sur le paiement, si applicable.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Propriété",
+            "description": "Propriétaire concerné (cas copropriété).",
+            "help": ""
+        },
+        "journal_id": {
+            "label": "Journal",
+            "description": "Journal comptable BANK utilisé pour la pièce.",
+            "help": ""
+        },
+        "accounting_entry_id": {
+            "label": "Écriture comptable",
+            "description": "Écriture générée à partir du paiement.",
+            "help": ""
+        },
+        "bank_statement_id": {
+            "label": "Relevé bancaire",
+            "description": "Relevé source lorsque le paiement provient d’un import bancaire.",
+            "help": ""
+        },
+        "payment_reference": {
+            "label": "Référence",
+            "description": "Communication (SEPA, note interne, référence de virement).",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "État du paiement (création ou validé).",
+            "help": "",
+            "selection": {
+                "proforma": "Brouillon",
+                "posted": "Comptabilisé"
+            }
+        }
+    },
+    "view": {
+        "Payment.form.default": {
+            "name": "Paiement",
+            "description": "Formulaire principal (montant, funding, origine, compte bancaire, pièces associées)."
+        },
+        "Payment.form.statement": {
+            "name": "Paiement depuis relevé",
+            "description": "Vue simplifiée utilisée lors du lettrage des relevés bancaires."
+        },
+        "Payment.list.default": {
+            "name": "Paiements",
+            "description": "Liste des paiements avec funding, montant, origine et statut."
+        },
+        "Payment.list.statement": {
+            "name": "Paiements (relevés)",
+            "description": "Liste filtrée utilisée dans l’écran de rapprochement bancaire."
+        },
+        "Payment.dashboard.default": {
+            "name": "Tableau de bord des paiements",
+            "description": "Widget synthétique affichant les encaissements récents et leur statut."
+        }
+    }
+}

@@ -1,0 +1,82 @@
+{
+    "name": "Transfert de fonds",
+    "plural": "Transferts de fonds",
+    "description": "Opération de type MiscOperation utilisée pour préparer un mouvement entre deux comptes bancaires internes et générer les fundings de suivi.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par le transfert.",
+            "help": ""
+        },
+        "amount": {
+            "label": "Montant",
+            "description": "Somme à transférer entre les comptes.",
+            "help": ""
+        },
+        "posting_date": {
+            "label": "Date comptable",
+            "description": "Date prévue pour la comptabilisation du transfert.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Motif ou note interne sur le transfert.",
+            "help": ""
+        },
+        "bank_account_id": {
+            "label": "Compte origine",
+            "description": "Compte bancaire de départ.",
+            "help": ""
+        },
+        "account_available_balance": {
+            "label": "Solde origine",
+            "description": "Solde disponible actuel du compte d'origine.",
+            "help": ""
+        },
+        "counterpart_bank_account_id": {
+            "label": "Compte destination",
+            "description": "Compte bancaire recevant les fonds.",
+            "help": ""
+        },
+        "counterpart_available_balance": {
+            "label": "Solde destination",
+            "description": "Solde disponible du compte destinataire.",
+            "help": ""
+        },
+        "fundings_ids": {
+            "label": "Fundings générés",
+            "description": "Deux fundings matérialisant le débit/crédit du transfert.",
+            "help": ""
+        },
+        "fiscal_year_id": {
+            "label": "Exercice",
+            "description": "Exercice calculé à partir de la date d'écriture.",
+            "help": ""
+        },
+        "fiscal_period_id": {
+            "label": "Période",
+            "description": "Période fiscale calculée automatiquement.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Workflow (pending → proforma → posted).",
+            "help": "",
+            "selection": {
+                "pending": "Brouillon",
+                "proforma": "Publié",
+                "posted": "Transfert initié"
+            }
+        }
+    },
+    "view": {
+        "MoneyTransfer.form.default": {
+            "name": "Transfert de fonds",
+            "description": "Formulaire de préparation du transfert (montant, comptes, balances et fundings)."
+        },
+        "MoneyTransfer.list.default": {
+            "name": "Transferts de fonds",
+            "description": "Liste des opérations avec leur statut, comptes et date de comptabilisation."
+        }
+    }
+}
