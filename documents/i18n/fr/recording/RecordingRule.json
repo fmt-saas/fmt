@@ -1,0 +1,67 @@
+{
+    "name": "Règle de comptabilisation",
+    "plural": "Règles de comptabilisation",
+    "description": "Paramétrage déterminant comment un document (type/sous-type) doit être comptabilisé pour une copropriété ou comme modèle.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par la règle (vide = modèle générique).",
+            "help": ""
+        },
+        "name": {
+            "label": "Libellé",
+            "description": "Nom de la règle de comptabilisation.",
+            "help": ""
+        },
+        "is_template": {
+            "label": "Modèle",
+            "description": "Indique que la règle sert de template pour créer des variantes par copropriété.",
+            "help": ""
+        },
+        "description": {
+            "label": "Mémo",
+            "description": "Note interne décrivant la règle.",
+            "help": ""
+        },
+        "document_type_id": {
+            "label": "Type de document",
+            "description": "Type documentaire déclencheur.",
+            "help": ""
+        },
+        "document_subtype_id": {
+            "label": "Sous-type",
+            "description": "Sous-type associé (affine la règle).",
+            "help": ""
+        },
+        "supplier_type_id": {
+            "label": "Type de fournisseur",
+            "description": "Segment fournisseur ciblé par la règle (obligatoire).",
+            "help": ""
+        },
+        "supplier_type_code": {
+            "label": "Code fournisseur",
+            "description": "Code du type de fournisseur (calculé).",
+            "help": ""
+        },
+        "suppliers_ids": {
+            "label": "Fournisseurs liés",
+            "description": "Liste de fournisseurs spécifiques utilisant cette règle.",
+            "help": ""
+        },
+        "recording_rule_lines_ids": {
+            "label": "Lignes de règle",
+            "description": "Définition détaillée des comptes/VAT à imputer.",
+            "help": ""
+        }
+    },
+    "view": {
+        "RecordingRule.form.default": {
+            "name": "Règle de comptabilisation",
+            "description": "Formulaire pour définir le contexte (document, fournisseur) et les lignes associées."
+        },
+        "RecordingRule.list.default": {
+            "name": "Règles de comptabilisation",
+            "description": "Liste synthétique des règles (document, fournisseur, mémo)."
+        }
+    }
+}

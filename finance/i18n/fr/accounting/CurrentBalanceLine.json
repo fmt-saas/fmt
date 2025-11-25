@@ -1,0 +1,42 @@
+{
+    "name": "Ligne de balance courante",
+    "plural": "Lignes de balance courante",
+    "description": "Lignes générées automatiquement pour refléter en temps réel le solde d'un compte dans la balance courante.",
+    "model": {
+        "balance_id": {
+            "label": "Balance courante",
+            "description": "Balance `CurrentBalance` à laquelle se rattache la ligne.",
+            "help": ""
+        },
+        "account_id": {
+            "label": "Compte",
+            "description": "Compte comptable dont on suit le mouvement en temps réel.",
+            "help": ""
+        },
+        "debit": {
+            "label": "Débit cumulé",
+            "description": "Total des montants débités depuis le début de l'exercice ouvert.",
+            "help": ""
+        },
+        "credit": {
+            "label": "Crédit cumulé",
+            "description": "Total des montants crédités depuis le début de l'exercice ouvert.",
+            "help": ""
+        },
+        "debit_balance": {
+            "label": "Solde débiteur",
+            "description": "Solde restant si les débits excèdent les crédits.",
+            "help": ""
+        },
+        "credit_balance": {
+            "label": "Solde créditeur",
+            "description": "Solde restant si les crédits excèdent les débits.",
+            "help": ""
+        },
+        "entry_lines_ids": {
+            "label": "Écritures liées",
+            "description": "Écritures comptables qui composent le solde courant (filtrées sur l'exercice et le compte).",
+            "help": ""
+        }
+    }
+}

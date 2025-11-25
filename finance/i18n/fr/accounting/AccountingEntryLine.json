@@ -1,0 +1,82 @@
+{
+    "name": "Écriture comptable",
+    "plural": "Écritures comptables",
+    "description": "Lignes affectant les comptes lors des mouvements (journal, période, compte, montants, matching).",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par l’écriture.",
+            "help": ""
+        },
+        "accounting_entry_id": {
+            "label": "Pièce comptable",
+            "description": "Écriture mère à laquelle appartient la ligne.",
+            "help": ""
+        },
+        "journal_id": {
+            "label": "Journal",
+            "description": "Journal issu de la pièce (calculé).",
+            "help": ""
+        },
+        "entry_date": {
+            "label": "Date d’écriture",
+            "description": "Date comptable déterminant la période fiscale.",
+            "help": ""
+        },
+        "entry_number": {
+            "label": "Numéro d’écriture",
+            "description": "Identifiant unique de la pièce.",
+            "help": ""
+        },
+        "account_id": {
+            "label": "Compte",
+            "description": "Compte comptable impacté.",
+            "help": ""
+        },
+        "description": {
+            "label": "Libellé",
+            "description": "Mémo décrivant l’opération.",
+            "help": ""
+        },
+        "debit": {
+            "label": "Débit",
+            "description": "Montant débité (devise copropriété).",
+            "help": ""
+        },
+        "credit": {
+            "label": "Crédit",
+            "description": "Montant crédité.",
+            "help": ""
+        },
+        "fiscal_year_id": {
+            "label": "Exercice",
+            "description": "Exercice de rattachement (depuis la pièce).",
+            "help": ""
+        },
+        "fiscal_period_id": {
+            "label": "Période",
+            "description": "Période fiscale calculée à partir de la date.",
+            "help": ""
+        },
+        "matching_id": {
+            "label": "Lettrage",
+            "description": "Lettrage (Matching) auquel la ligne est associée.",
+            "help": ""
+        },
+        "funding_id": {
+            "label": "Appel de fonds",
+            "description": "Lien éventuel vers un appel de fonds.",
+            "help": ""
+        }
+    },
+    "view": {
+        "AccountingEntryLine.list.default": {
+            "name": "Écritures comptables",
+            "description": "Liste des lignes (journal, compte, libellé, montants) avec action de lettrage."
+        },
+        "AccountingEntryLine.list.balance": {
+            "name": "Écritures comptables (balance)",
+            "description": "Vue spécialisée pour l’analyse des soldes (affiche la pièce et la date)."
+        }
+    }
+}

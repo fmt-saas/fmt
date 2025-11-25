@@ -1,0 +1,5 @@
+{
+    "name": "Tâche d’import",
+    "plural": "Tâches d’import",
+    "description": "Regroupe un ensemble d’actions d’import (documents téléchargés, archives ZIP…) déclenchées par le back-office ou une automatisation. Structure placeholder en attendant la définition détaillée des champs."
+}

@@ -1,0 +1,31 @@
+{
+    "name": "Import de relevés",
+    "plural": "Imports de relevés",
+    "description": "Entité technique utilisée pour déposer un lot de relevés bancaires et déclencher les traitements associés.",
+    "model": {
+        "name": {
+            "label": "Nom du fichier",
+            "description": "Libellé attribué au lot importé (reprend le nom du document téléversé).",
+            "help": ""
+        },
+        "data": {
+            "label": "Contenu",
+            "description": "Flux binaire du fichier déposé, utilisé pour créer les documents et lancer l'extraction.",
+            "help": "Le contenu est purgé une fois le document créé afin d'éviter un double stockage."
+        }
+    },
+    "view": {
+        "BankStatementImport.form.import": {
+            "name": "Importer des relevés",
+            "description": "Formulaire de dépôt (drag & drop) acceptant un ou plusieurs relevés groupés."
+        },
+        "BankStatementImport.form.default": {
+            "name": "Import traité",
+            "description": "Écran de confirmation indiquant que le document a bien été transmis au processus d'extraction."
+        },
+        "BankStatementImport.list.default": {
+            "name": "Historique des imports",
+            "description": "Liste informative des dépôts en attente de traitement (nom et flux envoyés)."
+        }
+    }
+}

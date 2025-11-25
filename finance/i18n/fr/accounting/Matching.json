@@ -1,0 +1,71 @@
+{
+    "name": "Lettrage",
+    "plural": "Lettrages",
+    "description": "Regroupement de lignes d'écritures permettant de suivre l'équilibre entre débits et crédits.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble dans lequel le lettrage est créé.",
+            "help": ""
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Libellé calculé combinant l'identifiant et la description.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Texte libre pour identifier le rapprochement.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Code interne du lettrage.",
+            "help": ""
+        },
+        "accounting_account_id": {
+            "label": "Compte",
+            "description": "Compte comptable dont les lignes sont rapprochées.",
+            "help": ""
+        },
+        "accounting_entry_lines_ids": {
+            "label": "Lignes associées",
+            "description": "Écritures comptables liées au lettrage.",
+            "help": ""
+        },
+        "balance_amount": {
+            "label": "Solde",
+            "description": "Différence débit/crédit recalculée sur les lignes liées.",
+            "help": ""
+        },
+        "is_balanced": {
+            "label": "Équilibré",
+            "description": "Indique si le lettrage est totalement soldé.",
+            "help": ""
+        },
+        "is_system": {
+            "label": "Lettrage système",
+            "description": "Empêche la suppression lorsque le lettrage a été généré automatiquement.",
+            "help": ""
+        },
+        "matching_level": {
+            "label": "Niveau de rapprochement",
+            "description": "Statut visuel indiquant si le lettrage est partiel ou total.",
+            "help": "",
+            "selection": {
+                "part": "Partiel",
+                "full": "Total"
+            }
+        }
+    },
+    "view": {
+        "Matching.form.default": {
+            "name": "Lettrage",
+            "description": "Fiche de rapprochement (compte ciblé, statut d'équilibre et lignes comptables liées)."
+        },
+        "Matching.list.default": {
+            "name": "Lettrages",
+            "description": "Liste des lettrages avec compte, description et indicateur d'équilibre."
+        }
+    }
+}

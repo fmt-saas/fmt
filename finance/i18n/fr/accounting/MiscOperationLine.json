@@ -1,0 +1,112 @@
+{
+    "name": "Ligne d'opération diverse",
+    "plural": "Lignes d'opération diverse",
+    "description": "Détail débit/crédit utilisé pour créer les écritures d'une opération diverse.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel la ligne est rattachée.",
+            "help": ""
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Libellé court de la ligne.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Détail transmis vers l'écriture comptable.",
+            "help": ""
+        },
+        "misc_operation_id": {
+            "label": "Opération parente",
+            "description": "Opération diverse à laquelle la ligne appartient.",
+            "help": ""
+        },
+        "account_id": {
+            "label": "Compte",
+            "description": "Compte comptable impacté par la ligne.",
+            "help": ""
+        },
+        "account_code": {
+            "label": "Code compte",
+            "description": "Code du compte sélectionné.",
+            "help": ""
+        },
+        "journal_id": {
+            "label": "Journal",
+            "description": "Journal récupéré depuis l'opération parente.",
+            "help": ""
+        },
+        "is_owner": {
+            "label": "Flux propriétaire",
+            "description": "Vrai lorsque le compte correspond à un compte 41 (propriétaire).",
+            "help": ""
+        },
+        "is_expense": {
+            "label": "Charge ponctuelle",
+            "description": "Indique que la ligne impacte un compte de classe 6.",
+            "help": ""
+        },
+        "is_income": {
+            "label": "Produit ponctuel",
+            "description": "Indique que la ligne impacte un compte de classe 7.",
+            "help": ""
+        },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé utilisée pour ventiler la charge/produit.",
+            "help": ""
+        },
+        "owner_share": {
+            "label": "Part propriétaire (%)",
+            "description": "Pourcentage à imputer aux propriétaires.",
+            "help": ""
+        },
+        "tenant_share": {
+            "label": "Part locataire (%)",
+            "description": "Pourcentage à imputer aux locataires.",
+            "help": ""
+        },
+        "vat_rate": {
+            "label": "Taux de TVA",
+            "description": "Pourcentage appliqué sur le montant de la ligne.",
+            "help": ""
+        },
+        "is_private_expense": {
+            "label": "Charge privative",
+            "description": "Permet d'imputer la dépense à un propriétaire précis.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Propriété",
+            "description": "Propriété ciblée lorsque la charge est privative.",
+            "help": ""
+        },
+        "property_lot_id": {
+            "label": "Lot",
+            "description": "Lot concerné lorsqu'on cible une dépense privative.",
+            "help": ""
+        },
+        "debit": {
+            "label": "Débit",
+            "description": "Montant débité sur le compte.",
+            "help": ""
+        },
+        "credit": {
+            "label": "Crédit",
+            "description": "Montant crédité sur le compte.",
+            "help": ""
+        }
+    },
+    "view": {
+        "MiscOperationLine.form.default": {
+            "name": "Ligne d'opération diverse",
+            "description": "Saisie d'une ligne débit/crédit, avec gestion des clés de répartition et charges privatives."
+        },
+        "MiscOperationLine.list.default": {
+            "name": "Lignes d'opération diverse",
+            "description": "Liste des lignes d'opération avec totaux débit/crédit."
+        }
+    }
+}

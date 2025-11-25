@@ -1,0 +1,37 @@
+{
+    "name": "Type de modèle",
+    "plural": "Types de modèles",
+    "description": "Catégories logiques pour classer les modèles de communication (code unique, libellé multilingue).",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom du type affiché aux utilisateurs.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Identifiant technique unique du type.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Texte explicatif sur l’usage du type.",
+            "help": ""
+        },
+        "templates_ids": {
+            "label": "Modèles associés",
+            "description": "Modèles qui héritent de ce type.",
+            "help": ""
+        }
+    },
+    "view": {
+        "TemplateType.form.default": {
+            "name": "Type de modèle",
+            "description": "Formulaire pour définir un type (code unique et traductions)."
+        },
+        "TemplateType.list.default": {
+            "name": "Types de modèles",
+            "description": "Liste filtrable des types disponibles et de leur code."
+        }
+    }
+}

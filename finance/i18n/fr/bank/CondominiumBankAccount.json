@@ -1,0 +1,101 @@
+{
+    "name": "Compte bancaire de copropriété",
+    "plural": "Comptes bancaires de copropriété",
+    "description": "Compte bancaire rattaché à une copropriété (compte courant, épargne ou compte tiers) avec suivi des soldes et relevés.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel appartient ce compte.",
+            "help": ""
+        },
+        "bank_account_type": {
+            "label": "Type de compte",
+            "description": "Type fonctionnel utilisé pour l'affectation comptable.",
+            "help": "",
+            "selection": {
+                "bank_current": "Compte courant",
+                "bank_savings": "Compte d'épargne",
+                "bank_tier": "Compte de tiers"
+            }
+        },
+        "bank_account_iban": {
+            "label": "IBAN",
+            "description": "Identifiant bancaire international du compte.",
+            "help": ""
+        },
+        "bank_account_bic": {
+            "label": "BIC",
+            "description": "Code BIC/SWIFT de la banque.",
+            "help": ""
+        },
+        "bank_name": {
+            "label": "Banque",
+            "description": "Nom de l'établissement teneur de compte.",
+            "help": ""
+        },
+        "accounting_account_id": {
+            "label": "Compte comptable",
+            "description": "Compte du plan comptable lié à ce compte bancaire.",
+            "help": ""
+        },
+        "current_balance": {
+            "label": "Solde courant",
+            "description": "Solde calculé à partir de la balance courante.",
+            "help": ""
+        },
+        "available_balance": {
+            "label": "Solde estimé",
+            "description": "Solde projeté tenant compte des opérations à venir.",
+            "help": ""
+        },
+        "last_statement_balance": {
+            "label": "Solde dernier relevé",
+            "description": "Solde provenant du dernier relevé importé.",
+            "help": ""
+        },
+        "last_statement_date": {
+            "label": "Date dernier relevé",
+            "description": "Date d'import du dernier relevé.",
+            "help": ""
+        },
+        "is_primary": {
+            "label": "Compte principal",
+            "description": "Indique si ce compte est le compte courant principal de la copropriété.",
+            "help": ""
+        },
+        "is_primary_reserve": {
+            "label": "Compte de réserve principal",
+            "description": "Indique si ce compte est utilisé pour les fonds de réserve.",
+            "help": ""
+        },
+        "owner_identity_id": {
+            "label": "Identité propriétaire",
+            "description": "Identité rattachée au compte bancaire.",
+            "help": ""
+        },
+        "bank_statements_ids": {
+            "label": "Relevés",
+            "description": "Relevés bancaires importés pour ce compte.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Étape du workflow de validation du compte.",
+            "help": "",
+            "selection": {
+                "pending": "En préparation",
+                "validated": "Validé"
+            }
+        }
+    },
+    "view": {
+        "CondominiumBankAccount.form.default": {
+            "name": "Compte bancaire",
+            "description": "Formulaire complet (identification, IBAN/BIC, affectations comptables et relevés liés)."
+        },
+        "CondominiumBankAccount.list.default": {
+            "name": "Comptes bancaires",
+            "description": "Liste des comptes avec indicateur principal, solde courant/estimé et statut."
+        }
+    }
+}

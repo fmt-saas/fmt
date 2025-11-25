@@ -1,0 +1,22 @@
+{
+    "name": "Ligne de validation",
+    "plural": "Lignes de validation",
+    "description": "Contrôle élémentaire associé à une règle (contrôleur à exécuter pour valider le document).",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Description courte du contrôle appliqué.",
+            "help": ""
+        },
+        "validation_rule_id": {
+            "label": "Règle parente",
+            "description": "Règle de validation à laquelle la ligne appartient.",
+            "help": ""
+        },
+        "controller": {
+            "label": "Contrôleur",
+            "description": "Action (controller) exécutée pour vérifier le document.",
+            "help": "Doit être une action existante (ex. documents_validation_check_*)."
+        }
+    }
+}

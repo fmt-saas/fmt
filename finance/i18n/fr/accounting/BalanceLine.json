@@ -1,0 +1,61 @@
+{
+    "name": "Ligne de balance",
+    "plural": "Lignes de balance",
+    "description": "Soldes d’un compte pour une balance donnée (totaux débit/crédit et liste des écritures associées).",
+    "model": {
+        "balance_id": {
+            "label": "Balance",
+            "description": "Balance à laquelle se rattache la ligne.",
+            "help": ""
+        },
+        "account_id": {
+            "label": "Compte",
+            "description": "Compte comptable concerné.",
+            "help": ""
+        },
+        "fiscal_year_id": {
+            "label": "Exercice",
+            "description": "Exercice lié au compte dans cette balance.",
+            "help": ""
+        },
+        "debit": {
+            "label": "Débit",
+            "description": "Montant total débité pendant la période.",
+            "help": ""
+        },
+        "credit": {
+            "label": "Crédit",
+            "description": "Montant total crédité pendant la période.",
+            "help": ""
+        },
+        "debit_balance": {
+            "label": "Solde débiteur",
+            "description": "Solde restant si les débits dépassent les crédits.",
+            "help": ""
+        },
+        "credit_balance": {
+            "label": "Solde créditeur",
+            "description": "Solde restant si les crédits dépassent les débits.",
+            "help": ""
+        },
+        "entry_lines_ids": {
+            "label": "Écritures liées",
+            "description": "Écritures impactant ce compte dans l’exercice.",
+            "help": ""
+        }
+    },
+    "view": {
+        "BalanceLine.form.default": {
+            "name": "Ligne de balance",
+            "description": "Formulaire détaillant les montants débiteurs/créditeurs et les écritures liées."
+        },
+        "BalanceLine.list.default": {
+            "name": "Lignes de balance",
+            "description": "Liste des comptes avec leurs montants débit/crédit et soldes."
+        },
+        "BalanceLine.list.condo": {
+            "name": "Lignes de balance (copropriété)",
+            "description": "Vue spécialisée filtrée sur une copropriété donnée."
+        }
+    }
+}

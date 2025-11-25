@@ -1,0 +1,53 @@
+{
+    "name": "Période comptable",
+    "plural": "Périodes comptables",
+    "description": "Fraction d’un exercice (dates, numéro, statut open/closed, actions de clôture).",
+    "model": {
+        "fiscal_year_id": {
+            "label": "Exercice",
+            "description": "Exercice parent auquel appartient la période.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libellé",
+            "description": "Nom calculé (ex. Q1 2025).",
+            "help": ""
+        },
+        "date_from": {
+            "label": "Début",
+            "description": "Première date incluse.",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Fin",
+            "description": "Dernière date incluse.",
+            "help": ""
+        },
+        "code": {
+            "label": "Ordre",
+            "description": "Numéro de période dans l’exercice (sert aux séquences).",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "open = utilisable pour enregistrer des écritures, closed = clôturé.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné (hérité de l’exercice).",
+            "help": ""
+        },
+        "organisation_id": {
+            "label": "Organisation",
+            "description": "Organisation porteuse (si exercice global).",
+            "help": ""
+        }
+    },
+    "view": {
+        "FiscalPeriod.form.default": {
+            "name": "Période comptable",
+            "description": "Formulaire pour ajuster les dates et visualiser l’exercice/copropriété."
+        }
+    }
+}

@@ -1,0 +1,87 @@
+{
+    "name": "Courriel",
+    "plural": "Courriels",
+    "description": "Messages électroniques entrants ou sortants (contenu, participants, statut d’envoi et rattachements copropriété/fournisseur).",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel le message est associé.",
+            "help": ""
+        },
+        "mailbox_id": {
+            "label": "Boîte mail",
+            "description": "Boîte aux lettres utilisée pour envoyer ou recevoir ce message.",
+            "help": ""
+        },
+        "date": {
+            "label": "Date",
+            "description": "Horodatage du message.",
+            "help": ""
+        },
+        "direction": {
+            "label": "Sens",
+            "description": "Entrant ou sortant.",
+            "help": ""
+        },
+        "to": {
+            "label": "Destinataires",
+            "description": "Adresse(s) principales (champ TO).",
+            "help": ""
+        },
+        "from": {
+            "label": "Expéditeur",
+            "description": "Adresse qui a envoyé le message.",
+            "help": ""
+        },
+        "cc": {
+            "label": "Copie",
+            "description": "Adresses en copie (champ CC).",
+            "help": "Séparer plusieurs adresses par des virgules."
+        },
+        "bcc": {
+            "label": "Copie cachée",
+            "description": "Adresses en copie cachée (champ BCC).",
+            "help": ""
+        },
+        "subject": {
+            "label": "Objet",
+            "description": "Sujet du message.",
+            "help": ""
+        },
+        "body": {
+            "label": "Corps",
+            "description": "Contenu HTML du courriel.",
+            "help": ""
+        },
+        "documents_ids": {
+            "label": "Documents liés",
+            "description": "Pièces jointes ou documents indexés avec ce message.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut d’envoi",
+            "description": "Indique si le courriel est en attente ou traité (sortant).",
+            "help": ""
+        },
+        "response_status": {
+            "label": "Code SMTP",
+            "description": "Code de réponse du serveur SMTP.",
+            "help": ""
+        },
+        "response": {
+            "label": "Réponse SMTP",
+            "description": "Message retourné lors de l’envoi.",
+            "help": ""
+        }
+    },
+    "view": {
+        "Email.form.default": {
+            "name": "Courriel",
+            "description": "Formulaire détaillé d’un message (participants, contenu, pièces jointes)."
+        },
+        "Email.list.default": {
+            "name": "Courriels",
+            "description": "Liste des emails entrants et sortants, filtrables par boîte mail ou statut."
+        }
+    }
+}

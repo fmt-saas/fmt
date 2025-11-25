@@ -1,0 +1,27 @@
+{
+    "name": "Demande de mise à jour de balance",
+    "plural": "Demandes de mise à jour de balance",
+    "description": "File d’attente garantissant l’application atomique des écritures sur la balance courante.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par la demande.",
+            "help": ""
+        },
+        "balance_id": {
+            "label": "Balance courante",
+            "description": "Balance à mettre à jour (CurrentBalance).",
+            "help": ""
+        },
+        "accounting_entry_id": {
+            "label": "Écriture comptable",
+            "description": "Écriture à appliquer sur la balance.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "pending = en attente, processed = déjà appliquée.",
+            "help": "Une demande traitée n’est plus rejouée."
+        }
+    }
+}

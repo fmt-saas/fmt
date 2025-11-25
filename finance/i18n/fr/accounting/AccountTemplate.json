@@ -1,0 +1,67 @@
+{
+    "name": "Compte modèle",
+    "plural": "Comptes modèle",
+    "description": "Ligne d’un plan comptable modèle (structure hiérarchique, clés de répartition par code).",
+    "model": {
+        "code": {
+            "label": "Code",
+            "description": "Numéro du compte modèle.",
+            "help": ""
+        },
+        "description": {
+            "label": "Libellé",
+            "description": "Libellé du compte modèle.",
+            "help": ""
+        },
+        "parent_account_id": {
+            "label": "Compte parent",
+            "description": "Compte modèle de niveau supérieur.",
+            "help": ""
+        },
+        "children_accounts_ids": {
+            "label": "Comptes enfants",
+            "description": "Sous-comptes définis sous ce modèle.",
+            "help": ""
+        },
+        "account_chart_id": {
+            "label": "Plan modèle",
+            "description": "Plan comptable modèle auquel appartient la ligne.",
+            "help": ""
+        },
+        "apportionment_code": {
+            "label": "Code clé de répartition",
+            "description": "Code utilisé pour retrouver la clé lors de la génération dans une copropriété.",
+            "help": ""
+        },
+        "tenant_share": {
+            "label": "Part locataire (%)",
+            "description": "Pourcentage par défaut appliqué aux locataires dans les comptes générés.",
+            "help": ""
+        },
+        "owner_share": {
+            "label": "Part propriétaire (%)",
+            "description": "Pourcentage par défaut appliqué aux propriétaires.",
+            "help": ""
+        },
+        "is_control_account": {
+            "label": "Compte de contrôle",
+            "description": "Marque la ligne comme regroupement/section.",
+            "help": ""
+        },
+        "is_visible": {
+            "label": "Visible",
+            "description": "Permet de masquer un compte lors de la génération.",
+            "help": ""
+        }
+    },
+    "view": {
+        "AccountTemplate.form.default": {
+            "name": "Compte modèle",
+            "description": "Formulaire basé sur le compte comptable avec des adaptations pour les modèles."
+        },
+        "AccountTemplate.list.default": {
+            "name": "Comptes modèle",
+            "description": "Liste hiérarchique des comptes modèles (code, classe, clés)."
+        }
+    }
+}

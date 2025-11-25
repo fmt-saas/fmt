@@ -1,0 +1,97 @@
+{
+    "name": "Compte comptable",
+    "plural": "Comptes comptables",
+    "description": "Ligne du plan comptable (code, classe, visibilité, comptes parents/enfants et informations de ventilation).",
+    "model": {
+        "code": {
+            "label": "Code",
+            "description": "Numéro du compte (utilisé pour calculer niveau, classe et type).",
+            "help": ""
+        },
+        "description": {
+            "label": "Libellé",
+            "description": "Libellé du compte (concaténé avec le code pour former le nom).",
+            "help": ""
+        },
+        "account_class": {
+            "label": "Classe",
+            "description": "Classe comptable (0 à 7) dérivée du code.",
+            "help": ""
+        },
+        "account_type": {
+            "label": "Type",
+            "description": "Balance Sheet (Bilan) ou Income Statement (Résultat).",
+            "help": ""
+        },
+        "account_nature": {
+            "label": "Nature",
+            "description": "Actif ou passif selon le code.",
+            "help": ""
+        },
+        "account_category": {
+            "label": "Catégorie",
+            "description": "Catégorie fonctionnelle (dettes, banque, charges, produits...).",
+            "help": ""
+        },
+        "parent_account_id": {
+            "label": "Compte parent",
+            "description": "Compte de niveau supérieur dans la hiérarchie.",
+            "help": ""
+        },
+        "is_control_account": {
+            "label": "Compte de contrôle",
+            "description": "Indique s’il s’agit d’un compte pivot de regroupement.",
+            "help": ""
+        },
+        "is_visible": {
+            "label": "Visible",
+            "description": "Permet de masquer le compte dans les vues utilisateurs.",
+            "help": ""
+        },
+        "is_tier_balance": {
+            "label": "Compte de tiers",
+            "description": "Précise si le compte participe au suivi des tiers.",
+            "help": ""
+        },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé utilisée pour ventiler les montants entre copropriétaires.",
+            "help": ""
+        },
+        "tenant_share": {
+            "label": "Part locataire (%)",
+            "description": "Pourcentage par défaut imputé aux locataires.",
+            "help": ""
+        },
+        "owner_share": {
+            "label": "Part propriétaire (%)",
+            "description": "Pourcentage par défaut imputé aux propriétaires.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel appartient le compte.",
+            "help": ""
+        },
+        "account_chart_id": {
+            "label": "Plan comptable",
+            "description": "Plan auquel la ligne est rattachée.",
+            "help": ""
+        },
+        "operation_assignment": {
+            "label": "Affectation opération",
+            "description": "Code interne utilisé pour faire le lien avec les règles d’écriture.",
+            "help": ""
+        }
+    },
+    "view": {
+        "Account.form.default": {
+            "name": "Compte comptable",
+            "description": "Formulaire détaillé (code, nature, ventilation, rattachements copropriété et actionnaires)."
+        },
+        "Account.list.default": {
+            "name": "Comptes comptables",
+            "description": "Liste hiérarchique des comptes visibles (code, classe, nature, clés de répartition)."
+        }
+    }
+}

@@ -1,0 +1,85 @@
+{
+    "name": "Nœud documentaire",
+    "plural": "Nœuds documentaires",
+    "description": "Structure de classement des documents (dossiers et liens vers fichiers) utilisée dans la navigation documentaire.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel le dossier ou document est rattaché.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libellé",
+            "description": "Nom affiché pour le dossier ou le document.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code dossier",
+            "description": "Identifiant fonctionnel (utilisé pour les affectations automatiques).",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Usage prévu ou résumé du contenu.",
+            "help": ""
+        },
+        "node_type": {
+            "label": "Type",
+            "description": "Indique s’il s’agit d’un dossier ou d’un document.",
+            "help": "",
+            "selection": {
+                "folder": "Dossier",
+                "document": "Document"
+            }
+        },
+        "nodes_count": {
+            "label": "Éléments contenus",
+            "description": "Nombre de sous-dossiers ou documents (calculé).",
+            "help": ""
+        },
+        "parent_id": {
+            "label": "Dossier parent",
+            "description": "Permet d’imbriquer le nœud dans un autre dossier.",
+            "help": ""
+        },
+        "document_id": {
+            "label": "Document lié",
+            "description": "Document physique associé (si le type est « document »).",
+            "help": ""
+        },
+        "document_link": {
+            "label": "Lien de consultation",
+            "description": "URL interne permettant d’ouvrir le document.",
+            "help": ""
+        },
+        "nodes_ids": {
+            "label": "Sous-nœuds",
+            "description": "Liste des dossiers/documents situés dans ce nœud.",
+            "help": ""
+        },
+        "node_visibility": {
+            "label": "Visibilité",
+            "description": "Définit qui peut consulter le nœud (publique/protégée/privée).",
+            "help": "Synchronisé avec la hiérarchie : modifier un dossier met à jour ses descendants et leurs documents."
+        },
+        "is_system": {
+            "label": "Système",
+            "description": "Indique que le dossier est protégé par l’application.",
+            "help": ""
+        }
+    },
+    "view": {
+        "Node.form.default": {
+            "name": "Nœud documentaire",
+            "description": "Formulaire pour gérer le dossier/document, sa visibilité et les éléments imbriqués."
+        },
+        "Node.list.default": {
+            "name": "Nœuds documentaires",
+            "description": "Vue tabulaire mixte dossiers/documents (type, description, lien de téléchargement)."
+        },
+        "Node.list.folders": {
+            "name": "Dossiers",
+            "description": "Liste filtrée sur les nœuds de type dossier pour naviguer dans l’arborescence."
+        }
+    }
+}

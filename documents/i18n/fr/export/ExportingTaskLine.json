@@ -1,0 +1,57 @@
+{
+    "name": "Ligne d’export",
+    "plural": "Lignes d’export",
+    "description": "Sous-tâche exécutée lors d’un export (contrôleur ciblé, paramètres, document généré et statut).",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom de la ligne d’export.",
+            "help": ""
+        },
+        "exporting_task_id": {
+            "label": "Tâche parente",
+            "description": "Tâche d’export à laquelle cette ligne appartient.",
+            "help": ""
+        },
+        "pid": {
+            "label": "PID",
+            "description": "Identifiant du processus en charge de l’exécution.",
+            "help": "Visible uniquement lorsque la ligne est en cours."
+        },
+        "controller": {
+            "label": "Contrôleur",
+            "description": "Action appelée (notation complète core_pkg_action…).",
+            "help": ""
+        },
+        "params": {
+            "label": "Paramètres",
+            "description": "Paramètres JSON transmis au contrôleur.",
+            "help": ""
+        },
+        "document_id": {
+            "label": "Document généré",
+            "description": "Document produit (PDF/ZIP) quand la ligne se termine.",
+            "help": ""
+        },
+        "logs_ids": {
+            "label": "Journaux",
+            "description": "Entrées de log (core\\TaskLog) associées à cette ligne.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "État de progression (idle, running, ready, failing).",
+            "help": ""
+        }
+    },
+    "view": {
+        "ExportingTaskLine.form.default": {
+            "name": "Ligne d’export",
+            "description": "Formulaire montrant le contrôleur, les paramètres, le PID et les logs liés."
+        },
+        "ExportingTaskLine.list.default": {
+            "name": "Lignes d’export",
+            "description": "Liste des lignes d’exécution avec leur document généré et leur statut."
+        }
+    }
+}

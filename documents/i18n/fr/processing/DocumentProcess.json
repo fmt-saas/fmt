@@ -1,0 +1,141 @@
+{
+    "name": "Processus documentaire",
+    "plural": "Processus documentaires",
+    "description": "Suivi détaillé d’un document entrant : affectation, analyses automatiques, règles de comptabilisation, pièces dérivées (facture, extrait bancaire, etc.) et statut global.",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Nom du document en cours de traitement.",
+            "help": ""
+        },
+        "description": {
+            "label": "Mémo",
+            "description": "Note courte décrivant le traitement à effectuer.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété propriétaire du document.",
+            "help": ""
+        },
+        "document_id": {
+            "label": "Document source",
+            "description": "Document importé sur lequel s’appuie le processus.",
+            "help": ""
+        },
+        "document_link": {
+            "label": "Lien document",
+            "description": "URL (relative) permettant d’ouvrir le document.",
+            "help": ""
+        },
+        "document_type_id": {
+            "label": "Type",
+            "description": "Type de document identifié.",
+            "help": ""
+        },
+        "document_subtype_id": {
+            "label": "Sous-type",
+            "description": "Déclinaison éventuelle du type de document.",
+            "help": ""
+        },
+        "document_type_code": {
+            "label": "Code type",
+            "description": "Code calculé du type (utile pour l’automatisation).",
+            "help": ""
+        },
+        "assigned_employee_id": {
+            "label": "Employé assigné",
+            "description": "Collaborateur actuellement responsable du traitement.",
+            "help": ""
+        },
+        "supplier_id": {
+            "label": "Fournisseur",
+            "description": "Fournisseur identifié à partir du document (si applicable).",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Ownership",
+            "description": "Dossier de propriété impacté par ce document.",
+            "help": ""
+        },
+        "data": {
+            "label": "Données binaires",
+            "description": "Contenu original utilisé avant création du document final.",
+            "help": "Vidé une fois le document créé."
+        },
+        "report_html": {
+            "label": "Rapport d’analyse",
+            "description": "Synthèse HTML des contrôles réalisés.",
+            "help": ""
+        },
+        "is_rejected": {
+            "label": "Rejeté",
+            "description": "Indique si le document a été refusé (fichier invalide, incomplet…).",
+            "help": ""
+        },
+        "has_warning": {
+            "label": "Avertissements",
+            "description": "Présence de remarques bloquantes ou à valider.",
+            "help": ""
+        },
+        "has_analysis": {
+            "label": "Analyse JSON",
+            "description": "Le document possède une version JSON analysée.",
+            "help": ""
+        },
+        "has_target_object": {
+            "label": "Objet cible créé",
+            "description": "Un objet métier (facture, relevé…) a été généré à partir du document.",
+            "help": ""
+        },
+        "document_origin": {
+            "label": "Origine",
+            "description": "Canal d’arrivée (import manuel, automatique, interne).",
+            "help": "",
+            "selection": {
+                "manual": "Saisie manuelle",
+                "import": "Import / capture",
+                "internal": "Généré par l’application"
+            }
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Position dans le workflow (créé, validé, intégré…).",
+            "help": "",
+            "selection": {
+                "created": "Créé",
+                "completed": "Complété",
+                "validated": "Validé",
+                "recorded": "Comptabilisé",
+                "confirmed": "Confirmé",
+                "integrated": "Intégré",
+                "cancelled": "Annulé"
+            }
+        },
+        "document_invoice_id": {
+            "label": "Facture générée",
+            "description": "Facture d’achat issue du traitement (si applicable).",
+            "help": ""
+        },
+        "document_bank_statement_id": {
+            "label": "Extrait bancaire",
+            "description": "Extrait créé ou identifié lors du processus.",
+            "help": ""
+        },
+        "document_bank_statement_line_id": {
+            "label": "Ligne d’extrait",
+            "description": "Ligne associée sur l’extrait bancaire.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Processus documentaire",
+            "description": "Vue complète pour suivre l’import, l’analyse, les avertissements et les objets générés."
+        },
+        "list.default": {
+            "name": "Processus documentaires",
+            "description": "Liste des traitements en cours avec leur statut, origine et documents associés."
+        }
+    }
+}

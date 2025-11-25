@@ -1,0 +1,76 @@
+{
+    "name": "Exercice comptable",
+    "plural": "Exercices comptables",
+    "description": "Regroupe les périodes, balances et séquences d’une copropriété (workflow draft → open → closed).",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom calculé de l’exercice (ex. 2025).",
+            "help": ""
+        },
+        "organisation_id": {
+            "label": "Organisation",
+            "description": "Organisation porteuse de l’exercice (hors copropriété).",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel l’exercice est rattaché.",
+            "help": ""
+        },
+        "date_from": {
+            "label": "Début",
+            "description": "Date de début (incluse).",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Fin",
+            "description": "Date de fin (incluse).",
+            "help": ""
+        },
+        "fiscal_period_frequency": {
+            "label": "Fréquence des périodes",
+            "description": "Annuel / semestriel / trimestriel… déterminant la découpe.",
+            "help": ""
+        },
+        "fiscal_periods_ids": {
+            "label": "Périodes",
+            "description": "Liste des périodes générées pour l’exercice.",
+            "help": ""
+        },
+        "current_balance_id": {
+            "label": "Balance courante",
+            "description": "Balance tenue à jour pendant l’exercice.",
+            "help": ""
+        },
+        "closing_balance_id": {
+            "label": "Balance de clôture",
+            "description": "Balance finale (générée lors de la fermeture).",
+            "help": ""
+        },
+        "closing_balances_ids": {
+            "label": "Balances de période",
+            "description": "Balances de clôture liées à chaque période.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Workflow (draft, preopen, open, preclosed, closed).",
+            "help": ""
+        }
+    },
+    "view": {
+        "FiscalYear.form.default": {
+            "name": "Exercice comptable",
+            "description": "Formulaire complet : paramètres généraux, actions (ouvrir/fermer) et périodes."
+        },
+        "FiscalYear.list.default": {
+            "name": "Exercices comptables",
+            "description": "Liste des exercices par copropriété avec dates et statut."
+        },
+        "FiscalYear.list.condo": {
+            "name": "Exercices d’une copropriété",
+            "description": "Vue filtrée pour une copropriété (non présentée mais utile)."
+        }
+    }
+}

@@ -1,0 +1,52 @@
+{
+    "name": "Balance comptable",
+    "plural": "Balances comptables",
+    "description": "Vue synthétique d’un exercice ou d’une période (lignes de comptes avec soldes, statut et liens vers l’exercice).",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par la balance.",
+            "help": ""
+        },
+        "fiscal_year_id": {
+            "label": "Exercice",
+            "description": "Exercice fiscal auquel la balance se rapporte.",
+            "help": ""
+        },
+        "fiscal_period_id": {
+            "label": "Période",
+            "description": "Période fiscal si la balance est périodique.",
+            "help": ""
+        },
+        "is_period_balance": {
+            "label": "Balance périodique",
+            "description": "Indique si la balance porte sur une période plutôt que sur l’exercice complet.",
+            "help": ""
+        },
+        "is_balanced": {
+            "label": "Équilibrée",
+            "description": "Calcule si le total débit = total crédit (tolérance 0,01).",
+            "help": ""
+        },
+        "balance_lines_ids": {
+            "label": "Lignes de balance",
+            "description": "Lignes détaillant chaque compte (débit/crédit).",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Statut du workflow (pending, validated, closed).",
+            "help": ""
+        }
+    },
+    "view": {
+        "Balance.form.default": {
+            "name": "Balance comptable",
+            "description": "Formulaire montrant l’exercice cible et les lignes de balance."
+        },
+        "Balance.list.default": {
+            "name": "Balances comptables",
+            "description": "Liste des balances avec totaux débit/crédit par exercice."
+        }
+    }
+}

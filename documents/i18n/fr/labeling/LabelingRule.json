@@ -1,0 +1,57 @@
+{
+    "name": "Règle d’étiquetage",
+    "plural": "Règles d’étiquetage",
+    "description": "Définit comment étiqueter les opérations et allocations issues d’un document (filtrage par type, fournisseur et lignes de paramétrage).",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom lisible de la règle.",
+            "help": ""
+        },
+        "description": {
+            "label": "Mémo",
+            "description": "Note rapide décrivant la règle.",
+            "help": ""
+        },
+        "is_active": {
+            "label": "Active",
+            "description": "Permet d’activer/désactiver la règle sur l’environnement courant.",
+            "help": ""
+        },
+        "supplier_type_id": {
+            "label": "Type de fournisseur",
+            "description": "Restreint l’application de la règle à un type donné.",
+            "help": ""
+        },
+        "suppliers_ids": {
+            "label": "Fournisseurs liés",
+            "description": "Liste spécifique de fournisseurs utilisant cette règle.",
+            "help": ""
+        },
+        "document_type_id": {
+            "label": "Type de document",
+            "description": "Type de document ciblé par la règle.",
+            "help": ""
+        },
+        "document_subtype_id": {
+            "label": "Sous-type",
+            "description": "Sous-type associé (doit appartenir au type choisi).",
+            "help": ""
+        },
+        "labeling_rule_lines_ids": {
+            "label": "Lignes de règle",
+            "description": "Définition détaillée des formats par contexte.",
+            "help": ""
+        }
+    },
+    "view": {
+        "LabelingRule.form.default": {
+            "name": "Règle d’étiquetage",
+            "description": "Formulaire pour activer/désactiver la règle et définir les critères document/fournisseur."
+        },
+        "LabelingRule.list.default": {
+            "name": "Règles d’étiquetage",
+            "description": "Vue liste synthétique (libellé, mémo, statut, type fournisseur)."
+        }
+    }
+}

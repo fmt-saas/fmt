@@ -1,0 +1,137 @@
+{
+    "name": "Opération diverse",
+    "plural": "Opérations diverses",
+    "description": "Écriture comptable ponctuelle utilisée hors factures ou mouvements standards.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble dans lequel l'opération est enregistrée.",
+            "help": ""
+        },
+        "name": {
+            "label": "Référence",
+            "description": "Identifiant calculé qui reprend l'ID et la description.",
+            "help": ""
+        },
+        "description": {
+            "label": "Objet",
+            "description": "Motif ou note interne décrivant l'opération.",
+            "help": ""
+        },
+        "organisation_id": {
+            "label": "Organisation",
+            "description": "Structure à laquelle le plan comptable est rattaché.",
+            "help": ""
+        },
+        "operation_type": {
+            "label": "Type d'opération",
+            "description": "Catégorie métier utilisée par les classes héritées.",
+            "help": "",
+            "selection": {
+                "misc": "Divers",
+                "transfer": "Transfert",
+                "refund": "Remboursement"
+            }
+        },
+        "payment_status": {
+            "label": "Statut de paiement",
+            "description": "Position du solde lors du lettrage (à équilibrer, à rembourser, soldé).",
+            "help": "",
+            "selection": {
+                "debit_balance": "Solde débiteur",
+                "credit_balance": "Solde créditeur",
+                "balanced": "Soldé"
+            }
+        },
+        "posting_date": {
+            "label": "Date comptable",
+            "description": "Date d'imputation dans le journal.",
+            "help": ""
+        },
+        "has_date_range": {
+            "label": "Période spécifique",
+            "description": "Indique si la charge doit être ventilée sur un intervalle de dates.",
+            "help": ""
+        },
+        "date_from": {
+            "label": "Date de début",
+            "description": "Première date couverte lorsque l'application se fait sur une période.",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Date de fin",
+            "description": "Dernière date couverte lorsque l'application se fait sur une période.",
+            "help": ""
+        },
+        "fiscal_year_id": {
+            "label": "Exercice",
+            "description": "Exercice déterminé d'après la date comptable.",
+            "help": ""
+        },
+        "fiscal_period_id": {
+            "label": "Période",
+            "description": "Période fiscale calculée pour la date de comptabilisation.",
+            "help": ""
+        },
+        "journal_id": {
+            "label": "Journal",
+            "description": "Journal MISC utilisé pour publier l'opération.",
+            "help": ""
+        },
+        "accounting_entry_id": {
+            "label": "Écriture générée",
+            "description": "Écriture comptable créée lors du poste.",
+            "help": ""
+        },
+        "has_opening_journal": {
+            "label": "Journal d'ouverture",
+            "description": "Indique si l'opération vise un journal d'ouverture.",
+            "help": ""
+        },
+        "misc_operation_lines_ids": {
+            "label": "Lignes",
+            "description": "Détail des lignes débit/crédit qui alimentent l'écriture.",
+            "help": ""
+        },
+        "document_id": {
+            "label": "Document principal",
+            "description": "Pièce jointe utilisée comme justificatif.",
+            "help": ""
+        },
+        "documents_ids": {
+            "label": "Documents liés",
+            "description": "Toutes les pièces associées à l'opération.",
+            "help": ""
+        },
+        "purchase_invoice_id": {
+            "label": "Facture d'achat",
+            "description": "Référence éventuelle lorsque l'opération complète une facture.",
+            "help": ""
+        },
+        "is_balanced": {
+            "label": "Écriture équilibrée",
+            "description": "Contrôle l'égalité entre le total débit et crédit.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Étape du workflow de validation.",
+            "help": "",
+            "selection": {
+                "pending": "Brouillon",
+                "proforma": "Pro-forma",
+                "posted": "Comptabilisé"
+            }
+        }
+    },
+    "view": {
+        "MiscOperation.form.default": {
+            "name": "Opération diverse",
+            "description": "Formulaire de saisie du journal MISC (dates, lignes et publication)."
+        },
+        "MiscOperation.list.default": {
+            "name": "Opérations diverses",
+            "description": "Liste filtrable des opérations avec journal, statut et justification."
+        }
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "name": "Règle de validation",
+    "plural": "Règles de validation",
+    "description": "Définit les conditions métier qu’un document (type/sous-type) doit remplir pour être considéré comme valide.",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom de la règle de validation.",
+            "help": ""
+        },
+        "description": {
+            "label": "Mémo",
+            "description": "Note interne décrivant la règle.",
+            "help": ""
+        },
+        "is_active": {
+            "label": "Active",
+            "description": "Permet d’activer/désactiver la règle sur l’environnement courant.",
+            "help": ""
+        },
+        "document_type_id": {
+            "label": "Type de document",
+            "description": "Document cible de la vérification.",
+            "help": ""
+        },
+        "document_subtype_id": {
+            "label": "Sous-type",
+            "description": "Permet d’affiner la règle à un sous-type précis.",
+            "help": ""
+        },
+        "validation_rule_lines_ids": {
+            "label": "Lignes de contrôle",
+            "description": "Liste des contrôles unitaires à exécuter.",
+            "help": ""
+        }
+    }
+}

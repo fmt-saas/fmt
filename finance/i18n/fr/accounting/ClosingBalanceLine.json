@@ -1,0 +1,37 @@
+{
+    "name": "Ligne de clôture",
+    "plural": "Lignes de clôture",
+    "description": "Résultat final d’un compte lors de la clôture (débits/crédits cumulés, soldes et verrouillage selon le statut de la balance).",
+    "model": {
+        "balance_id": {
+            "label": "Balance de clôture",
+            "description": "Balance parent dont dépend la ligne.",
+            "help": ""
+        },
+        "account_id": {
+            "label": "Compte",
+            "description": "Compte comptable concerné par la ligne.",
+            "help": ""
+        },
+        "debit": {
+            "label": "Débit",
+            "description": "Total débité pour ce compte sur la période clôturée.",
+            "help": ""
+        },
+        "credit": {
+            "label": "Crédit",
+            "description": "Total crédité pour ce compte sur la période clôturée.",
+            "help": ""
+        },
+        "debit_balance": {
+            "label": "Solde débiteur",
+            "description": "Solde final si le débit excède le crédit.",
+            "help": ""
+        },
+        "credit_balance": {
+            "label": "Solde créditeur",
+            "description": "Solde final si le crédit excède le débit.",
+            "help": ""
+        }
+    }
+}

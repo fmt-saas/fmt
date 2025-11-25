@@ -1,0 +1,28 @@
+{
+    "name": "Modèle de plan comptable",
+    "plural": "Modèles de plan comptable",
+    "description": "Plan comptable utilisé comme modèle pour générer les plans des copropriétés (lignes d’AccountTemplate et statut).",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Nom du modèle (réutilisé lors de la copie).",
+            "help": ""
+        },
+        "accounts_ids": {
+            "label": "Comptes du modèle",
+            "description": "Lignes (AccountTemplate) incluses dans ce modèle.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Indique si le modèle est actif.",
+            "help": ""
+        }
+    },
+    "view": {
+        "AccountChartTemplate.form.default": {
+            "name": "Modèle de plan comptable",
+            "description": "Formulaire de configuration d’un plan modèle (généralités et lignes)."
+        }
+    }
+}
