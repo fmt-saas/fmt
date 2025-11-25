@@ -58,6 +58,7 @@ $policy = SyncPolicy::search([
         ['sync_direction', '=', 'descending']
     ])
     ->read([
+        'scope',
         'object_class',
         'field_unique',
         'sync_policy_lines_ids' => ['object_field', 'scope']
@@ -95,6 +96,10 @@ $schema = $orm->getModel($entity)->getSchema();
 // we're only interested in scalar fields
 $fields = ['uuid'];
 
+$domain = [
+    ['modified', '>=', $timestamp]
+];
+
 foreach($schema as $field => $def) {
     if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
         continue;
@@ -114,12 +119,20 @@ foreach($schema as $field => $def) {
             continue;
         }
     }
+
+    if($field === 'instance_id' && $policy['scope'] === 'protected') {
+        $domain[] = ['instance_id', '=', $instance['id']];
+    }
+    elseif($field === 'object_class') {
+        $domain[] = ['object_class', '=', $entity];
+    }
+
     $fields[] = $field;
 }
 
 $timestamp = $params['date_from'];
 
-$objects = $entity::search(['modified', '>=', $timestamp])
+$objects = $entity::search($domain)
     ->read($fields)
     ->adapt('json')
     ->get(true);

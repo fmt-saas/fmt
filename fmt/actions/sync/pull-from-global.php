@@ -38,6 +38,7 @@ $policies = SyncPolicy::search([
         ['sync_direction', '=', 'descending']
     ])
     ->read([
+        'scope',
         'object_class',
         'field_unique',
         'sync_policy_lines_ids' => ['object_field', 'scope']
@@ -151,6 +152,9 @@ foreach($policies as $id => $policy) {
 
                 $result['logs'][] = "Requested creation of new object of entity {$entity}: " . $e->getMessage();
                 ++$result['created'];
+            }
+            else {
+                // no creation for entities marked as protected (not existing on local instance)
             }
         }
 
