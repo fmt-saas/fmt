@@ -45,6 +45,11 @@
                                                 "type": "field",
                                                 "value": "server_id",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "uuid",
+                                                "width": "100%"
                                             }
                                         ]
                                     }
