@@ -77,8 +77,17 @@ if($status < 200 || $status > 299) {
     // error
 }
 
-$identity_jwt = JWT::decode($data['id_token']);
-$email = $identity_jwt['payload']['email'];
+$email = null;
+
+if(!empty($data['id_token'])) {
+    $identity_jwt = JWT::decode($data['id_token']);
+    $email = $identity_jwt['payload']['email'] ?? null;
+}
+
+if(!$email) {
+    throw new Exception('unexpected_oauth_response', EQ_ERROR_UNKNOWN);
+}
+
 
 
 // retrieve the target instance based on state

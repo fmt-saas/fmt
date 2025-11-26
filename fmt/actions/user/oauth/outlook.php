@@ -100,27 +100,13 @@ if($status < 200 || $status > 299) {
 
 $email = null;
 
-// If id_token is present → decode email (openid flow)
 if(!empty($data['id_token'])) {
     $identity_jwt = JWT::decode($data['id_token']);
-    $email = $identity_jwt['payload']['preferred_username'] ?? null;
-}
-
-// Otherwise call Graph API /me
-if(!$email) {
-    $meRequest = new HttpRequest('GET https://graph.microsoft.com/v1.0/me');
-    $meResponse = $meRequest
-        ->header('Authorization', 'Bearer ' . $data['access_token'])
-        ->send();
-    $me = $meResponse->body();
-    $email = $me['mail'] ?? $me['userPrincipalName'] ?? null;
+    $email = $identity_jwt['payload']['email'] ?? null;
 }
 
 if(!$email) {
-    $context->httpResponse()
-        ->status(400)
-        ->body(['error' => 'Unable to determine user email.'])
-        ->send();
+    throw new Exception('unexpected_oauth_response', EQ_ERROR_UNKNOWN);
 }
 
 
@@ -159,7 +145,7 @@ $mailbox = Mailbox::search([
     ])
     ->first();
 
-if ($mailbox) {
+if($mailbox) {
     Mailbox::id($mailbox['id'])->update([
         'access_token'          => $data['access_token'],
         'refresh_token'         => $data['refresh_token'],
@@ -171,5 +157,7 @@ if ($mailbox) {
 }
 
 $context->httpResponse()
-    ->status(204)
+    ->status(200)
+    ->header('Content-Type', 'text/html')
+    ->body('<script>window.close();</script>')
     ->send();
