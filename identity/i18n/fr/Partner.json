@@ -138,14 +138,20 @@
         "form.default": {
             "layout": {
                 "section.identity_info": {
-                    "label": "Informations"
+                    "label": "Coordonnées"
+                },
+                "section.advanced": {
+                    "label": "Options avancées"
                 }
             }
         },
         "form.create": {
             "layout": {
                 "section.identity_info": {
-                    "label": "Informations"
+                    "label": "Coordonnées"
+                },
+                "section.advanced": {
+                    "label": "Options avancées"
                 }
             }
         },

@@ -237,6 +237,18 @@
                 "section.identity_addresses": {
                     "label": "Autres adresses"
                 },
+                "section.identity_contacts": {
+                    "label": "Contacts"
+                },
+                "section.sourcing": {
+                    "label": "Origine des données"
+                },
+                "section.bank_accounts": {
+                    "label": "Comptes bancaires"
+                },
+                "section.departments": {
+                    "label": "Départements & filiales"
+                },
                 "section.identity_description": {
                     "label": "Description"
                 }

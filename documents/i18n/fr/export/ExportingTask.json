@@ -42,7 +42,12 @@
     "view": {
         "ExportingTask.form.default": {
             "name": "Tâche d’export",
-            "description": "Formulaire détaillant la copropriété, le statut et la liste des lignes d’export."
+            "description": "Formulaire détaillant la copropriété, le statut et la liste des lignes d’export.",
+            "layout": {
+                "section.export_lines": {
+                    "label": "Lignes d’export"
+                }
+            }
         },
         "ExportingTask.list.default": {
             "name": "Tâches d’export",
