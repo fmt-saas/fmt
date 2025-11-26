@@ -89,14 +89,11 @@
             "name": "Produit",
             "description": "Un produit est une variante de modèle de produit (template). Il y a toujours au moins un produit pour un modèle de produit donné.",
             "layout": {
-                "section.product": {
+                "section.details": {
                     "label": "Détails"
                 },
-                "section.description": {
-                    "label": "Détails"
-                },
-                "section.prices": {
-                    "label": "Prix"
+                "section.Description": {
+                    "label": "Description"
                 },
                 "section.attributes": {
                     "label": "Attributs"
@@ -106,6 +103,9 @@
                 },
                 "section.pack_lines": {
                     "label": "Produits du pack"
+                },
+                "section.prices": {
+                    "label": "Prix"
                 },
                 "section.subscriptions": {
                     "label": "Abonnements"

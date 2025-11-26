@@ -127,7 +127,7 @@ try {
         $email = Email::create([
                 'mailbox_id'    => $mailbox['id'],
                 'message_id'    => $message_id,
-                'subject'       => $message->getSubject() ?: '(no subject)',
+                'subject'       => substr($message->getSubject() ?: '(no subject)', 0, 255),
                 'from'          => $message->getFrom()[0]->mail ?? '',
                 'to'            => $message->getTo()[0]->mail ?? '',
                 'direction'     => 'incoming',

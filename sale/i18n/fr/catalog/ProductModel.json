@@ -155,6 +155,9 @@
                 },
                 "section.categories": {
                     "label": "Catégories"
+                },
+                "section.options": {
+                    "label": "Options"
                 }
             }
         },

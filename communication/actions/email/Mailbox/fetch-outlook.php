@@ -95,7 +95,7 @@ $data = $response->body();
 $status = $response->getStatusCode();
 
 if($status < 200 || $status > 299) {
-    trigger_error("Graph API error: " . json_encode($data), EQ_REPORT_ERROR);
+    trigger_error("APP::Graph API error: " . json_encode($data), EQ_REPORT_ERROR);
     throw new Exception("graph_api_error", EQ_ERROR_INVALID_PARAM);
 }
 
@@ -123,7 +123,7 @@ foreach($messages as $msg) {
     $email = Email::create([
             'mailbox_id' => $mailbox['id'],
             'message_id' => $internet_id,
-            'subject'    => $msg['subject'] ?: '(no subject)',
+            'subject'    => substr($msg['subject'] ?: '(no subject)', 0, 255),
             'from'       => $msg['from']['emailAddress']['address'] ?? '',
             'to'         => $msg['toRecipients'][0]['emailAddress']['address'] ?? '',
             'direction'  => 'incoming',

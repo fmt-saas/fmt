@@ -22,6 +22,9 @@
 				"section.description": {
 					"label": "Description",
 					"help": ""
+				},
+				"section.values": {
+					"label": "Valeurs"
 				}
 			}
 		},

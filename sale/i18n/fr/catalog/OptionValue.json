@@ -23,7 +23,11 @@
 		"form.default": {
 			"name": "Valeur d'option",
 			"description": "Les objets OptionValue sont les valeurs possibles auxquelles une option, pour un attribut de produit donné, peut être définie sur.",
-			"layout": {}
+			"layout": {
+				"section.description": {
+					"label": "Description"
+				}
+			}
 		},
 		"list.default": {
 			"name": "Valeurs d'option",

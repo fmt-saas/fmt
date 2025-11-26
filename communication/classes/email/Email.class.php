@@ -120,7 +120,7 @@ class Email extends Model {
 
             'body' => [
                 'type'              => 'string',
-                'usage'             => 'text/html'
+                'usage'             => 'text/html.medium'
             ],
 
             'object_class' => [

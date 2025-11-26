@@ -23,7 +23,11 @@
 		"form.default": {
 			"name": "Catégorie de vente automatique",
 			"description": "",
-			"layout": {}
+			"layout": {
+				"section.autosale_lists": {
+					"label": "Listes automatiques"
+				}
+			}
 		},
 		"list.default": {
 			"name": "Catégories de vente automatique",
