@@ -10,12 +10,7 @@
             {
                 "type": "field",
                 "value": "name",
-                "width": "16%"
-            },
-            {
-                "type": "field",
-                "value": "data",
-                "width": "16%"
+                "width": "25%"
             },
             {
                 "type": "field",

@@ -45,11 +45,10 @@ use infra\server\Instance;
  */
 ['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
 
-
 /*
 Example of received params:
 
-    "state": "https://platform.fmtsolutions.be/",
+    "state": "https://test1.fmtsolutions.be/",
     "code": "4/0Ab32j92b4Yh_NL_2UyNlp3GZwJCNUWGVRNN2Izsd7VzmQp2IBdj7h_omtkaG_cRLC1jZtw",
     "scope": "email profile https://mail.google.com/ https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email openid",
     "authuser": "1",
@@ -58,8 +57,6 @@ Example of received params:
     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiYW1yIjp7ImF1dGhfdHlwZSI6InB3ZCIsImF1dGhfbGV2ZWwiOjF9LCJleHAiOjE3NjM3NDU2OTJ9.yiqiey9NRKj6jZTktqgaph4kI6UB8Y9Xu046gC_5KQA"
 
 */
-
-
 
 $oauthRequest = new HttpRequest('POST https://oauth2.googleapis.com/token');
 $response = $oauthRequest
