@@ -1,28 +1,28 @@
 {
     "name": "Étiquette",
     "plural": "Étiquettes",
-    "description": "Cette vue permet d'afficher liste des différentes étiquettes.",
+    "description": "Référentiel des étiquettes appliquées aux documents.",
     "model": {
         "name": {
             "label": "Nom",
-            "description": "Nom de l'étiquette.",
+            "description": "Nom lisible de l'étiquette.",
             "help": ""
         },
         "description": {
             "label": "Description",
-            "description": "Description du but et de l'utilisation de l'étiquette.",
+            "description": "But et utilisation de l'étiquette.",
             "help": ""
         },
         "documents_ids": {
             "label": "Documents",
-            "description": "Documents étiquetés.",
+            "description": "Documents actuellement marqués avec cette étiquette.",
             "help": ""
         }
     },
     "view": {
-        "form.default": {
+        "DocumentTag.form.default": {
             "name": "Étiquette",
-            "description": "",
+            "description": "Formulaire de gestion d'une étiquette de document.",
             "layout": {
                 "section.description": {
                     "label": "Description"
@@ -30,12 +30,12 @@
                 "section.documents": {
                     "label": "Documents"
                 }
-        },
-        "list.default": {
-            "name": "Liste des Étiquettes",
-            "description": "Liste des étiquettes.",
-            "layout": {}
             }
+        },
+        "DocumentTag.list.default": {
+            "name": "Liste des étiquettes",
+            "description": "Toutes les étiquettes disponibles.",
+            "layout": {}
         }
     }
 }

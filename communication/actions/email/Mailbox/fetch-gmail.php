@@ -12,7 +12,7 @@ use communication\email\Mailbox;
 use documents\Document;
 
 [$params, $providers] = eQual::announce([
-    'description'	=>	"Refresh the access token of a given Mailbox.",
+    'description'	=>	"Fetch emails from a Gmail/Google Mailbox using OAuth2.",
     'params' 		=>	[
         'id' =>  [
             'type'             => 'many2one',
@@ -92,7 +92,7 @@ try {
         'validate_cert'  => false,
         'username'       => $mailbox['email'],
         'password'       => $mailbox['access_token'],
-        'authentication' => "oauth",
+        'authentication' => 'oauth',
         'protocol'       => 'imap'
     ]);
 

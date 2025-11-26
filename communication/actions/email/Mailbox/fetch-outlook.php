@@ -20,7 +20,6 @@ use documents\Document;
             'required'         => true
         ]
     ],
-    'constants'     => ['BACKEND_URL'],
     'access'        => [
         'visibility' => 'protected'
     ],
@@ -29,17 +28,15 @@ use documents\Document;
         'charset'           => 'utf-8',
         'accept-origin'     => '*'
     ],
-    'providers'     => ['context', 'auth', 'orm'],
-    'constants'     => ['BACKEND_URL', 'AUTH_ACCESS_TOKEN_VALIDITY', 'AUTH_TOKEN_HTTPS', 'FMT_INSTANCE_TYPE']
+    'providers'     => ['context', 'auth']
 ]);
 
 
 /**
  * @var equal\php\Context                   $context
- * @var equal\orm\ObjectManager             $om
  * @var equal\auth\AuthenticationManager    $auth
  */
-['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
+['context' => $context, 'auth' => $auth] = $providers;
 
 
 /* ---------------------------------------------------------
@@ -50,19 +47,19 @@ $mailbox = Mailbox::id($params['id'])
     ->read(['status', 'auth_type', 'access_token_expiry', 'refresh_token_expiry'])
     ->first();
 
-if (!$mailbox) {
+if(!$mailbox) {
     throw new Exception("unknown_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
-if ($mailbox['status'] !== 'validated') {
+if($mailbox['status'] !== 'validated') {
     throw new Exception("non_validated_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
-if ($mailbox['auth_type'] !== 'oauth') {
+if($mailbox['auth_type'] !== 'oauth') {
     throw new Exception("non_oauth_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
-if ($mailbox['refresh_token_expiry'] < time()) {
+if($mailbox['refresh_token_expiry'] < time()) {
     throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
 }
 
@@ -107,7 +104,7 @@ try {
         'validate_cert'  => false,
         'username'       => $mailbox['email'],           // full email address
         'password'       => $mailbox['access_token'],    // OAuth access token
-        'authentication' => "oauth",                     // XOAUTH2
+        'authentication' => 'oauth',                     // XOAUTH2
         'protocol'       => 'imap'
     ]);
 
@@ -136,12 +133,12 @@ try {
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ];
 
-    foreach ($messages as $message) {
+    foreach($messages as $message) {
 
         $message_id = $message->getMessageId();
 
         // Skip if already imported
-        if (Email::search(['message_id', '=', $message_id])->first()) {
+        if(Email::search(['message_id', '=', $message_id])->first()) {
             continue;
         }
 
@@ -164,9 +161,9 @@ try {
            ATTACHMENTS
         --------------------------------------------------------- */
 
-        foreach ($message->getAttachments() as $attachment) {
+        foreach($message->getAttachments() as $attachment) {
 
-            if (!in_array($attachment->mime, $allowed_mime_types)) {
+            if(!in_array($attachment->mime, $allowed_mime_types)) {
                 continue;
             }
 
@@ -182,8 +179,13 @@ try {
     $client->disconnect();
 
 }
-catch (\Exception $e) {
-    trigger_error('APP::Unable to connect to Outlook IMAP: ' . $e->getMessage(), EQ_REPORT_ERROR);
+catch(\Exception $e) {
+    $error = '';
+    if($cm) {
+        $errors = $cm->getErrors();
+        $error = end($errors);
+    }
+    trigger_error('APP::Unable to connect to Outlook IMAP: ' . $e->getMessage() . ' ' . $error, EQ_REPORT_ERROR);
     throw new Exception("imap_connect_error", EQ_ERROR_INVALID_PARAM);
 }
 

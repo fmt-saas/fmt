@@ -1,46 +1,46 @@
 {
     "name": "Document",
     "plural": "Documents",
-    "description": "Vue par défaut pour la liste des documents.",
+    "description": "Gestion des fichiers et métadonnées importés dans la GED.",
     "model": {
         "name": {
             "label": "Nom",
-            "description": "Nom du document.",
+            "description": "Nom lisible du document.",
             "help": ""
         },
         "data": {
             "label": "Fichier source",
-            "description": "Fichier à importer..",
-            "help": "Fichier contenant les données binaires brutes du document."
+            "description": "Fichier binaire contenant le document.",
+            "help": ""
         },
         "content_type": {
             "label": "Type de média",
-            "description": "Identifiant de format de données.",
+            "description": "Identifiant MIME du document.",
             "help": ""
         },
         "content_size": {
-            "label": "Taille",
-            "description": "Taille du fichier (en octets).",
+            "label": "Taille (octets)",
+            "description": "Taille brute du fichier.",
             "help": ""
         },
         "readable_size": {
-            "label": "Taille",
-            "description": "Taille du document (format simplifié).",
+            "label": "Taille lisible",
+            "description": "Taille affichée dans une unité adaptée.",
             "help": ""
         },
         "hash": {
-            "label": "Clé",
-            "description": "Clé de hash unique du document.",
+            "label": "Empreinte",
+            "description": "Hash unique du document.",
             "help": ""
         },
         "link": {
             "label": "Lien",
-            "description": "Lien direct du document.",
+            "description": "URL directe du document.",
             "help": ""
         },
         "public": {
             "label": "Public",
-            "description": "Le document est accessible par tous.",
+            "description": "Indique si le document est accessible à tous.",
             "help": ""
         },
         "lang_id": {
@@ -50,46 +50,63 @@
         },
         "category_id": {
             "label": "Catégorie",
-            "description": "Catégorie dans laquelle se trouve le document.",
+            "description": "Catégorie dans laquelle ranger le document.",
             "help": ""
         },
         "tags_ids": {
             "label": "Étiquettes",
-            "description": "Étiquettes du document.",
-            "help": ""
-        },
-        "tags": {
-            "label": "Étiquettes",
-            "description": "Courte liste des étiquettes du document.",
+            "description": "Étiquettes associées au document.",
             "help": ""
         },
         "preview_image": {
             "label": "Aperçu",
-            "description": "Vignette d'aperçu du document.",
+            "description": "Vignette générée pour visualiser le document.",
             "help": ""
         },
         "template_attachments_ids": {
             "label": "Pièces jointes",
-            "description": "Pièces jointes utilisant le document.",
+            "description": "Pièces jointes de modèles utilisant ce document.",
+            "help": ""
+        },
+        "has_document_json": {
+            "label": "JSON source disponible",
+            "description": "",
+            "help": ""
+        },
+        "document_json": {
+            "label": "Document JSON",
+            "description": "Version JSON stockée du document.",
+            "help": ""
+        },
+        "analysis_json": {
+            "label": "Analyse JSON",
+            "description": "Résultats d'analyse du document.",
             "help": ""
         }
     },
     "view": {
-        "form.default": {
+        "Document.form.default": {
             "name": "Document",
-            "description": "",
+            "description": "Fiche d'un document analysé (assignation, type, métadonnées)."
+        },
+        "Document.form.meta": {
+            "name": "Document (métadonnées)",
+            "description": "Formulaire d'encodage des métadonnées d'un document.",
             "layout": {
                 "section.details": {
                     "label": "Détails"
                 },
-                "section.tags": {
-                    "label": "Étiquettes"
+                "section.json": {
+                    "label": "Document JSON"
+                },
+                "sections.analysis": {
+                    "label": "Analyse du document"
                 }
             }
         },
-        "list.default": {
+        "Document.list.default": {
             "name": "Documents",
-            "description": "Liste des documents.",
+            "description": "Liste des documents disponibles.",
             "layout": {}
         }
     }
