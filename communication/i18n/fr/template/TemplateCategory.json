@@ -5,7 +5,7 @@
     "model": {
         "name": {
             "label": "Nom",
-            "description": "Etiquette courte pour faciliter l'identification de la catégorie.",
+            "description": "Étiquette courte pour faciliter l'identification de la catégorie.",
             "help": ""
         },
         "description": {
@@ -24,7 +24,7 @@
             "name": "Catégorie de modèle",
             "description": "Formulaire de modification d'une catégorie de modèle.",
             "layout": {
-                "section.template": {
+                "section.templates": {
                     "label": "Modèles"
                 }
             }
@@ -35,6 +35,5 @@
             "layout": {}
         }
     },
-    "error": {
-    }
+    "error": {}
 }

@@ -34,7 +34,7 @@
             "label": "Download",
             "icon": "sync",
             "description": "Fetch latest emails and import attachments.",
-            "controller": "communication_email_Mailbox_fetch-gmail",
+            "controller": "communication_email_Mailbox_fetch",
             "params": {
                 "id": "object.id"
             },

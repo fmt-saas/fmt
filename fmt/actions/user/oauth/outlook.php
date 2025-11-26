@@ -121,7 +121,7 @@ $instance = Instance::search(['name', '=', $domain])->first();
 
 if($instance) {
     $data['email'] = $email;
-    $data['provider'] = 'outlook';
+    $data['provider'] = 'microsoft';
     $data['access_token_expiry'] = time() + $data['expires_in'];
     // Microsoft exposes refresh token validity differently; fallback 90 days
     $data['refresh_token_expiry'] = time() + (constant('AUTH_ACCESS_TOKEN_VALIDITY') * 5);

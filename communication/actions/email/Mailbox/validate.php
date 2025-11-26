@@ -62,7 +62,7 @@ use communication\email\Mailbox;
 
 $map_providers = [
     'google'     => 'imap.gmail.com',
-    'microsoft'  => 'outlook.office365.com'
+    'microsoft'  => 'imap.outlook.com'
 ];
 
 // attempt to retrieve a matching Mailbox

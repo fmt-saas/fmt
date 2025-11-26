@@ -5,7 +5,7 @@
     "model": {
         "email": {
             "label": "Adresse",
-            "description": "Adresse email principale utilisée par la boîte.",
+            "description": "Adresse e-mail principale utilisée par la boîte.",
             "help": ""
         },
         "login": {
@@ -20,32 +20,32 @@
         },
         "imap_server": {
             "label": "Serveur IMAP",
-            "description": "Nom d’hôte du serveur de messagerie.",
+            "description": "Nom d'hôte du serveur de messagerie.",
             "help": ""
         },
         "imap_port": {
             "label": "Port IMAP",
-            "description": "Port réseau utilisé pour l’accès IMAP.",
+            "description": "Port réseau utilisé pour l'accès IMAP.",
             "help": ""
         },
         "auth_type": {
-            "label": "Type d’authentification",
+            "label": "Type d'authentification",
             "description": "Choix entre authentification basique ou OAuth.",
             "help": ""
         },
         "access_token": {
-            "label": "Token d’accès",
+            "label": "Jeton d'accès",
             "description": "Jeton OAuth2 courant (si utilisé).",
             "help": ""
         },
         "refresh_token": {
-            "label": "Token de rafraîchissement",
-            "description": "Jeton OAuth2 permettant de renouveler l’accès.",
+            "label": "Jeton de rafraîchissement",
+            "description": "Jeton OAuth2 permettant de renouveler l'accès.",
             "help": ""
         },
         "date_last_sync": {
             "label": "Dernière synchro",
-            "description": "Horodatage de la dernière récupération des emails.",
+            "description": "Horodatage de la dernière récupération des e-mails.",
             "help": ""
         },
         "status": {
@@ -57,11 +57,19 @@
     "view": {
         "Mailbox.form.default": {
             "name": "Boîte mail",
-            "description": "Formulaire de configuration d’une boîte aux lettres (serveur, authentification, tokens)."
+            "description": "Formulaire de configuration d'une boîte aux lettres (serveur, authentification, jetons).",
+            "layout": {
+                "section.messages": {
+                    "label": "Messages"
+                },
+                "section.parameters": {
+                    "label": "Paramètres"
+                }
+            }
         },
         "Mailbox.list.default": {
             "name": "Boîtes mail",
-            "description": "Vue liste des boîtes configurées avec leur statut et dernière synchronisation."
+            "description": "Liste des boîtes configurées avec leur statut et dernière synchronisation."
         }
     }
 }
