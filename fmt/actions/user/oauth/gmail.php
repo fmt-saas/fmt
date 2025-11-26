@@ -128,25 +128,6 @@ gpAJMjKCav1DcLXXe2fngZBoMZadqf_FcCwx-ZqsI5iG-HjCSnPJ_D3TT323CnQVmKNDXv8RePmU70lv
 }
 */
 
-// attempt to retrieve a matching Mailbox
-$mailbox = Mailbox::search([
-        ['email', '=', $email],
-        ['auth_type', '=', 'oauth'],
-        ['status', '=', 'pending']
-    ])
-    ->first();
-
-// if found, update it and mark it as validated
-if($mailbox) {
-    Mailbox::id($mailbox['id'])->update([
-            'access_token'          => $data['access_token'],
-            'refresh_token'         => $data['refresh_token'],
-            'access_token_expiry'   => time() + $data['expires_in'],
-            'refresh_token_expiry'  => time() + $data['refresh_token_expires_in'],
-            'imap_server'           => 'imap.gmail.com',
-            'status'                => 'validated'
-        ]);
-}
 
 $context->httpResponse()
         ->status(204)

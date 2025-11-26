@@ -133,29 +133,6 @@ if($instance) {
         ->send();
 }
 
-
-/* --------------------------------------------------------------------------
-   4) Update Mailbox in eQual if exists
-   -------------------------------------------------------------------------- */
-
-$mailbox = Mailbox::search([
-        ['email', '=', $email],
-        ['auth_type', '=', 'oauth'],
-        ['status', '=', 'pending']
-    ])
-    ->first();
-
-if($mailbox) {
-    Mailbox::id($mailbox['id'])->update([
-        'access_token'          => $data['access_token'],
-        'refresh_token'         => $data['refresh_token'],
-        'access_token_expiry'   => time() + $data['expires_in'],
-        'refresh_token_expiry'  => time() + (constant('AUTH_ACCESS_TOKEN_VALIDITY') * 5),
-        'imap_server'           => 'imap.outlook.com',
-        'status'                => 'validated'
-    ]);
-}
-
 $context->httpResponse()
     ->status(200)
     ->header('Content-Type', 'text/html')
