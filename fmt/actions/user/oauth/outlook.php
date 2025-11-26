@@ -64,7 +64,7 @@ $response = $oauthRequest
         'client_id'     => constant('MS_OUTLOOK_CLIENT_ID'),
         'client_secret' => constant('MS_OUTLOOK_CLIENT_SECRET'),
         // mandatory for MS token exchange
-        'scope'         => 'openid profile offline_access https://graph.microsoft.com/User.Read https://graph.microsoft.com/IMAP.AccessAsUser.All'
+        'scope'         => 'openid profile offline_access email User.Read Mail.ReadWrite IMAP.AccessAsUser.All'
     ])
     ->send();
 
