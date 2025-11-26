@@ -53,10 +53,10 @@
                 }
             },
             "layout": {
-                "sections.invoice_lines": {
+                "section.invoice_lines": {
                     "label": "Lignes de facture"
                 },
-                "sections.invoice_entries": {
+                "section.accounting_entries": {
                     "label": "Écritures comptables"
                 },
                 "section.payments": {

@@ -77,11 +77,13 @@ if($mailbox['access_token_expiry'] < time()) {
 --------------------------------------------------------- */
 
 $since = str_replace('+00:00', 'Z', gmdate('c', $mailbox['date_last_sync']));
-
+/*
 $url = "https://graph.microsoft.com/v1.0/me/messages?"
     . '$filter=receivedDateTime ge ' . "'$since'"
     . '&$orderby=receivedDateTime desc'
     . '&$top=50';
+*/
+$url = "https://graph.microsoft.com/v1.0/me/messages";
 
 $http = new HttpRequest("GET $url");
 
