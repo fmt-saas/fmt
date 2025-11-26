@@ -9,7 +9,7 @@ use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 
 [$params, $providers] = eQual::announce([
-    'description' => 'Envoie un document PDF à Google Document AI et retourne le résultat.',
+    'description' => 'Handle next task in ExportingTask queue.',
     'params' => [
         'id' =>  [
             'description'       => 'Optional identifier of a specific exporting task to run.',

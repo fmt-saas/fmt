@@ -3,371 +3,371 @@
     "view": {
         "item.followup": {
             "label": "Suivi",
-            "help": ""
+            "description": ""
         },
         "payments_followups": {
             "label": "Suivi des paiements",
-            "help": "Surveiller les appels impayés et les relances."
+            "description": "Surveiller les appels impayés et les relances."
         },
         "item.imports": {
             "label": "Imports",
-            "help": ""
+            "description": ""
         },
         "item.imports.invoice_import": {
             "label": "Facture",
-            "help": "Importer des factures fournisseurs ou de dépenses."
+            "description": "Importer des factures fournisseurs ou de dépenses."
         },
         "item.imports.bank_statements.import": {
             "label": "Extraits bancaires",
-            "help": "Importer et rapprocher les extraits."
+            "description": "Importer et rapprocher les extraits."
         },
         "item.imports.data_import.condominium": {
             "label": "Import copropriété",
-            "help": "Importer des données depuis un fichier XLS."
+            "description": "Importer des données depuis un fichier XLS."
         },
         "item.imports.data_import.suppliers": {
             "label": "Import fournisseurs",
-            "help": "Importer des données depuis un fichier XLS."
+            "description": "Importer des données depuis un fichier XLS."
         },
         "item.imports.data_imports": {
             "label": "Tous les imports",
-            "help": "Imports depuis un fichier XLS."
+            "description": "Imports depuis un fichier XLS."
         },
         "item.properties": {
             "label": "Biens",
-            "help": ""
+            "description": ""
         },
         "condominiums": {
             "label": "Copropriétés",
-            "help": "Lister et gérer les copropriétés."
+            "description": "Lister et gérer les copropriétés."
         },
         "property_lots": {
             "label": "Lots",
-            "help": "Définir et gérer les lots."
+            "description": "Définir et gérer les lots."
         },
         "property_entrances": {
             "label": "Entrées",
-            "help": "Enregistrer les entrées ou bâtiments."
+            "description": "Enregistrer les entrées ou bâtiments."
         },
         "ownerships": {
             "label": "Propriétaires",
-            "help": "Gérer les copropriétaires et leurs quotes-parts."
+            "description": "Gérer les copropriétaires et leurs quotes-parts."
         },
         "tenancies": {
             "label": "Locataires",
-            "help": "Lister les locataires et les contrats."
+            "description": "Lister les locataires et les contrats."
         },
         "ownership_transfers": {
             "label": "Transferts de propriétaires",
-            "help": "Suivre les transferts de propriétaires et les ventes."
+            "description": "Suivre les transferts de propriétaires et les ventes."
         },
         "item.governance": {
             "label": "Gouvernance",
-            "help": ""
+            "description": ""
         },
         "assembly_templates": {
             "label": "modèles d'assemblée",
-            "help": "Définir les modèles d'assemblée générale."
+            "description": "Définir les modèles d'assemblée générale."
         },
         "item.energy_consumption": {
             "label": "Consommations",
-            "help": ""
+            "description": ""
         },
         "consumption_meters": {
             "label": "Compteurs",
-            "help": "Lister et configurer les compteurs énergétiques."
+            "description": "Lister et configurer les compteurs énergétiques."
         },
         "consumption_statements": {
             "label": "Relevés de conso",
-            "help": "Générer et vérifier les données de consommation."
+            "description": "Générer et vérifier les données de consommation."
         },
         "item.allocations": {
             "label": "Répartitions",
-            "help": ""
+            "description": ""
         },
         "apportionments": {
             "label": "Clés de répartition",
-            "help": "Définir et maintenir les clés de répartition."
+            "description": "Définir et maintenir les clés de répartition."
         },
         "item.config.lot_natures": {
             "label": "Natures de lot",
-            "help": "Définir les natures de lot utilisées pour les clés."
+            "description": "Définir les natures de lot utilisées pour les clés."
         },
         "item.organization": {
             "label": "Organisation",
-            "help": ""
+            "description": ""
         },
         "organisation": {
             "label": "Organisation",
-            "help": "Consulter et modifier les détails de l'organisation."
+            "description": "Consulter et modifier les détails de l'organisation."
         },
         "employees": {
             "label": "Employés",
-            "help": "Lister et gérer les employés."
+            "description": "Lister et gérer les employés."
         },
         "teams": {
             "label": "équipes",
-            "help": "Gérer les équipes de travail."
+            "description": "Gérer les équipes de travail."
         },
         "roles": {
             "label": "Réles",
-            "help": "Définir et attribuer les réles des employés."
+            "description": "Définir et attribuer les réles des employés."
         },
         "assignments": {
             "label": "Affectations",
-            "help": "Gérer les affectations de réles."
+            "description": "Gérer les affectations de réles."
         },
         "item.accounting": {
             "label": "Comptabilité",
-            "help": ""
+            "description": ""
         },
         "item.accounting.fiscal_years": {
             "label": "Exercices",
-            "help": "Définir et gérer les exercices."
+            "description": "Définir et gérer les exercices."
         },
         "item.accounting.accountchart": {
             "label": "Plan comptable",
-            "help": "Gérer le plan comptable."
+            "description": "Gérer le plan comptable."
         },
         "item.accounting.accounting_entries": {
             "label": "écritures comptables",
-            "help": "Consulter et gérer les écritures."
+            "description": "Consulter et gérer les écritures."
         },
         "item.accounting.misc_operations": {
             "label": "Opérations diverses",
-            "help": "Traiter les opérations diverses."
+            "description": "Traiter les opérations diverses."
         },
         "fund_requests": {
             "label": "Appels de fonds",
-            "help": "Gérer les appels de fonds des immeubles."
+            "description": "Gérer les appels de fonds des immeubles."
         },
         "item.accounting.expense_statements": {
             "label": "états de dépenses",
-            "help": "Consulter et approuver les états de dépenses."
+            "description": "Consulter et approuver les états de dépenses."
         },
         "purchase_invoices": {
             "label": "Factures d'achat",
-            "help": "Gérer les factures d'achat fournisseurs."
+            "description": "Gérer les factures d'achat fournisseurs."
         },
         "item.accounting.settings": {
             "label": "Paramètres",
-            "help": ""
+            "description": ""
         },
         "item.accounting.journals": {
             "label": "Journaux",
-            "help": "Gérer les journaux comptables."
+            "description": "Gérer les journaux comptables."
         },
         "item.accounting.accountcharttemplate": {
             "label": "modèle de plan",
-            "help": "Gérer les modèles de plan comptable."
+            "description": "Gérer les modèles de plan comptable."
         },
         "item.accounting.vat_rules": {
             "label": "Régles TVA",
-            "help": "Configurer les régles de TVA et de taxe."
+            "description": "Configurer les régles de TVA et de taxe."
         },
         "item.contacts": {
             "label": "Contacts",
-            "help": ""
+            "description": ""
         },
         "identities": {
             "label": "Identités",
-            "help": "Gérer toutes les identités enregistrées."
+            "description": "Gérer toutes les identités enregistrées."
         },
         "users": {
             "label": "Utilisateurs",
-            "help": "Gérer les comptes utilisateurs de l'application."
+            "description": "Gérer les comptes utilisateurs de l'application."
         },
         "owners": {
             "label": "Propriétaires",
-            "help": "Lister et gérer les propriétaires."
+            "description": "Lister et gérer les propriétaires."
         },
         "suppliers": {
             "label": "Tous les fournisseurs",
-            "help": "Gérer tous les fournisseurs enregistrés."
+            "description": "Gérer tous les fournisseurs enregistrés."
         },
         "bank": {
             "label": "Banques",
-            "help": "Lister et gérer les banques."
+            "description": "Lister et gérer les banques."
         },
         "managing_agents": {
             "label": "Syndics",
-            "help": "Gérer les syndics ou gestionnaires."
+            "description": "Gérer les syndics ou gestionnaires."
         },
         "notary_offices": {
             "label": "études notariales",
-            "help": "Lister et gérer les études notariales."
+            "description": "Lister et gérer les études notariales."
         },
         "item.documents": {
             "label": "Documents",
-            "help": ""
+            "description": ""
         },
         "item.documents.email": {
             "label": "E-mails entrants",
-            "help": "Consulter et gérer les e-mails reéus."
+            "description": "Consulter et gérer les e-mails reéus."
         },
         "item.documents.exports": {
             "label": "Exports",
-            "help": ""
+            "description": ""
         },
         "item.documents.folders": {
             "label": "Dossiers",
-            "help": "Parcourir et organiser les dossiers de documents."
+            "description": "Parcourir et organiser les dossiers de documents."
         },
         "item.documents.documents": {
             "label": "Tous les documents",
-            "help": "Lister et gérer tous les documents."
+            "description": "Lister et gérer tous les documents."
         },
         "item.documents.document_processings": {
             "label": "Traitement de documents",
-            "help": "Suivre et gérer le traitement des documents."
+            "description": "Suivre et gérer le traitement des documents."
         },
         "item.banks": {
             "label": "Banques",
-            "help": ""
+            "description": ""
         },
         "item.banks.bank_accounts": {
             "label": "Comptes bancaires",
-            "help": "Lister et gérer les comptes bancaires."
+            "description": "Lister et gérer les comptes bancaires."
         },
         "item.banks.suppliers_bank_accounts": {
             "label": "Comptes bancaires fournisseurs",
-            "help": "Gérer les comptes bancaires des fournisseurs."
+            "description": "Gérer les comptes bancaires des fournisseurs."
         },
         "item.banks.bank_statements.all": {
             "label": "Extraits bancaires",
-            "help": "Consulter et rapprocher les extraits."
+            "description": "Consulter et rapprocher les extraits."
         },
         "item.config": {
             "label": "Configuration",
-            "help": ""
+            "description": ""
         },
         "item.config.security": {
             "label": "Sécurité",
-            "help": ""
+            "description": ""
         },
         "item.config.security.permissions": {
             "label": "Permissions",
-            "help": "Gérer les droits d'accés."
+            "description": "Gérer les droits d'accés."
         },
         "item.config.security.users": {
             "label": "Utilisateurs",
-            "help": "Lister et gérer les utilisateurs du systéme."
+            "description": "Lister et gérer les utilisateurs du systéme."
         },
         "item.config.security.groups": {
             "label": "Groupes",
-            "help": "Gérer les groupes d'utilisateurs et leurs réles."
+            "description": "Gérer les groupes d'utilisateurs et leurs réles."
         },
         "item.config.scheduler": {
             "label": "Planificateur",
-            "help": ""
+            "description": ""
         },
         "item.config.scheduler.cron_tasks": {
             "label": "Téches planifiées",
-            "help": "Consulter et gérer les téches planifiées."
+            "description": "Consulter et gérer les téches planifiées."
         },
         "item.config.scheduler.cron_tasks_recurring": {
             "label": "Téches récurrentes",
-            "help": "Gérer les téches récurrentes planifiées."
+            "description": "Gérer les téches récurrentes planifiées."
         },
         "item.config.sync": {
             "label": "Synchronisation",
-            "help": ""
+            "description": ""
         },
         "item.config.sync.policies": {
             "label": "Politiques de synchro",
-            "help": "Définir les politiques de synchronisation."
+            "description": "Définir les politiques de synchronisation."
         },
         "item.config.sync.requests": {
             "label": "Requêtes de mise à jour",
-            "help": "Suivre les requêtes de synchronisation."
+            "description": "Suivre les requêtes de synchronisation."
         },
         "item.config.documents_types": {
             "label": "Types de document",
-            "help": "Gérer les types de document."
+            "description": "Gérer les types de document."
         },
         "item.config.documents_subtypes": {
             "label": "Sous-types de document",
-            "help": "Gérer les sous-types de document."
+            "description": "Gérer les sous-types de document."
         },
         "item.config.documents_recording_rules": {
             "label": "Régles d'enregistrement",
-            "help": "Configurer les régles d'enregistrement de documents."
+            "description": "Configurer les régles d'enregistrement de documents."
         },
         "item.config.pricelist": {
             "label": "Liste de prix",
-            "help": "Gérer les listes de prix de l'organisation."
+            "description": "Gérer les listes de prix de l'organisation."
         },
         "item.config.payment_terms": {
             "label": "Conditions de paiement",
-            "help": "Définir les conditions de paiement clients."
+            "description": "Définir les conditions de paiement clients."
         },
         "item.config.supplier_types": {
             "label": "Types de fournisseur",
-            "help": "Gérer les catégories de fournisseurs."
+            "description": "Gérer les catégories de fournisseurs."
         },
         "communication": {
             "label": "Communication",
-            "help": ""
+            "description": ""
         },
         "communication.templates": {
             "label": "modèles",
-            "help": ""
+            "description": ""
         },
         "communication.templates.templates": {
             "label": "Tous les modèles",
-            "help": ""
+            "description": ""
         },
         "communication.templates.categories": {
             "label": "Catégories de modèles",
-            "help": ""
+            "description": ""
         },
         "communication.templates.types": {
             "label": "Types de modèles",
-            "help": ""
+            "description": ""
         },
         "communication.templates.parts": {
             "label": "Toutes les sections de modèle",
-            "help": ""
+            "description": ""
         },
         "communication.templates.attachments": {
             "label": "Toutes les pièces jointes",
-            "help": ""
+            "description": ""
         },
         "communication.alerts": {
             "label": "Alertes",
-            "help": ""
+            "description": ""
         },
         "communication.alert.messages": {
             "label": "Tous les messages",
-            "help": ""
+            "description": ""
         },
         "communication.alert.message_models": {
             "label": "Modèles de message",
-            "help": ""
+            "description": ""
         },
         "communication.emails": {
             "label": "E-mails",
-            "help": ""
+            "description": ""
         },
         "communication.emails.mailboxes": {
             "label": "Boîtes mail",
-            "help": "Boîtes destinées aux e-mails entrants."
+            "description": "Boîtes destinées aux e-mails entrants."
         },
         "communication.emails.all": {
             "label": "E-mails sortants",
-            "help": "Historique de tous les e-mails sortants."
+            "description": "Historique de tous les e-mails sortants."
         },
         "item.infra": {
             "label": "Infra",
-            "help": ""
+            "description": ""
         },
         "item.infra.servers": {
             "label": "Serveurs",
-            "help": "Lister et gérer les serveurs d'infrastructure."
+            "description": "Lister et gérer les serveurs d'infrastructure."
         },
         "item.infra.instances": {
             "label": "Instances",
-            "help": "Gérer les instances serveur et leurs configurations."
+            "description": "Gérer les instances serveur et leurs configurations."
         }
     }
 }

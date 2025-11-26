@@ -5,7 +5,7 @@
         "data": [
             {
                 "id": 1,
-                "name": "email spooler",
+                "name": "Envoi d'emails",
                 "moment": "2025-11-06T13:55:08+00:00",
                 "is_active": true,
                 "is_recurring": true,
@@ -16,7 +16,7 @@
             },
             {
                 "id": 2,
-                "name": "export de documents",
+                "name": "Génération d'export de documents",
                 "status": "idle",
                 "pid": 450,
                 "last_run": "2025-11-06T13:54:01+00:00",

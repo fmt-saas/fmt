@@ -960,7 +960,8 @@
             },
             {
                 "id": "item.infra",
-                "visible": ["global", "=", "env.instance_type"],
+                "visible1": ["global", "=", "env.instance_type"],
+                "visible": ["admins", "in", "user.groups"],
                 "label": "Infra",
                 "description": "",
                 "icon": "cloud",
