@@ -211,7 +211,21 @@
     "view": {
         "form.default": {
             "name": "Copropriété",
-            "description": "Fiche d'identité et informations générales de la copropriété."
+            "description": "Fiche d'identité et informations générales de la copropriété.",
+            "layout": {
+                "section.main_info": {
+                    "label": "Informations générales"
+                },
+                "section.address": {
+                    "label": "Adresse"
+                },
+                "section.bank_accounts": {
+                    "label": "Comptes bancaires"
+                },
+                "section.accounting": {
+                    "label": "Comptabilité"
+                }
+            }
         },
         "form.config": {
             "name": "Configuration",

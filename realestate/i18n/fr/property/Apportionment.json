@@ -61,7 +61,12 @@
     "view": {
         "form.default": {
             "name": "Clé de répartition",
-            "description": "Configuration d’une clé (quotas, total, lots)."
+            "description": "Configuration d’une clé (quotas, total, lots).",
+            "layout": {
+                "section.apportionment_shares": {
+                    "label": "Quotes-parts"
+                }
+            }
         },
         "form.statutory": {
             "name": "Clé statutaire",

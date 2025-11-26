@@ -112,7 +112,27 @@
     "view": {
         "form.default": {
             "name": "Lot privatif",
-            "description": "Fiche complète du lot (données juridiques, propriétaires, clés, dépendances)."
+            "description": "Fiche complète du lot (données juridiques, propriétaires, clés, dépendances).",
+            "layout": {
+                "section.settings": {
+                    "label": "Paramètres"
+                },
+                "section.apportionments": {
+                    "label": "Clés de répartition"
+                },
+                "section.secondary_lots": {
+                    "label": "Lots secondaires"
+                },
+                "section.ownerships": {
+                    "label": "Historique des ownerships"
+                },
+                "section.tenancies": {
+                    "label": "Historique des locations"
+                },
+                "section.comments": {
+                    "label": "Commentaires"
+                }
+            }
         },
         "form.create": {
             "name": "Création de lot",

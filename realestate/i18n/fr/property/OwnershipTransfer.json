@@ -257,7 +257,33 @@
     "view": {
         "form.default": {
             "name": "Transfert de propriété",
-            "description": "Fiche complète du dossier (contacts, pièces, ajustements et processus)."
+            "description": "Fiche complète du dossier (contacts, pièces, ajustements et processus).",
+            "layout": {
+                "section.main": {
+                    "label": "Propriétaires & lots"
+                },
+                "section.transfer_details": {
+                    "label": "Transfert"
+                },
+                "section.contacts": {
+                    "label": "Contacts"
+                },
+                "section.emails": {
+                    "label": "E-mails"
+                },
+                "section.attachments": {
+                    "label": "Pièces jointes"
+                },
+                "section.information_documents": {
+                    "label": "Informations (3.94 §1)"
+                },
+                "section.information_statements": {
+                    "label": "Informations (3.94 §2)"
+                },
+                "section.information_settlement": {
+                    "label": "Informations (3.94 §3)"
+                }
+            }
         },
         "list.default": {
             "name": "Historique des transferts",

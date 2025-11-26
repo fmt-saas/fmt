@@ -67,7 +67,15 @@
     "view": {
         "FundRequestExecution.form.default": {
             "name": "Exécution d'appel",
-            "description": "Formulaire avec consolidation (date, exercice, montant), ventilations et fundings."
+            "description": "Formulaire avec consolidation (date, exercice, montant), ventilations et fundings.",
+            "layout": {
+                "section.execution_lines_ids": {
+                    "label": "Ventilations"
+                },
+                "section.fundings_ids": {
+                    "label": "Fundings"
+                }
+            }
         },
         "FundRequestExecution.list.default": {
             "name": "Exécutions d'appel",

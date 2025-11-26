@@ -76,7 +76,7 @@ if ($mailbox['access_token_expiry'] < time()) {
    GRAPH API REQUEST : FETCH NEW EMAILS
 --------------------------------------------------------- */
 
-$since = gmdate("Y-m-d\\TH:i:s\\Z", $mailbox['date_last_sync']);
+$since = gmdate('Y-m-d\TH:i:s\Z', $mailbox['date_last_sync']);
 
 $url = "https://graph.microsoft.com/v1.0/me/messages?"
     . '$filter=receivedDateTime ge ' . "'" . $since . "'"

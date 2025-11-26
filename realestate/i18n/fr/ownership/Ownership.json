@@ -140,7 +140,24 @@
     "view": {
         "form.default": {
             "name": "Dossier de propriété",
-            "description": "Fiche complète du dossier (propriétaires, lots, représentants, finances)."
+            "description": "Fiche complète du dossier (propriétaires, lots, représentants, finances).",
+            "layout": {
+                "section.owners": {
+                    "label": "Propriétaires"
+                },
+                "section.property_lots": {
+                    "label": "Lots"
+                },
+                "section.bank_accounts": {
+                    "label": "Comptes bancaires"
+                },
+                "section.communication_preferences": {
+                    "label": "Préférences de communication"
+                },
+                "section.fundings": {
+                    "label": "Suivi des paiements"
+                }
+            }
         },
         "form.create": {
             "name": "Création d’un dossier",

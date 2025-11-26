@@ -122,7 +122,7 @@ $updates = [
  * Microsoft returns a new refresh_token *only sometimes*.
  * When it does, we MUST update it.
  */
-if (isset($data['refresh_token'])) {
+if(isset($data['refresh_token'])) {
     $updates['refresh_token'] = $data['refresh_token'];
     $updates['refresh_token_expiry'] = time() + (3600 * 24 * 90); // ~90 days
 }

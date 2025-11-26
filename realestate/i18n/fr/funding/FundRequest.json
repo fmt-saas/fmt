@@ -129,7 +129,18 @@
     "view": {
         "form.default": {
             "name": "Appel de fonds",
-            "description": "Fiche complète pour préparer un appel, paramétrer la période et générer les allocations/exécutions."
+            "description": "Fiche complète pour préparer un appel, paramétrer la période et générer les allocations/exécutions.",
+            "layout": {
+                "section.parts": {
+                    "label": "Décomposition de l'appel"
+                },
+                "section.executions": {
+                    "label": "Exécutions programmées"
+                },
+                "section.fundings_ids": {
+                    "label": "Paiements suivis"
+                }
+            }
         },
         "list.default": {
             "name": "Appels de fonds",
