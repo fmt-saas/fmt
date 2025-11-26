@@ -128,8 +128,8 @@ foreach($policies as $id => $policy) {
                         UpdateRequestLine::create([
                             'update_request_id'         => $updateRequest['id'],
                             'object_field'              => $field,
-                            'old_value'                 => $object[$field],
-                            'new_value'                 => $value
+                            'old_value'                 => (string) $object[$field],
+                            'new_value'                 => (string) $value
                         ]);
                     }
 
@@ -144,8 +144,8 @@ foreach($policies as $id => $policy) {
                 foreach($object as $field => $value) {
                     UpdateRequestLine::create([
                         'update_request_id'         => $updateRequest['id'],
-                        'object_field'              => $field,
-                        'new_value'                 => $value
+                        'object_field'              => (string) $field,
+                        'new_value'                 => (string) $value
                     ]);
                     $is_empty = false;
                 }

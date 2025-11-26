@@ -55,15 +55,11 @@ class UpdateRequest extends Model {
                 'description'       => "The Managing agent the requests originates from.",
             ],
 
-            'status' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'pending',
-                    'approved',
-                    'rejected'
-                ],
-                'default'           => 'pending',
-                'description'       => 'Current status of the update request.'
+            'update_request_lines_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'fmt\sync\UpdateRequestLine',
+                'foreign_field'     => 'update_request_id',
+                'description'       => 'Lines of the update request.'
             ],
 
             'source_type' => [
@@ -110,9 +106,134 @@ class UpdateRequest extends Model {
                     'duplicate_request'
                 ],
                 'visible'           => ['status', '=', 'rejected']
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'pending',
+                    'approved',
+                    'rejected'
+                ],
+                'default'           => 'pending',
+                'description'       => 'Current status of the update request.'
             ]
 
         ];
     }
 
+    public static function getActions() {
+        return [
+            'accept' => [
+                'description'   => 'Apply changes and mark the request as accepted.',
+                'policies'      => [],
+                'function'      => 'doAccept'
+            ],
+            'reject' => [
+                'description'   => 'Ignore changes and mark the request as rejected.',
+                'policies'      => [],
+                'function'      => 'doReject'
+            ]
+        ];
+    }
+
+    protected static function doAccept($self, $auth, $orm, $values) {
+        $self->read(['status', 'object_class', 'object_id', 'is_new', 'update_request_lines_ids']);
+        $user_id = $auth->userId();
+
+        foreach($self as $id => $updateRequest) {
+            try {
+                if(!$updateRequest['object_class']) {
+                    continue;
+                }
+
+                if(!class_exists($updateRequest['object_class'])) {
+                    continue;
+                }
+
+                if(!count($updateRequest['update_request_lines_ids'])) {
+                    continue;
+                }
+
+                $model = $orm->getModel($updateRequest['object_class']);
+                $schema = $model->getSchema();
+
+                $data = [];
+
+                foreach($updateRequest['update_request_lines_ids'] as $line_id) {
+                    // read the line (support several possible field names)
+                    $line = UpdateRequestLine::id($line_id)
+                        ->read(['object_field', 'new_value', 'old_value'])
+                        ->first();
+
+                    if(!$line) {
+                        continue;
+                    }
+
+                    $field_descriptor = $schema[$line['object_field']] ?? null;
+                    if(!$field_descriptor) {
+                        continue;
+                    }
+
+                    $type = $field_descriptor['result_type'] ?? ($field_descriptor['type'] ?? '');
+
+                    switch($type) {
+                        case 'integer':
+                        case 'date':
+                        case 'datetime':
+                        case 'many2one':
+                            $val = (int) $line['new_value'];
+                            break;
+                        case 'float':
+                            $val = (float) $line['new_value'];
+                            break;
+                        case 'boolean':
+                            $val = (bool) $line['new_value'];
+                            break;
+                        case 'string':
+                        default:
+                            $val = (string) $line['new_value'];
+                    }
+
+                    $data[$line['object_field']] = $val;
+                }
+
+                if(empty($data)) {
+                    continue;
+                }
+
+                // create or update target object
+                if($updateRequest['is_new']) {
+                    $updateRequest['object_class']::create($data);
+                }
+                else {
+                    $updateRequest['object_class']::id($updateRequest['object_id'])
+                        ->update($data);
+                }
+
+                self::id($id)->update([
+                        'status'            => 'approved',
+                        'approval_user_id'  => $user_id,
+                        'approval_reason'   => $values['reason']
+                    ]);
+            }
+            catch(\Exception $e) {
+                trigger_error("PHP::unable to apply update request: " . $e->getMessage(), EQ_REPORT_ERROR);
+            }
+        }
+    }
+
+    protected static function doReject($self, $auth, $values) {
+        $self->read(['status']);
+        $user_id = $auth->userId();
+
+        foreach($self as $id => $updateRequest) {
+            self::id($id)
+                ->update([
+                    'status'            => 'rejected',
+                    'approval_user_id'  => $user_id,
+                    'approval_reason'   => $values['reason']
+                ]);
+        }
+    }
 }

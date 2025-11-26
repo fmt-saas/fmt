@@ -13,7 +13,7 @@ use infra\server\Instance;
 // announce script and fetch parameters values
 [$params, $providers] = eQual::announce([
     'description'	=> "Callback for receiving confirmation from Google Cloud OAuth.",
-    'help'          => "This script is intended to be called exclusively by Google/Gmail servers.",
+    'help'          => "This script is intended to be hosted on the Global instance and called exclusively by Google/Gmail servers.",
     'params' 		=>	[
         'code' => [
             'type'          => 'string',

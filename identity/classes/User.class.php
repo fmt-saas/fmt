@@ -98,6 +98,22 @@ class User extends \core\User {
                 'description'       => 'Status of the verification of the source (validity of the data).',
             ],
 
+            'instance_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'infra\server\Instance',
+                'description'       => 'Instance the object relates to (origin).',
+                'dependents'        => ['instance_uuid']
+            ],
+
+            'instance_uuid' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'store'             => true,
+                'instant'           => true,
+                'relation'          => ['instance_id' => 'uuid'],
+                'description'       => 'UUID of the origin instance the object comes from.'
+            ],
+
             'identity_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Identity',

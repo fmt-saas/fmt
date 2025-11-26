@@ -7,8 +7,14 @@
     },
     "/oauth/gmail": {
         "GET": {
-            "description": "Attempt to authenticate user with credentials.",
+            "description": "Attempt to authenticate user with token.",
             "operation": "?do=fmt_user_oauth_gmail"
+        }
+    },
+    "/oauth/outlook": {
+        "GET": {
+            "description": "Attempt to authenticate user with token.",
+            "operation": "?do=fmt_user_oauth_outlook"
         }
     }
 }

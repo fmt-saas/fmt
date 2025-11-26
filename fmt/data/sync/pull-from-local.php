@@ -122,6 +122,8 @@ foreach($schema as $field => $def) {
 
     if($field === 'instance_id' && $policy['scope'] === 'protected') {
         $domain[] = ['instance_id', '=', $instance['id']];
+        // prevent re-sending data originating from instance itself
+        $domain[] = ['created', '<>', 'object.modified'];
     }
     elseif($field === 'object_class') {
         $domain[] = ['object_class', '=', $entity];
