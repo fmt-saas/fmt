@@ -46,24 +46,24 @@ $mailbox = Mailbox::id($params['id'])
     ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'email', 'date_last_sync'])
     ->first();
 
-if (!$mailbox) {
+if(!$mailbox) {
     throw new Exception("unknown_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
-if ($mailbox['status'] !== 'validated') {
+if($mailbox['status'] !== 'validated') {
     throw new Exception("non_validated_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
-if ($mailbox['auth_type'] !== 'oauth') {
+if($mailbox['auth_type'] !== 'oauth') {
     throw new Exception("non_oauth_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
-if ($mailbox['refresh_token_expiry'] < time()) {
+if($mailbox['refresh_token_expiry'] < time()) {
     throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
 }
 
 /* Refresh token if needed */
-if ($mailbox['access_token_expiry'] < time()) {
+if($mailbox['access_token_expiry'] < time()) {
     eQual::run('do', 'communication_email_Mailbox_refresh-token-outlook', ['id' => $params['id']]);
 
     $mailbox = Mailbox::id($params['id'])
@@ -76,10 +76,10 @@ if ($mailbox['access_token_expiry'] < time()) {
    GRAPH API REQUEST : FETCH NEW EMAILS
 --------------------------------------------------------- */
 
-$since = gmdate('Y-m-d\TH:i:s\Z', $mailbox['date_last_sync']);
+$since = str_replace('+00:00', 'Z', gmdate('c', $mailbox['date_last_sync']));
 
 $url = "https://graph.microsoft.com/v1.0/me/messages?"
-    . '$filter=receivedDateTime ge ' . "'" . $since . "'"
+    . '$filter=receivedDateTime ge ' . "'$since'"
     . '&$orderby=receivedDateTime desc'
     . '&$top=50';
 

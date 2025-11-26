@@ -135,7 +135,15 @@
     "view": {
         "Funding.form.default": {
             "name": "Suivi de paiement",
-            "description": "Formulaire complet (montant dû, type, comptes bancaires, liens vers appels/factures et tableau des paiements)."
+            "description": "Formulaire complet (montant dû, type, comptes bancaires, liens vers appels/factures et tableau des paiements).",
+            "layout": {
+                "section.funding_section": {
+                    "label": "Informations générales"
+                },
+                "section.payments_section": {
+                    "label": "Paiements"
+                }
+            }
         },
         "Funding.list.arrears": {
             "name": "Funding en retard",

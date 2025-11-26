@@ -47,7 +47,12 @@
     "view": {
         "form.default": {
             "name": "Contrat de location",
-            "description": "Formulaire principal (lot, locataires, période, transferts)."
+            "description": "Formulaire principal (lot, locataires, période, transferts).",
+            "layout": {
+                "section.tenants": {
+                    "label": "Locataires"
+                }
+            }
         },
         "form.create": {
             "name": "Nouveau contrat",
