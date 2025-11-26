@@ -37,7 +37,12 @@
     "view": {
         "form.default": {
             "name": "Conditions de vente",
-            "description": "Fiche permettant d’encapsuler un document ou un lien détaillant les conditions commerciales."
+            "description": "Fiche permettant d’encapsuler un document ou un lien détaillant les conditions commerciales.",
+            "layout": {
+                "section.details": {
+                    "label": "Détails"
+                }
+            }
         },
         "list.default": {
             "name": "Conditions de vente",

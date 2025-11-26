@@ -19,12 +19,16 @@
             "help": ""
         }
     },
-    "view": {
-        "form.default": {
-            "name": "Groupe de Ligne de Contrat",
-            "description": "",
-            "layout": {}
-        },
+	"view": {
+		"form.default": {
+			"name": "Groupe de Ligne de Contrat",
+			"description": "",
+			"layout": {
+				"section.contract_lines": {
+					"label": "Lignes de contrat"
+				}
+			}
+		},
         "list.default": {
             "name": "Groupes de Lignes de contrat",
             "description": "",

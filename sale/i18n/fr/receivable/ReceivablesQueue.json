@@ -37,7 +37,15 @@
     "view": {
         "form.default": {
             "name": "File de receivables",
-            "description": "Vue regroupant le client, les receivables attachés et les métriques."
+            "description": "Vue regroupant le client, les receivables attachés et les métriques.",
+            "layout": {
+                "section.pending_receivables_ids": {
+                    "label": "Recevables en attente"
+                },
+                "section.invoiced_receivables_ids": {
+                    "label": "Recevables facturés"
+                }
+            }
         },
         "list.default": {
             "name": "Files de receivables",

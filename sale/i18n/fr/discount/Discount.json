@@ -48,7 +48,14 @@
         "form.default": {
             "name": "Remise",
             "description": "",
-            "layout": {}
+            "layout": {
+                "section.discounts": {
+                    "label": "Informations générales"
+                },
+                "section.conditions": {
+                    "label": "Conditions"
+                }
+            }
         },
         "list.default": {
             "name": "Remises",

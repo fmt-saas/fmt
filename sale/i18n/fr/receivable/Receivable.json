@@ -112,7 +112,15 @@
     "view": {
         "form.default": {
             "name": "Recevable",
-            "description": "Fiche détaillée (quantités, tarifs, statut, regroupements)."
+            "description": "Fiche détaillée (quantités, tarifs, statut, regroupements).",
+            "layout": {
+                "section.sale": {
+                    "label": "Vente"
+                },
+                "section.description": {
+                    "label": "Description"
+                }
+            }
         },
         "list.default": {
             "name": "Recevables",
