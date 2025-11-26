@@ -47,13 +47,10 @@ use infra\server\Instance;
 /*
 Example of received params:
 
-    "state": "https://test1.fmtsolutions.be/",
-    "code": "M.C522_BAY.2.U.ddaf3e1a-03fa-e995-9cad-0e428fc26d03",
-    "scope": "openid profile offline_access email User.Read Mail.ReadWrite IMAP.AccessAsUser.All",
-    "authuser": "1",
-    "prompt": "consent",
-    "system_info": "{\"resolution\":\"1920x1080\",\"platform\":\"Windows 19.0.0\",\"vendor\":\"Google Inc. (Intel)\",\"renderer\":\"ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A1) Direct3D11 vs_5_0 ps_5_0, D3D11)\"}",
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiYW1yIjp7ImF1dGhfdHlwZSI6InB3ZCIsImF1dGhfbGV2ZWwiOjF9LCJleHAiOjE3NjM3NDU2OTJ9.yiqiey9NRKj6jZTktqgaph4kI6UB8Y9Xu046gC_5KQA"
+{
+    "code": "1.ARMBp-yrW5i1_0Gk-l2s1_ExMmCdva2RtjZAh0g45Zbb1k-uATsTAQ.AgABBAIAAABlMNzVhAPUTrARzfQjWPtKAwDs_wUA9P9kWihbTxCOETSOSODaujFNmyz-HFyEDP2gEwFmAWCmPSru7IpB0Rt-MWw9QpYmiU8RZA7wP9jOjBkE2aD2PSVDSxZz0fQH16JFN_g6SQKyudoYOuO_8TnRqY0GN7etyOuX7EkCf7QED75DFeWT1DPCSi_nw6yKvpH-yUwGgG6bRobfbEZiKIz6vWUS2GYo0NVEIskXTjI-zx8iSQhCWd4ckK-QsUZG8wxtSEmAQCJoQxZzW6HJd5Kic7I7uyGBW74tPi8i1mubDXiAZWCFXX-z_1YwCO2CABtqa-iy0WslGJQ1F0jNjKZiYN4p2_dqdN358di450yxUUlxLlUV3dminIHMvzMxFZhQOwAq4thXvah5qUI_CAqFtz4h9w_2Swr0dj2kbx5HZU7UijIOXilBdNc378ROz6-7smL5QM5PI7k1hlRCIoA_mmhfFzN88BaTG91F_raT4UH51A4LN7iXX6A40SRjctxV3lxavkep9gbL5RI184NDU1qF3qQblHs00OGxm_8kguYgo6VhFGpU8TCcmyHym0JAMo2i6JFqNUpB1ykfoX8Psb58Vc2_T0ueZ746R2b3Gl9fdQYYFuS_qnrGWl0jThUTUO2CnnFypxA0zrCRd2Zkgi-bXz9a_uf1uyN0tCC57V92ETNqIiXPnrSI7CDbY3X3vfBGOw1CcL0uQJ8w_vJ9vuDKmDumuTIhJG4quZzbVKv5CHDjYb8Oovjdaol8Qb261Eo-bkmFO31SaC7fHBBAhOQyamiQYtnEJU96IJUWx8Drh6G9511YBQkEA6j1lAHsScMqTmlfkKs_jFUtEr52onH2JfqY1k5aBTafKu15RppOZaeoPEU9tn4D6ZBviBLQVFHbtAVLteuFRmXO1ihu5z6tmhJJa8Wrbjvz2g",
+    "state": "https:\/\/test1.fmtsolutions.be\/"
+}
 
 */
 
@@ -61,9 +58,7 @@ Example of received params:
    1) Exchange authorization code for tokens (Microsoft OAuth)
    -------------------------------------------------------------------------- */
 
-$tokenUrl = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
-
-$oauthRequest = new HttpRequest('POST ' . $tokenUrl);
+$oauthRequest = new HttpRequest('POST https://login.microsoftonline.com/common/oauth2/v2.0/token');
 
 $response = $oauthRequest
     ->header('Content-Type', 'application/x-www-form-urlencoded')
@@ -95,11 +90,7 @@ $data = $response->body();
 $status = $response->getStatusCode();
 
 if($status < 200 || $status > 299) {
-    $context->httpResponse()
-        ->status($status)
-        ->body($data)
-        ->send();
-    exit;
+    // error
 }
 
 

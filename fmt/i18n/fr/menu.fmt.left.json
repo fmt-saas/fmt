@@ -47,7 +47,7 @@
         },
         "property_entrances": {
             "label": "Entrées",
-            "help": "Enregistrer les entrées ou bétiments."
+            "help": "Enregistrer les entrées ou bâtiments."
         },
         "ownerships": {
             "label": "Propriétaires",
@@ -150,7 +150,7 @@
             "help": "Gérer les factures d'achat fournisseurs."
         },
         "item.accounting.settings": {
-            "label": "Paramétres",
+            "label": "Paramètres",
             "help": ""
         },
         "item.accounting.journals": {
@@ -278,8 +278,8 @@
             "help": "Définir les politiques de synchronisation."
         },
         "item.config.sync.requests": {
-            "label": "Requétes de mise é jour",
-            "help": "Suivre les requétes de synchronisation."
+            "label": "Requêtes de mise à jour",
+            "help": "Suivre les requêtes de synchronisation."
         },
         "item.config.documents_types": {
             "label": "Types de document",
@@ -350,8 +350,8 @@
             "help": ""
         },
         "communication.emails.mailboxes": {
-            "label": "Boétes mail",
-            "help": "Boétes destinées aux e-mails entrants."
+            "label": "Boîtes mail",
+            "help": "Boîtes destinées aux e-mails entrants."
         },
         "communication.emails.all": {
             "label": "E-mails sortants",
