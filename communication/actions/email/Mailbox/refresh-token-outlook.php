@@ -30,8 +30,7 @@ use equal\http\HttpRequest;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context', 'auth', 'orm'],
-    'constants'     => ['AUTH_ACCESS_TOKEN_VALIDITY']
+    'providers'     => ['context', 'auth', 'orm']
 ]);
 
 
