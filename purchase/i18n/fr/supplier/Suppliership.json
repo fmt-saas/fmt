@@ -61,7 +61,18 @@
     "view": {
         "form.default": {
             "name": "Relation fournisseur",
-            "description": "Fiche complète avec infos copropriété, codes internes, contrats et références."
+            "description": "Fiche complète avec infos copropriété, codes internes, contrats et références.",
+            "layout": {
+                "section.contracts": {
+                    "label": "Contrats"
+                },
+                "section.references": {
+                    "label": "Références"
+                },
+                "section.bank_accounts": {
+                    "label": "Comptes bancaires"
+                }
+            }
         },
         "form.create": {
             "name": "Créer une relation fournisseur",

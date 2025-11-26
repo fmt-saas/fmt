@@ -72,7 +72,15 @@
     "view": {
         "MoneyTransfer.form.default": {
             "name": "Transfert de fonds",
-            "description": "Formulaire de préparation du transfert (montant, comptes, balances et fundings)."
+            "description": "Formulaire de préparation du transfert (montant, comptes, balances et fundings).",
+            "layout": {
+                "section.fundings": {
+                    "label": "Fundings"
+                },
+                "section.accounting_entries": {
+                    "label": "Écritures comptables"
+                }
+            }
         },
         "MoneyTransfer.list.default": {
             "name": "Transferts de fonds",

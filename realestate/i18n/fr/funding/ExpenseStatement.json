@@ -67,7 +67,18 @@
     "view": {
         "ExpenseStatement.form.default": {
             "name": "Relevé de charges",
-            "description": "Formulaire complet : période, banque, sections propriétaires, fundings et écritures."
+            "description": "Formulaire complet : période, banque, sections propriétaires, fundings et écritures.",
+            "layout": {
+                "section.statement_owners": {
+                    "label": "Propriétaires"
+                },
+                "section.fundings": {
+                    "label": "Suivi des paiements"
+                },
+                "section.accounting_entry": {
+                    "label": "Écriture comptable"
+                }
+            }
         },
         "ExpenseStatement.list.default": {
             "name": "Relevés de charges",

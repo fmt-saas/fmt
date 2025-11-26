@@ -82,7 +82,15 @@
     "view": {
         "MoneyRefund.form.default": {
             "name": "Remboursement",
-            "description": "Formulaire de remboursement (montant, compte origine, bénéficiaire et sections fundings/écritures)."
+            "description": "Formulaire de remboursement (montant, compte origine, bénéficiaire et sections fundings/écritures).",
+            "layout": {
+                "section.fundings": {
+                    "label": "Suivi des paiements"
+                },
+                "section.accounting_entries": {
+                    "label": "Écritures comptables"
+                }
+            }
         },
         "MoneyRefund.list.default": {
             "name": "Remboursements",
