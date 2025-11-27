@@ -41,7 +41,19 @@
             {
                 "type": "field",
                 "value": "object_class",
-                "width": "16%",
+                "width": "20%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "is_new",
+                "width": "10%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "object_name",
+                "width": "20%",
                 "sortable": true
             },
             {
@@ -54,7 +66,7 @@
             {
                 "type": "field",
                 "value": "status",
-                "width": "16%"
+                "width": "10%"
             },
             {
                 "type": "field",

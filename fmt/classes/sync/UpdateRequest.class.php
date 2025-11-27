@@ -31,6 +31,15 @@ class UpdateRequest extends Model {
                 'visible'           => ['is_new', '=', false]
             ],
 
+            'object_name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcObjectName',
+                'store'             => true,
+                'description'       => 'Display name of the target object.',
+                'help'              => 'Based on update request lines and `name` field, if available.'
+            ],
+
             'is_new' => [
                 'type'              => 'boolean',
                 'description'       => 'JSON encoded new proposed value for the field.',
@@ -134,6 +143,21 @@ class UpdateRequest extends Model {
                 'function'      => 'doReject'
             ]
         ];
+    }
+
+    protected static function calcObjectName($self) {
+        $result = [];
+        $self->read(['update_request_lines_ids' => ['object_field', 'new_value']]);
+        foreach($self as $id => $updateRequest) {
+            $result[$id] = '(object)';
+            foreach($updateRequest['update_request_lines_ids'] as $line_id => $line) {
+                if($line['object_field'] === 'name') {
+                    $result[$id] = $line['new_value'];
+                    break;
+                }
+            }
+        }
+        return $result;
     }
 
     protected static function doAccept($self, $auth, $orm, $values) {
