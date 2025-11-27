@@ -139,10 +139,10 @@ try {
 
         // handle attachments
 
-        // #todo - réponse automatique pour dire donnant le cadre dans lequel ce mail sera traité (pas lu, uniq. pièce jointe) -> si info importante : envoyer sur autre adresse
+        // #todo - en cas d'absence de document, réponse automatique pour dire donnant le cadre dans lequel ce mail sera traité (pas lu, uniq. pièce jointe) -> si info importante : envoyer sur autre adresse
 
         foreach($message->getAttachments() as $attachment) {
-            // #todo - limit to "doc" attachments : pdf, doc(x), xls(x)
+            // limit to "doc" attachments : pdf, doc(x), xls(x)
             if(!in_array($attachment->mime, $allowed_mime_types)) {
                 continue;
             }

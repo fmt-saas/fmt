@@ -138,18 +138,27 @@ foreach($messages as $msg) {
        ATTACHMENTS
     --------------------------------------------------------- */
 
-    $attUrl = "https://graph.microsoft.com/v1.0/me/messages/$message_id/attachments";
+    $attUrl = "https://graph.microsoft.com/v1.0/me/messages/{$message_id}/attachments";
 
     $attReq = new HttpRequest("GET $attUrl");
     $attRes = $attReq
         ->header("Authorization", "Bearer " . $mailbox['access_token'])
         ->send();
 
-    $atts = $attRes->body()['value'] ?? [];
+    $attachments = $attRes->body()['value'] ?? [];
 
-    foreach($atts as $att) {
+    // #todo - en cas d'absence de document, réponse automatique pour dire donnant le cadre dans lequel ce mail sera traité (pas lu, uniq. pièce jointe) -> si info importante : envoyer sur autre adresse
+
+    foreach($attachments as $att) {
 
         if(!isset($att['contentBytes'])) {
+            continue;
+        }
+
+        // limit to "doc" attachments : pdf, doc(x), xls(x)
+        $mime = $att['contentType'] ?? null;
+
+        if(!in_array($mime, $allowed_mime_types, true)) {
             continue;
         }
 
