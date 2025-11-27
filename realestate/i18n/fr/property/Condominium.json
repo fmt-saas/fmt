@@ -254,7 +254,7 @@
                     "description": ""
                 },
                 "consumption_meters": {
-                    "label": "Compteurs de consommation",
+                    "label": "Compteurs de conso",
                     "description": ""
                 },
                 "suppliers": {
