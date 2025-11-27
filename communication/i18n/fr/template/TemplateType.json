@@ -15,7 +15,7 @@
         },
         "description": {
             "label": "Description",
-            "description": "Texte explicatif sur l’usage du type.",
+            "description": "Texte explicatif sur l'usage du type.",
             "help": ""
         },
         "templates_ids": {

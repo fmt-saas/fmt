@@ -1,7 +1,7 @@
 {
     "name": "Référence fournisseur / lot",
     "plural": "Références fournisseur / lot",
-    "description": "Permet de stocker le code d’identification d’un lot utilisé par un fournisseur (suppliership).",
+    "description": "Permet de stocker le code d'identification d'un lot utilisé par un fournisseur (suppliership).",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -27,7 +27,7 @@
     "view": {
         "form.default": {
             "name": "Référence fournisseur / lot",
-            "description": "Formulaire d’édition du code fournisseur pour un lot donné."
+            "description": "Formulaire d'édition du code fournisseur pour un lot donné."
         },
         "list.default": {
             "name": "Références fournisseur / lot",

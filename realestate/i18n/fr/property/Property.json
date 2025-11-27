@@ -1,7 +1,7 @@
 {
     "name": "Bien immobilier",
     "plural": "Biens immobiliers",
-    "description": "Entité de base représentant un bien (immeuble, résidence, résidence secondaire…) rattaché à l’application immobilière.",
+    "description": "Entité de base représentant un bien (immeuble, résidence, résidence secondaire…) rattaché à l'application immobilière.",
     "model": {
         "name": {
             "label": "Nom",
@@ -12,7 +12,7 @@
     "view": {
         "form.default": {
             "name": "Bien immobilier",
-            "description": "Formulaire de gestion d’un bien immobilier."
+            "description": "Formulaire de gestion d'un bien immobilier."
         },
         "list.default": {
             "name": "Biens immobiliers",

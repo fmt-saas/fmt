@@ -49,13 +49,13 @@
             "help": ""
         },
         "recording_rules_ids": {
-            "label": "Règles d’enregistrement",
-            "description": "Règles métiers déclenchées lors de l’import d’un document de ce type.",
+            "label": "Règles d'enregistrement",
+            "description": "Règles métiers déclenchées lors de l'import d'un document de ce type.",
             "help": ""
         },
         "labeling_rules_ids": {
-            "label": "Règles d’étiquetage",
-            "description": "Règles d’indexation/nommage associées au type.",
+            "label": "Règles d'étiquetage",
+            "description": "Règles d'indexation/nommage associées au type.",
             "help": ""
         }
     },

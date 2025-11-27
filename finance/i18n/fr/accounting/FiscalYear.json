@@ -1,21 +1,21 @@
 {
     "name": "Exercice comptable",
     "plural": "Exercices comptables",
-    "description": "Regroupe les périodes, balances et séquences d’une copropriété (workflow draft → open → closed).",
+    "description": "Regroupe les périodes, balances et séquences d'une copropriété (workflow draft → open → closed).",
     "model": {
         "name": {
             "label": "Libellé",
-            "description": "Nom calculé de l’exercice (ex. 2025).",
+            "description": "Nom calculé de l'exercice (ex. 2025).",
             "help": ""
         },
         "organisation_id": {
             "label": "Organisation",
-            "description": "Organisation porteuse de l’exercice (hors copropriété).",
+            "description": "Organisation porteuse de l'exercice (hors copropriété).",
             "help": ""
         },
         "condo_id": {
             "label": "Copropriété",
-            "description": "Immeuble auquel l’exercice est rattaché.",
+            "description": "Immeuble auquel l'exercice est rattaché.",
             "help": ""
         },
         "date_from": {
@@ -35,12 +35,12 @@
         },
         "fiscal_periods_ids": {
             "label": "Périodes",
-            "description": "Liste des périodes générées pour l’exercice.",
+            "description": "Liste des périodes générées pour l'exercice.",
             "help": ""
         },
         "current_balance_id": {
             "label": "Balance courante",
-            "description": "Balance tenue à jour pendant l’exercice.",
+            "description": "Balance tenue à jour pendant l'exercice.",
             "help": ""
         },
         "closing_balance_id": {
@@ -69,7 +69,7 @@
             "description": "Liste des exercices par copropriété avec dates et statut."
         },
         "FiscalYear.list.condo": {
-            "name": "Exercices d’une copropriété",
+            "name": "Exercices d'une copropriété",
             "description": "Vue filtrée pour une copropriété (non présentée mais utile)."
         }
     }

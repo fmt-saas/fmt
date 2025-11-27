@@ -1,7 +1,7 @@
 {
-    "name": "Ligne lot d’appel",
-    "plural": "Lignes lot d’appel",
-    "description": "Détail le montant appelé pour un lot précis (quotes-parts et ownership) avant génération des factures d’exécution.",
+    "name": "Ligne lot d'appel",
+    "plural": "Lignes lot d'appel",
+    "description": "Détail le montant appelé pour un lot précis (quotes-parts et ownership) avant génération des factures d'exécution.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -10,11 +10,11 @@
         },
         "fund_request_id": {
             "label": "Appel de fonds",
-            "description": "Appel parent dont provient l’entrée.",
+            "description": "Appel parent dont provient l'entrée.",
             "help": ""
         },
         "request_line_id": {
-            "label": "Ligne d’appel",
+            "label": "Ligne d'appel",
             "description": "Clé de répartition à laquelle appartient ce lot.",
             "help": ""
         },
@@ -46,16 +46,16 @@
     },
     "view": {
         "form.default": {
-            "name": "Ligne lot d’appel",
+            "name": "Ligne lot d'appel",
             "description": "Formulaire technique récapitulant lot, ownership, quotes-parts et montant."
         },
         "list.default": {
-            "name": "Lignes lot d’appel",
+            "name": "Lignes lot d'appel",
             "description": "Vue tabulaire des montants appelés par lot et par copropriété."
         },
         "list.request_line": {
             "name": "Lots de la ligne",
-            "description": "Détail d’une ligne d’appel (lots, quotes-parts et montants) pour vérifier la répartition."
+            "description": "Détail d'une ligne d'appel (lots, quotes-parts et montants) pour vérifier la répartition."
         }
     }
 }

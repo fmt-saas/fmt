@@ -5,7 +5,7 @@
     "view": {
         "Assembly.form.default": {
             "name": "Assemblée",
-            "description": "Fiche complète d’une assemblée (participants, mandats, résolutions).",
+            "description": "Fiche complète d'une assemblée (participants, mandats, résolutions).",
             "layout": {
                 "section.details": {
                     "label": "Détails"
@@ -31,7 +31,7 @@
             },
             "routes": {
                 "route.preview_invite": {
-                    "label": "Prévisualiser l’invitation"
+                    "label": "Prévisualiser l'invitation"
                 },
                 "route.view_attendance_register": {
                     "label": "Registre de présence"

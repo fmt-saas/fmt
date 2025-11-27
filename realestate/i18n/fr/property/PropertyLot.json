@@ -1,7 +1,7 @@
 {
     "name": "Lot privatif",
     "plural": "Lots privatifs",
-    "description": "Représente un lot tel que défini dans l’acte de base (appartement, parking, cave…) et suivi dans une copropriété.",
+    "description": "Représente un lot tel que défini dans l'acte de base (appartement, parking, cave…) et suivi dans une copropriété.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -10,7 +10,7 @@
         },
         "property_lot_ref": {
             "label": "Référence notariale",
-            "description": "Référence utilisée dans l’acte pour identifier le lot.",
+            "description": "Référence utilisée dans l'acte pour identifier le lot.",
             "help": ""
         },
         "code": {
@@ -75,7 +75,7 @@
         },
         "active_tenancy_id": {
             "label": "Occupation en cours",
-            "description": "Contrat d’occupation actif (le cas échéant).",
+            "description": "Contrat d'occupation actif (le cas échéant).",
             "help": ""
         },
         "active_ownership_id": {
@@ -99,7 +99,7 @@
             "help": ""
         },
         "has_grouped_statements": {
-            "label": "Regrouper sur l’état",
+            "label": "Regrouper sur l'état",
             "description": "Permet de regrouper ce lot et ses dépendances sur un même décompte.",
             "help": ""
         },

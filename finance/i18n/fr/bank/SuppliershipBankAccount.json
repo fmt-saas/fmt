@@ -57,7 +57,7 @@
     "view": {
         "form.default": {
             "name": "Compte bancaire fournisseur",
-            "description": "Formulaire pour sélectionner l’IBAN utilisé par un fournisseur et marquer le compte principal."
+            "description": "Formulaire pour sélectionner l'IBAN utilisé par un fournisseur et marquer le compte principal."
         },
         "list.default": {
             "name": "Comptes bancaires fournisseurs",

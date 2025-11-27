@@ -1,7 +1,7 @@
 {
-    "name": "Règle d’étiquetage",
-    "plural": "Règles d’étiquetage",
-    "description": "Définit comment étiqueter les opérations et allocations issues d’un document (filtrage par type, fournisseur et lignes de paramétrage).",
+    "name": "Règle d'étiquetage",
+    "plural": "Règles d'étiquetage",
+    "description": "Définit comment étiqueter les opérations et allocations issues d'un document (filtrage par type, fournisseur et lignes de paramétrage).",
     "model": {
         "name": {
             "label": "Libellé",
@@ -15,12 +15,12 @@
         },
         "is_active": {
             "label": "Active",
-            "description": "Permet d’activer/désactiver la règle sur l’environnement courant.",
+            "description": "Permet d'activer/désactiver la règle sur l'environnement courant.",
             "help": ""
         },
         "supplier_type_id": {
             "label": "Type de fournisseur",
-            "description": "Restreint l’application de la règle à un type donné.",
+            "description": "Restreint l'application de la règle à un type donné.",
             "help": ""
         },
         "suppliers_ids": {
@@ -46,11 +46,11 @@
     },
     "view": {
         "LabelingRule.form.default": {
-            "name": "Règle d’étiquetage",
+            "name": "Règle d'étiquetage",
             "description": "Formulaire pour activer/désactiver la règle et définir les critères document/fournisseur."
         },
         "LabelingRule.list.default": {
-            "name": "Règles d’étiquetage",
+            "name": "Règles d'étiquetage",
             "description": "Vue liste synthétique (libellé, mémo, statut, type fournisseur)."
         }
     }

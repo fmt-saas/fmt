@@ -5,27 +5,27 @@
     "model": {
         "name": {
             "label": "Libellé",
-            "description": "Titre court basé sur l’exercice/période (ex. FY2025 - T1).",
+            "description": "Titre court basé sur l'exercice/période (ex. FY2025 - T1).",
             "help": ""
         },
         "condo_id": {
             "label": "Copropriété",
-            "description": "Immeuble géré par le syndic pour lequel l’appel est généré.",
+            "description": "Immeuble géré par le syndic pour lequel l'appel est généré.",
             "help": ""
         },
         "fiscal_year_id": {
             "label": "Exercice comptable",
-            "description": "Exercice auquel l’appel se rattache.",
+            "description": "Exercice auquel l'appel se rattache.",
             "help": "Proposé automatiquement en fonction de la copropriété."
         },
         "fiscal_period_id": {
             "label": "Période",
-            "description": "Période (mois/trimestre) utilisée pour dater l’appel et l’écriture comptable.",
+            "description": "Période (mois/trimestre) utilisée pour dater l'appel et l'écriture comptable.",
             "help": "La date de comptabilisation est positionnée sur le dernier jour de la période."
         },
         "request_type": {
-            "label": "Type d’appel",
-            "description": "Nature de l’appel pour identifier le fonds ciblé.",
+            "label": "Type d'appel",
+            "description": "Nature de l'appel pour identifier le fonds ciblé.",
             "help": "",
             "selection": {
                 "working_fund": "Appel fonds de roulement",
@@ -37,12 +37,12 @@
         },
         "request_account_id": {
             "label": "Compte comptable",
-            "description": "Compte opérationnel lié au type d’appel.",
+            "description": "Compte opérationnel lié au type d'appel.",
             "help": ""
         },
         "request_date": {
-            "label": "Date d’appel",
-            "description": "Date d’émission lorsque l’appel n’est pas périodique.",
+            "label": "Date d'appel",
+            "description": "Date d'émission lorsque l'appel n'est pas périodique.",
             "help": ""
         },
         "request_bank_account_id": {
@@ -52,12 +52,12 @@
         },
         "payment_terms_id": {
             "label": "Conditions de paiement",
-            "description": "Échéance appliquée aux propriétaires pour solder l’appel.",
+            "description": "Échéance appliquée aux propriétaires pour solder l'appel.",
             "help": ""
         },
         "has_date_range": {
             "label": "Appel périodique",
-            "description": "Active la génération d’exécutions récurrentes (mensuel, trimestriel...).",
+            "description": "Active la génération d'exécutions récurrentes (mensuel, trimestriel...).",
             "help": ""
         },
         "date_range_frequency": {
@@ -67,7 +67,7 @@
         },
         "date_from": {
             "label": "Date de début",
-            "description": "Début de la période couverte par l’appel périodique.",
+            "description": "Début de la période couverte par l'appel périodique.",
             "help": ""
         },
         "date_to": {
@@ -77,7 +77,7 @@
         },
         "status": {
             "label": "Statut",
-            "description": "Étape de vie de l’appel (brouillon, actif, annulé).",
+            "description": "Étape de vie de l'appel (brouillon, actif, annulé).",
             "help": "",
             "selection": {
                 "draft": "Brouillon",
@@ -87,17 +87,17 @@
         },
         "request_amount": {
             "label": "Montant planifié",
-            "description": "Total budgété pour l’appel avant répartition.",
+            "description": "Total budgété pour l'appel avant répartition.",
             "help": ""
         },
         "allocated_amount": {
             "label": "Montant appelé",
-            "description": "Somme actuellement répartie entre l’ensemble des copropriétaires.",
+            "description": "Somme actuellement répartie entre l'ensemble des copropriétaires.",
             "help": ""
         },
         "request_lines_ids": {
-            "label": "Lignes d’appel",
-            "description": "Découpe de l’appel par clé de répartition (apportionment).",
+            "label": "Lignes d'appel",
+            "description": "Découpe de l'appel par clé de répartition (apportionment).",
             "help": ""
         },
         "request_executions_ids": {
@@ -106,7 +106,7 @@
             "help": ""
         },
         "execution_lines_ids": {
-            "label": "Lignes d’exécution",
+            "label": "Lignes d'exécution",
             "description": "Détail des montants appelés par propriétaire et par exécution.",
             "help": ""
         },

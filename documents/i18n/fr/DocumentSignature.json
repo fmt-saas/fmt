@@ -47,7 +47,7 @@
     "view": {
         "form.default": {
             "name": "Signature de document",
-            "description": "Fiche détaillant le signataire, le document associé, l’empreinte et les métadonnées techniques."
+            "description": "Fiche détaillant le signataire, le document associé, l'empreinte et les métadonnées techniques."
         },
         "list.default": {
             "name": "Signatures",

@@ -1,7 +1,7 @@
 {
     "name": "Modèle de plan comptable",
     "plural": "Modèles de plan comptable",
-    "description": "Plan comptable utilisé comme modèle pour générer les plans des copropriétés (lignes d’AccountTemplate et statut).",
+    "description": "Plan comptable utilisé comme modèle pour générer les plans des copropriétés (lignes d'AccountTemplate et statut).",
     "model": {
         "name": {
             "label": "Nom",
@@ -22,7 +22,7 @@
     "view": {
         "AccountChartTemplate.form.default": {
             "name": "Modèle de plan comptable",
-            "description": "Formulaire de configuration d’un plan modèle (généralités et lignes)."
+            "description": "Formulaire de configuration d'un plan modèle (généralités et lignes)."
         }
     }
 }

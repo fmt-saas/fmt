@@ -1,7 +1,7 @@
 {
     "name": "Transfert de location",
     "plural": "Transferts de location",
-    "description": "Permet de tracer le passage d’un contrat de location à un autre (états des lieux, entrées/sorties).",
+    "description": "Permet de tracer le passage d'un contrat de location à un autre (états des lieux, entrées/sorties).",
     "model": {
         "condo_id": {
             "label": "Copropriété",

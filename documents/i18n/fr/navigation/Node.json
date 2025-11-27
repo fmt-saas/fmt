@@ -1,6 +1,6 @@
 {
-    "name": "Nœud documentaire",
-    "plural": "Nœuds documentaires",
+    "name": "Dossier",
+    "plural": "Dossiers",
     "description": "Structure de classement des documents (dossiers et liens vers fichiers) utilisée dans la navigation documentaire.",
     "model": {
         "condo_id": {
@@ -25,7 +25,7 @@
         },
         "node_type": {
             "label": "Type",
-            "description": "Indique s’il s’agit d’un dossier ou d’un document.",
+            "description": "Indique s'il s'agit d'un dossier ou d'un document.",
             "help": "",
             "selection": {
                 "folder": "Dossier",
@@ -39,7 +39,7 @@
         },
         "parent_id": {
             "label": "Dossier parent",
-            "description": "Permet d’imbriquer le nœud dans un autre dossier.",
+            "description": "Permet d'imbriquer le nœud dans un autre dossier.",
             "help": ""
         },
         "document_id": {
@@ -49,7 +49,7 @@
         },
         "document_link": {
             "label": "Lien de consultation",
-            "description": "URL interne permettant d’ouvrir le document.",
+            "description": "URL interne permettant d'ouvrir le document.",
             "help": ""
         },
         "nodes_ids": {
@@ -64,22 +64,22 @@
         },
         "is_system": {
             "label": "Système",
-            "description": "Indique que le dossier est protégé par l’application.",
+            "description": "Indique que le dossier est protégé par l'application.",
             "help": ""
         }
     },
     "view": {
         "Node.form.default": {
-            "name": "Nœud documentaire",
+            "name": "Arborescence",
             "description": "Formulaire pour gérer le dossier/document, sa visibilité et les éléments imbriqués."
         },
         "Node.list.default": {
-            "name": "Nœuds documentaires",
+            "name": "Arborescence",
             "description": "Vue tabulaire mixte dossiers/documents (type, description, lien de téléchargement)."
         },
         "Node.list.folders": {
             "name": "Dossiers",
-            "description": "Liste filtrée sur les nœuds de type dossier pour naviguer dans l’arborescence."
+            "description": "Liste filtrée sur les nœuds de type dossier pour naviguer dans l'arborescence."
         }
     }
 }

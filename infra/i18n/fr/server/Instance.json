@@ -50,7 +50,7 @@
         },
         "product_id": {
             "label": "Produit",
-            "description": "Produit auquel appartient l’instance.",
+            "description": "Produit auquel appartient l'instance.",
             "help": ""
         },
         "accesses_ids": {

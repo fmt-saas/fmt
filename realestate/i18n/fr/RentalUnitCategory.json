@@ -1,6 +1,6 @@
 {
-    "name": "Catégorie d’unité locative",
-    "plural": "Catégories d’unités locatives",
+    "name": "Catégorie d'unité locative",
+    "plural": "Catégories d'unités locatives",
     "description": "Une catégorie permet de regrouper les unités locatives partageant des caractéristiques communes (tarification, confort, destination).",
     "model": {
         "name": {
@@ -26,8 +26,8 @@
     },
     "view": {
         "form.default": {
-            "name": "Catégorie d’unité locative",
-            "description": "Définition d’une catégorie (code, description, unités liées).",
+            "name": "Catégorie d'unité locative",
+            "description": "Définition d'une catégorie (code, description, unités liées).",
             "layout": {
                 "section.details": {
                     "label": "Informations"
@@ -38,7 +38,7 @@
             }
         },
         "list.default": {
-            "name": "Catégories d’unités locatives",
+            "name": "Catégories d'unités locatives",
             "description": "Vue liste des catégories et de leur description."
         }
     },

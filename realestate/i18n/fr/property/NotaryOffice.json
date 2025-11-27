@@ -5,7 +5,7 @@
     "model": {
         "registry_ref": {
             "label": "Référence registre",
-            "description": "Identifiant unique de l’étude (ex. slug Fednot).",
+            "description": "Identifiant unique de l'étude (ex. slug Fednot).",
             "help": ""
         }
     },

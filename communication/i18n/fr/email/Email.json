@@ -1,7 +1,7 @@
 {
     "name": "Courriel",
     "plural": "Courriels",
-    "description": "Messages électroniques entrants ou sortants (contenu, participants, statut d’envoi et rattachements copropriété/fournisseur).",
+    "description": "Messages électroniques entrants ou sortants (contenu, participants, statut d'envoi et rattachements copropriété/fournisseur).",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -59,7 +59,7 @@
             "help": ""
         },
         "status": {
-            "label": "Statut d’envoi",
+            "label": "Statut d'envoi",
             "description": "Indique si le courriel est en attente ou traité (sortant).",
             "help": ""
         },
@@ -70,14 +70,14 @@
         },
         "response": {
             "label": "Réponse SMTP",
-            "description": "Message retourné lors de l’envoi.",
+            "description": "Message retourné lors de l'envoi.",
             "help": ""
         }
     },
     "view": {
         "Email.form.default": {
             "name": "Courriel",
-            "description": "Formulaire détaillé d’un message (participants, contenu, pièces jointes)."
+            "description": "Formulaire détaillé d'un message (participants, contenu, pièces jointes)."
         },
         "Email.list.default": {
             "name": "Courriels",

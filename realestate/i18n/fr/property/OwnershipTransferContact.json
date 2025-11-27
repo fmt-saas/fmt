@@ -10,7 +10,7 @@
         },
         "name": {
             "label": "Nom / société",
-            "description": "Nom du destinataire lorsque l’information est disponible.",
+            "description": "Nom du destinataire lorsque l'information est disponible.",
             "help": ""
         },
         "ownership_transfer_id": {
@@ -20,14 +20,14 @@
         },
         "email": {
             "label": "Adresse e-mail",
-            "description": "Courriel utilisé pour l’envoi automatique des documents.",
+            "description": "Courriel utilisé pour l'envoi automatique des documents.",
             "help": ""
         }
     },
     "view": {
         "form.default": {
             "name": "Contacts du transfert",
-            "description": "Encodage d’un destinataire (notaire, acquéreur, fournisseur d’information)."
+            "description": "Encodage d'un destinataire (notaire, acquéreur, fournisseur d'information)."
         },
         "list.default": {
             "name": "Contacts du transfert",

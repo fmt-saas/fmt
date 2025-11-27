@@ -1,7 +1,7 @@
 {
     "name": "Contrat de location",
     "plural": "Contrats de location",
-    "description": "Dossier regroupant un ou plusieurs occupants pour un lot donné ainsi que la période d’occupation.",
+    "description": "Dossier regroupant un ou plusieurs occupants pour un lot donné ainsi que la période d'occupation.",
     "model": {
         "name": {
             "label": "Libellé",
@@ -25,7 +25,7 @@
         },
         "date_from": {
             "label": "Début de bail",
-            "description": "Date d’entrée en vigueur du contrat.",
+            "description": "Date d'entrée en vigueur du contrat.",
             "help": ""
         },
         "date_to": {
@@ -34,8 +34,8 @@
             "help": ""
         },
         "transfer_from_id": {
-            "label": "Transfert d’entrée",
-            "description": "Référence du dossier d’entrée (état des lieux, transfert, etc.).",
+            "label": "Transfert d'entrée",
+            "description": "Référence du dossier d'entrée (état des lieux, transfert, etc.).",
             "help": ""
         },
         "transfer_to_id": {
@@ -56,7 +56,7 @@
         },
         "form.create": {
             "name": "Nouveau contrat",
-            "description": "Assistant de création d’un contrat de location."
+            "description": "Assistant de création d'un contrat de location."
         },
         "list.default": {
             "name": "Contrats de location",

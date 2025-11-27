@@ -24,12 +24,12 @@
         },
         "delay_count": {
             "label": "Nombre de jours",
-            "description": "Nombre de jours avant l’échéance.",
+            "description": "Nombre de jours avant l'échéance.",
             "help": ""
         },
         "is_active": {
             "label": "Actif",
-            "description": "Permet d’autoriser ou non l’utilisation de ces conditions.",
+            "description": "Permet d'autoriser ou non l'utilisation de ces conditions.",
             "help": ""
         }
     },

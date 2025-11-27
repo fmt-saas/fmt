@@ -10,15 +10,15 @@
         },
         "ownership_id": {
             "label": "Dossier de propriété",
-            "description": "Ownership auquel la préférence s’applique.",
+            "description": "Ownership auquel la préférence s'applique.",
             "help": ""
         },
         "communication_reason": {
             "label": "Motif",
             "description": "Type de communication visé.",
             "selection": {
-                "general_assembly_call": "Convocation d’AG",
-                "general_assembly_minutes": "Procès-verbal d’AG",
+                "general_assembly_call": "Convocation d'AG",
+                "general_assembly_minutes": "Procès-verbal d'AG",
                 "expense_statement": "Décompte / relevé de charges",
                 "fund_request": "Appel de fonds",
                 "technical_communication": "Communication technique"
@@ -26,8 +26,8 @@
             "help": ""
         },
         "communication_title": {
-            "label": "Titre d’adresse",
-            "description": "Formule d’appel utilisée dans le corps du courrier.",
+            "label": "Titre d'adresse",
+            "description": "Formule d'appel utilisée dans le corps du courrier.",
             "help": ""
         },
         "identity_id": {
@@ -37,7 +37,7 @@
         },
         "email": {
             "label": "Courriel",
-            "description": "Adresse e-mail récupérée depuis l’identité.",
+            "description": "Adresse e-mail récupérée depuis l'identité.",
             "help": ""
         },
         "address_street": {
@@ -57,22 +57,22 @@
         },
         "has_channel_email": {
             "label": "Envoi par e-mail",
-            "description": "Autorise l’envoi électronique pour ce motif.",
+            "description": "Autorise l'envoi électronique pour ce motif.",
             "help": ""
         },
         "has_channel_postal": {
             "label": "Courrier simple",
-            "description": "Autorise l’envoi postal standard.",
+            "description": "Autorise l'envoi postal standard.",
             "help": ""
         },
         "has_channel_postal_registered": {
             "label": "Recommandé",
-            "description": "Autorise l’envoi postal recommandé.",
+            "description": "Autorise l'envoi postal recommandé.",
             "help": ""
         },
         "has_channel_postal_registered_receipt": {
             "label": "Recommandé avec accusé",
-            "description": "Autorise l’envoi recommandé avec accusé de réception.",
+            "description": "Autorise l'envoi recommandé avec accusé de réception.",
             "help": ""
         }
     },

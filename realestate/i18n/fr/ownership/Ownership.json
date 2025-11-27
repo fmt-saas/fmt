@@ -1,7 +1,7 @@
 {
     "name": "Dossier de propriété",
     "plural": "Dossiers de propriété",
-    "description": "Regroupe un ou plusieurs propriétaires et les lots (actifs ou historiques) qu’ils détiennent au sein d’une copropriété.",
+    "description": "Regroupe un ou plusieurs propriétaires et les lots (actifs ou historiques) qu'ils détiennent au sein d'une copropriété.",
     "model": {
         "code": {
             "label": "Code",
@@ -39,7 +39,7 @@
             "help": ""
         },
         "ownership_type": {
-            "label": "Type d’ownership",
+            "label": "Type d'ownership",
             "description": "Détermine si la propriété est unique ou en indivision.",
             "selection": {
                 "unique": "Propriété unique",
@@ -53,7 +53,7 @@
             "help": ""
         },
         "date_from": {
-            "label": "Date d’entrée",
+            "label": "Date d'entrée",
             "description": "Date à partir de laquelle au moins un lot est détenu.",
             "help": ""
         },
@@ -63,7 +63,7 @@
             "help": "Quand renseignée, le dossier reste accessible mais est marqué comme historique."
         },
         "transfer_from_id": {
-            "label": "Dossier d’acquisition",
+            "label": "Dossier d'acquisition",
             "description": "Acte ou procédure via laquelle le lot a été acquis.",
             "help": ""
         },
@@ -84,17 +84,17 @@
         },
         "has_external_representative": {
             "label": "Mandataire externe",
-            "description": "Indique si une personne externe représente l’ownership.",
+            "description": "Indique si une personne externe représente l'ownership.",
             "help": ""
         },
         "representative_identity_id": {
             "label": "Identité mandataire externe",
-            "description": "Identité (hors propriétaires) mandatée pour représenter l’ownership.",
+            "description": "Identité (hors propriétaires) mandatée pour représenter l'ownership.",
             "help": ""
         },
         "has_representative": {
             "label": "Représentant interne",
-            "description": "Indique si l’un des propriétaires est désigné comme représentant officiel.",
+            "description": "Indique si l'un des propriétaires est désigné comme représentant officiel.",
             "help": ""
         },
         "representative_owner_id": {
@@ -124,7 +124,7 @@
         },
         "attendees_ids": {
             "label": "Participants",
-            "description": "Participants ayant représenté l’ownership lors des assemblées.",
+            "description": "Participants ayant représenté l'ownership lors des assemblées.",
             "help": ""
         },
         "status": {
@@ -160,12 +160,12 @@
             }
         },
         "form.create": {
-            "name": "Création d’un dossier",
+            "name": "Création d'un dossier",
             "description": "Assistant permettant de créer rapidement un ownership et ses propriétaires."
         },
         "form.transfer_create": {
             "name": "Création via transfert",
-            "description": "Saisie d’un nouveau dossier lors d’une acquisition/cession."
+            "description": "Saisie d'un nouveau dossier lors d'une acquisition/cession."
         },
         "list.default": {
             "name": "Dossiers de propriété",
@@ -173,7 +173,7 @@
         },
         "list.assembly": {
             "name": "Ownerships pour assemblée",
-            "description": "Filtre dédié aux convocations d’assemblées générales."
+            "description": "Filtre dédié aux convocations d'assemblées générales."
         }
     }
 }

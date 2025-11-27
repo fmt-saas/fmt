@@ -1,16 +1,16 @@
 {
-    "name": "Entrée d’immeuble",
-    "plural": "Entrées d’immeuble",
-    "description": "Identifie un hall / bloc / entrée d’une copropriété afin d’y rattacher des lots et des adresses.",
+    "name": "Entrée d'immeuble",
+    "plural": "Entrées d'immeuble",
+    "description": "Identifie un hall / bloc / entrée d'une copropriété afin d'y rattacher des lots et des adresses.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
-            "description": "Copropriété à laquelle l’entrée est rattachée.",
+            "description": "Copropriété à laquelle l'entrée est rattachée.",
             "help": ""
         },
         "name": {
             "label": "Nom",
-            "description": "Nom usuel de l’entrée (ex. Bloc A, Hall 2…).",
+            "description": "Nom usuel de l'entrée (ex. Bloc A, Hall 2…).",
             "help": ""
         },
         "code": {
@@ -25,7 +25,7 @@
         },
         "address_street": {
             "label": "Rue et numéro",
-            "description": "Adresse précise de l’entrée (par défaut celle de la copropriété).",
+            "description": "Adresse précise de l'entrée (par défaut celle de la copropriété).",
             "help": ""
         },
         "address_city": {
@@ -51,8 +51,8 @@
     },
     "view": {
         "form.default": {
-            "name": "Entrée d’immeuble",
-            "description": "Formulaire de gestion d’une entrée (nom, code, adresse, lots rattachés)."
+            "name": "Entrée d'immeuble",
+            "description": "Formulaire de gestion d'une entrée (nom, code, adresse, lots rattachés)."
         },
         "list.default": {
             "name": "Entrées",

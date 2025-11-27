@@ -1,7 +1,7 @@
 {
     "name": "Ligne de balance",
     "plural": "Lignes de balance",
-    "description": "Soldes d’un compte pour une balance donnée (totaux débit/crédit et liste des écritures associées).",
+    "description": "Soldes d'un compte pour une balance donnée (totaux débit/crédit et liste des écritures associées).",
     "model": {
         "balance_id": {
             "label": "Balance",
@@ -40,7 +40,7 @@
         },
         "entry_lines_ids": {
             "label": "Écritures liées",
-            "description": "Écritures impactant ce compte dans l’exercice.",
+            "description": "Écritures impactant ce compte dans l'exercice.",
             "help": ""
         }
     },

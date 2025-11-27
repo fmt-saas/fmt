@@ -1,7 +1,7 @@
 {
-    "name": "Ligne d’appel de fonds",
-    "plural": "Lignes d’appel de fonds",
-    "description": "Segment d’un appel de fonds correspondant à une clé de répartition (apportionment) avec son montant prévu et la somme réellement affectée aux copropriétaires.",
+    "name": "Ligne d'appel de fonds",
+    "plural": "Lignes d'appel de fonds",
+    "description": "Segment d'un appel de fonds correspondant à une clé de répartition (apportionment) avec son montant prévu et la somme réellement affectée aux copropriétaires.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -41,11 +41,11 @@
     },
     "view": {
         "form.default": {
-            "name": "Ligne d’appel",
+            "name": "Ligne d'appel",
             "description": "Formulaire technique listant la clé utilisée, les montants planifiés et la ventilation générée."
         },
         "list.default": {
-            "name": "Lignes d’appel",
+            "name": "Lignes d'appel",
             "description": "Vue tabulaire des lignes (copropriété, clé, montants planifiés/répartis)."
         }
     }

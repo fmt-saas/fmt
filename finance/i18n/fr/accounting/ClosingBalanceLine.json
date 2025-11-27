@@ -1,7 +1,7 @@
 {
     "name": "Ligne de clôture",
     "plural": "Lignes de clôture",
-    "description": "Résultat final d’un compte lors de la clôture (débits/crédits cumulés, soldes et verrouillage selon le statut de la balance).",
+    "description": "Résultat final d'un compte lors de la clôture (débits/crédits cumulés, soldes et verrouillage selon le statut de la balance).",
     "model": {
         "balance_id": {
             "label": "Balance de clôture",

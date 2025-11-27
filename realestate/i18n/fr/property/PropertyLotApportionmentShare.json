@@ -5,7 +5,7 @@
     "model": {
         "condo_id": {
             "label": "Copropriété",
-            "description": "Copropriété sur laquelle s’applique la quote-part.",
+            "description": "Copropriété sur laquelle s'applique la quote-part.",
             "help": ""
         },
         "apportionment_id": {
@@ -32,7 +32,7 @@
     "view": {
         "form.default": {
             "name": "Quote-part de lot",
-            "description": "Formulaire d’édition d’une quote-part (lot, clé, nombre de parts)."
+            "description": "Formulaire d'édition d'une quote-part (lot, clé, nombre de parts)."
         },
         "list.default": {
             "name": "Quotes-parts",

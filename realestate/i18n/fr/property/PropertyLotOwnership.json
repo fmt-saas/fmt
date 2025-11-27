@@ -10,7 +10,7 @@
         },
         "property_lot_id": {
             "label": "Lot privatif",
-            "description": "Lot lié à l’ownership sur la période donnée.",
+            "description": "Lot lié à l'ownership sur la période donnée.",
             "help": ""
         },
         "ownership_id": {
@@ -19,7 +19,7 @@
             "help": ""
         },
         "date_from": {
-            "label": "Date d’entrée",
+            "label": "Date d'entrée",
             "description": "Date à partir de laquelle le lot est détenu par ce dossier.",
             "help": ""
         },

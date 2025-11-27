@@ -1,7 +1,7 @@
 {
     "name": "Garantie",
     "plural": "Garanties",
-    "description": "Moyen de garantie associé à une commande (carte bancaire, référence, dates d’expiration).",
+    "description": "Moyen de garantie associé à une commande (carte bancaire, référence, dates d'expiration).",
     "model": {
         "name": {
             "label": "Libellé",
@@ -33,7 +33,7 @@
         },
         "card_expire": {
             "label": "Expiration",
-            "description": "Date d’expiration de la carte (MM/AA).",
+            "description": "Date d'expiration de la carte (MM/AA).",
             "help": ""
         }
     },

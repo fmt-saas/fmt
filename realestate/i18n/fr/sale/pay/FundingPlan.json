@@ -1,11 +1,11 @@
 {
     "name": "Plan de financement",
     "plural": "Plans de financement",
-    "description": "Gabarit d’échéancier utilisé pour générer automatiquement les fundings (acomptes, solde) d’une commande/client.",
+    "description": "Gabarit d'échéancier utilisé pour générer automatiquement les fundings (acomptes, solde) d'une commande/client.",
     "model": {
         "name": {
             "label": "Nom du plan",
-            "description": "Libellé multilingue affiché lors du choix d’un échéancier.",
+            "description": "Libellé multilingue affiché lors du choix d'un échéancier.",
             "help": ""
         },
         "description": {
@@ -20,7 +20,7 @@
         },
         "order_type_id": {
             "label": "Type de commande",
-            "description": "Type d’ordre ou de contrat sur lequel appliquer ce plan.",
+            "description": "Type d'ordre ou de contrat sur lequel appliquer ce plan.",
             "help": ""
         },
         "payment_deadlines_ids": {

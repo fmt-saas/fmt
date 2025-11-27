@@ -1,7 +1,7 @@
 {
     "name": "Balance comptable",
     "plural": "Balances comptables",
-    "description": "Vue synthétique d’un exercice ou d’une période (lignes de comptes avec soldes, statut et liens vers l’exercice).",
+    "description": "Vue synthétique d'un exercice ou d'une période (lignes de comptes avec soldes, statut et liens vers l'exercice).",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -20,7 +20,7 @@
         },
         "is_period_balance": {
             "label": "Balance périodique",
-            "description": "Indique si la balance porte sur une période plutôt que sur l’exercice complet.",
+            "description": "Indique si la balance porte sur une période plutôt que sur l'exercice complet.",
             "help": ""
         },
         "is_balanced": {
@@ -42,7 +42,7 @@
     "view": {
         "Balance.form.default": {
             "name": "Balance comptable",
-            "description": "Formulaire montrant l’exercice cible et les lignes de balance."
+            "description": "Formulaire montrant l'exercice cible et les lignes de balance."
         },
         "Balance.list.default": {
             "name": "Balances comptables",

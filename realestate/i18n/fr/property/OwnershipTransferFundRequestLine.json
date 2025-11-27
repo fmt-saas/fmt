@@ -1,11 +1,11 @@
 {
-    "name": "Ligne d’appel de fonds",
-    "plural": "Lignes d’appel de fonds",
+    "name": "Ligne d'appel de fonds",
+    "plural": "Lignes d'appel de fonds",
     "description": "Synthèse des appels de fonds utilisés pour établir un transfert de propriété (montants appelés et planifiés, part des lots).",
     "model": {
         "condo_id": {
             "label": "Copropriété",
-            "description": "Copropriété dans laquelle l’appel de fonds est réalisé.",
+            "description": "Copropriété dans laquelle l'appel de fonds est réalisé.",
             "help": ""
         },
         "ownership_transfer_id": {
@@ -20,7 +20,7 @@
         },
         "condo_called_amount": {
             "label": "Montant appelé (copropriété)",
-            "description": "Total des montants comptabilisés pour l’appel (exécutions validées).",
+            "description": "Total des montants comptabilisés pour l'appel (exécutions validées).",
             "help": ""
         },
         "condo_planned_amount": {
@@ -30,7 +30,7 @@
         },
         "property_lots_called_amount": {
             "label": "Montant appelé (lots concernés)",
-            "description": "Part de l’appel imputée aux lots inclus dans le transfert.",
+            "description": "Part de l'appel imputée aux lots inclus dans le transfert.",
             "help": ""
         },
         "property_lots_planned_amount": {
@@ -42,7 +42,7 @@
     "view": {
         "form.default": {
             "name": "Modèle",
-            "description": "Formulaire technique listant les montants détaillés d’un appel."
+            "description": "Formulaire technique listant les montants détaillés d'un appel."
         },
         "list.default": {
             "name": "Modèle",

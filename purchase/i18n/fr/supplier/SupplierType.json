@@ -1,11 +1,11 @@
 {
     "name": "Type de fournisseur",
     "plural": "Types de fournisseurs",
-    "description": "Catégories qui permettent de classer les fournisseurs (maintenance, services, énergie...) et d’appliquer des règles spécifiques (étiquetage, workflows).",
+    "description": "Catégories qui permettent de classer les fournisseurs (maintenance, services, énergie...) et d'appliquer des règles spécifiques (étiquetage, workflows).",
     "model": {
         "name": {
             "label": "Nom",
-            "description": "Libellé lisible du type (ex. Fournisseur d’électricité).",
+            "description": "Libellé lisible du type (ex. Fournisseur d'électricité).",
             "help": ""
         },
         "code": {
@@ -15,7 +15,7 @@
         },
         "uuid": {
             "label": "UUID",
-            "description": "Identifiant global fourni par l’instance maître.",
+            "description": "Identifiant global fourni par l'instance maître.",
             "help": ""
         },
         "category": {

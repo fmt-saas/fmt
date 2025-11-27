@@ -25,7 +25,7 @@
         },
         "name": {
             "label": "Nom",
-            "description": "Nom calculé d’après l’identité sélectionnée.",
+            "description": "Nom calculé d'après l'identité sélectionnée.",
             "help": ""
         }
     },

@@ -1,7 +1,7 @@
 {
     "name": "Processus documentaire",
     "plural": "Processus documentaires",
-    "description": "Suivi détaillé d’un document entrant : affectation, analyses automatiques, règles de comptabilisation, pièces dérivées (facture, extrait bancaire, etc.) et statut global.",
+    "description": "Suivi détaillé d'un document entrant : affectation, analyses automatiques, règles de comptabilisation, pièces dérivées (facture, extrait bancaire, etc.) et statut global.",
     "model": {
         "name": {
             "label": "Nom",
@@ -20,12 +20,12 @@
         },
         "document_id": {
             "label": "Document source",
-            "description": "Document importé sur lequel s’appuie le processus.",
+            "description": "Document importé sur lequel s'appuie le processus.",
             "help": ""
         },
         "document_link": {
             "label": "Lien document",
-            "description": "URL (relative) permettant d’ouvrir le document.",
+            "description": "URL (relative) permettant d'ouvrir le document.",
             "help": ""
         },
         "document_type_id": {
@@ -40,7 +40,7 @@
         },
         "document_type_code": {
             "label": "Code type",
-            "description": "Code calculé du type (utile pour l’automatisation).",
+            "description": "Code calculé du type (utile pour l'automatisation).",
             "help": ""
         },
         "assigned_employee_id": {
@@ -64,7 +64,7 @@
             "help": "Vidé une fois le document créé."
         },
         "report_html": {
-            "label": "Rapport d’analyse",
+            "label": "Rapport d'analyse",
             "description": "Synthèse HTML des contrôles réalisés.",
             "help": ""
         },
@@ -90,12 +90,12 @@
         },
         "document_origin": {
             "label": "Origine",
-            "description": "Canal d’arrivée (import manuel, automatique, interne).",
+            "description": "Canal d'arrivée (import manuel, automatique, interne).",
             "help": "",
             "selection": {
                 "manual": "Saisie manuelle",
                 "import": "Import / capture",
-                "internal": "Généré par l’application"
+                "internal": "Généré par l'application"
             }
         },
         "status": {
@@ -114,7 +114,7 @@
         },
         "document_invoice_id": {
             "label": "Facture générée",
-            "description": "Facture d’achat issue du traitement (si applicable).",
+            "description": "Facture d'achat issue du traitement (si applicable).",
             "help": ""
         },
         "document_bank_statement_id": {
@@ -123,15 +123,15 @@
             "help": ""
         },
         "document_bank_statement_line_id": {
-            "label": "Ligne d’extrait",
-            "description": "Ligne associée sur l’extrait bancaire.",
+            "label": "Ligne d'extrait",
+            "description": "Ligne associée sur l'extrait bancaire.",
             "help": ""
         }
     },
     "view": {
         "form.default": {
             "name": "Processus documentaire",
-            "description": "Vue complète pour suivre l’import, l’analyse, les avertissements et les objets générés."
+            "description": "Vue complète pour suivre l'import, l'analyse, les avertissements et les objets générés."
         },
         "list.default": {
             "name": "Processus documentaires",

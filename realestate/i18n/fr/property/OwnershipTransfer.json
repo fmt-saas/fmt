@@ -1,7 +1,7 @@
 {
     "name": "Transfert de propriété",
     "plural": "Transferts de propriété",
-    "description": "Dossier complet qui centralise les échanges notariaux, les pièces justificatives et les calculs financiers nécessaires au transfert d’un ou plusieurs lots privatifs.",
+    "description": "Dossier complet qui centralise les échanges notariaux, les pièces justificatives et les calculs financiers nécessaires au transfert d'un ou plusieurs lots privatifs.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -9,28 +9,28 @@
             "help": ""
         },
         "is_notary_request": {
-            "label": "Demande d’un notaire",
-            "description": "Indique si la demande initiale provient directement d’une étude notariale.",
+            "label": "Demande d'un notaire",
+            "description": "Indique si la demande initiale provient directement d'une étude notariale.",
             "help": ""
         },
         "request_contact_name": {
             "label": "Nom du contact",
-            "description": "Personne qui a introduit la demande lorsque celle-ci ne vient pas d’un notaire.",
+            "description": "Personne qui a introduit la demande lorsque celle-ci ne vient pas d'un notaire.",
             "help": ""
         },
         "request_contact_address_street": {
             "label": "Rue du contact",
-            "description": "Adresse postale du contact d’origine.",
+            "description": "Adresse postale du contact d'origine.",
             "help": ""
         },
         "request_contact_address_zip": {
             "label": "Code postal du contact",
-            "description": "Code postal associé à l’adresse du contact.",
+            "description": "Code postal associé à l'adresse du contact.",
             "help": ""
         },
         "request_contact_address_city": {
             "label": "Ville du contact",
-            "description": "Localité liée à l’adresse du contact.",
+            "description": "Localité liée à l'adresse du contact.",
             "help": ""
         },
         "request_contact_email": {
@@ -40,37 +40,37 @@
         },
         "request_notary_office_id": {
             "label": "Étude notariale (demande)",
-            "description": "Étude notariale à l’origine de la requête.",
+            "description": "Étude notariale à l'origine de la requête.",
             "help": ""
         },
         "confirmation_notary_office_id": {
             "label": "Étude notariale (confirmation)",
-            "description": "Étude notariale qui réceptionne les informations et gère la signature de l’acte.",
+            "description": "Étude notariale qui réceptionne les informations et gère la signature de l'acte.",
             "help": ""
         },
         "request_date": {
             "label": "Date de demande",
-            "description": "Date d’envoi de la demande d’informations.",
+            "description": "Date d'envoi de la demande d'informations.",
             "help": ""
         },
         "confirmation_date": {
             "label": "Date de confirmation",
-            "description": "Date d’envoi de la confirmation par le notaire.",
+            "description": "Date d'envoi de la confirmation par le notaire.",
             "help": ""
         },
         "transfer_date": {
             "label": "Date de transfert",
             "description": "Date à laquelle la cession de propriété est effective.",
-            "help": "Cette date correspond à la date de l’acte et n’est connue qu’en fin de processus."
+            "help": "Cette date correspond à la date de l'acte et n'est connue qu'en fin de processus."
         },
         "seller_documents_sent_date": {
             "label": "Envoi des documents vendeur",
-            "description": "Date d’expédition du dossier vendeur vers le notaire.",
+            "description": "Date d'expédition du dossier vendeur vers le notaire.",
             "help": ""
         },
         "financial_statement_sent_date": {
-            "label": "Envoi de l’état financier",
-            "description": "Date d’envoi des documents de clôture financière au notaire.",
+            "label": "Envoi de l'état financier",
+            "description": "Date d'envoi des documents de clôture financière au notaire.",
             "help": ""
         },
         "fiscal_year_id": {
@@ -80,7 +80,7 @@
         },
         "fiscal_period_id": {
             "label": "Période fiscale",
-            "description": "Période de l’exercice concernée par le transfert.",
+            "description": "Période de l'exercice concernée par le transfert.",
             "help": "Sélectionnée automatiquement en fonction des dates fournies."
         },
         "description": {
@@ -105,7 +105,7 @@
         },
         "new_ownership_id": {
             "label": "Ownership acquéreur",
-            "description": "Dossier de propriété de l’acquéreur.",
+            "description": "Dossier de propriété de l'acquéreur.",
             "help": ""
         },
         "condo_shares": {
@@ -125,7 +125,7 @@
         },
         "fund_balances_description": {
             "label": "Solde des fonds",
-            "description": "Texte décrivant l’état actuel des fonds de la copropriété.",
+            "description": "Texte décrivant l'état actuel des fonds de la copropriété.",
             "help": ""
         },
         "has_seller_arrears": {
@@ -145,7 +145,7 @@
         },
         "has_judiciary_procedures": {
             "label": "Procédures judiciaires",
-            "description": "Indique l’existence de procédures judiciaires en cours (3.94.1.4).",
+            "description": "Indique l'existence de procédures judiciaires en cours (3.94.1.4).",
             "help": ""
         },
         "judiciary_procedures_description": {
@@ -154,7 +154,7 @@
             "help": ""
         },
         "general_assembly_minutes_description": {
-            "label": "PV d’Assemblée",
+            "label": "PV d'Assemblée",
             "description": "Introduction aux derniers procès-verbaux communiqués (3.94.1.5).",
             "help": ""
         },
@@ -164,7 +164,7 @@
             "help": ""
         },
         "maintenance_expenses_description": {
-            "label": "Délais d’entretien",
+            "label": "Délais d'entretien",
             "description": "État synthétique des dépenses de maintenance (3.94.2.1).",
             "help": ""
         },
@@ -185,7 +185,7 @@
         },
         "has_seller_arrears_2": {
             "label": "Arriérés vendeur (post-acte)",
-            "description": "Indique si d’autres montants restent dus par le vendeur (3.94.2.5).",
+            "description": "Indique si d'autres montants restent dus par le vendeur (3.94.2.5).",
             "help": ""
         },
         "seller_arrears_description_2": {
@@ -195,7 +195,7 @@
         },
         "has_fuel_tank": {
             "label": "Citerne présente",
-            "description": "Spécifie si la copropriété dispose d’une citerne (mazout, gaz…).",
+            "description": "Spécifie si la copropriété dispose d'une citerne (mazout, gaz…).",
             "help": ""
         },
         "fuel_tank_capacity": {
@@ -204,13 +204,13 @@
             "help": ""
         },
         "has_intervention_record": {
-            "label": "Carnet d’intervention",
-            "description": "Indique si un carnet d’entretien futur existe pour l’immeuble.",
+            "label": "Carnet d'intervention",
+            "description": "Indique si un carnet d'entretien futur existe pour l'immeuble.",
             "help": ""
         },
         "adjustments_ids": {
             "label": "Ajustements",
-            "description": "Calculs d’ajustements générés pour équilibrer le transfert.",
+            "description": "Calculs d'ajustements générés pour équilibrer le transfert.",
             "help": ""
         },
         "fund_balances_ids": {
@@ -219,13 +219,13 @@
             "help": ""
         },
         "fund_requests_ids": {
-            "label": "Lignes d’appels de fonds",
+            "label": "Lignes d'appels de fonds",
             "description": "Historique des appels de fonds utilisés pour établir le dossier.",
             "help": ""
         },
         "arrear_fundings_ids": {
             "label": "Financements en retard",
-            "description": "Demandes de paiement non soldées liées à l’ownership cédant.",
+            "description": "Demandes de paiement non soldées liées à l'ownership cédant.",
             "help": ""
         },
         "mails_ids": {

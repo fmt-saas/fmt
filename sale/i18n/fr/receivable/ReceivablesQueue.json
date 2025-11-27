@@ -1,7 +1,7 @@
 {
     "name": "File de receivables",
     "plural": "Files de receivables",
-    "description": "File d’attente par client regroupant toutes les lignes en attente de facturation, avec indicateurs de statut (pending/invoiced).",
+    "description": "File d'attente par client regroupant toutes les lignes en attente de facturation, avec indicateurs de statut (pending/invoiced).",
     "model": {
         "customer_id": {
             "label": "Client",
@@ -49,7 +49,7 @@
         },
         "list.default": {
             "name": "Files de receivables",
-            "description": "Tableau des files par client avec nombre d’items en attente."
+            "description": "Tableau des files par client avec nombre d'items en attente."
         },
         "receivables-queue-collect.search.default": {
             "name": "Recherche de files",

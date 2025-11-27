@@ -1,7 +1,7 @@
 {
     "name": "Compte modèle",
     "plural": "Comptes modèle",
-    "description": "Ligne d’un plan comptable modèle (structure hiérarchique, clés de répartition par code).",
+    "description": "Ligne d'un plan comptable modèle (structure hiérarchique, clés de répartition par code).",
     "model": {
         "code": {
             "label": "Code",

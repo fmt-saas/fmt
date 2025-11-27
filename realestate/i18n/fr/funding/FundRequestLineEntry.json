@@ -1,21 +1,21 @@
 {
-    "name": "Entrée d’appel",
-    "plural": "Entrées d’appel",
-    "description": "Ventilation d’une ligne d’appel de fonds pour un ownership (ou un groupe de lots) avant génération des factures/exécutions.",
+    "name": "Entrée d'appel",
+    "plural": "Entrées d'appel",
+    "description": "Ventilation d'une ligne d'appel de fonds pour un ownership (ou un groupe de lots) avant génération des factures/exécutions.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
-            "description": "Immeuble auquel appartient l’ownership.",
+            "description": "Immeuble auquel appartient l'ownership.",
             "help": ""
         },
         "fund_request_id": {
             "label": "Appel de fonds",
-            "description": "Appel parent auquel l’entrée est liée (calculé depuis la ligne).",
+            "description": "Appel parent auquel l'entrée est liée (calculé depuis la ligne).",
             "help": ""
         },
         "request_line_id": {
-            "label": "Ligne d’appel",
-            "description": "Ligne (clé de répartition) dont provient l’entrée.",
+            "label": "Ligne d'appel",
+            "description": "Ligne (clé de répartition) dont provient l'entrée.",
             "help": ""
         },
         "ownership_id": {
@@ -30,28 +30,28 @@
         },
         "apportionment_shares": {
             "label": "Quotes-parts",
-            "description": "Nombre d’unités (parts) utilisées pour calculer la contribution.",
+            "description": "Nombre d'unités (parts) utilisées pour calculer la contribution.",
             "help": ""
         },
         "entry_lots_ids": {
             "label": "Détail par lot",
-            "description": "Répartition de l’entrée sur chaque lot détenu (montant et quotes-parts).",
+            "description": "Répartition de l'entrée sur chaque lot détenu (montant et quotes-parts).",
             "help": ""
         },
         "execution_lines_ids": {
-            "label": "Lignes d’exécution",
-            "description": "Factures / avis qui consomment cette entrée lors de l’envoi aux propriétaires.",
+            "label": "Lignes d'exécution",
+            "description": "Factures / avis qui consomment cette entrée lors de l'envoi aux propriétaires.",
             "help": ""
         }
     },
     "view": {
         "form.default": {
-            "name": "Entrée d’appel",
+            "name": "Entrée d'appel",
             "description": "Formulaire technique pour analyser la ventilation par ownership avant exécution."
         },
         "list.default": {
-            "name": "Entrées d’appel",
-            "description": "Vue d’ensemble des entrées (ownership, montants, quotes-parts)."
+            "name": "Entrées d'appel",
+            "description": "Vue d'ensemble des entrées (ownership, montants, quotes-parts)."
         }
     }
 }

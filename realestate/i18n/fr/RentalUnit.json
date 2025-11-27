@@ -5,11 +5,11 @@
     "model": {
         "name": {
             "label": "Nom",
-            "description": "Nom complet de l’unité locative.",
+            "description": "Nom complet de l'unité locative.",
             "help": ""
         },
         "order": {
-            "label": "Ordre d’affichage",
+            "label": "Ordre d'affichage",
             "description": "Valeur arbitraire utilisée pour trier les unités dans les vues.",
             "help": ""
         },
@@ -20,12 +20,12 @@
         },
         "description": {
             "label": "Description",
-            "description": "Résumé permettant d’identifier rapidement l’unité.",
+            "description": "Résumé permettant d'identifier rapidement l'unité.",
             "help": ""
         },
         "type": {
-            "label": "Type d’unité",
-            "description": "Catégorie fonctionnelle de l’unité (impacte les capacités et regroupements).",
+            "label": "Type d'unité",
+            "description": "Catégorie fonctionnelle de l'unité (impacte les capacités et regroupements).",
             "selection": {
                 "building": "Bâtiment",
                 "bedroom": "Chambre",
@@ -38,7 +38,7 @@
             "help": ""
         },
         "category": {
-            "label": "Mode d’exploitation",
+            "label": "Mode d'exploitation",
             "description": "Type de location (gîte autonome, formule hôtelière, …).",
             "selection": {
                 "hostel": "Hébergement géré (hostel)",
@@ -48,27 +48,27 @@
         },
         "rental_unit_category_id": {
             "label": "Catégorie",
-            "description": "Catégorie à laquelle l’unité est rattachée.",
+            "description": "Catégorie à laquelle l'unité est rattachée.",
             "help": "Permet de filtrer les unités proposées sur un produit ou une offre donnée."
         },
         "is_accommodation": {
             "label": "Logement",
-            "description": "Indique si l’unité comprend au moins un couchage.",
+            "description": "Indique si l'unité comprend au moins un couchage.",
             "help": ""
         },
         "capacity": {
             "label": "Capacité",
-            "description": "Nombre maximal de personnes pouvant séjourner dans l’unité.",
+            "description": "Nombre maximal de personnes pouvant séjourner dans l'unité.",
             "help": ""
         },
         "has_children": {
             "label": "Sous-unités",
-            "description": "L’unité est composée de sous-unités (bâtiment → chambres, dortoir → lits, …).",
+            "description": "L'unité est composée de sous-unités (bâtiment → chambres, dortoir → lits, …).",
             "help": ""
         },
         "has_parent": {
             "label": "Incluse dans une unité",
-            "description": "Indique si cette unité fait partie d’un ensemble parent.",
+            "description": "Indique si cette unité fait partie d'un ensemble parent.",
             "help": ""
         },
         "can_rent": {
@@ -78,12 +78,12 @@
         },
         "can_partial_rent": {
             "label": "Location partielle",
-            "description": "Autorise la location des sous-unités indépendamment (ex. lits d’un dortoir).",
+            "description": "Autorise la location des sous-unités indépendamment (ex. lits d'un dortoir).",
             "help": ""
         },
         "children_ids": {
             "label": "Liste des sous-unités",
-            "description": "Sous-unités composant l’unité actuelle.",
+            "description": "Sous-unités composant l'unité actuelle.",
             "help": ""
         },
         "parent_id": {
@@ -93,7 +93,7 @@
         },
         "status": {
             "label": "Statut opérationnel",
-            "description": "État instantané de l’unité (disponible, occupée, hors service…).",
+            "description": "État instantané de l'unité (disponible, occupée, hors service…).",
             "selection": {
                 "ready": "Disponible",
                 "empty": "Libre (post-occupation)",
@@ -117,7 +117,7 @@
     "view": {
         "form.default": {
             "name": "Unité locative",
-            "description": "Formulaire de gestion d’une unité locative (données générales et sous-unités).",
+            "description": "Formulaire de gestion d'une unité locative (données générales et sous-unités).",
             "layout": {
                 "section.rental_units": {
                     "label": "Informations générales"

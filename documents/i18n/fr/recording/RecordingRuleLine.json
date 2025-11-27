@@ -1,7 +1,7 @@
 {
     "name": "Ligne de comptabilisation",
     "plural": "Lignes de comptabilisation",
-    "description": "Détail d’une règle : compte comptable, clé de répartition et parts par profil (propriétaire/locataire).",
+    "description": "Détail d'une règle : compte comptable, clé de répartition et parts par profil (propriétaire/locataire).",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -61,7 +61,7 @@
         },
         "RecordingRuleLine.list.default": {
             "name": "Lignes de comptabilisation",
-            "description": "Liste des lignes d’une règle (compte, clé, parts)."
+            "description": "Liste des lignes d'une règle (compte, clé, parts)."
         }
     }
 }

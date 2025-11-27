@@ -1,7 +1,7 @@
 {
     "name": "Frais de transfert",
     "plural": "Frais de transfert",
-    "description": "Lignes de frais administratifs facturés dans le cadre du traitement d’un transfert de propriété.",
+    "description": "Lignes de frais administratifs facturés dans le cadre du traitement d'un transfert de propriété.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -20,7 +20,7 @@
         },
         "description": {
             "label": "Description",
-            "description": "Objet du frais (ex. ouverture de dossier, copie d’acte, etc.).",
+            "description": "Objet du frais (ex. ouverture de dossier, copie d'acte, etc.).",
             "help": ""
         },
         "price": {

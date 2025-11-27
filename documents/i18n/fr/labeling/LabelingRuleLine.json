@@ -1,7 +1,7 @@
 {
-    "name": "Ligne d’étiquetage",
-    "plural": "Lignes d’étiquetage",
-    "description": "Condition d’une règle d’étiquetage : précise le type de document et les formats texte à appliquer.",
+    "name": "Ligne d'étiquetage",
+    "plural": "Lignes d'étiquetage",
+    "description": "Condition d'une règle d'étiquetage : précise le type de document et les formats texte à appliquer.",
     "model": {
         "name": {
             "label": "Libellé",
@@ -10,7 +10,7 @@
         },
         "labeling_rule_id": {
             "label": "Règle parente",
-            "description": "Règle d’étiquetage à laquelle cette ligne appartient.",
+            "description": "Règle d'étiquetage à laquelle cette ligne appartient.",
             "help": ""
         },
         "document_type_id": {
@@ -30,17 +30,17 @@
         },
         "allocation_line_format": {
             "label": "Format allocation",
-            "description": "Gabarit de libellé pour les lignes d’allocation générées.",
+            "description": "Gabarit de libellé pour les lignes d'allocation générées.",
             "help": ""
         }
     },
     "view": {
         "LabelingRuleLine.form.default": {
-            "name": "Ligne d’étiquetage",
-            "description": "Édition d’une condition (type/subtype) et des formats de sortie."
+            "name": "Ligne d'étiquetage",
+            "description": "Édition d'une condition (type/subtype) et des formats de sortie."
         },
         "LabelingRuleLine.list.default": {
-            "name": "Lignes d’étiquetage",
+            "name": "Lignes d'étiquetage",
             "description": "Vue liste montrant les lignes par règle et formats appliqués."
         }
     }

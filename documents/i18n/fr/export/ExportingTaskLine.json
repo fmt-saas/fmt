@@ -1,21 +1,21 @@
 {
-    "name": "Ligne d’export",
-    "plural": "Lignes d’export",
-    "description": "Sous-tâche exécutée lors d’un export (contrôleur ciblé, paramètres, document généré et statut).",
+    "name": "Ligne d'export",
+    "plural": "Lignes d'export",
+    "description": "Sous-tâche exécutée lors d'un export (contrôleur ciblé, paramètres, document généré et statut).",
     "model": {
         "name": {
             "label": "Libellé",
-            "description": "Nom de la ligne d’export.",
+            "description": "Nom de la ligne d'export.",
             "help": ""
         },
         "exporting_task_id": {
             "label": "Tâche parente",
-            "description": "Tâche d’export à laquelle cette ligne appartient.",
+            "description": "Tâche d'export à laquelle cette ligne appartient.",
             "help": ""
         },
         "pid": {
             "label": "PID",
-            "description": "Identifiant du processus en charge de l’exécution.",
+            "description": "Identifiant du processus en charge de l'exécution.",
             "help": "Visible uniquement lorsque la ligne est en cours."
         },
         "controller": {
@@ -46,12 +46,12 @@
     },
     "view": {
         "ExportingTaskLine.form.default": {
-            "name": "Ligne d’export",
+            "name": "Ligne d'export",
             "description": "Formulaire montrant le contrôleur, les paramètres, le PID et les logs liés."
         },
         "ExportingTaskLine.list.default": {
-            "name": "Lignes d’export",
-            "description": "Liste des lignes d’exécution avec leur document généré et leur statut."
+            "name": "Lignes d'export",
+            "description": "Liste des lignes d'exécution avec leur document généré et leur statut."
         }
     }
 }

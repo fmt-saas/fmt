@@ -1,7 +1,7 @@
 {
     "name": "Sous-type de document",
     "plural": "Sous-types de document",
-    "description": "Classement supplémentaire pour affiner un type de document (variation de dossier, règles d’enregistrement/étiquetage, description).",
+    "description": "Classement supplémentaire pour affiner un type de document (variation de dossier, règles d'enregistrement/étiquetage, description).",
     "model": {
         "name": {
             "label": "Nom",
@@ -15,7 +15,7 @@
         },
         "uuid": {
             "label": "UUID",
-            "description": "Identifiant global fourni par l’instance maître.",
+            "description": "Identifiant global fourni par l'instance maître.",
             "help": ""
         },
         "folder_code": {
@@ -34,12 +34,12 @@
             "help": ""
         },
         "recording_rules_ids": {
-            "label": "Règles d’enregistrement",
-            "description": "Règles métiers déclenchées lors d’un import pour ce sous-type.",
+            "label": "Règles d'enregistrement",
+            "description": "Règles métiers déclenchées lors d'un import pour ce sous-type.",
             "help": ""
         },
         "labeling_rules_ids": {
-            "label": "Règles d’étiquetage",
+            "label": "Règles d'étiquetage",
             "description": "Règles de nommage/étiquettes appliquées sur ce sous-type.",
             "help": ""
         },

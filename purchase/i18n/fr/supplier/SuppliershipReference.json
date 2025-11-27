@@ -1,11 +1,11 @@
 {
     "name": "Référence fournisseur",
     "plural": "Références fournisseur",
-    "description": "Valeurs attribuées par un fournisseur à une copropriété (numéro d’installation, EAN, code client…) pour faciliter l’échange de données et le guichet unique.",
+    "description": "Valeurs attribuées par un fournisseur à une copropriété (numéro d'installation, EAN, code client…) pour faciliter l'échange de données et le guichet unique.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
-            "description": "Immeuble auquel la référence s’applique.",
+            "description": "Immeuble auquel la référence s'applique.",
             "help": ""
         },
         "suppliership_id": {
@@ -23,12 +23,12 @@
             "description": "Nature de la donnée fournie (numéro EAN, compteur, code client...).",
             "help": "",
             "selection": {
-                "installation_number": "Numéro d’installation",
+                "installation_number": "Numéro d'installation",
                 "ean_number": "Numéro EAN",
                 "meter_number": "Numéro de compteur",
                 "customer_number": "Numéro client",
                 "phone_number": "Numéro de téléphone",
-                "elevator_number": "Numéro d’ascenseur",
+                "elevator_number": "Numéro d'ascenseur",
                 "building_code": "Code immeuble"
             }
         },

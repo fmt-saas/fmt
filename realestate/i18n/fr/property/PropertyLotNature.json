@@ -26,7 +26,7 @@
                 "2": "Dépendance",
                 "3": "Autre"
             },
-            "help": "Utilisée pour empêcher l’affectation incohérente de lots principaux comme dépendances."
+            "help": "Utilisée pour empêcher l'affectation incohérente de lots principaux comme dépendances."
         },
         "property_lots_ids": {
             "label": "Lots associés",
@@ -42,7 +42,7 @@
     "view": {
         "form.default": {
             "name": "Nature de lot",
-            "description": "Formulaire de gestion d’une nature (code, hiérarchie, description)."
+            "description": "Formulaire de gestion d'une nature (code, hiérarchie, description)."
         },
         "list.default": {
             "name": "Natures de lot",

@@ -1,11 +1,11 @@
 {
     "name": "Échéance de paiement",
     "plural": "Échéances de paiement",
-    "description": "Paramètre d’un plan de financement indiquant le type d’échéance, son délai et la part du montant total à exiger.",
+    "description": "Paramètre d'un plan de financement indiquant le type d'échéance, son délai et la part du montant total à exiger.",
     "model": {
         "name": {
             "label": "Libellé",
-            "description": "Intitulé lisible de l’échéance (affiché sur les plans et documents).",
+            "description": "Intitulé lisible de l'échéance (affiché sur les plans et documents).",
             "help": ""
         },
         "code": {
@@ -14,8 +14,8 @@
             "help": ""
         },
         "payment_deadline_type": {
-            "label": "Type d’échéance",
-            "description": "Indique s’il s’agit d’un acompte ou de la facture finale.",
+            "label": "Type d'échéance",
+            "description": "Indique s'il s'agit d'un acompte ou de la facture finale.",
             "help": "",
             "selection": {
                 "installment": "Acompte",
@@ -24,7 +24,7 @@
         },
         "delay_from_event": {
             "label": "Point de départ",
-            "description": "Événement servant d’origine au calcul du délai (commande, livraison…).",
+            "description": "Événement servant d'origine au calcul du délai (commande, livraison…).",
             "help": "",
             "selection": {
                 "order": "Commande",
@@ -33,22 +33,22 @@
         },
         "delay_from_event_offset": {
             "label": "Décalage (jours)",
-            "description": "Offset appliqué sur l’événement de départ pour fixer la date d’émission.",
+            "description": "Offset appliqué sur l'événement de départ pour fixer la date d'émission.",
             "help": ""
         },
         "delay_count": {
             "label": "Nombre de jours",
-            "description": "Nombre de jours à compter avant d’atteindre l’échéance.",
+            "description": "Nombre de jours à compter avant d'atteindre l'échéance.",
             "help": ""
         },
         "amount_share": {
             "label": "Part du montant",
-            "description": "Ratio de l’échéance par rapport au total dû (1 = 100 %).",
+            "description": "Ratio de l'échéance par rapport au total dû (1 = 100 %).",
             "help": ""
         },
         "payment_plan_id": {
             "label": "Plan de paiement",
-            "description": "Plan auquel l’échéance est rattachée.",
+            "description": "Plan auquel l'échéance est rattachée.",
             "help": ""
         }
     },

@@ -25,7 +25,7 @@
         },
         "is_mandatory": {
             "label": "Obligatoire",
-            "description": "Le rôle doit être affecté lors de la création d’une copropriété.",
+            "description": "Le rôle doit être affecté lors de la création d'une copropriété.",
             "help": ""
         },
         "role_assignments_ids": {
@@ -40,14 +40,14 @@
         },
         "groups_ids": {
             "label": "Groupes",
-            "description": "Groupes automatiquement ajoutés lors de l’affectation du rôle.",
+            "description": "Groupes automatiquement ajoutés lors de l'affectation du rôle.",
             "help": ""
         }
     },
     "view": {
         "form.default": {
             "name": "Rôle",
-            "description": "Formulaire de gestion d’un rôle HR.",
+            "description": "Formulaire de gestion d'un rôle HR.",
             "layout": {
                 "section.assignments": {
                     "label": "Affectations"

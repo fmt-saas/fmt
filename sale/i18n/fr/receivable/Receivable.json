@@ -1,16 +1,16 @@
 {
     "name": "Recevable",
     "plural": "Recevables",
-    "description": "Ligne représentant un bien ou service vendu à un client et en attente de facturation (quantités issues des entrées de vente, tarification, remises et regroupements d’invoice).",
+    "description": "Ligne représentant un bien ou service vendu à un client et en attente de facturation (quantités issues des entrées de vente, tarification, remises et regroupements d'invoice).",
     "model": {
         "name": {
             "label": "Libellé",
-            "description": "Texte calculé depuis l’entrée de vente / produit.",
+            "description": "Texte calculé depuis l'entrée de vente / produit.",
             "help": ""
         },
         "description": {
             "label": "Description",
-            "description": "Commentaire détaillant la prestation (copié depuis l’entrée de vente).",
+            "description": "Commentaire détaillant la prestation (copié depuis l'entrée de vente).",
             "help": ""
         },
         "receivables_queue_id": {
@@ -34,23 +34,23 @@
             "help": ""
         },
         "sale_entry_class": {
-            "label": "Classe d’origine",
-            "description": "Classe PHP utilisée pour générer l’entrée (pour logiques custom).",
+            "label": "Classe d'origine",
+            "description": "Classe PHP utilisée pour générer l'entrée (pour logiques custom).",
             "help": ""
         },
         "subscription_entry_id": {
-            "label": "Entrée d’abonnement",
-            "description": "Lien éventuel vers la ligne d’abonnement correspondante.",
+            "label": "Entrée d'abonnement",
+            "description": "Lien éventuel vers la ligne d'abonnement correspondante.",
             "help": ""
         },
         "invoice_group": {
-            "label": "Groupe d’invoicing",
+            "label": "Groupe d'invoicing",
             "description": "Texte utilisé pour regrouper plusieurs receivables sur une facture.",
             "help": ""
         },
         "customer_id": {
             "label": "Client",
-            "description": "Client auquel le receivable appartient (dérivé de l’entrée de vente).",
+            "description": "Client auquel le receivable appartient (dérivé de l'entrée de vente).",
             "help": ""
         },
         "product_id": {
@@ -132,11 +132,11 @@
         },
         "list.queue-selection": {
             "name": "Sélection de file",
-            "description": "Permet de choisir la queue d’affectation pour les receivables."
+            "description": "Permet de choisir la queue d'affectation pour les receivables."
         },
         "receivable-collect.search.default": {
             "name": "Recherche de receveur (collecte)",
-            "description": "Critères avancés pour filtrer les receivables lors d’une collecte."
+            "description": "Critères avancés pour filtrer les receivables lors d'une collecte."
         },
         "receivable-pending-collect.search.default": {
             "name": "Recherche receveur (en attente)",

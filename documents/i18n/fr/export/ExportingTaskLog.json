@@ -1,26 +1,26 @@
 {
-    "name": "Journal d’export",
-    "plural": "Journaux d’export",
-    "description": "Traces générées à chaque exécution d’une tâche ou d’une ligne d’export (succès/erreur et message brut).",
+    "name": "Journal d'export",
+    "plural": "Journaux d'export",
+    "description": "Traces générées à chaque exécution d'une tâche ou d'une ligne d'export (succès/erreur et message brut).",
     "model": {
         "task_id": {
             "label": "Tâche",
-            "description": "Tâche d’export concernée.",
+            "description": "Tâche d'export concernée.",
             "help": ""
         },
         "task_line_id": {
             "label": "Ligne",
-            "description": "Ligne d’export concernée par cette entrée.",
+            "description": "Ligne d'export concernée par cette entrée.",
             "help": ""
         },
         "status": {
             "label": "Statut",
-            "description": "Résultat de l’exécution (success ou error).",
+            "description": "Résultat de l'exécution (success ou error).",
             "help": ""
         },
         "log": {
             "label": "Message",
-            "description": "Contenu texte retourné lors de l’exécution du contrôleur.",
+            "description": "Contenu texte retourné lors de l'exécution du contrôleur.",
             "help": ""
         }
     }

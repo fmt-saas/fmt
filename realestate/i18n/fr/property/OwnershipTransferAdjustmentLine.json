@@ -1,16 +1,16 @@
 {
-    "name": "Ligne d’ajustement de transfert",
-    "plural": "Lignes d’ajustement de transfert",
-    "description": "Ajustements calculés pour répartir correctement appels de fonds, comptes et montants lors d’un transfert de propriété.",
+    "name": "Ligne d'ajustement de transfert",
+    "plural": "Lignes d'ajustement de transfert",
+    "description": "Ajustements calculés pour répartir correctement appels de fonds, comptes et montants lors d'un transfert de propriété.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
-            "description": "Copropriété qui supporte l’ajustement.",
+            "description": "Copropriété qui supporte l'ajustement.",
             "help": ""
         },
         "ownership_id": {
             "label": "Ownership",
-            "description": "Dossier de propriété concerné par l’ajustement.",
+            "description": "Dossier de propriété concerné par l'ajustement.",
             "help": ""
         },
         "ownership_transfer_id": {
@@ -20,22 +20,22 @@
         },
         "property_lot_id": {
             "label": "Lot",
-            "description": "Lot pour lequel l’ajustement est calculé.",
+            "description": "Lot pour lequel l'ajustement est calculé.",
             "help": ""
         },
         "fund_request_id": {
             "label": "Appel de fonds",
-            "description": "Demande de fonds à l’origine du montant.",
+            "description": "Demande de fonds à l'origine du montant.",
             "help": ""
         },
         "request_execution_id": {
             "label": "Exécution",
-            "description": "Exécution (facture) liée à l’appel de fonds.",
+            "description": "Exécution (facture) liée à l'appel de fonds.",
             "help": ""
         },
         "condo_fund_id": {
             "label": "Fonds de copropriété",
-            "description": "Fonds auquel se rattache l’ajustement.",
+            "description": "Fonds auquel se rattache l'ajustement.",
             "help": ""
         },
         "request_account_id": {
@@ -45,27 +45,27 @@
         },
         "request_type": {
             "label": "Type de demande",
-            "description": "Typologie de l’appel de fonds (travaux, fonds de réserve, …).",
+            "description": "Typologie de l'appel de fonds (travaux, fonds de réserve, …).",
             "help": ""
         },
         "amount": {
             "label": "Montant HTVA",
-            "description": "Montant total (hors TVA) de l’ajustement.",
+            "description": "Montant total (hors TVA) de l'ajustement.",
             "help": ""
         }
     },
     "view": {
         "form.default": {
             "name": "Modèle",
-            "description": "Formulaire technique pour consulter ou corriger une ligne d’ajustement."
+            "description": "Formulaire technique pour consulter ou corriger une ligne d'ajustement."
         },
         "list.default": {
             "name": "Modèle",
-            "description": "Vue générique affichant les lignes d’ajustement enregistrées."
+            "description": "Vue générique affichant les lignes d'ajustement enregistrées."
         },
         "list.transfer": {
-            "name": "Lignes d’ajustement",
-            "description": "Lecture rapide des ajustements d’un transfert (lot, compte, montant)."
+            "name": "Lignes d'ajustement",
+            "description": "Lecture rapide des ajustements d'un transfert (lot, compte, montant)."
         }
     }
 }

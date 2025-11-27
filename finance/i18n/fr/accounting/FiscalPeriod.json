@@ -1,7 +1,7 @@
 {
     "name": "Période comptable",
     "plural": "Périodes comptables",
-    "description": "Fraction d’un exercice (dates, numéro, statut open/closed, actions de clôture).",
+    "description": "Fraction d'un exercice (dates, numéro, statut open/closed, actions de clôture).",
     "model": {
         "fiscal_year_id": {
             "label": "Exercice",
@@ -25,7 +25,7 @@
         },
         "code": {
             "label": "Ordre",
-            "description": "Numéro de période dans l’exercice (sert aux séquences).",
+            "description": "Numéro de période dans l'exercice (sert aux séquences).",
             "help": ""
         },
         "status": {
@@ -35,7 +35,7 @@
         },
         "condo_id": {
             "label": "Copropriété",
-            "description": "Immeuble concerné (hérité de l’exercice).",
+            "description": "Immeuble concerné (hérité de l'exercice).",
             "help": ""
         },
         "organisation_id": {
@@ -47,7 +47,7 @@
     "view": {
         "FiscalPeriod.form.default": {
             "name": "Période comptable",
-            "description": "Formulaire pour ajuster les dates et visualiser l’exercice/copropriété."
+            "description": "Formulaire pour ajuster les dates et visualiser l'exercice/copropriété."
         }
     }
 }

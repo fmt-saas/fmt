@@ -1,7 +1,7 @@
 {
     "name": "Balance de clôture",
     "plural": "Balances de clôture",
-    "description": "Instantané en fin d’exercice ou de période (ligne par compte, recalcul automatique et statut pending/validated/closed).",
+    "description": "Instantané en fin d'exercice ou de période (ligne par compte, recalcul automatique et statut pending/validated/closed).",
     "model": {
         "date": {
             "label": "Date de génération",
@@ -10,7 +10,7 @@
         },
         "balance_type": {
             "label": "Type de balance",
-            "description": "Indique si la balance porte sur l’exercice complet ou une période (`fiscal_year` / `fiscal_period`).",
+            "description": "Indique si la balance porte sur l'exercice complet ou une période (`fiscal_year` / `fiscal_period`).",
             "help": ""
         },
         "fiscal_year_id": {
@@ -25,7 +25,7 @@
         },
         "balance_lines_ids": {
             "label": "Lignes de clôture",
-            "description": "Lignes (ClosingBalanceLine) générées à partir des écritures de l’exercice/période.",
+            "description": "Lignes (ClosingBalanceLine) générées à partir des écritures de l'exercice/période.",
             "help": ""
         },
         "status": {

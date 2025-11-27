@@ -1,11 +1,11 @@
 {
-    "name": "Invitation d’assemblée",
-    "plural": "Invitations d’assemblée",
+    "name": "Invitation d'assemblée",
+    "plural": "Invitations d'assemblée",
     "description": "Suivi des convocations envoyées aux copropriétaires (canal, accusé, mails).",
     "view": {
         "AssemblyInvitation.form.default": {
             "name": "Invitation",
-            "description": "Formulaire d’une invitation individuelle (destinataire, envoi, pièces).",
+            "description": "Formulaire d'une invitation individuelle (destinataire, envoi, pièces).",
             "layout": {
                 "route.mails": {
                     "label": "E-mails"
@@ -13,7 +13,7 @@
             },
             "routes": {
                 "route.view_invitation": {
-                    "label": "Voir l’invitation"
+                    "label": "Voir l'invitation"
                 }
             }
         }

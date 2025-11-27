@@ -5,7 +5,7 @@
     "model": {
         "name": {
             "label": "Nom du contrat",
-            "description": "Libellé interne permettant d’identifier le service.",
+            "description": "Libellé interne permettant d'identifier le service.",
             "help": ""
         },
         "condo_id": {
@@ -25,7 +25,7 @@
         },
         "date_from": {
             "label": "Début de validité",
-            "description": "Date d’entrée en vigueur.",
+            "description": "Date d'entrée en vigueur.",
             "help": ""
         },
         "date_to": {
@@ -47,7 +47,7 @@
     "view": {
         "form.default": {
             "name": "Contrat fournisseur",
-            "description": "Formulaire pour encoder les dates, références et statut d’un contrat."
+            "description": "Formulaire pour encoder les dates, références et statut d'un contrat."
         },
         "list.default": {
             "name": "Contrats fournisseurs",

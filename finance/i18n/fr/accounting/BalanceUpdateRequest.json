@@ -1,7 +1,7 @@
 {
     "name": "Demande de mise à jour de balance",
     "plural": "Demandes de mise à jour de balance",
-    "description": "File d’attente garantissant l’application atomique des écritures sur la balance courante.",
+    "description": "File d'attente garantissant l'application atomique des écritures sur la balance courante.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -21,7 +21,7 @@
         "status": {
             "label": "Statut",
             "description": "pending = en attente, processed = déjà appliquée.",
-            "help": "Une demande traitée n’est plus rejouée."
+            "help": "Une demande traitée n'est plus rejouée."
         }
     }
 }

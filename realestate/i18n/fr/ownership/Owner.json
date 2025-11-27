@@ -1,12 +1,12 @@
 {
     "name": "Propriétaire",
     "plural": "Propriétaires",
-    "description": "Personne physique ou morale associée à une quote-part d’un lot dans une copropriété.",
+    "description": "Personne physique ou morale associée à une quote-part d'un lot dans une copropriété.",
     "model": {
         "identity_id": {
             "label": "Identité",
             "description": "Fiche identité (personne physique) correspondant au propriétaire.",
-            "help": "Permet de réutiliser les coordonnées, les accès portail et de synchroniser les informations avec l’entité Identity."
+            "help": "Permet de réutiliser les coordonnées, les accès portail et de synchroniser les informations avec l'entité Identity."
         },
         "ownership_id": {
             "label": "Dossier de propriété",
@@ -20,8 +20,8 @@
         },
         "date_to": {
             "label": "Date de sortie",
-            "description": "Date à laquelle le propriétaire n’a plus aucun lot actif.",
-            "help": "Utile pour conserver l’historique même après cession."
+            "description": "Date à laquelle le propriétaire n'a plus aucun lot actif.",
+            "help": "Utile pour conserver l'historique même après cession."
         },
         "owner_shares": {
             "label": "Parts",
@@ -55,18 +55,18 @@
         },
         "ownership_percentage": {
             "label": "Pourcentage de détention",
-            "description": "Part du propriétaire dans l’ownership en pourcentage.",
+            "description": "Part du propriétaire dans l'ownership en pourcentage.",
             "help": ""
         }
     },
     "view": {
         "form.default": {
             "name": "Propriétaire",
-            "description": "Fiche détaillée d’un propriétaire (identité et quotes-parts)."
+            "description": "Fiche détaillée d'un propriétaire (identité et quotes-parts)."
         },
         "form.create": {
             "name": "Nouveau propriétaire",
-            "description": "Assistant de création d’un propriétaire et de ses parts."
+            "description": "Assistant de création d'un propriétaire et de ses parts."
         },
         "list.default": {
             "name": "Liste des propriétaires",

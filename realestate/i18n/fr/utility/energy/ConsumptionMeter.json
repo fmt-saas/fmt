@@ -1,7 +1,7 @@
 {
     "name": "Compteur de consommation",
     "plural": "Compteurs de consommation",
-    "description": "Équipements utilisés pour suivre les consommations d’énergie (eau, gaz, électricité) et leurs sous-compteurs.",
+    "description": "Équipements utilisés pour suivre les consommations d'énergie (eau, gaz, électricité) et leurs sous-compteurs.",
     "view": {
         "ConsumptionMeter.form.default": {
             "name": "Compteur de consommation",

@@ -1,11 +1,11 @@
 {
-    "name": "Tâche d’export",
-    "plural": "Tâches d’export",
-    "description": "Lot d’exports à exécuter par le CRON (copropriété cible, lignes d’export, état d’avancement et lien de téléchargement).",
+    "name": "Tâche d'export",
+    "plural": "Tâches d'export",
+    "description": "Lot d'exports à exécuter par le CRON (copropriété cible, lignes d'export, état d'avancement et lien de téléchargement).",
     "model": {
         "condo_id": {
             "label": "Copropriété",
-            "description": "Immeuble auquel l’export est rattaché.",
+            "description": "Immeuble auquel l'export est rattaché.",
             "help": ""
         },
         "name": {
@@ -15,42 +15,42 @@
         },
         "object_class": {
             "label": "Classe cible",
-            "description": "Classe PHP de l’objet à l’origine de l’export.",
+            "description": "Classe PHP de l'objet à l'origine de l'export.",
             "help": ""
         },
         "object_id": {
             "label": "Identifiant cible",
-            "description": "ID de l’objet qui a déclenché la création de la tâche.",
+            "description": "ID de l'objet qui a déclenché la création de la tâche.",
             "help": ""
         },
         "exporting_task_lines_ids": {
-            "label": "Lignes d’export",
+            "label": "Lignes d'export",
             "description": "Sous-tâches à exécuter (chaque traitement ou document).",
             "help": ""
         },
         "download_link": {
             "label": "Lien de téléchargement",
-            "description": "URL générée quand l’archive ZIP est prête.",
+            "description": "URL générée quand l'archive ZIP est prête.",
             "help": ""
         },
         "status": {
             "label": "Statut",
             "description": "État global (idle, running, ready, failing).",
-            "help": "La réinitialisation via l’action « Réessayer » repasse l’état à idle."
+            "help": "La réinitialisation via l'action « Réessayer » repasse l'état à idle."
         }
     },
     "view": {
         "ExportingTask.form.default": {
-            "name": "Tâche d’export",
-            "description": "Formulaire détaillant la copropriété, le statut et la liste des lignes d’export.",
+            "name": "Tâche d'export",
+            "description": "Formulaire détaillant la copropriété, le statut et la liste des lignes d'export.",
             "layout": {
                 "section.export_lines": {
-                    "label": "Lignes d’export"
+                    "label": "Lignes d'export"
                 }
             }
         },
         "ExportingTask.list.default": {
-            "name": "Tâches d’export",
+            "name": "Tâches d'export",
             "description": "Liste de suivi avec copropriété, statut et accès direct au téléchargement."
         }
     }

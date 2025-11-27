@@ -40,7 +40,7 @@
         },
         "is_control_account": {
             "label": "Compte de contrôle",
-            "description": "Indique s’il s’agit d’un compte pivot de regroupement.",
+            "description": "Indique s'il s'agit d'un compte pivot de regroupement.",
             "help": ""
         },
         "is_visible": {
@@ -80,7 +80,7 @@
         },
         "operation_assignment": {
             "label": "Affectation opération",
-            "description": "Code interne utilisé pour faire le lien avec les règles d’écriture.",
+            "description": "Code interne utilisé pour faire le lien avec les règles d'écriture.",
             "help": ""
         }
     },

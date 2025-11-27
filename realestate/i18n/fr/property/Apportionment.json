@@ -5,7 +5,7 @@
     "model": {
         "condo_id": {
             "label": "Copropriété",
-            "description": "Copropriété sur laquelle la clé s’applique.",
+            "description": "Copropriété sur laquelle la clé s'applique.",
             "help": ""
         },
         "description": {
@@ -20,7 +20,7 @@
         },
         "is_statutory": {
             "label": "Quotas statutaires",
-            "description": "Indique s’il s’agit des quotes-parts issues de l’acte de base.",
+            "description": "Indique s'il s'agit des quotes-parts issues de l'acte de base.",
             "help": ""
         },
         "common_area_id": {
@@ -61,7 +61,7 @@
     "view": {
         "form.default": {
             "name": "Clé de répartition",
-            "description": "Configuration d’une clé (quotas, total, lots).",
+            "description": "Configuration d'une clé (quotas, total, lots).",
             "layout": {
                 "section.apportionment_shares": {
                     "label": "Quotes-parts"

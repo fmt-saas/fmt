@@ -1,7 +1,7 @@
 {
-    "name": "Participant d’assemblée",
-    "plural": "Participants d’assemblée",
-    "description": "Entrées représentant les personnes présentes ou représentées lors d’une assemblée.",
+    "name": "Participant d'assemblée",
+    "plural": "Participants d'assemblée",
+    "description": "Entrées représentant les personnes présentes ou représentées lors d'une assemblée.",
     "view": {
         "AssemblyAttendee.form.default": {
             "name": "Participant",
