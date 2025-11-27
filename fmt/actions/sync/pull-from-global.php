@@ -107,12 +107,12 @@ foreach($policies as $id => $policy) {
                 $localObject = $entity::search($object['uuid'])->first();
             }
 
-            if(!$localObject && isset($object[$policy['field_unique']])) {
+            if(!$localObject && isset($object[$policy['field_unique']]) && !empty($object[$policy['field_unique']])) {
                 $localObject = $entity::search([$policy['field_unique'], '=', $object[$policy['field_unique']]])->first();
             }
 
             // special case for identities
-            if(!$localObject && $policy['object_class'] === 'identity\Identity' && isset($object['slug_hash'])) {
+            if(!$localObject && $policy['object_class'] === 'identity\Identity' && isset($object['slug_hash']) && !empty($object['slug_hash'])) {
                 $localObject = $entity::search(['slug_hash', '=', $object['slug_hash']])->first();
             }
 
