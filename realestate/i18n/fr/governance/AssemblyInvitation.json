@@ -3,7 +3,7 @@
     "plural": "Invitations d'assemblée",
     "description": "Suivi des convocations envoyées aux copropriétaires (canal, accusé, mails).",
     "view": {
-        "AssemblyInvitation.form.default": {
+        "form.default": {
             "name": "Invitation",
             "description": "Formulaire d'une invitation individuelle (destinataire, envoi, pièces).",
             "layout": {
@@ -13,7 +13,8 @@
             },
             "routes": {
                 "route.view_invitation": {
-                    "label": "Voir l'invitation"
+                    "label": "Afficher l'invitation",
+                    "description": "Afficher l'invitation imprimable."
                 }
             }
         }

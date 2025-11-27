@@ -26,6 +26,16 @@
                     "label": "Annuler",
                     "description": "Annuler la facture."
                 }
+            },
+            "routes": {
+                "item.import_invoice": {
+                    "label": "Importer une facture",
+                    "description": ""
+                },
+                "item.view_invoice": {
+                    "label": "Afficher la facture",
+                    "description": ""
+                }
             }
         }
     }

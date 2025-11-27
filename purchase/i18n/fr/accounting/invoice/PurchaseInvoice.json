@@ -14,6 +14,14 @@
                     "description": "Annuler la facture."
                 }
             }
+        },
+        "list.default": {
+            "routes": {
+                "item.import": {
+                    "label": "Importer une facture",
+                    "description": ""
+                }
+            }
         }
     }
 }

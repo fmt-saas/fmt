@@ -231,15 +231,129 @@
                     "label": "Valider",
                     "description": "Générer la configuration obligatoire."
                 }
+            },
+            "routes": {
+                "item.ownerships": {
+                    "label": "Propriétaires",
+                    "description": ""
+                },
+                "item.property_lots": {
+                    "label": "Lots",
+                    "description": ""
+                },
+                "item.property_entrances": {
+                    "label": "Entrées",
+                    "description": ""
+                },
+                "item.accounting": {
+                    "label": "Comptabilité",
+                    "description": ""
+                },
+                "documents": {
+                    "label": "Documents",
+                    "description": ""
+                },
+                "consumption_meters": {
+                    "label": "Compteurs de consommation",
+                    "description": ""
+                },
+                "suppliers": {
+                    "label": "Fournisseurs",
+                    "description": ""
+                },
+                "item.governance": {
+                    "label": "Gouvernance",
+                    "description": ""
+                },
+                "item.config": {
+                    "label": "Configuration",
+                    "description": ""
+                }
             }
         },
         "form.config": {
             "name": "Configuration",
-            "description": "Paramètres juridiques, clés de répartition et référentiels liés."
+            "description": "Paramètres juridiques, clés de répartition et référentiels liés.",
+            "routes": {
+                "item.statutory_quotas": {
+                    "label": "Quotes-parts légales",
+                    "description": ""
+                },
+                "item.apportionment_keys": {
+                    "label": "Clés de répartition",
+                    "description": ""
+                },
+                "item.accounts_chart": {
+                    "label": "Plan comptable",
+                    "description": ""
+                },
+                "item.accounting_journals": {
+                    "label": "Journaux comptables",
+                    "description": ""
+                },
+                "item.bank_accounts": {
+                    "label": "Comptes bancaires",
+                    "description": ""
+                }
+            }
         },
         "form.accounting": {
             "name": "Paramètres comptables",
-            "description": "Plan comptable, journaux et comptes bancaires."
+            "description": "Plan comptable, journaux et comptes bancaires.",
+            "routes": {
+                "item.fiscal_year": {
+                    "label": "Exercices fiscaux",
+                    "description": ""
+                },
+                "item.condo_funds": {
+                    "label": "Fonds",
+                    "description": ""
+                },
+                "item.condo_budget": {
+                    "label": "Budget",
+                    "description": ""
+                },
+                "item.expense_statements": {
+                    "label": "Relevés de charges",
+                    "description": ""
+                },
+                "item.accounting_entries": {
+                    "label": "Écritures comptables",
+                    "description": ""
+                },
+                "item.misc_operations": {
+                    "label": "Opérations diverses",
+                    "description": ""
+                },
+                "item.current_balance": {
+                    "label": "Solde courant",
+                    "description": ""
+                },
+                "fund_requests": {
+                    "label": "Appels de fonds",
+                    "description": ""
+                },
+                "purchase_invoices": {
+                    "label": "Factures d'achat",
+                    "description": ""
+                },
+                "bank_statements": {
+                    "label": "Relevés bancaires",
+                    "description": ""
+                },
+                "item.transfers": {
+                    "label": "Transferts d'argent",
+                    "description": ""
+                },
+                "item.refunds": {
+                    "label": "Remboursements",
+                    "description": ""
+                },
+                "item.fundings": {
+                    "label": "Encaissements",
+                    "description": ""
+                }
+            }
         },
         "form.fiscalYears": {
             "name": "Exercices",
@@ -258,6 +372,20 @@
                 "action.create_assembly": {
                     "label": "Créer une assemblée",
                     "description": "Créer une nouvelle assemblée."
+                }
+            },
+            "routes": {
+                "item.assemblies": {
+                    "label": "Assemblées",
+                    "description": ""
+                },
+                "item.invitations": {
+                    "label": "Invitations",
+                    "description": ""
+                },
+                "item.council": {
+                    "label": "Membres du conseil",
+                    "description": ""
                 }
             }
         },

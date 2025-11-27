@@ -37,13 +37,18 @@
             "description": "",
             "help": ""
         }
-
     },
     "view": {
         "form.default": {
             "name": "Journal comptable",
             "description": "",
-            "layout": {}
+            "layout": {},
+            "routes": {
+                "item.accounting_entries": {
+                    "label": "Écritures comptables",
+                    "description": ""
+                }
+            }
         },
         "list.default": {
             "name": "Journaux comptables",

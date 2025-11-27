@@ -15,7 +15,6 @@
                 "sale_invoice": "Facture client",
                 "fund_request": "Appel de fonds",
                 "expense_statement": "Relevé de charges",
-                "purchase_invoice": "Facture fournisseur",
                 "misc": "Opération diverse",
                 "statement_line": "Ligne de relevé bancaire"
             }
@@ -133,7 +132,7 @@
         }
     },
     "view": {
-        "Funding.form.default": {
+        "form.default": {
             "name": "Suivi de paiement",
             "description": "Formulaire complet (montant dû, type, comptes bancaires, liens vers appels/factures et tableau des paiements).",
             "layout": {
@@ -143,13 +142,19 @@
                 "section.payments_section": {
                     "label": "Paiements"
                 }
+            },
+            "routes": {
+                "route.export_sepa": {
+                    "label": "Exporter en SEPA",
+                    "description": "Générer un fichier SEPA XML."
+                }
             }
         },
-        "Funding.list.arrears": {
+        "list.arrears": {
             "name": "Funding en retard",
             "description": "Vue dédiée aux échéances en souffrance (copropriétaires, montants restant)."
         },
-        "Funding.list.dashboard": {
+        "list.dashboard": {
             "name": "Funding tableau de bord",
             "description": "Liste synthétique pour le tableau de bord (statut, échéance, montant dû)."
         }

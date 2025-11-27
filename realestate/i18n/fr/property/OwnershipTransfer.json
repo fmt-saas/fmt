@@ -305,6 +305,12 @@
                     "label": "Effectuer le transfert",
                     "description": "Générer les comptes comptables."
                 }
+            },
+            "routes": {
+                "route.preview.pdf": {
+                    "label": "Prévisualiser l'e-mail",
+                    "description": "Afficher toutes les lignes sans regroupement."
+                }
             }
         },
         "list.default": {

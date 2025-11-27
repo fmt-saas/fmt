@@ -93,6 +93,16 @@
                     "label": "Lancer le traitement",
                     "description": "Lancer le traitement du document."
                 }
+            },
+            "routes": {
+                "item.meta_data": {
+                    "label": "Métadonnées",
+                    "description": ""
+                },
+                "item.print": {
+                    "label": "Afficher le document",
+                    "description": "Afficher l'invitation imprimable."
+                }
             }
         },
         "form.meta": {
@@ -113,7 +123,13 @@
         "list.default": {
             "name": "Documents",
             "description": "Liste des documents disponibles.",
-            "layout": {}
+            "layout": {},
+            "routes": {
+                "item.import": {
+                    "label": "Importer un document",
+                    "description": ""
+                }
+            }
         }
     }
 }

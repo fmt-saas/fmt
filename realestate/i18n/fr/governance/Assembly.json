@@ -31,13 +31,16 @@
             },
             "routes": {
                 "route.preview_invite": {
-                    "label": "Prévisualiser l'invitation"
+                    "label": "Prévisualiser l'invitation",
+                    "description": ""
                 },
                 "route.view_attendance_register": {
-                    "label": "Registre de présence"
+                    "label": "Afficher la feuille de présence",
+                    "description": "Afficher la feuille de présence imprimable."
                 },
                 "route.view_minutes": {
-                    "label": "Consulter le procès-verbal"
+                    "label": "Afficher le procès-verbal",
+                    "description": "Afficher le procès-verbal imprimable."
                 }
             },
             "actions": {

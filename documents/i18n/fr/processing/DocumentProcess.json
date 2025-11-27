@@ -173,6 +173,20 @@
                     "label": "Supprimer",
                     "description": "Supprimer l'import et le document associé."
                 }
+            },
+            "routes": {
+                "item.document": {
+                    "label": "Document",
+                    "description": ""
+                },
+                "item.invoice": {
+                    "label": "Facture",
+                    "description": ""
+                },
+                "item.bank_statement": {
+                    "label": "Relevé bancaire",
+                    "description": ""
+                }
             }
         },
         "list.default": {

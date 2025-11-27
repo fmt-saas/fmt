@@ -53,6 +53,12 @@
                     "label": "Réessayer",
                     "description": "Récupérer les derniers e-mails et importer les pièces jointes."
                 }
+            },
+            "routes": {
+                "route.download": {
+                    "label": "Télécharger",
+                    "description": ""
+                }
             }
         },
         "list.default": {

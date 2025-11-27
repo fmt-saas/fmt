@@ -54,7 +54,8 @@
             },
             "routes": {
                 "route.print.pdf": {
-                    "label": "Imprimer facture"
+                    "label": "Imprimer la facture",
+                    "description": "Afficher toutes les lignes sans regroupement."
                 }
             },
             "layout": {

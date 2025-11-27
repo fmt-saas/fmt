@@ -158,6 +158,12 @@
                     "label": "Annuler",
                     "description": "Annuler l'appel de fonds (action irréversible)."
                 }
+            },
+            "routes": {
+                "route.print_pdf": {
+                    "label": "Imprimer l'appel de fonds",
+                    "description": ""
+                }
             }
         },
         "list.default": {

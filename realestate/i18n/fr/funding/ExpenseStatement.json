@@ -92,6 +92,12 @@
                     "label": "Télécharger le relevé",
                     "description": "Générer un document pour tous les copropriétaires du relevé."
                 }
+            },
+            "routes": {
+                "route.print_pdf": {
+                    "label": "Imprimer le relevé",
+                    "description": ""
+                }
             }
         },
         "list.default": {
