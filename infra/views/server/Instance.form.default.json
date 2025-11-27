@@ -50,6 +50,11 @@
                                                 "type": "field",
                                                 "value": "uuid",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "user_id",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

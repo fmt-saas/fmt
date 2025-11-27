@@ -7,13 +7,14 @@
 
 namespace infra\server;
 
+use core\User;
 use equal\data\DataGenerator;
 use equal\orm\Model;
 
 class Instance extends Model {
 
     public static function constants() {
-        return ['FMT_INSTANCE_TYPE'];
+        return ['FMT_INSTANCE_TYPE', 'BACKEND_URL'];
     }
 
     public static function getDescription() {
@@ -70,6 +71,13 @@ class Instance extends Model {
                 'required'          => true
             ],
 
+            'user_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'core\User',
+                'description'       => 'User for API requests from the instance to Global instance.',
+                'help'              => 'This User is intended to be set on Global instance only and is expected to be created automatically at instance creation.'
+            ],
+
             'managing_agent_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\management\ManagingAgent',
@@ -83,14 +91,30 @@ class Instance extends Model {
      * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
      */
     protected static function oncreate($self, $orm) {
-        foreach($self as $id => $object) {
-            if(constant('FMT_INSTANCE_TYPE') === 'global') {
+        $self->read(['name', 'instance_type']);
+        foreach($self as $id => $instance) {
+            if(constant('FMT_INSTANCE_TYPE') === 'global' && $instance['instance_type'] === 'agency') {
+                $values = [];
+                // generate a new UUID
                 do {
                     $uuid = DataGenerator::uuid();
                     $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
                 } while( $existing > 0 && count($existing) > 0 );
 
-                self::id($id)->update(['uuid' => $uuid]);
+                $values['uuid'] = $uuid;
+
+                // create a new user for the instance and assign id as user_id
+                $domain = parse_url(constant('BACKEND_URL'), PHP_URL_HOST);
+                $login = $instance['name'] . '@' . $domain;
+                $user = User::create([
+                        'login'         => $login,
+                        'allow_auth'    => false,
+                        'validated'     => true
+                    ])
+                    ->first();
+
+                $values['user_id'] = $user['id'];
+                self::id($id)->update($values);
             }
         }
     }
