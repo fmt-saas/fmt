@@ -78,8 +78,9 @@ foreach($policies as $id => $policy) {
     $schema = $orm->getModel($entity)->getSchema();
 
     // we're only interested in scalar fields and many2one relations
+    // #memo - if present, uuid is used on server side to match with existing object
     foreach($schema as $field => $def) {
-        if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+        if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
             unset($schema[$field]);
         }
         elseif(
@@ -134,13 +135,6 @@ foreach($policies as $id => $policy) {
                 throw new Exception("Error from GLOBAL instance: HTTP status $status: $out", EQ_ERROR_UNKNOWN);
             }
 
-            /*
-            $res = $orm->update($entity, $object['id'], ['uuid' => $data['uuid']]);
-
-            if($res <= 0) {
-                throw new Exception("unable to set newly assigned UUID ({$data['uuid']}) to object ({$object['id']}) of class {$entity}", EQ_ERROR_UNKNOWN);
-            }
-            */
         }
         catch(Exception $e) {
             // force arbitrary update of `modified` field so that failing object is included in next sync loop

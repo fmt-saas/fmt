@@ -13,13 +13,25 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "object_class",
-                                                "width": "50%"
+                                                "value": "request_date",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "request_date",
-                                                "width": "50%"
+                                                "value": "object_class",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_new",
+                                                "width": "33%",
+                                                "visible": ["is_new", "=", true]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "object_id",
+                                                "width": "33%",
+                                                "visible": ["is_new", "=", false]
                                             }
                                         ]
                                     },

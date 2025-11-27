@@ -102,6 +102,7 @@ foreach($schema as $field => $def) {
     if(!isset($values[$field])) {
         continue;
     }
+    // only global instance has prerogative on these fields
     if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
         unset($values[$field]);
     }
@@ -148,6 +149,9 @@ if($uuid) {
     UpdateRequest::id($updateRequest['id'])->update(['object_id' => $object['id']]);
 
     foreach($values as $field => $value) {
+        if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+            continue;
+        }
         UpdateRequestLine::create([
             'update_request_id'         => $updateRequest['id'],
             'object_field'              => $field,
@@ -178,6 +182,9 @@ else {
                 ->update(['object_id' => $object['id']]);
 
             foreach($params['values'] as $field => $value) {
+                if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                    continue;
+                }
                 UpdateRequestLine::create([
                     'update_request_id'         => $updateRequest['id'],
                     'object_field'              => $field,
@@ -192,6 +199,9 @@ else {
                 ->update(['is_new' => true]);
 
             foreach($values as $field => $value) {
+                if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                    continue;
+                }
                 UpdateRequestLine::create([
                     'update_request_id'         => $updateRequest['id'],
                     'object_field'              => (string) $field,

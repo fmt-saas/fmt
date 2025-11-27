@@ -40,22 +40,27 @@
             {
                 "type": "field",
                 "value": "request_date",
-                "width": "16%"
+                "width": "15%"
             },
             {
                 "type": "field",
                 "value": "instance_id",
-                "width": "16%"
-            },
-            {
-                "type": "field",
-                "value": "managing_agent_id",
-                "width": "16%"
+                "width": "20"
             },
             {
                 "type": "field",
                 "value": "status",
                 "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "approval_reason",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "rejection_reason",
+                "width": "15%"
             }
         ]
     }

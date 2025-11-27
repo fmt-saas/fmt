@@ -122,6 +122,9 @@ foreach($policies as $id => $policy) {
                     ->update(['object_id' => $localObject['id']]);
 
                 foreach($object as $field => $value) {
+                        if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                            continue;
+                        }
                         UpdateRequestLine::create([
                             'update_request_id'         => $updateRequest['id'],
                             'object_field'              => $field,
@@ -139,6 +142,9 @@ foreach($policies as $id => $policy) {
                     ->update(['is_new' => true]);
 
                 foreach($object as $field => $value) {
+                    if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                        continue;
+                    }
                     UpdateRequestLine::create([
                         'update_request_id'         => $updateRequest['id'],
                         'object_field'              => (string) $field,
