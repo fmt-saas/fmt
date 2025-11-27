@@ -1,0 +1,67 @@
+{
+    "name": "Rôle",
+    "plural": "Rôles",
+    "description": "Les rôles décrivent un périmètre de responsabilités et servent de base aux autorisations accordées aux collaborateurs.",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Intitulé officiel du rôle.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Code mnémotechnique unique attribué au rôle.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Détails supplémentaires sur le rôle.",
+            "help": ""
+        },
+        "is_external": {
+            "label": "Rôle externe",
+            "description": "Indique si le rôle est réservé à un utilisateur externe.",
+            "help": ""
+        },
+        "is_mandatory": {
+            "label": "Obligatoire",
+            "description": "Le rôle doit être affecté lors de la création d’une copropriété.",
+            "help": ""
+        },
+        "role_assignments_ids": {
+            "label": "Affectations",
+            "description": "Collaborateurs ou entités bénéficiant du rôle.",
+            "help": ""
+        },
+        "role_permissions_ids": {
+            "label": "Permissions",
+            "description": "Permissions octroyées par ce rôle.",
+            "help": ""
+        },
+        "groups_ids": {
+            "label": "Groupes",
+            "description": "Groupes automatiquement ajoutés lors de l’affectation du rôle.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Rôle",
+            "description": "Formulaire de gestion d’un rôle HR.",
+            "layout": {
+                "section.assignments": {
+                    "label": "Affectations"
+                },
+                "section.permissions": {
+                    "label": "Permissions"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Rôles",
+            "description": "Vue liste des rôles.",
+            "layout": {}
+        }
+    },
+    "error": {}
+}

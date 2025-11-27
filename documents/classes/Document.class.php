@@ -73,8 +73,7 @@ class Document extends Model {
             'data' => [
                 'type'              => 'binary',
                 // #memo - prevent resetting after voiding local data
-                // 'dependents'        => ['content_type', 'content_size', 'extension', 'readable_size', 'preview_image'],
-                'onupdate'          => 'onupdateData'
+                'dependents'        => ['hash', 'content_type', 'content_size', 'extension', 'readable_size', 'preview_image']
             ],
 
             'document_process_id' => [
@@ -211,6 +210,7 @@ class Document extends Model {
                 'result_type'       => 'string',
                 'usage'             => 'text/plain:32',
                 'store'             => true,
+                'instant'           => true,
                 'function'          => 'calcHash',
                 'description'       => 'MD5 hash of the document.'
             ],
@@ -511,14 +511,6 @@ class Document extends Model {
         }
     }
 
-    protected static function onupdateData($self, $adapt) {
-        /*
-        if(constant('FMT_INSTANCE_TYPE') === 'agency') {
-            self::attemptToPush($self, $adapt);
-        }
-        */
-    }
-
     protected static function onupdateCondoId($self, $adapt) {
         $self->read(['condo_id', 'document_type_id', 'parent_node_id']);
         foreach($self as $id => $document) {
@@ -531,61 +523,6 @@ class Document extends Model {
                 }
             }
         }
-        /*
-        if(constant('FMT_INSTANCE_TYPE') === 'agency') {
-            self::attemptToPush($self, $adapt);
-        }
-        */
-    }
-
-    private static function attemptToPush($self, $adapt) {
-        // #memo - disabled for now - see @sync
-        /*
-        if(constant('FMT_INSTANCE_TYPE') === 'agency' && constant('ENV_MODE') === 'production') {
-            $adapter = $adapt->get('json');
-
-            $self->read(['condo_id', 'name', 'data']);
-            foreach($self as $id => $document) {
-                if(!$document['data']) {
-                    continue;
-                }
-                if(!$document['condo_id']) {
-                    continue;
-                }
-
-                // we need to relay document to EDMS in order to receive a UUID
-                $url = constant('FMT_API_URL_EDMS');
-                try {
-                    $request = new HttpRequest('POST ' . $url . '?do=documents_push');
-                    $response = $request
-                        ->setBody([
-                            'name'      => $document['name'],
-                            'condo_id'  => $document['condo_id'],
-                            'data'      => $adapter->adaptOut($document['data'], 'binary')
-                        ])
-                        ->send();
-                    $result = $response->body();
-                    if(isset($result['uuid'])) {
-                        self::id($document['id'])
-                            ->update([
-                                // assign UUID
-                                'uuid'          => $result['uuid'],
-                                // remove local file (resets computed fields)
-                                'data'          => null,
-                                'content_type'  => $result['content_type'] ?? null,
-                                'content_size'  => $result['content_size'] ?? null
-                            ]);
-                    }
-                    else {
-                        throw new \Exception('edms_response_without_uuid', EQ_ERROR_UNKNOWN);
-                    }
-                }
-                catch(\Exception $e) {
-                    trigger_error("APP:unable to store document on EDMS: ".$e->getMessage(), EQ_REPORT_ERROR);
-                }
-            }
-        }
-        */
     }
 
     protected static function calcSuppliershipId($self) {
@@ -610,6 +547,9 @@ class Document extends Model {
         $result = [];
         $self->read(['data']);
         foreach($self as $id => $document) {
+            if(empty($document['data'])) {
+                continue;
+            }
             $result[$id] = md5($document['data']);
         }
         return $result;

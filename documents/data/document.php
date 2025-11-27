@@ -43,6 +43,9 @@ $user_id = $auth->userId();
 // documents can be public : switch to root user to bypass any permission check
 $auth->su();
 
+
+/*
+// #memo - logic change, see @sync
 // search for documents matching given hash code (should be only one match)
 $collection = Document::id($params['id']);
 $document = $collection->read(['uuid'])->first();
@@ -72,7 +75,6 @@ if($document['uuid']) {
         throw new Exception('empty_response', EQ_ERROR_UNKNOWN);
     }
 
-    /** @var \equal\data\adapt\DataAdapter */
     $adapter = $adapt->get('json');
 
     $content_type = $result['content_type'];
@@ -86,7 +88,33 @@ else {
     $filename = $document['name'];
     $output = $document['data'];
 }
+*/
 
+
+$document = Document::id($params['id'])->read(['document_visibility', 'ownership_id', 'name', 'data', 'content_type'])->first();
+$content_type = $document['content_type'];
+$filename = $document['name'];
+$output = $document['data'];
+
+
+// #todo
+
+// if user is en employee, allow access
+
+// check visibility rules
+switch($document['document_visibility']) {
+    case 'public':
+        // visible to all condo owners + syndic
+        // make sure user relates to condo_id of the document
+        break;
+    case 'protected':
+        // visible only to syndic
+        break;
+    case 'private':
+        // visible only a single owner (to which the document is linked) + syndic
+        // make sure the user relates to the ownership_id of the document
+        break;
+}
 
 $context->httpResponse()
         ->header('Content-Disposition', $params['disposition'].'; filename="'.$filename.'"')

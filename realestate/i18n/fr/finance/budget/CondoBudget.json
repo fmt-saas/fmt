@@ -1,0 +1,43 @@
+{
+    "name": "Budget de copropriété",
+    "plural": "Budgets de copropriété",
+    "description": "Projection annuelle des dépenses attendues pour une copropriété donnée (base de travail des appels de fonds).",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom du budget (souvent exercice + type).",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par le budget.",
+            "help": ""
+        },
+        "fiscal_year_id": {
+            "label": "Exercice",
+            "description": "Exercice comptable couvert par le budget.",
+            "help": ""
+        },
+        "budget_entries_ids": {
+            "label": "Entrées budgétaires",
+            "description": "Lignes détaillant les montants par poste.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Cycle de vie du budget (préparation, publié).",
+            "help": ""
+        }
+    },
+    "view": {
+        "CondoBudget.form.default": {
+            "name": "Budget de copropriété",
+            "description": "Formulaire principal pour préparer et publier le budget.",
+            "layout": {
+                "section.entries": {
+                    "label": "Entrées budgétaires"
+                }
+            }
+        }
+    }
+}

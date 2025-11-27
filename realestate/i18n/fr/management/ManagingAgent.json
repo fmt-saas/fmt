@@ -1,0 +1,22 @@
+{
+    "name": "Gestionnaire",
+    "plural": "Gestionnaires",
+    "description": "Entités (internes ou externes) en charge de la gestion d’une copropriété.",
+    "view": {
+        "ManagingAgent.form.default": {
+            "name": "Gestionnaire",
+            "description": "Fiche détaillant l’identité, l’adresse et le contrat du gestionnaire.",
+            "layout": {
+                "section.identity_info": {
+                    "label": "Informations générales"
+                },
+                "section.identity_main_address": {
+                    "label": "Adresse principale"
+                },
+                "section.contract": {
+                    "label": "Contrat"
+                }
+            }
+        }
+    }
+}

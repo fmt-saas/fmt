@@ -1,0 +1,45 @@
+{
+    "name": "Assemblée",
+    "plural": "Assemblées",
+    "description": "Gestion des assemblées générales (convocations, présences, résolutions).",
+    "view": {
+        "Assembly.form.default": {
+            "name": "Assemblée",
+            "description": "Fiche complète d’une assemblée (participants, mandats, résolutions).",
+            "layout": {
+                "section.details": {
+                    "label": "Détails"
+                },
+                "section.owners": {
+                    "label": "Propriétaires"
+                },
+                "section.attendees": {
+                    "label": "Participants"
+                },
+                "section.invites": {
+                    "label": "Invitations"
+                },
+                "section.proxies": {
+                    "label": "Mandats"
+                },
+                "section.representations": {
+                    "label": "Représentations"
+                },
+                "section.resolutions": {
+                    "label": "Résolutions"
+                }
+            },
+            "routes": {
+                "route.preview_invite": {
+                    "label": "Prévisualiser l’invitation"
+                },
+                "route.view_attendance_register": {
+                    "label": "Registre de présence"
+                },
+                "route.view_minutes": {
+                    "label": "Consulter le procès-verbal"
+                }
+            }
+        }
+    }
+}

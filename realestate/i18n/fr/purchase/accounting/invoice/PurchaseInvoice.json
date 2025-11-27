@@ -1,0 +1,22 @@
+{
+    "name": "Facture d'achat copropriété",
+    "plural": "Factures d'achat copropriété",
+    "description": "Facture fournisseur enregistrée dans le périmètre immobilier (lignes, imputations, fundings).",
+    "view": {
+        "PurchaseInvoice.form.default": {
+            "name": "Facture d'achat",
+            "description": "Formulaire détaillant les lignes, imputations et fundings liés.",
+            "layout": {
+                "section.accounting_entries": {
+                    "label": "Écritures comptables"
+                },
+                "section.fund_usage_lines": {
+                    "label": "Utilisations des fonds"
+                },
+                "section.fundings": {
+                    "label": "Fundings"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "name": "Participant d’assemblée",
+    "plural": "Participants d’assemblée",
+    "description": "Entrées représentant les personnes présentes ou représentées lors d’une assemblée.",
+    "view": {
+        "AssemblyAttendee.form.default": {
+            "name": "Participant",
+            "description": "Fiche participant avec mandats, représentations et signatures.",
+            "layout": {
+                "section.proxies": {
+                    "label": "Mandats"
+                },
+                "section.owners": {
+                    "label": "Propriétaires"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "name": "Point d’assemblée",
+    "plural": "Points d’assemblée",
+    "description": "Ordre du jour : points, groupes et résolutions traités durant l’assemblée.",
+    "view": {
+        "AssemblyItem.form.default": {
+            "name": "Point d’assemblée",
+            "description": "Définition d’un point (textes, votes, documents et choix).",
+            "layout": {
+                "section.details": {
+                    "label": "Détails"
+                },
+                "section.votes": {
+                    "label": "Votes"
+                },
+                "section.documents": {
+                    "label": "Documents"
+                },
+                "section.choices": {
+                    "label": "Choix"
+                }
+            }
+        }
+    }
+}

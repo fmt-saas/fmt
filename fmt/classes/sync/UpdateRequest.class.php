@@ -28,7 +28,6 @@ class UpdateRequest extends Model {
             'object_id' => [
                 'type'              => 'integer',
                 'description'       => 'Identifier of the targeted object.',
-                'required'          => true,
                 'visible'           => ['is_new', '=', false]
             ],
 

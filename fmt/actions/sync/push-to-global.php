@@ -134,14 +134,17 @@ foreach($policies as $id => $policy) {
                 throw new Exception("Error from GLOBAL instance: HTTP status $status: $out", EQ_ERROR_UNKNOWN);
             }
 
+            /*
             $res = $orm->update($entity, $object['id'], ['uuid' => $data['uuid']]);
 
             if($res <= 0) {
                 throw new Exception("unable to set newly assigned UUID ({$data['uuid']}) to object ({$object['id']}) of class {$entity}", EQ_ERROR_UNKNOWN);
             }
-
+            */
         }
         catch(Exception $e) {
+            // force arbitrary update of `modified` field so that failing object is included in next sync loop
+            $orm->update($entity, $object['id'], ['modified' => time()]);
             ++$result['errors'];
             $result['logs'][] = "Unable to push protected entity {$entity} to Global instance: " . $e->getMessage();
         }

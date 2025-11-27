@@ -88,7 +88,7 @@ foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
     $map_fields[$policyLine['object_field']] = $policyLine['scope'];
 }
 
-$$uid = null;
+$uuid = null;
 
 if(isset($params['values']['uuid']) && !empty($params['values']['uuid'])) {
     $uuid = $params['values']['uuid'];

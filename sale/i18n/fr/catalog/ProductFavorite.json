@@ -1,0 +1,16 @@
+{
+    "name": "Produit favori",
+    "plural": "Produits favoris",
+    "description": "Sélections personnalisées de produits pour accélérer la vente.",
+    "view": {
+        "form.default": {
+            "name": "Produit favori",
+            "description": "Formulaire de gestion d’un produit favori (références et notes).",
+            "layout": {
+                "section.products_Section": {
+                    "label": "Informations générales"
+                }
+            }
+        }
+    }
+}
