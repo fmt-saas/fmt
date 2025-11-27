@@ -38,9 +38,14 @@ use equal\http\HttpRequest;
 ['context' => $context, 'auth' => $auth] = $providers;
 
 
-/* ---------------------------------------------------------
-   VALIDATION
---------------------------------------------------------- */
+$allowed_mime_types = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+
 
 $mailbox = Mailbox::id($params['id'])
     ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'email', 'date_last_sync'])
@@ -72,9 +77,7 @@ if($mailbox['access_token_expiry'] < time()) {
 }
 
 
-/* ---------------------------------------------------------
-   GRAPH API REQUEST : FETCH NEW EMAILS
---------------------------------------------------------- */
+// GRAPH API REQUEST : FETCH NEW EMAILS
 
 $since = str_replace('+00:00', 'Z', gmdate('c', $mailbox['date_last_sync']));
 /*
@@ -101,13 +104,9 @@ if($status < 200 || $status > 299) {
 
 $messages = $data['value'] ?? [];
 
-/* Update sync time */
+// Update sync time
 Mailbox::id($mailbox['id'])->update(['date_last_sync' => time()]);
 
-
-/* ---------------------------------------------------------
-   PROCESS EACH MESSAGE
---------------------------------------------------------- */
 
 foreach($messages as $msg) {
 
@@ -119,7 +118,7 @@ foreach($messages as $msg) {
         continue;
     }
 
-    /* Create email record */
+    // create email record
     $email = Email::create([
             'mailbox_id' => $mailbox['id'],
             'message_id' => $internet_id,
@@ -133,11 +132,7 @@ foreach($messages as $msg) {
         ->read(['thread_hash'])
         ->first();
 
-
-    /* ---------------------------------------------------------
-       ATTACHMENTS
-    --------------------------------------------------------- */
-
+    // handle attachments
     $attUrl = "https://graph.microsoft.com/v1.0/me/messages/{$message_id}/attachments";
 
     $attReq = new HttpRequest("GET $attUrl");
@@ -170,11 +165,6 @@ foreach($messages as $msg) {
             ->do('start_processing');
     }
 }
-
-
-/* ---------------------------------------------------------
-   RESPONSE
---------------------------------------------------------- */
 
 $context->httpResponse()
     ->status(204)

@@ -41,6 +41,14 @@ use documents\Document;
  */
 ['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
 
+$allowed_mime_types = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+
 // check consistency
 $mailbox = Mailbox::id($params['id'])
     ->read(['status', 'auth_type', 'access_token_expiry', 'refresh_token_expiry'])
@@ -106,14 +114,6 @@ try {
 
     // update date of last synchro (before hand so that)
     Mailbox::id($mailbox['id'])->update(['date_last_sync' => time()]);
-
-    $allowed_mime_types = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    ];
 
     foreach($messages as $message) {
         $message_id = $message->getMessageId();
