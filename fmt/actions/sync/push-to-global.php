@@ -39,7 +39,7 @@ if(!$instance) {
     throw new Exception('no_instance_id', EQ_ERROR_INVALID_CONFIG);
 }
 
-// retrieve SyncPolicy related to 'protected' entities
+// retrieve SyncPolicy related to 'protected' entities ('private' are descending only and 'public' are local only)
 $policies = SyncPolicy::search([
         ['scope', '=', 'protected'],
         ['sync_direction', '=', 'ascending']
@@ -78,12 +78,8 @@ foreach($policies as $id => $policy) {
     $schema = $orm->getModel($entity)->getSchema();
 
     // we're only interested in scalar fields and many2one relations
-    // #memo - if present, uuid is used on server side to match with existing object
     foreach($schema as $field => $def) {
-        if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
-            unset($schema[$field]);
-        }
-        elseif(
+        if(
             (!isset($def['type']) || !in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) &&
             (!isset($def['result_type']) || !in_array($def['result_type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one']))
         ) {
@@ -111,6 +107,14 @@ foreach($policies as $id => $policy) {
             ++$result['ignored'];
             $result['logs'][] = "Ignored entity {$entity} object [{$object['id']}] with no value for unique key field `{$policy['field_unique']}`.";
             continue;
+        }
+
+        // remove special fields
+        foreach($object as $field => $value) {
+            // #memo - if present, uuid is used on server side to match with existing object
+            if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                unset($object[$field]);
+            }
         }
 
         try {
@@ -143,15 +147,14 @@ foreach($policies as $id => $policy) {
             $result['logs'][] = "Unable to push protected entity {$entity} to Global instance: " . $e->getMessage();
         }
     }
-
-}
-
-if($result['errors'] > 0) {
-    throw new Exception(serialize($result), EQ_ERROR_UNKNOWN);
 }
 
 // store last_sync_timestamp
 Setting::set_value('fmt', 'system', 'sync.last_push_timestamp', $now);
+
+if($result['errors'] > 0) {
+    // #todo - send email to error reporter
+}
 
 $context
     ->httpResponse()
