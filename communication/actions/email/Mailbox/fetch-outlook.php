@@ -16,6 +16,7 @@ use equal\http\HttpRequest;
         'id' => [
             'type'            => 'many2one',
             'foreign_object'  => 'communication\\email\\Mailbox',
+            'description'     => 'Identifier of the mailbox to fetch.',
             'required'        => true
         ]
     ],

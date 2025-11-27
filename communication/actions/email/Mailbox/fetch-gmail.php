@@ -12,16 +12,15 @@ use communication\email\Mailbox;
 use documents\Document;
 
 [$params, $providers] = eQual::announce([
-    'description'	=>	"Fetch emails from a Gmail/Google Mailbox using OAuth2.",
+    'description'	=>	"Fetch emails from a Gmail/Google Mailbox using Imap with OAuth2.",
     'params' 		=>	[
         'id' =>  [
             'type'             => 'many2one',
             'foreign_object'   => 'communication\email\Mailbox',
-            'description'      => 'Identifier of the Assembly item (resolution).',
-            'required'          => true
+            'description'      => 'Identifier of the mailbox to fetch.',
+            'required'         => true
         ]
     ],
-    'constants'     => ['BACKEND_URL'],
     'access'        => [
         'visibility' => 'protected'
     ],
@@ -31,7 +30,7 @@ use documents\Document;
         'accept-origin'     => '*'
     ],
     'providers'     => ['context', 'auth', 'orm'],
-    'constants'     => ['BACKEND_URL', 'AUTH_ACCESS_TOKEN_VALIDITY', 'AUTH_TOKEN_HTTPS', 'FMT_INSTANCE_TYPE']
+    'constants'     => ['BACKEND_URL']
 ]);
 
 /**
@@ -112,7 +111,7 @@ try {
     // limit query to messages received since last sync
     $messages = $inbox->query()->since($mailbox['date_last_sync'])->get();
 
-    // update date of last synchro (before hand so that)
+    // update date of last synchro (before hand so that we don't re-download in case of error)
     Mailbox::id($mailbox['id'])->update(['date_last_sync' => time()]);
 
     foreach($messages as $message) {

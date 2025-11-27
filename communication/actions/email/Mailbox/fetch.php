@@ -37,20 +37,25 @@ use communication\email\Mailbox;
 
 
 $mailbox = Mailbox::id($params['id'])
-    ->read(['imap_server'])
+    ->read(['auth_type', 'imap_server'])
     ->first();
 
 if(!$mailbox) {
     throw new Exception('unknown_mailbox', EQ_ERROR_INVALID_PARAM);
 }
 
-switch($mailbox['imap_server']) {
-    case 'imap.outlook.com':
-        eQual::run('do', 'communication_email_Mailbox_fetch-outlook', ['id' => $params['id']], true);
-        break;
-    case 'imap.gmail.com':
-        eQual::run('do', 'communication_email_Mailbox_fetch-gmail', ['id' => $params['id']], true);
-        break;
+if($mailbox['auth_type'] === 'basic') {
+    eQual::run('do', 'communication_email_Mailbox_fetch-imap', ['id' => $params['id']], true);
+}
+else {
+    switch($mailbox['imap_server']) {
+        case 'imap.outlook.com':
+            eQual::run('do', 'communication_email_Mailbox_fetch-outlook', ['id' => $params['id']], true);
+            break;
+        case 'imap.gmail.com':
+            eQual::run('do', 'communication_email_Mailbox_fetch-gmail', ['id' => $params['id']], true);
+            break;
+    }
 }
 
 $context->httpResponse()

@@ -83,7 +83,8 @@ class Email extends Model {
                 'description'       => 'Hash of the cleaned subject to group conversations.',
                 'help'              => 'The hash is base on the email subject, discarding any `Re` and `Fwd`',
                 'function'          => 'calcThreadHash',
-                'store'             => true
+                'store'             => true,
+                'instant'           => true
             ],
 
             'to' => [
