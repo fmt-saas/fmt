@@ -58,7 +58,13 @@
         "form.default": {
             "name": "Employé",
             "description": "Formulaire de base pour afficher un employé (Partenaire).",
-            "layout": {}
+            "layout": {},
+            "actions": {
+                "action.create_account": {
+                    "label": "Créer un compte utilisateur",
+                    "description": "Créer un compte utilisateur pour le salarié."
+                }
+            }
         },
         "list.default": {
             "name": "Employés",

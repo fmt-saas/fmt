@@ -85,11 +85,17 @@
         }
     },
     "view": {
-        "Document.form.default": {
+        "form.default": {
             "name": "Document",
-            "description": "Fiche d'un document analysé (assignation, type, métadonnées)."
+            "description": "Fiche d'un document analysé (assignation, type, métadonnées).",
+            "actions": {
+                "action.start_processing": {
+                    "label": "Lancer le traitement",
+                    "description": "Lancer le traitement du document."
+                }
+            }
         },
-        "Document.form.meta": {
+        "form.meta": {
             "name": "Document (métadonnées)",
             "description": "Formulaire d'encodage des métadonnées d'un document.",
             "layout": {
@@ -104,7 +110,7 @@
                 }
             }
         },
-        "Document.list.default": {
+        "list.default": {
             "name": "Documents",
             "description": "Liste des documents disponibles.",
             "layout": {}

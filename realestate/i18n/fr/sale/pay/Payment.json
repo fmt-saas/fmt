@@ -94,23 +94,29 @@
         }
     },
     "view": {
-        "Payment.form.default": {
+        "form.default": {
             "name": "Paiement",
             "description": "Formulaire principal (montant, funding, origine, compte bancaire, pièces associées)."
         },
-        "Payment.form.statement": {
+        "form.statement": {
             "name": "Paiement depuis relevé",
-            "description": "Vue simplifiée utilisée lors du lettrage des relevés bancaires."
+            "description": "Vue simplifiée utilisée lors du lettrage des relevés bancaires.",
+            "actions": {
+                "action.post": {
+                    "label": "Passer",
+                    "description": "Valider le paiement (action irréversible)."
+                }
+            }
         },
-        "Payment.list.default": {
+        "list.default": {
             "name": "Paiements",
             "description": "Liste des paiements avec funding, montant, origine et statut."
         },
-        "Payment.list.statement": {
+        "list.statement": {
             "name": "Paiements (relevés)",
             "description": "Liste filtrée utilisée dans l'écran de rapprochement bancaire."
         },
-        "Payment.dashboard.default": {
+        "dashboard.default": {
             "name": "Tableau de bord des paiements",
             "description": "Widget synthétique affichant les encaissements récents et leur statut."
         }

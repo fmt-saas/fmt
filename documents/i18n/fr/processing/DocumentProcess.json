@@ -131,7 +131,49 @@
     "view": {
         "form.default": {
             "name": "Processus documentaire",
-            "description": "Vue complète pour suivre l'import, l'analyse, les avertissements et les objets générés."
+            "description": "Vue complète pour suivre l'import, l'analyse, les avertissements et les objets générés.",
+            "actions": {
+                "action.perform_identification": {
+                    "label": "Analyser",
+                    "description": "Tenter d'identifier le type de document à partir de son contenu."
+                },
+                "action.perform_extraction": {
+                    "label": "Extraire",
+                    "description": "Tenter d'extraire les données de la pièce jointe."
+                },
+                "action.perform_matching": {
+                    "label": "Tenter l'auto-appairage",
+                    "description": "Tenter d'identifier le syndicat et le fournisseur."
+                },
+                "action.perform_drafting": {
+                    "label": "Préparer la cible",
+                    "description": "Tenter d'extraire les données de la pièce jointe."
+                },
+                "action.complete": {
+                    "label": "Marquer comme terminé",
+                    "description": "Marquer le document comme terminé."
+                },
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Marquer le document comme validé."
+                },
+                "action.record": {
+                    "label": "Résoudre",
+                    "description": "Créer les entités liées en mode pro forma."
+                },
+                "action.confirm": {
+                    "label": "Confirmer",
+                    "description": "Marquer le document comme confirmé."
+                },
+                "action.integrate": {
+                    "label": "Intégrer",
+                    "description": "Intégrer le document en comptabilité."
+                },
+                "action.delete": {
+                    "label": "Supprimer",
+                    "description": "Supprimer l'import et le document associé."
+                }
+            }
         },
         "list.default": {
             "name": "Processus documentaires",

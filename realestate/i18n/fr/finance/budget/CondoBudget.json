@@ -30,12 +30,22 @@
         }
     },
     "view": {
-        "CondoBudget.form.default": {
+        "form.default": {
             "name": "Budget de copropriété",
             "description": "Formulaire principal pour préparer et publier le budget.",
             "layout": {
                 "section.entries": {
                     "label": "Entrées budgétaires"
+                }
+            },
+            "actions": {
+                "action.duplicate": {
+                    "label": "Dupliquer",
+                    "description": "Dupliquer le budget."
+                },
+                "action.publish": {
+                    "label": "Publier",
+                    "description": "Marquer le remboursement comme comptabilisé/initié."
                 }
             }
         }

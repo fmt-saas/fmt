@@ -70,13 +70,33 @@
         }
     },
     "view": {
-        "AccountingEntryLine.list.default": {
+        "list.default": {
             "name": "Écritures comptables",
-            "description": "Liste des lignes (journal, compte, libellé, montants) avec action de lettrage."
+            "description": "Liste des lignes (journal, compte, libellé, montants) avec action de lettrage.",
+            "actions": {
+                "action.match": {
+                    "label": "Lettrer",
+                    "description": "Lettrer l'écriture."
+                }
+            }
         },
-        "AccountingEntryLine.list.balance": {
+        "list.balance": {
             "name": "Écritures comptables (balance)",
-            "description": "Vue spécialisée pour l'analyse des soldes (affiche la pièce et la date)."
+            "description": "Vue spécialisée pour l'analyse des soldes (affiche la pièce et la date).",
+            "actions": {
+                "action.match": {
+                    "label": "Lettrer",
+                    "description": "Lettrer l'écriture."
+                }
+            }
+        },
+        "form.default": {
+            "actions": {
+                "action.match": {
+                    "label": "Lettrer",
+                    "description": "Lettrer l'écriture."
+                }
+            }
         }
     }
 }

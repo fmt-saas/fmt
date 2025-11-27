@@ -125,11 +125,21 @@
         }
     },
     "view": {
-        "MiscOperation.form.default": {
+        "form.default": {
             "name": "Opération diverse",
-            "description": "Formulaire de saisie du journal MISC (dates, lignes et publication)."
+            "description": "Formulaire de saisie du journal MISC (dates, lignes et publication).",
+            "actions": {
+                "action.publish": {
+                    "label": "Publier",
+                    "description": "Générer la configuration obligatoire."
+                },
+                "action.post": {
+                    "label": "Passer",
+                    "description": "Générer la configuration obligatoire."
+                }
+            }
         },
-        "MiscOperation.list.default": {
+        "list.default": {
             "name": "Opérations diverses",
             "description": "Liste filtrable des opérations avec journal, statut et justification."
         }

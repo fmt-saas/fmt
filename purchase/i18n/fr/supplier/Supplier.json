@@ -48,12 +48,24 @@
         "form.default": {
             "name": "Fournisseur",
             "description": "Formulaire de base pour afficher un fournisseur (Partenaire).",
-            "layout": {}
+            "layout": {},
+            "actions": {
+                "action.cancel": {
+                    "label": "Synchroniser depuis l'identité",
+                    "description": ""
+                }
+            }
         },
         "list.default": {
             "name": "Fournisseurs",
             "description": "Liste de base des fournisseurs existants.",
-            "layout": {}
+            "layout": {},
+            "actions": {
+                "action.import": {
+                    "label": "Importer",
+                    "description": "Importer depuis un fichier XLS."
+                }
+            }
         }
     },
     "error": {}

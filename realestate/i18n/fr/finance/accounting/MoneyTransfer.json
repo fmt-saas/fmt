@@ -70,7 +70,7 @@
         }
     },
     "view": {
-        "MoneyTransfer.form.default": {
+        "form.default": {
             "name": "Transfert de fonds",
             "description": "Formulaire de préparation du transfert (montant, comptes, balances et fundings).",
             "layout": {
@@ -80,9 +80,19 @@
                 "section.accounting_entries": {
                     "label": "Écritures comptables"
                 }
+            },
+            "actions": {
+                "action.publish": {
+                    "label": "Publier",
+                    "description": "Publier le virement pour validation."
+                },
+                "action.post": {
+                    "label": "Passer",
+                    "description": "Marquer le transfert comme comptabilisé/initié."
+                }
             }
         },
-        "MoneyTransfer.list.default": {
+        "list.default": {
             "name": "Transferts de fonds",
             "description": "Liste des opérations avec leur statut, comptes et date de comptabilisation."
         }

@@ -283,6 +283,28 @@
                 "section.information_settlement": {
                     "label": "Informations (3.94 §3)"
                 }
+            },
+            "actions": {
+                "action.open": {
+                    "label": "Ouvrir",
+                    "description": "Valider les données et démarrer le processus de transfert."
+                },
+                "action.confirm": {
+                    "label": "Confirmer",
+                    "description": "Valider les données et démarrer le processus de transfert."
+                },
+                "action.settle": {
+                    "label": "Clôturer",
+                    "description": "Valider les données et démarrer le processus de transfert."
+                },
+                "action.send": {
+                    "label": "Envoyer un e-mail",
+                    "description": "Envoyer un e-mail avec les pièces jointes sélectionnées à tous les contacts du dossier."
+                },
+                "action.perform_transfer": {
+                    "label": "Effectuer le transfert",
+                    "description": "Générer les comptes comptables."
+                }
             }
         },
         "list.default": {

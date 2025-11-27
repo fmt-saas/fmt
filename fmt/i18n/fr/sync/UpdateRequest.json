@@ -1,0 +1,19 @@
+{
+    "name": "Demande de mise à jour",
+    "plural": "Demandes de mise à jour",
+    "description": "",
+    "view": {
+        "list.default": {
+            "actions": {
+                "action.accept": {
+                    "label": "Accepter",
+                    "description": "Accepter les modifications demandées."
+                },
+                "action.reject": {
+                    "label": "Rejeter",
+                    "description": "Rejeter les modifications demandées."
+                }
+            }
+        }
+    }
+}

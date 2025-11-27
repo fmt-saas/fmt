@@ -1,0 +1,19 @@
+{
+    "name": "Ligne d'abonnement",
+    "plural": "Lignes d'abonnement",
+    "description": "",
+    "view": {
+        "form.default": {
+            "actions": {
+                "action.transition.validate": {
+                    "label": "Valider",
+                    "description": ""
+                },
+                "action.transition.bill": {
+                    "label": "Facturer",
+                    "description": ""
+                }
+            }
+        }
+    }
+}

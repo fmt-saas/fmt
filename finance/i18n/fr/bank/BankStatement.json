@@ -65,6 +65,16 @@
                 "section.statment_lines_section": {
                     "label": "Lignes de transactions"
                 }
+            },
+            "actions": {
+                "action.reconcile": {
+                    "label": "Rapprocher",
+                    "description": "Tenter de rapprocher puis passer le relevé bancaire."
+                },
+                "action.post": {
+                    "label": "Passer",
+                    "description": "Générer la configuration obligatoire."
+                }
             }
         },
         "list.default": {

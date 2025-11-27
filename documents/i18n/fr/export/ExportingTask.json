@@ -40,16 +40,22 @@
         }
     },
     "view": {
-        "ExportingTask.form.default": {
+        "form.default": {
             "name": "Tâche d'export",
             "description": "Formulaire détaillant la copropriété, le statut et la liste des lignes d'export.",
             "layout": {
                 "section.export_lines": {
                     "label": "Lignes d'export"
                 }
+            },
+            "actions": {
+                "action.retry": {
+                    "label": "Réessayer",
+                    "description": "Récupérer les derniers e-mails et importer les pièces jointes."
+                }
             }
         },
-        "ExportingTask.list.default": {
+        "list.default": {
             "name": "Tâches d'export",
             "description": "Liste de suivi avec copropriété, statut et accès direct au téléchargement."
         }

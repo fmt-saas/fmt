@@ -225,6 +225,12 @@
                 "section.accounting": {
                     "label": "Comptabilité"
                 }
+            },
+            "actions": {
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Générer la configuration obligatoire."
+                }
             }
         },
         "form.config": {
@@ -237,11 +243,23 @@
         },
         "form.fiscalYears": {
             "name": "Exercices",
-            "description": "Création et suivi des exercices comptables."
+            "description": "Création et suivi des exercices comptables.",
+            "actions": {
+                "action.create_fiscal_year": {
+                    "label": "Créer un exercice brouillon",
+                    "description": "Créer un nouvel exercice brouillon (remplace l'éventuel brouillon existant)."
+                }
+            }
         },
         "form.governance": {
             "name": "Gouvernance",
-            "description": "Assemblées, mandats et représentants de la copropriété."
+            "description": "Assemblées, mandats et représentants de la copropriété.",
+            "actions": {
+                "action.create_assembly": {
+                    "label": "Créer une assemblée",
+                    "description": "Créer une nouvelle assemblée."
+                }
+            }
         },
         "list.default": {
             "name": "Liste des copropriétés",

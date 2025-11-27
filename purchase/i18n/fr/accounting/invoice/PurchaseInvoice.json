@@ -1,0 +1,19 @@
+{
+    "name": "Facture d'achat",
+    "plural": "Factures d'achat",
+    "description": "",
+    "view": {
+        "form.default": {
+            "actions": {
+                "action.invoice": {
+                    "label": "Facturer",
+                    "description": "À facturer."
+                },
+                "action.cancel": {
+                    "label": "Annuler",
+                    "description": "Annuler la facture."
+                }
+            }
+        }
+    }
+}

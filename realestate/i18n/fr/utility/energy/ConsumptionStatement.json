@@ -1,0 +1,19 @@
+{
+    "name": "Relevé de consommation",
+    "plural": "Relevés de consommation",
+    "description": "",
+    "view": {
+        "form.default": {
+            "actions": {
+                "action.generate_lines": {
+                    "label": "Générer",
+                    "description": "Générer les lignes du relevé."
+                },
+                "action.post": {
+                    "label": "Passer",
+                    "description": "Créer l'opération diverse correspondante."
+                }
+            }
+        }
+    }
+}

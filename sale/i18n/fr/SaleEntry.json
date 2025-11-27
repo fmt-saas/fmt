@@ -97,7 +97,11 @@
             "actions": {
                 "action.transition.bill": {
                     "label": "Facturer",
-                    "help": ""
+                    "description": ""
+                },
+                "action.transition.validate": {
+                    "label": "Valider",
+                    "description": ""
                 }
             },
             "layout": {

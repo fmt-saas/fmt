@@ -32,6 +32,12 @@
                 "section.bank_accounts": {
                     "label": "Comptes bancaires"
                 }
+            },
+            "actions": {
+                "action.add_mailbox": {
+                    "label": "Ajouter une boîte mail",
+                    "description": "Ajouter une nouvelle boîte aux lettres pour automatiser la récupération des e-mails."
+                }
             }
         },
         "list.default": {
@@ -40,6 +46,5 @@
             "layout": {}
         }
     },
-    "error": {
-    }
+    "error": {}
 }

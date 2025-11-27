@@ -65,7 +65,7 @@
         }
     },
     "view": {
-        "ExpenseStatement.form.default": {
+        "form.default": {
             "name": "Relevé de charges",
             "description": "Formulaire complet : période, banque, sections propriétaires, fundings et écritures.",
             "layout": {
@@ -78,9 +78,23 @@
                 "section.accounting_entry": {
                     "label": "Écriture comptable"
                 }
+            },
+            "actions": {
+                "action.generate_statement": {
+                    "label": "Générer le relevé",
+                    "description": "Générer les lignes du relevé."
+                },
+                "action.invoice": {
+                    "label": "Valider",
+                    "description": "À facturer."
+                },
+                "action.print_pdf": {
+                    "label": "Télécharger le relevé",
+                    "description": "Générer un document pour tous les copropriétaires du relevé."
+                }
             }
         },
-        "ExpenseStatement.list.default": {
+        "list.default": {
             "name": "Relevés de charges",
             "description": "Liste des relevés avec période, statut et montants clés."
         }

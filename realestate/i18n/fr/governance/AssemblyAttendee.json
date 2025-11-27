@@ -3,7 +3,7 @@
     "plural": "Participants d'assemblée",
     "description": "Entrées représentant les personnes présentes ou représentées lors d'une assemblée.",
     "view": {
-        "AssemblyAttendee.form.default": {
+        "form.default": {
             "name": "Participant",
             "description": "Fiche participant avec mandats, représentations et signatures.",
             "layout": {
@@ -12,6 +12,20 @@
                 },
                 "section.owners": {
                     "label": "Propriétaires"
+                }
+            },
+            "actions": {
+                "action.promote_president": {
+                    "label": "Promouvoir comme président",
+                    "description": "Promouvoir ce participant comme président de séance."
+                },
+                "action.demote_president": {
+                    "label": "Rétrograder la présidence",
+                    "description": "Retirer le rôle de président à ce participant."
+                },
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Valider le participant."
                 }
             }
         }

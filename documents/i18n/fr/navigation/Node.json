@@ -69,17 +69,29 @@
         }
     },
     "view": {
-        "Node.form.default": {
+        "form.default": {
             "name": "Arborescence",
             "description": "Formulaire pour gérer le dossier/document, sa visibilité et les éléments imbriqués."
         },
-        "Node.list.default": {
+        "list.default": {
             "name": "Arborescence",
-            "description": "Vue tabulaire mixte dossiers/documents (type, description, lien de téléchargement)."
+            "description": "Vue tabulaire mixte dossiers/documents (type, description, lien de téléchargement).",
+            "actions": {
+                "action.download": {
+                    "label": "Télécharger",
+                    "description": "Télécharger le document."
+                }
+            }
         },
-        "Node.list.folders": {
+        "list.folders": {
             "name": "Dossiers",
-            "description": "Liste filtrée sur les nœuds de type dossier pour naviguer dans l'arborescence."
+            "description": "Liste filtrée sur les nœuds de type dossier pour naviguer dans l'arborescence.",
+            "actions": {
+                "action.download": {
+                    "label": "Télécharger",
+                    "description": "Télécharger le document."
+                }
+            }
         }
     }
 }

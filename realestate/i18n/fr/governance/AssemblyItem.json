@@ -3,7 +3,7 @@
     "plural": "Points d'assemblée",
     "description": "Ordre du jour : points, groupes et résolutions traités durant l'assemblée.",
     "view": {
-        "AssemblyItem.form.default": {
+        "form.default": {
             "name": "Point d'assemblée",
             "description": "Définition d'un point (textes, votes, documents et choix).",
             "layout": {
@@ -18,6 +18,64 @@
                 },
                 "section.choices": {
                     "label": "Choix"
+                }
+            },
+            "actions": {
+                "action.open": {
+                    "label": "Ouvrir",
+                    "description": "Ouvrir le point de l'assemblée."
+                },
+                "action.close": {
+                    "label": "Clore",
+                    "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé (action irréversible)."
+                },
+                "action.cast_vote": {
+                    "label": "Voter",
+                    "description": "Exprimer un vote."
+                }
+            }
+        },
+        "list.default": {
+            "actions": {
+                "action.open": {
+                    "label": "Ouvrir",
+                    "description": "Ouvrir le point."
+                },
+                "action.close": {
+                    "label": "Clore",
+                    "description": "Clore la résolution. Aucun vote supplémentaire ne sera autorisé (action irréversible)."
+                },
+                "action.close_without_confirmation": {
+                    "label": "Clore",
+                    "description": "Clore la résolution. Aucun vote supplémentaire ne sera autorisé (action irréversible)."
+                },
+                "action.adjourn": {
+                    "label": "Ajourner",
+                    "description": "Ajourner la résolution. Aucun vote ne sera ensuite autorisé (action irréversible)."
+                },
+                "action.cast_vote": {
+                    "label": "Voter",
+                    "description": "Exprimer un vote."
+                },
+                "action.votes_board": {
+                    "label": "Afficher le tableau",
+                    "description": "Afficher le tableau des votes."
+                }
+            }
+        },
+        "list.item": {
+            "actions": {
+                "action.open": {
+                    "label": "Ouvrir",
+                    "description": "Ouvrir le point."
+                },
+                "action.close": {
+                    "label": "Clore",
+                    "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé (action irréversible)."
+                },
+                "action.cast_vote": {
+                    "label": "Voter",
+                    "description": "Exprimer un vote."
                 }
             }
         }

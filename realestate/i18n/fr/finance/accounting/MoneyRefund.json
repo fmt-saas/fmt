@@ -80,7 +80,7 @@
         }
     },
     "view": {
-        "MoneyRefund.form.default": {
+        "form.default": {
             "name": "Remboursement",
             "description": "Formulaire de remboursement (montant, compte origine, bénéficiaire et sections fundings/écritures).",
             "layout": {
@@ -90,9 +90,23 @@
                 "section.accounting_entries": {
                     "label": "Écritures comptables"
                 }
+            },
+            "actions": {
+                "action.publish": {
+                    "label": "Publier",
+                    "description": "Publier le remboursement pour validation."
+                },
+                "action.post": {
+                    "label": "Passer",
+                    "description": "Marquer le remboursement comme comptabilisé/initié."
+                },
+                "action.complete": {
+                    "label": "Terminer",
+                    "description": "Marquer le remboursement comme terminé."
+                }
             }
         },
-        "MoneyRefund.list.default": {
+        "list.default": {
             "name": "Remboursements",
             "description": "Liste des remboursements avec leur statut, comptes et dates clés."
         }

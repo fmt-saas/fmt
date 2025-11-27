@@ -157,6 +157,20 @@
                 "section.fundings": {
                     "label": "Suivi des paiements"
                 }
+            },
+            "actions": {
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Valider et générer les comptes comptables."
+                },
+                "action.print_funds_request": {
+                    "label": "Imprimer la demande de fonds",
+                    "description": "Générer le document d'appel de fonds pour l'exercice."
+                },
+                "action.generate_history": {
+                    "label": "Générer l'historique",
+                    "description": "Générer l'historique des tantièmes."
+                }
             }
         },
         "form.create": {

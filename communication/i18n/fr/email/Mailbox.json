@@ -55,7 +55,7 @@
         }
     },
     "view": {
-        "Mailbox.form.default": {
+        "form.default": {
             "name": "Boîte mail",
             "description": "Formulaire de configuration d'une boîte aux lettres (serveur, authentification, jetons).",
             "layout": {
@@ -67,9 +67,23 @@
                 }
             }
         },
-        "Mailbox.list.default": {
+        "list.default": {
             "name": "Boîtes mail",
-            "description": "Liste des boîtes configurées avec leur statut et dernière synchronisation."
+            "description": "Liste des boîtes configurées avec leur statut et dernière synchronisation.",
+            "actions": {
+                "action.add_mailbox": {
+                    "label": "Ajouter une boîte mail",
+                    "description": "Ajouter une nouvelle boîte aux lettres pour automatiser la récupération des e-mails."
+                },
+                "action.connect": {
+                    "label": "Connexion OAuth",
+                    "description": "Fournir les informations d'authentification pour établir la connexion."
+                },
+                "action.fetch_emails": {
+                    "label": "Télécharger",
+                    "description": "Récupérer les derniers e-mails et importer les pièces jointes."
+                }
+            }
         }
     }
 }

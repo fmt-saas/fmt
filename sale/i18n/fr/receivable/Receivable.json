@@ -120,6 +120,12 @@
                 "section.description": {
                     "label": "Description"
                 }
+            },
+            "actions": {
+                "action.invoice": {
+                    "label": "Facturer",
+                    "description": "Créer une ligne de facture à partir de la créance."
+                }
             }
         },
         "list.default": {
@@ -128,7 +134,13 @@
         },
         "list.pending": {
             "name": "Recevables en attente",
-            "description": "Filtre les lignes non encore facturées."
+            "description": "Filtre les lignes non encore facturées.",
+            "actions": {
+                "actions.bulk_invoice": {
+                    "label": "Tout facturer",
+                    "description": ""
+                }
+            }
         },
         "list.queue-selection": {
             "name": "Sélection de file",

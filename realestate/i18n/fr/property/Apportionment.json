@@ -66,11 +66,31 @@
                 "section.apportionment_shares": {
                     "label": "Quotes-parts"
                 }
+            },
+            "actions": {
+                "action.duplicate": {
+                    "label": "Dupliquer",
+                    "description": "Tenter de dupliquer la répartition."
+                },
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Marquer la répartition comme publiée."
+                }
             }
         },
         "form.statutory": {
             "name": "Clé statutaire",
-            "description": "Gestion spécifique des quotes-parts statutaires."
+            "description": "Gestion spécifique des quotes-parts statutaires.",
+            "actions": {
+                "action.duplicate": {
+                    "label": "Dupliquer",
+                    "description": "Tenter de dupliquer la répartition."
+                },
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Marquer la répartition comme publiée."
+                }
+            }
         },
         "list.default": {
             "name": "Clés de répartition",

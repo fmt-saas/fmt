@@ -38,7 +38,17 @@
         "form.default": {
             "name": "Entrée comptable",
             "description": "",
-            "layout": {}
+            "layout": {},
+            "actions": {
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Valider l'écriture comptable (action irréversible)."
+                },
+                "action.cancel": {
+                    "label": "Annuler",
+                    "description": ""
+                }
+            }
         },
         "list.default": {
             "name": "Entrées comptables",

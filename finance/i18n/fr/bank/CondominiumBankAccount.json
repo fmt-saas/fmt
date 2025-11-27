@@ -89,11 +89,17 @@
         }
     },
     "view": {
-        "CondominiumBankAccount.form.default": {
+        "form.default": {
             "name": "Compte bancaire",
-            "description": "Formulaire complet (identification, IBAN/BIC, affectations comptables et relevés liés)."
+            "description": "Formulaire complet (identification, IBAN/BIC, affectations comptables et relevés liés).",
+            "actions": {
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Générer la configuration obligatoire."
+                }
+            }
         },
-        "CondominiumBankAccount.list.default": {
+        "list.default": {
             "name": "Comptes bancaires",
             "description": "Liste des comptes avec indicateur principal, solde courant/estimé et statut."
         }

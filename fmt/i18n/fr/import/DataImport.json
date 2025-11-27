@@ -1,0 +1,19 @@
+{
+    "name": "Import de données",
+    "plural": "Imports de données",
+    "description": "",
+    "view": {
+        "form.default": {
+            "actions": {
+                "action.check": {
+                    "label": "Contrôler",
+                    "description": "Vérifier la cohérence des données importées."
+                },
+                "action.import": {
+                    "label": "Importer",
+                    "description": "Importer les données téléversées."
+                }
+            }
+        }
+    }
+}

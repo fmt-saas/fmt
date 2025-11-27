@@ -42,7 +42,13 @@
     "view": {
         "form.default": {
             "name": "Ligne d'appel",
-            "description": "Formulaire technique listant la clé utilisée, les montants planifiés et la ventilation générée."
+            "description": "Formulaire technique listant la clé utilisée, les montants planifiés et la ventilation générée.",
+            "actions": {
+                "action.generate_allocation": {
+                    "label": "Générer l'allocation",
+                    "description": "Générer les lignes de l'appel de fonds."
+                }
+            }
         },
         "list.default": {
             "name": "Lignes d'appel",

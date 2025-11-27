@@ -3,7 +3,7 @@
     "plural": "Assemblées",
     "description": "Gestion des assemblées générales (convocations, présences, résolutions).",
     "view": {
-        "Assembly.form.default": {
+        "form.default": {
             "name": "Assemblée",
             "description": "Fiche complète d'une assemblée (participants, mandats, résolutions).",
             "layout": {
@@ -38,6 +38,84 @@
                 },
                 "route.view_minutes": {
                     "label": "Consulter le procès-verbal"
+                }
+            },
+            "actions": {
+                "action.publish": {
+                    "label": "Publier",
+                    "description": "Publier l'assemblée (prête pour envoi)."
+                },
+                "action.revert_publish": {
+                    "label": "Repasser en brouillon",
+                    "description": "Repasser l'assemblée en brouillon (édition autorisée)."
+                },
+                "action.refresh_owners": {
+                    "label": "Rafraîchir les propriétaires",
+                    "description": "Actualiser la liste des propriétaires si un transfert l'a modifiée."
+                },
+                "action.invite": {
+                    "label": "Créer les invitations",
+                    "description": "Générer et envoyer les invitations."
+                },
+                "action.sent": {
+                    "label": "Marquer comme envoyé",
+                    "description": "Marquer les invitations comme envoyées."
+                },
+                "action.open": {
+                    "label": "Ouvrir l'assemblée",
+                    "description": "Ouvrir l'assemblée (en cours)."
+                },
+                "action.close_attendance": {
+                    "label": "Clore les présences",
+                    "description": "Clore l'émargement : plus aucune présence ne pourra être enregistrée."
+                },
+                "action.validate_mandates": {
+                    "label": "Valider les mandats",
+                    "description": "Valider les mandats des participants et passer à la représentation."
+                },
+                "action.validate_attendance": {
+                    "label": "Valider les présences",
+                    "description": "Passer à la validation des présences."
+                },
+                "action.validate_assembly": {
+                    "label": "Valider l'assemblée",
+                    "description": "Tenter de valider l'assemblée."
+                },
+                "action.adjourn_assembly": {
+                    "label": "Ajourner l'assemblée",
+                    "description": "Clore l'assemblée et la marquer comme ajournée."
+                },
+                "action.schedule_second_session": {
+                    "label": "Programmer une seconde session",
+                    "description": "Planifier une seconde session pour l'assemblée."
+                },
+                "action.check_invites": {
+                    "label": "Contrôler les invitations",
+                    "description": "Vérifier que toutes les invitations ont été envoyées."
+                },
+                "action.add_attendee": {
+                    "label": "Ajouter un participant",
+                    "description": "Enregistrer un participant et recueillir ses mandats/signatures."
+                },
+                "action.add_extra_attendee": {
+                    "label": "Ajouter un participant supplémentaire",
+                    "description": "Enregistrer un participant supplémentaire et recueillir ses mandats/signatures."
+                },
+                "action.generate_minutes": {
+                    "label": "Générer le procès-verbal",
+                    "description": "Générer la version à signer du procès-verbal."
+                },
+                "action.validate_minutes": {
+                    "label": "Approuver le procès-verbal",
+                    "description": "Générer la version à signer du procès-verbal."
+                },
+                "action.add_signature": {
+                    "label": "Ajouter une signature",
+                    "description": "Ajouter un signataire au procès-verbal de l'assemblée."
+                },
+                "action.close_minutes_signing": {
+                    "label": "Clore la signature du procès-verbal",
+                    "description": "Clore la signature du procès-verbal."
                 }
             }
         }

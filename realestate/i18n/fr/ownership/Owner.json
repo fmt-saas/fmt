@@ -62,7 +62,13 @@
     "view": {
         "form.default": {
             "name": "Propriétaire",
-            "description": "Fiche détaillée d'un propriétaire (identité et quotes-parts)."
+            "description": "Fiche détaillée d'un propriétaire (identité et quotes-parts).",
+            "actions": {
+                "action.create_account": {
+                    "label": "Créer un compte utilisateur",
+                    "description": "Créer un compte utilisateur pour le copropriétaire."
+                }
+            }
         },
         "form.create": {
             "name": "Nouveau propriétaire",

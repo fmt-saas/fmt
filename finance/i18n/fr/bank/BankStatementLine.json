@@ -59,16 +59,53 @@
         "form.default": {
             "name": "Ligne de Relevé Bancaire",
             "description": "",
-            "layout": {}
+            "layout": {},
+            "actions": {
+                "action.attempt_reconcile": {
+                    "label": "Tenter un rapprochement",
+                    "description": "Tenter de rapprocher la ligne selon les données fournies."
+                },
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Valider la ligne de relevé."
+                }
+            }
         },
         "list.default": {
             "name": "Lignes de Relevé Bancaire",
             "description": "Liste des ligne de relevé bancaire.",
-            "layout": {
-            },
+            "layout": {},
             "actions": {
                 "action.import": {
                     "label": "Importer"
+                },
+                "action.reconcile": {
+                    "label": "Rapprocher",
+                    "description": "Rapprocher la ligne."
+                }
+            }
+        },
+        "form.detailed": {
+            "actions": {
+                "action.attempt_reconcile": {
+                    "label": "Tenter un rapprochement",
+                    "description": "Tenter de rapprocher la ligne avec un appel de fonds."
+                }
+            }
+        },
+        "list.detailed": {
+            "actions": {
+                "action.import": {
+                    "label": "Importer",
+                    "description": "Importer depuis un fichier de relevés bancaires."
+                }
+            }
+        },
+        "list.reconciled": {
+            "actions": {
+                "action.import": {
+                    "label": "Importer",
+                    "description": "Importer depuis un fichier de relevés bancaires."
                 }
             }
         }

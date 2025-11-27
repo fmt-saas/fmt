@@ -17,7 +17,7 @@
         {
             "id": "action.connect",
             "inline": true,
-            "label": "Auth",
+            "label": "OAuth connect",
             "icon": "login",
             "description": "Provide authentication info for connection.",
             "component": {

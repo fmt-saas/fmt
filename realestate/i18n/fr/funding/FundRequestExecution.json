@@ -65,7 +65,7 @@
         }
     },
     "view": {
-        "FundRequestExecution.form.default": {
+        "form.default": {
             "name": "Exécution d'appel",
             "description": "Formulaire avec consolidation (date, exercice, montant), ventilations et fundings.",
             "layout": {
@@ -75,9 +75,19 @@
                 "section.fundings_ids": {
                     "label": "Fundings"
                 }
+            },
+            "actions": {
+                "action.perform_execution": {
+                    "label": "Exécuter",
+                    "description": "Exécuter l'appel de fonds en créant et validant les écritures et encaissements associés (action irréversible)."
+                },
+                "action.cancel_execution": {
+                    "label": "Annuler l'exécution",
+                    "description": "Exécuter l'appel de fonds en créant et validant les écritures et encaissements associés (action irréversible)."
+                }
             }
         },
-        "FundRequestExecution.list.default": {
+        "list.default": {
             "name": "Exécutions d'appel",
             "description": "Liste avec période, statut, montant appelé et écriture associée."
         }

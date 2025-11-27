@@ -60,15 +60,45 @@
         }
     },
     "view": {
-        "FiscalYear.form.default": {
+        "form.default": {
             "name": "Exercice comptable",
-            "description": "Formulaire complet : paramètres généraux, actions (ouvrir/fermer) et périodes."
+            "description": "Formulaire complet : paramètres généraux, actions (ouvrir/fermer) et périodes.",
+            "actions": {
+                "action.generate_fiscal_periods": {
+                    "label": "Générer les périodes fiscales",
+                    "description": "Créer les périodes fiscales selon la configuration."
+                },
+                "action.generate_sequences": {
+                    "label": "Assurer les séquences",
+                    "description": "Vérifier et créer les séquences manquantes de l'exercice."
+                },
+                "action.preopen": {
+                    "label": "Pré-ouvrir",
+                    "description": "Pré-ouvrir l'exercice et initialiser ses dépendances."
+                },
+                "action.open": {
+                    "label": "Ouvrir",
+                    "description": "Ouvrir l'exercice (action irréversible)."
+                },
+                "action.preclose": {
+                    "label": "Pré-clôturer",
+                    "description": "Pré-clôturer l'exercice."
+                },
+                "action.close": {
+                    "label": "Clore",
+                    "description": "Clore l'exercice (action irréversible)."
+                },
+                "action.delete": {
+                    "label": "Supprimer",
+                    "description": "Supprimer l'exercice (possible uniquement tant qu'il est en brouillon)."
+                }
+            }
         },
-        "FiscalYear.list.default": {
+        "list.default": {
             "name": "Exercices comptables",
             "description": "Liste des exercices par copropriété avec dates et statut."
         },
-        "FiscalYear.list.condo": {
+        "list.condo": {
             "name": "Exercices d'une copropriété",
             "description": "Vue filtrée pour une copropriété (non présentée mais utile)."
         }

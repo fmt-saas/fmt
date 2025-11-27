@@ -1,4 +1,3 @@
-
 {
     "name": "Abonnement",
     "plural": "Abonnements",
@@ -91,19 +90,19 @@
             "description": "",
             "actions": {
                 "action.shift-subscription": {
-                    "label": "Période suivante",
-                    "description": "Décaler les dates d'abonnement en fonction de la durée."
+                    "label": "Décaler la période",
+                    "description": ""
                 },
                 "action.add-subscription-entry": {
-                    "label": "Créer une vente",
-                    "description": "Créer une entrée de vente à partir de cet abonnement."
+                    "label": "Créer une ligne",
+                    "description": ""
                 }
             },
             "layout": {
                 "section.details": {
                     "label": "Details"
                 },
-                "section.entries":{
+                "section.entries": {
                     "label": "Entrées"
                 },
                 "section.description": {

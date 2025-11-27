@@ -36,6 +36,18 @@
             "name": "Liste de tableau comptable",
             "description": "Cette vue est destinée à afficher les plans comptables.",
             "layout": {}
+        },
+        "form.condo": {
+            "actions": {
+                "action.import_template": {
+                    "label": "Importer un modèle",
+                    "description": "Importer les comptes depuis un modèle."
+                },
+                "action.activate": {
+                    "label": "Activer",
+                    "description": "Valider puis activer le plan comptable (action irréversible)."
+                }
+            }
         }
     },
     "error": {}

@@ -140,11 +140,35 @@
                 "section.fundings_ids": {
                     "label": "Paiements suivis"
                 }
+            },
+            "actions": {
+                "action.generate_allocation": {
+                    "label": "Générer l'allocation",
+                    "description": "Générer les lignes de l'appel de fonds."
+                },
+                "action.generate_executions": {
+                    "label": "Générer les exécutions",
+                    "description": "Planifier les exécutions de l'appel de fonds."
+                },
+                "action.activate": {
+                    "label": "Activer",
+                    "description": "Valider l'appel de fonds et le marquer actif (action irréversible)."
+                },
+                "action.cancel": {
+                    "label": "Annuler",
+                    "description": "Annuler l'appel de fonds (action irréversible)."
+                }
             }
         },
         "list.default": {
             "name": "Appels de fonds",
-            "description": "Liste des appels par copropriété avec type, dates, statuts et montants appelés."
+            "description": "Liste des appels par copropriété avec type, dates, statuts et montants appelés.",
+            "actions": {
+                "action.print_pdf": {
+                    "label": "Imprimer les appels de fonds",
+                    "description": "Générer un document pour tous les copropriétaires de l'exercice en cours."
+                }
+            }
         }
     }
 }

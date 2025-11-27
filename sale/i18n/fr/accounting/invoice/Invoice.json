@@ -33,7 +33,6 @@
             "description": "Montant final TTC utilisé pour l'affichage (inversé pour les notes de crédit).",
             "help": ""
         }
-
     },
     "view": {
         "form.default": {
@@ -41,10 +40,16 @@
             "description": "",
             "actions": {
                 "action.cancel": {
-                    "label": "Annuler"
+                    "label": "Annuler",
+                    "description": "Annuler la facture."
                 },
                 "action.remove": {
-                    "label": "Supprimer"
+                    "label": "Supprimer",
+                    "description": "Annuler la facture pro forma."
+                },
+                "action.invoice": {
+                    "label": "Facturer",
+                    "description": "À facturer."
                 }
             },
             "routes": {

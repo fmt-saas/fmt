@@ -45,6 +45,12 @@
                 "section.invoiced_receivables_ids": {
                     "label": "Recevables facturés"
                 }
+            },
+            "actions": {
+                "action.invoice": {
+                    "label": "Facturer",
+                    "description": "Facturer toutes les créances en attente de la file."
+                }
             }
         },
         "list.default": {

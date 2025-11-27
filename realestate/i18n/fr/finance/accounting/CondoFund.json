@@ -69,11 +69,17 @@
         }
     },
     "view": {
-        "CondoFund.form.default": {
+        "form.default": {
             "name": "Fonds de copropriété",
-            "description": "Formulaire de configuration du fonds (type, comptes générés, clé de répartition)."
+            "description": "Formulaire de configuration du fonds (type, comptes générés, clé de répartition).",
+            "actions": {
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Valider le fonds de copropriété."
+                }
+            }
         },
-        "CondoFund.list.default": {
+        "list.default": {
             "name": "Fonds de copropriété",
             "description": "Liste des fonds avec leurs comptes d'appel/utilisation et la clé associée."
         }

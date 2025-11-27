@@ -1,7 +1,7 @@
 {
     "name": "Relation fournisseur",
     "plural": "Relations fournisseurs",
-    "description": "Lien entre un fournisseur et une copropriété : codes internes, contrats, références et comptes bancaires utilisés pour la facturation.",
+    "description": "Lien entre un fournisseur et une copropriété : codes internes, contrats, références et comptes bancaires utilisés pour la facturation.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -72,11 +72,27 @@
                 "section.bank_accounts": {
                     "label": "Comptes bancaires"
                 }
+            },
+            "actions": {
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Générer la configuration obligatoire."
+                },
+                "action.sync_bank_accounts": {
+                    "label": "Synchroniser les comptes bancaires",
+                    "description": "Importer/Synchroniser les comptes bancaires du fournisseur."
+                }
             }
         },
         "form.create": {
             "name": "Créer une relation fournisseur",
-            "description": "Assistant pour lier un nouveau fournisseur à une copropriété."
+            "description": "Assistant pour lier un nouveau fournisseur à une copropriété.",
+            "actions": {
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Générer la configuration obligatoire."
+                }
+            }
         },
         "list.default": {
             "name": "Relations fournisseurs",
