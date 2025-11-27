@@ -94,6 +94,7 @@ class UpdateRequest extends Model {
                     'verified'
                 ],
                 'description'       => 'Reason for approval.',
+                'default'           => 'verified',
                 'visible'           => ['status', '=', 'approved']
             ],
 
@@ -113,6 +114,7 @@ class UpdateRequest extends Model {
                     'outdated_data',
                     'duplicate_request'
                 ],
+                'default'           => 'conflict',
                 'visible'           => ['status', '=', 'rejected']
             ],
 
@@ -240,11 +242,17 @@ class UpdateRequest extends Model {
                         ->update($data);
                 }
 
-                self::id($id)->update([
+                $values = [
                         'status'            => 'approved',
                         'approval_user_id'  => $user_id,
                         'approval_reason'   => $values['reason']
-                    ]);
+                    ];
+
+                if(isset($values['reason'])) {
+                    $values['approval_reason'] = $values['reason'];
+                }
+
+                self::id($id)->update($values);
             }
             catch(\Exception $e) {
                 trigger_error("PHP::unable to apply update request: " . $e->getMessage(), EQ_REPORT_ERROR);
@@ -257,12 +265,17 @@ class UpdateRequest extends Model {
         $user_id = $auth->userId();
 
         foreach($self as $id => $updateRequest) {
-            self::id($id)
-                ->update([
+            $values = [
                     'status'            => 'rejected',
-                    'approval_user_id'  => $user_id,
-                    'approval_reason'   => $values['reason']
-                ]);
+                    'rejection_user_id'  => $user_id
+                ];
+
+            if(isset($values['reason'])) {
+                $values['rejection_reason'] = $values['reason'];
+            }
+
+            self::id($id)
+                ->update($values);
         }
     }
 }

@@ -138,13 +138,12 @@ foreach($policies as $id => $policy) {
                 $out = str_replace('\n', '', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
                 throw new Exception("Error from GLOBAL instance: HTTP status $status: $out", EQ_ERROR_UNKNOWN);
             }
-
         }
         catch(Exception $e) {
             // force arbitrary update of `modified` field so that failing object is included in next sync loop
             $orm->update($entity, $object['id'], ['modified' => time()]);
             ++$result['errors'];
-            $result['logs'][] = "Unable to push protected entity {$entity} to Global instance: " . $e->getMessage();
+            $result['logs'][] = "Unable to push protected entity {$entity} ({$object['id']}) to Global instance: " . $e->getMessage();
         }
     }
 }
