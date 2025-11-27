@@ -147,14 +147,20 @@ class UpdateRequest extends Model {
 
     protected static function calcObjectName($self) {
         $result = [];
-        $self->read(['update_request_lines_ids' => ['object_field', 'new_value']]);
+        $self->read(['is_new', 'object_class', 'object_id', 'update_request_lines_ids' => ['object_field', 'new_value']]);
         foreach($self as $id => $updateRequest) {
-            $result[$id] = '(object)';
-            foreach($updateRequest['update_request_lines_ids'] as $line_id => $line) {
-                if($line['object_field'] === 'name') {
-                    $result[$id] = $line['new_value'];
-                    break;
+            if($updateRequest['is_new']) {
+                $result[$id] = '(new object)';
+                foreach($updateRequest['update_request_lines_ids'] as $line_id => $line) {
+                    if($line['object_field'] === 'name') {
+                        $result[$id] = $line['new_value'];
+                        break;
+                    }
                 }
+            }
+            elseif(class_exists($updateRequest['object_class'])) {
+                $object = $updateRequest['object_class']::id($updateRequest['object_id'])->read(['name'])->first();
+                $result[$id] = $object['name'];
             }
         }
         return $result;
