@@ -97,7 +97,7 @@ $schema = $orm->getModel($entity)->getSchema();
 $fields = ['uuid'];
 
 $domain = [
-    ['modified', '>=', $timestamp]
+    ['modified', '>=', $params['date_from']]
 ];
 
 foreach($schema as $field => $def) {
@@ -132,7 +132,6 @@ foreach($schema as $field => $def) {
     $fields[] = $field;
 }
 
-$timestamp = $params['date_from'];
 
 $objects = $entity::search($domain)
     ->read($fields)
