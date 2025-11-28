@@ -151,7 +151,7 @@ if($uuid) {
 }
 
 if(!$localObject && isset($policy['field_unique']) && isset($values[$policy['field_unique']]) && !empty($values[$policy['field_unique']])) {
-    $localObject = $entity::search([$policy['field_unique'], '=', $values[$key]])
+    $localObject = $entity::search([$policy['field_unique'], '=', $values[$policy['field_unique']]])
         ->read($fields)
         ->first();
 }
