@@ -27,6 +27,7 @@ use infra\server\Instance;
         ]
     ],
     'access' => [
+        // #memo - requests from instances are meant to be received with an Authorization token
         'visibility'        => 'protected'
     ],
     'response'      => [
@@ -97,7 +98,7 @@ $schema = $orm->getModel($entity)->getSchema();
 $fields = ['uuid'];
 
 $domain = [
-    ['modified', '>=', $params['date_from']]
+    ['modified', '>=', $params['date_from'] ?? 0]
 ];
 
 foreach($schema as $field => $def) {
