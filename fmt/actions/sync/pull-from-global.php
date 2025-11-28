@@ -107,17 +107,25 @@ foreach($policies as $id => $policy) {
             $localObject = null;
             $is_empty = true;
 
+            $fields = array_keys($values);
+
             if($values['uuid'] && !empty($values['uuid'])) {
-                $localObject = $entity::search(['uuid', '=', $values['uuid']])->first();
+                $localObject = $entity::search(['uuid', '=', $values['uuid']])
+                    ->read($fields)
+                    ->first();
             }
 
             if(!$localObject && isset($values[$policy['field_unique']]) && !empty($values[$policy['field_unique']])) {
-                $localObject = $entity::search([$policy['field_unique'], '=', $values[$policy['field_unique']]])->first();
+                $localObject = $entity::search([$policy['field_unique'], '=', $values[$policy['field_unique']]])
+                    ->read($fields)
+                    ->first();
             }
 
             // special case for identities
             if(!$localObject && $policy['object_class'] === 'identity\Identity' && isset($values['slug_hash']) && !empty($values['slug_hash'])) {
-                $localObject = $entity::search(['slug_hash', '=', $values['slug_hash']])->first();
+                $localObject = $entity::search(['slug_hash', '=', $values['slug_hash']])
+                    ->read($fields)
+                    ->first();
             }
 
             if($localObject) {
@@ -188,7 +196,7 @@ foreach($policies as $id => $policy) {
     }
     catch(Exception $e) {
         ++$result['errors'];
-        $result['logs'][] = "Unable to fetch protected entity {$entity} from Global instance: " . $e->getMessage();
+        $result['logs'][] = "Unable to fetch entity {$entity} from Global instance: " . $e->getMessage();
     }
 }
 
