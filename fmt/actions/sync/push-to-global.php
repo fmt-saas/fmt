@@ -103,7 +103,8 @@ foreach($policies as $id => $policy) {
 
     foreach($objects as $object) {
 
-        if(!isset($object[$policy['field_unique']])) {
+        // #memo - even if registration_number is not set, an Identity might have a slug_hash as secondary unique key
+        if(!isset($object[$policy['field_unique']]) && $policy['object_class'] !== 'identity\Identity') {
             ++$result['ignored'];
             $result['logs'][] = "Ignored entity {$entity} object [{$object['id']}] with no value for unique key field `{$policy['field_unique']}`.";
             continue;
@@ -134,7 +135,7 @@ foreach($policies as $id => $policy) {
             $data = $response->body();
             $status = $response->getStatusCode();
 
-            if($status != 200) {
+            if($status < 200 || $status > 299) {
                 $out = str_replace('\n', '', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
                 throw new Exception("Error from GLOBAL instance: HTTP status $status: $out", EQ_ERROR_UNKNOWN);
             }

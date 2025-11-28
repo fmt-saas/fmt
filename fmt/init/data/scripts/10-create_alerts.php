@@ -101,7 +101,7 @@ $model = MessageModel::create([
 
 MessageModel::id($model['id'])->update([
         'label'         => 'Echec d\'un export',
-        'description'   => "Au moins un export n\'a pas pu être complété.",
+        'description'   => "Au moins un export n'a pas pu être complété.",
     ], 'fr');
 
 $model = MessageModel::create([
@@ -114,5 +114,5 @@ $model = MessageModel::create([
 
 MessageModel::id($model['id'])->update([
         'label'         => 'Export terminé',
-        'description'   => "L\'export demandé est prêt pour le téléchargement.",
+        'description'   => "L'export demandé est prêt pour le téléchargement.",
     ], 'fr');
