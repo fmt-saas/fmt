@@ -24,7 +24,7 @@
             "help": ""
         },
         "readable_size": {
-            "label": "Taille lisible",
+            "label": "Taille",
             "description": "Taille affichée dans une unité adaptée.",
             "help": ""
         },

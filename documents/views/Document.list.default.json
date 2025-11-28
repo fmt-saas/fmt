@@ -60,7 +60,10 @@
                 "type": "field",
                 "value": "link",
                 "width": "33%",
-                "readonly": true
+                "readonly": true,
+                "widget": {
+                    "link": true
+                }
             },
             {
                 "type": "field",
