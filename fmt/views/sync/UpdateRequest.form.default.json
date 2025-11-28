@@ -1,5 +1,33 @@
 {
     "name": "Update Request",
+    "actions": [
+        {
+            "id": "action.accept",
+            "label": "Accept",
+            "icon": "check_circle_outline",
+            "description": "Accept requested changes.",
+            "controller": "model_do",
+            "params": {
+                "entity": "fmt\\sync\\UpdateRequest",
+                "action": "accept",
+                "ids": []
+            },
+            "visible": ["pending", "=", "object.status"]
+        },
+        {
+            "id": "action.reject",
+            "label": "Reject",
+            "icon": "highlight_off",
+            "description": "Reject requested changes.",
+            "controller": "model_do",
+            "params": {
+                "entity": "fmt\\sync\\UpdateRequest",
+                "action": "accept",
+                "ids": []
+            },
+            "visible": ["pending", "=", "object.status"]
+        }
+    ],
     "layout": {
         "groups": [
             {
