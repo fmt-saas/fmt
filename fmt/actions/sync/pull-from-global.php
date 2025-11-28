@@ -93,7 +93,7 @@ foreach($policies as $id => $policy) {
         $response = $request->send();
         $data = $response->body();
 
-        foreach($data as $object) {
+        foreach($data as $values) {
 
             $updateRequest = UpdateRequest::create([
                     'object_class'  => $policy['object_class'],
@@ -104,18 +104,20 @@ foreach($policies as $id => $policy) {
                 ->first();
 
             // local search
+            $localObject = null;
+            $is_empty = true;
 
-            if($object['uuid'] && !empty($object['uuid'])) {
-                $localObject = $entity::search($object['uuid'])->first();
+            if($values['uuid'] && !empty($values['uuid'])) {
+                $localObject = $entity::search(['uuid', '=', $values['uuid']])->first();
             }
 
-            if(!$localObject && isset($object[$policy['field_unique']]) && !empty($object[$policy['field_unique']])) {
-                $localObject = $entity::search([$policy['field_unique'], '=', $object[$policy['field_unique']]])->first();
+            if(!$localObject && isset($values[$policy['field_unique']]) && !empty($values[$policy['field_unique']])) {
+                $localObject = $entity::search([$policy['field_unique'], '=', $values[$policy['field_unique']]])->first();
             }
 
             // special case for identities
-            if(!$localObject && $policy['object_class'] === 'identity\Identity' && isset($object['slug_hash']) && !empty($object['slug_hash'])) {
-                $localObject = $entity::search(['slug_hash', '=', $object['slug_hash']])->first();
+            if(!$localObject && $policy['object_class'] === 'identity\Identity' && isset($values['slug_hash']) && !empty($values['slug_hash'])) {
+                $localObject = $entity::search(['slug_hash', '=', $values['slug_hash']])->first();
             }
 
             if($localObject) {
@@ -123,24 +125,29 @@ foreach($policies as $id => $policy) {
                 UpdateRequest::id($updateRequest['id'])
                     ->update(['object_id' => $localObject['id']]);
 
-                foreach($object as $field => $value) {
+                foreach($values as $field => $value) {
                     // #memo - if uuid has been received we need it to be part of the update
                     if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
                         continue;
                     }
+                    // ignore empty fields
+                    if($value === null || $value === '') {
+                        continue;
+                    }
                     // ignore unchanged fields
-                    if((string) $object[$field] === (string) $value) {
+                    if((string) $localObject[$field] === (string) $value) {
                         continue;
                     }
                     UpdateRequestLine::create([
                         'update_request_id'         => $updateRequest['id'],
                         'object_field'              => $field,
-                        'old_value'                 => (string) $object[$field],
+                        'old_value'                 => (string) $localObject[$field],
                         'new_value'                 => (string) $value
                     ]);
+                    $is_empty = false;
                 }
 
-                $result['logs'][] = "Requested update of object of entity {$entity} with id {$localObject['id']}: " . $e->getMessage();
+                $result['logs'][] = "Requested update of object of entity {$entity} with id {$localObject['id']}: ";
                 ++$result['updated'];
             }
             elseif($policy['scope'] === 'private') {
@@ -148,24 +155,34 @@ foreach($policies as $id => $policy) {
                 UpdateRequest::id($updateRequest['id'])
                     ->update(['is_new' => true]);
 
-                foreach($object as $field => $value) {
+                foreach($values as $field => $value) {
                     if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                        continue;
+                    }
+                    // ignore empty fields
+                    if($value === null || $value === '') {
                         continue;
                     }
                     UpdateRequestLine::create([
                         'update_request_id'         => $updateRequest['id'],
-                        'object_field'              => (string) $field,
+                        'object_field'              => $field,
                         'new_value'                 => (string) $value
                     ]);
                     $is_empty = false;
                 }
 
-                $result['logs'][] = "Requested creation of new object of entity {$entity}: " . $e->getMessage();
+                $result['logs'][] = "Requested creation of new object of entity {$entity}";
                 ++$result['created'];
             }
             else {
                 // no creation for entities marked as protected (not existing on local instance)
             }
+
+            // remove update request if empty
+            if($is_empty) {
+                UpdateRequest::id($updateRequest['id'])->delete(true);
+            }
+
         }
 
     }
@@ -176,7 +193,7 @@ foreach($policies as $id => $policy) {
 }
 
 // store last_sync_timestamp
-Setting::set_value('fmt', 'system', 'sync.last_sync_timestamp', $now);
+Setting::set_value('fmt', 'system', 'sync.last_pull_timestamp', $now);
 
 $context
     ->httpResponse()

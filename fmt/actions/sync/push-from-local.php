@@ -134,6 +134,7 @@ $updateRequest = UpdateRequest::create([
     ])
     ->first();
 
+$localObject = null;
 $is_empty = true;
 
 $fields = array_keys($values);
@@ -172,7 +173,7 @@ if($localObject) {
             continue;
         }
         // ignore empty fields
-        if(empty($value)) {
+        if($value === null || $value === '') {
             continue;
         }
         // ignore unchanged fields
@@ -200,12 +201,12 @@ else {
                 continue;
             }
             // ignore empty fields
-            if(empty($value)) {
+            if($value === null || $value === '') {
                 continue;
             }
             UpdateRequestLine::create([
                 'update_request_id'         => $updateRequest['id'],
-                'object_field'              => (string) $field,
+                'object_field'              => $field,
                 'new_value'                 => (string) $value
             ]);
             $is_empty = false;
