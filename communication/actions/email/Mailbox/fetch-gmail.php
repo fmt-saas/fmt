@@ -41,6 +41,8 @@ use documents\Document;
 ['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
 
 $allowed_mime_types = [
+        'text/xml',
+        'application/xml',
         'application/pdf',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

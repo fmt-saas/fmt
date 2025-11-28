@@ -79,7 +79,8 @@ class Email extends Model {
             ],
 
             'thread_hash' => [
-                'type'              => 'string',
+                'type'              => 'computed',
+                'result_type'       => 'string',
                 'description'       => 'Hash of the cleaned subject to group conversations.',
                 'help'              => 'The hash is base on the email subject, discarding any `Re` and `Fwd`',
                 'function'          => 'calcThreadHash',

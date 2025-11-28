@@ -10,7 +10,74 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "date",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "subject",
+                                                "width": "75%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "direction",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "thread_hash",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "to",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "from",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "reply_to",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "cc",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "bcc",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "body",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "height": "400"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
                                         "items": [
                                             {
                                                 "type": "field",
@@ -34,87 +101,12 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "date",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "name",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "direction",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "thread_hash",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "to",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "from",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "reply_to",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "cc",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "bcc",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "subject",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "body",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "object_class",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "object_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_error",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "response_status",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "response",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "status",
                                                 "width": "100%"
                                             }
                                         ]

@@ -102,763 +102,652 @@
         "lang": "fr",
         "data": [
             {
-                "id": 1,
                 "sync_policy_id": 1,
                 "object_field": "login",
                 "scope": "public"
             },
             {
-                "id": 4,
+                "sync_policy_id": 1,
+                "object_field": "identity_uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 1,
+                "object_field": "firstname",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 1,
+                "object_field": "lastname",
+                "scope": "public"
+            },
+            {
                 "sync_policy_id": 1,
                 "object_field": "uuid",
                 "scope": "public"
             },
             {
-                "id": 5,
                 "sync_policy_id": 2,
                 "object_field": "firstname",
                 "scope": "public"
             },
             {
-                "id": 6,
+
                 "sync_policy_id": 2,
                 "object_field": "lastname",
                 "scope": "public"
             },
             {
-                "id": 7,
                 "sync_policy_id": 2,
                 "object_field": "registration_number",
                 "scope": "public"
             },
             {
-                "id": 8,
                 "sync_policy_id": 2,
                 "object_field": "legal_name",
                 "scope": "public"
             },
             {
-                "id": 9,
                 "sync_policy_id": 2,
                 "object_field": "short_name",
                 "scope": "private"
             },
             {
-                "id": 10,
                 "sync_policy_id": 2,
                 "object_field": "uuid",
                 "scope": "public"
             },
             {
-                "id": 11,
                 "sync_policy_id": 3,
                 "object_field": "short_name",
                 "scope": "private"
             },
             {
-                "id": 12,
                 "sync_policy_id": 4,
                 "object_field": "short_name",
                 "scope": "private"
             },
             {
-                "id": 13,
                 "sync_policy_id": 4,
                 "object_field": "identity_id",
                 "scope": "private"
             },
             {
-                "id": 14,
                 "sync_policy_id": 6,
                 "object_field": "identity_id",
                 "scope": "private"
             },
             {
-                "id": 15,
                 "sync_policy_id": 7,
                 "object_field": "identity_id",
                 "scope": "private"
             },
             {
-                "id": 16,
                 "sync_policy_id": 2,
                 "object_field": "slug_hash",
                 "scope": "private"
             },
             {
-                "id": 17,
                 "sync_policy_id": 2,
                 "object_field": "title",
                 "scope": "public"
             },
             {
-                "id": 18,
                 "sync_policy_id": 2,
                 "object_field": "date_of_birth",
                 "scope": "protected"
             },
             {
-                "id": 19,
                 "sync_policy_id": 2,
                 "object_field": "gender",
                 "scope": "public"
             },
             {
-                "id": 20,
                 "sync_policy_id": 2,
                 "object_field": "type_id",
                 "scope": "public"
             },
             {
-                "id": 21,
                 "sync_policy_id": 2,
                 "object_field": "citizen_identification",
                 "scope": "protected"
             },
             {
-                "id": 22,
                 "sync_policy_id": 2,
                 "object_field": "has_vat",
                 "scope": "public"
             },
             {
-                "id": 23,
                 "sync_policy_id": 2,
                 "object_field": "vat_number",
                 "scope": "public"
             },
             {
-                "id": 24,
                 "sync_policy_id": 2,
                 "object_field": "nationality",
                 "scope": "protected"
             },
             {
-                "id": 25,
                 "sync_policy_id": 2,
                 "object_field": "address_street",
                 "scope": "protected"
             },
             {
-                "id": 26,
                 "sync_policy_id": 2,
                 "object_field": "address_dispatch",
                 "scope": "protected"
             },
             {
-                "id": 27,
                 "sync_policy_id": 2,
                 "object_field": "address_city",
                 "scope": "protected"
             },
             {
-                "id": 28,
                 "sync_policy_id": 2,
                 "object_field": "address_zip",
                 "scope": "protected"
             },
             {
-                "id": 29,
                 "sync_policy_id": 2,
                 "object_field": "address_country",
                 "scope": "protected"
             },
             {
-                "id": 30,
                 "sync_policy_id": 2,
                 "object_field": "email",
                 "scope": "protected"
             },
             {
-                "id": 31,
                 "sync_policy_id": 2,
                 "object_field": "email_alt",
                 "scope": "protected"
             },
             {
-                "id": 32,
                 "sync_policy_id": 2,
                 "object_field": "phone",
                 "scope": "protected"
             },
             {
-                "id": 33,
                 "sync_policy_id": 2,
                 "object_field": "phone_alt",
                 "scope": "protected"
             },
             {
-                "id": 34,
                 "sync_policy_id": 2,
                 "object_field": "mobile",
                 "scope": "protected"
             },
             {
-                "id": 35,
                 "sync_policy_id": 2,
                 "object_field": "website",
                 "scope": "public"
             },
             {
-                "id": 36,
                 "sync_policy_id": 1,
                 "object_field": "firstname",
                 "scope": "protected"
             },
             {
-                "id": 37,
                 "sync_policy_id": 1,
                 "object_field": "lastname",
                 "scope": "protected"
             },
             {
-                "id": 38,
                 "sync_policy_id": 3,
                 "object_field": "has_vat",
                 "scope": "public"
             },
             {
-                "id": 39,
                 "sync_policy_id": 3,
                 "object_field": "vat_number",
                 "scope": "public"
             },
             {
-                "id": 40,
                 "sync_policy_id": 3,
                 "object_field": "registration_number",
                 "scope": "public"
             },
             {
-                "id": 41,
                 "sync_policy_id": 3,
                 "object_field": "legal_name",
                 "scope": "public"
             },
             {
-                "id": 42,
                 "sync_policy_id": 3,
                 "object_field": "bank_account_iban",
                 "scope": "public"
             },
             {
-                "id": 43,
                 "sync_policy_id": 3,
                 "object_field": "email",
                 "scope": "public"
             },
             {
-                "id": 44,
                 "sync_policy_id": 3,
                 "object_field": "phone",
                 "scope": "public"
             },
             {
-                "id": 45,
                 "sync_policy_id": 3,
                 "object_field": "mobile",
                 "scope": "public"
             },
             {
-                "id": 46,
                 "sync_policy_id": 3,
                 "object_field": "website",
                 "scope": "public"
             },
             {
-                "id": 47,
                 "sync_policy_id": 13,
                 "object_field": "firstname",
                 "scope": "public"
             },
             {
-                "id": 48,
                 "sync_policy_id": 13,
                 "object_field": "lastname",
                 "scope": "public"
             },
             {
-                "id": 49,
                 "sync_policy_id": 13,
                 "object_field": "registration_number",
                 "scope": "public"
             },
             {
-                "id": 50,
                 "sync_policy_id": 13,
                 "object_field": "legal_name",
                 "scope": "public"
             },
             {
-                "id": 51,
                 "sync_policy_id": 13,
                 "object_field": "short_name",
                 "scope": "private"
             },
             {
-                "id": 52,
                 "sync_policy_id": 13,
                 "object_field": "uuid",
                 "scope": "public"
             },
             {
-                "id": 53,
                 "sync_policy_id": 13,
                 "object_field": "slug_hash",
                 "scope": "private"
             },
             {
-                "id": 54,
                 "sync_policy_id": 13,
                 "object_field": "title",
                 "scope": "public"
             },
             {
-                "id": 55,
                 "sync_policy_id": 13,
                 "object_field": "date_of_birth",
                 "scope": "protected"
             },
             {
-                "id": 56,
                 "sync_policy_id": 13,
                 "object_field": "gender",
                 "scope": "public"
             },
             {
-                "id": 57,
                 "sync_policy_id": 13,
                 "object_field": "type_id",
                 "scope": "public"
             },
             {
-                "id": 58,
                 "sync_policy_id": 13,
                 "object_field": "citizen_identification",
                 "scope": "protected"
             },
             {
-                "id": 59,
                 "sync_policy_id": 13,
                 "object_field": "has_vat",
                 "scope": "public"
             },
             {
-                "id": 60,
                 "sync_policy_id": 13,
                 "object_field": "vat_number",
                 "scope": "public"
             },
             {
-                "id": 61,
                 "sync_policy_id": 13,
                 "object_field": "nationality",
                 "scope": "protected"
             },
             {
-                "id": 62,
                 "sync_policy_id": 13,
                 "object_field": "address_street",
                 "scope": "protected"
             },
             {
-                "id": 63,
                 "sync_policy_id": 13,
                 "object_field": "address_dispatch",
                 "scope": "protected"
             },
             {
-                "id": 64,
                 "sync_policy_id": 13,
                 "object_field": "address_city",
                 "scope": "protected"
             },
             {
-                "id": 65,
                 "sync_policy_id": 13,
                 "object_field": "address_zip",
                 "scope": "protected"
             },
             {
-                "id": 66,
                 "sync_policy_id": 13,
                 "object_field": "address_country",
                 "scope": "protected"
             },
             {
-                "id": 67,
                 "sync_policy_id": 13,
                 "object_field": "email",
                 "scope": "protected"
             },
             {
-                "id": 68,
                 "sync_policy_id": 13,
                 "object_field": "email_alt",
                 "scope": "protected"
             },
             {
-                "id": 69,
                 "sync_policy_id": 13,
                 "object_field": "phone",
                 "scope": "protected"
             },
             {
-                "id": 70,
                 "sync_policy_id": 13,
                 "object_field": "phone_alt",
                 "scope": "protected"
             },
             {
-                "id": 71,
                 "sync_policy_id": 13,
                 "object_field": "mobile",
                 "scope": "protected"
             },
             {
-                "id": 72,
                 "sync_policy_id": 13,
                 "object_field": "website",
                 "scope": "public"
             },
             {
-                "id": 73,
                 "sync_policy_id": 11,
                 "object_field": "name",
                 "scope": "public"
             },
             {
-                "id": 74,
                 "sync_policy_id": 11,
                 "object_field": "uuid",
                 "scope": "public"
             },
             {
-                "id": 75,
                 "sync_policy_id": 11,
                 "object_field": "code",
                 "scope": "public"
             },
             {
-                "id": 76,
                 "sync_policy_id": 11,
                 "object_field": "folder_code",
                 "scope": "public"
             },
             {
-                "id": 77,
                 "sync_policy_id": 11,
                 "object_field": "description",
                 "scope": "public"
             },
             {
-                "id": 78,
                 "sync_policy_id": 11,
                 "object_field": "document_type_id",
                 "scope": "public"
             },
             {
-                "id": 80,
                 "sync_policy_id": 10,
                 "object_field": "name",
                 "scope": "public"
             },
             {
-                "id": 81,
                 "sync_policy_id": 10,
                 "object_field": "code",
                 "scope": "public"
             },
             {
-                "id": 82,
                 "sync_policy_id": 10,
                 "object_field": "description",
                 "scope": "public"
             },
             {
-                "id": 83,
                 "sync_policy_id": 10,
                 "object_field": "folder_code",
                 "scope": "public"
             },
             {
-                "id": 84,
                 "sync_policy_id": 10,
                 "object_field": "json_schema",
                 "scope": "public"
             },
             {
-                "id": 85,
                 "sync_policy_id": 10,
                 "object_field": "has_subtype",
                 "scope": "public"
             },
             {
-                "id": 86,
                 "sync_policy_id": 10,
                 "object_field": "uuid",
                 "scope": "public"
             },
             {
-                "id": 87,
                 "sync_policy_id": 12,
                 "object_field": "name",
                 "scope": "public"
             },
             {
-                "id": 88,
                 "sync_policy_id": 12,
                 "object_field": "uuid",
                 "scope": "public"
             },
             {
-                "id": 89,
                 "sync_policy_id": 12,
                 "object_field": "code",
                 "scope": "public"
             },
             {
-                "id": 90,
                 "sync_policy_id": 12,
                 "object_field": "category",
                 "scope": "public"
             },
             {
-                "id": 91,
                 "sync_policy_id": 5,
                 "object_field": "bic",
                 "scope": "public"
             },
             {
-                "id": 92,
                 "sync_policy_id": 5,
                 "object_field": "uuid",
                 "scope": "public"
             },
             {
-                "id": 93,
                 "sync_policy_id": 5,
                 "object_field": "legal_name",
                 "scope": "public"
             },
             {
-                "id": 94,
                 "sync_policy_id": 5,
                 "object_field": "registration_number",
                 "scope": "public"
             },
             {
-                "id": 95,
                 "sync_policy_id": 5,
                 "object_field": "short_name",
                 "scope": "private"
             },
             {
-                "id": 96,
                 "sync_policy_id": 5,
                 "object_field": "address_street",
                 "scope": "public"
             },
             {
-                "id": 97,
                 "sync_policy_id": 5,
                 "object_field": "address_dispatch",
                 "scope": "public"
             },
             {
-                "id": 98,
                 "sync_policy_id": 5,
                 "object_field": "address_city",
                 "scope": "public"
             },
             {
-                "id": 99,
                 "sync_policy_id": 5,
                 "object_field": "address_zip",
                 "scope": "public"
             },
             {
-                "id": 100,
                 "sync_policy_id": 5,
                 "object_field": "address_country",
                 "scope": "public"
             },
             {
-                "id": 101,
                 "sync_policy_id": 5,
                 "object_field": "identity_id",
                 "scope": "private"
             },
             {
-                "id": 102,
                 "sync_policy_id": 6,
                 "object_field": "registration_number",
                 "scope": "public"
             },
             {
-                "id": 103,
                 "sync_policy_id": 6,
                 "object_field": "legal_name",
                 "scope": "public"
             },
             {
-                "id": 104,
                 "sync_policy_id": 6,
                 "object_field": "short_name",
                 "scope": "private"
             },
             {
-                "id": 105,
                 "sync_policy_id": 6,
                 "object_field": "email",
                 "scope": "public"
             },
             {
-                "id": 106,
                 "sync_policy_id": 6,
                 "object_field": "email_alt",
                 "scope": "public"
             },
             {
-                "id": 107,
                 "sync_policy_id": 6,
                 "object_field": "phone",
                 "scope": "public"
             },
             {
-                "id": 108,
                 "sync_policy_id": 6,
                 "object_field": "phone_alt",
                 "scope": "public"
             },
             {
-                "id": 109,
                 "sync_policy_id": 6,
                 "object_field": "website",
                 "scope": "public"
             },
             {
-                "id": 110,
                 "sync_policy_id": 6,
                 "object_field": "address_street",
                 "scope": "public"
             },
             {
-                "id": 111,
                 "sync_policy_id": 6,
                 "object_field": "address_dispatch",
                 "scope": "public"
             },
             {
-                "id": 112,
                 "sync_policy_id": 6,
                 "object_field": "address_city",
                 "scope": "public"
             },
             {
-                "id": 113,
                 "sync_policy_id": 6,
                 "object_field": "address_zip",
                 "scope": "public"
             },
             {
-                "id": 114,
                 "sync_policy_id": 5,
                 "object_field": "email",
                 "scope": "public"
             },
             {
-                "id": 115,
                 "sync_policy_id": 5,
                 "object_field": "email_alt",
                 "scope": "public"
             },
             {
-                "id": 116,
                 "sync_policy_id": 5,
                 "object_field": "phone",
                 "scope": "public"
             },
             {
-                "id": 117,
                 "sync_policy_id": 5,
                 "object_field": "phone_alt",
                 "scope": "public"
             },
             {
-                "id": 118,
                 "sync_policy_id": 7,
                 "object_field": "legal_name",
                 "scope": "public"
             },
             {
-                "id": 119,
                 "sync_policy_id": 7,
                 "object_field": "uuid",
                 "scope": "protected"
             },
             {
-                "id": 120,
                 "sync_policy_id": 7,
                 "object_field": "short_name",
                 "scope": "private"
             },
             {
-                "id": 121,
                 "sync_policy_id": 7,
                 "object_field": "address_street",
                 "scope": "public"
             },
             {
-                "id": 122,
                 "sync_policy_id": 7,
                 "object_field": "identity_uuid",
                 "scope": "public"
             },
             {
-                "id": 123,
                 "sync_policy_id": 7,
                 "object_field": "address_dispatch",
                 "scope": "public"
             },
             {
-                "id": 124,
                 "sync_policy_id": 7,
                 "object_field": "address_city",
                 "scope": "public"
             },
             {
-                "id": 125,
                 "sync_policy_id": 7,
                 "object_field": "address_zip",
                 "scope": "public"
             },
             {
-                "id": 126,
                 "sync_policy_id": 7,
                 "object_field": "email",
                 "scope": "public"
             },
             {
-                "id": 127,
                 "sync_policy_id": 7,
                 "object_field": "email_alt",
                 "scope": "public"
             },
             {
-                "id": 128,
                 "sync_policy_id": 7,
                 "object_field": "phone",
                 "scope": "public"
             },
             {
-                "id": 129,
                 "sync_policy_id": 7,
                 "object_field": "phone_alt",
                 "scope": "public"
             },
             {
-                "id": 130,
                 "sync_policy_id": 7,
                 "object_field": "mobile",
                 "scope": "public"
