@@ -136,90 +136,77 @@ $updateRequest = UpdateRequest::create([
 
 $is_empty = true;
 
+$fields = array_keys($values);
+
 // if we received a UUID: search for it; if exists, update, otherwise issue an error (UUIDs are issued by the master instance)
-
-// #todo - dans les deux cas, il faut charger l'objet et comparer champ par champ s'il y a des modifications
-
 if($uuid) {
-    $fields = array_keys($values);
+    $localObject = $entity::search(['uuid', '=', $uuid])
+        ->read($fields)
+        ->first();
 
-    $object = $entity::search(['uuid', '=', $uuid])->read($fields)->first();
-
-    if(!$object) {
+    // #memo - if we received a uuid, it must be valid
+    if(!$localObject) {
         throw new Exception('invalid_uuid', EQ_ERROR_INVALID_PARAM);
     }
+}
 
-    UpdateRequest::id($updateRequest['id'])->update(['object_id' => $object['id']]);
+if(!$localObject && isset($policy['field_unique']) && isset($values[$policy['field_unique']]) && !empty($values[$policy['field_unique']])) {
+    $localObject = $entity::search([$policy['field_unique'], '=', $values[$key]])
+        ->read($fields)
+        ->first();
+}
+
+if(!$localObject && $policy['object_class'] === 'identity\Identity' && isset($values['slug_hash']) && !empty($values['slug_hash'])) {
+    $localObject = $entity::search(['slug_hash', '=', $values['slug_hash']])
+        ->read($fields)
+        ->first();
+}
+
+// a match was found with an existing object
+if($localObject) {
+    UpdateRequest::id($updateRequest['id'])->update(['object_id' => $localObject['id']]);
 
     foreach($values as $field => $value) {
         // #memo - uuid is always set on global and cannot be changed by local instances
         if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
             continue;
         }
+        // ignore unchanged fields
+        if((string) $localObject[$field] === (string) $value) {
+            continue;
+        }
         UpdateRequestLine::create([
             'update_request_id'         => $updateRequest['id'],
             'object_field'              => $field,
-            'old_value'                 => (string) $object[$field],
+            'old_value'                 => (string) $localObject[$field],
             'new_value'                 => (string) $value
         ]);
         $is_empty = false;
     }
 }
-// we don't have a UUID: in this case, check by other means whether the object already exists (depending on the class)
-// if it exists, issue a request to update it
-// if it doesn't exist, issue a request to create it
+// new object (existing object could not be retrieved), create a new one
 else {
-    $key = $policy['field_unique'];
-
-    if(!isset($values[$key]) || empty($values[$key])) {
-        throw new Exception('missing_unique_field', EQ_ERROR_INVALID_PARAM);
-    }
-
     try {
-        $object = $entity::search([$key, '=', $values[$key]])
-            ->read(array_merge(['uuid'], array_keys($values)))
-            ->first();
+        UpdateRequest::id($updateRequest['id'])
+            ->update(['is_new' => true]);
 
-        // manual verification will be required by default
-        if($object) {
-            UpdateRequest::id($updateRequest['id'])
-                ->update(['object_id' => $object['id']]);
-
-            foreach($params['values'] as $field => $value) {
-                if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
-                    continue;
-                }
-                UpdateRequestLine::create([
-                    'update_request_id'         => $updateRequest['id'],
-                    'object_field'              => $field,
-                    'old_value'                 => (string) $object[$field],
-                    'new_value'                 => (string) $value
-                ]);
-                $is_empty = false;
+        foreach($values as $field => $value) {
+            // #memo - uuid is always set on global and cannot be changed by local instances
+            if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                continue;
             }
-        }
-        else {
-            UpdateRequest::id($updateRequest['id'])
-                ->update(['is_new' => true]);
-
-            foreach($values as $field => $value) {
-                if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
-                    continue;
-                }
-                UpdateRequestLine::create([
-                    'update_request_id'         => $updateRequest['id'],
-                    'object_field'              => (string) $field,
-                    'new_value'                 => (string) $value
-                ]);
-                $is_empty = false;
-            }
+            UpdateRequestLine::create([
+                'update_request_id'         => $updateRequest['id'],
+                'object_field'              => (string) $field,
+                'new_value'                 => (string) $value
+            ]);
+            $is_empty = false;
         }
     }
     catch(Exception $e) {
         trigger_error("APP::error while creating or updating object: " . $e->getMessage(), EQ_REPORT_ERROR);
         throw new Exception('unable_to_create_object', EQ_ERROR_UNKNOWN);
     }
-
 }
 
 // remove update request if empty

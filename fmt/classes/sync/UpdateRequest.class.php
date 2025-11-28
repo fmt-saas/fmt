@@ -28,6 +28,7 @@ class UpdateRequest extends Model {
             'object_id' => [
                 'type'              => 'integer',
                 'description'       => 'Identifier of the targeted object.',
+                'onupdate'          => 'onupdateObjectId',
                 'visible'           => ['is_new', '=', false]
             ],
 
@@ -145,6 +146,15 @@ class UpdateRequest extends Model {
                 'function'      => 'doReject'
             ]
         ];
+    }
+
+    protected static function onupdateObjectId($self) {
+        $self->read(['object_id']);
+        foreach($self as $id => $updateRequest) {
+            if($updateRequest['object_id']) {
+                self::id($id)->update(['is_new' => false]);
+            }
+        }
     }
 
     protected static function calcObjectName($self) {

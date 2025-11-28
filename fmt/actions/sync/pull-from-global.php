@@ -122,16 +122,21 @@ foreach($policies as $id => $policy) {
                     ->update(['object_id' => $localObject['id']]);
 
                 foreach($object as $field => $value) {
-                        if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
-                            continue;
-                        }
-                        UpdateRequestLine::create([
-                            'update_request_id'         => $updateRequest['id'],
-                            'object_field'              => $field,
-                            'old_value'                 => (string) $object[$field],
-                            'new_value'                 => (string) $value
-                        ]);
+                    // #memo - if uuid has been received we need it to be part of the update
+                    if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                        continue;
                     }
+                    // ignore unchanged fields
+                    if((string) $object[$field] === (string) $value) {
+                        continue;
+                    }
+                    UpdateRequestLine::create([
+                        'update_request_id'         => $updateRequest['id'],
+                        'object_field'              => $field,
+                        'old_value'                 => (string) $object[$field],
+                        'new_value'                 => (string) $value
+                    ]);
+                }
 
                 $result['logs'][] = "Requested update of object of entity {$entity} with id {$localObject['id']}: " . $e->getMessage();
                 ++$result['updated'];
