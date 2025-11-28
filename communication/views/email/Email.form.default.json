@@ -78,12 +78,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "500%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "ownership_id",
-                                                "width": "500%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
@@ -124,7 +124,7 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
@@ -147,7 +147,7 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
