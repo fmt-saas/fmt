@@ -7,6 +7,7 @@
 namespace identity;
 
 use equal\data\DataGenerator;
+use infra\server\Instance;
 
 class User extends \core\User {
 
@@ -111,6 +112,7 @@ class User extends \core\User {
                 'store'             => true,
                 'instant'           => true,
                 'relation'          => ['instance_id' => 'uuid'],
+                'onupdate'          => 'onupdateInstanceUuid',
                 'description'       => 'UUID of the origin instance the object comes from.'
             ],
 
@@ -194,6 +196,18 @@ class User extends \core\User {
             }
         }
         parent::oncreate($self, $values);
+    }
+
+    protected static function onupdateInstanceUuid($self) {
+        $self->read(['instance_uuid']);
+        foreach($self as $id => $user) {
+            if($user['instance_uuid']) {
+                $instance = Instance::search(['uuid', '=', $user['instance_uuid']])->first();
+                if($instance) {
+                    self::id($id)->update(['instance_id' => $id]);
+                }
+            }
+        }
     }
 
     protected static function onupdateIdentityId($self) {

@@ -13,6 +13,7 @@ use equal\text\TextTransformer;
 use finance\bank\BankAccount;
 use fmt\setting\Setting;
 use hr\employee\Employee;
+use infra\server\Instance;
 use sale\customer\Customer;
 use purchase\supplier\Supplier;
 use realestate\management\ManagingAgent;
@@ -95,6 +96,7 @@ class Identity extends Model {
                 'store'             => true,
                 'instant'           => true,
                 'relation'          => ['instance_id' => 'uuid'],
+                'onupdate'          => 'onupdateInstanceUuid',
                 'description'       => 'UUID of the origin instance the object comes from.'
             ],
 
@@ -1106,6 +1108,18 @@ class Identity extends Model {
     /*
         Handlers for updates of scalar fields
     */
+
+    protected static function onupdateInstanceUuid($self) {
+        $self->read(['instance_uuid']);
+        foreach($self as $id => $identity) {
+            if($identity['instance_uuid']) {
+                $instance = Instance::search(['uuid', '=', $identity['instance_uuid']])->first();
+                if($instance) {
+                    self::id($id)->update(['instance_id' => $id]);
+                }
+            }
+        }
+    }
 
     protected static function onupdateUuid($self, $orm) {
         $self->read(['object_class', 'uuid', 'user_id', 'contact_id', 'tenant_id', 'employee_id', 'managing_agent_id', 'customer_id', 'supplier_id', 'condominium_id', 'organisation_id']);

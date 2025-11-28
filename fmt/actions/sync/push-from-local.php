@@ -171,6 +171,10 @@ if($localObject) {
         if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
             continue;
         }
+        // ignore empty fields
+        if(empty($value)) {
+            continue;
+        }
         // ignore unchanged fields
         if((string) $localObject[$field] === (string) $value) {
             continue;
@@ -193,6 +197,10 @@ else {
         foreach($values as $field => $value) {
             // #memo - uuid is always set on global and cannot be changed by local instances
             if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                continue;
+            }
+            // ignore empty fields
+            if(empty($value)) {
                 continue;
             }
             UpdateRequestLine::create([
