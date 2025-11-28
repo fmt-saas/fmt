@@ -137,6 +137,9 @@ $updateRequest = UpdateRequest::create([
 $is_empty = true;
 
 // if we received a UUID: search for it; if exists, update, otherwise issue an error (UUIDs are issued by the master instance)
+
+// #todo - dans les deux cas, il faut charger l'objet et comparer champ par champ s'il y a des modifications
+
 if($uuid) {
     $fields = array_keys($values);
 
@@ -149,7 +152,8 @@ if($uuid) {
     UpdateRequest::id($updateRequest['id'])->update(['object_id' => $object['id']]);
 
     foreach($values as $field => $value) {
-        if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+        // #memo - uuid is always set on global and cannot be changed by local instances
+        if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
             continue;
         }
         UpdateRequestLine::create([

@@ -262,12 +262,12 @@
             "description": ""
         },
         "item.config.scheduler.cron_tasks": {
-            "label": "Téches planifiées",
-            "description": "Consulter et gérer les téches planifiées."
+            "label": "Tâches planifiées",
+            "description": "Consulter et gérer les tâches planifiées."
         },
         "item.config.scheduler.cron_tasks_recurring": {
-            "label": "Téches récurrentes",
-            "description": "Gérer les téches récurrentes planifiées."
+            "label": "Tâches récurrentes",
+            "description": "Gérer les tâches récurrentes planifiées."
         },
         "item.config.sync": {
             "label": "Synchronisation",

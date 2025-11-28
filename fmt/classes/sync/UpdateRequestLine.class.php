@@ -51,9 +51,8 @@ class UpdateRequestLine extends Model {
             ],
 
             'old_value' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'description'       => 'Old (computed) JSON value currently stored.',
+                'type'              => 'string',
+                'description'       => 'Old JSON value (currently stored).',
                 'visible'           => ['is_new', '=', false]
             ]
 
