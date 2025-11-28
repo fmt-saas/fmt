@@ -59,7 +59,7 @@
             "help": ""
         },
         "status": {
-            "label": "Statut d'envoi",
+            "label": "Statut",
             "description": "Indique si le courriel est en attente ou traité (sortant).",
             "help": ""
         },
@@ -75,11 +75,19 @@
         }
     },
     "view": {
-        "Email.form.default": {
+        "form.default": {
             "name": "Courriel",
-            "description": "Formulaire détaillé d'un message (participants, contenu, pièces jointes)."
+            "description": "Formulaire détaillé d'un message (participants, contenu, pièces jointes).",
+            "layout": {
+                "section.message": {
+                    "label": "Message"
+                },
+                "section.attachments": {
+                    "label": "Pièces jointes"
+                }
+            }
         },
-        "Email.list.default": {
+        "list.default": {
             "name": "Courriels",
             "description": "Liste des emails entrants et sortants, filtrables par boîte mail ou statut."
         }
