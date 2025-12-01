@@ -8,11 +8,12 @@
     "depends_on": ["core"],
     "lang": ["en", "fr"],
     "apps": [
+        "pdfjs",
         {
             "id": "documents",
             "name": "Documents",
             "extends": "app",
-            "description": "Application documents",
+            "description": "Gestion des documents",
             "icon": "description",
             "color": "#42a983",
             "access": {

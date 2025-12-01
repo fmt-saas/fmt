@@ -115,6 +115,10 @@ if($dataImport['import_type'] == 'condominium_import') {
     // 2) - check mandatory fields & cross-references consistency
 
     foreach($data['Condominium'] as $index => $condo) {
+        if(isset($condo['fiscal_period_frequency']) && !in_array(strtolower($condo['fiscal_period_frequency']), ['quarterly', 'tertially', 'semi-annually', 'annually'])) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - unknown `fiscal_period_frequency` {$condo['fiscal_period_frequency']} in Condominium sheet at row " . ($index + 2);
+        }
         if(!isset($condo['code'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing `code` in Condominium sheet at row " . ($index + 2);
