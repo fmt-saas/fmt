@@ -290,7 +290,7 @@ class Identity extends Model {
                 'type'              => 'string',
                 'description'       => 'Usual name to be used for the organization (acronym or brand name).',
                 'visible'           => [ ['type', '<>', 'IN'] ],
-                'multilang'         => true,
+                // 'multilang'         => true,
                 'dependents'        => ['name'],
                 'onupdate'          => 'onupdateShortName'
             ],
@@ -1169,18 +1169,22 @@ class Identity extends Model {
     }
 
     protected static function onupdateFirstname($self) {
-        $self->read(['firstname', 'lastname', 'type']);
+        $self->read(['firstname', 'lastname']);
         self::updateField($self, 'firstname');
         foreach($self as $id => $identity) {
-            self::id($id)->update(['legal_name' => trim($identity['firstname'] . ' ' . mb_strtoupper($identity['lastname']))]);
+            if(strlen($identity['firstname']) || strlen($identity['lastname'])) {
+                self::id($id)->update(['legal_name' => trim($identity['firstname'] . ' ' . mb_strtoupper($identity['lastname']))]);
+            }
         }
     }
 
     protected static function onupdateLastname($self) {
-        $self->read(['firstname', 'lastname', 'type']);
+        $self->read(['firstname', 'lastname']);
         self::updateField($self, 'lastname');
         foreach($self as $id => $identity) {
-            self::id($id)->update(['legal_name' => trim($identity['firstname'] . ' ' . mb_strtoupper($identity['lastname']))]);
+            if(strlen($identity['firstname']) || strlen($identity['lastname'])) {
+                self::id($id)->update(['legal_name' => trim($identity['firstname'] . ' ' . mb_strtoupper($identity['lastname']))]);
+            }
         }
     }
 
@@ -1685,7 +1689,7 @@ class Identity extends Model {
      */
     public static function canupdate($om, $ids, $values, $lang='en') {
         if(isset($values['type_id'])) {
-            $identities = $om->read(get_called_class(), $ids, [ 'firstname', 'lastname', 'legal_name' ], $lang);
+            $identities = $om->read(Identity::getType(), $ids, [ 'type', 'firstname', 'lastname', 'legal_name' ], $lang);
             foreach($identities as $id => $identity) {
 
                 /*

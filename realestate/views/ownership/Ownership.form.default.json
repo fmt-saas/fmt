@@ -241,7 +241,13 @@
                                                 "type": "field",
                                                 "label": "Representative Owner",
                                                 "value": "representative_owner_id",
-                                                "width": "100%"
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Address recipient title",
+                                                "value": "address_recipient",
+                                                "width": "50%"
                                             }
                                         ]
                                     }
