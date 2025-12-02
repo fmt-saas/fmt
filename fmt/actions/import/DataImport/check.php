@@ -383,6 +383,17 @@ if($dataImport['import_type'] == 'condominium_import') {
     }
 }
 elseif($dataImport['import_type'] == 'suppliers_import') {
+    $suppliers_data = current($data);
+    foreach($suppliers_data as $index => $supplier) {
+        if(!$supplier['fournisseur_nom']) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing mandatory `fournisseur_nom` in suppliers sheet at row " . ($index + 2);
+        }
+        if(!$supplier['fournisseur_numero_entreprise']) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing mandatory `fournisseur_numero_entreprise` in suppliers sheet at row " . ($index + 2);
+        }
+    }
 }
 
 
