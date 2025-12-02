@@ -200,7 +200,7 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                             ['has_channel_postal_registered_receipt', '=', true]
                         ]
                     ]);
-                if($postalMailPreferences->count() > 0) {
+                if($postalMailPreferences->count() > 1) {
                     return ['communication_reason' => ['not_allowed' => 'Only a single postal courier is allowed per communication reason.']];
                 }
             }
