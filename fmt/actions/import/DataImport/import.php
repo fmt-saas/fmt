@@ -53,6 +53,35 @@ use realestate\ownership\OwnershipCommunicationPreference;
 
 ['orm' => $orm] = $providers;
 
+$mapSupplierRowToJson = function (array $row): array {
+    return [
+        "source"              => "manual",
+        "source_type"         => "manual",
+        "type_id"             => 3,
+        "type"                => "CO",
+        "bank_account_iban"   => isset($row['fournisseur_iban_1']) && $row['fournisseur_iban_1'] !== null
+                ? preg_replace('/[^A-Z0-9]/i', '', $row['fournisseur_iban_1'])
+                : null,
+        "vat_number" => isset($row['fournisseur_numero_tva']) && $row['fournisseur_numero_tva'] !== null
+                ? preg_replace('/[^A-Z0-9]/i', '', $row['fournisseur_numero_tva'])
+                : null,
+        "registration_number" => isset($row['fournisseur_numero_entreprise']) && $row['fournisseur_numero_entreprise'] !== null
+                ? preg_replace('/[^0-9]/i', '', $row['fournisseur_numero_entreprise'])
+                : null,
+        "legal_name"          => $row['fournisseur_nom'] ?? '',
+        "short_name"          => $row['fournisseur_nom_usuel'] ?? '',
+        "has_vat"             => !empty($row['fournisseur_numero_tva']),
+        "nationality"         => strtoupper($row['fournisseur_pays'] ?? 'BE'),
+        "lang_id"             => 2,
+        "address_street"      => $row['fournisseur_nom_rue'] ?? null,
+        "address_city"        => $row['fournisseur_localite'] ?? null,
+        "address_zip"         => $row['fournisseur_code_postal'] ?? null,
+        "email"               => $row['fournisseur_email_1'] ?? null,
+        "email_alt"           => $row['fournisseur_email_2'] ?? null,
+        "phone"               => isset($row['fournisseur_tel_1']) ? str_replace(' ', '', $row['fournisseur_tel_1']) : null,
+        "phone_alt"           => isset($row['fournisseur_tel_2']) ? str_replace(' ', '', $row['fournisseur_tel_2']) : null
+    ];
+};
 
 $result = [
     'created'   => 0,
@@ -82,11 +111,58 @@ if($dataImport['status'] !== 'ready') {
 $data = eQual::run('get', 'fmt_import_DataImport_parse', ['id' => $params['id']]);
 
 $is_success = false;
+$condominium = null;
 
 try {
+    if($dataImport['import_type'] === 'suppliers_import') {
+        $suppliers_data = current($data);
+        $events = $orm->disableEvents();
+        foreach($suppliers_data as $index => $supplier) {
+            try {
+                $values = $mapSupplierRowToJson($supplier);
 
-    if($dataImport['import_type'] === 'condominium_import') {
+                $identity = null;
+                $supplier = null;
 
+                // #memo - we use only registration_number (in case of identity, the citizen_identification is copied into registration_number
+                if($values['registration_number']) {
+                    $identity = Identity::search(['registration_number', '=', $values['registration_number']])->first();
+                    $supplier = Supplier::search(['registration_number', '=', $values['registration_number']])->first();
+                }
+
+                if(!$identity) {
+                    $identity = Identity::create($values)
+                        ->do('refresh_bank_accounts')
+                        ->do('refresh_addresses')
+                        ->first();
+
+                    $result['logs'][] = "INFO- created identity id {$identity['id']} for supplier with registration number `{$values['registration_number']}`";
+                }
+                else {
+                    $result['logs'][] = "INFO- retrieved identity id {$identity['id']} for supplier with registration number `{$values['registration_number']}`";
+                }
+
+                if(!$supplier) {
+                    $supplier = Supplier::create([ 'identity_id' => $identity['id'] ])
+                        ->do('sync_from_identity')
+                        ->first();
+
+                    $result['logs'][] = "INFO- created new supplier with id {$supplier['id']} with registration number `{$values['registration_number']}`";
+                }
+            }
+            catch(Exception $e) {
+                // something went wrong for line $i
+                trigger_error("APP::error while importing supplier from import file at index $index.");
+            }
+        }
+        $orm->enableEvents($events);
+
+        $result['logs'][] = "---";
+        $result['logs'][] = "INFO- Suppliers imported successfully";
+
+        $is_success = true;
+    }
+    elseif($dataImport['import_type'] === 'condominium_import') {
         $map_roles_ids = [];
 
         $map_external_representatives = [];
