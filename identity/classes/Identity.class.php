@@ -832,6 +832,7 @@ class Identity extends Model {
             }
         }
     }
+
     protected static function doSyncFromIdentity($self, $orm) {
         static $common_fields = [
                 'name',
@@ -1385,6 +1386,12 @@ class Identity extends Model {
             }
         }
 
+        if(isset($event['registration_number']) && isset($values['address_country'])) {
+            if($values['address_country'] === 'BE') {
+                $result['vat_number'] = 'BE' . $event['registration_number'];
+            }
+        }
+
         if(isset($event['address_zip']) && isset($values['address_country'])) {
             $list = self::computeCitiesByZip($event['address_zip'], $values['address_country'], $lang);
             if($list) {
@@ -1570,12 +1577,17 @@ class Identity extends Model {
 
                 // create a new Identity for objects that are meant to relate to an identity but are not linked yet
                 if(is_null($identity['identity_id']) && !array_key_exists('identity_id', $values)) {
-                    $values = [];
+                    $identity_values = [];
                     foreach($common_fields as $field) {
-                        $values[$field] = $identity[$field];
+                        if(empty($values[$field])) {
+                            $identity_values[$field] = $identity[$field];
+                        }
+                        else {
+                            $identity_values[$field] = $values[$field];
+                        }
                     }
 
-                    $identity_id = $orm->create(Identity::getType(), $values);
+                    $identity_id = $orm->create(Identity::getType(), $identity_values);
 
                     // #memo - classes that inherit from Identity should have a callback onupdateIdentityId (in order to assign back the right field: 'user_id', 'customer_id', 'supplier_id', 'employee_id', ...)
                     $orm->update(self::getType(), $id, ['identity_id' => $identity_id]);
