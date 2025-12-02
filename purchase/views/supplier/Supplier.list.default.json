@@ -77,6 +77,12 @@
                 "value": "has_parent",
                 "width": "10%",
                 "visible": false
+            },
+            {
+                "type": "field",
+                "value": "type",
+                "width": "10%",
+                "visible": false
             }
         ]
     }
