@@ -1386,12 +1386,6 @@ class Identity extends Model {
             }
         }
 
-        if(isset($event['registration_number']) && isset($values['address_country'])) {
-            if($values['address_country'] === 'BE') {
-                $result['vat_number'] = 'BE' . $event['registration_number'];
-            }
-        }
-
         if(isset($event['address_zip']) && isset($values['address_country'])) {
             $list = self::computeCitiesByZip($event['address_zip'], $values['address_country'], $lang);
             if($list) {
@@ -1410,6 +1404,12 @@ class Identity extends Model {
         if(isset($event['vat_number'])) {
             // remove spacing chars
             $result['vat_number'] = preg_replace('/[^A-Z0-9]/i', '', $event['vat_number']);
+        }
+
+        if(isset($event['has_vat']) && $event['has_vat']) {
+            if(isset($values['address_country'], $values['registration_number']) && $values['address_country'] === 'BE') {
+                $result['vat_number'] = 'BE' . $values['registration_number'];
+            }
         }
 
         if(isset($event['registration_number'])) {

@@ -30,8 +30,9 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'description'       => "Title to use for addressing, used to send the invitation.",
-                'function'          => 'calcCommunicationTitle',
-                'store'             => true
+                'relation'          => ['ownership_id' => 'address_recipient'],
+                'store'             => false,
+                'readonly'          => true
             ],
 
             'communication_reason' => [
@@ -76,7 +77,8 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'description'       => "The ownership that the owner refers to.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'required'          => true,
-                'readonly'          => true
+                'readonly'          => true,
+                'dependents'        => ['communication_title']
             ],
 
             'identity_id' => [
@@ -156,18 +158,11 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
         ];
     }
 
-    protected static function calcCommunicationTitle($self) {
-        $result = [];
-        $self->read(['ownership_id' => ['address_recipient']]);
-        foreach($self as $id => $communicationPreference) {
-            if(!$communicationPreference['ownership_id']) {
-                return;
-            }
-            $result[$id] = $communicationPreference['ownership_id']['address_recipient'];
-        }
-        return $result;
-    }
 
+    /**
+     * #memo - we allow only several identity for a same communication reason for the `email` channel.
+     *
+     */
     protected static function canupdate($self) {
         $self->read([
                 'identity_id',

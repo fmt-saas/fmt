@@ -98,7 +98,7 @@ try {
         $map_apportionments = [];
 
         $condominium = null;
-        $representative_identity_id = null;
+        $map_ownership_representative_identity = [];
 
         $roles = Role::search()->read(['id', 'code']);
         foreach($roles as $role_id => $role) {
@@ -568,6 +568,7 @@ try {
                 $representative_identity_id = $map_owners_identity[$ownership['representative_owner_code']] ?? null;
 
                 if($representative_identity_id) {
+                    $map_ownership_representative_identity[$ownership_id] = $representative_identity_id;
                     Ownership::id($ownership_id)
                         ->update([
                             'has_representative'        => true,
@@ -585,8 +586,7 @@ try {
                     continue;
                 }
 
-                $representative_identity_id = $identity_id;
-
+                $map_ownership_representative_identity[$ownership_id] = $identity_id;
                 Ownership::id($ownership_id)->update([
                         'has_external_representative'   => true,
                         'representative_identity_id'    => $identity_id
@@ -699,6 +699,8 @@ try {
 
             $preferences = ['general_assembly_call', 'general_assembly_minutes', 'expense_statement', 'fund_request', 'technical_communication'];
 
+            $representative_identity_id = $map_ownership_representative_identity[$ownership_id] ?? null;
+
             foreach($preferences as $preference) {
                 if(!$communication_preferences[$preference]) {
                     continue;
@@ -738,7 +740,7 @@ try {
             }
 
             if($communication_preferences['ownership_title']) {
-                $values['communication_title'] = $communication_preferences['ownership_title'];
+                Ownership::id($ownership_id)->update(['communication_title' => $communication_preferences['ownership_title']]);
             }
 
             OwnershipCommunicationPreference::create($values);

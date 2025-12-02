@@ -184,11 +184,11 @@ foreach ($spreadsheet->getWorksheetIterator() as $worksheet) {
 
     $sheet_name = trim($worksheet->getTitle());
 
-    if(!isset($map[$dataImport['import_type']][$sheet_name])) {
+    if(count($map[$dataImport['import_type']]) > 1 && !isset($map[$dataImport['import_type']][$sheet_name])) {
         continue;
     }
 
-    $headers = $map[$dataImport['import_type']][$sheet_name];
+    $headers = $map[$dataImport['import_type']][$sheet_name] ?? current($map[$dataImport['import_type']]);
     $rows = $worksheet->toArray(null, true, true, true);
 
     // skip first line
