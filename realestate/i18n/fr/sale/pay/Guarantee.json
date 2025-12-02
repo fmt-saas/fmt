@@ -38,11 +38,11 @@
         }
     },
     "view": {
-        "Guarantee.form.default": {
+        "form.default": {
             "name": "Garantie",
             "description": "Formulaire pour saisir le mode de garantie et les informations carte."
         },
-        "Guarantee.list.default": {
+        "list.default": {
             "name": "Garanties",
             "description": "Liste des garanties enregistrées (titulaire, type, expiration)."
         }

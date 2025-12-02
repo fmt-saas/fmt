@@ -22,8 +22,8 @@ use equal\http\HttpRequest;
         'content-type'  => 'application/json',
         'charset'       => 'utf-8'
     ],
-    'constants' => ['GOOGLE_DOCAI_PROJECT_ID', 'GOOGLE_DOCAI_PROCESSOR_ID'],
-    'access' => [ 'visibility' => 'protected' ],
+    'constants'     => ['GOOGLE_DOCAI_PROJECT_ID', 'GOOGLE_DOCAI_PROCESSOR_ID'],
+    'access'        => [ 'visibility' => 'protected' ],
     'providers'     => ['context', 'report']
 ]);
 

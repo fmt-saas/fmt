@@ -55,11 +55,11 @@
         }
     },
     "view": {
-        "AccountTemplate.form.default": {
+        "form.default": {
             "name": "Compte modèle",
             "description": "Formulaire basé sur le compte comptable avec des adaptations pour les modèles."
         },
-        "AccountTemplate.list.default": {
+        "list.default": {
             "name": "Comptes modèle",
             "description": "Liste hiérarchique des comptes modèles (code, classe, clés)."
         }

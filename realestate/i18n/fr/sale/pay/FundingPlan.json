@@ -30,11 +30,11 @@
         }
     },
     "view": {
-        "FundingPlan.form.default": {
+        "form.default": {
             "name": "Plan de financement",
             "description": "Formulaire de définition (libellé, classe, type de commande, description et échéances)."
         },
-        "FundingPlan.list.default": {
+        "list.default": {
             "name": "Plans de financement",
             "description": "Liste des plans disponibles avec leur classe tarifaire et type de commande."
         }

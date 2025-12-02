@@ -38,5 +38,17 @@
             "description": "Écritures comptables qui composent le solde courant (filtrées sur l'exercice et le compte).",
             "help": ""
         }
+    },
+    "view": {
+        "list.condo": {
+            "name": "Balance courante",
+            "description": "Situation de la balance courante.",
+            "routes": {
+                "route.general_ledger": {
+                    "label": "Grand Livre",
+                    "description": ""
+                }
+            }
+        }
     }
 }

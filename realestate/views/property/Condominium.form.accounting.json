@@ -1,9 +1,9 @@
 {
-    "name": "Organisation",
+    "name": "Condominium - Accounting",
     "description": "Form holding basic information about an Organisation.",
     "routes": [
         {
-            "id": "item.fiscal_year",
+            "id": "route.fiscal_year",
             "label": "Fiscal years",
             "description": "",
             "icon": "date_range",
@@ -14,7 +14,7 @@
             }
         },
         {
-            "id": "item.condo_funds",
+            "id": "route.condo_funds",
             "label": "Funds",
             "description": "",
             "icon": "savings",
@@ -25,7 +25,7 @@
             }
         },
         {
-            "id": "item.condo_budget",
+            "id": "route.condo_budget",
             "label": "Budget",
             "description": "",
             "icon": "euro_symbol",
@@ -36,7 +36,7 @@
             }
         },
         {
-            "id": "item.expense_statements",
+            "id": "route.expense_statements",
             "label": "Expense Statements",
             "description": "",
             "icon": "receipt",
@@ -47,7 +47,7 @@
             }
         },
         {
-            "id": "item.accounting_entries",
+            "id": "route.accounting_entries",
             "label": "Accounting entries",
             "description": "",
             "icon": "edit_note",
@@ -58,7 +58,7 @@
             }
         },
         {
-            "id": "item.misc_operations",
+            "id": "route.misc_operations",
             "label": "Miscellaneous operations",
             "description": "",
             "icon": "edit_note",
@@ -69,18 +69,18 @@
             }
         },
         {
-            "id": "item.current_balance",
-            "label": "Current Balance",
+            "id": "route.financial_statements",
+            "label": "Financial Statements",
             "description": "",
-            "icon": "balance",
+            "icon": "troubleshoot",
             "context": {
-                "entity": "finance\\accounting\\CurrentBalanceLine",
-                "view": "list.condo",
+                "entity": "realestate\\property\\Condominium",
+                "view": "form.financial_statements",
                 "domain": [["condo_id", "=", "object.id"]]
             }
         },
         {
-            "id": "fund_requests",
+            "id": "route.fund_requests",
             "type": "entry",
             "label": "Fund requests",
             "icon": "assured_workload",
@@ -92,7 +92,7 @@
             }
         },
         {
-            "id": "purchase_invoices",
+            "id": "route.purchase_invoices",
             "type": "entry",
             "label": "Purchase Invoices",
             "icon": "receipt_long",
@@ -104,7 +104,7 @@
             }
         },
         {
-            "id": "bank_statements",
+            "id": "route.bank_statements",
             "type": "entry",
             "label": "Bank Statements",
             "icon": "receipt",
@@ -116,7 +116,7 @@
             }
         },
         {
-            "id": "item.transfers",
+            "id": "route.transfers",
             "label": "Money Transfers",
             "description": "",
             "icon": "add_card",
@@ -127,7 +127,7 @@
             }
         },
         {
-            "id": "item.refunds",
+            "id": "route.refunds",
             "label": "Money Refunds",
             "description": "",
             "icon": "credit_card_off",
@@ -138,7 +138,7 @@
             }
         },
         {
-            "id": "item.fundings",
+            "id": "route.fundings",
             "label": "Fundings",
             "description": "",
             "icon": "payments",

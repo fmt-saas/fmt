@@ -40,7 +40,7 @@
         }
     },
     "view": {
-        "FundRequestExecutionLine.form.default": {
+        "form.default": {
             "name": "Ligne d'exécution",
             "description": "Affiche copropriété, montant appelé et sous-entrées."
         }

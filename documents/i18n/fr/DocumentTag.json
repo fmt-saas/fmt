@@ -20,7 +20,7 @@
         }
     },
     "view": {
-        "DocumentTag.form.default": {
+        "form.default": {
             "name": "Étiquette",
             "description": "Formulaire de gestion d'une étiquette de document.",
             "layout": {
@@ -32,7 +32,7 @@
                 }
             }
         },
-        "DocumentTag.list.default": {
+        "list.default": {
             "name": "Liste des étiquettes",
             "description": "Toutes les étiquettes disponibles.",
             "layout": {}

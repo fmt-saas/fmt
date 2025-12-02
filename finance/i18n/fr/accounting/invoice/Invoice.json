@@ -148,31 +148,31 @@
         }
     },
     "view": {
-        "Invoice.form.default": {
+        "form.default": {
             "name": "Facture",
             "description": "Fiche facture avec statut, dates clefs, lignes et ecritures."
         },
-        "Invoice.list.default": {
+        "list.default": {
             "name": "Factures",
             "description": "Liste des factures avec date, statut et montants HT/TVAC."
         },
-        "Invoice.list.dashboard": {
+        "dashboard": {
             "name": "Factures (tableau)",
             "description": "Liste compacte des factures a afficher sur un tableau de bord."
         },
-        "Invoice.dashboard.default": {
+        "dashboard.default": {
             "name": "Tableau factures",
             "description": "Dashboard combinant alertes, listes et graphiques des factures."
         },
-        "Invoice.chart.invoicedTotal": {
+        "chart.invoicedTotal": {
             "name": "Total facture",
             "description": "Graphique cumule des montants HT/TVAC emis sur la periode."
         },
-        "Invoice.chart.creditNote": {
+        "chart.creditNote": {
             "name": "Notes de credit",
             "description": "Graphique des notes de credit emises (HT/TVAC)."
         },
-        "Invoice.chart.invoicedCA": {
+        "chart.invoicedCA": {
             "name": "Volume de factures",
             "description": "Graphique du nombre de factures validees par plage de temps."
         }

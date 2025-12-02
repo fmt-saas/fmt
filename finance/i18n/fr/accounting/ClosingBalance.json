@@ -35,7 +35,7 @@
         }
     },
     "view": {
-        "ClosingBalance.list.default": {
+        "list.default": {
             "name": "Balances de clôture",
             "description": "Liste des balances clôturées ou en attente par exercice/période avec totaux débit/crédit."
         }

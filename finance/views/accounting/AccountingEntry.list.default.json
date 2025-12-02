@@ -1,6 +1,7 @@
 {
     "name": "Accounting entries",
     "description": "All accounting entries.",
+    "controller": "finance_accounting_AccountingEntry_collect",
     "order": "entry_date",
     "sort": "asc",
     "header": {

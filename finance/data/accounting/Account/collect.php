@@ -15,7 +15,7 @@ use equal\orm\Domain;
         'entity' =>  [
             'description'       => 'name',
             'type'              => 'string',
-            'default'           => 'finance\accounting\invoice\Invoice'
+            'default'           => 'finance\accounting\Account'
         ],
 
         'domain' => [

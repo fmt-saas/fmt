@@ -44,7 +44,7 @@
             "description": "",
             "layout": {},
             "routes": {
-                "item.accounting_entries": {
+                "route.accounting_entries": {
                     "label": "Écritures comptables",
                     "description": ""
                 }

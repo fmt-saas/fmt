@@ -40,11 +40,11 @@
         }
     },
     "view": {
-        "Balance.form.default": {
+        "form.default": {
             "name": "Balance comptable",
             "description": "Formulaire montrant l'exercice cible et les lignes de balance."
         },
-        "Balance.list.default": {
+        "list.default": {
             "name": "Balances comptables",
             "description": "Liste des balances avec totaux débit/crédit par exercice."
         }

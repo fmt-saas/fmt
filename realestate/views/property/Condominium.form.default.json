@@ -222,93 +222,6 @@
             {
                 "sections": [
                     {
-                        "label": "Infos",
-                        "description": "Infos",
-                        "id": "section.main_info",
-                        "rows": [
-                            {
-
-                                "columns": [
-                                    {
-                                        "width": "33%",
-                                        "items": [
-                                            {
-                                                "id": "label.admin",
-                                                "type": "label",
-                                                "value": "Infos administratives",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "33%",
-                                        "items": [
-                                            {
-                                                "id": "label.construction",
-                                                "type": "label",
-                                                "value": "Construction",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Permit date",
-                                                "value": "construction_permit_date",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Start date",
-                                                "value": "construction_start_date",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Completion date",
-                                                "value": "construction_completion_date",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Compliance date",
-                                                "value": "construction_compliance_date",
-                                                "width": "50%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "33%",
-                                        "items": [
-                                            {
-                                                "id": "label.regulations",
-                                                "type": "label",
-                                                "value": "Regulations",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Creation date",
-                                                "value": "condo_creation_date",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Latest update",
-                                                "value": "condo_regulations_date",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Next general assembly",
-                                                "value": "general_assembly_date",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
                         "label": "Address",
                         "id": "section.address",
                         "rows": [
@@ -440,6 +353,93 @@
                                             {
                                                 "type": "field",
                                                 "value": "fiscal_years_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Infos",
+                        "description": "Infos",
+                        "id": "section.main_info",
+                        "rows": [
+                            {
+
+                                "columns": [
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "id": "label.admin",
+                                                "type": "label",
+                                                "value": "Infos administratives",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "id": "label.construction",
+                                                "type": "label",
+                                                "value": "Construction",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Permit date",
+                                                "value": "construction_permit_date",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Start date",
+                                                "value": "construction_start_date",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Completion date",
+                                                "value": "construction_completion_date",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Compliance date",
+                                                "value": "construction_compliance_date",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "id": "label.regulations",
+                                                "type": "label",
+                                                "value": "Regulations",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Creation date",
+                                                "value": "condo_creation_date",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Latest update",
+                                                "value": "condo_regulations_date",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Next general assembly",
+                                                "value": "general_assembly_date",
                                                 "width": "100%"
                                             }
                                         ]

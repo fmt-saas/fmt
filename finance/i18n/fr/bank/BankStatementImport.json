@@ -15,15 +15,15 @@
         }
     },
     "view": {
-        "BankStatementImport.form.import": {
+        "form.import": {
             "name": "Importer des relevés",
             "description": "Formulaire de dépôt (drag & drop) acceptant un ou plusieurs relevés groupés."
         },
-        "BankStatementImport.form.default": {
+        "form.default": {
             "name": "Import traité",
             "description": "Écran de confirmation indiquant que le document a bien été transmis au processus d'extraction."
         },
-        "BankStatementImport.list.default": {
+        "list.default": {
             "name": "Historique des imports",
             "description": "Liste informative des dépôts en attente de traitement (nom et flux envoyés)."
         }

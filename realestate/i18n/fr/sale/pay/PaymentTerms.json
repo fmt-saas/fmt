@@ -34,11 +34,11 @@
         }
     },
     "view": {
-        "PaymentTerms.form.default": {
+        "form.default": {
             "name": "Conditions de paiement",
             "description": "Formulaire simple (libellé, délai, description, activation)."
         },
-        "PaymentTerms.list.default": {
+        "list.default": {
             "name": "Conditions de paiement",
             "description": "Liste des conditions disponibles avec délai et statut actif."
         }

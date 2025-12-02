@@ -55,11 +55,11 @@
         }
     },
     "view": {
-        "RecordingRule.form.default": {
+        "form.default": {
             "name": "Règle de comptabilisation",
             "description": "Formulaire pour définir le contexte (document, fournisseur) et les lignes associées."
         },
-        "RecordingRule.list.default": {
+        "list.default": {
             "name": "Règles de comptabilisation",
             "description": "Liste synthétique des règles (document, fournisseur, mémo)."
         }

@@ -6,7 +6,7 @@
     },
     "routes": [
         {
-            "id": "item.accounting_entries",
+            "id": "route.accounting_entries",
             "label": "Accounting Entries",
             "description": "",
             "icon": "edit_note",

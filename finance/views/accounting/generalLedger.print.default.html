@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<!--
+    Conventions for html templates:
+
+    * template must consist of a single file
+    * provide support for debug mode
+    * use embedded styling embedded in <style> (CSS3)
+    * avoid using `style` attribute in elements and favour classes
+    * in CSS styles use `px` as unit for font size
+    * in HTML elements, avoid using <br /> and favour blocks and inline-blocks
+    * twig format is implicit for template files: use `{entity}.print.{name}.html` as naming convention
+    * avoid assignment and computation of vars in template (when possible, compute values in controller)
+    * twig instructions should be limited to displaying values and providing conditional statements
+-->
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <title>{{ title }}</title>
+
+    {% include 'header.style.html.twig' %}
+    {% include 'footer.style.html.twig' %}
+
+    <style type="text/css">
+        @page {
+            margin: 1cm 1cm;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            /* margin-top must match header::height */
+            margin-top: 100px;
+            /* margin-bottom must match footer::height */
+            margin-bottom: 50px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            text-align: justify;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 21px;
+        }
+
+        h3 {
+            font-size: 15px;
+        }
+
+        main table {
+            width: 100%;
+            border-spacing: 0;
+            /*
+            // #memo - if collapsed then horizontal lines strike through vertical ones
+            border-collapse: collapse;
+            */
+            border-collapse: collapse;
+            page-break-inside: avoid;
+            border: 1px solid black;
+        }
+
+        main table th, td {
+            text-align: right;
+            padding: 4px;
+        }
+
+        main table th:first-child, td:first-child {
+            text-align: left;
+        }
+
+        main table thead tr th {
+            text-transform: uppercase;
+        }
+
+        main table thead tr th, main table tbody tr td {
+            border-right: 1px solid black;
+            border-bottom: 1px solid black;
+        }
+
+        main table thead tr th:last-child, main table tbody tr td:last-child, main table tfoot tr td:last-child {
+            border-right: 0;
+        }
+
+        main table tbody tr td {
+            border-bottom: 1px solid lightgrey;
+            /* border-right: 1px solid black; */
+        }
+
+        main table tbody tr:last-child td {
+            border-bottom: 0;
+            /* border-right: 1px solid black; */
+        }
+
+        main table thead tr th, main table tfoot tr td {
+            background-color: #eaeaea;
+        }
+
+        main table tfoot tr td {
+            border-right: 1px solid black;
+            border-top: 1px solid black;
+        }
+
+        .group-header td {
+            font-weight: bold;
+            background: #f5f5f5;
+            border-top: 2px solid black;
+            border-bottom: 2px solid black;
+            text-align: left !important;
+        }
+
+        .total-footer {
+            font-weight: bold;
+        }
+
+        .page-break {
+            page-break-after: always;
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include 'header.html.twig' %}
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 10%;">Date</th>
+                <th style="width: 15%;">Journal</th>
+                <th style="width: 20%;">Pièce</th>
+                <th style="width: 25%;">Description</th>
+                <th style="width: 15%;">Débit</th>
+                <th style="width: 15%;">Crédit</th>
+                <!-- <th style="width: 10%;">Solde</th> -->
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for group in accounts %}
+            <!-- Ligne d’en-tête du groupe -->
+            <tr class="group-header">
+                <!--<td colspan="7">-->
+                <td colspan="6">
+                    {{ group.account_code }} – {{ group.account_label }}
+                </td>
+            </tr>
+
+            {% for entry in group.entries %}
+                <tr>
+                    <td>{{ entry.entry_date | date('d/m/Y') }}</td>
+                    <td>{{ entry.journal_name }}</td>
+                    <td>{{ entry.entry_number }}</td>
+                    <td>{{ entry.description }}</td>
+                    <td>{{ entry.debit | format_money() }}</td>
+                    <td>{{ entry.credit | format_money() }}</td>
+                    <!-- <td>{{ entry.balance_after | format_money() }}</td> -->
+                </tr>
+            {% endfor %}
+
+            <!-- Totaux du compte -->
+            <tr class="total-footer">
+                <td colspan="4" style="text-align: right;">Total compte {{ group.account_code }}</td>
+                <td>{{ group.totals.debit | format_money() }}</td>
+                <td>{{ group.totals.credit | format_money() }}</td>
+                <!-- <td>{{ group.totals.balance | format_money() }}</td> -->
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+
+    {% include 'footer.html.twig' %}
+</body>
+
+</html>

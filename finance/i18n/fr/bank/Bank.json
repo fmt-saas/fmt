@@ -20,11 +20,11 @@
         }
     },
     "view": {
-        "Bank.form.default": {
+        "form.default": {
             "name": "Banque",
             "description": "Fiche banque etendue depuis l'identite (coordonnees + BIC)."
         },
-        "Bank.list.default": {
+        "list.default": {
             "name": "Banques",
             "description": "Liste des banques avec adresse, statut et code BIC."
         }

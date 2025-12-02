@@ -45,11 +45,11 @@
         }
     },
     "view": {
-        "InvoiceLineGroup.form.default": {
+        "form.default": {
             "name": "Groupe de lignes",
             "description": "Fiche groupe (nom, ordre, visibilite et description)."
         },
-        "InvoiceLineGroup.list.default": {
+        "list.default": {
             "name": "Groupes de lignes",
             "description": "Liste des groupes rattaches a leurs factures."
         }

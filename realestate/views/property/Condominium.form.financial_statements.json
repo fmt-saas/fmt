@@ -1,0 +1,35 @@
+{
+    "name": "Condominium - Financial statements",
+    "description": "Form holding basic information about an Organisation.",
+    "extends": {
+        "entity": "realestate\\property\\Condominium",
+        "view": "form.accounting"
+    },
+    "routes": [
+        {
+            "id": "route.current_balance",
+            "label": "Current Balance",
+            "description": "",
+            "icon": "balance",
+            "context": {
+                "entity": "finance\\accounting\\CurrentBalanceLine",
+                "view": "list.condo",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "route.general_ledger",
+            "label": "General Ledger",
+            "description": "",
+            "icon": "menu_book",
+            "context": {
+                "entity": "finance\\accounting\\AccountingEntryLine",
+                "view": "list.ledger",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        }
+
+    ],
+    "layout": {
+    }
+}

@@ -20,7 +20,7 @@
         }
     },
     "view": {
-        "AccountChartTemplate.form.default": {
+        "form.default": {
             "name": "Modèle de plan comptable",
             "description": "Formulaire de configuration d'un plan modèle (généralités et lignes)."
         }

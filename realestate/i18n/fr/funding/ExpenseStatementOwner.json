@@ -55,11 +55,11 @@
         }
     },
     "view": {
-        "ExpenseStatementOwner.form.default": {
+        "form.default": {
             "name": "Relevé propriétaire",
             "description": "Vue détaillée (propriété, période, lots, montants)."
         },
-        "ExpenseStatementOwner.list.default": {
+        "list.default": {
             "name": "Relevés propriétaires",
             "description": "Liste des propriétaires avec montants imputés et périodes."
         }

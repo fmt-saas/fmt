@@ -301,56 +301,70 @@
             "name": "Paramètres comptables",
             "description": "Plan comptable, journaux et comptes bancaires.",
             "routes": {
-                "item.fiscal_year": {
+                "route.fiscal_year": {
                     "label": "Exercices fiscaux",
                     "description": ""
                 },
-                "item.condo_funds": {
+                "route.condo_funds": {
                     "label": "Fonds",
                     "description": ""
                 },
-                "item.condo_budget": {
+                "route.condo_budget": {
                     "label": "Budget",
                     "description": ""
                 },
-                "item.expense_statements": {
+                "route.expense_statements": {
                     "label": "Relevés de charges",
                     "description": ""
                 },
-                "item.accounting_entries": {
+                "route.accounting_entries": {
                     "label": "Écritures comptables",
                     "description": ""
                 },
-                "item.misc_operations": {
+                "route.misc_operations": {
                     "label": "Opérations diverses",
                     "description": ""
                 },
-                "item.current_balance": {
-                    "label": "Solde courant",
+                "route.financial_statements": {
+                    "label": "États comptables",
                     "description": ""
                 },
-                "fund_requests": {
+                "route.fund_requests": {
                     "label": "Appels de fonds",
                     "description": ""
                 },
-                "purchase_invoices": {
+                "route.purchase_invoices": {
                     "label": "Factures d'achat",
                     "description": ""
                 },
-                "bank_statements": {
+                "route.bank_statements": {
                     "label": "Relevés bancaires",
                     "description": ""
                 },
-                "item.transfers": {
+                "route.transfers": {
                     "label": "Transferts d'argent",
                     "description": ""
                 },
-                "item.refunds": {
+                "route.refunds": {
                     "label": "Remboursements",
                     "description": ""
                 },
-                "item.fundings": {
+                "route.fundings": {
                     "label": "Encaissements",
+                    "description": ""
+                }
+            }
+        },
+        "form.financial_statements": {
+            "name": "États comptables",
+            "description": "Balance, journaux, Grand livre, ...",
+            "routes": {
+                "route.current_balance": {
+                    "label": "Balance Courante",
+                    "description": ""
+                },
+                "route.general_ledger": {
+                    "label": "Grand Livre",
                     "description": ""
                 }
             }

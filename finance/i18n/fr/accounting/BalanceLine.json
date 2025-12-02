@@ -45,15 +45,15 @@
         }
     },
     "view": {
-        "BalanceLine.form.default": {
+        "form.default": {
             "name": "Ligne de balance",
             "description": "Formulaire détaillant les montants débiteurs/créditeurs et les écritures liées."
         },
-        "BalanceLine.list.default": {
+        "list.default": {
             "name": "Lignes de balance",
             "description": "Liste des comptes avec leurs montants débit/crédit et soldes."
         },
-        "BalanceLine.list.condo": {
+        "list.condo": {
             "name": "Lignes de balance (copropriété)",
             "description": "Vue spécialisée filtrée sur une copropriété donnée."
         }

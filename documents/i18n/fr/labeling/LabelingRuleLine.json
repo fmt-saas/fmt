@@ -35,11 +35,11 @@
         }
     },
     "view": {
-        "LabelingRuleLine.form.default": {
+        "form.default": {
             "name": "Ligne d'étiquetage",
             "description": "Édition d'une condition (type/subtype) et des formats de sortie."
         },
-        "LabelingRuleLine.list.default": {
+        "list.default": {
             "name": "Lignes d'étiquetage",
             "description": "Vue liste montrant les lignes par règle et formats appliqués."
         }

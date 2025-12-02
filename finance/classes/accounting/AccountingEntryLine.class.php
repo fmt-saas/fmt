@@ -85,7 +85,8 @@ class AccountingEntryLine extends Model {
                 'relation'          => ['accounting_entry_id' => 'entry_date'],
                 'description'       => 'The date on which the transaction is recorded in the accounting system and affects the fiscal period.',
                 'store'             => true,
-                'instant'           => true
+                'instant'           => true,
+                'readonly'          => true
             ],
 
             'entry_number' => [
@@ -94,7 +95,8 @@ class AccountingEntryLine extends Model {
                 'relation'          => ['accounting_entry_id' => 'entry_number'],
                 'description'       => 'Number of the parent accounting entry.',
                 'store'             => true,
-                'instant'           => true
+                'instant'           => true,
+                'readonly'          => true
             ],
 
             'funding_id' => [

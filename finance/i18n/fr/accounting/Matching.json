@@ -59,11 +59,11 @@
         }
     },
     "view": {
-        "Matching.form.default": {
+        "form.default": {
             "name": "Lettrage",
             "description": "Fiche de rapprochement (compte ciblé, statut d'équilibre et lignes comptables liées)."
         },
-        "Matching.list.default": {
+        "list.default": {
             "name": "Lettrages",
             "description": "Liste des lettrages avec compte, description et indicateur d'équilibre."
         }

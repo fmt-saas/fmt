@@ -75,11 +75,11 @@
         }
     },
     "view": {
-        "OwnershipBankAccount.form.default": {
+        "form.default": {
             "name": "Compte ownership",
             "description": "Fiche des coordonnees bancaires (IBAN, BIC, coproprietaire, validation)."
         },
-        "OwnershipBankAccount.list.default": {
+        "list.default": {
             "name": "Comptes ownership",
             "description": "Liste etendue des comptes bancaires d'ownership avec solde."
         }

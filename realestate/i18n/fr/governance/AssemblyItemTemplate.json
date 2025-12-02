@@ -3,7 +3,7 @@
     "plural": "Modèles de points",
     "description": "Structure réutilisable pour générer des points d'ordre du jour.",
     "view": {
-        "AssemblyItemTemplate.form.default": {
+        "form.default": {
             "name": "Modèle de point",
             "description": "Formulaire de configuration d'un modèle (libellé, hiérarchie, descriptions).",
             "layout": {

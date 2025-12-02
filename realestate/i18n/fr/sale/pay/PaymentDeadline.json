@@ -53,11 +53,11 @@
         }
     },
     "view": {
-        "PaymentDeadline.form.default": {
+        "form.default": {
             "name": "Échéance de paiement",
             "description": "Formulaire de configuration (libellé, code, type, délais et plan associé)."
         },
-        "PaymentDeadline.list.default": {
+        "list.default": {
             "name": "Échéances",
             "description": "Liste des échéances définies dans un plan de paiement (type, délai, part)."
         }

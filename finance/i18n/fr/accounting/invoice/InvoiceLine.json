@@ -75,11 +75,11 @@
         }
     },
     "view": {
-        "InvoiceLine.form.default": {
+        "form.default": {
             "name": "Ligne de facture",
             "description": "Fiche ligne de facture (prix, quantites, groupe et TVA)."
         },
-        "InvoiceLine.list.default": {
+        "list.default": {
             "name": "Lignes de facture",
             "description": "Liste des lignes groupees avec montants unitaires et totaux."
         }

@@ -100,11 +100,11 @@
         }
     },
     "view": {
-        "MiscOperationLine.form.default": {
+        "form.default": {
             "name": "Ligne d'opération diverse",
             "description": "Saisie d'une ligne débit/crédit, avec gestion des clés de répartition et charges privatives."
         },
-        "MiscOperationLine.list.default": {
+        "list.default": {
             "name": "Lignes d'opération diverse",
             "description": "Liste des lignes d'opération avec totaux débit/crédit."
         }

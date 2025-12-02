@@ -45,7 +45,7 @@
         }
     },
     "view": {
-        "FiscalPeriod.form.default": {
+        "form.default": {
             "name": "Période comptable",
             "description": "Formulaire pour ajuster les dates et visualiser l'exercice/copropriété."
         }

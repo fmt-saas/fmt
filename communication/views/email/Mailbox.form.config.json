@@ -1,5 +1,20 @@
 {
     "name": "Mailbox",
+    "actions": [
+        {
+            "id": "action.connect",
+            "inline": true,
+            "label": "OAuth connect",
+            "icon": "login",
+            "description": "Provide authentication info for connection.",
+            "component": {
+                "name": "communicationAddMailbox",
+                "data": {
+                    "mailbox_id": "object.id"
+                }
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {

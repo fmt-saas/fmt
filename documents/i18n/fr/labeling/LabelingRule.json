@@ -45,11 +45,11 @@
         }
     },
     "view": {
-        "LabelingRule.form.default": {
+        "form.default": {
             "name": "Règle d'étiquetage",
             "description": "Formulaire pour activer/désactiver la règle et définir les critères document/fournisseur."
         },
-        "LabelingRule.list.default": {
+        "list.default": {
             "name": "Règles d'étiquetage",
             "description": "Vue liste synthétique (libellé, mémo, statut, type fournisseur)."
         }

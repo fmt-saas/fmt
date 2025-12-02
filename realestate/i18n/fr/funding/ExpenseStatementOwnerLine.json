@@ -86,11 +86,11 @@
         }
     },
     "view": {
-        "ExpenseStatementOwnerLine.form.default": {
+        "form.default": {
             "name": "Ligne de relevé",
             "description": "Formulaire de saisie (compte, clé, lot, montants)."
         },
-        "ExpenseStatementOwnerLine.list.default": {
+        "list.default": {
             "name": "Lignes de relevé",
             "description": "Liste des lignes avec montants débiteur/locataire et totaux."
         }

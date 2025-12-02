@@ -1,5 +1,19 @@
 {
     "name": "Mailbox",
+    "actions": [
+        {
+            "id": "action.fetch_emails",
+            "inline": true,
+            "label": "Download",
+            "icon": "sync",
+            "description": "Fetch latest emails and import attachments.",
+            "controller": "communication_email_Mailbox_fetch",
+            "params": {
+                "id": "object.id"
+            },
+            "visible": ["validated", "=", "object.status"]
+        }
+    ],
     "routes": [
         {
             "id": "item.config",

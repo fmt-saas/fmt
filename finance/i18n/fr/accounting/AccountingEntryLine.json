@@ -80,6 +80,10 @@
                 }
             }
         },
+        "list.ledger": {
+            "name": "Grand Livre",
+            "description": "Vue présentant l'historique complet de tous les comptes."
+        },
         "list.balance": {
             "name": "Écritures comptables (balance)",
             "description": "Vue spécialisée pour l'analyse des soldes (affiche la pièce et la date).",

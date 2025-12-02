@@ -25,11 +25,11 @@
         }
     },
     "view": {
-        "TemplateType.form.default": {
+        "form.default": {
             "name": "Type de modèle",
             "description": "Formulaire pour définir un type (code unique et traductions)."
         },
-        "TemplateType.list.default": {
+        "list.default": {
             "name": "Types de modèles",
             "description": "Liste filtrable des types disponibles et de leur code."
         }

@@ -85,11 +85,11 @@
         }
     },
     "view": {
-        "Account.form.default": {
+        "form.default": {
             "name": "Compte comptable",
             "description": "Formulaire détaillé (code, nature, ventilation, rattachements copropriété et actionnaires)."
         },
-        "Account.list.default": {
+        "list.default": {
             "name": "Comptes comptables",
             "description": "Liste hiérarchique des comptes visibles (code, classe, nature, clés de répartition)."
         }

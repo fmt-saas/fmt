@@ -45,11 +45,11 @@
         }
     },
     "view": {
-        "ExportingTaskLine.form.default": {
+        "form.default": {
             "name": "Ligne d'export",
             "description": "Formulaire montrant le contrôleur, les paramètres, le PID et les logs liés."
         },
-        "ExportingTaskLine.list.default": {
+        "list.default": {
             "name": "Lignes d'export",
             "description": "Liste des lignes d'exécution avec leur document généré et leur statut."
         }

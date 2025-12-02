@@ -55,11 +55,11 @@
         }
     },
     "view": {
-        "RecordingRuleLine.form.default": {
+        "form.default": {
             "name": "Ligne de comptabilisation",
             "description": "Formulaire détaillant compte, clé de répartition et parts."
         },
-        "RecordingRuleLine.list.default": {
+        "list.default": {
             "name": "Lignes de comptabilisation",
             "description": "Liste des lignes d'une règle (compte, clé, parts)."
         }

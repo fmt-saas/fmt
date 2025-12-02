@@ -3,7 +3,7 @@
     "plural": "Modèles d'assemblée",
     "description": "Configuration type d'une assemblée (paramètres généraux et points).",
     "view": {
-        "AssemblyTemplate.form.default": {
+        "form.default": {
             "name": "Modèle d'assemblée",
             "description": "Formulaire pour définir les paramètres et les points inclus.",
             "layout": {
