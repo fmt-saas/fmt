@@ -1,5 +1,5 @@
 [
-{
+    {
         "name": "identity\\IdentityType",
         "lang": "en",
         "data": [
@@ -17,16 +17,6 @@
                 "id": 3,
                 "code": "CO",
                 "description": "Company - Privately help company (legal person)."
-            },
-            {
-                "id": 4,
-                "code": "NP",
-                "description": "Non-Profit organization / Public School (legal person)."
-            },
-            {
-                "id": 5,
-                "code": "PA",
-                "description": "Public Administration."
             }
         ]
     },
@@ -45,14 +35,6 @@
             {
                 "id": 3,
                 "description": "Entreprise privée (personne morale)."
-            },
-            {
-                "id": 4,
-                "description": "Association (ASBL) / école (personne morale)."
-            },
-            {
-                "id": 5,
-                "description": "Administration publique."
             }
         ]
     }

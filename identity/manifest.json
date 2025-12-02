@@ -15,7 +15,7 @@
             "color": "#2874A6",
             "access": {
                 "groups": [
-                    "users"
+                    "admins"
                 ]
             },
             "params": {

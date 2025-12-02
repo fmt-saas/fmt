@@ -6,6 +6,7 @@
 */
 
 use hr\employee\Employee;
+use hr\role\RoleAssignment;
 use identity\Identity;
 use identity\User;
 
@@ -43,7 +44,7 @@ use identity\User;
 
 $ids = array_merge((array) ($params['id'] ?? []), $params['ids'] ?? []);
 
-$employees = Employee::ids($ids)->read(['identity_id']);
+$employees = Employee::ids($ids)->read(['identity_id', 'role_assignments_ids']);
 
 foreach($employees as $employee_id => $employee) {
     $identity = Identity::id($employee['identity_id'])->read(['name', 'email', 'user_id'])->first();
@@ -65,6 +66,8 @@ foreach($employees as $employee_id => $employee) {
             ->update(['identity_id' => $identity['id']])
             ->do('sync_from_identity');
     }
+    // force refreshing role assignments
+    RoleAssignment::ids($employee['role_assignments_ids'])->read(['user_id']);
 }
 
 $context->httpResponse()

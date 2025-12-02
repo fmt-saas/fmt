@@ -28,25 +28,55 @@
             {
                 "type": "field",
                 "value": "name",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "Registration number",
+                "value": "registration_number",
                 "width": "20%"
             },
             {
                 "type": "field",
                 "label": "Address",
                 "value": "address",
-                "width": "35%"
+                "width": "25%"
             },
             {
                 "type": "field",
-                "label": "VAT number",
-                "value": "vat_number",
-                "width": "35%"
+                "value": "phone",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "email",
+                "width": "15%"
             },
             {
                 "type": "field",
                 "label": "Lang",
                 "value": "lang_id",
-                "width": "10%"
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "VAT number",
+                "value": "vat_number",
+                "width": "20%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "has_vat",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "has_parent",
+                "width": "10%",
+                "visible": false
             }
         ]
     }

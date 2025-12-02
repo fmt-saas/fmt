@@ -112,9 +112,9 @@ class RoleAssignment extends \equal\orm\Model {
      *
      */
     protected static function onupdateEmployeeId($self) {
-        $self->read(['employee_id' => ['identity_id' => 'user_id']]);
+        $self->read(['employee_id' => ['identity_id' => ['user_id']]]);
         foreach($self as $id => $assignment) {
-            if(isset($assignment['employee_id']['identity_id'])) {
+            if(isset($assignment['employee_id']['identity_id'], $assignment['employee_id']['identity_id']['user_id'])) {
                 self::id($id)->update(['user_id' => $assignment['employee_id']['identity_id']['user_id']]);
             }
         }
