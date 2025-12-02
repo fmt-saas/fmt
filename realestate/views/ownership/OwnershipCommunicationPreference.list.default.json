@@ -28,8 +28,13 @@
             },
             {
                 "type": "field",
-                "value": "communication_reason",
+                "value": "identity_id",
                 "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "communication_reason",
+                "width": "20%"
             },
             {
                 "type": "field",

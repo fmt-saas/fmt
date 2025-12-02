@@ -24,6 +24,11 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "identity_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "communication_title",
                                                 "width": "50%"
                                             },
