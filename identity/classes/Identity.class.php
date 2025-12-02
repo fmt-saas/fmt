@@ -1566,12 +1566,12 @@ class Identity extends Model {
 
             foreach($self as $id => $identity) {
 
-                if($identity['state'] == 'draft') {
+                if($identity['state'] === 'draft') {
                     continue;
                 }
 
                 // do not sync Identities from automated source (internal or external)
-                if($identity['source'] != 'manual') {
+                if($identity['source'] !== 'manual') {
                     continue;
                 }
 

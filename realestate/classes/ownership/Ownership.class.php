@@ -271,7 +271,7 @@ class Ownership extends \equal\orm\Model {
             }
 
             // Langue du premier owner (1=EN, 2=FR, 3=NL)
-            $firstOwner = reset($owners);
+            $firstOwner = $owners->first();
             $lang_id = isset($firstOwner['lang_id']) ? (int) $firstOwner['lang_id'] : 2;
 
             // map of salutation titles, based on lang

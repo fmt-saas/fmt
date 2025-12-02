@@ -7,7 +7,7 @@
     },
     "actions": [
         {
-            "id": "action.cancel",
+            "id": "action.sync",
             "label": "Sync from Identity",
             "controller": "core_model_do",
             "params": {
@@ -15,6 +15,7 @@
                 "action": "sync_from_identity",
                 "ids": []
             },
+            "visible": ["admins", "in", "user.groups"],
             "confirm": false
         }
     ],

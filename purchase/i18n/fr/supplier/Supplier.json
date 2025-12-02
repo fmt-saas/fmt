@@ -50,7 +50,7 @@
             "description": "Formulaire de base pour afficher un fournisseur (Partenaire).",
             "layout": {},
             "actions": {
-                "action.cancel": {
+                "action.sync": {
                     "label": "Synchroniser depuis l'identité",
                     "description": ""
                 }
