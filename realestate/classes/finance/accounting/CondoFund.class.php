@@ -103,7 +103,8 @@ class CondoFund extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'description'       => "Default apportionment to use when creating accounting entries on this account.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['status', '=', 'validated']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['status', '=', 'validated']],
+                'onupdate'          => 'onupdateApportionmentId'
             ],
 
             'total_shares' => [
@@ -178,6 +179,9 @@ class CondoFund extends \equal\orm\Model {
         return $result;
     }
 
+protected static function onupdateApportionmentId($self) {
+    // #todo - apply change on accountId
+}
     /**
      * When creating a fund, automatically generate corresponding accounting accounts:
      *   - 160 (reserve_fund) and 161 (special_reserve_fund)

@@ -48,13 +48,29 @@
                 "type": "field",
                 "label": "Account",
                 "value": "expense_account_id",
-                "width": "20%"
+                "width": "30%",
+                "widget": {
+                    "header": {
+                        "actions":{
+                            "ACTION.CREATE": false,
+                            "ACTION.OPEN": false
+                        }
+                    }
+                }
             },
             {
                 "type": "field",
                 "label": "Apport.",
                 "value": "apportionment_id",
-                "width": "20%"
+                "width": "20%",
+                "widget": {
+                    "header": {
+                        "actions":{
+                            "ACTION.CREATE": false,
+                            "ACTION.OPEN": false
+                        }
+                    }
+                }
             },
             {
                 "type": "field",
@@ -72,13 +88,14 @@
                 "type": "field",
                 "label": "owner",
                 "value": "owner_share",
-                "width": "10%"
+                "width": "10%",
+                "visible": false
             },
             {
                 "type": "field",
                 "label": "vat",
                 "value": "vat_rate",
-                "width": "10%"
+                "width": "8%"
             },
             {
                 "type": "field",
