@@ -729,7 +729,7 @@ class FundRequest extends \equal\orm\Model {
                                     'request_execution_line_id' => $executionLine['id'],
                                     'ownership_id'              => $ownership_id,
                                     'property_lot_id'           => $entryLot['property_lot_id'],
-                                    'called_amount'             => $lot_amount
+                                    'called_amount'             => round($lot_amount, 4)
                                 ]);
                         }
 
