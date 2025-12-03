@@ -179,9 +179,31 @@ class CondoFund extends \equal\orm\Model {
         return $result;
     }
 
-protected static function onupdateApportionmentId($self) {
-    // #todo - apply change on accountId
-}
+    /**
+     * Apply change on related accounting accounts.
+     *
+     */
+    protected static function onupdateApportionmentId($self) {
+        $self->read(['fund_account_id', 'call_account_id', 'expense_account_id', 'apportionment_id']);
+        foreach($self as $id => $condoFund) {
+            if(!$condoFund['apportionment_id']) {
+                continue;
+            }
+            if($condoFund['fund_account_id']) {
+                Account::id($condoFund['fund_account_id'])
+                    ->update(['apportionment_id' => $condoFund['apportionment_id']]);
+            }
+            if($condoFund['call_account_id']) {
+                Account::id($condoFund['call_account_id'])
+                    ->update(['apportionment_id' => $condoFund['apportionment_id']]);
+            }
+            if($condoFund['expense_account_id']) {
+                Account::id($condoFund['expense_account_id'])
+                    ->update(['apportionment_id' => $condoFund['apportionment_id']]);
+            }
+        }
+    }
+
     /**
      * When creating a fund, automatically generate corresponding accounting accounts:
      *   - 160 (reserve_fund) and 161 (special_reserve_fund)
