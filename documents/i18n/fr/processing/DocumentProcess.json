@@ -103,7 +103,7 @@
             "description": "Position dans le workflow (créé, validé, intégré…).",
             "help": "",
             "selection": {
-                "created": "Créé",
+                "created": "Brouillon",
                 "completed": "Complété",
                 "validated": "Validé",
                 "recorded": "Comptabilisé",
@@ -150,7 +150,7 @@
                     "description": "Tenter d'extraire les données de la pièce jointe."
                 },
                 "action.complete": {
-                    "label": "Marquer comme terminé",
+                    "label": "Marquer comme complété",
                     "description": "Marquer le document comme terminé."
                 },
                 "action.validate": {

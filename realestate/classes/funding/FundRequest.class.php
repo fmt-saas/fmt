@@ -699,7 +699,7 @@ class FundRequest extends \equal\orm\Model {
                             'invoice_id'            => $requestExecution['id'],
                             'ownership_id'          => $ownership_id,
                             // 'called_amount'         => $map_amounts[$execution_date]
-                            'total'                 => $map_amounts[$execution_date]
+                            'total'                 => round($map_amounts[$execution_date], 4)
                         ])
                         ->first();
                     // link execution line and related line entries
