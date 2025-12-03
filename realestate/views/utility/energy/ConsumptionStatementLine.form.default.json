@@ -1,6 +1,6 @@
 {
     "name": "Consumption Statement Line",
-    "description": "Interface for model definition classes.",
+    "description": "Edit an individual line of an energy consumption statement.",
     "layout": {
         "groups": [
             {

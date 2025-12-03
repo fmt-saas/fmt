@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Document Types",
+    "description": "Browse document type definitions available in the repository.",
     "layout": {
         "items": [
             {

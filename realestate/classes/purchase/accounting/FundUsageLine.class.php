@@ -48,7 +48,8 @@ class FundUsageLine extends \equal\orm\Model {
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account the entry relates to.",
                 'function'          => 'calcExpenseAccountId',
-                'store'             => true
+                'store'             => true,
+                'domain'            => [['condo_id', '=', 'object.condo_id']],
             ],
 
             'apportionment_id' => [
@@ -58,7 +59,8 @@ class FundUsageLine extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
                 'relation'          => ['fund_account_id' => ['apportionment_id']],
-                'store'             => true
+                'store'             => true,
+                'domain'            => [['condo_id', '=', 'object.condo_id']]
             ],
 
             'amount' => [

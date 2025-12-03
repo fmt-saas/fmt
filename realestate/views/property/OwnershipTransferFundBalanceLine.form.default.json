@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Transfer Fund Balance Line",
+    "description": "Maintain the calculated balance for a specific transfer fund line.",
     "layout": {
         "groups": [
             {

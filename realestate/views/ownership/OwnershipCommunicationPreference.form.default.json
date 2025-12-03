@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Ownership Communication Preference",
+    "description": "Define the contact channels and priorities for ownership stakeholders.",
     "layout": {
         "groups": [
             {

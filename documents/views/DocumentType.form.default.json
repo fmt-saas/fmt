@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Document Type",
+    "description": "Edit the configuration of a document type definition.",
     "layout": {
         "groups": [
             {
@@ -69,7 +69,11 @@
                     {
                         "id": "section.subtypes",
                         "label": "Subtypes",
-                        "visible": ["has_subtype", "=", true],
+                        "visible": [
+                            "has_subtype",
+                            "=",
+                            true
+                        ],
                         "rows": [
                             {
                                 "columns": [

@@ -1,6 +1,6 @@
 {
     "name": "Supplier Type",
-    "description": "Interface for model definition classes.",
+    "description": "Define or update a supplier classification.",
     "layout": {
         "groups": [
             {

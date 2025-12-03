@@ -1,6 +1,6 @@
 {
     "name": "Assembly",
-    "description": "Interface for model definition classes.",
+    "description": "Edit assembly information, agenda, and logistics.",
     "actions": [
         {
             "id": "action.publish",
@@ -11,7 +11,11 @@
                 "entity": "realestate\\governance\\Assembly",
                 "transition": "publish"
             },
-            "visible": ["status", "=", "pending"]
+            "visible": [
+                "status",
+                "=",
+                "pending"
+            ]
         },
         {
             "id": "action.revert_publish",
@@ -22,7 +26,11 @@
                 "entity": "realestate\\governance\\Assembly",
                 "transition": "revert_publish"
             },
-            "visible": ["status", "=", "published"]
+            "visible": [
+                "status",
+                "=",
+                "published"
+            ]
         },
         {
             "id": "action.refresh_owners",
@@ -35,7 +43,11 @@
                 "ids": []
             },
             "confirm": true,
-            "visible": ["status", "=", "published"]
+            "visible": [
+                "status",
+                "=",
+                "published"
+            ]
         },
         {
             "id": "action.invite",
@@ -46,7 +58,11 @@
                 "entity": "realestate\\governance\\Assembly",
                 "transition": "send"
             },
-            "visible": ["status", "=", "published"]
+            "visible": [
+                "status",
+                "=",
+                "published"
+            ]
         },
         {
             "id": "action.sent",
@@ -57,7 +73,11 @@
                 "entity": "realestate\\governance\\Assembly",
                 "transition": "sent"
             },
-            "visible": ["status", "=", "sending"]
+            "visible": [
+                "status",
+                "=",
+                "sending"
+            ]
         },
         {
             "id": "action.open",
@@ -68,7 +88,11 @@
                 "entity": "realestate\\governance\\Assembly",
                 "transition": "open"
             },
-            "visible": ["status", "=", "sent"]
+            "visible": [
+                "status",
+                "=",
+                "sent"
+            ]
         },
         {
             "id": "action.close_attendance",
@@ -81,7 +105,18 @@
                 "ids": []
             },
             "confirm": true,
-            "visible": [ ["status", "=", "in_progress"], ["step", "=", "opening"] ]
+            "visible": [
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "=",
+                    "opening"
+                ]
+            ]
         },
         {
             "id": "action.validate_mandates",
@@ -92,7 +127,18 @@
                 "entity": "realestate\\governance\\Assembly",
                 "action": "validate_mandates"
             },
-            "visible":  [ ["status", "=", "in_progress"], ["step", "=", "mandate_validation"] ]
+            "visible": [
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "=",
+                    "mandate_validation"
+                ]
+            ]
         },
         {
             "id": "action.validate_attendance",
@@ -103,7 +149,18 @@
                 "entity": "realestate\\governance\\Assembly",
                 "action": "validate_representations"
             },
-            "visible":  [ ["status", "=", "in_progress"], ["step", "=", "representation_validation"] ]
+            "visible": [
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "=",
+                    "representation_validation"
+                ]
+            ]
         },
         {
             "id": "action.validate_assembly",
@@ -114,7 +171,23 @@
                 "entity": "realestate\\governance\\Assembly",
                 "action": "validate_assembly"
             },
-            "visible": [ ["is_valid", "=", true], ["status", "=", "in_progress"], ["step", "=", "assembly_validation"] ]
+            "visible": [
+                [
+                    "is_valid",
+                    "=",
+                    true
+                ],
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "=",
+                    "assembly_validation"
+                ]
+            ]
         },
         {
             "id": "action.adjourn_assembly",
@@ -125,7 +198,23 @@
                 "entity": "realestate\\governance\\Assembly",
                 "transition": "adjourn"
             },
-            "visible": [ ["is_valid", "=", false], ["status", "=", "in_progress"], ["step", "=", "assembly_validation"] ]
+            "visible": [
+                [
+                    "is_valid",
+                    "=",
+                    false
+                ],
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "=",
+                    "assembly_validation"
+                ]
+            ]
         },
         {
             "id": "action.schedule_second_session",
@@ -136,7 +225,23 @@
                 "entity": "realestate\\governance\\Assembly",
                 "action": "schedule_second_session"
             },
-            "visible": [ ["is_valid", "=", false], ["status", "=", "adjourned"], ["has_second_session", "=", false] ]
+            "visible": [
+                [
+                    "is_valid",
+                    "=",
+                    false
+                ],
+                [
+                    "status",
+                    "=",
+                    "adjourned"
+                ],
+                [
+                    "has_second_session",
+                    "=",
+                    false
+                ]
+            ]
         },
         {
             "id": "action.check_invites",
@@ -144,7 +249,13 @@
             "help": "This is a temporary way to trigger the action which is intended to be automated",
             "description": "Checks if all invites have been sent.",
             "controller": "realestate_governance_Assembly_check-invite",
-            "visible": [ ["status", "=", "sent"] ]
+            "visible": [
+                [
+                    "status",
+                    "=",
+                    "sent"
+                ]
+            ]
         },
         {
             "id": "action.add_attendee",
@@ -157,7 +268,18 @@
                     "assembly_id": "object.id"
                 }
             },
-            "visible": [ ["status", "=", "in_progress"], ["step", "=", "opening"] ]
+            "visible": [
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "=",
+                    "opening"
+                ]
+            ]
         },
         {
             "id": "action.add_extra_attendee",
@@ -170,7 +292,18 @@
                     "assembly_id": "object.id"
                 }
             },
-            "visible": [ ["status", "=", "in_progress"], ["step", "=", "agenda_processing"] ]
+            "visible": [
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "=",
+                    "agenda_processing"
+                ]
+            ]
         },
         {
             "id": "action.generate_minutes",
@@ -182,9 +315,24 @@
                 "action": "generate_signable_minutes"
             },
             "visible": [
-                ["status", "=", "in_progress"],
-                ["step", "in", ["agenda_processing", "minutes_confirmation"]],
-                ["is_complete", "=", true]
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "in",
+                    [
+                        "agenda_processing",
+                        "minutes_confirmation"
+                    ]
+                ],
+                [
+                    "is_complete",
+                    "=",
+                    true
+                ]
             ]
         },
         {
@@ -197,8 +345,18 @@
                 "action": "accept_minutes"
             },
             "visible": [
-                ["status", "=", "in_progress"],
-                ["step", "in", ["minutes_confirmation"]]
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "in",
+                    [
+                        "minutes_confirmation"
+                    ]
+                ]
             ]
         },
         {
@@ -213,8 +371,18 @@
                 }
             },
             "visible": [
-                ["status", "=", "in_progress"],
-                ["step", "in", ["minutes_signing"]]
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "in",
+                    [
+                        "minutes_signing"
+                    ]
+                ]
             ]
         },
         {
@@ -229,8 +397,18 @@
                 "ids": []
             },
             "visible": [
-                ["status", "=", "in_progress"],
-                ["step", "in", ["minutes_signing"]]
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "in",
+                    [
+                        "minutes_signing"
+                    ]
+                ]
             ]
         }
     ],
@@ -244,7 +422,15 @@
             "route": "/?get=realestate_governance_Assembly_invitation_render-pdf&id=object.id",
             "target": "_blank",
             "absolute": true,
-            "visible": ["status", "in", ["pending","published","sending"]]
+            "visible": [
+                "status",
+                "in",
+                [
+                    "pending",
+                    "published",
+                    "sending"
+                ]
+            ]
         },
         {
             "id": "route.view_attendance_register",
@@ -257,11 +443,26 @@
             "absolute": true,
             "visible": [
                 [
-                    ["status", "in", ["held", "adjourned"]]
+                    [
+                        "status",
+                        "in",
+                        [
+                            "held",
+                            "adjourned"
+                        ]
+                    ]
                 ],
                 [
-                    ["status", "=", "in_progress"],
-                    ["step", "=", "agenda_processing"]
+                    [
+                        "status",
+                        "=",
+                        "in_progress"
+                    ],
+                    [
+                        "step",
+                        "=",
+                        "agenda_processing"
+                    ]
                 ]
             ]
         },
@@ -276,11 +477,26 @@
             "absolute": true,
             "visible": [
                 [
-                    ["status", "in", ["held", "adjourned"]]
+                    [
+                        "status",
+                        "in",
+                        [
+                            "held",
+                            "adjourned"
+                        ]
+                    ]
                 ],
                 [
-                    ["status", "=", "in_progress"],
-                    ["step", "=", "minutes_confirmation"]
+                    [
+                        "status",
+                        "=",
+                        "in_progress"
+                    ],
+                    [
+                        "step",
+                        "=",
+                        "minutes_confirmation"
+                    ]
                 ]
             ]
         },
@@ -295,11 +511,26 @@
             "absolute": true,
             "visible": [
                 [
-                    ["status", "in", ["held", "adjourned"]]
+                    [
+                        "status",
+                        "in",
+                        [
+                            "held",
+                            "adjourned"
+                        ]
+                    ]
                 ],
                 [
-                    ["status", "=", "in_progress"],
-                    ["step", "=", "assembly_closing"]
+                    [
+                        "status",
+                        "=",
+                        "in_progress"
+                    ],
+                    [
+                        "step",
+                        "=",
+                        "assembly_closing"
+                    ]
                 ]
             ]
         }
@@ -352,13 +583,31 @@
                                                 "type": "field",
                                                 "value": "session_time_start",
                                                 "width": "50%",
-                                                "visible": ["status", "not in", ["pending", "published", "sending", "sent"]]
+                                                "visible": [
+                                                    "status",
+                                                    "not in",
+                                                    [
+                                                        "pending",
+                                                        "published",
+                                                        "sending",
+                                                        "sent"
+                                                    ]
+                                                ]
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "session_time_end",
                                                 "width": "50%",
-                                                "visible": ["status", "not in", ["pending", "published", "sending", "sent"]]
+                                                "visible": [
+                                                    "status",
+                                                    "not in",
+                                                    [
+                                                        "pending",
+                                                        "published",
+                                                        "sending",
+                                                        "sent"
+                                                    ]
+                                                ]
                                             },
                                             {
                                                 "type": "field",
@@ -417,7 +666,14 @@
                                                 "type": "field",
                                                 "value": "is_valid",
                                                 "width": "100%",
-                                                "visible": ["step", "in", ["assembly_validation", "agenda_processing"]]
+                                                "visible": [
+                                                    "step",
+                                                    "in",
+                                                    [
+                                                        "assembly_validation",
+                                                        "agenda_processing"
+                                                    ]
+                                                ]
                                             },
                                             {
                                                 "type": "field",
@@ -476,7 +732,6 @@
                                     }
                                 ]
                             }
-
                         ]
                     },
                     {
@@ -502,7 +757,14 @@
                     {
                         "id": "section.owners",
                         "label": "Owners",
-                        "visible": ["status", "not in", ["pending", "published"]],
+                        "visible": [
+                            "status",
+                            "not in",
+                            [
+                                "pending",
+                                "published"
+                            ]
+                        ],
                         "rows": [
                             {
                                 "columns": [
@@ -534,7 +796,6 @@
                                 ]
                             },
                             {
-
                                 "columns": [
                                     {
                                         "width": "100%",
@@ -556,7 +817,14 @@
                     {
                         "id": "section.invites",
                         "label": "Invites",
-                        "visible": ["status", "not in", ["pending", "published"]],
+                        "visible": [
+                            "status",
+                            "not in",
+                            [
+                                "pending",
+                                "published"
+                            ]
+                        ],
                         "rows": [
                             {
                                 "columns": [
@@ -567,7 +835,11 @@
                                                 "type": "field",
                                                 "value": "invitations_exporting_task_id",
                                                 "width": "50%",
-                                                "visible": ["invitations_exporting_task_id", "<>", null]
+                                                "visible": [
+                                                    "invitations_exporting_task_id",
+                                                    "<>",
+                                                    null
+                                                ]
                                             },
                                             {
                                                 "type": "field",
@@ -583,7 +855,16 @@
                     {
                         "id": "section.proxies",
                         "label": "Mandates",
-                        "visible": ["status", "not in", ["pending", "published", "sending", "sent"]],
+                        "visible": [
+                            "status",
+                            "not in",
+                            [
+                                "pending",
+                                "published",
+                                "sending",
+                                "sent"
+                            ]
+                        ],
                         "rows": [
                             {
                                 "columns": [
@@ -604,7 +885,16 @@
                     {
                         "id": "section.attendees",
                         "label": "Attendees",
-                        "visible": ["status", "not in", ["pending", "published", "sending", "sent"]],
+                        "visible": [
+                            "status",
+                            "not in",
+                            [
+                                "pending",
+                                "published",
+                                "sending",
+                                "sent"
+                            ]
+                        ],
                         "rows": [
                             {
                                 "columns": [
@@ -615,7 +905,11 @@
                                                 "type": "field",
                                                 "value": "signed_register_document_id",
                                                 "width": "50%",
-                                                "visible": ["signed_register_document_id", "is not", null]
+                                                "visible": [
+                                                    "signed_register_document_id",
+                                                    "is not",
+                                                    null
+                                                ]
                                             }
                                         ]
                                     }
@@ -640,7 +934,16 @@
                     {
                         "id": "section.representations",
                         "label": "Representations",
-                        "visible": ["status", "not in", ["pending", "published", "sending", "sent"]],
+                        "visible": [
+                            "status",
+                            "not in",
+                            [
+                                "pending",
+                                "published",
+                                "sending",
+                                "sent"
+                            ]
+                        ],
                         "rows": [
                             {
                                 "columns": [

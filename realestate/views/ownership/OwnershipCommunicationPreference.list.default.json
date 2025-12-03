@@ -1,6 +1,16 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Communication preference",
+    "description": "Communication preference for Owners of the Ownership.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE":  [
+                {
+                    "view": true
+                }
+            ]
+        }
+    },
     "layout": {
         "items": [
             {

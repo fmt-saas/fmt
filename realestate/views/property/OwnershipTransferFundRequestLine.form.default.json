@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Transfer Fund Request Line",
+    "description": "Edit the details of an ownership transfer funding request line.",
     "layout": {
         "groups": [
             {

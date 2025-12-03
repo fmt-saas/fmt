@@ -1,6 +1,6 @@
 {
-    "name": "Supplier Type",
-    "description": "Interface for model definition classes.",
+    "name": "Supplier Types",
+    "description": "Catalog the different supplier classifications available.",
     "layout": {
         "items": [
             {

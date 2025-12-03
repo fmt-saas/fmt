@@ -1,6 +1,6 @@
 {
-    "name": "Fund Request Line Entry Lot",
-    "description": "Interface for model definition classes.",
+    "name": "Fund Request Lot Entries",
+    "description": "Display the lot-level breakdown of a fund request line.",
     "header": {
         "actions": {
             "ACTION.CREATE": false

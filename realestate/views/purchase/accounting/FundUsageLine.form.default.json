@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Fund Usage Line",
+    "description": "Adjust the allocation details for a single fund usage line.",
     "layout": {
         "groups": [
             {

@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Navigation Nodes",
+    "description": "Browse nodes displayed in navigation menus and trees.",
     "actions": [
         {
             "id": "action.download",
@@ -9,7 +9,11 @@
             "icon": "download",
             "description": "Download the document.",
             "controller": "documents_navigation_Node_download",
-            "visible": ["node_type", "=", "document"]
+            "visible": [
+                "node_type",
+                "=",
+                "document"
+            ]
         }
     ],
     "order": "node_type,name",
@@ -50,7 +54,11 @@
                 "widget": {
                     "usage": "date/plain.short"
                 },
-                "visible": ["node_type", "=", "document"]
+                "visible": [
+                    "node_type",
+                    "=",
+                    "document"
+                ]
             },
             {
                 "type": "field",
@@ -60,7 +68,11 @@
                 "widget": {
                     "align": "center"
                 },
-                "visible": ["node_type", "=", "folder"]
+                "visible": [
+                    "node_type",
+                    "=",
+                    "folder"
+                ]
             },
             {
                 "type": "field",

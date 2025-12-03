@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Template Type",
+    "description": "Configure how a template type behaves and is categorized.",
     "layout": {
         "groups": [
             {

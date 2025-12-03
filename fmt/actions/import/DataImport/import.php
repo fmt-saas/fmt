@@ -969,7 +969,6 @@ try {
                 'apportionment_id'      => $apportionment_id,
                 'fund_type'             => 'working_fund'
             ])
-            ->update()
             ->transition('validate');
 
         $result['logs'][] = "INFO- created & validated working fund";

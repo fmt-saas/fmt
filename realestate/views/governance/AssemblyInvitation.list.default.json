@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Assembly Invitations",
+    "description": "Track invitations sent to participants for an assembly.",
     "layout": {
         "items": [
             {

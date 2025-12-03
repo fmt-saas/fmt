@@ -1,7 +1,154 @@
-{
+﻿{
     "name": "Facture d'achat copropriété",
     "plural": "Factures d'achat copropriété",
     "description": "Facture fournisseur enregistrée dans le périmètre immobilier (lignes, imputations, fundings).",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par la facture.",
+            "help": "Détermine les comptes bancaires et règles comptables disponibles."
+        },
+        "document_data": {
+            "label": "Données du document",
+            "description": "Données binaires du document importé.",
+            "help": "Utilisées pour créer le document puis vidées après confirmation."
+        },
+        "document_name": {
+            "label": "Nom du document",
+            "description": "Nom du document traité.",
+            "help": "Pré-rempli lors de l'import ou de la saisie manuelle."
+        },
+        "supplier_id": {
+            "label": "Fournisseur",
+            "description": "Fournisseur lié à la facture.",
+            "help": "Valeur calculée depuis le contrat fournisseur sélectionné."
+        },
+        "supplier_identity_id": {
+            "label": "Identité fournisseur",
+            "description": "Identité liée au fournisseur sélectionné.",
+            "help": "Déduite automatiquement du contrat fournisseur."
+        },
+        "suppliership_id": {
+            "label": "Contrat fournisseur",
+            "description": "Contrat fournisseur associé à la facture.",
+            "help": "Doit appartenir à la copropriété."
+        },
+        "suppliership_bank_account_id": {
+            "label": "Compte bancaire fournisseur",
+            "description": "Compte bancaire du fournisseur à utiliser pour le paiement.",
+            "help": "Filtré sur la copropriété et le contrat fournisseur."
+        },
+        "condo_bank_account_id": {
+            "label": "Compte bancaire copropriété",
+            "description": "Compte bancaire de la copropriété utilisé pour le paiement.",
+            "help": "Filtré sur les comptes courants de la copropriété."
+        },
+        "invoice_lines_ids": {
+            "label": "Lignes de facture",
+            "description": "Lignes détaillées de la facture.",
+            "help": "Permet la saisie des montants, taux de TVA et comptes de charge."
+        },
+        "has_fund_usage": {
+            "label": "Utiliser des fonds de réserve",
+            "description": "Active l'utilisation de fonds de réserve pour payer la facture.",
+            "help": "Ajoute les lignes d'utilisation de fonds à la facture."
+        },
+        "has_instant_reinvoice": {
+            "label": "Réfacturation immédiate",
+            "description": "Réimpute immédiatement les charges privées.",
+            "help": "Réfaction automatique sans attendre la clôture de période."
+        },
+        "fund_usage_lines_ids": {
+            "label": "Lignes d'utilisation de fonds",
+            "description": "Lignes décrivant les fonds de réserve utilisés.",
+            "help": "Doivent être cohérentes avec la copropriété et la facture."
+        },
+        "accounting_entries_ids": {
+            "label": "Écritures comptables",
+            "description": "Écritures comptables liées à la facture.",
+            "help": "Inclut les écritures générées lors de la validation."
+        },
+        "fundings_ids": {
+            "label": "Fundings",
+            "description": "Financements créés à partir de la facture.",
+            "help": "Générés lors de la création des financements."
+        },
+        "emission_date": {
+            "label": "Date d'émission",
+            "description": "Date d'émission fournie par le fournisseur.",
+            "help": "Utilisée pour déterminer l'exercice et la période fiscale."
+        },
+        "fiscal_year_id": {
+            "label": "Exercice fiscal",
+            "description": "Exercice fiscal associé.",
+            "help": "Calculé automatiquement à partir de la date d'émission."
+        },
+        "fiscal_period_id": {
+            "label": "Période fiscale",
+            "description": "Période de l'exercice fiscal associée.",
+            "help": "Calculée automatiquement à partir de la date d'émission."
+        },
+        "posting_date": {
+            "label": "Date de comptabilisation",
+            "description": "Date d'enregistrement comptable de la facture.",
+            "help": "Par défaut la date du jour, sauf période renseignée."
+        },
+        "due_date": {
+            "label": "Date d'échéance",
+            "description": "Date attendue de paiement.",
+            "help": "Peut être ajustée selon les conditions fournisseur."
+        },
+        "document_process_id": {
+            "label": "Processus documentaire",
+            "description": "Processus documentaire d'où provient la facture.",
+            "help": "Permet de suivre l'état du traitement documentaire."
+        },
+        "document_id": {
+            "label": "Document source",
+            "description": "Document reçu à l'origine de la facture.",
+            "help": "Doit être marqué comme document d'origine."
+        },
+        "documents_ids": {
+            "label": "Documents liés",
+            "description": "Tous les documents liés à la facture d'achat.",
+            "help": "Inclut les pièces jointes et documents générés."
+        },
+        "document_link": {
+            "label": "Lien du document",
+            "description": "URL de visualisation du document.",
+            "help": "Calculé pour ouvrir le document associé."
+        },
+        "payable_amount": {
+            "label": "Montant TTC attendu",
+            "description": "Montant final TTC attendu de la facture.",
+            "help": "Comparé à la somme des lignes de facture."
+        },
+        "has_payment_on_hold": {
+            "label": "Paiement en attente",
+            "description": "Indique que le paiement doit être suspendu.",
+            "help": "Empêche le paiement tant que la mise en attente n'est pas levée."
+        },
+        "on_hold_description": {
+            "label": "Raison de l'attente",
+            "description": "Motif de la suspension du paiement.",
+            "help": "Décrit pourquoi le paiement est mis en attente."
+        },
+        "payment_reference": {
+            "label": "Référence de paiement",
+            "description": "Référence fournie par le fournisseur pour le virement.",
+            "help": "Sera utilisée lors de l'exécution du paiement."
+        },
+        "has_date_range": {
+            "label": "Service sur période",
+            "description": "Indique que la prestation couvre une période.",
+            "help": "Permet de renseigner les dates de début et de fin."
+        },
+        "description": {
+            "label": "Description",
+            "description": "Description courte de la facture.",
+            "help": "Synchronisée avec la description des lignes saisies manuellement."
+        }
+    },
     "view": {
         "form.default": {
             "name": "Facture d'achat",
@@ -38,5 +185,7 @@
                 }
             }
         }
+    },
+    "error": {
     }
 }

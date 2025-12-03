@@ -1,6 +1,6 @@
 {
-    "name": "Expense Statement Owner",
-    "description": "Interface for model definition classes.",
+    "name": "Owner Expense Statement",
+    "description": "Edit the statement prepared for a specific owner.",
     "layout": {
         "groups": [
             {

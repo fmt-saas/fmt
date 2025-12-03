@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Consumption Meter",
+    "description": "Maintain a consumption meter and its technical data.",
     "layout": {
         "groups": [
             {
@@ -36,7 +36,11 @@
                                                 "type": "label",
                                                 "value": "",
                                                 "width": "33%",
-                                                "visible": ["meter_scope", "<>", "master"]
+                                                "visible": [
+                                                    "meter_scope",
+                                                    "<>",
+                                                    "master"
+                                                ]
                                             },
                                             {
                                                 "type": "field",
@@ -85,7 +89,11 @@
             {
                 "sections": [
                     {
-                        "visible": ["meter_scope", "=", "master"],
+                        "visible": [
+                            "meter_scope",
+                            "=",
+                            "master"
+                        ],
                         "id": "section.children",
                         "label": "Meters",
                         "rows": [
@@ -100,7 +108,11 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "view": "list.children",
-                                                    "domain": ["parent_meter_id", "=", "object.id"]
+                                                    "domain": [
+                                                        "parent_meter_id",
+                                                        "=",
+                                                        "object.id"
+                                                    ]
                                                 }
                                             }
                                         ]
@@ -175,7 +187,6 @@
                             }
                         ]
                     }
-
                 ]
             }
         ]

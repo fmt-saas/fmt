@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Navigation Node",
+    "description": "Configure how a navigation node behaves and appears.",
     "layout": {
         "groups": [
             {
@@ -90,7 +90,18 @@
             {
                 "sections": [
                     {
-                        "visible": [ ["state", "<>", "draft"], ["node_type", "=", "folder"] ],
+                        "visible": [
+                            [
+                                "state",
+                                "<>",
+                                "draft"
+                            ],
+                            [
+                                "node_type",
+                                "=",
+                                "folder"
+                            ]
+                        ],
                         "rows": [
                             {
                                 "columns": [

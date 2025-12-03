@@ -1,6 +1,6 @@
 {
-    "name": "Consumption Statement",
-    "description": "Interface for model definition classes.",
+    "name": "Consumption Statements",
+    "description": "List aggregated statements of energy consumption.",
     "layout": {
         "items": [
             {

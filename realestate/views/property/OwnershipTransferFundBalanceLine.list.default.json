@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Transfer Fund Balance Lines",
+    "description": "Show balance calculations for funds involved in ownership transfers.",
     "layout": {
         "items": [
             {

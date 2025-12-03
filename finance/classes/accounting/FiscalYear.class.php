@@ -1212,15 +1212,28 @@ class FiscalYear extends Model {
     }
 
     public static function canupdate($self, $values) {
-        $self->read(['status']);
-        foreach($self as $fiscalYear) {
+        $self->read(['status', 'date_to']);
+        foreach($self as $id => $fiscalYear) {
             if(in_array($fiscalYear['status'], ['closed', 'archived'])) {
-                return ['status' => ['not_allowed' => 'Closed fiscal year cannot be modified.']];
+                return ['status' => ['not_allowed_closed' => 'Closed fiscal year cannot be modified.']];
             }
             if($fiscalYear['status'] <> 'draft') {
-                if(isset($values['fiscal_periods_ids']) ||
+                // if modifying the end date AND there are no accounting entries for this fiscal year beyond that date: allow
+                if(isset($values['date_to'])) {
+                    $accounting_entries_ids = AccountingEntry::search([
+                            ['fiscal_year_id', '=', $id],
+                            ['entry_date', '>', $values['date_to']],
+                            ['is_cancelled', '=', false],
+                            ['status', '=', 'validated']
+                        ])
+                        ->ids();
+                    if(count($accounting_entries_ids) > 0) {
+                        return ['status' => ['not_allowed_entries' => 'There are accounting entries for the Fiscal year after given end date.']];
+                    }
+                }
+                // otherwise always refuse
+                elseif(isset($values['fiscal_periods_ids']) ||
                     isset($values['date_from']) ||
-                    isset($values['date_to']) ||
                     isset($values['condo_id']) ||
                     isset($values['organisation_id'])
                 ) {

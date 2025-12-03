@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Consumption Meter Readings",
+    "description": "Review recorded readings for consumption meters.",
     "layout": {
         "items": [
             {

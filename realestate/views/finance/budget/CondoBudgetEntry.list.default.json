@@ -1,6 +1,6 @@
 {
-    "name": "Budget Entry",
-    "description": "Interface for model definition classes.",
+    "name": "Condominium Budget Entries",
+    "description": "Review budget lines defined for a condominium.",
     "header": {
         "layout": "inline",
         "actions": {

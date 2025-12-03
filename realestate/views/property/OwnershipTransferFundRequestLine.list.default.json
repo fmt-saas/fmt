@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Transfer Fund Request Lines",
+    "description": "List funding requirements tied to ownership transfers.",
     "layout": {
         "items": [
             {

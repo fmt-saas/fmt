@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Template Types",
+    "description": "Browse the types of templates available across communication channels.",
     "layout": {
         "items": [
             {

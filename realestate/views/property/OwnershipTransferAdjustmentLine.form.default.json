@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Transfer Adjustment Line",
+    "description": "Edit the adjustment amounts applied to a specific transfer.",
     "layout": {
         "groups": [
             {

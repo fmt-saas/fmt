@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Ownership Transfer Fees",
+    "description": "List administrative fees related to ownership transfers.",
     "header": {
         "layout": "inline",
         "actions": {

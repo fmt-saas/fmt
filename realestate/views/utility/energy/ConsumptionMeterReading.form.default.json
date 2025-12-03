@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Consumption Meter Reading",
+    "description": "Capture or edit a single reading for a consumption meter.",
     "layout": {
         "groups": [
             {

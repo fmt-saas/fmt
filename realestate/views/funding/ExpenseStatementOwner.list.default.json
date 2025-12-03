@@ -1,6 +1,6 @@
 {
-    "name": "Expense Statement Owner",
-    "description": "Interface for model definition classes.",
+    "name": "Owner Expense Statements",
+    "description": "View the expense statements produced for each owner.",
     "operations": {
         "total": {
             "expense_amount": {

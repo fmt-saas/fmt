@@ -57,22 +57,22 @@
         },
         "has_channel_email": {
             "label": "Envoi par e-mail",
-            "description": "Autorise l'envoi électronique pour ce motif.",
+            "description": "Envoi électronique pour ce motif.",
             "help": ""
         },
         "has_channel_postal": {
             "label": "Courrier simple",
-            "description": "Autorise l'envoi postal standard.",
+            "description": "Envoi postal standard.",
             "help": ""
         },
         "has_channel_postal_registered": {
             "label": "Recommandé",
-            "description": "Autorise l'envoi postal recommandé.",
+            "description": "Envoi postal recommandé.",
             "help": ""
         },
         "has_channel_postal_registered_receipt": {
-            "label": "Recommandé avec accusé",
-            "description": "Autorise l'envoi recommandé avec accusé de réception.",
+            "label": "Recommandé & accusé",
+            "description": "Envoi recommandé avec accusé de réception.",
             "help": ""
         }
     },

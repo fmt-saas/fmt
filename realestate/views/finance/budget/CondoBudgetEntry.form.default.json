@@ -1,6 +1,6 @@
 {
-    "name": "Budget Entry",
-    "description": "Interface for model definition classes.",
+    "name": "Condominium Budget Entry",
+    "description": "Edit the amounts and allocations for a single budget entry.",
     "layout": {
         "groups": [
             {

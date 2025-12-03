@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Transfer Adjustment Lines",
+    "description": "Track adjustments applied when closing ownership transfers.",
     "layout": {
         "items": [
             {

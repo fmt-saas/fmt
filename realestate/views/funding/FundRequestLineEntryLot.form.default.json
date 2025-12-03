@@ -1,6 +1,6 @@
 {
-    "name": "Fund Request Line Entry Lot",
-    "description": "Interface for model definition classes.",
+    "name": "Fund Request Lot Entry",
+    "description": "Adjust the allocation for a specific lot within a fund request.",
     "layout": {
         "groups": [
             {

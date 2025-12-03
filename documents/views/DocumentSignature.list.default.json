@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Document Signatures",
+    "description": "Monitor signatures requested or collected for documents.",
     "layout": {
         "items": [
             {

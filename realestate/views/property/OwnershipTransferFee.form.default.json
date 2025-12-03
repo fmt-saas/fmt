@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Ownership Transfer Fee",
+    "description": "Edit the amount and parameters of a transfer fee.",
     "layout": {
         "groups": [
             {

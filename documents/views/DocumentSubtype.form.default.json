@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Document Subtype",
+    "description": "Edit the attributes of a document subtype definition.",
     "layout": {
         "groups": [
             {

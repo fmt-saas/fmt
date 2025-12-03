@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Email",
+    "description": "Compose or review an email message with its metadata.",
     "layout": {
         "groups": [
             {

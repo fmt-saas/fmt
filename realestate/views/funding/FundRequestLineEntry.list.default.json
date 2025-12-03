@@ -1,6 +1,6 @@
 {
-    "name": "Fund Request Line Entry",
-    "description": "Interface for model definition classes.",
+    "name": "Fund Request Entries",
+    "description": "List accounting entries generated for a fund request.",
     "layout": {
         "items": [
             {

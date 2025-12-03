@@ -1,32 +1,73 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Fund Usage Lines",
+    "description": "Review how collected funds are allocated across accounts.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": [
+                {
+                    "view": true
+                }
+            ]
+        }
+    },
     "layout": {
         "items": [
             {
                 "type": "field",
                 "value": "condo_id",
-                "width": "100%"
+                "width": "20%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "invoice_id",
+                "width": "20%",
+                "visible": false
             },
             {
                 "type": "field",
                 "value": "fund_account_id",
-                "width": "100%"
+                "width": "30%",
+                "widget": {
+                    "header": {
+                        "actions": {
+                            "ACTION.OPEN": false,
+                            "ACTION.CREATE": false
+                        }
+                    }
+                }
             },
             {
                 "type": "field",
                 "value": "expense_account_id",
-                "width": "100%"
+                "width": "25%",
+                "widget": {
+                    "header": {
+                        "actions": {
+                            "ACTION.OPEN": false,
+                            "ACTION.CREATE": false
+                        }
+                    }
+                }
             },
             {
                 "type": "field",
                 "value": "apportionment_id",
-                "width": "100%"
+                "width": "25%",
+                "widget": {
+                    "header": {
+                        "actions": {
+                            "ACTION.OPEN": false,
+                            "ACTION.CREATE": false
+                        }
+                    }
+                }
             },
             {
                 "type": "field",
                 "value": "amount",
-                "width": "100%"
+                "width": "20%"
             }
         ]
     }

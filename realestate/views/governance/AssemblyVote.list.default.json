@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Assembly Votes",
+    "description": "List the votes cast for each agenda item.",
     "operations": {
         "total": {
             "vote_weight": {

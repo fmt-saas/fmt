@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Document Subtypes",
+    "description": "Browse available subtype definitions used to classify documents.",
     "layout": {
         "items": [
             {

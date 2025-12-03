@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Interface for model definition classes.",
+    "name": "Assemblies",
+    "description": "Overview of scheduled assemblies and their status.",
     "order": "assembly_date",
     "sort": "desc",
     "layout": {

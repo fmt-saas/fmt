@@ -1,6 +1,6 @@
 {
     "name": "Fund Request Line",
-    "description": "Interface for model definition classes.",
+    "description": "Manage the financial details for a fund request line item.",
     "actions": [
         {
             "id": "action.generate_allocation",
@@ -11,7 +11,11 @@
                 "entity": "realestate\\funding\\FundRequestLine",
                 "action": "generate_allocation"
             },
-            "visible": ["status", "=", "draft"]
+            "visible": [
+                "status",
+                "=",
+                "draft"
+            ]
         }
     ],
     "layout": {
@@ -73,7 +77,11 @@
             {
                 "sections": [
                     {
-                        "visible": ["state", "<>", "draft"],
+                        "visible": [
+                            "state",
+                            "<>",
+                            "draft"
+                        ],
                         "rows": [
                             {
                                 "columns": [

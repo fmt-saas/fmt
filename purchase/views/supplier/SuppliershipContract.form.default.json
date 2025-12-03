@@ -1,6 +1,6 @@
 {
-    "name": "Supplier Type",
-    "description": "Interface for model definition classes.",
+    "name": "Suppliership Contract",
+    "description": "Manage the contractual agreement between the company and a supplier.",
     "layout": {
         "groups": [
             {

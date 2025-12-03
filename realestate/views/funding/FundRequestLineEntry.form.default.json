@@ -1,6 +1,6 @@
 {
-    "name": "Fund Request Line Entry",
-    "description": "Interface for model definition classes.",
+    "name": "Fund Request Entry",
+    "description": "Review or edit a single entry linked to a fund request line.",
     "layout": {
         "groups": [
             {
