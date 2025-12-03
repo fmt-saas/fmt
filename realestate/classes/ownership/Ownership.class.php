@@ -510,6 +510,12 @@ class Ownership extends \equal\orm\Model {
                     ];
                 }
             }
+/*
+#todo - vérif cohérence parts de propriétaires (owners)
+
+
+*/
+
         }
         return $result;
     }

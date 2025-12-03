@@ -290,9 +290,13 @@ class CondoFund extends \equal\orm\Model {
 
     public static function canupdate($self, $values) {
         $self->read(['status']);
+        $allowed_fields = ['apportionment_id'];
         foreach($self as $funding) {
-            if($funding['status'] == 'validated') {
-                return ['status' => ['non_editable' => 'No change is allowed once the fund has been validated.']];
+            if($funding['status'] === 'validated') {
+                // in other cases, only allow editable fields
+                if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
+                    return ['status' => ['non_editable' => "No change is allowed once the fund has been validated."]];
+                }
             }
         }
 
