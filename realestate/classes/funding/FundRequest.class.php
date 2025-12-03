@@ -640,7 +640,8 @@ class FundRequest extends \equal\orm\Model {
                 $existing_executions_ids = FundRequestExecution::search([['status', '=', 'posted'], ['fund_request_id', '=', $id], ['posting_date', '=', $execution_date]])->ids();
                 if(count($existing_executions_ids)) {
                     unset($execution_dates[$index]);
-                    $executionLines = FundRequestExecutionLine::search(['request_execution_id', 'in', $existing_executions_ids])->read(['ownership_id', 'called_amount']);
+                    // #memo - do not use request_execution_id here (computed field)
+                    $executionLines = FundRequestExecutionLine::search(['invoice_id', 'in', $existing_executions_ids])->read(['ownership_id', 'called_amount']);
                     foreach($executionLines as $executionLine) {
                         if(!isset($map_ownership_amounts[$executionLine['ownership_id']])) {
                             $map_ownership_amounts[$executionLine['ownership_id']] = 0.0;

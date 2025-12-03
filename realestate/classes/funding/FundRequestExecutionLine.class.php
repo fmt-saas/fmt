@@ -35,6 +35,7 @@ class FundRequestExecutionLine extends \sale\accounting\invoice\SaleInvoiceLine 
                 'required'          => true
             ],
 
+            // #memo - do not use this in search queries (use invoice_id instead)
             'request_execution_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
@@ -42,6 +43,12 @@ class FundRequestExecutionLine extends \sale\accounting\invoice\SaleInvoiceLine 
                 'relation'          => ['invoice_id'],
                 'description'       => 'The fund request execution (sale invoice) the line relates to.',
                 'help'              => 'This field acts as an alias of `invoice_id`.'
+            ],
+
+            'invoice_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\FundRequestExecution',
+                'description'       => 'The fund request execution (sale invoice) the line relates to.'
             ],
 
             'ownership_id' => [
