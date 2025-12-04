@@ -22,7 +22,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'type'              => 'string',
                 'description'       => 'Entity class that the entry originates from.',
                 'help'              => "The accounting document the accounting entry originates from.
-                    Possible classes are:
+                    Possible classes are (stored with full namespace):
                     PurchaseInvoice, FundRequestExecution, ExpenseStatement, BankStatementLine, MiscOperation (virtual document).",
             ],
 

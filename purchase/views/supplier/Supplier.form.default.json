@@ -42,8 +42,9 @@
                     "widget": {
                         "header": {
                             "actions": {
-
+                                "ACTION.CREATE": true
                             },
+                            "layout": "inline",
                             "selection": false
                         }
                     }

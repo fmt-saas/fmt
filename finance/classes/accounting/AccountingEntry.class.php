@@ -144,7 +144,16 @@ class AccountingEntry extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
                 'description'       => 'An entry is balanced if the total debited amount equals the total credited amount.',
-                'function'          => 'calcIsBalanced'
+                'function'          => 'calcIsBalanced',
+                'store'             => false
+            ],
+
+            'has_cleared_lines' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'Flag telling if at least one of the entry lines has been cleared.',
+                'function'          => 'calcHasClearedLines',
+                'store'             => false
             ],
 
             'entry_lines_ids' => [
@@ -154,6 +163,14 @@ class AccountingEntry extends Model {
                 'description'       => "Lines of the accounting entry.",
                 'dependents'        => ['debit', 'credit'],
                 'ondetach'          => 'delete'
+            ],
+
+            'is_visible' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the entry as visible.',
+                'help'              => 'In some situations, an accounting entry should not be shown or presented in some views or documents.
+                    This flag helps for this purpose. However, even if not visible, a validated accounting entry always impacts the Balance.',
+                'default'           => true
             ],
 
             'is_cancelled' => [
@@ -429,7 +446,7 @@ class AccountingEntry extends Model {
 
     protected static function doCancel($self) {
         // create and validate reverse entry
-        $self->read(['condo_id', 'fiscal_year_id', 'journal_id', 'entry_date', 'entry_lines_ids' => ['account_id', 'debit', 'credit']]);
+        $self->read(['condo_id', 'status', 'fiscal_year_id', 'journal_id', 'entry_date', 'entry_lines_ids' => ['account_id', 'debit', 'credit']]);
         foreach($self as $id => $accountingEntry) {
             // #memo - we cannot update the Balance directly to avoid concurrent changes: always use BalanceUpdateRequest
             $reverseAccountingEntry = self::create([
@@ -451,7 +468,9 @@ class AccountingEntry extends Model {
                 ]);
             }
             self::id($id)->update(['reverse_entry_id' => $reverseAccountingEntry['id']]);
-            self::id($reverseAccountingEntry['id'])->transition('validate');
+            if($accountingEntry['status'] === 'validated') {
+                self::id($reverseAccountingEntry['id'])->transition('validate');
+            }
         }
     }
 
@@ -492,7 +511,7 @@ class AccountingEntry extends Model {
         $result = [];
         $self->read(['status']);
         foreach($self as $id => $accountingEntry) {
-            if($accountingEntry['status'] != 'validated') {
+            if($accountingEntry['status'] !== 'validated') {
                 $result[$id] = [
                         'invalid_status' => 'Accounting entry must be validated.'
                     ];
@@ -573,6 +592,21 @@ class AccountingEntry extends Model {
         $self->read(['entry_lines_ids']);
         foreach($self as $id => $entry) {
             $result[$id] = self::computeIsBalanced($entry['entry_lines_ids']);
+        }
+        return $result;
+    }
+
+    protected static function calcHasClearedLines($self) {
+        $result = [];
+        $self->read(['entry_lines_ids' => ['is_cleared']]);
+        foreach($self as $id => $entry) {
+            $result[$id] = false;
+            foreach($entry['entry_lines_ids'] as $line) {
+                if($line['is_cleared']) {
+                    $result[$id] = true;
+                    break;
+                }
+            }
         }
         return $result;
     }

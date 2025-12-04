@@ -309,58 +309,46 @@ class Account extends Model {
         ];
     }
 
-    public static function calcAccountNature($self) {
-        $result = [];
-        $self->read(['code']);
-        foreach($self as $id => $account) {
-            if($account['code'] && strlen($account['code']) >= 1) {
-                $one_digit  = (int) substr($account['code'], 0, 1);
-                $two_digits = (int) substr($account['code'], 0, 2);
-                if (in_array($one_digit, [2, 3, 5]) || ($two_digits >= 40 && $two_digits <= 41)) {
-                    $result[$id] = 'asset'; // Actif
-                }
-                elseif($one_digit == 1 || ($two_digits >= 44 && $two_digits <= 47)) {
-                    $result[$id] = 'liability'; // Passif
-                }
+    private static function computeAccountNature(string $code) {
+        $result = null;
+       if($code && strlen($code) >= 1) {
+            $one_digit  = (int) substr($code, 0, 1);
+            $two_digits = (int) substr($code, 0, 2);
+            if (in_array($one_digit, [2, 3, 5]) || ($two_digits >= 40 && $two_digits <= 41)) {
+                $result = 'asset'; // Actif
+            }
+            elseif($one_digit == 1 || ($two_digits >= 44 && $two_digits <= 47)) {
+                $result = 'liability'; // Passif
             }
         }
         return $result;
     }
 
-    public static function calcAccountType($self) {
-        $result = [];
-        $self->read(['code']);
-        foreach($self as $id => $account) {
-            if($account['code']) {
-                $result[$id] = (intval(substr($account['code'], 0, 1)) < 6) ? 'B' : 'I' ;
-            }
+    private static function computeAccountType(string $code) {
+        $result = null;
+        if($code && strlen($code) >= 1) {
+            $result = (intval(substr($code, 0, 1)) < 6) ? 'B' : 'I' ;
         }
         return $result;
     }
 
-    public static function calcAccountClass($self) {
-        $result = [];
-        $self->read(['code']);
-        foreach($self as $id => $account) {
-            if($account['code']) {
-                $result[$id] = intval(substr($account['code'], 0, 1));
-            }
+    private static function computeAccountClass(string $code) {
+        $result = null;
+        if($code && strlen($code) >= 1) {
+            $result = intval(substr($code, 0, 1));
         }
         return $result;
     }
 
-    protected static function calcParentAccountId($self) {
-        $result = [];
-        $self->read(['condo_id', 'code']);
+    private static function computeParentAccountId(string $code, int $condo_id) {
+        $result = null;
+        if($condo_id && $code && strlen($code) >= 1) {
 
-        foreach($self as $id => $account) {
-            $code = $account['code'];
-            $account_class = substr($account['code'], 0, 1);
-            $parent_id = null;
+            $account_class = intval(substr($code, 0, 1));
 
             $map_accounts_codes = [];
             $accounts = self::search([
-                    ['condo_id', '=', $account['condo_id']],
+                    ['condo_id', '=', $condo_id],
                     ['is_control_account', '=', true],
                     ['account_class', '=', intval($account_class)]
                 ])
@@ -370,20 +358,53 @@ class Account extends Model {
                 $map_accounts_codes[$controlAccount['code']] = $control_account_id;
             }
 
-            while(strlen($code) > 1) {
-                $code = substr($code, 0, -1);
-                if(isset($map_accounts_codes[$code])) {
-                    if($id != $map_accounts_codes[$code]) {
-                        $parent_id = $map_accounts_codes[$code];
-                        break;
-                    }
+            $parent_code = $code;
+
+            while(strlen($parent_code) > 1) {
+                $parent_code = substr($parent_code, 0, -1);
+                if(isset($map_accounts_codes[$parent_code])) {
+                    $result = $map_accounts_codes[$parent_code];
+                    break;
                 }
             }
+        }
 
-            if($parent_id) {
-                $result[$id] = $parent_id;
-            }
+        return $result;
+    }
 
+    protected static function calcAccountNature($self) {
+        $result = [];
+        $self->read(['code']);
+        foreach($self as $id => $account) {
+            $result[$id] = self::computeAccountNature($account['code']);
+        }
+        return $result;
+    }
+
+    protected static function calcAccountType($self) {
+        $result = [];
+        $self->read(['code']);
+        foreach($self as $id => $account) {
+            $result[$id] = self::computeAccountType($account['code']);
+        }
+        return $result;
+    }
+
+    protected static function calcAccountClass($self) {
+        $result = [];
+        $self->read(['code']);
+        foreach($self as $id => $account) {
+            $result[$id] = self::computeAccountClass($account['code']);
+        }
+        return $result;
+    }
+
+    protected static function calcParentAccountId($self) {
+        $result = [];
+        $self->read(['condo_id', 'code']);
+
+        foreach($self as $id => $account) {
+            $result[$id] = self::computeParentAccountId($account['code'], $account['condo_id']);
         }
 
         return $result;
@@ -432,6 +453,23 @@ class Account extends Model {
             }
         }
         return parent::candelete($self);
+    }
+
+    public static function onchange($event, $values) {
+        $result = [];
+
+        if(isset($event['code']) && strlen($event['code']) >= 1) {
+            $result['account_nature'] = self::computeAccountNature($event['code']);
+            $result['account_type'] = self::computeAccountType($event['code']);
+            $result['account_class'] = self::computeAccountClass($event['code']);
+            $parent_account_id = self::computeParentAccountId($event['code'], $event['condo_id'] ?? $values['condo_id'] ?? null);
+            if($parent_account_id) {
+                $parentAccount = self::id($parent_account_id)->read(['id', 'name'])->first();
+                $result['parent_account_id'] = ['id' => $parentAccount['id'], 'name' => $parentAccount['name']];
+            }
+        }
+
+        return $result;
     }
 
 }

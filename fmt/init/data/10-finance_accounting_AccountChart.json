@@ -5,7 +5,7 @@
         "data": [
             {
                 "id": 1,
-                "name": "Account Chart",
+                "name": "Account Chart (organization)",
                 "organisation_id": 1
             }
         ]
@@ -16,7 +16,7 @@
         "data": [
             {
                 "id": 1,
-                "name": "Plan comptable"
+                "name": "Plan comptable (organisation)"
             }
         ]
     }

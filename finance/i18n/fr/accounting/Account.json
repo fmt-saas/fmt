@@ -20,13 +20,21 @@
         },
         "account_type": {
             "label": "Type",
-            "description": "Balance Sheet (Bilan) ou Income Statement (Résultat).",
-            "help": ""
+            "description": "Bilan ou Résultat.",
+            "help": "",
+            "selection": {
+                "B": "Bilan",
+                "I": "Compte de résultat"
+            }
         },
         "account_nature": {
             "label": "Nature",
-            "description": "Actif ou passif selon le code.",
-            "help": ""
+            "description": "Actif ou passif, selon le code.",
+            "help": "",
+            "selection": {
+                "asset": "Actif",
+                "liability": "Passif"
+            }
         },
         "account_category": {
             "label": "Catégorie",
@@ -39,7 +47,7 @@
             "help": ""
         },
         "is_control_account": {
-            "label": "Compte de contrôle",
+            "label": "Compte collecteur",
             "description": "Indique s'il s'agit d'un compte pivot de regroupement.",
             "help": ""
         },

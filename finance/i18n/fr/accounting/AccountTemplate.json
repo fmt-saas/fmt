@@ -44,7 +44,7 @@
             "help": ""
         },
         "is_control_account": {
-            "label": "Compte de contrôle",
+            "label": "Compte collecteur",
             "description": "Marque la ligne comme regroupement/section.",
             "help": ""
         },

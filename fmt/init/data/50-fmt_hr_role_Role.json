@@ -55,6 +55,14 @@
                 "code": "council_member",
                 "is_external": true,
                 "description": "Condominium council member."
+            },
+            {
+                "id": 9,
+                "name": "Documents Dispatch Officer",
+                "code": "document_dispatch_officer",
+                "is_external": false,
+                "is_mandatory": true,
+                "description": "Employee in charge of incoming documents dispatching."
             }
         ]
     },
@@ -80,7 +88,7 @@
             {
                 "id": 4,
                 "name": "Gestionnaire",
-                "description": "Gestionnaire opérationnel."
+                "description": "Gestionnaire opérationnel (copropriété)."
             },
             {
                 "id": 5,
@@ -101,6 +109,11 @@
                 "id": 8,
                 "name": "Membre conseil copro",
                 "description": "Membre du conseil de copropriété."
+            },
+            {
+                "id": 9,
+                "name": "Agent assignation documentaire",
+                "description": "Employé chargé de l'assignation des documents entrants."
             }
         ]
     }

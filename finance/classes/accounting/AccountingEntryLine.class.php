@@ -213,6 +213,14 @@ class AccountingEntryLine extends Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'is_visible' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the entry as visible.',
+                'help'              => 'In some situations, an accounting entry should not be shown or presented in some views or documents.
+                    This flag helps for this purpose. However, even if not visible, a validated accounting entry always impacts the Balance.',
+                'default'           => true
+            ],
+
             'is_cleared' => [
                 'type'              => 'boolean',
                 'description'       => 'Flag marking the record as cleared (reinvoiced or processed).',

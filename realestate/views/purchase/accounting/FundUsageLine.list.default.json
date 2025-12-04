@@ -27,6 +27,7 @@
             },
             {
                 "type": "field",
+                "label": "Fund Account",
                 "value": "fund_account_id",
                 "width": "30%",
                 "widget": {
@@ -40,6 +41,7 @@
             },
             {
                 "type": "field",
+                "label": "Expense Account",
                 "value": "expense_account_id",
                 "width": "25%",
                 "widget": {
@@ -53,6 +55,7 @@
             },
             {
                 "type": "field",
+                "label": "Apportionment",
                 "value": "apportionment_id",
                 "width": "25%",
                 "widget": {

@@ -103,13 +103,72 @@
                                                 "visible": ["status", "=", "cancelled"]
                                             },
                                             {
-                                                "type": "field",
-                                                "help": "#todo - temp -to remove",
-                                                "label": "origin object",
-                                                "value": "origin_object_class",
+                                                "type": "label",
+                                                "value": "",
                                                 "width": "50%"
-                                            }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "origin_object_class",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
 
+                                            {
+                                                "type": "field",
+                                                "label": "Purchase Invoice",
+                                                "value": "purchase_invoice_id",
+                                                "width": "50%",
+                                                "visible": [
+                                                    [ ["origin_object_class", "=", "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice"] ],
+                                                    [ ["origin_object_class", "=", "purchase\\accounting\\invoice\\PurchaseInvoice"] ]
+                                                ]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Fund Request Execution",
+                                                "value": "fund_request_execution_id",
+                                                "width": "50%",
+                                                "visible": [
+                                                    [ ["origin_object_class", "=", "realestate\\funding\\FundRequestExecution"] ]
+                                                ]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Expense Statement",
+                                                "value": "expense_statement_id",
+                                                "width": "50%",
+                                                "visible": [
+                                                    [ ["origin_object_class", "=", "realestate\\funding\\ExpenseStatement"] ]
+                                                ]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Sale Invoice",
+                                                "value": "sale_invoice_id",
+                                                "width": "50%",
+                                                "visible": [
+                                                    [ ["origin_object_class", "=", "sale\\accounting\\invoice\\SaleInvoice"] ]
+                                                ]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Misc Operation",
+                                                "value": "misc_operation_id",
+                                                "width": "50%",
+                                                "visible": [
+                                                    [ ["origin_object_class", "=", "finance\\accounting\\MiscOperation"] ]
+                                                ]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Bank Statement Line",
+                                                "value": "bank_statement_line_id",
+                                                "width": "50%",
+                                                "visible": [
+                                                    [ ["origin_object_class", "=", "finance\\bank\\BankStatementLine"] ]
+                                                ]
+                                            }
                                         ]
                                     }
                                 ]

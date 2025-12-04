@@ -380,17 +380,29 @@ class DocumentProcess extends Model {
     protected static function onupdateDocumentId($self) {
         $self->read(['document_id' => ['creator']]);
         foreach($self as $id => $documentProcess) {
-            $identity = Identity::search(['user_id', '=', $documentProcess['document_id']['creator']])
-                ->read(['employee_id'])
-                ->first();
-            if($identity && $identity['employee_id']) {
-                self::id($id)->update(['assigned_employee_id' => $identity['employee_id']]);
+            // attempt to retrieve the employee the Document Processing must be assigned to
+            $employee_id = null;
+            // by default use `document_dispatch_officer`, if set
+            $roleAssignment = RoleAssignment::search(['role_code', '=', 'document_dispatch_officer'])->read(['employee_id'])->first();
+            if($roleAssignment && $roleAssignment['employee_id']) {
+                $employee_id = $roleAssignment['employee_id'];
+            }
+            // fallback to employee relating to current user (if set)
+            else {
+                $identity = Identity::search(['user_id', '=', $documentProcess['document_id']['creator']])
+                    ->read(['employee_id'])
+                    ->first();
+                if($identity && $identity['employee_id']) {
+                    $employee_id = $identity['employee_id'];
+                }
+            }
+            if($employee_id) {
+                self::id($id)->update(['assigned_employee_id' => $employee_id]);
             }
             // assign back document to the process
             Document::id($documentProcess['document_id']['id'])->update(['document_process_id' => $id]);
 
             // #todo - check if completion.auto enabled
-
             try {
                 $self
                     ->do('perform_identification')
@@ -775,7 +787,7 @@ class DocumentProcess extends Model {
             // #memo - at this stage the Document remains local (no UUID), an attempt to push to EDMS instance will be performed after assignment of condo_id, if matching succeeds
             $document = Document::create([
                     'name'      => $documentProcess['name'],
-                    'data'      => $documentProcess['data'],
+                    'data'      => $documentProcess['data'], 
                     'is_origin' => true,
                     'is_source' => true
                 ])

@@ -1,6 +1,19 @@
 {
     "name": "Accounting Account",
     "description": "Detail of an accounting chart line with all fields.",
+    "actions": [
+        {
+            "id": "action.add_sub_account",
+            "label": "Add Sub Account",
+            "icon": "add",
+            "description": "Add a sub account to this account.",
+            "controller": "communication_email_Mailbox_fetch",
+            "params": {
+                "id": "object.id"
+            },
+            "visible": ["validated", "=", "object.status"]
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -15,7 +28,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "code",
-                                                "width": "33%",
+                                                "width": "25%",
                                                 "widget": {
                                                     "heading": true
                                                 }
@@ -23,42 +36,13 @@
                                             {
                                                 "type": "field",
                                                 "value": "account_class",
-                                                "width": "66%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "account_nature",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "account_type",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "id": "item.apportionment_id",
-                                                "type": "field",
-                                                "label": "Apportionment",
-                                                "value": "apportionment_id",
                                                 "width": "25%"
                                             },
                                             {
-                                                "id": "item.tenant_share",
                                                 "type": "field",
-                                                "value": "tenant_share",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "id": "item.owner_share",
-                                                "type": "field",
-                                                "value": "owner_share",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "id": "item.vat_rate",
-                                                "type": "field",
-                                                "value": "vat_rate",
-                                                "width": "25%"
+                                                "value": "description",
+                                                "width": "50%",
+                                                "required": true
                                             },
                                             {
                                                 "type": "field",
@@ -68,8 +52,38 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "description",
+                                                "value": "account_nature",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "account_type",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "id": "item.apportionment_id",
+                                                "type": "field",
+                                                "label": "Apportionment",
+                                                "value": "apportionment_id",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "id": "item.tenant_share",
+                                                "type": "field",
+                                                "value": "tenant_share",
+                                                "width": "18%"
+                                            },
+                                            {
+                                                "id": "item.owner_share",
+                                                "type": "field",
+                                                "value": "owner_share",
+                                                "width": "18%"
+                                            },
+                                            {
+                                                "id": "item.vat_rate",
+                                                "type": "field",
+                                                "value": "vat_rate",
+                                                "width": "18%"
                                             }
                                         ]
                                     },
@@ -105,27 +119,27 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "25%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "is_control_account",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_visible",
-                                                "width": "100%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "is_tier_balance",
-                                                "width": "100%"
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_visible",
+                                                "width": "33%"
                                             }
                                         ]
                                     },
                                     {
-                                        "width": "25%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",

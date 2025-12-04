@@ -8,7 +8,10 @@
     "domain": ["is_visible", "=", true],
     "header": {
         "actions": {
-            "ACTION.CREATE" : false
+            "ACTION.CREATE" : {
+                "view": false,
+                "edit": true
+            }
         }
     },
     "layout": {
@@ -17,12 +20,14 @@
                 "type": "field",
                 "value": "code",
                 "width": "10%",
-                "align": "left"
+                "align": "left",
+                "sortable": true
             },
             {
                 "type": "field",
                 "value": "description",
-                "width": "25%"
+                "width": "25%",
+                "sortable": true
             },
             {
                 "type": "field",
@@ -40,19 +45,22 @@
                 "type": "field",
                 "label": "Class",
                 "value": "account_class",
-                "width": "20%"
+                "width": "10%",
+                "sortable": true
             },
             {
                 "type": "field",
                 "label": "Type",
                 "value": "account_type",
-                "width": "10%"
+                "width": "10%",
+                "sortable": true
             },
             {
                 "type": "field",
                 "label": "Nature",
                 "value": "account_nature",
-                "width": "10%"
+                "width": "10%",
+                "sortable": true
             },
             {
                 "type": "field",

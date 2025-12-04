@@ -20,7 +20,7 @@
             {
                 "type": "field",
                 "label": "Iban",
-                "value": "name",
+                "value": "bank_account_iban",
                 "width": "30%"
             },
             {

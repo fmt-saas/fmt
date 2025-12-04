@@ -77,19 +77,6 @@ class Invoice extends Model {
                 'instant'           => true
             ],
 
-            'status' => [
-                'type'              => 'string',
-                'description'       => 'Current status of the invoice.',
-                'selection'         => [
-                    'proforma',             // draft invoice (no number yet)
-                    'posted',               // final invoice (with unique number and accounting entries)
-                    'cancelled'             // the invoice has been cancelled (through reversing entries)
-                ],
-                'default'           => 'proforma',
-                'dependents'        => ['name'],
-                'help'              => "Status set to 'invoice' means the invoice has been emitted with a unique number and accounting entries. `cancelled` means that the invoice has been cancelled through a credit note (and related reversing entries)."
-            ],
-
             'invoice_type' => [
                 'type'              => 'string',
                 'description'       => 'Document type: invoice or a credit note.',
@@ -185,6 +172,33 @@ class Invoice extends Model {
                 'store'             => true
             ],
 
+            'subtotals' => [
+                'type'              => 'computed',
+                'result_type'       => 'array',
+                'description'       => "Sub totals, by vat rates, tax-excluded prices of the invoice.",
+                'help'              => "Must sum lines prices totals keeping 4 decimals and rounded to 2 decimals at the end. e.g. '0.0', '6.0', '12.0', '21.0'.",
+                'store'             => false,
+                'function'          => 'calcSubTotals'
+            ],
+
+            'subtotals_vat' => [
+                'type'              => 'computed',
+                'result_type'       => 'array',
+                'description'       => "Sub totals, by vat rates, tax prices of the invoice.",
+                'help'              => "Must sum lines prices totals keeping 4 decimals and rounded to 2 decimals at the end. e.g. '0.0', '6.0', '12.0', '21.0'.",
+                'store'             => false,
+                'function'          => 'calcSubTotalsVat'
+            ],
+
+            'total_vat' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => "Total tax price of the invoice.",
+                'store'             => false,
+                'function'          => 'calcTotalVat'
+            ],
+
             'price' => [
                 'type'              => 'computed',
                 'result_type'       => 'float',
@@ -219,6 +233,15 @@ class Invoice extends Model {
                 'description'       => "Accounting entry of the invoice."
             ],
 
+            'is_visible' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the invoice as visible.',
+                'help'              => 'In some situations, an invoice should not be shown or presented in some views or documents.
+                    This flag helps for this purpose. However, even if not visible, a posted invoice still impacts the Balance.',
+                'default'           => true
+            ],
+
+
             /*
             // #todo
             'accounting_entry_lines_ids' => [
@@ -230,6 +253,20 @@ class Invoice extends Model {
                 'ondetach'          => 'delete'
             ]
             */
+
+            'status' => [
+                'type'              => 'string',
+                'description'       => 'Current status of the invoice.',
+                'selection'         => [
+                    'proforma',             // draft invoice (no number yet)
+                    'posted',               // final invoice (with unique number and accounting entries)
+                    'cancelled'             // the invoice has been cancelled (through reversing entries)
+                ],
+                'default'           => 'proforma',
+                'dependents'        => ['name'],
+                'help'              => "Status set to 'invoice' means the invoice has been emitted with a unique number and accounting entries. `cancelled` means that the invoice has been cancelled through a credit note (and related reversing entries)."
+            ]
+
 
         ];
     }
@@ -256,6 +293,65 @@ class Invoice extends Model {
                 $result[$id] = $invoice['invoice_number'];
             }
         }
+        return $result;
+    }
+
+    protected static function calcSubTotals($self): array {
+        $result = [];
+        $self->read(['invoice_lines_ids' => ['vat_rate', 'total']]);
+        foreach($self as $id => $invoice) {
+            $subtotals = [];
+            foreach($invoice['invoice_lines_ids'] as $line) {
+                $vat_rate_index = number_format($line['vat_rate'] * 100, 2, '.', '');
+                if(!isset($subtotals[$vat_rate_index])) {
+                    $subtotals[$vat_rate_index] = 0.0;
+                }
+                // #memo - total is rounded to 2 decimals for compatibility with data computed with 4 decimals
+                $subtotals[$vat_rate_index] = round($subtotals[$vat_rate_index] + round($line['total'], 2), 2);
+            }
+            // #memo - has to be rounded on 2 decimals here and not on each line
+            $result[$id] = array_map(fn($subtotal) => round($subtotal, 2), $subtotals);
+        }
+
+        return $result;
+    }
+
+    /**
+     * #memo - must sum lines prices totals keeping 4 decimals and rounded to 2 decimals at the end
+     */
+    protected static function calcSubTotalsVat($self): array {
+        $result = [];
+        $self->read(['invoice_lines_ids' => ['vat_rate', 'total_vat']]);
+        foreach($self as $id => $invoice) {
+            $subtotals_vat = [];
+            foreach($invoice['invoice_lines_ids'] as $line) {
+                $vat_rate_index = number_format($line['vat_rate'] * 100, 2, '.', '');
+                if(!isset($subtotals_vat[$vat_rate_index])) {
+                    $subtotals_vat[$vat_rate_index] = 0.0;
+                }
+
+                $subtotals_vat[$vat_rate_index] = round($subtotals_vat[$vat_rate_index] + $line['total_vat'], 4);
+            }
+
+            // #memo - as to be rounded on 2 decimals here and not on each line
+            $result[$id] = array_map(fn($subtotal) => round($subtotal, 2), $subtotals_vat);
+        }
+
+        return $result;
+    }
+
+    protected static function calcTotalVat($self): array {
+        $result = [];
+        $self->read(['subtotals_vat']);
+        foreach($self as $id => $invoice) {
+            $total_vat = 0.0;
+            foreach($invoice['subtotals_vat'] as $subtotal) {
+                $total_vat = round($total_vat + $subtotal, 2);
+            }
+
+            $result[$id] = $total_vat;
+        }
+
         return $result;
     }
 

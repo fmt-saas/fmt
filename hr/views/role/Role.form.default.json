@@ -10,12 +10,12 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "code",
-                                                "width": "25%",
+                                                "width": "50%",
                                                 "widget": {
                                                     "heading": true
                                                 }
@@ -23,12 +23,31 @@
                                             {
                                                 "type": "field",
                                                 "value": "name",
-                                                "width": "25%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "description",
-                                                "width": "50%"
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "is_external",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_mandatory",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

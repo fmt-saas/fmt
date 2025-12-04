@@ -628,15 +628,14 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         // #todo - il y a la notion de lots groupés - faire une map, par propriétaire, par lot :
         // on peut le faire par groupe de lots (si un lot est marqué avec primary_lot_id, il peut être ignoré pour les calculs)
 
-        // fetch relevant accounting entries that apply to the chosen period
-        // #todo - plutot que filtrer sur invoice_id, on doit sans doute plutot regarder dans des journaux spécifiques (PUR, BNK)
-        // ->   * comptabiliser toutes les entrées comptables des comptes 6 et 7, quel que soit le journal
-        //      * marquer les écritures comme "décomptées"
-        // rechercher les accounting entry lines : comment filtrer pour n'avoir que les comptes 6 et 7 ??
+        // #memo - fetch relevant accounting entries that apply to the chosen period
+        //    * comptabiliser toutes les entrées comptables des comptes 6 et 7, quel que soit le journal
+        //    * marquer les écritures comme "décomptées"
         $accountingEntryLines = AccountingEntryLine::search([
                 ['fiscal_period_id', '=', $fiscal_period_id],
                 ['status', '=', 'validated'],
                 ['is_cleared', '=', false],
+                ['is_visible', '=', true],
                 ['account_class', 'in', [6, 7]]
             ])
             ->read([

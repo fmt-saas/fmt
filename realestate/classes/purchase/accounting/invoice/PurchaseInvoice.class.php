@@ -317,8 +317,99 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'policies'      => [],
                 'function'      => 'doAssignInvoiceNumber'
             ],
+            'unlock_invoice' => [
+                'description'   => 'Unlocks the invoice for editing.',
+                'help'          => 'Reverts posted accounting entries, preserves the original sequence number, deletes the entries from the invoice, and returns the invoice to a proforma state while keeping its invoice_number. Allowed only if no entry has been cleared.',
+                'policies'      => ['can_unlock'],
+                'function'      => 'doUnlockInvoice'
+            ],
+            'cancel_invoice' => [
+                'description'   => 'Cancels the invoice permanently (non-reversible).',
+                'help'          => 'Creates invisible reversal entries for all posted accounting entries and marks both the invoice and its entries as invisible. The invoice is permanently voided without creating a credit note and cannot be edited again.',
+                'policies'      => ['can_cancel'],
+                'function'      => 'doCancelInvoice'
+            ]
         ]);
     }
+
+    protected static function doUnlockInvoice($self, $orm) {
+        $self->read(['accounting_entries_ids']);
+        foreach($self as $id => $purchaseInvoice) {
+            // force deletion of non-cleared accounting entries
+            $orm->delete(AccountingEntry::getType(), $purchaseInvoice, false);
+        }
+        // #memo - upon next posting, the invoice_number will be kept (not regenerated) and a new accounting entry will be created
+        $self->update([
+                'status'    => 'proforma'
+            ]);
+
+    }
+
+    protected static function doCancelInvoice($self) {
+        $self->read(['accounting_entries_ids']);
+        foreach($self as $id => $purchaseInvoice) {
+            AccountingEntry::ids($purchaseInvoice['accounting_entries_ids'])
+                ->do('cancel')
+                ->update([
+                    'purchase_invoice_id' => $id,
+                    'is_visible'          => false
+                ]);
+        }
+        $self->update([
+                'status'    => 'cancelled',
+                'visible'   => false
+            ]);
+    }
+
+    /**
+     * We are not going to cancel but we use can_be_cancelled to check the status and whether there are any "cleared" lines.
+     *
+     */
+    protected static function policyCanUnlock($self) {
+        $result = [];
+        $self->read(['status', 'accounting_entries_ids' => ['status', 'has_cleared_lines']]);
+        foreach($self as $id => $purchaseInvoice) {
+            if($purchaseInvoice['status'] !== 'posted') {
+                $result[$id] = [
+                        'non_posted_invoice' => 'Only posted invoice can be unlocked.'
+                    ];
+                continue;
+            }
+            foreach($purchaseInvoice['accounting_entries_ids'] as $accounting_entry_id => $accountingEntry) {
+                if($accountingEntry['status'] !== 'validated') {
+                    $result[$id] = [
+                            'non_validated_entry' => 'Only invoice with validated entry can be unlocked.'
+                        ];
+                    continue 2;
+                }
+                if($accountingEntry['has_cleared_lines']) {
+                    $result[$id] = [
+                            'has_cleared_lines' => 'Accounting entry has already been cleared.'
+                        ];
+                    continue 2;
+                }
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyCanCancel($self) {
+        $result = [];
+        $self->read(['accounting_entries_ids']);
+        foreach($self as $id => $purchaseInvoice) {
+            try {
+                AccountingEntry::ids($purchaseInvoice['accounting_entries_ids'])->assert(['can_be_cancelled']);
+            }
+            catch(\Exception $e) {
+                $result[$id] = [
+                    'non_cancellable_entry' => 'At least one accounting entry is non-cancellable.'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
 
     public static function getPolicies(): array {
 
@@ -328,6 +419,17 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'description' => 'Verifies that an invoice can be allocated of the posting date(s).',
                 'function'    => 'policyCanBeAllocated'
             ],
+            'can_unlock' => [
+                'description' => 'Checks if the invoice can be unlocked.',
+                'help'        => 'Ensures the invoice can be unlocked: all accounting entries must be not cleared, the invoice must be posted/finalised, and it must not already be in proforma state.',
+                'function'    => 'policyCanUnlock'
+            ],
+
+            'can_cancel' => [
+                'description' => 'Checks if the invoice can be cancelled.',
+                'help'        => 'Ensures the invoice can be permanently cancelled: none of its accounting entries may be cleared, the invoice must not already be cancelled, and the fiscal period must allow cancellation.',
+                'function'    => 'policyCanCancel'
+            ]
         ]);
     }
 
@@ -382,7 +484,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 ->update(['funding_id' => $funding['id']]);
         }
     }
-
 
     protected static function policyCanBeInvoiced($self, $dispatch): array {
         $result = [];
@@ -1010,8 +1111,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function doAssignInvoiceNumber($self) {
-        $self->read(['condo_id', 'fiscal_year_id' => ['code'], 'fiscal_period_id' => ['code']]);
+        $self->read(['condo_id', 'invoice_number', 'fiscal_year_id' => ['code'], 'fiscal_period_id' => ['code']]);
         foreach($self as $id => $invoice) {
+            // #memo - unlocked invoices are set to status `proforma`, but keep their invoice number
+            if($invoice['invoice_number']) {
+                continue;
+            }
             $format = Setting::get_value(
                     'purchase',
                     'accounting',
