@@ -70,6 +70,13 @@ foreach($condominiums_ids as $condo_id) {
         'employee_id'   => $employee['id'],
         'role_id'       => 4
     ]);
+
+    RoleAssignment::create([
+        'condo_id'      => $condo_id,
+        'employee_id'   => $employee['id'],
+        'role_id'       => 9
+    ]);
+
 }
 
 $condominiums

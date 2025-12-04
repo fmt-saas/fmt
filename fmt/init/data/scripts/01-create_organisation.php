@@ -81,6 +81,17 @@ $team = Team::create([
     ->update(['employees_ids' => [$employee['id']]])
     ->first();
 
+
+// assign employee as accountant for all condos
+RoleAssignment::create([
+        'condo_id'      => null,
+        // accountant
+        'role_id'       => 3
+    ])
+    ->update([
+        'employee_id'   => $employee['id']
+    ]);
+
 // assign employee as condo_manager for all condos
 RoleAssignment::create([
         'condo_id'      => null,
@@ -94,7 +105,7 @@ RoleAssignment::create([
 // assign employee as document_dispatch_officer for all condos
 RoleAssignment::create([
         'condo_id'      => null,
-        // condo_manager
+        // document_dispatch_officer
         'role_id'       => 9
     ])
     ->update([
