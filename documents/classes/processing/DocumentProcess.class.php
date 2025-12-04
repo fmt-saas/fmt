@@ -198,14 +198,15 @@ class DocumentProcess extends Model {
             'document_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
-                'visible'           => ['document_type_code', '=', 'invoice'],
+                'visible'           => [['has_target_object', '=', true], ['document_type_code', '=', 'invoice']],
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['supplier_id', '=', 'object.supplier_id']]
             ],
 
             'document_bank_statement_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankStatement',
-                'visible'           => ['document_type_code', '=', 'bank_statement']
+                'visible'           => [['has_target_object', '=', true], ['document_type_code', '=', 'bank_statement']],
+                'domain'            => [['condo_id', '=', 'object.condo_id']]
             ]
 
             // #todo - [...] to be completed according to document types that are supported by the DocumentProcess workflow

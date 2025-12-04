@@ -11,9 +11,8 @@
             },
             {
                 "type": "field",
-                "value": "code",
-                "width": "15%",
-                "sortable": true
+                "value": "description",
+                "width": "65%"
             },
             {
                 "type": "field",
@@ -29,8 +28,9 @@
             },
             {
                 "type": "field",
-                "value": "description",
-                "width": "65%"
+                "value": "code",
+                "width": "15%",
+                "sortable": true
             }
         ]
     }

@@ -6,8 +6,66 @@
             "ACTION.CREATE" : false
         }
     },
+    "routes": [
+        {
+            "id": "route.purchase_invoice",
+            "label": "Invoice",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "view": "form.default",
+                "domain": ["id", "=", "object.document_invoice_id"]
+            },
+            "visible": [
+                [true, "=", "object.has_target_object"],
+                ["invoice", "=", "object.document_type_code"]
+            ]
+        },
+        {
+            "id": "route.bank_statement",
+            "label": "Bank Statement",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "finance\\bank\\BankStatement",
+                "view": "form.default",
+                "domain": ["id", "=", "object.document_bank_statement_id"]
+            },
+            "visible": [
+                [true, "=", "object.has_target_object"],
+                ["bank_statement", "=", "object.document_type_code"]
+            ]
+        }
+    ],
     "layout": {
         "items": [
+            {
+                "type": "field",
+                "value": "document_invoice_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "document_bank_statement_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "document_type_code",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "has_target_object",
+                "width": "0%",
+                "visible": false
+            },
             {
                 "type": "field",
                 "value": "name",
