@@ -24,7 +24,7 @@
                 "purpose": "view",
                 "domain": [["id", "=", "object.document_id"]]
             },
-            "visible": ["document_id", "<>", null]
+            "visible": [null, "<>", "object.document_id"]
         },
         {
             "id": "item.invoice",
@@ -38,7 +38,7 @@
                 "purpose": "view",
                 "domain": [["id", "=", "object.document_invoice_id"]]
             },
-            "visible": ["document_invoice_id", "<>", null]
+            "visible": [null, "<>", "object.document_invoice_id"]
         },
         {
             "id": "item.bank_statement",
@@ -52,10 +52,27 @@
                 "purpose": "view",
                 "domain": [["id", "=", "object.document_bank_statement_id"]]
             },
-            "visible": ["document_bank_statement_id", "<>", null]
+            "visible": [null, "<>", "object.document_bank_statement_id"]
         }
     ],
     "actions": [
+        {
+            "id": "action.mark_assigned",
+            "label": "Mark Assigned",
+            "description": "Attempt to mark the processing as `assigned`.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "transition": "assign"
+            },
+            "visible": [
+                ["status", "=", "created"],
+                ["has_target_object", "=", true],
+                ["document_type_id", "<>", null],
+                ["condo_id", "<>", null],
+                ["assigned_employee_id", "<>", null]
+            ]
+        },
         {
             "id": "action.perform_identification",
             "label": "Analyze",
@@ -65,9 +82,9 @@
                 "entity": "documents\\processing\\DocumentProcess",
                 "action": "perform_identification"
             },
-            "visible": [
-                ["state", "=", "instance"],
-                ["status", "=", "created"],
+            "visible": false,
+            "visible1": [
+                ["status", "in", ["created", "assigned"]],
                 ["document_type_id", "=", null]
             ]
         },
@@ -76,9 +93,11 @@
             "label": "Extract",
             "description": "Attempt to extract data from the Attachment.",
             "controller": "core_model_do",
-            "visible": [
-                ["status", "=", "created"],
+            "visible": false,
+            "visible1": [
+                ["status", "in", ["created", "assigned"]],
                 ["document_type_id", "<>", null],
+                ["document_id", "<>", null],
                 ["has_document_json", "=", false]
             ],
             "params": {
@@ -92,16 +111,19 @@
             "label": "Attempt auto-match",
             "description": "Attempt to identify condominium & supplier.",
             "controller": "core_model_do",
-            "visible": [
+            "visible": false,
+            "visible1": [
                 [
-                    ["status", "=", "created"],
+                    ["status", "in", ["created", "assigned"]],
                     ["document_type_id", "<>", null],
+                    ["document_id", "<>", null],
                     ["has_document_json", "=", true],
                     ["condo_id", "=", null]
                 ],
                 [
-                    ["status", "=", "created"],
+                    ["status", "in", ["created", "assigned"]],
                     ["document_type_id", "<>", null],
+                    ["document_id", "<>", null],
                     ["has_document_json", "=", true],
                     ["supplier_id", "=", null]
                 ]
@@ -117,8 +139,9 @@
             "label": "Draft target",
             "description": "Attempt to extract data from the Attachment.",
             "controller": "core_model_do",
-            "visible": [
-                ["status", "=", "created"],
+            "visible": false,
+            "visible1": [
+                ["status", "in", ["created", "assigned"]],
                 ["has_target_object", "=", false],
                 ["document_type_id", "<>", null],
                 ["condo_id", "<>", null]
@@ -130,11 +153,29 @@
             }
         },
         {
+            "id": "action.attempt_auto_draft",
+            "label": "Draft target",
+            "description": "Attempt to perform auto-completion based on imported Attachment.",
+            "controller": "core_model_do",
+            "visible": [
+                ["status", "in", ["created", "assigned"]],
+                ["has_target_object", "=", false],
+                ["document_type_id", "<>", null],
+                ["condo_id", "<>", null]
+            ],
+            "params": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "action": "attempt_auto_draft",
+                "ids": []
+            }
+        },
+        {
             "id": "action.complete",
             "label": "Mark as Complete",
             "description": "Mark the document as completed.",
             "controller": "core_model_transition",
-            "visible": [
+            "visible": false,
+            "visible1": [
                 ["status", "=", "created"],
                 ["has_target_object", "=", true],
                 ["has_document_json", "=", true]
@@ -150,34 +191,11 @@
             "label": "Validate",
             "description": "Mark the document as validated.",
             "controller": "core_model_transition",
-            "visible": [ ["status", "=", "completed"] ],
+            "visible": false,
+            "visible1": [ ["status", "=", "completed"] ],
             "params": {
                 "entity": "documents\\processing\\DocumentProcess",
                 "transition": "validate",
-                "ids": []
-            }
-        },
-        {
-            "id": "action.record",
-            "label": "Resolve",
-            "description": "Create related entities as proforma.",
-            "controller": "core_model_transition",
-            "visible": [ ["status", "=", "validated"] ],
-            "params": {
-                "entity": "documents\\processing\\DocumentProcess",
-                "transition": "record",
-                "ids": []
-            }
-        },
-        {
-            "id": "action.confirm",
-            "label": "Confirm",
-            "description": "Mark the document as confirmed.",
-            "controller": "core_model_transition",
-            "visible": [ ["status", "=", "recorded"] ],
-            "params": {
-                "entity": "documents\\processing\\DocumentProcess",
-                "transition": "confirm",
                 "ids": []
             }
         },
@@ -186,7 +204,8 @@
             "label": "Integrate",
             "description": "Integrate the document to accounting.",
             "controller": "core_model_transition",
-            "visible": [ ["status", "=", "confirmed"] ],
+            "visible": false,
+            "visible1": [ ["status", "=", "confirmed"] ],
             "params": {
                 "entity": "documents\\processing\\DocumentProcess",
                 "transition": "integrate",
@@ -194,13 +213,14 @@
             }
         },
         {
-            "id": "action.delete",
+            "id": "action.remove",
             "label": "Delete",
             "description": "Delete the import and the related document.",
-            "controller": "core_model_delete",
+            "controller": "core_model_do",
             "params": {
                 "entity": "documents\\processing\\DocumentProcess",
-                "permanent": true,
+                "action": "remove",
+                "success_status": 205,
                 "ids": []
             },
             "confirm": true,
@@ -238,15 +258,14 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Doc Type",
-                                                "value": "document_type_code",
-                                                "width": "50%",
-                                                "visible": false
+                                                "label": "Assigned Employee",
+                                                "value": "assigned_employee_id",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Doc Type",
-                                                "value": "has_target_object",
+                                                "value": "document_type_code",
                                                 "width": "50%",
                                                 "visible": false
                                             },
@@ -256,6 +275,25 @@
                                                 "value": "has_document_json",
                                                 "width": "50%",
                                                 "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Doc Type",
+                                                "value": "document_type_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Doc Sub Type",
+                                                "value": "document_subtype_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Doc Type",
+                                                "value": "has_target_object",
+                                                "width": "50%",
+                                                "visible": true
                                             },
                                             {
                                                 "type": "field",
@@ -275,18 +313,6 @@
                                                 "widget": {
                                                     "readonly": true
                                                 }
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Doc Type",
-                                                "value": "document_type_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Doc Sub Type",
-                                                "value": "document_subtype_id",
-                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
@@ -310,7 +336,7 @@
                                                 "visible": ["document_type_code", "in", ["invoice", "credit_note"]],
                                                 "widget": {
                                                     "type": "pdf",
-                                                    "height": 700
+                                                    "height": 800
                                                 }
                                             }
                                         ]

@@ -262,12 +262,6 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             if(!$invoiceLine['invoice_id']['document_process_id']) {
                 continue;
             }
-            /*
-            // #memo - this is allowed: change on line triggers an update of the subsequent document_json
-            if($invoiceLine['invoice_id']['document_process_id']['status'] !== 'created') {
-                return ['invoice_id' => ['non_editable' => 'Line cannot be updated after Document processing.']];
-            }
-            */
         }
     }
 

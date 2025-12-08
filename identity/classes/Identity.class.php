@@ -1689,8 +1689,14 @@ class Identity extends Model {
      */
     public static function canupdate($om, $ids, $values, $lang='en') {
         if(isset($values['type_id'])) {
-            $identities = $om->read(Identity::getType(), $ids, [ 'type', 'firstname', 'lastname', 'legal_name' ], $lang);
+            $identities = $om->read(Identity::getType(), $ids, [ 'type', 'firstname', 'lastname', 'legal_name', 'registration_number' ], $lang);
             foreach($identities as $id => $identity) {
+                // si type == 'CO', le registration_number est obligatoire
+                if($identity['type'] === 'CO') {
+                    if(!$identity['registration_number'] || strlen($identity['registration_number']) <= 0) {
+                        return ['registration_number' => ['missing_registration_number' => 'Registration number is mandatory for companies.']];
+                    }
+                }
 
                 /*
                 if($values['type_id'] == 1) {

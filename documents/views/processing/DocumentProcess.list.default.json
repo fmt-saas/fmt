@@ -8,6 +8,21 @@
     },
     "routes": [
         {
+            "id": "route.document_process",
+            "label": "Document Process",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "view": "form.default",
+                "domain": ["id", "=", "object.id"]
+            },
+            "visible": [
+                [false, "=", "object.has_target_object"]
+            ]
+        },
+        {
             "id": "route.purchase_invoice",
             "label": "Invoice",
             "inline": true,
@@ -97,12 +112,6 @@
                 "type": "field",
                 "value": "document_id",
                 "width": "25%",
-                "readonly": true
-            },
-            {
-                "type": "field",
-                "value": "has_warning",
-                "width": "15%",
                 "readonly": true
             },
             {

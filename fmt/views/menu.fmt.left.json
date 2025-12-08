@@ -23,6 +23,28 @@
                             "entity": "realestate\\sale\\pay\\Funding",
                             "view": "list.default"
                         }
+                    },
+                    {
+                        "id": "item.documents.invoice_processings",
+                        "type": "entry",
+                        "label": "Invoice Processing",
+                        "icon": "pending_actions",
+                        "description": "Monitor and manage invoices processing.",
+                        "context": {
+                            "view": "list.processing",
+                            "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice"
+                        }
+                    },
+                    {
+                        "id": "item.documents.bank_statement_processings",
+                        "type": "entry",
+                        "label": "Bank Statements Processing",
+                        "icon": "pending_actions",
+                        "description": "Monitor and manage bank statements processing.",
+                        "context": {
+                            "view": "list.processing",
+                            "entity": "finance\\bank\\BankStatement"
+                        }
                     }
                 ]
             },
@@ -600,7 +622,7 @@
                         "type": "entry",
                         "label": "Doc Processing",
                         "icon": "pending_actions",
-                        "description": "Monitor and manage document processing.",
+                        "description": "Monitor and manage all documents processing.",
                         "context": {
                             "view": "list.default",
                             "entity": "documents\\processing\\DocumentProcess"

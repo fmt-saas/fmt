@@ -1,0 +1,68 @@
+{
+    "name": "Invoice",
+    "description": "An invoice is a legal document issued by a seller to a buyer that relates to a sale, and is part of the accounting system.",
+    "header": {
+        "actions": {
+            "ACTION.CREATE": false
+        }
+    },
+    "routes": [
+        {
+            "id": "item.import",
+            "label": "Import an Invoice",
+            "description": "",
+            "icon": "receipt_long",
+            "context": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "view": "form.import",
+                "purpose": "create"
+            }
+        }
+    ],
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "25%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "created",
+                "width": "10%",
+                "readonly": true,
+                "widget": {
+                    "usage": "date"
+                }
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "33%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "label": "Assigned Employee",
+                "value": "assigned_employee_id",
+                "width": "25%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "label": "Document",
+                "value": "document_id",
+                "width": "25%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "label": "status",
+                "value": "document_process_status",
+                "width": "10%",
+                "readonly": true
+            }
+        ]
+    }
+}

@@ -22,39 +22,107 @@
             "description": "Cancel invoice.",
             "controller": "core_model_transition",
             "confirm": true,
-            "visible": ["status", "=", "posted"],
+            "visible": false,
+            "visible_help": "A purchase invoice should always be cancelled through its parent DocumentProcess.",
+            "visible1": ["status", "=", "posted"],
             "params": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                 "transition": "cancel",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.complete",
+            "label": "Mark Completed",
+            "description": "Mark the invoice as completed.",
+            "controller": "core_model_do",
+            "visible": [["document_process_status", "=", "assigned"]],
+            "params": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "action": "mark_completed",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.valid",
+            "label": "Mark Validated",
+            "description": "Mark the invoice as validated.",
+            "controller": "core_model_do",
+            "visible": [["document_process_status", "=", "completed"]],
+            "params": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "action": "mark_validated",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.cancel",
+            "label": "Cancel",
+            "description": "Cancel the processing of the invoice. This action will mark the (proforma) invoice as cancelled (not to be imported). This cannot be undone.",
+            "controller": "core_model_do",
+            "confirm": true,
+            "visible": false,
+            "visible1": [
+                ["document_process_status", "in", ["assigned", "completed"]]
+            ],
+            "params": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "action": "mark_cancelled",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.remove",
+            "label": "Remove",
+            "description": "Remove the invoice and the processing. Use this action when the import was a mistake or the invoice is a duplicate. This action cannot be undone.",
+            "controller": "core_model_do",
+            "confirm": true,
+            "visible": [
+                ["document_process_status", "in", ["created", "assigned", "completed"]]
+            ],
+            "params": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "action": "remove",
+                "success_status": 205,
                 "ids": []
             }
         }
     ],
     "routes": [
         {
-            "id": "item.import_invoice",
-            "label": "Import Invoice",
-            "description": "",
-            "icon": "file_upload",
-            "context": {
-                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
-                "view": "form.import",
-                "mode": "edit",
-                "domain": [["id", "=", "object.id"]]
-            },
-            "visible": [null, "=", "object.document_id"]
-        },
-        {
-            "id": "item.view_invoice",
-            "label": "View Invoice",
+            "id": "item.view_document",
+            "label": "View Original Document",
             "description": "",
             "icon": "open_in_new",
             "route": "/?get=documents_document&id=object.document_id",
             "target": "_blank",
-            "absolute": true,
-            "visible": false,
-            "visible_help": "prevent showing link to preserve space while encoding (doc already shown if present)",
-            "visible1": [null, "<>", "object.document_id"]
+            "absolute": true
+        },
+        {
+            "id": "item.document",
+            "label": "Document",
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "documents\\Document",
+                "view": "form.default",
+                "mode": "view",
+                "purpose": "view",
+                "domain": [["id", "=", "object.document_id"]]
+            },
+            "visible": [null, "<>", "object.document_id"]
+        },
+        {
+            "id": "item.view_document_process",
+            "label": "Doc Processing",
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "view": "form.default",
+                "mode": "view",
+                "domain": [["id", "=", "object.document_process_id"]]
+            }
         }
     ],
     "header": {
@@ -83,6 +151,16 @@
                                             {
                                                 "type": "field",
                                                 "value": "status",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_process_status",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_process_id",
                                                 "visible": false
                                             },
                                             {
@@ -237,7 +315,8 @@
                                                 "id": "item.description",
                                                 "type": "field",
                                                 "value": "description",
-                                                "width": "66%"
+                                                "width": "66%",
+                                                "required": true
                                             },
 
                                             {

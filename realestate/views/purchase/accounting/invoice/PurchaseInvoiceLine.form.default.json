@@ -52,6 +52,11 @@
                                                 "width": "50%"
                                             },
                                             {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "100%"
+                                            },
+                                            {
                                                 "type": "field",
                                                 "value": "apportionment_id",
                                                 "width": "100%"

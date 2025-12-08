@@ -100,14 +100,13 @@
         },
         "status": {
             "label": "Statut",
-            "description": "Position dans le workflow (créé, validé, intégré…).",
-            "help": "",
+            "description": "Position dans le workflow du traitement documentaire.",
+            "help": "Suit les étapes de création, d'assignation, de validation et d'intégration.",
             "selection": {
                 "created": "Brouillon",
+                "assigned": "Assigné",
                 "completed": "Complété",
                 "validated": "Validé",
-                "recorded": "Comptabilisé",
-                "confirmed": "Confirmé",
                 "integrated": "Intégré",
                 "cancelled": "Annulé"
             }
@@ -148,6 +147,10 @@
                 "action.perform_drafting": {
                     "label": "Préparer la cible",
                     "description": "Tenter d'extraire les données de la pièce jointe."
+                },
+                "action.attempt_auto_draft": {
+                    "label": "Préparer la cible",
+                    "description": "Tenter d'extraire les données et générer le document cible."
                 },
                 "action.complete": {
                     "label": "Marquer comme complété",

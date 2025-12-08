@@ -259,6 +259,36 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'multilang'         => true,
                 'onupdate'          => 'onupdateDescription'
             ],
+
+            // #memo - some actions of this entity rely on status from DocumentProcessing
+            'document_process_status' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Current status of the Document Processing.',
+                'help'              => "This value is used in addition to the status, in order to check allowed actions.",
+                'selection'         => [
+                    'created',
+                    'assigned',
+                    'completed',
+                    'validated',
+                    'integrated',
+                    'cancelled'
+                ],
+                'relation'          => ['document_process_id' => 'status'],
+                'store'             => true,
+                'readonly'          => true
+            ],
+
+            'assigned_employee_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'hr\employee\Employee',
+                'description'       => 'Employee currently in charge of the processing.',
+                'help'              => 'Assigned employee can evolve over time, and might depend on Role.',
+                'relation'          => ['document_process_id' => 'assigned_employee_id'],
+                'store'             => true,
+                'readonly'          => true
+            ]
         ];
     }
 
@@ -328,7 +358,31 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'help'          => 'Creates invisible reversal entries for all posted accounting entries and marks both the invoice and its entries as invisible. The invoice is permanently voided without creating a credit note and cannot be edited again.',
                 'policies'      => ['can_cancel'],
                 'function'      => 'doCancelInvoice'
+            ],
+            'mark_completed' => [
+                'description'   => 'Mark the (proforma) invoice as complete and ready to be validated.',
+                'help'          => 'Checks that required information are present and consistent, and relay to next person in charge, through related Document Process.',
+                'policies'      => ['can_mark_completed'],
+                'function'      => 'doMarkCompleted'
+            ],
+            'mark_validated' => [
+                'description'   => 'Mark the (proforma) invoice as validated and ready to be posted (integrated).',
+                'help'          => 'Invoice has been reviewed, and Employee with required role requests the invoice to be marked as validated.',
+                'policies'      => ['can_mark_validated'],
+                'function'      => 'doMarkValidated'
+            ],
+            'mark_cancelled' => [
+                'description'   => 'Mark the (proforma) invoice as cancelled (not to be imported).',
+                'policies'      => ['can_mark_cancelled'],
+                'function'      => 'doMarkCancelled'
+            ],
+            'remove' => [
+                'description'   => 'Remove the invoice and the processing.',
+                'help'          => 'This action is meant to be used when the import was a mistake or the invoice is a duplicate. This action cannot be undone.',
+                'policies'      => ['can_remove'],
+                'function'      => 'doRemove'
             ]
+
         ]);
     }
 
@@ -359,6 +413,169 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'status'    => 'cancelled',
                 'visible'   => false
             ]);
+    }
+
+    protected static function policyCanMarkCancelled($self) {
+        $result = [];
+        foreach($self as $id => $purchaseInvoice) {
+        }
+        return $result;
+    }
+
+    protected static function policyCanMarkCompleted($self) {
+        $result = [];
+        $self->read(['document_process_status', 'document_process_id']);
+        foreach($self as $id => $purchaseInvoice) {
+            if($purchaseInvoice['document_process_status'] !== 'assigned') {
+                $result[$id] = [
+                        'wrong_document_status_assigned' => 'Only `assigned` documents can be marked as complete.'
+                    ];
+                continue;
+            }
+
+            // contrairement au document process, ici on peut vérifier que toutes les inforamtions requises pour une facture sont complètes
+
+            // #memo - this should be done in a dedicated controller assigned to a ValidationRule
+
+
+            /*
+            invoice_type length > 0
+            condo_id
+            condo_bank_account_id
+            suppliership_bank_account_id
+            supplier_invoice_number
+            payable_amount <> 0
+            fiscal_year_id
+            emission_date
+            */
+
+            // #memo - to ease error identification we try to avoid raising an exception during the validation
+            try {
+                DocumentProcess::id($purchaseInvoice['document_process_id'])->assert('is_complete');
+            }
+            catch(\Exception $e) {
+                // Document Process is not complete
+                $errors = unserialize($e->getMessage());
+                $result[$id] = [
+                        'failing_policy_is_complete' => $errors
+                    ];
+
+                // #todo - logs specific errors to ease debugging
+
+                // resulting JSON violates the purchase-invoice schema
+                if(isset($errors['invalid_document'])) {
+                    foreach($errors['invalid_document'] as $error_id => $error_message) {
+                        switch($error_id) {
+                            case '/lines':
+                                // "Array should have at least 1 items, 0 found"
+                                break;
+                            case '/payment/iban':
+                                // "The string should match pattern: ^[A-Z]{2}\\d{2}[A-Z0-9]{11,30}$"
+                                break;
+                            case '/payment/bic':
+                                // "The string should match pattern: ^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$"
+                                break;
+                            // #todo - continue list of possible JSON validation errors
+                        }
+                    }
+                }
+                elseif(isset($errors['missing_document'])) {
+                }
+                elseif(isset($errors['missing_document_type'])) {
+                }
+                elseif(isset($errors['invalid_document_type'])) {
+                }
+                elseif(isset($errors['missing_document_json'])) {
+                }
+                elseif(isset($errors['document_validation_error'])) {
+                }
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyCanMarkValidated($self) {
+        $result = [];
+        $self->read(['document_process_status', 'document_process_id']);
+        foreach($self as $id => $purchaseInvoice) {
+            if($purchaseInvoice['document_process_status'] !== 'completed') {
+                $result[$id] = [
+                        'wrong_document_status_completed' => 'Only `completed` documents can be marked as valid.'
+                    ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    protected static function doMarkValidated($self) {
+        $self->read(['document_process_id']);
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['document_process_id']) {
+                continue;
+            }
+            DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('validate');
+            // reset computed relation fields
+            self::id($id)->update(['document_process_status' => null]);
+        }
+    }
+
+    protected static function doMarkCompleted($self) {
+        $self->read(['document_process_id']);
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['document_process_id']) {
+                continue;
+            }
+            DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('complete');
+            // reset computed relation fields
+            self::id($id)->update(['document_process_status' => null]);
+        }
+    }
+
+    protected static function doMarkCancelled($self) {
+        $self->read(['document_process_id']);
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['document_process_id']) {
+                continue;
+            }
+            DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('cancel');
+            // reset computed relation fields
+            self::id($id)->update(['document_process_status' => null]);
+        }
+    }
+
+    protected static function doRemove($self) {
+        // #memo - status is checked in can_remove, but also here for consistency security
+        $self->read(['status', 'document_process_id']);
+        foreach($self as $id => $purchaseInvoice) {
+            if($purchaseInvoice['status'] !== 'proforma') {
+                throw new \Exception('cannot_remove_non_proforma', EQ_ERROR_NOT_ALLOWED);
+                continue;
+            }
+
+            self::id($id)->delete();
+            if($purchaseInvoice['document_process_id']) {
+                DocumentProcess::id($purchaseInvoice['document_process_id'])
+                    // #memo - this sets the DocumentProcess has_target_object to false
+                    ->update(['document_invoice_id' => null])
+                    ->do('remove');
+            }
+        }
+    }
+
+    protected static function policyCanRemove($self) {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $purchaseInvoice) {
+            if($purchaseInvoice['status'] === 'proforma') {
+                $result[$id] = [
+                        'cannot_remove_non_proforma' => 'Only non-posted invoice can be removed.'
+                    ];
+                continue;
+            }
+        }
+        return [];
     }
 
     /**
@@ -424,11 +641,28 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'help'        => 'Ensures the invoice can be unlocked: all accounting entries must be not cleared, the invoice must be posted/finalised, and it must not already be in proforma state.',
                 'function'    => 'policyCanUnlock'
             ],
-
             'can_cancel' => [
                 'description' => 'Checks if the invoice can be cancelled.',
-                'help'        => 'Ensures the invoice can be permanently cancelled: none of its accounting entries may be cleared, the invoice must not already be cancelled, and the fiscal period must allow cancellation.',
+                'help'        => 'Ensures the (posted) invoice can be permanently cancelled: none of its accounting entries may be cleared, the invoice must not already be cancelled, and the fiscal period must allow cancellation.',
                 'function'    => 'policyCanCancel'
+            ],
+            'can_remove' => [
+                'description' => 'Checks if the invoice can be removed.',
+                'help'        => 'Ensures the invoice is still a draft (proforma).',
+                'function'    => 'policyCanRemove'
+            ],
+            // policies relating to Document Process
+            'can_mark_cancelled' => [
+                'description' => 'Checks if the invoice processing can be cancelled.',
+                'function'    => 'policyCanMarkCancelled'
+            ],
+            'can_mark_completed' => [
+                'description' => 'Checks if the invoice processing can be marked as completed.',
+                'function'    => 'policyCanMarkCompleted'
+            ],
+            'can_mark_validated' => [
+                'description' => 'Checks if the invoice processing can be marked as validated.',
+                'function'    => 'policyCanMarkValidated'
             ]
         ]);
     }
@@ -1309,8 +1543,8 @@ protected static function calcFiscalYearId($self) {
                 if($invoice['status'] !== 'proforma') {
                     return ['status' => ['non_editable' => 'Purchase Invoice cannot be updated after recording.']];
                 }
-                if($invoice['document_process_id'] && $invoice['document_process_id']['status'] !== 'created') {
-                    return ['status' => ['non_editable' => 'Invoice cannot be updated after Document processing.']];
+                if($invoice['document_process_id'] && !in_array($invoice['document_process_id']['status'], ['created', 'assigned'])) {
+                    return ['status' => ['non_editable' => 'Purchase Invoice cannot be updated after Document processing.']];
                 }
             }
             if($invoice['fiscal_period_id'] && $invoice['fiscal_period_id']['status'] !== 'open') {

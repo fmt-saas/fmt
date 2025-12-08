@@ -40,7 +40,8 @@ class ValidationRule extends Model {
             'document_type_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentType',
-                'description'       => 'Document type linked to the rule.'
+                'description'       => 'Document type linked to the rule.',
+                'required'          => true
             ],
 
             'document_subtype_id' => [
@@ -53,7 +54,8 @@ class ValidationRule extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\validation\ValidationRuleLine',
                 'foreign_field'     => 'validation_rule_id',
-                'description'       => "Lines relating to the rule."
+                'description'       => 'Lines relating to the rule.',
+                'help'              => "Most validations rules use a single line, but defining several conditions (distinct controllers) is possible."
             ]
 
         ];

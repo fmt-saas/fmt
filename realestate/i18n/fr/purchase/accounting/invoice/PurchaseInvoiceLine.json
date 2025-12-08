@@ -1,0 +1,97 @@
+{
+    "name": "Ligne de facture",
+    "plural": "Lignes de facture",
+    "description": "Détail (produit, quantité et montants) faisant partie d'une facture.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par la ligne.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libellé",
+            "description": "Libellé principal affiché sur la facture.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Complément éventuel indépendant du produit.",
+            "help": ""
+        },
+        "invoice_line_group_id": {
+            "label": "Groupe",
+            "description": "Groupe de lignes auquel la ligne appartient.",
+            "help": ""
+        },
+        "invoice_id": {
+            "label": "Facture",
+            "description": "Facture associée.",
+            "help": ""
+        },
+        "unit_price": {
+            "label": "Prix unitaire",
+            "description": "Prix unitaire hors taxes.",
+            "help": ""
+        },
+        "vat_rate": {
+            "label": "Taux TVA",
+            "description": "Taux de TVA appliqué.",
+            "help": ""
+        },
+        "qty": {
+            "label": "Quantité",
+            "description": "Quantité facturée.",
+            "help": ""
+        },
+        "free_qty": {
+            "label": "Quantité offerte",
+            "description": "Quantité exclue de la facturation.",
+            "help": ""
+        },
+        "discount": {
+            "label": "Remise",
+            "description": "Taux de remise à appliquer.",
+            "help": ""
+        },
+        "vat": {
+            "label": "Montant TVA",
+            "description": "TVA calculée sur la ligne.",
+            "help": ""
+        },
+        "total": {
+            "label": "Total HT",
+            "description": "Montant hors taxes calculé.",
+            "help": ""
+        },
+        "price": {
+            "label": "Total TVAC",
+            "description": "Montant toutes taxes comprises calculé.",
+            "help": ""
+        },
+        "downpayment_invoice_id": {
+            "label": "Facture d'acompte",
+            "description": "Facture d'acompte rattachée à la ligne.",
+            "help": ""
+        },
+        "is_private_expense": {
+            "label": "Charge privée",
+            "description": "Marque la ligne comme dépense privée.",
+            "help": "Les dépenses privées peuvent être refacturées immédiatement ou affectées aux comptes propriétaires."
+        },
+        "has_instant_reinvoice": {
+            "label": "Refacturation immédiate",
+            "description": "Refacture automatiquement la dépense privée dès son enregistrement.",
+            "help": "Active la création immédiate des écritures de refacturation pour la charge privée."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Ligne de facture",
+            "description": "Fiche ligne de facture (prix, quantités, groupe et TVA)."
+        },
+        "list.default": {
+            "name": "Lignes de facture",
+            "description": "Liste des lignes groupées avec montants unitaires et totaux."
+        }
+    }
+}

@@ -25,6 +25,7 @@
             "label": "Meta data",
             "description": "",
             "icon": "data_object",
+            "visible": false,
             "context": {
                 "entity": "documents\\Document",
                 "view": "form.meta",
@@ -56,6 +57,18 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "has_document_json",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_type_code",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "name",
                                                 "width": "100%"
                                             },
@@ -66,18 +79,6 @@
                                                 "widget": {
                                                     "text_decoration": "underline"
                                                 }
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_document_json",
-                                                "width": "0%",
-                                                "visible": false
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "document_type_code",
-                                                "width": "0%",
-                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
@@ -121,11 +122,6 @@
                                             },
                                             {
                                                 "type": "label",
-                                                "value": "",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "label",
                                                 "value": "Document Linking",
                                                 "width": "100%",
                                                 "widget": {
@@ -140,18 +136,6 @@
                                             {
                                                 "type": "field",
                                                 "value": "is_source",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Invoice",
-                                                "value": "purchase_invoice_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Bank Statement",
-                                                "value": "bank_statement_id",
                                                 "width": "50%"
                                             }
                                         ]
@@ -179,6 +163,123 @@
                                                 "widget": {
                                                     "type": "pdf",
                                                     "height": "700"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.details",
+                        "label":"Details",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "align": "left",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "content_type",
+                                                "width": "30%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "readable_size",
+                                                "width": "25%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Language",
+                                                "value": "lang_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "public",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "align": "right",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "preview_image",
+                                                "width": "100%",
+                                                "readonly": true
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.json",
+                        "label":"Document JSON",
+                        "visible": ["has_document_json", "=", true],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "align": "left",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "has_document_json",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_json",
+                                                "width": "50%",
+                                                "readonly": true,
+                                                "widget": {
+                                                    "height": "400"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "sections.analysis",
+                        "label": "Document analysis",
+                        "visible": ["has_analysis_json", "=", true],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "has_analysis_json",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "analysis_json",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "height": 400
                                                 }
                                             }
                                         ]

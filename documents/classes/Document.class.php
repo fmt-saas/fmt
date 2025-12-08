@@ -310,6 +310,8 @@ class Document extends Model {
                 'description'       => 'Optional link to the received Email the document is an attachment of, if any.'
             ],
 
+            /*
+            // #memo - those info can be retrieved through document_process_id if necessary
             'purchase_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
@@ -323,6 +325,7 @@ class Document extends Model {
                 'description'       => 'Optional link to the related bank statement.',
                 'visible'           => ['document_type_code', '=', 'bank_statement']
             ],
+            */
 
             'expense_statement_id' => [
                 'type'              => 'many2one',

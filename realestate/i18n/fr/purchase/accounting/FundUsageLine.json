@@ -1,0 +1,50 @@
+{
+    "name": "Ligne d'utilisation de fonds",
+    "plural": "Lignes d'utilisation de fonds",
+    "description": "Ligne détaillant l'utilisation d'un fonds de réserve pour une facture d'achat.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété dont dépend la ligne de fonds.",
+            "help": "Fixée automatiquement selon la facture associée."
+        },
+        "invoice_id": {
+            "label": "Facture",
+            "description": "Facture d'achat liée à cette utilisation de fonds.",
+            "help": "Détermine le contexte comptable et les comptes disponibles."
+        },
+        "fund_account_id": {
+            "label": "Compte de fonds",
+            "description": "Compte comptable du fonds de réserve utilisé.",
+            "help": "Doit être un compte de réserve de la copropriété."
+        },
+        "expense_account_id": {
+            "label": "Compte de charge",
+            "description": "Compte comptable imputé pour la dépense.",
+            "help": "Calculé automatiquement à partir du compte de fonds sélectionné."
+        },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé utilisée pour répartir le montant entre propriétaires.",
+            "help": "Renseignée automatiquement depuis le compte de fonds."
+        },
+        "amount": {
+            "label": "Montant HT",
+            "description": "Montant hors taxes imputé depuis le fonds.",
+            "help": "Exprimé dans la devise de la copropriété."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Ligne d'utilisation de fonds",
+            "description": "Saisie ou édition d'une ligne d'utilisation de fonds pour la facture.",
+            "layout": {}
+        },
+        "list.default": {
+            "name": "Lignes d'utilisation de fonds",
+            "description": "Aperçu des affectations de fonds de réserve liées aux factures.",
+            "layout": {}
+        }
+    },
+    "error": {}
+}

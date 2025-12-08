@@ -52,6 +52,24 @@
                 "proforma": "proforma",
                 "posted": "encodé"
             }
+        },
+        "document_process_status": {
+            "label": "Statut",
+            "description": "Statut courant du processus documentaire lié.",
+            "help": "Reflète l'avancement du traitement du document source (créé, assigné, validé, intégré).",
+            "selection": {
+                "created": "Brouillon",
+                "assigned": "Assigné",
+                "completed": "Complété",
+                "validated": "Validé",
+                "integrated": "Intégré",
+                "cancelled": "Annulé"
+            }
+        },
+        "assigned_employee_id": {
+            "label": "Employé assigné",
+            "description": "Employé en charge du traitement documentaire.",
+            "help": "Défini lors de la création ou de l'assignation du processus documentaire."
         }
     },
     "view": {
@@ -80,10 +98,14 @@
         "list.default": {
             "name": "Relevés Bancaire",
             "description": "Liste des relevés Bancaire.",
-            "layout": {},
             "actions": {
                 "action.import": {
                     "label": "Importer"
+                }
+            },
+            "layout": {
+                "item.status": {
+                    "label": "Statut"
                 }
             }
         }

@@ -1,7 +1,7 @@
-﻿{
-    "name": "Facture d'achat copropriété",
-    "plural": "Factures d'achat copropriété",
-    "description": "Facture fournisseur enregistrée dans le périmètre immobilier (lignes, imputations, fundings).",
+{
+    "name": "Facture d'achat copropriétés",
+    "plural": "Factures d'achat copropriétés",
+    "description": "Factures fournisseurs enregistrées pour les copropriétés.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -32,6 +32,11 @@
             "label": "Contrat fournisseur",
             "description": "Contrat fournisseur associé à la facture.",
             "help": "Doit appartenir à la copropriété."
+        },
+        "supplier_invoice_number": {
+            "label": "Numéro de facture",
+            "description": "Numéro de facture du fournisseur.",
+            "help": "Numéro de facture tel que communiqué par le fournisseur et renseigné dans la facture."
         },
         "suppliership_bank_account_id": {
             "label": "Compte bancaire fournisseur",
@@ -138,15 +143,38 @@
             "description": "Référence fournie par le fournisseur pour le virement.",
             "help": "Sera utilisée lors de l'exécution du paiement."
         },
+        "has_mandate": {
+            "label": "Domiciliation",
+            "description": "Renseigne si la facture est payée via domiciliation.",
+            "help": "Permet de renseigner si un mandat SEPA est actif pour la copropriété auprès du fournisseur concerné, et pour ce type de factures."
+        },
         "has_date_range": {
-            "label": "Service sur période",
+            "label": "Imputation sur période",
             "description": "Indique que la prestation couvre une période.",
-            "help": "Permet de renseigner les dates de début et de fin."
+            "help": "Permet de renseigner les dates de début et de fin d'une période arbitraire."
         },
         "description": {
             "label": "Description",
             "description": "Description courte de la facture.",
             "help": "Synchronisée avec la description des lignes saisies manuellement."
+        },
+        "document_process_status": {
+            "label": "Statut",
+            "description": "Statut courant du processus documentaire lié.",
+            "help": "Reflète l'avancement du traitement du document source (créé, assigné, validé, intégré).",
+            "selection": {
+                "created": "Brouillon",
+                "assigned": "Assigné",
+                "completed": "Complété",
+                "validated": "Validé",
+                "integrated": "Intégré",
+                "cancelled": "Annulé"
+            }
+        },
+        "assigned_employee_id": {
+            "label": "Employé assigné",
+            "description": "Employé en charge du traitement documentaire.",
+            "help": "Défini lors de la création ou de l'assignation du processus documentaire."
         }
     },
     "view": {
@@ -172,6 +200,18 @@
                 "action.cancel": {
                     "label": "Annuler",
                     "description": "Annuler la facture."
+                },
+                "action.complete": {
+                    "label": "Marquer completée",
+                    "description": "Marquer la facture comme complétée."
+                },
+                "action.valid": {
+                    "label": "Marquer valide",
+                    "description": "Marquer la facture comme valide."
+                },
+                "action.remove": {
+                    "label": "Supprimer",
+                    "description": "Supprimer la facture proforma."
                 }
             },
             "routes": {
@@ -187,5 +227,9 @@
         }
     },
     "error": {
+        "errors": {
+            "cannot_remove_non_proforma": "Seules les factures en brouillon peuvent être supprimées.",
+            "missing_suppliership_accounting_account": "Compte comptable fournisseur introuvable pour la copropriété ou le propriétaire concerné."
+        }
     }
 }

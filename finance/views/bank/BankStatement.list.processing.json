@@ -1,0 +1,54 @@
+{
+    "name": "Bank Statements",
+    "description": "This view is intended for displaying the list of bank statements.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "30%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "name",
+                "value": "bank_account_id",
+                "width": "30%"
+            },
+            {
+                "type": "field",
+                "value": "date",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "label": "Description",
+                "value": "name",
+                "width": "33%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "label": "Assigned Employee",
+                "value": "assigned_employee_id",
+                "width": "25%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "label": "Document",
+                "value": "document_id",
+                "width": "25%",
+                "readonly": true
+            },
+            {
+                "id": "item.status",
+                "type": "field",
+                "label": "Status",
+                "value": "document_process_status",
+                "width": "10%",
+                "readonly": true
+            }
+        ]
+    }
+}

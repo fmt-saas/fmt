@@ -209,6 +209,36 @@ class BankStatement extends Model {
                 ],
                 'default'           => 'pending',
                 'description'       => 'Status of the statement (depending on lines).'
+            ],
+
+            // #memo - some actions of this entity rely on status from DocumentProcessing
+            'document_process_status' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Current status of the Document Processing.',
+                'help'              => "This value is used in addition to the status, in order to check allowed actions.",
+                'selection'         => [
+                    'created',
+                    'assigned',
+                    'completed',
+                    'validated',
+                    'integrated',
+                    'cancelled'
+                ],
+                'relation'          => ['document_process_id' => 'status'],
+                'store'             => true,
+                'readonly'          => true
+            ],
+
+            'assigned_employee_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'hr\employee\Employee',
+                'description'       => 'Employee currently in charge of the processing.',
+                'help'              => 'Assigned employee can evolve over time, and might depend on Role.',
+                'relation'          => ['document_process_id' => 'assigned_employee_id'],
+                'store'             => true,
+                'readonly'          => true
             ]
 
         ];

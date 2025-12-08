@@ -60,7 +60,8 @@ class DocumentProcess extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'hr\employee\Employee',
                 'description'       => 'Employee currently in charge of the processing.',
-                'help'              => 'Assigned employee can evolve over time, and might depend on Role.'
+                'help'              => 'Assigned employee can evolve over time, and might depend on Role.',
+                'onupdate'          => 'onupdateAssignedEmployeeId'
             ],
 
             'document_id' => [
@@ -179,10 +180,9 @@ class DocumentProcess extends Model {
                 'description'       => 'Current status of the job.',
                 'selection'         => [
                     'created',
+                    'assigned',
                     'completed',
                     'validated',
-                    'recorded',
-                    'confirmed',
                     'integrated',
                     'cancelled'
                 ],
@@ -199,14 +199,16 @@ class DocumentProcess extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
                 'visible'           => [['has_target_object', '=', true], ['document_type_code', '=', 'invoice']],
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['supplier_id', '=', 'object.supplier_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['supplier_id', '=', 'object.supplier_id']],
+                'onupdate'          => 'onupdateDocumentInvoiceId'
             ],
 
             'document_bank_statement_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankStatement',
                 'visible'           => [['has_target_object', '=', true], ['document_type_code', '=', 'bank_statement']],
-                'domain'            => [['condo_id', '=', 'object.condo_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id']],
+                'onupdate'          => 'onupdateDocumentBankStatementId'
             ]
 
             // #todo - [...] to be completed according to document types that are supported by the DocumentProcess workflow
@@ -221,9 +223,31 @@ class DocumentProcess extends Model {
                 'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
                 'icon'        => 'draw',
                 'transitions' => [
+                    'assign' => [
+                        'description' => 'Mark the document as `assigned`.',
+                        'policies'    => ['can_assign'],
+                        'status'      => 'assigned'
+                    ],
+                    /*
+                    'cancel' => [
+                        'description' => 'Cancel the processing (duplicate, invalid, complaint, ...).',
+                        'policies'    => [],
+                        'status'      => 'cancelled'
+                    ]
+                    */
+                ]
+            ],
+            'assigned' => [
+                'description' => 'Recorded document, waiting to be integrated.',
+                'icon'        => 'assignment_turned_in',
+                'transitions' => [
+                    'revert' => [
+                        'description' => 'Revert the document to `created`.',
+                        'status'      => 'created'
+                    ],
                     'complete' => [
                         'description' => 'Update the document to `completed`.',
-                        'policies'    => ['is_complete', 'is_unique'],
+                        'policies'    => ['is_complete', 'is_unique', 'can_complete'],
                         'status'      => 'completed'
                     ],
                     'cancel' => [
@@ -238,8 +262,8 @@ class DocumentProcess extends Model {
                 'icon'        => 'assignment',
                 'transitions' => [
                     'revert' => [
-                        'description' => 'Revert the document to `created`.',
-                        'status'      => 'created'
+                        'description' => 'Revert the document to `assigned`.',
+                        'status'      => 'assigned'
                     ],
                     'validate' => [
                         'description' => 'Update the document to `validated`.',
@@ -256,29 +280,6 @@ class DocumentProcess extends Model {
                         'description' => 'Revert the document to `completed`.',
                         'status'      => 'completed'
                     ],
-                    'record' => [
-                        'description' => 'Update the document to `recorded`.',
-                        'policies'    => ['can_record'],
-                        'onbefore'    => 'onbeforeRecord',
-                        'status'      => 'recorded'
-                    ]
-                ]
-            ],
-            'recorded' => [
-                'description' => 'Validated document, waiting to be confirmed.',
-                'icon'        => 'done_all',
-                'transitions' => [
-                    'confirm' => [
-                        'description' => 'Update the document to `confirmed`.',
-                        'policies'    => ['can_confirm'],
-                        'status'      => 'confirmed'
-                    ]
-                ]
-            ],
-            'confirmed' => [
-                'description' => 'Recorded document, waiting to be integrated.',
-                'icon'        => 'assignment_turned_in',
-                'transitions' => [
                     'integrate' => [
                         'description' => 'Update the document to `integrated`.',
                         'help'        => 'Integration is meant to be made automatically at the end of the workflow.',
@@ -331,18 +332,23 @@ class DocumentProcess extends Model {
                 'description' => 'Verifies that the document is valid, according to rules linked to document type.',
                 'function'    => 'policyIsValid'
             ],
+            'can_assign' => [
+                'description' => 'Checks if the document can be switched to `assigned` status.',
+                'function'    => 'policyCanAssign'
+            ],
+            'can_complete' => [
+                'description' => 'Checks if the current user is permitted to confirm the document based on their roles.',
+                'function'    => 'policyCanComplete'
+            ],
             'can_validate' => [
                 'description' => 'Checks if the current user is permitted to validate the document based on their roles.',
                 'function'    => 'policyCanValidate'
             ],
-            'can_record' => [
-                'description' => 'Checks if the current user is permitted to record the document based on their roles.',
-                'function'    => 'policyCanRecord'
-            ],
-            'can_confirm' => [
-                'description' => 'Checks if the current user is permitted to confirm the document based on their roles.',
-                'function'    => 'policyCanConfirm'
+            'can_remove' => [
+                'description' => 'Checks if processing can be removed and if the current user is permitted to do it, based on their roles.',
+                'function'    => 'policyCanRemove'
             ]
+
         ];
     }
 
@@ -368,19 +374,61 @@ class DocumentProcess extends Model {
                 'policies'      => ['can_perform_drafting'],
                 'function'      => 'doPerformDrafting'
             ],
+            'attempt_auto_draft' => [
+                'description'   => 'Attempt to automatically retrieve info from the origin document (auto-completion).',
+                'policies'      => [/*'can_attempt_auto_draft'*/],
+                'function'      => 'doAttemptAutoDraft'
+            ],
             'update_document_json' => [
                 'description'   => 'Update the JSON representation of the target document.',
                 'help'          => 'This is used for handling arbitrary changes to one or more fields (according to JSON schema) when encoding targeted documents (e.g. purchase invoice).',
-                // #todo - add policy - can only be performed while document is at 'completion' stage
+                // #todo - add policy - can only be performed while document is at 'completion' stage (created, assigned, completed)
                 'policies'      => [],
                 'function'      => 'doUpdateDocumentJson'
-            ]
+            ],
+            'remove' => [
+                'description'   => 'Remove the document processing.',
+                'policies'      => ['can_remove'],
+                'function'      => 'doRemove'
+            ],
         ]);
+    }
+
+    protected static function onupdateDocumentInvoiceId($self) {
+        $self->read(['document_invoice_id']);
+        foreach($self as $id => $documentProcess) {
+            self::id($id)->update(['has_target_object' => (bool) $documentProcess['document_invoice_id']]);
+        }
+    }
+
+    protected static function onupdateDocumentBankStatementId($self) {
+        $self->read(['document_bank_statement_id']);
+        foreach($self as $id => $documentProcess) {
+            self::id($id)->update(['has_target_object' => (bool) $documentProcess['document_bank_statement_id']]);
+        }
+    }
+
+    protected static function onupdateAssignedEmployeeId($self) {
+        $self->read(['status', 'has_target_object', 'document_type_id', 'condo_id', 'assigned_employee_id']);
+        foreach($self as $id => $documentProcess) {
+            if($documentProcess['status'] === 'created'
+                && $documentProcess['has_target_object']
+                && $documentProcess['document_type_id']
+                && $documentProcess['condo_id']
+                && $documentProcess['assigned_employee_id']
+            ) {
+                // auto mark assigned
+                self::id($id)->transition('assign');
+            }
+        }
     }
 
     protected static function onupdateDocumentId($self) {
         $self->read(['document_id' => ['creator']]);
         foreach($self as $id => $documentProcess) {
+            if(!$documentProcess['document_id']) {
+                continue;
+            }
             // attempt to retrieve the employee the Document Processing must be assigned to
             $employee_id = null;
             // by default use `document_dispatch_officer`, if set
@@ -403,25 +451,51 @@ class DocumentProcess extends Model {
             // assign back document to the process
             Document::id($documentProcess['document_id']['id'])->update(['document_process_id' => $id]);
 
-            // #todo - check if completion.auto enabled
-            try {
-                $self
-                    ->do('perform_identification')
-                    ->do('perform_extraction')
-                    ->do('perform_matching')
-                    ->do('perform_drafting');
-            }
-            catch(\Exception $e) {
-                // do not interrupt - Documents might not be automatically analyzed
-                // at early stage, user is allowed to manually encode data
-                trigger_error("APP::issue in automated tasks" . $e->getMessage(), EQ_REPORT_WARNING);
-            }
-
+            // attempt to auto complete the processing
+            $self->do('attempt_auto_draft');
         }
     }
 
+    protected static function policyCanAssign($self) {
+        $result = [];
+        $self->read(['condo_id', 'document_type_id', 'assigned_employee_id']);
+
+        foreach($self as $id => $documentProcess) {
+            if(!isset($documentProcess['condo_id'])) {
+            $result[$id] = [
+                'missing_condo' => 'Missing condominium for this document process.'
+            ];
+            }
+            if(!isset($documentProcess['document_type_id'])) {
+            $result[$id] = [
+                'missing_document_type' => 'Missing document type for this document process.'
+            ];
+            }
+            if(!isset($documentProcess['assigned_employee_id'])) {
+            $result[$id] = [
+                'missing_assigned_employee' => 'No employee assigned to this document process.'
+            ];
+            }
+        }
+        return $result;
+    }
+
+
+    protected static function policyCanRemove($self, $auth): array {
+        $result = [];
+        $self->read(['has_target_object']);
+        foreach($self as $id => $documentProcess) {
+            if($documentProcess['has_target_object']) {
+                $result[$id] = [
+                    'not_allowed' => 'Processing cannot be removed while a target is still attached.'
+                ];
+            }
+
+        }
+        return $result;
+    }
     /**
-     * #todo - vérifier que l'utilisateur a un rôle de "Manager"
+     * #todo - vérifier que l'utilisateur a le rôle requis, basé sur les rôles définis pour le DocumentType sur l'étape "validation"
      *
      */
     protected static function policyCanValidate($self, $auth): array {
@@ -454,17 +528,9 @@ class DocumentProcess extends Model {
     }
 
     /**
-     * #todo - vérifier que l'utilisateur a un rôle de "Accountant"
-     *
+     * #todo - verifier que l'utilisateur a un rôle qui permet de marquer le DOC comme completed
      */
-    protected static function policyCanRecord($self): array {
-        $result = [];
-        $authorized_roles = ['accountant'];
-
-        return $result;
-    }
-
-    protected static function policyCanConfirm($self): array {
+    protected static function policyCanComplete($self): array {
         $result = [];
         $authorized_roles = ['director', 'accountant'];
 
@@ -472,10 +538,16 @@ class DocumentProcess extends Model {
     }
 
     public static function candelete($self) {
-        $self->read(['status']);
+        $self->read(['status', 'has_target_object', 'document_id']);
         foreach($self as $documentProcess) {
-            if($documentProcess['status'] != 'created') {
-                return ['status' => ['non_removable' => 'Non-draft Document cannot be deleted.']];
+            if(!in_array($documentProcess['status'], ['created', 'assigned'])) {
+                return ['status' => ['non_removable' => 'Non-draft document processing cannot be deleted.']];
+            }
+            if($documentProcess['document_id']) {
+                return ['document_id' => ['non_removable' => 'Document processing linked to an origin document cannot be deleted.']];
+            }
+            if($documentProcess['has_target_object']) {
+                return ['has_target_object' => ['non_removable' => 'Document processing with target object cannot be deleted.']];
             }
         }
         return parent::candelete($self);
@@ -500,12 +572,19 @@ class DocumentProcess extends Model {
         $result = [];
         $self->read(['status', 'document_id' => ['has_document_json']]);
         foreach($self as $id => $documentProcess) {
-            if($documentProcess['status'] != 'created') {
+            if(!in_array($documentProcess['status'], ['created', 'assigned'])) {
                 $result[$id] = [
-                    'invalid_status' => 'Document has cannot be automatically modified anymore.'
+                    'invalid_status_step' => 'Document has cannot be automatically modified anymore.'
                 ];
                 continue;
             }
+            if($documentProcess['document_id']['has_document_json']) {
+                $result[$id] = [
+                    'document_has_json' => 'Document has already been extracted.'
+                ];
+                continue;
+            }
+
         }
         return $result;
     }
@@ -647,13 +726,13 @@ class DocumentProcess extends Model {
             if(!isset($documentProcess['document_id'])) {
                 // missing document
                 $result[$id] = [
-                    'invalid_document' => 'Missing document.'
+                    'missing_document' => 'Missing document.'
                 ];
             }
             if(!isset($documentProcess['document_type_id'])) {
                 // missing document type
                 $result[$id] = [
-                    'invalid_document' => 'Missing document type.'
+                    'missing_document_type' => 'Missing document type.'
                 ];
                 continue;
             }
@@ -667,7 +746,7 @@ class DocumentProcess extends Model {
             if(!isset($documentProcess['document_id']['document_json'])) {
                 // missing document json
                 $result[$id] = [
-                    'invalid_document' => 'Missing document JSON payload.'
+                    'missing_document_json' => 'Missing document JSON payload.'
                 ];
                 continue;
             }
@@ -684,7 +763,7 @@ class DocumentProcess extends Model {
             catch(\Exception $e) {
                 trigger_error("APP::unable to validate JSON :" . $e->getMessage(), EQ_REPORT_WARNING);
                 $result[$id] = [
-                    'invalid_document' => 'Unable to validate document'
+                    'document_validation_error' => 'Unable to validate document.'
                 ];
             }
         }
@@ -874,6 +953,35 @@ class DocumentProcess extends Model {
         return $result;
     }
 
+    protected static function doAttemptAutoDraft($self) {
+        // #todo - check if completion.auto enabled
+        try {
+            $self
+                ->do('perform_identification')
+                ->do('perform_extraction')
+                ->do('perform_matching')
+                ->do('perform_drafting');
+        }
+        catch(\Exception $e) {
+            // do not interrupt - Documents might not be automatically analyzed
+            // at early stage, user is allowed to manually encode data
+            trigger_error("APP::issue in automated tasks" . $e->getMessage(), EQ_REPORT_WARNING);
+        }
+    }
+
+    protected static function doRemove($self) {
+        $self->read(['has_target_object', 'document_id']);
+        foreach($self as $id => $documentProcess) {
+            if($documentProcess['has_target_object']) {
+                continue;
+            }
+            Document::id($documentProcess['document_id'])->delete();
+            self::id($id)
+                ->update(['document_id' => null])
+                ->delete();
+        }
+    }
+
     /**
      * This method is called from the targeted objects, providing a map of values updates.
      * No consistency check is performed here.
@@ -901,7 +1009,7 @@ class DocumentProcess extends Model {
         };
 
         foreach($self as $id => $documentProcess) {
-            if($documentProcess['status'] !== 'created') {
+            if(!in_array($documentProcess['status'], ['created', 'assigned'])) {
                 trigger_error("APP::Update skipped for document process already encoded.", EQ_REPORT_INFO);
                 continue;
             }
