@@ -72,6 +72,21 @@
             }
         },
         {
+            "id": "action.reverse_completed",
+            "label": "Remove",
+            "description": "Undo marking the invoice as complete.",
+            "controller": "core_model_do",
+            "confirm": true,
+            "visible": [
+                ["document_process_status", "in", ["completed"]]
+            ],
+            "params": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "action": "reverse_completed",
+                "ids": []
+            }
+        },
+        {
             "id": "action.remove",
             "label": "Remove",
             "description": "Remove the invoice and the processing. Use this action when the import was a mistake or the invoice is a duplicate. This action cannot be undone.",

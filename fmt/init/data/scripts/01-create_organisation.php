@@ -6,7 +6,6 @@ use hr\Team;
 use identity\Identity;
 use identity\Organisation;
 use identity\User;
-use purchase\supplier\Supplier;
 use realestate\management\ManagingAgent;
 
 // Main organisation
@@ -34,10 +33,6 @@ ManagingAgent::create([
     ])
     ->do('sync_from_identity');
 
-Supplier::create([
-        "identity_id" => $identity['id']
-    ])
-    ->do('sync_from_identity');
 
 
 // first Employee

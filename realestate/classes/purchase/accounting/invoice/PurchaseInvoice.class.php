@@ -376,6 +376,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'policies'      => ['can_mark_cancelled'],
                 'function'      => 'doMarkCancelled'
             ],
+            'reverse_completed' => [
+                'description'   => 'Move the (proforma) invoice back to the `assigned` step.',
+                'policies'      => [/*'can_reverse_completed'*/],
+                'function'      => 'doReverseCompleted'
+            ],
             'remove' => [
                 'description'   => 'Remove the invoice and the processing.',
                 'help'          => 'This action is meant to be used when the import was a mistake or the invoice is a duplicate. This action cannot be undone.',
@@ -524,6 +529,18 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 continue;
             }
             DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('cancel');
+            // reset computed relation fields
+            self::id($id)->update(['document_process_status' => null]);
+        }
+    }
+
+    protected static function doReverseCompleted($self) {
+        $self->read(['document_process_id']);
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['document_process_id']) {
+                continue;
+            }
+            DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('revert');
             // reset computed relation fields
             self::id($id)->update(['document_process_status' => null]);
         }

@@ -27,7 +27,7 @@ class Tenant extends Identity {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'description'       => "Name of the tenant.",
-                'relation'          => ['tenant_identity_id' => ['name']],
+                'relation'          => ['identity_id' => ['name']],
                 'readonly'          => true,
                 'store'             => true
             ],
@@ -37,6 +37,13 @@ class Tenant extends Identity {
                 'description'       => "The condominium the tenancy relates to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'required'          => true
+            ],
+
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Class of the current entity.',
+                'help'              => 'This is required in order to display the relational fields accordingly.',
+                'default'           => 'realestate\property\Tenant'
             ],
 
             'property_lot_id' => [
@@ -49,13 +56,6 @@ class Tenant extends Identity {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\Tenancy',
                 'description'       => "The Tenancy the tenant relates to.",
-            ],
-
-            'tenant_identity_id' => [
-                'type'              => 'many2one',
-                'description'       => "The identity of the person holding the tenant.",
-                'foreign_object'    => 'identity\Identity',
-                'required'          => true
             ]
 
         ];
