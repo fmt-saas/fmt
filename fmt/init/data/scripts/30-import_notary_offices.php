@@ -8,9 +8,10 @@ use realestate\property\NotaryOffice;
 $events = $orm->disableEvents();
 
 
-  Identity::create([
+Identity::create([
     "id" => 200,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885565",
+    "type_id" => 3,
     "legal_name" => "Étude Benoît HEYMANS, Notaire",
     "address_street" => "Avenue de l'Échevinage 1A",
     "address_zip" => "1180",
@@ -21,11 +22,10 @@ $events = $orm->disableEvents();
     "nationality" => "BE",
     "lang_id" => 2,
     "is_active" => true
-  ]);
+]);
 
 NotaryOffice::create([
     "id" => 200,
-    "registration_number" => "0755885564",
     "identity_id" => 200,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -34,7 +34,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 201,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885566",
+    "type_id" => 3,
     "legal_name" => "Étude Bernard DEWITTE et Astrid COMIJN, Notaires associés",
     "address_street" => "Avenue Franklin Roosevelt 208",
     "address_zip" => "1020",
@@ -49,7 +50,6 @@ Identity::create([
 
 NotaryOffice::create([
     "id" => 201,
-    "registration_number" => "0755885564",
     "identity_id" => 201,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -58,7 +58,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 202,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885567",
+    "type_id" => 3,
     "legal_name" => "Étude DEWEERDT & RUELLE, Notaires associés",
     "address_street" => "Avenue Louise 213/11",
     "address_zip" => "1020",
@@ -72,7 +73,6 @@ Identity::create([
 
 NotaryOffice::create([
     "id" => 202,
-    "registration_number" => "0755885564",
     "identity_id" => 202,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -81,7 +81,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 203,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885568",
+    "type_id" => 3,
     "legal_name" => "Étude Véronique FASOL, Notaire",
     "address_street" => "Avenue A.J. Slegers 2/5",
     "address_zip" => "1200",
@@ -95,7 +96,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 203,
-    "registration_number" => "0755885564",
     "identity_id" => 203,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -104,7 +104,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 204,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885569",
+    "type_id" => 3,
     "legal_name" => "Étude INDEKEU - de CRAYENCOUR",
     "address_street" => "Avenue Louise 126",
     "address_zip" => "1020",
@@ -118,7 +119,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 204,
-    "registration_number" => "0755885564",
     "identity_id" => 204,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -127,7 +127,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 205,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885510",
+    "type_id" => 3,
     "legal_name" => "Étude Jean Didier GYSELINCK, Notaire",
     "address_street" => "Avenue Louise 422",
     "address_zip" => "1020",
@@ -141,7 +142,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 205,
-    "registration_number" => "0755885564",
     "identity_id" => 205,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -150,7 +150,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 206,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885511",
+    "type_id" => 3,
     "legal_name" => "Étude Jean-Louis Van Boxstael, Société notariale",
     "address_street" => "Avenue Louise 480",
     "address_zip" => "1020",
@@ -163,7 +164,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 206,
-    "registration_number" => "0755885564",
     "identity_id" => 206,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -172,7 +172,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 207,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885512",
+    "type_id" => 3,
     "legal_name" => "Étude Jean-Pierre MARCHANT, Notaire",
     "address_street" => "Avenue Brugmann 480",
     "address_zip" => "1180",
@@ -186,7 +187,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 207,
-    "registration_number" => "0755885564",
     "identity_id" => 207,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -195,7 +195,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 208,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885513",
+    "type_id" => 3,
     "legal_name" => "Étude LICOPPE-CAUCHIE, notaires associés",
     "address_street" => "Avenue des Paradisiers 24",
     "address_zip" => "1160",
@@ -208,7 +209,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 208,
-    "registration_number" => "0755885564",
     "identity_id" => 208,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -217,7 +217,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 209,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885514",
+    "type_id" => 3,
     "legal_name" => "Étude MARROYEN Luc",
     "address_street" => "Avenue Louise 205",
     "address_zip" => "1020",
@@ -231,7 +232,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 209,
-    "registration_number" => "0755885564",
     "identity_id" => 209,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -240,7 +240,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 210,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885515",
+    "type_id" => 3,
     "legal_name" => "Étude MSW, société notariale",
     "address_street" => "Avenue Louise 202/15",
     "address_zip" => "1020",
@@ -254,7 +255,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 210,
-    "registration_number" => "0755885564",
     "identity_id" => 210,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -263,7 +263,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 211,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885516",
+    "type_id" => 3,
     "legal_name" => "Étude NOTABEL, Notaires Associés",
     "address_street" => "Avenue Louise 65/5",
     "address_zip" => "1020",
@@ -277,7 +278,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 211,
-    "registration_number" => "0755885564",
     "identity_id" => 211,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -286,7 +286,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 212,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885517",
+    "type_id" => 3,
     "legal_name" => "Étude Notaire Laura Hornung, société notariale",
     "address_street" => "Chaussée de Waterloo 1359K",
     "address_zip" => "1180",
@@ -299,7 +300,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 212,
-    "registration_number" => "0755885564",
     "identity_id" => 212,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -308,7 +308,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 213,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885518",
+    "type_id" => 3,
     "legal_name" => "Étude NOTÉRIS, Pierre-Edouard",
     "address_street" => "Avenue Brugmann 587/9",
     "address_zip" => "1180",
@@ -322,7 +323,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 213,
-    "registration_number" => "0755885564",
     "identity_id" => 213,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -331,7 +331,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 214,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885519",
+    "type_id" => 3,
     "legal_name" => "Étude Notilius",
     "address_street" => "",
     "address_zip" => "",
@@ -345,7 +346,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 214,
-    "registration_number" => "0755885564",
     "identity_id" => 214,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -354,7 +354,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 215,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885520",
+    "type_id" => 3,
     "legal_name" => "Étude Patrick GUSTIN & Gauthier NOBELS, Notaires associés",
     "address_street" => "Avenue Jean Van Horenbeeck 42",
     "address_zip" => "1160",
@@ -367,7 +368,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 215,
-    "registration_number" => "0755885564",
     "identity_id" => 215,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -376,7 +376,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 216,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885521",
+    "type_id" => 3,
     "legal_name" => "Étude Sophie MAQUET, Stijn JOYE & Dominique BERTOUILLE, Notaires associés",
     "address_street" => "Avenue Louise 65",
     "address_zip" => "1020",
@@ -387,7 +388,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 216,
-    "registration_number" => "0755885564",
     "identity_id" => 216,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -396,7 +396,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 217,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885522",
+    "type_id" => 3,
     "legal_name" => "Étude Valéry COLARD et Vanessa WATERKEYN, notaires associés",
     "address_street" => "Avenue Louise 65",
     "address_zip" => "1020",
@@ -407,7 +408,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 217,
-    "registration_number" => "0755885564",
     "identity_id" => 217,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -416,7 +416,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 218,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885523",
+    "type_id" => 3,
     "legal_name" => "Étude VAN STEENKISTE, société notariale",
     "address_street" => "Avenue A.J. Slegers 2/5",
     "address_zip" => "1200",
@@ -427,7 +428,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 218,
-    "registration_number" => "0755885564",
     "identity_id" => 218,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -436,7 +436,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 219,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885524",
+    "type_id" => 3,
     "legal_name" => "Étude Véronique BONEHILL et Laurent WETS, Notaires Associés",
     "address_street" => "Avenue Brugmann 587",
     "address_zip" => "1180",
@@ -447,7 +448,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 219,
-    "registration_number" => "0755885564",
     "identity_id" => 219,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -456,7 +456,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 520,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885525",
+    "type_id" => 3,
     "legal_name" => "Étude Bruno MICHAUX & Marie THIEBAUT, Notaires associés",
     "address_street" => "Avenue d'Auderghem 328",
     "address_zip" => "1040",
@@ -468,7 +469,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 520,
-    "registration_number" => "0755885564",
     "identity_id" => 520,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -477,7 +477,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 521,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885526",
+    "type_id" => 3,
     "legal_name" => "Étude DAMIEN COLLON - ANTOINE LOGÉ, geassocieerde notarissen",
     "address_street" => "Avenue d'Auderghem 328",
     "address_zip" => "1040",
@@ -489,7 +490,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 521,
-    "registration_number" => "0755885564",
     "identity_id" => 521,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -498,7 +498,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 522,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885527",
+    "type_id" => 3,
     "legal_name" => "Étude In-Deed notaires",
     "address_street" => "Avenue d'Auderghem 328",
     "address_zip" => "1040",
@@ -517,7 +518,6 @@ Identity::create([
 */
 NotaryOffice::create([
     "id" => 522,
-    "registration_number" => "0755885564",
     "identity_id" => 522,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -526,7 +526,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 524,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885528",
+    "type_id" => 3,
     "legal_name" => "Étude MAITE BOUCLIER société notariale",
     "address_street" => "Avenue d'Auderghem 328",
     "address_zip" => "1040",
@@ -538,7 +539,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 524,
-    "registration_number" => "0755885564",
     "identity_id" => 524,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -547,7 +547,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 525,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885529",
+    "type_id" => 3,
     "legal_name" => "Étude Marc WILMUS et Ludovic du BUS de WARNAFFE, notaires associés",
     "address_street" => "Avenue d'Auderghem 328",
     "address_zip" => "1040",
@@ -559,7 +560,6 @@ Identity::create([
   ]);
 NotaryOffice::create([
     "id" => 525,
-    "registration_number" => "0755885564",
     "identity_id" => 525,
     "supplier_type_id" => 6,
     "is_active" => true,
@@ -568,7 +568,8 @@ NotaryOffice::create([
 
 Identity::create([
     "id" => 526,
-    "registration_number" => "0755885564",
+    "registration_number" => "0755885530",
+    "type_id" => 3,
     "legal_name" => "Étude Nathalie d'Hennezel société notariale",
     "address_street" => "Avenue de la Houlette 42/11",
     "address_zip" => "1170",
@@ -579,7 +580,6 @@ Identity::create([
 
 NotaryOffice::create([
     "id" => 526,
-    "registration_number" => "0755885564",
     "identity_id" => 526,
     "supplier_type_id" => 6,
     "is_active" => true,
