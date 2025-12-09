@@ -225,6 +225,7 @@ class DocumentProcess extends Model {
                 'transitions' => [
                     'assign' => [
                         'description' => 'Mark the document as `assigned`.',
+                        'onafter'     => 'onafterAssign',
                         'policies'    => ['can_assign'],
                         'status'      => 'assigned'
                     ],
@@ -939,6 +940,20 @@ class DocumentProcess extends Model {
         }
     }
 
+    protected static function onafterAssign($self) {
+        $self->read(['document_bank_statement_id', 'document_invoice_id']);
+        foreach($self as $id => $documentProcess) {
+            if($documentProcess['document_bank_statement_id']) {
+                BankStatement::id($documentProcess['document_bank_statement_id'])->update(['document_process_status' => null]);
+                continue;
+            }
+            if($documentProcess['document_invoice_id']) {
+                BankStatement::id($documentProcess['document_invoice_id'])->update(['document_process_status' => null]);
+                continue;
+            }
+        }
+    }
+
     /**
      * DocumentProcess is used to upload and create a new Document.
      * We rely on the same strategy than regular Document upload, by receiving document meta from UI with onchange event.
@@ -960,7 +975,8 @@ class DocumentProcess extends Model {
                 ->do('perform_identification')
                 ->do('perform_extraction')
                 ->do('perform_matching')
-                ->do('perform_drafting');
+                ->do('perform_drafting')
+                ->transition('assign');
         }
         catch(\Exception $e) {
             // do not interrupt - Documents might not be automatically analyzed

@@ -132,6 +132,10 @@
             "name": "Processus documentaire",
             "description": "Vue complète pour suivre l'import, l'analyse, les avertissements et les objets générés.",
             "actions": {
+                "action.mark_assigned": {
+                    "label": "Marquer comme assigné",
+                    "description": "Tenter de passer le traitement à l'état \"assigné\"."
+                },
                 "action.perform_identification": {
                     "label": "Analyser",
                     "description": "Tenter d'identifier le type de document à partir de son contenu."
@@ -172,7 +176,7 @@
                     "label": "Intégrer",
                     "description": "Intégrer le document en comptabilité."
                 },
-                "action.delete": {
+                "action.remove": {
                     "label": "Supprimer",
                     "description": "Supprimer l'import et le document associé."
                 }
