@@ -433,50 +433,34 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 continue;
             }
 
-            // contrairement au document process, ici on peut vérifier que toutes les inforamtions requises pour une facture sont complètes
+            // #memo - it is the invoice (and not the DocumentProcess) that is responsible for ensuring all required information is complete
+            // #todo - this should be called through a ValidationRule
+            try {
+                \eQual::run('do', 'realestate_purchase_accounting_invoice_PurchaseInvoice_validate', ['id' => $id]);
+            }
+            catch(\Exception $e) {
+                $result[$id] = [
+                        ($e->getCode()) => 'Some mandatory fields are missing.'
+                    ];
+                continue;
+            }
 
-            // #memo - this should be done in a dedicated controller assigned to a ValidationRule
-
-
-            /*
-            invoice_type length > 0
-            condo_id
-            condo_bank_account_id
-            suppliership_bank_account_id
-            supplier_invoice_number
-            payable_amount <> 0
-            fiscal_year_id
-            emission_date
-            */
-
-            // #memo - to ease error identification we try to avoid raising an exception during the validation
+            // #memo - an additional validation is made on the JSON schema (should always pass)
             try {
                 DocumentProcess::id($purchaseInvoice['document_process_id'])->assert('is_complete');
             }
             catch(\Exception $e) {
-                // Document Process is not complete
+                // resulting JSON violates the purchase-invoice schema in a way that is not covered by ValidationRule (shouldn't occur)
+
                 $errors = unserialize($e->getMessage());
                 $result[$id] = [
                         'failing_policy_is_complete' => $errors
                     ];
 
-                // #todo - logs specific errors to ease debugging
-
-                // resulting JSON violates the purchase-invoice schema
+                // logs specific errors to ease debugging
                 if(isset($errors['invalid_document'])) {
                     foreach($errors['invalid_document'] as $error_id => $error_message) {
-                        switch($error_id) {
-                            case '/lines':
-                                // "Array should have at least 1 items, 0 found"
-                                break;
-                            case '/payment/iban':
-                                // "The string should match pattern: ^[A-Z]{2}\\d{2}[A-Z0-9]{11,30}$"
-                                break;
-                            case '/payment/bic':
-                                // "The string should match pattern: ^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$"
-                                break;
-                            // #todo - continue list of possible JSON validation errors
-                        }
+                        trigger_error("APP::unexpected error on PurchaseInvoice [{$id}]: {$error_id} - {$error_message}", EQ_REPORT_ERROR);
                     }
                 }
                 elseif(isset($errors['missing_document'])) {
@@ -719,106 +703,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         }
     }
 
+    // #memo - this is not used here - PurchaseInvoice are controlled through DocumentProcess and we use ValidationRule and a `validate` controller
     protected static function policyCanBeInvoiced($self, $dispatch): array {
         $result = [];
-        $self->read([
-                'price',
-                'payable_amount',
-                'condo_bank_account_id',
-                'suppliership_bank_account_id',
-                'invoice_lines_ids' => [
-                    'total', 'price', 'vat_rate', 'owner_share', 'tenant_share'
-                ],
-                'fund_usage_lines_ids' => [
-                    'fund_account_id', 'amount', 'apportionment_id', 'expense_account_id'
-                ]
-            ]);
-        foreach($self as $id => $invoice) {
-
-            if(!$invoice['condo_bank_account_id']) {
-                // error : missing condominium bank account
-                $result[$id] = [
-                    'missing_condominium_bank_account' => 'Missing condominium bank account.'
-                ];
-                $dispatch->dispatch('purchase.accounting.invoice.invalid', 'realestate\governance\Assembly', $id, 'important');
-                continue;
-            }
-
-            if(!$invoice['suppliership_bank_account_id']) {
-                // error : missing suppliership bank account
-                $result[$id] = [
-                    'missing_suppliership_bank_account' => 'Missing suppliership bank account.'
-                ];
-                $dispatch->dispatch('purchase.accounting.invoice.invalid', 'realestate\governance\Assembly', $id, 'important');
-                continue;
-            }
-            $lines_total = 0.0;
-            foreach($invoice['invoice_lines_ids'] as $line_id => $invoiceLine) {
-                if(($invoiceLine['owner_share'] + $invoiceLine['tenant_share']) != 100) {
-                    // error : invalid (non-balanced) owner/tenant ratio
-                    $result[$id] = [
-                        'invalid_owner_tenant_ratio' => 'Invalid (non-balanced) owner/tenant ratio.'
-                    ];
-                    continue 2;
-                }
-                if(round($invoiceLine['total'] * (1 + $invoiceLine['vat_rate']), 2) != $invoiceLine['price']) {
-                    // error : non matching price from vat excl amount & applicable vat rate
-                    $result[$id] = [
-                        'non_matching_price' => 'Non matching price from vat excl amount & applicable vat rate.'
-                    ];
-                    continue 2;
-                }
-                $lines_total += $invoiceLine['price'];
-            }
-            if($invoice['price'] != $lines_total || $invoice['payable_amount'] != $lines_total) {
-                // error : non matching invoice price with sum of invoice lines prices
-                $result[$id] = [
-                    'non_matching_lines_total' => 'Invoice total and lines total do not match.'
-                ];
-                continue;
-            }
-            $usage_total = 0.0;
-            $map_fund_accounts = [];
-            foreach($invoice['fund_usage_lines_ids'] as $usage_line_id => $fundUsageLine) {
-                if(isset($map_fund_accounts[$fundUsageLine['fund_account_id']])) {
-                    // error: same account twice
-                    $result[$id] = [
-                        'duplicated_account' => 'A same expense account cannot be used twice.'
-                    ];
-                    continue 2;
-                }
-                $map_fund_accounts[$fundUsageLine['fund_account_id']] = true;
-                $usage_total += $fundUsageLine['amount'];
-                if(!$fundUsageLine['apportionment_id']) {
-                    //error: no apportionment
-                    $result[$id] = [
-                        'missing_apportionment' => 'Apportionment is mandatory.'
-                    ];
-                    continue 2;
-                }
-                if(!$fundUsageLine['expense_account_id']) {
-                    //error: no expense account
-                    $result[$id] = [
-                        'missing_expense_account' => 'Expense account is mandatory.'
-                    ];
-                    continue 2;
-                }
-            }
-            if($usage_total > $invoice['price']) {
-                // error: overflowing reserve funds allocation
-                $result[$id] = [
-                    'exceeding_fund_allocation' => 'Fund usage cannot exceed invoice total.'
-                ];
-                continue;
-            }
-
-        }
-        /*
-        #todo - FundUsageLines
-            Il faut que le montant du compte de réserve choisi soit suffisant par rapport au montant assigné
-            pour le trouver il faut prendre la dernière balance périodique, et ajouter tous les mouvements jusqu'à la date de facture
-        */
-
         return $result;
     }
 

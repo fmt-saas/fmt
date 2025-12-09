@@ -41,18 +41,200 @@ MessageModel::id($model['id'])->update([
  * ACCOUNTING
  */
 
-// The quorum of presence or represented shares is not reached
 $model = MessageModel::create([
-        'name'          => 'purchase.accounting.invoice.invalid',
+        'name'          => 'purchase.accounting.invoice.missing_invoice_type',
         'type'          => 'accounting',
-        'label'         => 'Incomplete invoice',
-        'description'   => "One or more mandatory piece of information are missing."
+        'label'         => 'Missing invoice type',
+        'description'   => "The invoice type is mandatory."
     ], 'en')
     ->first();
 
 MessageModel::id($model['id'])->update([
-        'label'         => 'Facture incomplète',
-        'description'   => "Une ou plusieurs informations obligatoires sont manquantes.",
+        'label'         => 'Facture sans type',
+        'description'   => "Le type de facture est obligatoire.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.missing_condo_id',
+        'type'          => 'accounting',
+        'label'         => 'Missing Condominium',
+        'description'   => "A purchase invoice must relate to a Condominium."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Copropriété manquante',
+        'description'   => "Une facture d'achat doit référencer une copropriété.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.missing_fiscal_year_id',
+        'type'          => 'accounting',
+        'label'         => 'Missing Fiscal Year',
+        'description'   => "A purchase invoice must relate to a Fiscal Year."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Exercice comptable manquant',
+        'description'   => "Une facture d'achat doit référencer un exercice comptable.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.missing_condo_bank_account_id',
+        'type'          => 'accounting',
+        'label'         => 'Missing Bank Account',
+        'description'   => "The bank account for payment must be specified."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Compte bancaire manquant',
+        'description'   => "Le compte bancaire pour le paiement doit être renseigné.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.missing_suppliership_bank_account_id',
+        'type'          => 'accounting',
+        'label'         => 'Missing Supplier Bank Account',
+        'description'   => "The Supplier bank account must be specified for payment."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Compte bancaire fournisseur manquant',
+        'description'   => "Le compte bancaire du fournisseur doit être renseigné pour le paiement.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.missing_supplier_invoice_number',
+        'type'          => 'accounting',
+        'label'         => 'Missing Invoice Number',
+        'description'   => "The invoice number (supplier) is mandatory."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Numéro de facture manquant',
+        'description'   => "Le numéro de facture est obligatoire.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.missing_payable_amount',
+        'type'          => 'accounting',
+        'label'         => 'Missing payable amount',
+        'description'   => "The total payable amount must be provided."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Total dû manquant',
+        'description'   => "Le montant total dû doit être renseigné.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.missing_emission_date',
+        'type'          => 'accounting',
+        'label'         => 'Missing emission date',
+        'description'   => "The invoice emission date must be provided."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Date d\'emision manquante',
+        'description'   => "La date d'émission de la facture doit être renseignée.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.invalid_owner_tenant_ratio',
+        'type'          => 'accounting',
+        'label'         => 'Invalid (non-balanced) owner/tenant ratio',
+        'description'   => "The owner/tenant ratio must be balanced and total 100%."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Ratio owner/tenant invalide (non-balancé)',
+        'description'   => "Le ratio propriétaire/locataire doit totaliser 100 %.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.non_matching_price',
+        'type'          => 'accounting',
+        'label'         => 'Inconsistent price & VAT rate',
+        'description'   => "Price does not match VAT-excl amount and applicable VAT rate."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Prix incohérent avec taux TVA',
+        'description'   => "Le prix incohérent avec montant HTVA et taux de TVA applicable.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.non_matching_lines_total',
+        'type'          => 'accounting',
+        'label'         => 'Non matching lines total',
+        'description'   => "Invoice total and lines total do not match."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Total des lignes incorrect',
+        'description'   => "Le total de la facture ne correspond pas au total des lignes.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.duplicate_expense_account',
+        'type'          => 'accounting',
+        'label'         => 'Duplicate expense account',
+        'description'   => "A same expense account cannot be used twice."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Compte de charge en double',
+        'description'   => "Un même compte de charge ne peut pas être utilisé deux fois.",
+    ], 'fr');
+
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.missing_apportionment',
+        'type'          => 'accounting',
+        'label'         => 'Missing Apportionment (mandatory)',
+        'description'   => "Apportionment must be specified."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Clé de répartition manquante',
+        'description'   => "La clé de répartition doit être renseignée.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.missing_expense_account',
+        'type'          => 'accounting',
+        'label'         => 'Missing expense account (mandatory)',
+        'description'   => "The expense account must be specified."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Compte de charge manquant',
+        'description'   => "Le compte de charge doit être renseigné.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.exceeding_fund_allocation',
+        'type'          => 'accounting',
+        'label'         => 'Fund usage exceeds total',
+        'description'   => "Fund usage cannot exceed invoice total."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Utilisation du fonds supérieur au total',
+        'description'   => "L'utilisation du fonds ne peut pas être supérieure au montant de la facture.",
     ], 'fr');
 
 
