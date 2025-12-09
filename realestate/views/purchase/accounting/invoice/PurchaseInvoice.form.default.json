@@ -58,7 +58,7 @@
         {
             "id": "action.cancel",
             "label": "Cancel",
-            "description": "Cancel the processing of the invoice. This action will mark the (proforma) invoice as cancelled (not to be imported). This cannot be undone.",
+            "description": "Cancel the processing of the invoice. This action will remove the (proforma) invoice and set the Document process to non-drafted. This cannot be undone.",
             "controller": "core_model_do",
             "confirm": true,
             "visible": false,

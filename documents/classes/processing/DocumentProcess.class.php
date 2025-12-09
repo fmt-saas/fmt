@@ -238,7 +238,7 @@ class DocumentProcess extends Model {
                 ]
             ],
             'assigned' => [
-                'description' => 'Recorded document, waiting to be integrated.',
+                'description' => 'Created and assigned document, waiting to be completed.',
                 'icon'        => 'assignment_turned_in',
                 'transitions' => [
                     'revert' => [

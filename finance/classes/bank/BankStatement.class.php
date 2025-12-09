@@ -461,7 +461,7 @@ class BankStatement extends Model {
             if($bankStatement['document_process_id']) {
                 DocumentProcess::id($bankStatement['document_process_id'])
                     // bypass all stages
-                    ->update(['status' => 'confirmed'])
+                    ->update(['status' => 'validated'])
                     // mark DocumentProcess as integrated
                     ->transition('integrate');
             }
