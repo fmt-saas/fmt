@@ -52,7 +52,10 @@
             {
                 "type": "field",
                 "value": "emission_date",
-                "width": "15%"
+                "width": "15%",
+                "widget": {
+                    "usage": "date/short"
+                }
             },
             {
                 "type": "field",
