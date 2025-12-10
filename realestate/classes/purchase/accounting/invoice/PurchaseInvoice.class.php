@@ -334,7 +334,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         return array_merge(parent::getActions(), [
             'create_fundings' => [
                 'description'   => 'Create the funding according to the invoice.',
-                'policies'      => ['is_proforma'],
+                'policies'      => [/*'is_proforma'*/],
                 'function'      => 'doCreateFundings'
             ],
             'update_document_json' => [
@@ -690,7 +690,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             $suppliershipAccount = Account::search([
                     ['condo_id', '=', $purchaseInvoice['condo_id']],
-                    ['ownership_id', '=', $purchaseInvoice['suppliership_id']],
+                    ['suppliership_id', '=', $purchaseInvoice['suppliership_id']],
                     ['operation_assignment', '=', 'suppliers']
                 ])
                 ->first();
@@ -860,6 +860,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 self::id($id)->update(['document_process_status' => null]);
             }
         }
+        $self->do('create_fundings');
     }
 
     /**
@@ -1025,7 +1026,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         ->first();
 
                     if(!$ownershipAccount) {
-                        throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                        throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                     }
 
                     // create the debit line on the private expense account
