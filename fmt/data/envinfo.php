@@ -22,7 +22,7 @@ list( $params, $providers ) = eQual::announce([
         'accept-origin' => '*',
         'cacheable'     => false,
         'cache-vary'    => ['user'],
-        'expires'       => (60*60*24)
+        'expires'       => (60 * 60 * 24)
     ],
     'constants'   => [
         "ENV_MODE",
