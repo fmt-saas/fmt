@@ -85,7 +85,9 @@ class DocumentProcess extends Model {
                 'foreign_object'    => 'documents\DocumentType',
                 'description'       => 'Document type associated with the document.',
                 'onupdate'          => 'onupdateDocumentTypeId',
-                'dependents'        => ['document_type_code']
+                'dependents'        => ['document_type_code'],
+                // #todo - use a dedicated entity PurchaseInvoiceImport
+                'default'           => 1
             ],
 
             'document_subtype_id' => [
@@ -868,7 +870,7 @@ class DocumentProcess extends Model {
             // #memo - at this stage the Document remains local (no UUID), an attempt to push to EDMS instance will be performed after assignment of condo_id, if matching succeeds
             $document = Document::create([
                     'name'      => $documentProcess['name'],
-                    'data'      => $documentProcess['data'], 
+                    'data'      => $documentProcess['data'],
                     'is_origin' => true,
                     'is_source' => true
                 ])

@@ -1,6 +1,7 @@
 {
     "name": "Document Processing",
     "description": "Document import.",
+    "#todo" : "This is only for Purchase Invoice - we should use a dedicated entity the same way as BankStatementImport",
     "header": {
         "actions": {
             "ACTION.SAVE": [

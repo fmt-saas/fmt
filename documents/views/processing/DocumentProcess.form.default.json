@@ -333,7 +333,10 @@
                                                 "type": "field",
                                                 "value": "document_link",
                                                 "width": "100%",
-                                                "visible": ["document_type_code", "in", ["invoice", "credit_note"]],
+                                                "visible": [
+                                                    [ ["document_type_code", "in", ["invoice", "credit_note"]] ],
+                                                    [ ["document_type_code", "=", null] ]
+                                                ],
                                                 "widget": {
                                                     "type": "pdf",
                                                     "height": 800
