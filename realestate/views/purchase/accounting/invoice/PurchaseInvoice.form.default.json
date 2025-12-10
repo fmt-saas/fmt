@@ -73,7 +73,7 @@
         },
         {
             "id": "action.reverse_completed",
-            "label": "Remove",
+            "label": "Revert",
             "description": "Undo marking the invoice as complete.",
             "controller": "core_model_do",
             "confirm": true,
@@ -99,6 +99,21 @@
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                 "action": "remove",
                 "success_status": 205,
+                "ids": []
+            }
+        },
+        {
+            "id": "action.post",
+            "label": "Post",
+            "description": "Post the invoice to the accounting system.",
+            "controller": "core_model_transition",
+            "visible": [
+                ["status", "=", "proforma"],
+                ["document_process_status", "=", "validated"]
+            ],
+            "params": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "transition": "post",
                 "ids": []
             }
         }

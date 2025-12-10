@@ -212,6 +212,14 @@
                 "action.remove": {
                     "label": "Supprimer",
                     "description": "Supprimer la facture proforma."
+                },
+                "action.reverse_completed": {
+                    "label": "Marquer non complété",
+                    "description": "Repasser à l'étape précédent."
+                },
+                "action.post": {
+                    "label": "Intégrer",
+                    "description": "Intégrer la facrure à la comptabilité."
                 }
             },
             "routes": {
