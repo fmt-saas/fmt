@@ -856,6 +856,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     ->update(['status' => 'validated'])
                     // mark DocumentProcess as integrated
                     ->transition('integrate');
+                // reset computed relation fields
+                self::id($id)->update(['document_process_status' => null]);
             }
         }
     }
