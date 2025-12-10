@@ -138,7 +138,8 @@
             "label": "Draft target",
             "description": "Attempt to extract data from the Attachment.",
             "controller": "core_model_do",
-            "visible": [
+            "visible": false,
+            "visible1": [
                 ["status", "in", ["created", "assigned"]],
                 ["has_target_object", "=", false],
                 ["has_document_json", "=", true],
