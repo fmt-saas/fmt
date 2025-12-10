@@ -376,6 +376,9 @@ class Account extends Model {
         $result = [];
         $self->read(['code']);
         foreach($self as $id => $account) {
+            if(!$account['code']) {
+                continue;
+            }
             $result[$id] = self::computeAccountNature($account['code']);
         }
         return $result;
@@ -385,6 +388,9 @@ class Account extends Model {
         $result = [];
         $self->read(['code']);
         foreach($self as $id => $account) {
+            if(!$account['code']) {
+                continue;
+            }
             $result[$id] = self::computeAccountType($account['code']);
         }
         return $result;
@@ -394,6 +400,9 @@ class Account extends Model {
         $result = [];
         $self->read(['code']);
         foreach($self as $id => $account) {
+            if(!$account['code']) {
+                continue;
+            }
             $result[$id] = self::computeAccountClass($account['code']);
         }
         return $result;
@@ -404,6 +413,9 @@ class Account extends Model {
         $self->read(['condo_id', 'code']);
 
         foreach($self as $id => $account) {
+            if(!$account['code']) {
+                continue;
+            }
             $result[$id] = self::computeParentAccountId($account['code'], $account['condo_id']);
         }
 
@@ -417,10 +429,11 @@ class Account extends Model {
     protected static function calcLevel($self) {
         $result = [];
         $self->read(['code']);
-        foreach($self as $id => $line) {
-            if(isset($line['code'])) {
-                $result[$id] = strlen($line['code']);
+        foreach($self as $id => $account) {
+            if(!$account['code']) {
+                continue;
             }
+            $result[$id] = strlen($account['code']);
         }
         return $result;
     }
