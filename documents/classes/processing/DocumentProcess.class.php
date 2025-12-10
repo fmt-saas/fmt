@@ -976,14 +976,23 @@ class DocumentProcess extends Model {
             $self
                 ->do('perform_identification')
                 ->do('perform_extraction')
-                ->do('perform_matching')
+                ->do('perform_matching');
+        }
+        catch(\Exception $e) {
+            // do not interrupt - Documents might not be automatically analyzed
+            // at early stage, user is allowed to manually encode data
+            trigger_error("APP::issue in doAttemptAutoDraft preliminary tasks (might be normal)" . $e->getMessage(), EQ_REPORT_INFO);
+        }
+
+        try {
+            $self
                 ->do('perform_drafting')
                 ->transition('assign');
         }
         catch(\Exception $e) {
             // do not interrupt - Documents might not be automatically analyzed
             // at early stage, user is allowed to manually encode data
-            trigger_error("APP::issue in automated tasks" . $e->getMessage(), EQ_REPORT_WARNING);
+            trigger_error("APP::issue in doAttemptAutoDraft tasks" . $e->getMessage(), EQ_REPORT_WARNING);
         }
     }
 
