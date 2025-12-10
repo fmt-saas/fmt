@@ -138,12 +138,13 @@
             "label": "Draft target",
             "description": "Attempt to extract data from the Attachment.",
             "controller": "core_model_do",
-            "visible": false,
-            "visible1": [
+            "visible": [
                 ["status", "in", ["created", "assigned"]],
                 ["has_target_object", "=", false],
+                ["has_document_json", "=", true],
                 ["document_type_id", "<>", null],
-                ["condo_id", "<>", null]
+                ["condo_id", "<>", null],
+                ["supplier_id", "<>", null]
             ],
             "params": {
                 "entity": "documents\\processing\\DocumentProcess",
