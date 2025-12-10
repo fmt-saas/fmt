@@ -109,10 +109,9 @@
         {
             "id": "action.perform_matching",
             "label": "Attempt auto-match",
-            "description": "Attempt to identify condominium & supplier.",
+            "description": "(Re-) attempt to identify condominium & supplier.",
             "controller": "core_model_do",
-            "visible": false,
-            "visible1": [
+            "visible": [
                 [
                     ["status", "in", ["created", "assigned"]],
                     ["document_type_id", "<>", null],
