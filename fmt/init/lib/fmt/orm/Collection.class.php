@@ -31,7 +31,7 @@ class Collection extends \equal\orm\Collection {
         $user_id = $this->am->userId();
         $schema = $this->model->getSchema();
 
-        if(isset($schema['condo_id'])) {
+        if(isset($schema['condo_id']) && $this->model->getTable() !== 'core_setting_settingvalue') {
             $condo_id = Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id]);
             if($condo_id) {
                 // sanitize and validate domain
