@@ -105,12 +105,12 @@ foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $invoiceLine) {
     if(($invoiceLine['owner_share'] + $invoiceLine['tenant_share']) != 100) {
         // error : invalid (non-balanced) owner/tenant ratio
         $dispatch->dispatch('purchase.accounting.invoice.invalid_owner_tenant_ratio', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
-        continue 2;
+        continue;
     }
     if(round($invoiceLine['total'] * (1 + $invoiceLine['vat_rate']), 2) != $invoiceLine['price']) {
         // error : Non matching price from vat excl amount & applicable vat rate
         $dispatch->dispatch('purchase.accounting.invoice.non_matching_price', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
-        continue 2;
+        continue;
     }
     $lines_total += $invoiceLine['price'];
 }
