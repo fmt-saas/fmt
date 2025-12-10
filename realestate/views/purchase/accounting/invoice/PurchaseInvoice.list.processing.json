@@ -17,6 +17,18 @@
                 "view": "form.import",
                 "purpose": "create"
             }
+        },
+        {
+            "id": "route.purchase_invoice",
+            "label": "Invoice",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "view": "form.default",
+                "domain": ["id", "=", "object.id"]
+            }
         }
     ],
     "layout": {
@@ -29,18 +41,29 @@
             },
             {
                 "type": "field",
-                "value": "created",
-                "width": "10%",
-                "readonly": true,
-                "widget": {
-                    "usage": "date"
-                }
+                "value": "condo_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "suppliership_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "emission_date",
+                "width": "15%"
             },
             {
                 "type": "field",
                 "value": "description",
                 "width": "33%",
                 "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "payable_amount",
+                "width": "15%"
             },
             {
                 "type": "field",
@@ -55,6 +78,15 @@
                 "value": "document_id",
                 "width": "25%",
                 "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "created",
+                "width": "10%",
+                "readonly": true,
+                "widget": {
+                    "usage": "date"
+                }
             },
             {
                 "type": "field",
