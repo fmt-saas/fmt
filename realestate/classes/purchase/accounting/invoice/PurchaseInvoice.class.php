@@ -675,7 +675,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function doCreateFundings($self) {
         $self->read([
-                'condo_id', 'name', 'price', 'payment_reference', 'due_date', 'funding_id',
+                'condo_id', 'name', 'price', 'payment_reference', 'due_date', 'has_mandate', 'has_payment_on_hold',
+                'funding_id',
                 'suppliership_id',
                 'suppliership_bank_account_id' => ['bank_account_id']
             ]);
@@ -708,9 +709,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'suppliership_id'                   => $purchaseInvoice['suppliership_id'],
                     'counterpart_bank_account_id'       => $purchaseInvoice['suppliership_bank_account_id']['bank_account_id'],
                     'accounting_account_id'             => $suppliershipAccount['id'],
-                    'due_amount'                        => $purchaseInvoice['price'],
+                    'due_amount'                        => -$purchaseInvoice['price'],
                     'is_paid'                           => false,
-                    'due_date'                          => $purchaseInvoice['due_date']
+                    'due_date'                          => $purchaseInvoice['due_date'],
+                    'has_mandate'                       => $purchaseInvoice['has_mandate']
                 ];
 
             if($purchaseInvoice['payment_reference'] && strlen($purchaseInvoice['payment_reference']) > 0) {
@@ -718,10 +720,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 $values['payment_reference'] = $purchaseInvoice['payment_reference'];
             }
 
-            $funding = Funding::create($values)->first();
-
-            self::id($purchaseInvoice['id'])
-                ->update(['funding_id' => $funding['id']]);
+            // no funding if payment on hold
+            if(!$purchaseInvoice['has_payment_on_hold']) {
+                $funding = Funding::create($values)->first();
+                self::id($purchaseInvoice['id'])
+                    ->update(['funding_id' => $funding['id']]);
+            }
         }
     }
 

@@ -124,7 +124,7 @@
             "help": "Calculé pour ouvrir le document associé."
         },
         "payable_amount": {
-            "label": "Montant TTC attendu",
+            "label": "Montant TTC",
             "description": "Montant final TTC attendu de la facture.",
             "help": "Comparé à la somme des lignes de facture."
         },
@@ -189,7 +189,7 @@
                     "label": "Utilisations des fonds"
                 },
                 "section.fundings": {
-                    "label": "Fundings"
+                    "label": "Suivi paiements"
                 }
             },
             "actions": {

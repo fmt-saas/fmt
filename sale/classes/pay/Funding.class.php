@@ -40,6 +40,12 @@ class Funding extends \equal\orm\Model {
                 'description'       => 'Optional description to identify the funding.'
             ],
 
+            'is_sent' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag indicating if a SEPA order has been generated (once or more) from the Funding.',
+                'default'           => false
+            ],
+
             'payments_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'sale\pay\Payment',

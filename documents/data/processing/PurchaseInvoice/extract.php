@@ -90,8 +90,18 @@ if(!isset($data['supplier']['vat_id']) && isset($info['seller_vat'])) {
     $data['supplier']['vat_id'] = $info['seller_vat'];
 }
 
+if(!isset($data['customer']['vat_id']) && isset($info['buyer_vat'])) {
+    $data['customer']['vat_id'] = $info['buyer_vat'];
+}
+
 if(!isset($data['customer']['customer_number']) && isset($info['customer_number'])) {
     $data['customer']['customer_number'] = $info['customer_number'];
+}
+
+// customer_reference
+
+if(!isset($data['customer']['customer_id']) && isset($info['customer_registration_number'])) {
+    $data['customer']['customer_id'] = $info['customer_registration_number'];
 }
 
 if(!isset($data['customer']['contract_number']) && isset($info['contract_number'])) {

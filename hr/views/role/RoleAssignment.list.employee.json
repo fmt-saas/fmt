@@ -16,12 +16,6 @@
         "items": [
             {
                 "type": "field",
-                "value": "condo_name",
-                "label": "Condominium",
-                "width": "25%"
-            },
-            {
-                "type": "field",
                 "value": "employee_id",
                 "label": "Employee",
                 "width": "25%",
@@ -31,6 +25,12 @@
                 "type": "field",
                 "value": "role_id",
                 "label": "Role",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "condo_name",
+                "label": "Condominium",
                 "width": "25%"
             },
             {

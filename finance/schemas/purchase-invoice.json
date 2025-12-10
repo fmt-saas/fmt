@@ -63,6 +63,16 @@
                 "vat_id": {
                     "type": "string"
                 },
+                "company_id": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
                 "address": {
                     "type": "object",
                     "required": [
@@ -101,6 +111,16 @@
                     "type": "string"
                 },
                 "vat_id": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "company_id": {
                     "anyOf": [
                         {
                             "type": "string"

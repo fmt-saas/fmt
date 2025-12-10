@@ -124,7 +124,7 @@
             "description": "Position actuelle (encours, avance, soldé).",
             "help": "",
             "selection": {
-                "pending": "À recevoir",
+                "pending": "En attente",
                 "debit_balance": "Solde débiteur",
                 "credit_balance": "Solde créditeur",
                 "balanced": "Soldé"

@@ -1063,6 +1063,11 @@ class DocumentProcess extends Model {
         foreach($self as $id => $documentProcess) {
             $values = [];
             $logs = [];
+
+            if(strlen($report_html) > 0) {
+                $logs[] = "";
+            }
+
             $logs[] = "<b>Identification</b>";
 
             $report_html = $documentProcess['report_html'];

@@ -110,12 +110,12 @@
             "description": "Gérer les équipes de travail."
         },
         "roles": {
-            "label": "Réles",
-            "description": "Définir et attribuer les réles des employés."
+            "label": "Rôles",
+            "description": "Définir et attribuer les rôles des employés."
         },
         "assignments": {
             "label": "Affectations",
-            "description": "Gérer les affectations de réles."
+            "description": "Gérer les affectations de rôles."
         },
         "item.accounting": {
             "label": "Comptabilité",
@@ -259,11 +259,11 @@
         },
         "item.config.security.users": {
             "label": "Utilisateurs",
-            "description": "Lister et gérer les utilisateurs du systéme."
+            "description": "Lister et gérer les utilisateurs du système."
         },
         "item.config.security.groups": {
             "label": "Groupes",
-            "description": "Gérer les groupes d'utilisateurs et leurs réles."
+            "description": "Gérer les groupes d'utilisateurs et leurs rôles."
         },
         "item.config.scheduler": {
             "label": "Planificateur",

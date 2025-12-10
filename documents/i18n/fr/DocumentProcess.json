@@ -84,7 +84,7 @@
             "help": ""
         },
         "has_target_object": {
-            "label": "Objet cible créé",
+            "label": "Cible créée",
             "description": "Un objet métier (facture, relevé…) a été généré à partir du document.",
             "help": ""
         },

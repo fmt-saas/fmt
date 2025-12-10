@@ -36,6 +36,8 @@ $text = $params['text'];
     [invoice_number] => 744000399977
     [invoice_date] => 15/12/2024
     [customer_number] => 1000328782
+    customer_registration_number
+    customer_vat_number
     customer_reference
     [contract_number] =>
     [installation_number] => 4000232058
@@ -160,6 +162,10 @@ $patterns = [
     'customer_reference' => [
         '/\b(?:reference|ref)\s+client[^\nA-Z0-9]*([A-Z0-9\-\/]+)/i',
         '/\bclient\s+(?:ref)[^\nA-Z0-9]*([A-Z0-9\-\/]+)/i'
+    ],
+
+    'customer_registration_number' => [
+        '/\b(?:bce|kbo)\b[\s\.:;_-]*\s*([\s0-9]{10,})/i'
     ],
 
     'contract_number' => [

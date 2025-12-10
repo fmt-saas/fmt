@@ -69,8 +69,8 @@
             "help": ""
         },
         "owner_identity_id": {
-            "label": "Identité propriétaire",
-            "description": "Identité rattachée au compte bancaire.",
+            "label": "Copropriété",
+            "description": "Copropriété propriétaire du compte bancaire.",
             "help": ""
         },
         "bank_statements_ids": {

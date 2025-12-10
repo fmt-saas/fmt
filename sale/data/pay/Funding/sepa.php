@@ -85,11 +85,13 @@ $groupHeader = new GroupHeader('FUNDING-' . $funding['id'], $from_name);
 $sepaFile = new CustomerCreditTransferFile($groupHeader);
 $sepaFile->addPaymentInformation($payment);
 
-
 $domBuilder = DomBuilderFactory::createDomBuilder($sepaFile);
 $xmlOutput = $domBuilder->asXml();
 
 $filename = sprintf("SEPA_TRANSFER_%s_%04d", date('Ymd'), $funding['id']) . '.xml';
+
+// mark funding as sent
+$funding = Funding::id($params['id'])->update(['is_sent' => true]);
 
 $context->httpResponse()
         ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')

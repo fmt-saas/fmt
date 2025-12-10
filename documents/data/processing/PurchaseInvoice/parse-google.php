@@ -383,3 +383,1075 @@ $output = [
 $context->httpResponse()
         ->body($output)
         ->send();
+
+
+// Full Google Doc AI API response sample
+/*
+[
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "1259",
+                    "endIndex": "1260"
+                },
+                {
+                    "startIndex": "1261",
+                    "endIndex": "1267"
+                },
+                {
+                    "startIndex": "1268",
+                    "endIndex": "1272"
+                },
+                {
+                    "startIndex": "1273",
+                    "endIndex": "1278"
+                }
+            ]
+        },
+        "type": "vat",
+        "mentionText": "6 602,58 6,00 36,15",
+        "confidence": 1,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.08506841,
+                                "y": 0.74600506
+                            },
+                            {
+                                "x": 0.4158239,
+                                "y": 0.74600506
+                            },
+                            {
+                                "x": 0.4158239,
+                                "y": 0.75567704
+                            },
+                            {
+                                "x": 0.08506841,
+                                "y": 0.75567704
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "0",
+        "properties": [
+            {
+                "textAnchor": {
+                    "textSegments": [
+                        {
+                            "startIndex": "1259",
+                            "endIndex": "1260"
+                        }
+                    ],
+                    "content": "6"
+                },
+                "type": "vat/category_code",
+                "mentionText": "6",
+                "confidence": 0.64742,
+                "pageAnchor": {
+                    "pageRefs": [
+                        {
+                            "boundingPoly": {
+                                "normalizedVertices": [
+                                    {
+                                        "x": 0.08506841,
+                                        "y": 0.74600506
+                                    },
+                                    {
+                                        "x": 0.08863772,
+                                        "y": 0.74600506
+                                    },
+                                    {
+                                        "x": 0.08863772,
+                                        "y": 0.75441545
+                                    },
+                                    {
+                                        "x": 0.08506841,
+                                        "y": 0.75441545
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "id": "1"
+            },
+            {
+                "textAnchor": {
+                    "textSegments": [
+                        {
+                            "startIndex": "1261",
+                            "endIndex": "1267"
+                        }
+                    ],
+                    "content": "602,58"
+                },
+                "type": "vat/amount",
+                "mentionText": "602,58",
+                "confidence": 0.6627546,
+                "pageAnchor": {
+                    "pageRefs": [
+                        {
+                            "boundingPoly": {
+                                "normalizedVertices": [
+                                    {
+                                        "x": 0.1784652,
+                                        "y": 0.74600506
+                                    },
+                                    {
+                                        "x": 0.2195122,
+                                        "y": 0.74600506
+                                    },
+                                    {
+                                        "x": 0.2195122,
+                                        "y": 0.75567704
+                                    },
+                                    {
+                                        "x": 0.1784652,
+                                        "y": 0.75567704
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "id": "2",
+                "normalizedValue": {
+                    "text": "602.58",
+                    "floatValue": 602.58
+                }
+            },
+            {
+                "textAnchor": {
+                    "textSegments": [
+                        {
+                            "startIndex": "1268",
+                            "endIndex": "1272"
+                        }
+                    ],
+                    "content": "6,00"
+                },
+                "type": "vat/tax_rate",
+                "mentionText": "6,00",
+                "confidence": 0.65970767,
+                "pageAnchor": {
+                    "pageRefs": [
+                        {
+                            "boundingPoly": {
+                                "normalizedVertices": [
+                                    {
+                                        "x": 0.27900058,
+                                        "y": 0.74600506
+                                    },
+                                    {
+                                        "x": 0.30398571,
+                                        "y": 0.74600506
+                                    },
+                                    {
+                                        "x": 0.30398571,
+                                        "y": 0.754836
+                                    },
+                                    {
+                                        "x": 0.27900058,
+                                        "y": 0.754836
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "id": "3",
+                "normalizedValue": {
+                    "text": "6",
+                    "floatValue": 6
+                }
+            },
+            {
+                "textAnchor": {
+                    "textSegments": [
+                        {
+                            "startIndex": "1273",
+                            "endIndex": "1278"
+                        }
+                    ],
+                    "content": "36,15"
+                },
+                "type": "vat/tax_amount",
+                "mentionText": "36,15",
+                "confidence": 0.6892522,
+                "pageAnchor": {
+                    "pageRefs": [
+                        {
+                            "boundingPoly": {
+                                "normalizedVertices": [
+                                    {
+                                        "x": 0.3872695,
+                                        "y": 0.74600506
+                                    },
+                                    {
+                                        "x": 0.4158239,
+                                        "y": 0.74600506
+                                    },
+                                    {
+                                        "x": 0.4158239,
+                                        "y": 0.75525653
+                                    },
+                                    {
+                                        "x": 0.3872695,
+                                        "y": 0.75525653
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "id": "4",
+                "normalizedValue": {
+                    "text": "36.15",
+                    "floatValue": 36.15
+                }
+            }
+        ]
+    },
+    {
+        "type": "invoice_type",
+        "confidence": 0.97991824,
+        "pageAnchor": {
+            "pageRefs": [
+                []
+            ]
+        },
+        "id": "5",
+        "normalizedValue": {
+            "text": "invoice_statement"
+        }
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "89",
+                    "endIndex": "95"
+                }
+            ],
+            "content": "FA6478"
+        },
+        "type": "invoice_id",
+        "mentionText": "FA6478",
+        "confidence": 0.955703,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.47471744,
+                                "y": 0.092514716
+                            },
+                            {
+                                "x": 0.5205235,
+                                "y": 0.092514716
+                            },
+                            {
+                                "x": 0.5205235,
+                                "y": 0.10092515
+                            },
+                            {
+                                "x": 0.47471744,
+                                "y": 0.10092515
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "6"
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "96",
+                    "endIndex": "104"
+                }
+            ],
+            "content": "10-05-22"
+        },
+        "type": "invoice_date",
+        "mentionText": "10-05-22",
+        "confidence": 0.9468237,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.6478287,
+                                "y": 0.09293524
+                            },
+                            {
+                                "x": 0.6989887,
+                                "y": 0.09293524
+                            },
+                            {
+                                "x": 0.6989887,
+                                "y": 0.101345666
+                            },
+                            {
+                                "x": 0.6478287,
+                                "y": 0.101345666
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "7",
+        "normalizedValue": {
+            "text": "2022-05-10",
+            "dateValue": {
+                "year": 2022,
+                "month": 5,
+                "day": 10
+            }
+        }
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "1117",
+                    "endIndex": "1136"
+                }
+            ],
+            "content": "BE33 0688 9606 8546"
+        },
+        "type": "supplier_iban",
+        "mentionText": "BE33 0688 9606 8546",
+        "confidence": 0.9170218,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.31707317,
+                                "y": 0.62615645
+                            },
+                            {
+                                "x": 0.4949435,
+                                "y": 0.62615645
+                            },
+                            {
+                                "x": 0.4949435,
+                                "y": 0.63751054
+                            },
+                            {
+                                "x": 0.31707317,
+                                "y": 0.63751054
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "8"
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "497",
+                    "endIndex": "505"
+                }
+            ],
+            "content": "10-05-22"
+        },
+        "type": "due_date",
+        "mentionText": "10-05-22",
+        "confidence": 0.90207237,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.8143962,
+                                "y": 0.33683768
+                            },
+                            {
+                                "x": 0.8649613,
+                                "y": 0.33683768
+                            },
+                            {
+                                "x": 0.8649613,
+                                "y": 0.3452481
+                            },
+                            {
+                                "x": 0.8143962,
+                                "y": 0.3452481
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "9",
+        "normalizedValue": {
+            "text": "2022-05-10",
+            "dateValue": {
+                "year": 2022,
+                "month": 5,
+                "day": 10
+            }
+        }
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "1288",
+                    "endIndex": "1294"
+                }
+            ],
+            "content": "602,58"
+        },
+        "type": "net_amount",
+        "mentionText": "602,58",
+        "confidence": 0.9006634,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.8786437,
+                                "y": 0.7468461
+                            },
+                            {
+                                "x": 0.917906,
+                                "y": 0.7468461
+                            },
+                            {
+                                "x": 0.917906,
+                                "y": 0.75651807
+                            },
+                            {
+                                "x": 0.8786437,
+                                "y": 0.75651807
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "10",
+        "normalizedValue": {
+            "text": "602.58",
+            "floatValue": 602.58
+        }
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "1326",
+                    "endIndex": "1332"
+                }
+            ],
+            "content": "638,73"
+        },
+        "type": "total_amount",
+        "mentionText": "638,73",
+        "confidence": 0.87249404,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.87923855,
+                                "y": 0.7834315
+                            },
+                            {
+                                "x": 0.917906,
+                                "y": 0.7834315
+                            },
+                            {
+                                "x": 0.917906,
+                                "y": 0.79268295
+                            },
+                            {
+                                "x": 0.87923855,
+                                "y": 0.79268295
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "11",
+        "normalizedValue": {
+            "text": "638.73",
+            "floatValue": 638.73
+        }
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "1307",
+                    "endIndex": "1312"
+                }
+            ],
+            "content": "36,15"
+        },
+        "type": "total_tax_amount",
+        "mentionText": "36,15",
+        "confidence": 0.845462,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.88816184,
+                                "y": 0.7649285
+                            },
+                            {
+                                "x": 0.9185009,
+                                "y": 0.7649285
+                            },
+                            {
+                                "x": 0.9185009,
+                                "y": 0.77418
+                            },
+                            {
+                                "x": 0.88816184,
+                                "y": 0.77418
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "12",
+        "normalizedValue": {
+            "text": "36.15",
+            "floatValue": 36.15
+        }
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "187",
+                    "endIndex": "204"
+                }
+            ],
+            "content": "+32(0)2 588.01.00"
+        },
+        "type": "supplier_phone",
+        "mentionText": "+32(0)2 588.01.00",
+        "confidence": 0.8052036,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.189768,
+                                "y": 0.19512194
+                            },
+                            {
+                                "x": 0.29565734,
+                                "y": 0.19512194
+                            },
+                            {
+                                "x": 0.29565734,
+                                "y": 0.20647603
+                            },
+                            {
+                                "x": 0.189768,
+                                "y": 0.20647603
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "13"
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "145",
+                    "endIndex": "180"
+                }
+            ],
+            "content": "Rue Sander Pierron 7\n1030 Bruxelles"
+        },
+        "type": "supplier_address",
+        "mentionText": "Rue Sander Pierron 7\n1030 Bruxelles",
+        "confidence": 0.7857909,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.058298633,
+                                "y": 0.15853658
+                            },
+                            {
+                                "x": 0.19155265,
+                                "y": 0.15853658
+                            },
+                            {
+                                "x": 0.19155265,
+                                "y": 0.186291
+                            },
+                            {
+                                "x": 0.058298633,
+                                "y": 0.186291
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "14"
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "125",
+                    "endIndex": "144"
+                }
+            ],
+            "content": "Lift-Up Engineering"
+        },
+        "type": "supplier_name",
+        "mentionText": "Lift-Up Engineering",
+        "confidence": 0.7812277,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.0594884,
+                                "y": 0.14003365
+                            },
+                            {
+                                "x": 0.17906009,
+                                "y": 0.14003365
+                            },
+                            {
+                                "x": 0.17906009,
+                                "y": 0.15138772
+                            },
+                            {
+                                "x": 0.0594884,
+                                "y": 0.15138772
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "15"
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "287",
+                    "endIndex": "301"
+                }
+            ],
+            "content": "BE0502.481.972"
+        },
+        "type": "supplier_tax_id",
+        "mentionText": "BE0502.481.972",
+        "confidence": 0.67097425,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.18738846,
+                                "y": 0.23296888
+                            },
+                            {
+                                "x": 0.28435454,
+                                "y": 0.23296888
+                            },
+                            {
+                                "x": 0.28435454,
+                                "y": 0.24222036
+                            },
+                            {
+                                "x": 0.18738846,
+                                "y": 0.24222036
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "16"
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "1354",
+                    "endIndex": "1355"
+                }
+            ],
+            "content": "€"
+        },
+        "type": "currency",
+        "mentionText": "€",
+        "confidence": 0.5845674,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.9256395,
+                                "y": 0.8019344
+                            },
+                            {
+                                "x": 0.9292088,
+                                "y": 0.8019344
+                            },
+                            {
+                                "x": 0.9292088,
+                                "y": 0.8111859
+                            },
+                            {
+                                "x": 0.9256395,
+                                "y": 0.8111859
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "17",
+        "normalizedValue": {
+            "text": "EUR"
+        }
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "349",
+                    "endIndex": "381"
+                }
+            ],
+            "content": "Trevi Services - Mme A. De Bondt"
+        },
+        "type": "receiver_name",
+        "mentionText": "Trevi Services - Mme A. De Bondt",
+        "confidence": 0.47672457,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.47412255,
+                                "y": 0.24936922
+                            },
+                            {
+                                "x": 0.67757285,
+                                "y": 0.24936922
+                            },
+                            {
+                                "x": 0.67757285,
+                                "y": 0.25862068
+                            },
+                            {
+                                "x": 0.47412255,
+                                "y": 0.25862068
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "18"
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "382",
+                    "endIndex": "435"
+                }
+            ],
+            "content": "Av. Leopold Wiener 127 bte11\n1170\nWatermael-Boitsfort"
+        },
+        "type": "receiver_address",
+        "mentionText": "Av. Leopold Wiener 127 bte11\n1170\nWatermael-Boitsfort",
+        "confidence": 0.3063891,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.47412255,
+                                "y": 0.26787215
+                            },
+                            {
+                                "x": 0.7031529,
+                                "y": 0.26787215
+                            },
+                            {
+                                "x": 0.7031529,
+                                "y": 0.2977292
+                            },
+                            {
+                                "x": 0.47412255,
+                                "y": 0.2977292
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "19"
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "endIndex": "12"
+                }
+            ],
+            "content": "202206200008"
+        },
+        "type": "receiver_tax_id",
+        "mentionText": "202206200008",
+        "confidence": 0.16129039,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.7471743,
+                                "y": 0.013456686
+                            },
+                            {
+                                "x": 0.85722786,
+                                "y": 0.013456686
+                            },
+                            {
+                                "x": 0.85722786,
+                                "y": 0.024810765
+                            },
+                            {
+                                "x": 0.7471743,
+                                "y": 0.024810765
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "20"
+    },
+    {
+        "textAnchor": {
+            "textSegments": [
+                {
+                    "startIndex": "551",
+                    "endIndex": "556"
+                },
+                {
+                    "startIndex": "557",
+                    "endIndex": "563"
+                },
+                {
+                    "startIndex": "578",
+                    "endIndex": "838"
+                }
+            ]
+        },
+        "type": "line_item",
+        "mentionText": "0,830 726,00 Adresse du bâtiment : Rue Théodore de Cuyper\n212 à 1200 Bruxelles\nMaintenance préventive 4 visites annuelles.\nNuméro de contrat : 3346\nIndice Abex de base : 858 - nov 2020\nIndice Abex actuel : 906 - nov 2021\nPériode de facturation :\ndu 01/03/2022 au 31/12/2022",
+        "confidence": 1,
+        "pageAnchor": {
+            "pageRefs": [
+                {
+                    "boundingPoly": {
+                        "normalizedVertices": [
+                            {
+                                "x": 0.18143962,
+                                "y": 0.37888983
+                            },
+                            {
+                                "x": 0.8143962,
+                                "y": 0.37888983
+                            },
+                            {
+                                "x": 0.8143962,
+                                "y": 0.49495375
+                            },
+                            {
+                                "x": 0.18143962,
+                                "y": 0.49495375
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "id": "21",
+        "properties": [
+            {
+                "textAnchor": {
+                    "textSegments": [
+                        {
+                            "startIndex": "551",
+                            "endIndex": "556"
+                        }
+                    ],
+                    "content": "0,830"
+                },
+                "type": "line_item/quantity",
+                "mentionText": "0,830",
+                "confidence": 0.91427535,
+                "pageAnchor": {
+                    "pageRefs": [
+                        {
+                            "boundingPoly": {
+                                "normalizedVertices": [
+                                    {
+                                        "x": 0.6627008,
+                                        "y": 0.41295207
+                                    },
+                                    {
+                                        "x": 0.6942296,
+                                        "y": 0.41295207
+                                    },
+                                    {
+                                        "x": 0.6942296,
+                                        "y": 0.42262405
+                                    },
+                                    {
+                                        "x": 0.6627008,
+                                        "y": 0.42262405
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "id": "22"
+            },
+            {
+                "textAnchor": {
+                    "textSegments": [
+                        {
+                            "startIndex": "557",
+                            "endIndex": "563"
+                        }
+                    ],
+                    "content": "726,00"
+                },
+                "type": "line_item/amount",
+                "mentionText": "726,00",
+                "confidence": 0.45034236,
+                "pageAnchor": {
+                    "pageRefs": [
+                        {
+                            "boundingPoly": {
+                                "normalizedVertices": [
+                                    {
+                                        "x": 0.7763236,
+                                        "y": 0.41295207
+                                    },
+                                    {
+                                        "x": 0.8143962,
+                                        "y": 0.41295207
+                                    },
+                                    {
+                                        "x": 0.8143962,
+                                        "y": 0.42262405
+                                    },
+                                    {
+                                        "x": 0.7763236,
+                                        "y": 0.42262405
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "id": "23",
+                "normalizedValue": {
+                    "text": "726",
+                    "floatValue": 726
+                }
+            },
+            {
+                "textAnchor": {
+                    "textSegments": [
+                        {
+                            "startIndex": "578",
+                            "endIndex": "838"
+                        }
+                    ],
+                    "content": "Adresse du bâtiment : Rue Théodore de Cuyper\n212 à 1200 Bruxelles\nMaintenance préventive 4 visites annuelles.\nNuméro de contrat : 3346\nIndice Abex de base : 858 - nov 2020\nIndice Abex actuel : 906 - nov 2021\nPériode de facturation :\ndu 01/03/2022 au 31/12/2022"
+                },
+                "type": "line_item/description",
+                "mentionText": "Adresse du bâtiment : Rue Théodore de Cuyper\n212 à 1200 Bruxelles\nMaintenance préventive 4 visites annuelles.\nNuméro de contrat : 3346\nIndice Abex de base : 858 - nov 2020\nIndice Abex actuel : 906 - nov 2021\nPériode de facturation :\ndu 01/03/2022 au 31/12/2022",
+                "confidence": 0.45194054,
+                "pageAnchor": {
+                    "pageRefs": [
+                        {
+                            "boundingPoly": {
+                                "normalizedVertices": [
+                                    {
+                                        "x": 0.18143962,
+                                        "y": 0.37888983
+                                    },
+                                    {
+                                        "x": 0.55621654,
+                                        "y": 0.37888983
+                                    },
+                                    {
+                                        "x": 0.55621654,
+                                        "y": 0.49495375
+                                    },
+                                    {
+                                        "x": 0.18143962,
+                                        "y": 0.49495375
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "id": "24"
+            }
+        ]
+    }
+]
+*/

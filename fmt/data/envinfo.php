@@ -70,7 +70,10 @@ if($user_id) {
     $envinfo["notifications"] = constant('NOTIFICATIONS_ENABLED');
 
     // 1) read global settings
-    $settingValues = SettingValue::search([[['user_id', '=', 0]], [['user_id', 'is', null]]])->read(['name', 'value', 'setting_id'])->get();
+    $settingValues = SettingValue::search(['user_id', 'is', null])
+        ->read(['name', 'value', 'setting_id'])
+        ->get();
+
     $settings_ids = array_map(function ($a) {return $a['setting_id'];}, $settingValues);
     $map_settings = Setting::ids($settings_ids)->read(['type'])->get();
 

@@ -43,12 +43,6 @@ class Funding extends \sale\pay\Funding {
                 'store'             => true
             ],
 
-            'is_sent' => [
-                'type'              => 'boolean',
-                'description'       => 'Flag indicating if a SEPA order has been generated (once or more) from the Funding.',
-                'default'           => false
-            ],
-
             'payments_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\sale\pay\Payment',
