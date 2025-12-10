@@ -187,8 +187,9 @@ class Apportionment extends \equal\orm\Model {
 
     public static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['code', 'description'];
+        $allowed_fields = ['code', 'description', 'condo_id'];
         foreach($self as $id => $apportionment) {
+            // #todo - prevent using the same code twice for a same condominium
             if($apportionment['status'] == 'validated') {
                 if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                     return ['status' => ['not_allowed' => 'Validated apportionment cannot be modified.']];

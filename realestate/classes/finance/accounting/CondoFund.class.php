@@ -90,6 +90,15 @@ class CondoFund extends \equal\orm\Model {
                 'dependents'        => ['expense_account_code']
             ],
 
+            'collector_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Collector accounting account for Fund.",
+                'help'              => "Accounting account set as collector for expense account and call account.",
+                'ondelete'          => 'null',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', true]]
+            ],
+
             'expense_account_code' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -296,9 +305,10 @@ class CondoFund extends \equal\orm\Model {
 
 
             self::id($id)->update([
-                    'call_account_id'       => $callAccount['id'],
-                    'expense_account_id'    => $expenseAccount['id'],
-                    'fund_account_id'       => $fundAccount['id']
+                    'call_account_id'           => $callAccount['id'],
+                    'expense_account_id'        => $expenseAccount['id'],
+                    'fund_account_id'           => $fundAccount['id'],
+                    'collector_account_id'      => $collectorAccount['id']
                 ]);
         }
     }
