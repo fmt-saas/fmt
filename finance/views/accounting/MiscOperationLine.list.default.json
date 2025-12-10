@@ -35,7 +35,16 @@
             {
                 "type": "field",
                 "value": "account_id",
-                "width": "12%"
+                "width": "12%",
+                "widget": {
+                    "order": "code",
+                    "header": {
+                        "actions": {
+                            "ACTION.CREATE": false,
+                            "ACTION.OPEN": false
+                        }
+                    }
+                }
             },
             {
                 "type": "field",
