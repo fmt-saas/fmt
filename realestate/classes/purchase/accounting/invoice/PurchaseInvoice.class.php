@@ -478,7 +478,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
                 elseif(isset($errors['document_validation_error'])) {
                 }
-                continue;
             }
         }
         return $result;
@@ -1443,7 +1442,7 @@ protected static function calcFiscalYearId($self) {
     public static function canupdate($self, $values) {
         $self->read(['status', 'document_process_id' => ['status'], 'fiscal_period_id' => ['status']]);
         foreach($self as $id => $invoice) {
-            $editable_fields = ['payment_status', 'customer_ref', 'funding_id', 'reversed_invoice_id'];
+            $editable_fields = ['status', 'payment_status', 'customer_ref', 'funding_id', 'reversed_invoice_id'];
             if(count(array_diff(array_keys($values), $editable_fields)) > 0) {
                 if($invoice['status'] !== 'proforma') {
                     return ['status' => ['non_editable' => 'Purchase Invoice cannot be updated after recording.']];
