@@ -193,10 +193,15 @@ class CondoFund extends \equal\orm\Model {
      *
      */
     protected static function onupdateApportionmentId($self) {
-        $self->read(['fund_account_id', 'call_account_id', 'expense_account_id', 'apportionment_id']);
+        $self->read(['fund_account_id', 'call_account_id', 'expense_account_id', 'collector_account_id', 'apportionment_id']);
         foreach($self as $id => $condoFund) {
             if(!$condoFund['apportionment_id']) {
                 continue;
+            }
+            // #todo - cascade update apportionment key on children accounts
+            if($condoFund['collector_account_id']) {
+                Account::id($condoFund['collector_account_id'])
+                    ->update(['apportionment_id' => $condoFund['apportionment_id']]);
             }
             if($condoFund['fund_account_id']) {
                 Account::id($condoFund['fund_account_id'])
