@@ -515,7 +515,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             if(!$purchaseInvoice['document_process_id']) {
                 continue;
             }
-            DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('complete');
+            try {
+                DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('complete');
+            }
+            catch(\Exception $e) {
+                // ignore
+            }
             // reset computed relation fields
             self::id($id)->update(['document_process_status' => null]);
         }
