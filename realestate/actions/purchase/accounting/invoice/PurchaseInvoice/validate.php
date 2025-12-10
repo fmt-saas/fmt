@@ -117,7 +117,6 @@ foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $invoiceLine) {
 if($purchaseInvoice['price'] != $lines_total || $purchaseInvoice['payable_amount'] != $lines_total) {
     // error : Invoice total and lines total do not match
     $dispatch->dispatch('purchase.accounting.invoice.non_matching_lines_total', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
-    continue;
 }
 $usage_total = 0.0;
 $map_fund_accounts = [];
@@ -125,25 +124,25 @@ foreach($purchaseInvoice['fund_usage_lines_ids'] as $usage_line_id => $fundUsage
     if(isset($map_fund_accounts[$fundUsageLine['fund_account_id']])) {
         // error: A same expense account cannot be used twice
         $dispatch->dispatch('purchase.accounting.invoice.duplicate_expense_account', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
-        continue 2;
+        continue;
     }
     $map_fund_accounts[$fundUsageLine['fund_account_id']] = true;
     $usage_total += $fundUsageLine['amount'];
     if(!$fundUsageLine['apportionment_id']) {
         //error: Missing Apportionment (mandatory)
         $dispatch->dispatch('purchase.accounting.invoice.missing_apportionment', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
-        continue 2;
+        continue;
     }
     if(!$fundUsageLine['expense_account_id']) {
         //error: Missing expense account (mandatory)
         $dispatch->dispatch('purchase.accounting.invoice.missing_expense_account', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
-        continue 2;
+        continue;
     }
 }
+
 if($usage_total > $purchaseInvoice['price']) {
     // error: Fund usage cannot exceed invoice total
     $dispatch->dispatch('purchase.accounting.invoice.exceeding_fund_allocation', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
-    continue;
 }
 
 
