@@ -5,12 +5,11 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use Digitick\Sepa\DomBuilder\DomBuilderFactory;
-use Digitick\Sepa\GroupHeader;
-use Digitick\Sepa\PaymentInformation;
-use Digitick\Sepa\TransferFile\CustomerCreditTransferFile;
-use Digitick\Sepa\TransferInformation\CustomerCreditTransferInformation;
+use Sabre\Xml\Service;
+use Sabre\Xml\Writer;
+use Sabre\Xml\XmlSerializable;
 use sale\pay\Funding;
+
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generates a SEPA xml doc for a given Funding.',
@@ -29,71 +28,186 @@ use sale\pay\Funding;
     'providers'     => [ 'context', 'orm' ]
 ]);
 
-/**
- * @var \equal\php\Context $context
- * @var \equal\orm\ObjectManager $orm
- */
+/** @var \equal\php\Context $context */
+/** @var \equal\orm\ObjectManager $orm */
 ['context' => $context, 'orm' => $orm] = $providers;
 
+
+class SepaDocument implements XmlSerializable {
+
+    private string $ns;
+    private array $children;
+
+    public function __construct(string $ns, array $children) {
+        $this->ns = $ns;
+        $this->children = $children;
+    }
+
+    public function xmlSerialize(Writer $writer): void {
+        // root attributes
+        $writer->writeAttributes([
+            'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
+        ]);
+
+        // write nested content
+        foreach($this->children as $tag => $value) {
+            $writer->write([ $tag => $value ]);
+        }
+    }
+}
 
 $funding = Funding::id($params['id'])
     ->read([
         'due_amount',
         'payment_reference',
-        'bank_account_id' => ['bank_account_iban', 'bank_account_bic', 'owner_identity_id' => ['name']],
-        'counterpart_bank_account_id' => ['bank_account_iban', 'bank_account_bic', 'owner_identity_id' => ['name']]
+        'bank_account_id' => ['bank_account_iban','bank_account_bic','owner_identity_id' => ['name']],
+        'counterpart_bank_account_id' => ['bank_account_iban','bank_account_bic','owner_identity_id' => ['name']]
     ])
     ->first();
 
-if(!$funding || !$funding['bank_account_id'] || !$funding['counterpart_bank_account_id']) {
-    throw new Exception('missing_bank_accounts', EQ_ERROR_INVALID_PARAM);
+if (!$funding) {
+    throw new Exception('funding_not_found', EQ_ERROR_INVALID_PARAM);
 }
 
-// #memo - SEPA are supposed to be outgoing payment, so funding amount should be negative
-$amount = abs(round((float) $funding['due_amount'] * 100, 2));
-
-if($amount <= 0) {
+$amount = abs(round((float)$funding['due_amount'], 2));
+if ($amount <= 0) {
     throw new Exception('invalid_amount', EQ_ERROR_INVALID_PARAM);
 }
 
-$from_iban = $funding['bank_account_id']['bank_account_iban'];
-$from_bic  = $funding['bank_account_id']['bank_account_bic'];
-$from_name = $funding['bank_account_id']['owner_identity_id']['name'];
+$fromIban = $funding['bank_account_id']['bank_account_iban'];
+$fromBic  = $funding['bank_account_id']['bank_account_bic'];
+$fromName = $funding['bank_account_id']['owner_identity_id']['name'];
 
-$to_iban   = $funding['counterpart_bank_account_id']['bank_account_iban'];
-$to_bic    = $funding['counterpart_bank_account_id']['bank_account_bic'];
-$to_name   = $funding['counterpart_bank_account_id']['owner_identity_id']['name'];
+$toIban   = $funding['counterpart_bank_account_id']['bank_account_iban'];
+$toBic    = $funding['counterpart_bank_account_id']['bank_account_bic'];
+$toName   = $funding['counterpart_bank_account_id']['owner_identity_id']['name'];
 
 $reference = $funding['payment_reference'];
 
-// create Transfer
-$transfer = new CustomerCreditTransferInformation($amount, $to_iban, $to_name);
-$transfer->setBic($to_bic);
-$transfer->setRemittanceInformation($reference);
 
-// add payment (order)
-$payment = new PaymentInformation(
-    'FUNDING-PAY-' . $funding['id'],
-    $from_iban,
-    $from_bic,
-    $from_name
+$groupId   = 'FUNDING-' . $funding['id'];
+$paymentId = 'FUNDING-PAY-' . $funding['id'];
+$msgId     = $groupId . '-MSG';
+$executionDate = date('Y-m-d');
+$now = gmdate('Y-m-d\TH:i:s');
+$amountFormatted = number_format($amount, 2, '.', '');
+
+
+
+// build SEPA array tree
+$ns = 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
+$n  = fn($t) => '{' . $ns . '}' . $t;
+
+$children = [
+
+    // <CstmrCdtTrfInitn>
+    $n('CstmrCdtTrfInitn') => [
+
+        // GROUP HEADER
+        $n('GrpHdr') => [
+            $n('MsgId')   => $msgId,
+            $n('CreDtTm') => $now,
+            $n('NbOfTxs') => "1",
+            $n('CtrlSum') => $amountFormatted,
+            $n('InitgPty') => [
+                $n('Nm') => $fromName
+            ]
+        ],
+
+        // PAYMENT INFO
+        $n('PmtInf') => [
+
+            $n('PmtInfId')  => $paymentId,
+            $n('PmtMtd')    => 'TRF',
+            $n('BtchBookg') => 'false',
+            $n('NbOfTxs')   => '1',
+            $n('CtrlSum')   => $amountFormatted,
+
+            $n('PmtTpInf') => [
+                $n('InstrPrty') => 'NORM',
+                $n('SvcLvl')    => [ $n('Cd') => 'SEPA' ],
+                $n('CtgyPurp')  => [ $n('Cd') => 'SUPP' ]
+            ],
+
+            $n('ReqdExctnDt') => $executionDate,
+
+            // Debtor
+            $n('Dbtr') => [
+                $n('Nm') => $fromName,
+                $n('PstlAdr') => [
+                    $n('Ctry') => 'FR'
+                ]
+            ],
+
+            $n('DbtrAcct') => [
+                $n('Id') => [
+                    $n('IBAN') => $fromIban
+                ]
+            ],
+
+            $n('DbtrAgt') => [
+                $n('FinInstnId') => [
+                    $n('BIC') => $fromBic
+                ]
+            ],
+
+            $n('ChrgBr') => 'SLEV',
+
+            // TRANSACTION
+            $n('CdtTrfTxInf') => [
+
+                $n('PmtId') => [
+                    $n('EndToEndId') => $reference ?: $paymentId
+                ],
+
+                $n('Amt') => [
+                    [
+                        'name' => $n('InstdAmt'),
+                        'value' => $amountFormatted,
+                        'attributes' => ['Ccy' => 'EUR']
+                    ]
+                ],
+
+                $n('CdtrAgt') => [
+                    $n('FinInstnId') => [
+                        $n('BIC') => $toBic
+                    ]
+                ],
+
+                $n('Cdtr') => [
+                    $n('Nm') => $toName,
+                    $n('PstlAdr') => [
+                        $n('Ctry') => 'FR'
+                    ]
+                ],
+
+                $n('CdtrAcct') => [
+                    $n('Id') => [
+                        $n('IBAN') => $toIban
+                    ]
+                ],
+
+                $n('RmtInf') => [
+                    $n('Ustrd') => $reference
+                ]
+            ]
+        ]
+    ]
+];
+
+
+// serialize with custom root element
+$service = new Service();
+$service->namespaceMap = [ $ns => '' ];
+
+$xml = $service->write(
+    '{' . $ns . '}Document',
+    new SepaDocument($ns, $children)
 );
-$payment->addTransfer($transfer);
 
-// create SEPA file
-$groupHeader = new GroupHeader('FUNDING-' . $funding['id'], $from_name);
-$sepaFile = new CustomerCreditTransferFile($groupHeader);
-$sepaFile->addPaymentInformation($payment);
-
-$domBuilder = DomBuilderFactory::createDomBuilder($sepaFile);
-$xmlOutput = $domBuilder->asXml();
-
-$filename = sprintf("SEPA_TRANSFER_%s_%04d", date('Ymd'), $funding['id']) . '.xml';
-
-// mark funding as sent
-$funding = Funding::id($params['id'])->update(['is_sent' => true]);
+$filename = sprintf("SEPA_TRANSFER_%s_%04d.xml", date('Ymd'), $funding['id']);
 
 $context->httpResponse()
-        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
-        ->body($xmlOutput)
-        ->send();
+    ->header('Content-Disposition', 'inline; filename="' . $filename . '"')
+    ->body($xml, true)
+    ->send();
