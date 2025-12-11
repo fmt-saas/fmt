@@ -110,10 +110,11 @@ $user = User::id($user_id)
     ->read([
         'id', 'name', 'login', 'validated', 'language',
         'groups_ids' => ['name', 'display_name'],
+        'employee_id' => ['firstname', 'lastname'],
         'identity_id' => ['firstname', 'lastname', 'employee_id', 'owner_id', 'tenant_id'],
         'instance_id' => ['url'],
         'organisation_id',
-        'role_assignments_ids' => ['condo_id', 'role_code', 'is_external']
+        'role_assignments_ids' => ['condo_id', 'role_code', 'employee_id', 'is_external']
     ])
     ->adapt('json')
     ->first(true);
@@ -150,6 +151,7 @@ $result = array_merge($user, [
         'organisation_id'   => $user['organisation_id'],
         'is_owner'          => $is_owner,
         'is_employee'       => $is_employee,
+        'employee_id'       => $user['employee_id'],
         'condos_ids'        => array_keys($map_condos),
         'selected_condo_id' => (int) Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id])
     ]);
