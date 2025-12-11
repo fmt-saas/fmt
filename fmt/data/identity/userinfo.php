@@ -110,10 +110,10 @@ $user = User::id($user_id)
     ->read([
         'id', 'name', 'login', 'validated', 'language',
         'groups_ids' => ['name', 'display_name'],
-        'employee_id' => ['firstname', 'lastname'],
-        'identity_id' => ['firstname', 'lastname', 'employee_id', 'owner_id', 'tenant_id'],
+        'identity_id' => ['firstname', 'lastname', 'owners_ids', 'tenant_id'],
         'instance_id' => ['url'],
         'organisation_id',
+        'employee_id',
         'role_assignments_ids' => ['condo_id', 'role_code', 'employee_id', 'is_external']
     ])
     ->adapt('json')
@@ -132,10 +132,11 @@ $is_owner = false;
 $map_roles = [];
 $map_condos = [];
 
+if($user['employee_id']) {
+    $is_employee = true;
+}
+
 foreach($user['role_assignments_ids'] as $role_assignment) {
-    if(!$role_assignment['is_external']) {
-        $is_employee = true;
-    }
     if($role_assignment['role_code'] === 'owner') {
         $is_owner = true;
     }
@@ -149,9 +150,9 @@ $result = array_merge($user, [
         'ownerships_ids'    => $ownerships_ids,
         'identity_id'       => $user['identity_id'],
         'organisation_id'   => $user['organisation_id'],
+        'employee_id'       => $user['employee_id'],
         'is_owner'          => $is_owner,
         'is_employee'       => $is_employee,
-        'employee_id'       => $user['employee_id'],
         'condos_ids'        => array_keys($map_condos),
         'selected_condo_id' => (int) Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id])
     ]);

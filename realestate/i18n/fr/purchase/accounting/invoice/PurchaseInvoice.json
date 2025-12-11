@@ -172,7 +172,7 @@
             }
         },
         "assigned_employee_id": {
-            "label": "Employé assigné",
+            "label": "Assigné à",
             "description": "Employé en charge du traitement documentaire.",
             "help": "Défini lors de la création ou de l'assignation du processus documentaire."
         }

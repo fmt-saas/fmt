@@ -289,7 +289,18 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'relation'          => ['document_process_id' => 'assigned_employee_id'],
                 'store'             => true,
                 'readonly'          => true
+            ],
+
+            'alert' => [
+                'type'              => 'computed',
+                'usage'             => 'icon',
+                'result_type'       => 'string',
+                'description'       => 'Alert flag for the invoice.',
+                'help'              => "Indicates if there is an issue with the invoice that needs attention, by providing an icon: info, warn, major, error.",
+                'function'          => 'calcAlert',
+                'store'             => true
             ]
+
         ];
     }
 
@@ -443,42 +454,45 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             // #todo - this should be called through a ValidationRule
             try {
                 \eQual::run('do', 'realestate_purchase_accounting_invoice_PurchaseInvoice_validate', ['id' => $id]);
+
+                // #memo - an additional validation is made on the JSON schema (should always pass) - this ensures completeness but not consistency
+                try {
+                    DocumentProcess::id($purchaseInvoice['document_process_id'])->assert('is_complete');
+                }
+                catch(\Exception $e) {
+                    // resulting JSON violates the purchase-invoice schema in a way that is not covered by ValidationRule (shouldn't occur)
+
+                    $errors = unserialize($e->getMessage());
+                    $result[$id] = [
+                            'failing_policy_is_complete' => $errors
+                        ];
+
+                    // logs specific errors to ease debugging
+                    if(isset($errors['invalid_document'])) {
+                        foreach($errors['invalid_document'] as $error_id => $error_message) {
+                            trigger_error("APP::unexpected error on PurchaseInvoice [{$id}]: {$error_id} - {$error_message}", EQ_REPORT_ERROR);
+                        }
+                    }
+                    elseif(isset($errors['missing_document'])) {
+                    }
+                    elseif(isset($errors['missing_document_type'])) {
+                    }
+                    elseif(isset($errors['invalid_document_type'])) {
+                    }
+                    elseif(isset($errors['missing_document_json'])) {
+                    }
+                    elseif(isset($errors['document_validation_error'])) {
+                    }
+                    throw $e;
+                }
             }
             catch(\Exception $e) {
                 $result[$id] = [
                         ($e->getCode()) => 'Some mandatory fields are missing.'
                     ];
-                continue;
             }
-
-            // #memo - an additional validation is made on the JSON schema (should always pass) - this ensures completeness but not consistency
-            try {
-                DocumentProcess::id($purchaseInvoice['document_process_id'])->assert('is_complete');
-            }
-            catch(\Exception $e) {
-                // resulting JSON violates the purchase-invoice schema in a way that is not covered by ValidationRule (shouldn't occur)
-
-                $errors = unserialize($e->getMessage());
-                $result[$id] = [
-                        'failing_policy_is_complete' => $errors
-                    ];
-
-                // logs specific errors to ease debugging
-                if(isset($errors['invalid_document'])) {
-                    foreach($errors['invalid_document'] as $error_id => $error_message) {
-                        trigger_error("APP::unexpected error on PurchaseInvoice [{$id}]: {$error_id} - {$error_message}", EQ_REPORT_ERROR);
-                    }
-                }
-                elseif(isset($errors['missing_document'])) {
-                }
-                elseif(isset($errors['missing_document_type'])) {
-                }
-                elseif(isset($errors['invalid_document_type'])) {
-                }
-                elseif(isset($errors['missing_document_json'])) {
-                }
-                elseif(isset($errors['document_validation_error'])) {
-                }
+            finally {
+                self::id($id)->update(['alert' => null]);
             }
         }
         return $result;
@@ -1354,7 +1368,49 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         }
     }
 
-protected static function calcFiscalYearId($self) {
+    protected static function calcAlert($self, $orm) {
+        $result = [];
+        foreach($self as $id => $purchaseInvoice) {
+            $messages_ids = $orm->search('core\alert\Message',[ ['object_class', '=', 'realestate\purchase\accounting\invoice\PurchaseInvoice'], ['object_id', '=', $id]]);
+            if($messages_ids > 0 && count($messages_ids)) {
+                $max_alert = 0;
+                $map_alert = array_flip([
+                    'notice',           // weight = 1, might lead to a warning
+                    'warning',          // weight = 2, might be important, might require an action
+                    'important',        // weight = 3, requires an action
+                    'error'             // weight = 4, requires immediate action
+                ]);
+                $messages = $orm->read(\core\alert\Message::getType(), $messages_ids, ['severity']);
+                foreach($messages as $mid => $message){
+                    $weight = $map_alert[$message['severity']];
+                    if($weight > $max_alert) {
+                        $max_alert = $weight;
+                    }
+                }
+                switch($max_alert) {
+                    case 0:
+                        $result[$id] = 'info';
+                        break;
+                    case 1:
+                        $result[$id] = 'warn';
+                        break;
+                    case 2:
+                        $result[$id] = 'major';
+                        break;
+                    case 3:
+                    default:
+                        $result[$id] = 'error';
+                        break;
+                }
+            }
+            else {
+                $result[$id] = 'success';
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcFiscalYearId($self) {
         $result = [];
         $self->read(['condo_id', 'emission_date']);
         foreach($self as $id => $invoice) {
@@ -1491,7 +1547,7 @@ protected static function calcFiscalYearId($self) {
     public static function canupdate($self, $values) {
         $self->read(['status', 'document_process_id' => ['status'], 'fiscal_period_id' => ['status']]);
         foreach($self as $id => $invoice) {
-            $editable_fields = ['status', 'document_process_status', 'name', 'invoice_number', 'payment_status', 'customer_ref', 'funding_id', 'reversed_invoice_id'];
+            $editable_fields = ['status', 'alert', 'name', 'document_process_status', 'invoice_number', 'payment_status', 'customer_ref', 'funding_id', 'reversed_invoice_id'];
             if(count(array_diff(array_keys($values), $editable_fields)) > 0) {
                 if($invoice['status'] !== 'proforma') {
                     return ['status' => ['non_editable' => 'Purchase Invoice cannot be updated after recording.']];

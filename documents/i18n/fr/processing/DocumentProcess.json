@@ -44,7 +44,7 @@
             "help": ""
         },
         "assigned_employee_id": {
-            "label": "Employé assigné",
+            "label": "Assigné à",
             "description": "Collaborateur actuellement responsable du traitement.",
             "help": ""
         },

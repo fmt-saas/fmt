@@ -714,7 +714,8 @@ class Identity extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'foreign_field'     => 'identity_id',
-                'description'       => 'The Owners that relate to the identity.'
+                'description'       => 'The Owners that relate to the identity.',
+                'help'              => 'An owner always relates to an ownership. So there can be several owners for a given identity.',
             ],
 
             'tenant_id' => [

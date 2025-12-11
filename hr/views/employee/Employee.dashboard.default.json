@@ -17,11 +17,12 @@
                                         "items": [
                                             {
                                                 "id": "item.alerts",
-                                                "label": "Alerts",
+                                                "label": "A traiter",
                                                 "description": "",
                                                 "width": "50%",
-                                                "entity": "fmt\\core\\alert\\Message",
-                                                "view": "list.employee"
+                                                "entity": "fmt\\processing\\collect-summary",
+                                                "domain": ["employee_id", "=", "user.employee_id"],
+                                                "view": "list.default"
                                             },
                                             {
                                                 "id": "item.fundings",

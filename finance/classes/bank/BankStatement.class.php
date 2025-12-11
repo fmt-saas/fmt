@@ -239,6 +239,16 @@ class BankStatement extends Model {
                 'relation'          => ['document_process_id' => 'assigned_employee_id'],
                 'store'             => true,
                 'readonly'          => true
+            ],
+
+            'alert' => [
+                'type'              => 'computed',
+                'usage'             => 'icon',
+                'result_type'       => 'string',
+                'description'       => 'Alert flag for the invoice.',
+                'help'              => "Indicates if there is an issue with the invoice that needs attention, by providing an icon: info, warn, major, error.",
+                'function'          => 'calcAlert',
+                'store'             => true
             ]
 
         ];
@@ -364,6 +374,48 @@ class BankStatement extends Model {
             }
 
 
+        }
+        return $result;
+    }
+
+    protected static function calcAlert($self, $orm) {
+        $result = [];
+        foreach($self as $id => $bankStatement) {
+            $messages_ids = $orm->search('core\alert\Message',[ ['object_class', '=', 'finance\bank\BankStatement'], ['object_id', '=', $id]]);
+            if($messages_ids > 0 && count($messages_ids)) {
+                $max_alert = 0;
+                $map_alert = array_flip([
+                    'notice',           // weight = 1, might lead to a warning
+                    'warning',          // weight = 2, might be important, might require an action
+                    'important',        // weight = 3, requires an action
+                    'error'             // weight = 4, requires immediate action
+                ]);
+                $messages = $orm->read(\core\alert\Message::getType(), $messages_ids, ['severity']);
+                foreach($messages as $mid => $message){
+                    $weight = $map_alert[$message['severity']];
+                    if($weight > $max_alert) {
+                        $max_alert = $weight;
+                    }
+                }
+                switch($max_alert) {
+                    case 0:
+                        $result[$id] = 'info';
+                        break;
+                    case 1:
+                        $result[$id] = 'warn';
+                        break;
+                    case 2:
+                        $result[$id] = 'major';
+                        break;
+                    case 3:
+                    default:
+                        $result[$id] = 'error';
+                        break;
+                }
+            }
+            else {
+                $result[$id] = 'success';
+            }
         }
         return $result;
     }

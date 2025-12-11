@@ -53,6 +53,16 @@
                 "posted": "encodé"
             }
         },
+        "document_process_id": {
+            "label": "Processus documentaire",
+            "description": "Processus documentaire d'où provient l'extrait bancaire.",
+            "help": "Permet de suivre l'état du traitement documentaire."
+        },
+        "document_id": {
+            "label": "Document source",
+            "description": "Document reçu à l'origine de l'extrait bancaire.",
+            "help": "Doit être marqué comme document d'origine."
+        },
         "document_process_status": {
             "label": "Statut",
             "description": "Statut courant du processus documentaire lié.",
@@ -67,7 +77,7 @@
             }
         },
         "assigned_employee_id": {
-            "label": "Employé assigné",
+            "label": "Assigné à",
             "description": "Employé en charge du traitement documentaire.",
             "help": "Défini lors de la création ou de l'assignation du processus documentaire."
         }
