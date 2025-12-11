@@ -18,6 +18,7 @@ use finance\accounting\MiscOperation;
 use finance\accounting\MiscOperationLine;
 use finance\bank\BankAccount;
 use finance\bank\CondominiumBankAccount;
+use finance\bank\SuppliershipBankAccount;
 use fmt\setting\Setting;
 use identity\User;
 use purchase\supplier\Suppliership;
@@ -75,6 +76,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'foreign_object'    => 'purchase\supplier\Suppliership',
                 'description'       => 'The supplier the invoice relates to.',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'onupdate'          => 'onupdateSuppliershipId',
                 'required'          => true,
                 'dependents'        => ['supplier_id', 'supplier_identity_id']
             ],
@@ -86,7 +88,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['suppliership_id', '=', 'object.suppliership_id']]
             ],
 
-// #todo - dafault = compte par défaut (is_primary) du condominium
             'condo_bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
@@ -871,12 +872,48 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
      * Cascade change to related DocumentProcess & Document
      */
     protected static function onupdateCondoId($self) {
-        $self->read(['document_process_id', 'document_id']);
+        $self->read(['condo_id', 'document_process_id', 'document_id']);
 
         foreach($self as $id => $purchaseInvoice) {
+            if($purchaseInvoice['document_process_id']) {
+                DocumentProcess::id($purchaseInvoice['document_process_id'])
+                    ->update(['condo_id' => $purchaseInvoice['condo_id']]);
+            }
+            if($purchaseInvoice['document_id']) {
+                Document::id($purchaseInvoice['document_id'])
+                    ->update(['condo_id' => $purchaseInvoice['condo_id']]);
+            }
 
+            // attempt to automatically assign the condominium's primary bank account
+            $bankAccount = CondominiumBankAccount::search([
+                    ['condo_id', '=', $purchaseInvoice['condo_id']],
+                    ['bank_account_type', '=', 'bank_current'],
+                    ['is_primary', '=', true]
+                ])
+                ->first();
+
+            if($bankAccount) {
+                self::id($id)->update(['condo_bank_account_id' => $bankAccount['id']]);
+            }
         }
 
+    }
+
+    protected static function onupdateSuppliershipId($self) {
+        $self->read(['condo_id', 'suppliership_id']);
+
+        foreach($self as $id => $purchaseInvoice) {
+            // attempt to automatically assign the supplier's primary bank account
+            $bankAccount = SuppliershipBankAccount::search([
+                    ['suppliership_id', '=', $purchaseInvoice['suppliership_id']],
+                    ['is_primary', '=', true]
+                ])
+                ->first();
+
+            if($bankAccount) {
+                self::id($id)->update(['suppliership_bank_account_id' => $bankAccount['id']]);
+            }
+        }
     }
 
     /**
