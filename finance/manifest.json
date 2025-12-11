@@ -10,7 +10,7 @@
         "smhg/sepa-qr-data": "~1.1.0",
         "codelicious/php-coda-parser": "^2.0",
         "opis/json-schema": "^2.4",
-        "digitick/sepa-xml" : "2.2.*"
+        "sabre/xml" : "4.0.*"
     },
     "apps":[
         {
