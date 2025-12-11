@@ -105,11 +105,13 @@ foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $invoiceLine) {
     if(($invoiceLine['owner_share'] + $invoiceLine['tenant_share']) != 100) {
         // error : invalid (non-balanced) owner/tenant ratio
         $dispatch->dispatch('purchase.accounting.invoice.invalid_owner_tenant_ratio', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
+        throw new Exception("invalid_owner_tenant_ratio", EQ_ERROR_INVALID_PARAM);
         continue;
     }
     if(round($invoiceLine['total'] * (1 + $invoiceLine['vat_rate']), 2) != $invoiceLine['price']) {
         // error : Non matching price from vat excl amount & applicable vat rate
         $dispatch->dispatch('purchase.accounting.invoice.non_matching_price', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
+        throw new Exception("non_matching_price", EQ_ERROR_INVALID_PARAM);
         continue;
     }
     $lines_total += $invoiceLine['price'];
@@ -117,6 +119,7 @@ foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $invoiceLine) {
 if($purchaseInvoice['price'] != $lines_total || $purchaseInvoice['payable_amount'] != $lines_total) {
     // error : Invoice total and lines total do not match
     $dispatch->dispatch('purchase.accounting.invoice.non_matching_lines_total', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
+    throw new Exception("non_matching_lines_total", EQ_ERROR_INVALID_PARAM);
 }
 $usage_total = 0.0;
 $map_fund_accounts = [];
@@ -124,6 +127,7 @@ foreach($purchaseInvoice['fund_usage_lines_ids'] as $usage_line_id => $fundUsage
     if(isset($map_fund_accounts[$fundUsageLine['fund_account_id']])) {
         // error: A same expense account cannot be used twice
         $dispatch->dispatch('purchase.accounting.invoice.duplicate_expense_account', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
+        throw new Exception("duplicate_expense_account", EQ_ERROR_INVALID_PARAM);
         continue;
     }
     $map_fund_accounts[$fundUsageLine['fund_account_id']] = true;
@@ -131,11 +135,13 @@ foreach($purchaseInvoice['fund_usage_lines_ids'] as $usage_line_id => $fundUsage
     if(!$fundUsageLine['apportionment_id']) {
         //error: Missing Apportionment (mandatory)
         $dispatch->dispatch('purchase.accounting.invoice.missing_apportionment', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
+        throw new Exception("missing_apportionment", EQ_ERROR_INVALID_PARAM);
         continue;
     }
     if(!$fundUsageLine['expense_account_id']) {
         //error: Missing expense account (mandatory)
         $dispatch->dispatch('purchase.accounting.invoice.missing_expense_account', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
+        throw new Exception("missing_expense_account", EQ_ERROR_INVALID_PARAM);
         continue;
     }
 }
@@ -143,6 +149,7 @@ foreach($purchaseInvoice['fund_usage_lines_ids'] as $usage_line_id => $fundUsage
 if($usage_total > $purchaseInvoice['price']) {
     // error: Fund usage cannot exceed invoice total
     $dispatch->dispatch('purchase.accounting.invoice.exceeding_fund_allocation', 'realestate\purchase\accounting\invoice\PurchaseInvoice', $id, 'important');
+    throw new Exception("exceeding_fund_allocation", EQ_ERROR_INVALID_PARAM);
 }
 
 

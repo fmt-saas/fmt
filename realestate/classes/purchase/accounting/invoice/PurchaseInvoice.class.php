@@ -450,7 +450,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 continue;
             }
 
-            // #memo - an additional validation is made on the JSON schema (should always pass)
+            // #memo - an additional validation is made on the JSON schema (should always pass) - this ensures completeness but not consistency
             try {
                 DocumentProcess::id($purchaseInvoice['document_process_id'])->assert('is_complete');
             }
