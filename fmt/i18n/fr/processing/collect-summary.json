@@ -1,0 +1,54 @@
+{
+    "name": "Synthèse des traitements",
+    "plural": "Synthèses des traitements",
+    "description": "Tableau récapitulatif des documents en cours de traitement (factures, relevés bancaires).",
+    "model": {
+        "employee_id": {
+            "label": "Employé",
+            "description": "Collaborateur utilisé pour filtrer les traitements assignés.",
+            "help": "Sélectionnez un employé pour ne voir que ses traitements en cours."
+        },
+        "date_last": {
+            "label": "Dernière mise à jour",
+            "description": "Dernière date de traitement pour ce type de document.",
+            "help": ""
+        },
+        "document_type_code": {
+            "label": "Type de document",
+            "description": "Code identifiant le type de document (facture, relevé bancaire, etc.).",
+            "selection": {
+                "invoice": "Factures d'achat",
+                "bank_statement": "Extraits bancaires"
+            },
+            "help": "Permet d’identifier le type de processing suivi dans la ligne."
+        },
+        "count": {
+            "label": "Quantité",
+            "description": "Nombre de traitements en cours pour ce type de document.",
+            "help": ""
+        },
+        "count_alerts": {
+            "label": "Alertes",
+            "description": "Nombre d’alertes détectées sur les traitements en cours.",
+            "help": ""
+        }
+    },
+    "view": {
+        "list.default": {
+            "name": "Traitements de documents",
+            "description": "Liste des traitements en cours par type de document.",
+            "routes": {
+                "route.purchase_invoice": {
+                    "label": "Factures",
+                    "description": ""
+                },
+                "route.bank_statement": {
+                    "label": "Relevés bancaires",
+                    "description": ""
+                }
+            },
+            "layout": {}
+        }
+    },
+    "error": {}
+}

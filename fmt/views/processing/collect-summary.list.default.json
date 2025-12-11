@@ -1,0 +1,72 @@
+{
+    "name": "Documents Processing",
+    "description": "List of documents processing in progress.",
+    "controller": "fmt_processing_collect-summary",
+    "header": {
+        "layout": "inline",
+        "advanced_search": false,
+        "actions": false
+    },
+    "routes": [
+        {
+            "id": "route.purchase_invoice",
+            "label": "Invoice",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "view": "list.processing"
+            },
+            "visible": [
+                ["invoice", "=", "object.document_type_code"]
+            ]
+        },
+        {
+            "id": "route.bank_statement",
+            "label": "Bank Statement",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "finance\\bank\\BankStatement",
+                "view": "list.processing"
+            },
+            "visible": [
+                ["bank_statement", "=", "object.document_type_code"]
+            ]
+        }
+    ],
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "label": "Document Type",
+                "value": "document_type_code",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "date_last",
+                "width": "25%",
+                "widget": {
+                    "usage": "date/plain"
+                }
+            },
+            {
+                "type": "field",
+                "value": "count",
+                "width": "25%",
+                "widget": {
+                    "text-align": "center"
+                }
+            },
+            {
+                "type": "field",
+                "label": "Alerts",
+                "value": "count_alerts",
+                "width": "25%"
+            }
+        ]
+    }
+}
