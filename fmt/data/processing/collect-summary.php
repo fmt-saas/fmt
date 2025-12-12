@@ -6,6 +6,7 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
+use documents\processing\DocumentProcess;
 use equal\orm\Domain;
 use finance\bank\BankStatement;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
@@ -36,6 +37,7 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
         'document_type_code' => [
             'type'              => 'string',
             'selection'         => [
+                'document',
                 'invoice',
                 'bank_statement'
             ],
@@ -70,17 +72,15 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
 $result = [];
 
 
-$domain = [
-    ['document_process_status', '<>', 'integrated']
-];
+$employee_id = $params['employee_id'] ?? null;
 
+// look for a given employee_id in the domain, if not explicitly provided
 if(count($params['domain'])) {
     $tmpDomain = new Domain($params['domain']);
-
     foreach($tmpDomain->getClauses() as $clause) {
         foreach($clause->getConditions() as $condition) {
-            if($condition->getOperand() === 'employee_id' && in_array($condition->getOperator(), ['=', 'in'], true)) {
-                $domain[] = ['assigned_employee_id', '=', $condition->getValue()];
+            if($condition->getOperand() === 'assigned_employee_id' && in_array($condition->getOperator(), ['=', 'in'], true)) {
+                $employee_id = $condition->getValue();
                 break 2;
             }
         }
@@ -92,9 +92,48 @@ if(count($params['domain'])) {
 // retrouver les roles de l'employé
 
 
-if($params['employee_id']) {
-    $domain[] = ['assigned_employee_id', '=', $params['employee_id']];
+// 1) special case for DocumentProcess
+
+// if the employee has the role `document_dispatch_officer`, assume they are assigned to all documents with status `created` and not yet `assigned`
+if($employee_id) {
+    $documentProcesses = DocumentProcess::search([['assigned_employee_id', '=', $employee_id], ['status', '=', 'created']])
+        ->read(['id', 'created']);
+
+    if($documentProcesses->count() > 0) {
+        $count = 0;
+        $alerts = 0;
+        $date_last = 0;
+        foreach($documentProcesses as $documentProcess) {
+            ++$count;
+            if($documentProcess['created'] > $date_last) {
+                $date_last = $purchaseInvoice['created'];
+            }
+            /*
+            if($documentProcess['alert'] && !in_array($documentProcess['alert'], ['info', 'success'], true)) {
+                ++$alerts;
+            }
+            */
+        }
+
+        $result[] = [
+            'document_type_code'    => 'document',
+            'count'                 => $count,
+            'count_alerts'          => $alerts,
+            'date_last'             => date('c', $date_last)
+        ];
+    }
 }
+
+// 2) retrieve and merge all results for each document type
+
+$domain = [
+    ['document_process_status', '<>', 'integrated']
+];
+
+if($employee_id) {
+    $domain[] = ['assigned_employee_id', '=', $employee_id];
+}
+
 
 $purchaseInvoices = PurchaseInvoice::search($domain)->read(['id', 'alert', 'created']);
 

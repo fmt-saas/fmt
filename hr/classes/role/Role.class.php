@@ -75,6 +75,13 @@ class Role extends Group {
                 'ondelete'          => 'cascade'
             ],
 
+            'document_assignment_rules_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\processing\DocumentAssignmentRule',
+                'foreign_field'     => 'role_id',
+                'description'       => "Document assignment rules that are related to this role."
+            ],
+
             'groups_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'identity\Group',

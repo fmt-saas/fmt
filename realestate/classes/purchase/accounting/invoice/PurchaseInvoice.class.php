@@ -188,6 +188,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             'due_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Deadline for the payment is expected.',
                 // 'required'          => true
             ],
@@ -296,7 +297,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'usage'             => 'icon',
                 'result_type'       => 'string',
                 'description'       => 'Alert flag for the invoice.',
-                'help'              => "Indicates if there is an issue with the invoice that needs attention, by providing an icon: info, warn, major, error.",
+                'help'              => "Indicates if there is an issue with the invoice that needs attention, by providing an icon: success, info, warn, major, error.",
                 'function'          => 'calcAlert',
                 'store'             => true
             ]

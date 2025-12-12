@@ -1,0 +1,45 @@
+{
+    "name": "Règle d'assignation de document",
+    "plural": "Règles d'assignation de document",
+    "description": "Définit à quel rôle un document est assigné selon son type et l'étape du traitement.",
+    "model": {
+        "document_type_id": {
+            "label": "Type de document",
+            "description": "Type de document auquel la règle s'applique.",
+            "help": "Choisissez le type de document concerné par cette règle d'assignation."
+        },
+        "process_step": {
+            "label": "Étape du traitement",
+            "description": "Étape du processus lors de laquelle l'assignation doit s'effectuer.",
+            "help": "Étapes disponibles : créé, assigné, complété, validé, intégré.",
+            "selection": {
+                "created": "Créé",
+                "assigned": "Assigné",
+                "completed": "Complété",
+                "validated": "Validé",
+                "integrated": "Intégré"
+            }
+        },
+        "role_id": {
+            "label": "Rôle",
+            "description": "Rôle auquel le document doit être assigné.",
+            "help": "Sélectionnez le rôle qui recevra le document à cette étape."
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Nom de la règle d'assignation.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Règle d'assignation",
+            "description": "Formulaire de configuration d'une règle d'assignation de document."
+        },
+        "list.default": {
+            "name": "Règles d'assignation",
+            "description": "Liste des règles d'assignation par type de document et étape."
+        }
+    },
+    "error": {}
+}

@@ -90,6 +90,26 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "id": "section.document_assignment_rules",
+                        "label": "Assignment Rules",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "document_assignment_rules_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }

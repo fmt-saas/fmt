@@ -14,6 +14,16 @@
                 "type": "parent",
                 "children": [
                     {
+                        "id": "processings",
+                        "type": "entry",
+                        "label": "Traitements",
+                        "description": "",
+                        "context": {
+                            "entity": "fmt\\processing\\collect-summary",
+                            "view": "list.default"
+                        }
+                    },
+                    {
                         "id": "payments_followups",
                         "type": "entry",
                         "label": "Payments followups",
@@ -815,6 +825,16 @@
                                 "description": "Configure document recording rules.",
                                 "context": {
                                     "entity": "documents\\recording\\RecordingRule"
+                                }
+                            },
+                            {
+                                "id": "item.config.documents_assignment_rules",
+                                "type": "entry",
+                                "label": "Assignment Rules",
+                                "icon": "task",
+                                "description": "Configure document assignment rules.",
+                                "context": {
+                                    "entity": "documents\\processing\\DocumentAssignmentRule"
                                 }
                             }
                         ]

@@ -9,6 +9,20 @@
     },
     "routes": [
         {
+            "id": "route.document_process",
+            "label": "Document",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "view": "list.processing"
+            },
+            "visible": [
+                ["document", "=", "object.document_type_code"]
+            ]
+        },
+        {
             "id": "route.purchase_invoice",
             "label": "Invoice",
             "inline": true,

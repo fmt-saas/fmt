@@ -230,12 +230,15 @@ class ConsumptionMeter extends \equal\orm\Model {
 
     private static function computeName($type, $number, $description) {
         $meter_map = [
-            "water"         => "Eau",
-            "gas"           => "Gaz",
-            "electricity"   => "Élec",
-            "gas tank"      => "Gaz (cit.)",
-            "oil tank"      => "Mazout"
-        ];
+                "virtual"       => "(passage)",
+                "water"         => "Eau",
+                "hot_water"     => "Eau chaude",
+                "gas"           => "Gaz",
+                "electricity"   => "Élec",
+                "gas_tank"      => "Gaz (cit.)",
+                "oil_tank"      => "Mazout"
+            ];
+
         $result = '';
         if($number && strlen($number) > 0) {
             $result = $number . ' ';

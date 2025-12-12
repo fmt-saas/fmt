@@ -886,16 +886,39 @@ class DocumentProcess extends Model {
 
     }
 
-    public static function onupdateCondoId($self) {
+
+    /**
+    * This is normally done upon creation: thereafter (except in special cases), condo_id is typically updated via the target object.
+     * When condo_id is changed, attempt to auto-assign the assigned_employee_id
+     */
+    protected static function onupdateCondoId($self) {
         $self->read(['condo_id', 'document_id']);
         foreach($self as $id => $documentProcess) {
             if(isset($documentProcess['document_id'])) {
                 Document::id($documentProcess['document_id'])->update(['condo_id' => $documentProcess['condo_id']]);
             }
+
+            // #memo - we use the document_dispatch_officer role (no document_type at this stage)
+            // if there is a specific assignment for this condo, use it
+            $roleAssignment = RoleAssignment::search(['role_code', '=','document_dispatch_officer'], ['condo_id', '=', $documentProcess['condo_id']])
+                ->read(['employee_id'])
+                ->first();
+
+            // otherwise, fallback to a global assignment (no condo)
+            if(!$roleAssignment) {
+                $roleAssignment = RoleAssignment::search(['role_code', '=','document_dispatch_officer'])
+                    ->read(['employee_id'])
+                    ->first();
+            }
+
+            if($roleAssignment) {
+                self::id($id)->update(['assigned_employee_id' => $roleAssignment['employee_id']]);
+            }
+
         }
     }
 
-    public static function onupdateDocumentTypeId($self) {
+    protected static function onupdateDocumentTypeId($self) {
         $self->read(['document_type_id', 'document_id']);
         foreach($self as $id => $documentProcess) {
             if(isset($documentProcess['document_id'])) {
@@ -943,14 +966,22 @@ class DocumentProcess extends Model {
     }
 
     protected static function onafterAssign($self) {
-        $self->read(['document_bank_statement_id', 'document_invoice_id']);
+        $self->read(['assigned_employee_id', 'document_bank_statement_id', 'document_invoice_id']);
         foreach($self as $id => $documentProcess) {
             if($documentProcess['document_bank_statement_id']) {
-                BankStatement::id($documentProcess['document_bank_statement_id'])->update(['document_process_status' => null]);
+                BankStatement::id($documentProcess['document_bank_statement_id'])
+                    ->update([
+                            'assigned_employee_id'      => $documentProcess['assigned_employee_id'],
+                            'document_process_status'   => null
+                        ]);
                 continue;
             }
             if($documentProcess['document_invoice_id']) {
-                BankStatement::id($documentProcess['document_invoice_id'])->update(['document_process_status' => null]);
+                BankStatement::id($documentProcess['document_invoice_id'])
+                    ->update([
+                            'assigned_employee_id'      => $documentProcess['assigned_employee_id'],
+                            'document_process_status'   => null
+                        ]);
                 continue;
             }
         }

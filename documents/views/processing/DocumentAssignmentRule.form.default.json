@@ -1,0 +1,52 @@
+{
+    "name": "Document Assignment Rule",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "name",
+                                                "width": "100%",
+                                                "visible": ["state", "<>", "draft"]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_type_id",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "limit": 15
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "process_step",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "role_id",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "limit": 15
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -5,49 +5,45 @@
         "groups": [
 			{
                 "label": "test",
-                "height": "100%",
                 "sections": [
                     {
                         "rows": [
                             {
-                                "height": "50%",
+                                "height": "100%",
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "66%",
                                         "items": [
                                             {
                                                 "id": "item.alerts",
                                                 "label": "A traiter",
                                                 "description": "",
-                                                "width": "50%",
+                                                "width": "100%",
                                                 "entity": "fmt\\processing\\collect-summary",
-                                                "domain": ["employee_id", "=", "user.employee_id"],
+                                                "domain": ["assigned_employee_id", "=", "user.employee_id"],
                                                 "view": "list.default"
-                                            },
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
                                             {
                                                 "id": "item.fundings",
                                                 "label": "Payments",
                                                 "description": "",
-                                                "width": "50%",
+                                                "width": "100%",
+                                                "height": "50%",
                                                 "entity": "realestate\\sale\\pay\\Funding",
                                                 "view": "list.dashboard",
                                                 "domain": [ ["ownership_id", "in", "user.ownerships_ids"], ["status", "in", ["pending", "debit_balance"]] ]
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "height": "50%",
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
+                                            },
                                             {
                                                 "id": "item.documents",
                                                 "label": "Derniers documents",
                                                 "description": "",
-                                                "width": "50%",
+                                                "width": "100%",
+                                                "height": "50%",
                                                 "entity": "documents\\Document",
                                                 "view": "list.dashboard"
                                             }

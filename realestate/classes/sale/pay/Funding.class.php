@@ -12,6 +12,7 @@ use equal\data\DataFormatter;
 use finance\accounting\Matching;
 use finance\accounting\MiscOperation;
 use finance\bank\BankStatementLine;
+use hr\role\RoleAssignment;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\finance\accounting\MoneyRefund;
 use realestate\finance\accounting\MoneyTransfer;
@@ -32,6 +33,8 @@ class Funding extends \sale\pay\Funding {
                 'type'              => 'many2one',
                 'description'       => "The condominium the payment relates to.",
                 'foreign_object'    => 'realestate\property\Condominium',
+                'oncreate'          => 'onupdateCondoId',
+                'onupdate'          => 'onupdateCondoId',
                 'readonly'          => true
             ],
 
@@ -207,6 +210,26 @@ class Funding extends \sale\pay\Funding {
                 'function'          => 'calcPaymentReference'
             ],
 
+            'assigned_employee_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'hr\employee\Employee',
+                'description'       => 'Employee currently in charge of the processing.',
+                'help'              => 'Assigned employee can evolve over time, and might depend on Role.',
+                'relation'          => ['document_process_id' => 'assigned_employee_id'],
+                'store'             => true,
+                'readonly'          => true
+            ],
+
+            'alert' => [
+                'type'              => 'computed',
+                'usage'             => 'icon',
+                'result_type'       => 'string',
+                'description'       => 'Alert flag for the invoice.',
+                'help'              => "Indicates if there is an issue with the invoice that needs attention, by providing an icon: success, info, warn, major, error.",
+                'function'          => 'calcAlert',
+                'store'             => true
+            ]
         ];
     }
 
@@ -253,6 +276,65 @@ class Funding extends \sale\pay\Funding {
         }
 
         return $result;
+    }
+
+    protected static function calcAlert($self, $orm) {
+        $result = [];
+        foreach($self as $id => $funding) {
+            $messages_ids = $orm->search('core\alert\Message',[ ['object_class', '=', 'realestate\sale\pay\Funding'], ['object_id', '=', $id]]);
+            if($messages_ids > 0 && count($messages_ids)) {
+                $max_alert = 0;
+                $map_alert = array_flip([
+                    'notice',           // weight = 1, might lead to a warning
+                    'warning',          // weight = 2, might be important, might require an action
+                    'important',        // weight = 3, requires an action
+                    'error'             // weight = 4, requires immediate action
+                ]);
+                $messages = $orm->read(\core\alert\Message::getType(), $messages_ids, ['severity']);
+                foreach($messages as $mid => $message){
+                    $weight = $map_alert[$message['severity']];
+                    if($weight > $max_alert) {
+                        $max_alert = $weight;
+                    }
+                }
+                switch($max_alert) {
+                    case 0:
+                        $result[$id] = 'info';
+                        break;
+                    case 1:
+                        $result[$id] = 'warn';
+                        break;
+                    case 2:
+                        $result[$id] = 'major';
+                        break;
+                    case 3:
+                    default:
+                        $result[$id] = 'error';
+                        break;
+                }
+            }
+            else {
+                $result[$id] = 'success';
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * When condo_id is changed, attempt to auto-assign the assigned_employee_id
+     */
+    protected static function onupdateCondoId($self) {
+        $self->read(['condo_id']);
+        foreach($self as $id => $funding) {
+            // !! no document type for Funding: search for an assignment of the 'accountant' role for the current condo
+            $roleAssignment = RoleAssignment::search(['role_code', '=','accountant'], ['condo_id', '=', $funding['condo_id']])
+                ->read(['employee_id'])
+                ->first();
+
+            if($roleAssignment) {
+                self::id($id)->update(['assigned_employee_id' => $roleAssignment['employee_id']]);
+            }
+        }
     }
 
     /**

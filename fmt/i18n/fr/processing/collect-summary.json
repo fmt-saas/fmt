@@ -9,18 +9,19 @@
             "help": "Sélectionnez un employé pour ne voir que ses traitements en cours."
         },
         "date_last": {
-            "label": "Dernière mise à jour",
-            "description": "Dernière date de traitement pour ce type de document.",
+            "label": "Dernier ajout",
+            "description": "Dernière date d'ajout pour ce type de document.",
             "help": ""
         },
         "document_type_code": {
             "label": "Type de document",
             "description": "Code identifiant le type de document (facture, relevé bancaire, etc.).",
             "selection": {
+                "document": "Document à traiter",
                 "invoice": "Factures d'achat",
                 "bank_statement": "Extraits bancaires"
             },
-            "help": "Permet d’identifier le type de processing suivi dans la ligne."
+            "help": "Permet d'identifier le type de processing suivi dans la ligne."
         },
         "count": {
             "label": "Quantité",
@@ -29,7 +30,7 @@
         },
         "count_alerts": {
             "label": "Alertes",
-            "description": "Nombre d’alertes détectées sur les traitements en cours.",
+            "description": "Nombre d'alertes détectées sur les traitements en cours.",
             "help": ""
         }
     },

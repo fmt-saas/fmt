@@ -97,6 +97,7 @@ class Funding extends \equal\orm\Model {
 
             'due_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => "Deadline before which the funding is expected."
             ],
 

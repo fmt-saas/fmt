@@ -1,0 +1,48 @@
+{
+    "name": "Fundings",
+    "description": "This view is intended for displaying the list of fundings.",
+    "controller": "sale_pay_funding-collect",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "30%"
+            },
+            {
+                "type": "field",
+                "value": "due_date",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "label": "Type",
+                "value": "funding_type",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "payment_reference",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Assigned to",
+                "value": "assigned_employee_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Amount Due",
+                "value": "due_amount",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "Paid",
+                "value": "status",
+                "width": "15%"
+            }
+        ]
+    }
+}

@@ -1,0 +1,46 @@
+{
+    "name": "Document Assignment Rule",
+    "description": "Interface for model definition classes.",
+    "group_by": [
+        {
+            "field": "document_type_id",
+            "open": true
+        }
+    ],
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "document_type_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "process_step",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "role_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "document_type_code",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "role_code",
+                "width": "0%",
+                "visible": false
+            }
+        ]
+    }
+}

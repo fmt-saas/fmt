@@ -6,11 +6,11 @@
             "description": ""
         },
         "payments_followups": {
-            "label": "Suivi des paiements",
+            "label": "Trait. des paiements",
             "description": "Surveiller les appels impayés et les relances."
         },
         "item.imports": {
-            "label": "Imports",
+            "label": "Importer",
             "description": ""
         },
         "item.imports.invoice_import": {

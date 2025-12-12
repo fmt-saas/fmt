@@ -15,12 +15,25 @@ $documentType = DocumentType::create([
         'id'            => 1,
         'name'          => 'Facture fournisseur',
         'code'          => 'invoice',
+        'object_class'  => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
         'folder_code'   => 'supplier_invoices',
         'json_schema'   => 'urn:fmt:json-schema:finance:purchase-invoice',
         'description'   => "Document comptable à comptabiliser et réconcilier"
     ])
     ->first();
 
+DocumentSubtype::create([
+    'name'              => 'Facture',
+    'code'              => 'invoice',
+    'document_type_id'  => $documentType['id'],
+    'description'       => 'Facture standard.'
+]);
+
+DocumentSubtype::create([
+    'name'              => 'Note de crédit',
+    'code'              => 'credit_note',
+    'document_type_id'  => $documentType['id']
+]);
 
 DocumentSubtype::create([
     'name'              => 'Facture d\'acompte',
@@ -41,10 +54,29 @@ DocumentSubtype::create([
 ]);
 
 
-// ---
+$documentType = DocumentType::create([
+        'id'            => 14,
+        'name'          => 'Relevés bancaires',
+        'code'          => 'bank_statement',
+        'object_class'  => 'finance\bank\BankStatement',
+        'folder_code'   => 'bank_statements',
+        'json_schema'   => 'urn:fmt:json-schema:finance:bank-statement',
+        'description'   => "Mouvement sur compte bancaire de l'ACP."
+    ])
+    ->first();
+
+DocumentSubtype::create([
+    'name'              => 'Relevé bancaire',
+    'code'              => 'bank_statement',
+    'document_type_id'  => $documentType['id'],
+    'description'       => 'Relevé standard.'
+]);
 
 
-
+/**
+ *  #deprecated - use 'invoice' instead
+ */
+/*
 DocumentType::create([
     'id'            => 2,
     'name'          => 'Note de crédit fournisseur',
@@ -53,6 +85,7 @@ DocumentType::create([
     'description'   => "Note de crédit liée à une facture précédente",
     'json_schema'   => 'urn:fmt:json-schema:finance:purchase-invoice'
 ]);
+*/
 
 DocumentType::create([
     'id'            => 3,
@@ -142,14 +175,7 @@ DocumentType::create([
     'description'   => "Détail ou synthèse des charges engagées."
 ]);
 
-DocumentType::create([
-    'id'            => 14,
-    'name'          => 'Relevés bancaires',
-    'code'          => 'bank_statement',
-    'folder_code'   => 'bank_statements',
-    'json_schema'   => 'urn:fmt:json-schema:finance:bank-statement',
-    'description'   => "Mouvement sur compte bancaire de l'ACP."
-]);
+
 
 DocumentType::create([
     'id'            => 15,
@@ -167,36 +193,30 @@ DocumentType::create([
     'description'   => "Courriers relatifs aux transferts de propriété."
 ]);
 
-DocumentType::create([
-    'id'            => 17,
-    'name'          => 'Pièce justificative',
-    'code'          => 'supporting_document',
-    'folder_code'   => 'justifications',
-    'description'   => "RIB, Kbis, attestation URSSAF, etc."
+$documentType = DocumentType::create([
+        'id'            => 17,
+        'name'          => 'Pièce justificative',
+        'code'          => 'supporting_document',
+        'folder_code'   => 'justifications',
+        'description'   => "RIB, Kbis, attestation URSSAF, etc."
+    ])
+    ->first();
+
+DocumentSubtype::create([
+    'name'              => 'Attestation de conformité de citerne à mazout',
+    'code'              => 'oil_tank_compliance_certificate',
+    'document_type_id'  => $documentType['id'],
+    'description'       => 'Attestation de conformité de citerne à mazout.'
+]);
+
+DocumentSubtype::create([
+    'name'              => 'Attestation de neutralisation de citerne à mazout',
+    'code'              => 'oil_tank_neutralization_certificate',
+    'document_type_id'  => $documentType['id'],
+    'description'       => 'Attestation de neutralisation de citerne à mazout.'
 ]);
 
 
-// #todo - ajouter Attestation de conformité de citerne à mazout
-// #todo - ajouter Attestation de neutralisation  de citerne à mazout
-
-
-
-DocumentType::create([
-    'id'            => 31,
-    'name'          => 'Import Fournisseurs',
-    'code'          => 'suppliers_import',
-    'folder_code'   => 'imports',
-    'description'   => "Fichiers d'imports (temporaire)."
-]);
-
-
-DocumentType::create([
-    'id'            => 32,
-    'name'          => 'Import Copropriété',
-    'code'          => 'condominium_import',
-    'folder_code'   => 'imports',
-    'description'   => "Fichiers d'imports (temporaire)."
-]);
 
 
 $documentType = DocumentType::create([
@@ -212,17 +232,41 @@ $documentType = DocumentType::create([
 DocumentSubtype::create([
     'name'              => 'PV d\'assemblées générales',
     'code'              => 'general_assembly',
-    'document_type_id'  => $documentType['id']
+    'document_type_id'  => $documentType['id'],
+    'description'       => 'Procès Verbaux d\'assemblées générales ordinaires.'
 ]);
 
 DocumentSubtype::create([
     'name'              => 'PV d\'assemblées générales extraordinaire',
     'code'              => 'extra_general_assembly',
-    'document_type_id'  => $documentType['id']
+    'document_type_id'  => $documentType['id'],
+    'description'       => 'Procès Verbaux d\'assemblées générales extraordinaires.'
 ]);
 
 DocumentSubtype::create([
     'name'              => 'PV de Conseils de Copropriété',
     'code'              => 'condominium_council',
-    'document_type_id'  => $documentType['id']
+    'document_type_id'  => $documentType['id'],
+    'description'       => 'Procès verbaux de Conseils de Copropriété (CC).'
 ]);
+
+
+
+
+DocumentType::create([
+    'id'            => 31,
+    'name'          => 'Import Fournisseurs',
+    'code'          => 'suppliers_import',
+    'folder_code'   => 'imports',
+    'description'   => "Fichiers d'imports Fournisseurs (temporaire)."
+]);
+
+
+DocumentType::create([
+    'id'            => 32,
+    'name'          => 'Import Copropriété',
+    'code'          => 'condominium_import',
+    'folder_code'   => 'imports',
+    'description'   => "Fichiers d'imports Copropriété (temporaire)."
+]);
+

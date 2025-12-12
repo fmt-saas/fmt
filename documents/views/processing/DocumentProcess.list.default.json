@@ -118,7 +118,13 @@
                 "type": "field",
                 "value": "status",
                 "width": "10%",
-                "readonly": true
+                "readonly": true,
+                "widget": {
+                    "text_weight": "500",
+                    "background_color": "#dcfce7",
+                    "text_align": "center",
+                    "border_radius": "5px"
+                }
             }
         ]
     }

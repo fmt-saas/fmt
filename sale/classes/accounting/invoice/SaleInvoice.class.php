@@ -70,6 +70,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
             'due_date' => [
                 'type'              => 'computed',
                 'result_type'       => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Deadline for the payment is expected, from payment terms.',
                 'function'          => 'calcDueDate',
                 'store'             => true,

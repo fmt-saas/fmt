@@ -140,6 +140,7 @@ class Invoice extends Model {
 
             'due_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Deadline for the payment is expected.'
             ],
 

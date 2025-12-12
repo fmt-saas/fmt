@@ -32,6 +32,11 @@ class DocumentType extends Model {
                 'description'       => 'Unique supplier identifier provided by GLOBAL instance.'
             ],
 
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Class of the objects targeted by the Document Type.'
+            ],
+
             'code' => [
                 'type'              => 'string',
                 'description'       => 'Unique code identifier of the document Type.',
@@ -73,21 +78,35 @@ class DocumentType extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\DocumentSubtype',
                 'foreign_field'     => 'document_type_id',
-                'description'       => 'Documents matching the document type.'
+                'description'       => 'Sub-types relating to the Document Type.'
+            ],
+
+            'document_assignment_rules_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\processing\DocumentAssignmentRule',
+                'foreign_field'     => 'document_type_id',
+                'description'       => "Document assignment rules that are related to this document type."
+            ],
+
+            'validation_rules_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\validation\ValidationRule',
+                'foreign_field'     => 'document_type_id',
+                'description'       => 'Validation rules relating to the document type.'
             ],
 
             'recording_rules_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\recording\RecordingRule',
                 'foreign_field'     => 'document_type_id',
-                'description'       => 'Rules matching the document subtype.'
+                'description'       => 'Recording rules relating to the document type.'
             ],
 
             'labeling_rules_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\recording\RecordingRule',
                 'foreign_field'     => 'document_type_id',
-                'description'       => 'Rules matching the document subtype.'
+                'description'       => 'Labeling rules relating to the document type.'
             ]
 
 
