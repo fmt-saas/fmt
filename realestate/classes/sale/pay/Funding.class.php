@@ -327,7 +327,7 @@ class Funding extends \sale\pay\Funding {
         $self->read(['condo_id']);
         foreach($self as $id => $funding) {
             // !! no document type for Funding: search for an assignment of the 'accountant' role for the current condo
-            $roleAssignment = RoleAssignment::search(['role_code', '=','accountant'], ['condo_id', '=', $funding['condo_id']])
+            $roleAssignment = RoleAssignment::search([['role_code', '=','accountant'], ['condo_id', '=', $funding['condo_id']]])
                 ->read(['employee_id'])
                 ->first();
 
