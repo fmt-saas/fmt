@@ -1,5 +1,5 @@
 {
-    "name": "Recherche avancé de finacement",
+    "name": "Recherche avancé de financement",
     "description": "Contrôleur proposant une recherche avancée de financement..",
     "model": {
         "invoice_id": {
@@ -8,12 +8,12 @@
             "help": ""
         },
         "due_amount_min": {
-            "label": "Montant minimal",
+            "label": "Montant à partir de",
             "description": "Montant minimal attendu pour le financement.",
             "help": ""
         },
         "due_amount_max": {
-            "label": "Montant maximum",
+            "label": "Montant jusque",
             "description": "Montant maximum attendu pour le financement.",
             "help": ""
         },

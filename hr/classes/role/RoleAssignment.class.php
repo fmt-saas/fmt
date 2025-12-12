@@ -121,6 +121,25 @@ class RoleAssignment extends \equal\orm\Model {
         }
     }
 
+    public static function canupdate($self) {
+        $self->read(['condo_id', 'role_id' => ['code'], 'employee_id']);
+        foreach($self as $id => $roleAssignment) {
+            if($roleAssignment['condo_id'] && $roleAssignment['employee_id'] && $roleAssignment['role_id']['code'] === 'condo_manager') {
+                // make sure there is no more than one condo_manager per condominium
+                $roleAssignments = self::search([
+                        ['condo_id', '=', $roleAssignment['condo_id']],
+                        ['role_id', '=', $roleAssignment['role_id']],
+                        ['employee_id', '=', $roleAssignment['employee_id']],
+                        ['id', '<>', $id]
+                    ]);
+
+                if($roleAssignments->count() > 0) {
+                    return ['employee_id' => ['not_allowed' => 'Only one condo_manager is allowed for a condominium.']];
+                }
+            }
+        }
+        return parent::canupdate($self);
+    }
 
     public static function onchange($event, $values): array {
         $result = [];

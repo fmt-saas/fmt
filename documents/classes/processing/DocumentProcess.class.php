@@ -900,7 +900,7 @@ class DocumentProcess extends Model {
 
             // #memo - we use the document_dispatch_officer role (no document_type at this stage)
             // if there is a specific assignment for this condo, use it
-            $roleAssignment = RoleAssignment::search(['role_code', '=','document_dispatch_officer'], ['condo_id', '=', $documentProcess['condo_id']])
+            $roleAssignment = RoleAssignment::search([['role_code', '=','document_dispatch_officer'], ['condo_id', '=', $documentProcess['condo_id']]])
                 ->read(['employee_id'])
                 ->first();
 
