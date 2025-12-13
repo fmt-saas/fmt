@@ -59,10 +59,10 @@ foreach($exportingTask['exporting_task_lines_ids'] as $exporting_task_line_id =>
     }
 
     $document = Document::id($exportingTaskLine['document_id'])
-        ->read(['name', 'data'])
+        ->read(['name', 'data', 'extension'])
         ->first();
 
-    $zip->addFromString($document['name'] . '.pdf', $document['data']);
+    $zip->addFromString($document['name'] . '.' . $document['extension'], $document['data']);
 }
 
 $zip->close();

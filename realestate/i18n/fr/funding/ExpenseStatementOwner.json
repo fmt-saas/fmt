@@ -15,7 +15,7 @@
         },
         "statement_owner_lines_ids": {
             "label": "Lignes détaillées",
-            "description": "Charges ventilées par compte/lot pour ce propriétaire.",
+            "description": "Charges ventilées par compte\/lot pour ce propriétaire.",
             "help": ""
         },
         "ownership_id": {
@@ -30,12 +30,12 @@
         },
         "expense_amount": {
             "label": "Montant imputé",
-            "description": "Total des charges pour ce propriétaire (communes + privatives).",
+            "description": "Total des charges pour ce propriétaire (communes & privatives).",
             "help": ""
         },
         "date_from": {
             "label": "Date de début",
-            "description": "Date d'effet utilisée pour proratér le propriétaire.",
+            "description": "Date d'effet utilisée pour la pro-ratisation.",
             "help": ""
         },
         "date_to": {
@@ -57,7 +57,8 @@
     "view": {
         "form.default": {
             "name": "Relevé propriétaire",
-            "description": "Vue détaillée (propriété, période, lots, montants)."
+            "description": "Vue détaillée (propriété, période, lots, montants).",
+            "layout": []
         },
         "list.default": {
             "name": "Relevés propriétaires",

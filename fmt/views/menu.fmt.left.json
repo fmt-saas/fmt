@@ -14,7 +14,7 @@
                 "type": "parent",
                 "children": [
                     {
-                        "id": "processings",
+                        "id": "item.followup.processings",
                         "type": "entry",
                         "label": "Traitements",
                         "description": "",
@@ -24,7 +24,7 @@
                         }
                     },
                     {
-                        "id": "payments_followups",
+                        "id": "item.followup.payments_followups",
                         "type": "entry",
                         "label": "Payments followups",
                         "icon": "euro_symbol",

@@ -2,6 +2,21 @@
     "name": "Fundings",
     "description": "This view is intended for displaying the list of fundings.",
     "controller": "sale_pay_funding-collect",
+    "header": {
+        "actions": false,
+        "exports": false,
+        "selection": {
+            "default" : false,
+            "actions" : [
+                {
+                    "id": "header.selection.actions.export",
+                    "label": "Export SEPA",
+                    "icon": "file_download",
+                    "controller": "realestate_sale_pay_Funding_bulk-export"
+                }
+            ]
+        }
+    },
     "layout": {
         "items": [
             {
@@ -35,6 +50,18 @@
                 "type": "field",
                 "label": "Amount Due",
                 "value": "due_amount",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "Mandate",
+                "value": "has_mandate",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "Sent",
+                "value": "is_sent",
                 "width": "10%"
             },
             {

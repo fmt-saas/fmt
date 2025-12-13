@@ -53,8 +53,8 @@ class ExportingTaskLine extends \equal\orm\Model {
 
             'logs_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'core\TaskLog',
-                'foreign_field'     => 'task_id'
+                'foreign_object'    => 'documents\export\ExportingTaskLog',
+                'foreign_field'     => 'task_line_id'
             ],
 
             'status' => [

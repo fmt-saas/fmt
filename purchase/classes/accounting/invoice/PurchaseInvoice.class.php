@@ -286,6 +286,10 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
             'is_proforma' => [
                 'description' => 'Verifies that the invoice is still a proforma.',
                 'function'    => 'policyIsProforma'
+            ],
+            'is_posted' => [
+                'description' => 'Verifies that the invoice is posted.',
+                'function'    => 'policyIsPosted'
             ]
         ]);
     }
@@ -308,6 +312,19 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                 'function'      => 'doGenerateAccountingEntries'
             ]
         ]);
+    }
+
+    protected static function policyIsPosted($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $invoice) {
+            if($invoice['status' !== 'posted']) {
+                $result[$id] = [
+                    'invalid_invoice_status' => 'Invoice must be posted.'
+                ];
+            }
+        }
+        return $result;
     }
 
     protected static function policyIsProforma($self): array {

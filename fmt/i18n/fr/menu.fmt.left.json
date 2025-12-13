@@ -5,7 +5,11 @@
             "label": "Suivi",
             "description": ""
         },
-        "payments_followups": {
+        "item.followup.processings": {
+            "label": "Tous les traitements",
+            "description": "Liste de tous les documents à traiter."
+        },
+        "item.followup.payments_followups": {
             "label": "Trait. des paiements",
             "description": "Surveiller les appels impayés et les relances."
         },

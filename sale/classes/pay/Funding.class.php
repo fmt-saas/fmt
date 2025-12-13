@@ -40,6 +40,13 @@ class Funding extends \equal\orm\Model {
                 'description'       => 'Optional description to identify the funding.'
             ],
 
+            'has_mandate' => [
+                'type'              => 'boolean',
+                'description'       => 'Mark Payment to be made through a mandate.',
+                'help'              => 'The Condominium has an active SEPA mandate for the subsequent payments (and should be sent to bank).',
+                'default'           => false
+            ],
+
             'is_sent' => [
                 'type'              => 'boolean',
                 'description'       => 'Flag indicating if a SEPA order has been generated (once or more) from the Funding.',

@@ -116,6 +116,22 @@
                 "transition": "post",
                 "ids": []
             }
+        },
+        {
+            "id": "action.create_fundings",
+            "label": "Post",
+            "description": "Post the invoice to the accounting system.",
+            "controller": "core_model_do",
+            "visible": [
+                ["status", "=", "posted"],
+                ["funding_id", "=", null],
+                ["has_payment_on_hold", "=", false]
+            ],
+            "params": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "transition": "create_fundings",
+                "ids": []
+            }
         }
     ],
     "routes": [
@@ -198,7 +214,11 @@
                                                 "value": "document_id",
                                                 "visible": false
                                             },
-
+                                            {
+                                                "type": "field",
+                                                "value": "funding_id",
+                                                "visible": false
+                                            },
                                             {
                                                 "type": "field",
                                                 "label": "Condominium",

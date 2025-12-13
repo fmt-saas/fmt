@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use documents\processing\DocumentProcess;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
@@ -43,11 +44,13 @@ $script = 'realestate_purchase_accounting_invoice_PurchaseInvoice_validate';
 $purchaseInvoice = PurchaseInvoice::id($id)
     ->read([
         'status',
+        'document_process_id',
         'invoice_type',
         'condo_id',
+        'supplier_id',
+        'supplier_invoice_number',
         'condo_bank_account_id',
         'suppliership_bank_account_id',
-        'supplier_invoice_number',
         'payable_amount',
         'fiscal_year_id',
         'emission_date',
@@ -156,6 +159,7 @@ foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $invoiceLine) {
 $dispatch->cancel('purchase.accounting.invoice.invalid_owner_tenant_ratio', $class, $id);
 $dispatch->cancel('purchase.accounting.invoice.non_matching_price', $class, $id);
 
+
 if($purchaseInvoice['price'] != $lines_total || $purchaseInvoice['payable_amount'] != $lines_total) {
     // error : Invoice total and lines total do not match
     $dispatch->dispatch('purchase.accounting.invoice.non_matching_lines_total', $class, $id, 'important', $script, ['id' => $id]);
@@ -165,6 +169,7 @@ else {
     // symmetrical removal of the alert (if any)
     $dispatch->cancel('purchase.accounting.invoice.non_matching_lines_total', $class, $id);
 }
+
 
 $usage_total = 0.0;
 $map_fund_accounts = [];
@@ -192,6 +197,7 @@ $dispatch->cancel('purchase.accounting.invoice.duplicate_expense_account', $clas
 $dispatch->cancel('purchase.accounting.invoice.missing_apportionment', $class, $id);
 $dispatch->cancel('purchase.accounting.invoice.missing_expense_account', $class, $id);
 
+
 if($usage_total > $purchaseInvoice['price']) {
     // error: Fund usage cannot exceed invoice total
     $dispatch->dispatch('purchase.accounting.invoice.exceeding_fund_allocation', $class, $id, 'important', $script, ['id' => $id]);
@@ -202,12 +208,70 @@ else {
     $dispatch->cancel('purchase.accounting.invoice.exceeding_fund_allocation', $class, $id);
 }
 
+
 /*
 #todo - FundUsageLines
     Il faut que le montant du compte de réserve choisi soit suffisant par rapport au montant assigné
     pour le trouver il faut prendre la dernière balance périodique, et ajouter tous les mouvements jusqu'à la date de facture
 */
 
+
+
+/*
+    Invoice successfully validated
+    Additional test: check unicity of the invoice
+*/
+
+// a) supplier_id & invoice_number & date & total amount -> blocking error (cancel processing)
+$previousPurchaseInvoice = PurchaseInvoice::search([
+        ['id', '<>', $id],
+        ['supplier_id', '=', $purchaseInvoice['supplier_id']],
+        ['supplier_invoice_number', '=', $purchaseInvoice['supplier_invoice_number']],
+        ['emission_date', '=', $purchaseInvoice['emission_date']],
+        ['payable_amount', '=', $purchaseInvoice['payable_amount']]
+    ])
+    ->first();
+
+if($previousPurchaseInvoice) {
+    // invoice is considered as a duplicate : this is a blocking error (cancel processing)
+    $dispatch->dispatch('purchase.accounting.invoice.duplicate_invoice', $class, $id, 'important');
+    DocumentProcess::id($purchaseInvoice['document_process_id'])->do('cancel');
+    throw new Exception("duplicate_invoice", EQ_ERROR_INVALID_PARAM);
+}
+
+// b) supplier_id & invoice number -> alert only
+$previousPurchaseInvoice = PurchaseInvoice::search([
+        ['id', '<>', $id],
+        ['supplier_id', '=', $purchaseInvoice['supplier_id']],
+        ['supplier_invoice_number', '=', $purchaseInvoice['supplier_invoice_number']]
+    ])
+    ->first();
+
+if($previousPurchaseInvoice) {
+    // invoice is a possible duplicate: issue an alert
+    $links = [
+        "[{$previousPurchaseInvoice['supplier_invoice_number']}](/app/#/accounting/purchase-invoice/{$previousPurchaseInvoice['id']})"
+    ];
+    $dispatch->dispatch('purchase.accounting.invoice.possible_duplicate_invoice', $class, $id, 'important', null, [], $links);
+}
+
+// c) supplier_id & date & total amount -> alert only
+$previousPurchaseInvoice = PurchaseInvoice::search([
+        ['id', '<>', $id],
+        ['supplier_id', '=', $purchaseInvoice['supplier_id']],
+        ['emission_date', '=', $purchaseInvoice['emission_date']],
+        ['payable_amount', '=', $purchaseInvoice['payable_amount']]
+    ])
+    ->read(['supplier_invoice_number'])
+    ->first();
+
+if($previousPurchaseInvoice) {
+    // invoice is a possible duplicate: issue an alert
+    $links = [
+        "[{$previousPurchaseInvoice['supplier_invoice_number']}](/app/#/accounting/purchase-invoice/{$previousPurchaseInvoice['id']})"
+    ];
+    $dispatch->dispatch('purchase.accounting.invoice.possible_duplicate_invoice', $class, $id, 'important', null, [], $links);
+}
 
 
 // #memo - the `alert` field should be forced to be refreshed upon each validation attempt

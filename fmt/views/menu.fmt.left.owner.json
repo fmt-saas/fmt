@@ -14,7 +14,7 @@
                 "type": "parent",
                 "children": [
                     {
-                        "id": "payments_followups",
+                        "id": "item.followup.payments_followups",
                         "type": "entry",
                         "label": "Payments followups",
                         "icon": "euro_symbol",

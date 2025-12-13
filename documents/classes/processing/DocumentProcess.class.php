@@ -298,7 +298,7 @@ class DocumentProcess extends Model {
                 'transitions' => []
             ],
             'cancelled' => [
-                'description' => 'Just imported document, waiting to be completed (manually or auto-analysis).',
+                'description' => 'Document processing has been cancelled (manually or auto-analysis).',
                 'icon'        => 'cancel',
                 'transitions' => []
             ]

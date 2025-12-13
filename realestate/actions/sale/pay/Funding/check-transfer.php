@@ -18,7 +18,7 @@ use realestate\sale\pay\Funding;
             'description'      => 'Identifier of the Funding.',
         ],
         'ids' =>  [
-            'type'             => '2one2many',
+            'type'             => 'one2many',
             'foreign_object'   => 'realestate\sale\pay\Funding',
             'description'      => 'List of Funding identifiers.',
         ]

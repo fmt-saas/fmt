@@ -1,0 +1,28 @@
+{
+    "name": "Model",
+    "description": "A TaskLog is an entry that relates to a task. One TaskLog is created after each execution of a task.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "task_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "task_line_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "log",
+                "width": "40%"
+            }
+        ]
+    }
+}

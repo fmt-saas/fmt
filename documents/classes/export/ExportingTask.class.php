@@ -18,7 +18,8 @@ class ExportingTask extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the document belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'required'          => true
+                // #memo - some exports may be organisation-wide (e.g., reports)
+                // 'required'          => true
             ],
 
             'name' => [
@@ -55,6 +56,12 @@ class ExportingTask extends \equal\orm\Model {
                 'visible'           => ['status', '=', 'ready']
             ],
 
+            'logs_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\export\ExportingTaskLog',
+                'foreign_field'     => 'task_id'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -81,12 +88,14 @@ class ExportingTask extends \equal\orm\Model {
         ];
     }
 
-    protected static function doRetry($self) {
-        $self->read(['status']);
+    protected static function doRetry($self, $dispatch) {
+        $self->read(['status', 'exporting_task_lines_ids']);
         foreach($self as $id => $exportingTask) {
             if($exportingTask['status'] === 'failing') {
                 self::id($id)->update(['status' => 'idle']);
+                ExportingTaskLine::ids($exportingTask['exporting_task_lines_ids'])->update(['status' => 'idle']);
             }
+            $dispatch->cancel('documents.export.export_failing', 'documents\export\ExportingTask', $id);
         }
     }
 

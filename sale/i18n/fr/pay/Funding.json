@@ -28,7 +28,7 @@
             "help": ""
         },
         "due_amount": {
-            "label": "Montant dû",
+            "label": "Montant",
             "description": "Montant total à recevoir.",
             "help": ""
         },
@@ -45,6 +45,11 @@
         "issue_date": {
             "label": "Date d'émission",
             "description": "Date à partir de laquelle la demande de paiment doit être émise.",
+            "help": ""
+        },
+        "has_mandate": {
+            "label": "Domiciliation",
+            "description": "Indique si un mandat est disponible pour débiter/créditer automatiquement.",
             "help": ""
         },
         "is_paid": {

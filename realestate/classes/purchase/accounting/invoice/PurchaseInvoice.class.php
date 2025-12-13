@@ -347,7 +347,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         return array_merge(parent::getActions(), [
             'create_fundings' => [
                 'description'   => 'Create the funding according to the invoice.',
-                'policies'      => [/*'is_proforma'*/],
+                'policies'      => ['is_posted'],
                 'function'      => 'doCreateFundings'
             ],
             'update_document_json' => [
@@ -489,7 +489,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
             catch(\Exception $e) {
                 $result[$id] = [
-                        ($e->getCode()) => 'Some mandatory fields are missing.'
+                        ($e->getCode()) => 'Some mandatory fields are missing or invoice is a duplicate.'
                     ];
             }
             finally {
@@ -698,6 +698,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             ]);
 
         foreach($self as $id => $purchaseInvoice) {
+            // ignore invoices that already have a funding
+            if($purchaseInvoice['funding_id']) {
+                continue;
+            }
             // retrieve the condo's current account
             $bankAccount = CondominiumBankAccount::search([
                     ['condo_id', '=', $purchaseInvoice['condo_id']],
@@ -1548,7 +1552,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     public static function canupdate($self, $values) {
         $self->read(['status', 'document_process_id' => ['status'], 'fiscal_period_id' => ['status']]);
         foreach($self as $id => $invoice) {
-            $editable_fields = ['status', 'alert', 'name', 'document_process_status', 'invoice_number', 'payment_status', 'customer_ref', 'funding_id', 'reversed_invoice_id'];
+            $editable_fields = [
+                    'status', 'alert', 'name', 'document_process_status', 'invoice_number', 'payment_status', 'has_payment_on_hold', 'customer_ref', 'funding_id', 'reversed_invoice_id'
+                ];
             if(count(array_diff(array_keys($values), $editable_fields)) > 0) {
                 if($invoice['status'] !== 'proforma') {
                     return ['status' => ['non_editable' => 'Purchase Invoice cannot be updated after recording.']];

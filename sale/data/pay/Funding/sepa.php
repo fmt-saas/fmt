@@ -6,8 +6,6 @@
 */
 
 use Sabre\Xml\Service;
-use Sabre\Xml\Writer;
-use Sabre\Xml\XmlSerializable;
 use sale\pay\Funding;
 
 [$params, $providers] = eQual::announce([
@@ -39,32 +37,10 @@ use sale\pay\Funding;
 ['context' => $context, 'orm' => $orm] = $providers;
 
 
-// CUSTOM ROOT WRITER
-class SepaDocument implements XmlSerializable {
-
-    private string $ns;
-    private array $children;
-
-    public function __construct(string $ns, array $children) {
-        $this->ns = $ns;
-        $this->children = $children;
-    }
-
-    public function xmlSerialize(Writer $writer): void {
-        $writer->writeAttributes([
-            'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
-        ]);
-
-        foreach($this->children as $tag => $value) {
-            $writer->write([ $tag => $value ]);
-        }
-    }
-}
-
 // #memo - `id` and `ids` are mutually exclusive
 $ids = $params['ids'];
 
-if($params['id']) {
+if(isset($params['id']) && $params['id']) {
     $ids = (array) $params['id'];
 }
 
@@ -78,7 +54,9 @@ if(count($ids) > 50) {
 
 $fundings = Funding::ids($ids)
     ->read([
+        'id',
         'due_amount',
+        'has_mandate',
         'payment_reference',
         'bank_account_id' => ['bank_account_iban','bank_account_bic','owner_identity_id' => ['name']],
         'counterpart_bank_account_id' => ['bank_account_iban','bank_account_bic','owner_identity_id' => ['name']]
@@ -98,6 +76,12 @@ $fromBic  = $first['bank_account_id']['bank_account_bic'];
 $fromName = $first['bank_account_id']['owner_identity_id']['name'];
 
 foreach($fundings as $funding) {
+    if($funding['due_amount'] >= 0) {
+        throw new Exception('sepa_only_for_outgoing_funding', EQ_ERROR_INVALID_PARAM);
+    }
+    if($funding['has_mandate']) {
+        throw new Exception('no_sepa_for_funding_with_mandate', EQ_ERROR_INVALID_PARAM);
+    }
     if($funding['bank_account_id']['bank_account_iban'] !== $fromIban) {
         throw new Exception('multiple_debtors_not_allowed', EQ_ERROR_INVALID_PARAM);
     }
@@ -217,19 +201,33 @@ foreach($fundings as $funding) {
 
 
 // build final XML
-$children = [
-    $n('CstmrCdtTrfInitn') => [
-        $n('GrpHdr') => $grpHdr,
-        $n('PmtInf') => $pmtInf
-    ]
-];
 
 $service = new Service();
 $service->namespaceMap = [ $ns => '' ];
 
 $xml = $service->write(
     '{' . $ns . '}Document',
-    new SepaDocument($ns, $children)
+    [
+        $n('CstmrCdtTrfInitn') => [
+            $n('GrpHdr') => $grpHdr,
+            $n('PmtInf') => $pmtInf
+        ]
+    ]
+);
+
+// force XML declaration with encoding
+$xml = preg_replace(
+    '/^<\?xml version="1\.0"\?>/',
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    $xml
+);
+
+// inject xmlns:xsi on root element
+$xml = preg_replace(
+    '/<Document([^>]*)>/',
+    '<Document$1 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">',
+    $xml,
+    1
 );
 
 Funding::ids($ids)->update(['is_sent' => true]);

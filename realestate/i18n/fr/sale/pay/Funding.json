@@ -25,7 +25,7 @@
             "help": ""
         },
         "due_amount": {
-            "label": "Montant dû",
+            "label": "Montant",
             "description": "Somme attendue pour solder le document.",
             "help": ""
         },
@@ -107,11 +107,6 @@
         "suppliership_id": {
             "label": "Fournisseur",
             "description": "Tiers fournisseur lié (pour les sorties).",
-            "help": ""
-        },
-        "has_mandate": {
-            "label": "Mandat SEPA",
-            "description": "Indique si un mandat est disponible pour débiter/créditer automatiquement.",
             "help": ""
         },
         "is_sent": {

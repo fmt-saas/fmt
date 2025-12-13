@@ -6,10 +6,11 @@
             "inline": true,
             "label": "Retry",
             "icon": "sync",
-            "description": "Fetch latest emails and import attachments.",
+            "description": "Retry to execute the exporting task.",
             "controller": "core_model_do",
             "params": {
                 "action": "retry",
+                "entity": "documents\\export\\ExportingTask",
                 "id": "object.id"
             },
             "visible": ["failing", "=", "object.status"]
