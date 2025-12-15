@@ -1,0 +1,113 @@
+{
+    "name": "General Ledger",
+    "controller": "finance_accounting_generalLedger_collect",
+    "header": {
+        "#memo": "inline layout disables visible actions of the view",
+        "layout": "inline",
+        "exports": false,
+        "actions": false,
+        "advanced_search": {
+            "open": true
+        }
+    },
+    "actions": [
+        {
+            "id": "action.export",
+            "label": "Export",
+            "icon": "list",
+            "description": "Export PDF document from filtered data.",
+            "controller": "finance_accounting_generalLedger_export",
+            "params": {
+            }
+        }
+    ],
+    "operations": {
+        "total": {
+            "credit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "debit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "group_by": [
+        {
+            "open": true,
+            "colspan": 3,
+            "field": "account_id",
+            "order": "name",
+            "operations": {
+                "debit": {
+                    "operation": "SUM",
+                    "usage": "amount/money:2"
+                },
+                "credit": {
+                    "operation": "SUM",
+                    "usage": "amount/money:2"
+                }
+            }
+        }
+    ],
+    "layout": {
+        "interactions": {
+            "click": false
+        },
+        "items": [
+            {
+                "type": "field",
+                "label": "Condominium",
+                "value": "condo_id",
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Account",
+                "value": "account_id",
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "entry_date",
+                "width": "10%",
+                "widget": {
+                    "usage": "date/short"
+                }
+            },
+            {
+                "type": "field",
+                "label": "Journal",
+                "value": "journal_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Accounting Entry",
+                "value": "accounting_entry_id",
+                "width": "25%",
+                "widget": {
+                    "view": "form.default"
+                }
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "debit",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "credit",
+                "width": "15%"
+            }
+        ]
+    }
+}

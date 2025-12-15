@@ -1,0 +1,89 @@
+{
+    "name": "Grand livre",
+    "plural": "Grand livre",
+    "description": "Collecteur avancé des écritures pour générer le grand livre.",
+    "model": {
+        "entry_date": {
+            "label": "Date d'écriture",
+            "description": "Date à laquelle l'écriture est comptabilisée.",
+            "help": "Filtre les lignes sur la date d'enregistrement dans le livre."
+        },
+        "description": {
+            "label": "Description",
+            "description": "Libellé ou note interne de l'opération.",
+            "help": "Permet d'afficher ou de rechercher sur le libellé de la ligne."
+        },
+        "debit": {
+            "label": "Débit",
+            "description": "Montant débité du compte.",
+            "help": "Valeur monétaire débitée sur la ligne."
+        },
+        "credit": {
+            "label": "Crédit",
+            "description": "Montant crédité du compte.",
+            "help": "Valeur monétaire créditée sur la ligne."
+        },
+        "status": {
+            "label": "Statut",
+            "description": "État de validation de la ligne d'écriture.",
+            "help": "Indique si la ligne est en attente ou validée.",
+            "selection": {
+                "pending": "En attente",
+                "validated": "Validée"
+            }
+        },
+        "accounting_entry_id": {
+            "label": "Écriture comptable",
+            "description": "Écriture comptable à laquelle la ligne est rattachée.",
+            "help": "Affiche la pièce comptable associée."
+        },
+        "date_from": {
+            "label": "Date de début",
+            "description": "Première date de l'intervalle analysé.",
+            "help": "Utilisée pour limiter les écritures à partir de cette date."
+        },
+        "date_to": {
+            "label": "Date de fin",
+            "description": "Dernière date de l'intervalle analysé.",
+            "help": "Utilisée pour limiter les écritures jusqu'à cette date."
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle l'exercice est associé.",
+            "help": "Filtre les écritures sur la copropriété sélectionnée."
+        },
+        "fiscal_year_id": {
+            "label": "Exercice fiscal",
+            "description": "Exercice fiscal de référence.",
+            "help": "Précise l'exercice utilisé pour le filtrage temporel."
+        },
+        "journal_id": {
+            "label": "Journal",
+            "description": "Journal comptable lié aux écritures recherchées.",
+            "help": "Limite les résultats à un journal spécifique."
+        },
+        "account_id": {
+            "label": "Compte",
+            "description": "Compte comptable concerné par les lignes.",
+            "help": "Filtre les écritures sur un compte donné."
+        }
+    },
+    "view": {
+        "collect.list.default": {
+            "name": "Grand livre",
+            "description": "Vue détaillée des lignes du grand livre.",
+            "actions": {
+                "action.export": {
+                    "label": "Exporter",
+                    "description": "Exporter un document PDF à partir du filtre actif."
+                }
+            }
+        },
+        "collect.search.default": {
+            "name": "Recherche du grand livre",
+            "description": "Filtres avancés pour sélectionner les écritures du grand livre."
+        }
+    },
+    "error": {
+    }
+}

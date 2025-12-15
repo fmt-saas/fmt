@@ -1,14 +1,11 @@
 {
     "name": "General Ledger",
-    "controller": "finance_accounting_AccountingEntryLine_collect",
+    "controller": "finance_accounting_generalBalance_collect",
     "header": {
-        "actions": {
-            "ACTION.CREATE_INLINE":  [
-                {
-                    "view": false
-                }
-            ]
-        },
+        "#memo": "inline layout disables visible actions of the view",
+        "layout": "inline",
+        "exports": false,
+        "actions": false,
         "advanced_search": {
             "open": true
         }
@@ -19,7 +16,7 @@
             "label": "Export",
             "icon": "list",
             "description": "Export PDF document from filtered data.",
-            "controller": "finance_accounting_generalLedger_export",
+            "controller": "finance_accounting_generalBalance_export",
             "params": {
             }
         }
@@ -54,8 +51,10 @@
             }
         }
     ],
-    "limit": 500,
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",
@@ -73,6 +72,14 @@
             },
             {
                 "type": "field",
+                "value": "entry_date",
+                "width": "10%",
+                "widget": {
+                    "usage": "date/short"
+                }
+            },
+            {
+                "type": "field",
                 "label": "Journal",
                 "value": "journal_id",
                 "width": "20%"
@@ -84,14 +91,6 @@
                 "width": "25%",
                 "widget": {
                     "view": "form.default"
-                }
-            },
-            {
-                "type": "field",
-                "value": "entry_date",
-                "width": "10%",
-                "widget": {
-                    "usage": "date/short"
                 }
             },
             {

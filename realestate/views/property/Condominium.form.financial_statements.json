@@ -23,12 +23,22 @@
             "description": "",
             "icon": "menu_book",
             "context": {
-                "entity": "finance\\accounting\\AccountingEntryLine",
-                "view": "list.ledger",
+                "entity": "finance\\accounting\\generalLedger\\collect",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "route.general_balance",
+            "label": "General Balance",
+            "description": "",
+            "icon": "menu_book",
+            "context": {
+                "entity": "finance\\accounting\\generalBalance\\collect",
+                "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
         }
-
     ],
     "layout": {
     }

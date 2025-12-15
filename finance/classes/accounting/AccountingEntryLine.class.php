@@ -159,7 +159,6 @@ class AccountingEntryLine extends Model {
                 'readonly'          => true
             ],
 
-
             'debit' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:4',

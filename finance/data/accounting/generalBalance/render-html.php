@@ -92,7 +92,7 @@ if(!$condominium) {
     throw new \Exception('unknown_condominium', EQ_ERROR_INVALID_PARAM);
 }
 
-$data = eQual::run('get', 'finance_accounting_generalLedger_collect', [
+$data = eQual::run('get', 'finance_accounting_generalBalance_collect', [
         'domain'            => $params['domain'] ?? [],
         'date_from'         => ($params['params']['date_from']) ? strtotime($params['params']['date_from']) : null,
         'date_to'           => ($params['params']['date_to']) ? strtotime($params['params']['date_to']) : null,
@@ -188,7 +188,7 @@ foreach($groups as $account_id => &$group) {
 }
 
 $values = [
-    'title'               => 'Grand Livre',
+    'title'               => 'Balance Générale',
 
     'organisation'        => $condominium['managing_agent_id'],
     'organisation_logo'   => $getOrganisationLogo($condominium['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
@@ -223,7 +223,7 @@ try {
             })
         );
 
-    $template = $twig->load('generalLedger.print.default.html');
+    $template = $twig->load('generalBalance.print.default.html');
     $html = $template->render($values);
 
 }

@@ -48,6 +48,40 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'ondelete'          => 'null',
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'] ],
                 'visible'           => ['is_cleared', '=', true]
+            ],
+
+            'account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Account',
+                'description'       => "Accounting account the entry relates to.",
+                'required'          => true,
+                'ondelete'          => 'null',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
+                'dependents'        => ['account_code', 'account_class', 'ownership_id', 'suppliership_id']
+            ],
+
+            'ownership_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'relation'          => ['account_id' => 'ownership_id'],
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'ondelete'          => 'null',
+                'description'       => "The ownership that the account refers to, if any.",
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'instant'           => true,
+                'readonly'          => true
+            ],
+
+            'suppliership_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'relation'          => ['account_id' => 'suppliership_id'],
+                'foreign_object'    => 'purchase\supplier\Suppliership',
+                'ondelete'          => 'null',
+                'description'       => 'The supplier the account relates to, if any.',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'instant'           => true,
+                'readonly'          => true
             ]
 
         ];

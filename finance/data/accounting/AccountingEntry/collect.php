@@ -126,7 +126,6 @@ if(isset($params['journal_id']) && $params['journal_id'] > 0) {
 }
 
 $params['domain'] = $domain->toArray();
-
 $result = eQual::run('get', 'model_collect', $params, true);
 
 $context->httpResponse()
