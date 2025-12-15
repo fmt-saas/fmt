@@ -16,7 +16,8 @@
                     {
                         "id": "item.followup.processings",
                         "type": "entry",
-                        "label": "Traitements",
+                        "label": "Processings",
+                        "icon": "pending_actions",
                         "description": "",
                         "context": {
                             "entity": "fmt\\processing\\collect-summary",
@@ -38,7 +39,7 @@
                         "id": "item.documents.invoice_processings",
                         "type": "entry",
                         "label": "Invoice Processing",
-                        "icon": "pending_actions",
+                        "icon": "receipt_long",
                         "description": "Monitor and manage invoices processing.",
                         "context": {
                             "view": "list.processing",
@@ -48,8 +49,8 @@
                     {
                         "id": "item.documents.bank_statement_processings",
                         "type": "entry",
-                        "label": "Bank Statements Processing",
-                        "icon": "pending_actions",
+                        "label": "Bank Statements  Processing",
+                        "icon": "receipt",
                         "description": "Monitor and manage bank statements processing.",
                         "context": {
                             "view": "list.processing",
@@ -70,10 +71,10 @@
                         "type": "entry",
                         "label": "Invoice",
                         "icon": "receipt_long",
-                        "description": "Import supplier or expense invoices.",
+                        "description": "Import supplier/expense invoices.",
                         "context": {
                             "view": "form.import",
-                            "entity": "documents\\processing\\DocumentProcess",
+                            "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoiceImport",
                             "purpose": "create"
                         }
                     },

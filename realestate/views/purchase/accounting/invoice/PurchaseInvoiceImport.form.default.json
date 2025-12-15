@@ -1,0 +1,38 @@
+{
+    "name": "Purchase Invoice Import",
+    "description": "Purchase Invoice import.",
+    "on_error": {
+        "missing": {
+            "context": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "view": "list.default"
+            }
+        }
+    },
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "Document imported",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

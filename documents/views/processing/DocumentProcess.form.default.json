@@ -321,7 +321,7 @@
                                                 "value": "report_html",
                                                 "width": "100%",
                                                 "widget": {
-                                                    "height": 440,
+                                                    "height": 450,
                                                     "readonly": true
                                                 }
                                             }
