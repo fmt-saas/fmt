@@ -54,7 +54,7 @@
             "help": ""
         },
         "ownership_id": {
-            "label": "Ownership",
+            "label": "Copropri�taire",
             "description": "Dossier de propriété impacté par ce document.",
             "help": ""
         },

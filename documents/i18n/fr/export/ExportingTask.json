@@ -36,7 +36,7 @@
         "status": {
             "label": "Statut",
             "description": "État global (idle, running, ready, failing).",
-            "help": "La réinitialisation via l'action « Réessayer » repasse l'état à idle."
+            "help": "La réinitialisation via l'action « Réesayer » repasse l'état à idle."
         }
     },
     "view": {
@@ -51,7 +51,7 @@
             "actions": {
                 "action.retry": {
                     "label": "Réessayer",
-                    "description": "Récupérer les derniers e-mails et importer les pièces jointes."
+                    "description": "Récupérer les derniers Emails et importer les pièces jointes."
                 }
             },
             "routes": {

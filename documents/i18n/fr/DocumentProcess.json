@@ -54,7 +54,7 @@
             "help": ""
         },
         "ownership_id": {
-            "label": "Ownership",
+            "label": "Copropri�taire",
             "description": "Dossier de propriété impacté par ce document.",
             "help": ""
         },
@@ -109,7 +109,8 @@
                 "recorded": "Comptabilisé",
                 "confirmed": "Confirmé",
                 "integrated": "Intégré",
-                "cancelled": "Annulé"
+                "cancelled": "Annulé",
+                "removed": "Supprimé"
             }
         },
         "document_invoice_id": {
