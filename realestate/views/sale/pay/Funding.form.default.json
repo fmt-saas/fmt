@@ -142,6 +142,12 @@
                                                 "label": "Mandate",
                                                 "value": "has_mandate",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Mandate",
+                                                "value": "is_sent",
+                                                "width": "100%"
                                             }
                                         ]
                                     },
