@@ -456,7 +456,7 @@ class AccountingEntry extends Model {
                     'entry_date'            => time(),
                     'reverse_entry_id'      => $id
                 ])
-                ->first();
+                ->first(); 
 
             foreach($accountingEntry['entry_lines_ids'] ?? [] as $entry_line_id => $entryLine) {
                 AccountingEntryLine::create([
@@ -752,11 +752,14 @@ class AccountingEntry extends Model {
      * on ne check pas sur le status mais sur le entry_number (il ne peut être assigné qu'une seule fois)
      * pour éviter un blocage au moment de la transition 'validate'
      */
-    public static function canupdate($self) {
+    public static function canupdate($self, $values) {
         $self->read(['entry_number']);
+        $allowed_fields = ['status'];
         foreach($self as $id => $accountingEntry) {
-            if($accountingEntry['entry_number']) {
-                return ['status' => ['not_allowed' => 'Accounting entry cannot be modified once validated.']];
+            if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
+                if($accountingEntry['entry_number']) {
+                    return ['status' => ['not_allowed' => 'Accounting entry cannot be modified once validated.']];
+                }
             }
         }
         return parent::canupdate($self);
