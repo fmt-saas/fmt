@@ -9,8 +9,8 @@
             "help": ""
         },
         "name": {
-            "label": "Libelle",
-            "description": "Libelle calcule (numero ou mention pro forma).",
+            "label": "Libellé",
+            "description": "Libellé calculé (numéro ou mention pro forma).",
             "help": ""
         },
         "description": {
@@ -19,13 +19,13 @@
             "help": "Utilise comme pense bête pour identifier la facture plus facilement."
         },
         "reference": {
-            "label": "Reference client",
-            "description": "Note a afficher sur le document pour le destinataire.",
+            "label": "Référence client",
+            "description": "Note à afficher sur le document pour le destinataire.",
             "help": "Reference libre (ex. communication, reference client ou consignes)."
         },
         "organisation_id": {
             "label": "Organisation",
-            "description": "Organisation qui emet ou recoit la facture.",
+            "description": "Organisation qui émet ou reçoit la facture.",
             "help": ""
         },
         "fiscal_year_id": {
@@ -40,12 +40,12 @@
         },
         "status": {
             "label": "Statut",
-            "description": "Etat du document (brouillon, valide, annule).",
+            "description": "État du document (brouillon, validé, annulé).",
             "help": "",
             "selection": {
                 "proforma": "Pro forma",
-                "posted": "Validee",
-                "cancelled": "Annulee",
+                "posted": "Validée",
+                "cancelled": "Annulée",
                 "pending": "En cours"
             }
         },
@@ -55,9 +55,9 @@
             "help": "",
             "selection": {
                 "invoice": "Facture",
-                "credit_note": "Note de credit",
+                "credit_note": "Note de crédit",
                 "fund_request": "Appel de fonds",
-                "expense_statement": "Etat de depenses"
+                "expense_statement": "Etat de dépenses"
             }
         },
         "invoice_number": {
@@ -71,29 +71,29 @@
             "help": ""
         },
         "reversed_invoice_id": {
-            "label": "Note de credit associee",
-            "description": "Document ayant annule la facture.",
+            "label": "Note de crédit associée",
+            "description": "Document ayant annulé la facture.",
             "help": ""
         },
         "payment_status": {
             "label": "Statut de paiement",
-            "description": "Equilibre entre sommes dues et montants rembourses.",
+            "description": "Equilibre entre sommes dues et montants remboursés.",
             "help": "",
             "selection": {
-                "debit_balance": "Solde a recevoir",
-                "credit_balance": "Solde a rembourser",
+                "debit_balance": "Solde à recevoir",
+                "credit_balance": "Solde à rembourser",
                 "balanced": "Solde nul",
                 "pending": "Paiement en cours"
             }
         },
         "payment_reference": {
-            "label": "Reference de paiement",
-            "description": "Communication a utiliser lors du paiement.",
+            "label": "Référence de paiement",
+            "description": "Communication à utiliser lors du paiement.",
             "help": "Peut contenir une communication structuree, RF ou texte libre (140 caracteres max)."
         },
         "posting_date": {
             "label": "Date comptable",
-            "description": "Date de comptabilisation (impacte l'exercice/la periode).",
+            "description": "Date de comptabilisation (impacte l'exercice/la période).",
             "help": ""
         },
         "emission_date": {
@@ -123,12 +123,12 @@
         },
         "total": {
             "label": "Total HT",
-            "description": "Montant hors taxes calcule sur les lignes.",
+            "description": "Montant hors taxes calculé sur les lignes.",
             "help": ""
         },
         "price": {
             "label": "Total TVAC",
-            "description": "Montant toutes taxes comprises calcule sur les lignes.",
+            "description": "Montant toutes taxes comprises calculé sur les lignes.",
             "help": ""
         },
         "invoice_lines_ids": {
@@ -166,15 +166,15 @@
         },
         "chart.invoicedTotal": {
             "name": "Total facture",
-            "description": "Graphique cumule des montants HT/TVAC emis sur la periode."
+            "description": "Graphique cumulé des montants HT/TVAC émis sur la période."
         },
         "chart.creditNote": {
             "name": "Notes de credit",
-            "description": "Graphique des notes de credit emises (HT/TVAC)."
+            "description": "Graphique des notes de crédit émises (HT/TVAC)."
         },
         "chart.invoicedCA": {
             "name": "Volume de factures",
-            "description": "Graphique du nombre de factures validees par plage de temps."
+            "description": "Graphique du nombre de factures validées par plage de temps."
         }
     }
 }

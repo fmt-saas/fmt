@@ -17,8 +17,8 @@
             "label": "Statut",
             "description": "La situation à un moment donné au cours d'un processus.",
             "selection": {
-                "proforma": "pro forma",
-                "posted": "facture",
+                "proforma": "Pro forma",
+                "posted": "Facture",
                 "cancelled": "annulée"
             },
             "help": ""
@@ -27,7 +27,7 @@
             "label": "Type",
             "description": "Type de document comptable.",
             "selection": {
-                "invoice": "facture",
+                "invoice": "Facture",
                 "credit_note": "note de crédit"
             },
             "help": ""

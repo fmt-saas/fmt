@@ -5,12 +5,12 @@
     "model": {
         "condo_id": {
             "label": "Copropriete",
-            "description": "Immeuble concerne par le groupe.",
+            "description": "Immeuble concerné par le groupe.",
             "help": ""
         },
         "name": {
-            "label": "Libelle",
-            "description": "Libelle affiche sur la facture.",
+            "label": "Libellé",
+            "description": "Libellé affiche sur la facture.",
             "help": ""
         },
         "description": {
@@ -25,12 +25,12 @@
         },
         "invoice_id": {
             "label": "Facture",
-            "description": "Facture rattachee.",
+            "description": "Facture rattachée.",
             "help": ""
         },
         "invoice_lines_ids": {
             "label": "Lignes du groupe",
-            "description": "Lignes rattachees a ce groupe.",
+            "description": "Lignes rattachées à ce groupe.",
             "help": ""
         },
         "is_visible": {
@@ -39,7 +39,7 @@
             "help": ""
         },
         "is_aggregate": {
-            "label": "Groupe agrege",
+            "label": "Groupe agrégé",
             "description": "Indique si le groupe sert uniquement au regroupement.",
             "help": ""
         }
@@ -47,11 +47,11 @@
     "view": {
         "form.default": {
             "name": "Groupe de lignes",
-            "description": "Fiche groupe (nom, ordre, visibilite et description)."
+            "description": "Fiche groupe (nom, ordre, visibilité et description)."
         },
         "list.default": {
             "name": "Groupes de lignes",
-            "description": "Liste des groupes rattaches a leurs factures."
+            "description": "Liste des groupes rattachés à leurs factures."
         }
     }
 }

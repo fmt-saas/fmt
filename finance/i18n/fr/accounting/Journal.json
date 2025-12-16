@@ -26,12 +26,12 @@
         "journal_type": {
             "label": "Type",
             "selection": {
-                "LEDG": "grand livre",
-                "SALE": "ventes",
-                "PURC": "achats",
+                "LEDG": "Grand livre",
+                "SALE": "Ventes",
+                "PURC": "Achats",
                 "CASH": "trésorerie",
-                "PAYR": "paies",
-                "ASST": "immobilisations",
+                "PAYR": "Paies",
+                "ASST": "Immobilisations",
                 "MISC": "opérations diverses"
             },
             "description": "",
