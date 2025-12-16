@@ -488,6 +488,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
             }
             catch(\Exception $e) {
+                trigger_error("APP::PurchaseInvoice [{$id}] cannot be marked as completed: ".$e->getMessage(), EQ_REPORT_WARNING);
                 $result[$id] = [
                         ($e->getCode()) => 'Some mandatory fields are missing or invoice is a duplicate.'
                     ];
@@ -1444,6 +1445,20 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         return $result;
     }
 
+    protected static function onupdateDescription($self, $lang) {
+        $self->read(['description', 'invoice_lines_ids' => ['description']]);
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['description'] || strlen($purchaseInvoice['description']) <= 0) {
+                continue;
+            }
+            foreach($purchaseInvoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
+                if(!$invoiceLine['description'] || strlen($invoiceLine['description']) <= 0) {
+                    PurchaseInvoiceLine::id($invoice_line_id)->update(['description' => $purchaseInvoice['description']], $lang);
+                }
+            }
+        }
+    }
+
     private static function computeDocumentLink($document_id) {
         return '/document/' . $document_id;
     }
@@ -1491,20 +1506,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'document_id'         => $documentProcess['document_id'],
                     'document_data'       => null
                 ]);
-        }
-    }
-
-    protected static function onupdateDescription($self, $lang) {
-        $self->read(['description', 'invoice_lines_ids' => ['description']]);
-        foreach($self as $id => $purchaseInvoice) {
-            if(!$purchaseInvoice['description'] || strlen($purchaseInvoice['description']) <= 0) {
-                continue;
-            }
-            foreach($purchaseInvoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
-                if(!$invoiceLine['description'] || strlen($invoiceLine['description']) <= 0) {
-                    PurchaseInvoiceLine::id($invoice_line_id)->update(['description' => $purchaseInvoice['description']], $lang);
-                }
-            }
         }
     }
 
