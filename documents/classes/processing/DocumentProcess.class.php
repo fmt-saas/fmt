@@ -186,7 +186,8 @@ class DocumentProcess extends Model {
                     'completed',
                     'validated',
                     'integrated',
-                    'cancelled'
+                    'cancelled',
+                    'removed'
                 ],
                 'default'           => 'created'
             ],
@@ -1033,10 +1034,14 @@ class DocumentProcess extends Model {
             if($documentProcess['has_target_object']) {
                 continue;
             }
+            self::id($id)->update(['status' => 'removed']);
+            // #memo - documents are not deleted (for traceability purpose)
+            /*
             Document::id($documentProcess['document_id'])->delete();
             self::id($id)
                 ->update(['document_id' => null])
                 ->delete();
+            */
         }
     }
 
@@ -1047,7 +1052,14 @@ class DocumentProcess extends Model {
     protected static function doUpdateDocumentJson($self, $values) {
         $self->read(['status', 'document_id' => ['has_document_json', 'document_json']]);
 
-        $recursiveUpdate = function(array &$data, array $updates) use (&$recursiveUpdate) {
+        $isList = function (array $array): bool {
+            if ($array === []) {
+                return true;
+            }
+            return array_keys($array) === range(0, count($array) - 1);
+        };
+
+        $recursiveUpdate = function(array &$data, array $updates) use (&$recursiveUpdate, $isList) {
             foreach($updates as $key => $value) {
                 // #memo - we don't check validity at this point
                 /*
@@ -1056,6 +1068,26 @@ class DocumentProcess extends Model {
                     throw new \Exception('invalid_document_json_field', EQ_ERROR_INVALID_PARAM);
                 }
                 */
+
+                // Both sides are arrays
+                if(
+                    is_array($value)
+                    && isset($data[$key])
+                    && is_array($data[$key])
+                ) {
+                    // JSON array (numeric keys) -> replace
+                    if($isList($value)) {
+                        $data[$key] = $value;
+                    }
+                    // JSON object (string keys) -> recursive merge
+                    else {
+                        $recursiveUpdate($data[$key], $value);
+                    }
+                }
+                // Scalar or new key
+                else {
+                    $data[$key] = $value;
+                }
 
                 if(is_array($value) && is_array($data[$key])) {
                     $recursiveUpdate($data[$key], $value);
@@ -1486,12 +1518,21 @@ class DocumentProcess extends Model {
                 if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
                     $bankAccount = SuppliershipBankAccount::search([['suppliership_id', '=', $suppliership['id']], ['bank_account_iban', '=', $data['payment']['iban']]])->first();
 
+                    $condoBankAccount = CondominiumBankAccount::search([
+                            ['condo_id', '=', $documentProcess['condo_id']],
+                            ['is_primary', '=', true],
+                            ['status', '=', 'validated'],
+                            ['bank_account_type', '=', 'bank_current']
+                        ])
+                        ->first();
+
                     // create invoice
                     $invoice = PurchaseInvoice::create([
                             'condo_id'                      => $documentProcess['condo_id'],
                             'suppliership_id'               => $suppliership['id'],
                             'supplier_invoice_number'       => $data['invoice_number'],
                             'suppliership_bank_account_id'  => $bankAccount['id'] ?? null,
+                            'condo_bank_account_id'         => $condoBankAccount['id'] ?? null,
                             'payment_reference'             => str_replace(['+', '/'], '', $data['payment']['payment_id'] ?? ''),
                             'payable_amount'                => $data['totals']['payable_amount'] ?? '',
                             'emission_date'                 => strtotime($data['issue_date']),
