@@ -5,7 +5,7 @@
     "model": {
         "email": {
             "label": "Adresse",
-            "description": "Adresse e-mail principale utilisée par la boîte.",
+            "description": "Adresse Email principale utilisée par la boîte.",
             "help": ""
         },
         "login": {
@@ -45,7 +45,7 @@
         },
         "date_last_sync": {
             "label": "Dernière synchro",
-            "description": "Horodatage de la dernière récupération des e-mails.",
+            "description": "Horodatage de la dernière récupération des Emails.",
             "help": ""
         },
         "status": {
@@ -73,7 +73,7 @@
             "actions": {
                 "action.add_mailbox": {
                     "label": "Ajouter une boîte mail",
-                    "description": "Ajouter une nouvelle boîte aux lettres pour automatiser la récupération des e-mails."
+                    "description": "Ajouter une nouvelle boîte aux lettres pour automatiser la récupération des Emails."
                 },
                 "action.connect": {
                     "label": "Connexion OAuth",
@@ -81,7 +81,7 @@
                 },
                 "action.fetch_emails": {
                     "label": "Télécharger",
-                    "description": "Récupérer les derniers e-mails et importer les pièces jointes."
+                    "description": "Récupérer les derniers Emails et importer les pièces jointes."
                 }
             }
         }

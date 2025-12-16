@@ -27,11 +27,11 @@
             "label": "Type",
             "description": "Le contexte auquel le modèle est destiné.",
             "selection": {
-                "quote": "devis",
-                "contract": "contrat",
-                "funding": "financement",
-                "invoice": "facture",
-                "option": "option"
+                "quote": "Devis",
+                "contract": "Contrat",
+                "funding": "Financement",
+                "invoice": "Facture",
+                "option": "Option"
             },
             "help": ""
         },
