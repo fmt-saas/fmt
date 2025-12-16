@@ -62,6 +62,12 @@ class ExportingTask extends \equal\orm\Model {
                 'foreign_field'     => 'task_id'
             ],
 
+            'is_exported' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the export as downloaded by the user.',
+                'default'           => false
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [

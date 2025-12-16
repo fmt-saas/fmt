@@ -238,6 +238,7 @@ $values = array_merge($values, [
     'recipient'           => $owner['identity_id'],
 
 //    'payment_qr_code_uri' => $getPaymentQrCodeUri($invoice),
+
     'date'                => time(),
     'timezone'            => constant('L10N_TIMEZONE'),
     'locale'              => constant('L10N_LOCALE'),
@@ -245,6 +246,7 @@ $values = array_merge($values, [
     'currency'            => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
     'labels'              => $getLabels($lang),
     'debug'               => $params['debug'],
+
     'fiscal_period'       => [
         'date_from' => $fiscalPeriod['date_from'],
         'date_to'   => $fiscalPeriod['date_to']

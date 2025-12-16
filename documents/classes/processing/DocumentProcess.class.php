@@ -247,6 +247,8 @@ class DocumentProcess extends Model {
                 'transitions' => [
                     'revert' => [
                         'description' => 'Revert the document to `created`.',
+                        'onafter'     => 'onafterRevertFromAssigned',
+// #todo - update assigned employee                        
                         'status'      => 'created'
                     ],
                     'complete' => [
@@ -267,6 +269,8 @@ class DocumentProcess extends Model {
                 'transitions' => [
                     'revert' => [
                         'description' => 'Revert the document to `assigned`.',
+                        'onafter'     => 'onafterRevertFromCompleted',
+// #todo - update assigned employee                        
                         'status'      => 'assigned'
                     ],
                     'validate' => [
@@ -383,6 +387,11 @@ class DocumentProcess extends Model {
                 'policies'      => [/*'can_attempt_auto_draft'*/],
                 'function'      => 'doAttemptAutoDraft'
             ],
+            'attempt_auto_assign' => [
+                'description'   => 'Attempt to automatically assign the document process to an employee based on Role assignments.',
+                'policies'      => [/*'can_attempt_auto_draft'*/],
+                'function'      => 'doAttemptAutoAssign'
+            ],
             'update_document_json' => [
                 'description'   => 'Update the JSON representation of the target document.',
                 'help'          => 'This is used for handling arbitrary changes to one or more fields (according to JSON schema) when encoding targeted documents (e.g. purchase invoice).',
@@ -428,35 +437,19 @@ class DocumentProcess extends Model {
     }
 
     protected static function onupdateDocumentId($self) {
-        $self->read(['document_id' => ['creator']]);
+        $self->read(['document_id']);
         foreach($self as $id => $documentProcess) {
             if(!$documentProcess['document_id']) {
                 continue;
             }
-            // attempt to retrieve the employee the Document Processing must be assigned to
-            $employee_id = null;
-            // by default use `document_dispatch_officer`, if set
-            $roleAssignment = RoleAssignment::search(['role_code', '=', 'document_dispatch_officer'])->read(['employee_id'])->first();
-            if($roleAssignment && $roleAssignment['employee_id']) {
-                $employee_id = $roleAssignment['employee_id'];
-            }
-            // fallback to employee relating to current user (if set)
-            else {
-                $identity = Identity::search(['user_id', '=', $documentProcess['document_id']['creator']])
-                    ->read(['employee_id'])
-                    ->first();
-                if($identity && $identity['employee_id']) {
-                    $employee_id = $identity['employee_id'];
-                }
-            }
-            if($employee_id) {
-                self::id($id)->update(['assigned_employee_id' => $employee_id]);
-            }
+
             // assign back document to the process
             Document::id($documentProcess['document_id']['id'])->update(['document_process_id' => $id]);
 
             // attempt to auto complete the processing
-            $self->do('attempt_auto_draft');
+            $self
+                ->do('attempt_auto_assign')
+                ->do('attempt_auto_draft');
         }
     }
 
@@ -1000,6 +993,62 @@ class DocumentProcess extends Model {
         }
 
         return $result;
+    }
+
+    protected static function doAttemptAutoAssign($self) {
+        $self->read(['condo_id', 'status', 'document_id' => ['creator', 'document_type_id']]);
+        foreach($self as $id => $documentProcess) {
+            if(!$documentProcess['document_id']) {
+                continue;
+            }
+            // attempt to retrieve the employee the Document Processing must be assigned to
+            $employee_id = null;
+
+            if($documentProcess['document_id']['document_type_id']) {
+
+                $documentAssignmentRule = DocumentAssignmentRule::search([
+                        ['process_step', '=', $documentProcess['status']],
+                        ['document_type_id', '=', $documentProcess['document_id']['document_type_id']]
+                    ])
+                    ->read(['role_id']);
+
+                if($documentAssignmentRule) {
+                    $roleAssignment = RoleAssignment::search([
+                            ['condo_id', '=', $documentProcess['condo_id'] ?? null],
+                            ['role_id', '=', $documentAssignmentRule['role_id']]
+                        ])
+                        ->read(['employee_id'])
+                        ->first();
+
+                    if($roleAssignment) {
+                        $employee_id = $roleAssignment['employee_id'];
+                    }
+                }
+            }
+
+            if(!$employee_id) {
+                // by default use `document_dispatch_officer`, if set
+                $roleAssignment = RoleAssignment::search(['role_code', '=', 'document_dispatch_officer'])->read(['employee_id'])->first();
+                if($roleAssignment && $roleAssignment['employee_id']) {
+                    $employee_id = $roleAssignment['employee_id'];
+                }
+                // fallback to employee relating to current user (if set)
+                else {
+                    $identity = Identity::search(['user_id', '=', $documentProcess['document_id']['creator']])
+                        ->read(['employee_id'])
+                        ->first();
+                    if($identity && $identity['employee_id']) {
+                        $employee_id = $identity['employee_id'];
+                    }
+                }
+            }
+
+            if($employee_id) {
+                // #memo - this will update assigned_employee_id on target objects via onupdateAssignedEmployeeId
+                self::id($id)->update(['assigned_employee_id' => $employee_id]);
+            }
+
+        }
     }
 
     protected static function doAttemptAutoDraft($self) {

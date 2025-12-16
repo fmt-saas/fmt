@@ -85,7 +85,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\SuppliershipBankAccount',
                 'description'       => 'The bank account of the supplier to be used.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['suppliership_id', '=', 'object.suppliership_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['suppliership_id', '=', 'object.suppliership_id']],
+                'onupdate'          => 'onupdateSuppliershipBankAccountId',
             ],
 
             'condo_bank_account_id' => [
@@ -252,14 +253,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'description'       => 'Service delivered over a period of time.',
                 'help'              => '',
                 'default'           => false
-            ],
-
-            'description' => [
-                'type'              => 'string',
-                'description'       => 'Short description of the invoice.',
-                'help'              => 'For manual encoding, this can be set manually and must be synced with lines descriptions.',
-                'multilang'         => true,
-                'onupdate'          => 'onupdateDescription'
             ],
 
             // #memo - some actions of this entity rely on status from DocumentProcessing
@@ -488,7 +481,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
             }
             catch(\Exception $e) {
-                trigger_error("APP::PurchaseInvoice [{$id}] cannot be marked as completed: ".$e->getMessage(), EQ_REPORT_WARNING);
+                trigger_error("APP::PurchaseInvoice [{$id}] cannot be marked as completed: " . $e->getMessage(), EQ_REPORT_WARNING);
                 $result[$id] = [
                         ($e->getCode()) => 'Some mandatory fields are missing or invoice is a duplicate.'
                     ];
@@ -935,6 +928,35 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
         }
     }
+
+    protected static function onupdateSuppliershipBankAccountId($self) {
+        /*
+        $self->read(['condo_id', 'document_process_id', 'document_id', 'suppliership_bank_account_id']);
+
+            if($purchaseInvoice['document_process_id']) {
+                DocumentProcess::id($purchaseInvoice['document_process_id'])
+                    ->update(['condo_id' => $purchaseInvoice['condo_id']]);
+            }
+            if($purchaseInvoice['document_id']) {
+                Document::id($purchaseInvoice['document_id'])
+                    ->update(['condo_id' => $purchaseInvoice['condo_id']]);
+            }
+        foreach($self as $id => $purchaseInvoice) {
+            // attempt to automatically assign the supplier's primary bank account
+            $bankAccount = SuppliershipBankAccount::search([
+                    ['suppliership_id', '=', $purchaseInvoice['suppliership_id']],
+                    ['is_primary', '=', true]
+                ])
+                ->first();
+
+            if($bankAccount) {
+                self::id($id)->update(['suppliership_bank_account_id' => $bankAccount['id']]);
+            }
+        }
+        */
+        // #todo - mettre à jour le document lié aussi
+    }
+
 
     /**
      * Generates the initial accounting entry.
@@ -1445,20 +1467,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         return $result;
     }
 
-    protected static function onupdateDescription($self, $lang) {
-        $self->read(['description', 'invoice_lines_ids' => ['description']]);
-        foreach($self as $id => $purchaseInvoice) {
-            if(!$purchaseInvoice['description'] || strlen($purchaseInvoice['description']) <= 0) {
-                continue;
-            }
-            foreach($purchaseInvoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
-                if(!$invoiceLine['description'] || strlen($invoiceLine['description']) <= 0) {
-                    PurchaseInvoiceLine::id($invoice_line_id)->update(['description' => $purchaseInvoice['description']], $lang);
-                }
-            }
-        }
-    }
-
     private static function computeDocumentLink($document_id) {
         return '/document/' . $document_id;
     }
@@ -1610,7 +1618,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
 
             if(isset($invoice['suppliership_bank_account_id'])) {
-                $bankAccount = BankAccount::id($invoice['suppliership_bank_account_id'])->read(['bank_account_iban', 'bank_account_bic'])->first();
+                $bankAccount = SuppliershipBankAccount::id($invoice['suppliership_bank_account_id'])->read(['bank_account_iban', 'bank_account_bic'])->first();
                 $fields['payment']['iban'] = $bankAccount['bank_account_iban'];
                 $fields['payment']['bic'] = $bankAccount['bank_account_bic'];
             }

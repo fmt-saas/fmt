@@ -28,13 +28,17 @@ class MiscOperationLine extends Model {
             ],
 
             'name' => [
-                'type'              => 'string',
-                'description'       => 'Label for identifying the entry line.',
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'store'             => true,
+                'relation'          => ['description'],
+                'description'       => 'Label for identifying the entry line.'
             ],
 
             'description' => [
                 'type'              => 'string',
                 'description'       => 'Short description of the identifying the entry line.',
+                'dependents'        => ['name']
             ],
 
             'misc_operation_id' => [
@@ -71,7 +75,8 @@ class MiscOperationLine extends Model {
                 'relation'          => ['misc_operation_id' => 'journal_id'],
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['journal_type', '=', 'MISC']],
                 'store'             => true,
-                'instant'           => true
+                'instant'           => true,
+                'readonly'          => true
             ],
 
             'is_owner' => [

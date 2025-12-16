@@ -155,7 +155,8 @@
                                         "width": "50%",
                                         "items": [
                                             {
-                                                "type": "label",
+                                                "type": "field",
+                                                "value": "condo_id",
                                                 "width": "50%"
                                             },
                                             {

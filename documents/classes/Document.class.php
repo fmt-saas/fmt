@@ -128,13 +128,22 @@ class Document extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentSubtype',
                 'description'       => 'Document subtype associated with the document, if any.',
-                'domain'            => ['document_type_id', '=', 'object.document_type_id']
+                'domain'            => ['document_type_id', '=', 'object.document_type_id'],
+                'dependents'        => ['document_subtype_code']
             ],
 
             'document_type_code' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'relation'          => ['document_type_id' => 'code'],
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'document_subtype_code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['document_subtype_id' => 'code'],
                 'store'             => true,
                 'instant'           => true
             ],

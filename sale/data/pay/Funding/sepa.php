@@ -75,6 +75,10 @@ $fromIban = $first['bank_account_id']['bank_account_iban'];
 $fromBic  = $first['bank_account_id']['bank_account_bic'];
 $fromName = $first['bank_account_id']['owner_identity_id']['name'];
 
+
+// #todo - handle if Payment already exist
+// is_exported -> deduce from due_amount
+// !is_exported : use amount (condition <  due amount)
 foreach($fundings as $funding) {
     if($funding['due_amount'] >= 0) {
         throw new Exception('sepa_only_for_outgoing_funding', EQ_ERROR_INVALID_PARAM);

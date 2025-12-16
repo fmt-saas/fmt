@@ -48,8 +48,8 @@
             },
             {
                 "type": "field",
-                "value": "journal_id",
-                "width": "12%"
+                "value": "description",
+                "width": "30%"
             },
             {
                 "type": "field",

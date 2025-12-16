@@ -103,6 +103,14 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
                 'description'       => 'Fundings created from the invoice.'
             ],
 
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Short description of the invoice.',
+                'help'              => 'For manual encoding, this can be set manually and must be synced with lines descriptions.',
+                'multilang'         => true,
+                'onupdate'          => 'onupdateDescription'
+            ],
+
             /**
              * Specific Sale Invoice columns
              */
@@ -408,6 +416,20 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
         }
 
         $self->do('reverse');
+    }
+
+    protected static function onupdateDescription($self, $lang) {
+        $self->read(['description', 'invoice_lines_ids' => ['description']]);
+        foreach($self as $id => $saleInvoice) {
+            if(!$saleInvoice['description'] || strlen($saleInvoice['description']) <= 0) {
+                continue;
+            }
+            foreach($saleInvoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
+                if(!$invoiceLine['description'] || strlen($invoiceLine['description']) <= 0) {
+                    SaleInvoiceLine::id($invoice_line_id)->update(['description' => $saleInvoice['description']], $lang);
+                }
+            }
+        }
     }
 
     public static function getActions() {

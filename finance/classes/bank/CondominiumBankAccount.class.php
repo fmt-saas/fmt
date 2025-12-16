@@ -133,7 +133,8 @@ class CondominiumBankAccount extends BankAccount {
                 'description'       => 'Current status of the Bank Account.',
                 'selection'         => [
                     'pending',
-                    'validated'
+                    'validated',
+                    'closed'
                 ],
                 'default'           => 'pending'
             ]

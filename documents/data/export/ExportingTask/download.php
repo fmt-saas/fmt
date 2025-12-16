@@ -74,6 +74,10 @@ unlink($tmp_file);
 $max_length = 128;
 $export_name = substr(str_replace(' ', '_', TextTransformer::normalize($exportingTask['name'])), 0, $max_length);
 
+
+ExportingTask::id($params['id'])->update(['is_exported' => true]);
+
+
 $context->httpResponse()
         ->header('Content-Disposition', 'attachment; filename="' . $export_name . '.zip"')
         ->body($data, true)

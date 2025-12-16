@@ -62,6 +62,14 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                 'description'       => 'Fundings created from the invoice.'
             ],
 
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Short description of the invoice.',
+                'help'              => 'For manual encoding, this can be set manually and must be synced with lines descriptions.',
+                'multilang'         => true,
+                'onupdate'          => 'onupdateDescription'
+            ],
+
             /**
              * Specific Purchase Invoice columns
              */
@@ -139,6 +147,21 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
             ],
 
         ];
+    }
+
+
+    protected static function onupdateDescription($self, $lang) {
+        $self->read(['description', 'invoice_lines_ids' => ['description']]);
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['description'] || strlen($purchaseInvoice['description']) <= 0) {
+                continue;
+            }
+            foreach($purchaseInvoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
+                if(!$invoiceLine['description'] || strlen($invoiceLine['description']) <= 0) {
+                    PurchaseInvoiceLine::id($invoice_line_id)->update(['description' => $purchaseInvoice['description']], $lang);
+                }
+            }
+        }
     }
 
     protected static function onupdateEmissionDate($self) {

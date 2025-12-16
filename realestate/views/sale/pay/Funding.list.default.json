@@ -21,8 +21,28 @@
         "items": [
             {
                 "type": "field",
+                "value": "condo_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
                 "value": "name",
                 "width": "30%"
+            },
+            {
+                "type": "field",
+                "value": "bank_account_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "ownership_id",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "suppliership_id",
+                "width": "15%"
             },
             {
                 "type": "field",

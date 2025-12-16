@@ -40,7 +40,8 @@ class MiscOperation extends Model {
             'description' => [
                 'type'              => 'string',
                 'description'       => 'Explanation or internal notes about the operation.',
-                'required'          => true
+                'required'          => true,
+                'onupdate'          => 'onupdateDescription'
             ],
 
             'organisation_id' => [
@@ -296,7 +297,7 @@ class MiscOperation extends Model {
         $self->read([
                 'condo_id', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
                 'description',
-                'misc_operation_lines_ids' => ['account_id', 'debit', 'credit']
+                'misc_operation_lines_ids' => ['account_id', 'debit', 'credit', 'description']
             ]);
 
         foreach ($self as $id => $miscOperation) {
@@ -388,6 +389,20 @@ class MiscOperation extends Model {
             $result[$id] = self::computeFiscalPeriodId($miscOperation['condo_id'], $miscOperation['posting_date']);
         }
         return $result;
+    }
+
+    protected static function onupdateDescription($self, $lang) {
+        $self->read(['description', 'invoice_lines_ids' => ['description']]);
+        foreach($self as $id => $miscOperation) {
+            if(!$miscOperation['description'] || strlen($miscOperation['description']) <= 0) {
+                continue;
+            }
+            foreach($miscOperation['invoice_lines_ids'] as $misc_operation_line_id => $miscOperationLine) {
+                if(!$miscOperationLine['description'] || strlen($miscOperationLine['description']) <= 0) {
+                    MiscOperationLine::id($misc_operation_line_id)->update(['description' => $miscOperation['description']], $lang);
+                }
+            }
+        }
     }
 
     protected static function policyIsValid($self): array {

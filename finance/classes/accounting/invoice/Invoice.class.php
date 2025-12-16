@@ -42,7 +42,8 @@ class Invoice extends Model {
                 'type'              => 'string',
                 'description'       => 'Short description of the invoice.',
                 'help'              => 'This is meant to be used as a reminder for easing invoice identification.',
-                'multilang'         => true
+                'multilang'         => true,
+                'onupdate'          => 'onupdateDescription'
             ],
 
             'reference' => [
@@ -409,6 +410,10 @@ class Invoice extends Model {
             $result[$id] = static::computePrice($id);
         }
         return $result;
+    }
+
+    protected static function onupdateDescription($self, $lang) {
+        /* #memo - this method should be defined in the inherited classes */
     }
 
     protected static function doValidateAccountingEntries($self) {

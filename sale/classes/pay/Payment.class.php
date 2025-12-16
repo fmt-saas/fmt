@@ -146,6 +146,7 @@ class Payment extends Model {
             'is_exported' => [
                 'type'              => 'boolean',
                 'description'       => 'Mark the payment as exported (part of an export to elsewhere).',
+                'help'              => 'Meant for due payments, in order to process actual payment.',
                 'default'           => false
             ],
 

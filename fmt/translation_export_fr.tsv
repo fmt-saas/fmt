@@ -23,7 +23,7 @@ fr::communication\conversation\ConversationMessage::model::self::description::::
 fr::communication\conversation\ConversationMessage::model::self::label::Message de conversation::
 fr::communication\conversation\ConversationMessage::model::self::plural::Messages de conversation::
 fr::communication\email\Email::model::self::bcc::Copie cachée::Adresses en copie cachée (champ BCC).
-fr::communication\email\Email::model::self::body::Corps::Contenu HTML du courriel.
+fr::communication\email\Email::model::self::body::Corps::Contenu HTML du Email.
 fr::communication\email\Email::model::self::cc::Copie::Adresses en copie (champ CC).
 fr::communication\email\Email::model::self::condo_id::Copropriété::Immeuble auquel le message est associé.
 fr::communication\email\Email::model::self::date::::Horodatage du message.
@@ -31,25 +31,25 @@ fr::communication\email\Email::model::self::description::Messages électroniques
 fr::communication\email\Email::model::self::direction::Sens::Entrant ou sortant.
 fr::communication\email\Email::model::self::documents_ids::Documents liés::Pièces jointes ou documents indexés avec ce message.
 fr::communication\email\Email::model::self::from::Expéditeur::Adresse qui a envoyé le message.
-fr::communication\email\Email::model::self::label::Courriel::
+fr::communication\email\Email::model::self::label::Email::
 fr::communication\email\Email::model::self::mailbox_id::Boîte mail::Boîte aux lettres utilisée pour envoyer ou recevoir ce message.
-fr::communication\email\Email::model::self::plural::Courriels::
+fr::communication\email\Email::model::self::plural::Emails::
 fr::communication\email\Email::model::self::response::Réponse SMTP::Message retourné lors de l'envoi.
 fr::communication\email\Email::model::self::response_status::Code SMTP::Code de réponse du serveur SMTP.
-fr::communication\email\Email::model::self::status::Statut::Indique si le courriel est en attente ou traité (sortant).
+fr::communication\email\Email::model::self::status::Statut::Indique si l'Email est en attente ou traité (sortant).
 fr::communication\email\Email::model::self::subject::Objet::Sujet du message.
 fr::communication\email\Email::model::self::to::Destinataires::Adresse(s) principales (champ TO).
 fr::communication\email\Email::view::form.default::description::Formulaire détaillé d'un message (participants, contenu, pièces jointes).::
-fr::communication\email\Email::view::form.default::name::Courriel::
+fr::communication\email\Email::view::form.default::name::Email::
 fr::communication\email\Email::view::form.default::section.attachments::Pièces jointes::
 fr::communication\email\Email::view::form.default::section.message::::
 fr::communication\email\Email::view::list.default::description::Liste des emails entrants et sortants, filtrables par boîte mail ou statut.::
-fr::communication\email\Email::view::list.default::name::Courriels::
+fr::communication\email\Email::view::list.default::name::Emails::
 fr::communication\email\Mailbox::model::self::access_token::Jeton d'accès::Jeton OAuth2 courant (si utilisé).
 fr::communication\email\Mailbox::model::self::auth_type::Type d'authentification::Choix entre authentification basique ou OAuth.
-fr::communication\email\Mailbox::model::self::date_last_sync::Dernière synchro::Horodatage de la dernière récupération des e-mails.
+fr::communication\email\Mailbox::model::self::date_last_sync::Dernière synchro::Horodatage de la dernière récupération des Emails.
 fr::communication\email\Mailbox::model::self::description::Paramétrages des comptes de messagerie (identifiants, serveur IMAP, authentification et statut).::
-fr::communication\email\Mailbox::model::self::email::Adresse::Adresse e-mail principale utilisée par la boîte.
+fr::communication\email\Mailbox::model::self::email::Adresse::Adresse Email principale utilisée par la boîte.
 fr::communication\email\Mailbox::model::self::imap_port::Port IMAP::Port réseau utilisé pour l'accès IMAP.
 fr::communication\email\Mailbox::model::self::imap_server::Serveur IMAP::Nom d'hôte du serveur de messagerie.
 fr::communication\email\Mailbox::model::self::label::Boîte mail::
@@ -66,9 +66,9 @@ fr::communication\email\Mailbox::view::form.default::item.config::::
 fr::communication\email\Mailbox::view::form.default::name::Boîte mail::
 fr::communication\email\Mailbox::view::form.default::section.messages::::
 fr::communication\email\Mailbox::view::form.default::section.parameters::Paramètres::
-fr::communication\email\Mailbox::view::list.default::action.add_mailbox::Ajouter une boîte mail::Ajouter une nouvelle boîte aux lettres pour automatiser la récupération des e-mails.
+fr::communication\email\Mailbox::view::list.default::action.add_mailbox::Ajouter une boîte mail::Ajouter une nouvelle boîte aux lettres pour automatiser la récupération des Emails.
 fr::communication\email\Mailbox::view::list.default::action.connect::Connexion OAuth::Fournir les informations d'authentification pour établir la connexion.
-fr::communication\email\Mailbox::view::list.default::action.fetch_emails::Télécharger::Récupérer les derniers e-mails et importer les pièces jointes.
+fr::communication\email\Mailbox::view::list.default::action.fetch_emails::Télécharger::Récupérer les derniers Emails et importer les pièces jointes.
 fr::communication\email\Mailbox::view::list.default::description::Liste des boîtes configurées avec leur statut et dernière synchronisation.::
 fr::communication\email\Mailbox::view::list.default::name::Boîtes mail::
 fr::communication\menu::view::communication.left::name::::
@@ -82,11 +82,11 @@ fr::communication\template\Template::model::self::name::Nom::Code mnémo complet
 fr::communication\template\Template::model::self::parts_ids::Parties::Parties du template.
 fr::communication\template\Template::model::self::plural::Modèles::
 fr::communication\template\Template::model::self::type::::Le contexte auquel le modèle est destiné.
-fr::communication\template\Template::model::self::type.selection.contract::contrat::
-fr::communication\template\Template::model::self::type.selection.funding::financement::
-fr::communication\template\Template::model::self::type.selection.invoice::facture::
-fr::communication\template\Template::model::self::type.selection.option::option::
-fr::communication\template\Template::model::self::type.selection.quote::devis::
+fr::communication\template\Template::model::self::type.selection.contract::Contrat::
+fr::communication\template\Template::model::self::type.selection.funding::Financement::
+fr::communication\template\Template::model::self::type.selection.invoice::Facture::
+fr::communication\template\Template::model::self::type.selection.option::Option::
+fr::communication\template\Template::model::self::type.selection.quote::Devis::
 fr::communication\template\Template::view::form.default::description::Les modèles sont utilisés dans la communication et contiennent plusieurs catégories.::
 fr::communication\template\Template::view::form.default::name::Modèle::
 fr::communication\template\Template::view::form.default::template::::
@@ -220,7 +220,7 @@ fr::documents\DocumentProcess::model::self::has_warning::Avertissements::Présen
 fr::documents\DocumentProcess::model::self::is_rejected::Rejeté::Indique si le document a été refusé (fichier invalide, incomplet…).
 fr::documents\DocumentProcess::model::self::label::Processus documentaire::
 fr::documents\DocumentProcess::model::self::name::Nom::Nom du document en cours de traitement.
-fr::documents\DocumentProcess::model::self::ownership_id::Ownership::Dossier de propriété impacté par ce document.
+fr::documents\DocumentProcess::model::self::ownership_id::Copropriétaire::Dossier de propriété impacté par ce document.
 fr::documents\DocumentProcess::model::self::plural::Processus documentaires::
 fr::documents\DocumentProcess::model::self::report_html::Rapport d'analyse::Synthèse HTML des contrôles réalisés.
 fr::documents\DocumentProcess::model::self::status::Statut::Position dans le workflow (créé, validé, intégré…).
@@ -305,7 +305,7 @@ fr::documents\export\ExportingTask::model::self::object_class::Classe cible::Cla
 fr::documents\export\ExportingTask::model::self::object_id::Identifiant cible::ID de l'objet qui a déclenché la création de la tâche.
 fr::documents\export\ExportingTask::model::self::plural::Tâches d'export::
 fr::documents\export\ExportingTask::model::self::status::Statut::État global (idle, running, ready, failing).
-fr::documents\export\ExportingTask::view::form.default::action.retry::Réessayer::Récupérer les derniers e-mails et importer les pièces jointes.
+fr::documents\export\ExportingTask::view::form.default::action.retry::Réessayer::Récupérer les derniers Emails et importer les pièces jointes.
 fr::documents\export\ExportingTask::view::form.default::description::Formulaire détaillant la copropriété, le statut et la liste des lignes d'export.::
 fr::documents\export\ExportingTask::view::form.default::name::Tâche d'export::
 fr::documents\export\ExportingTask::view::form.default::route.download::Télécharger::
@@ -412,7 +412,7 @@ fr::documents\processing\DocumentProcess::model::self::has_warning::Avertissemen
 fr::documents\processing\DocumentProcess::model::self::is_rejected::Rejeté::Indique si le document a été refusé (fichier invalide, incomplet…).
 fr::documents\processing\DocumentProcess::model::self::label::Processus documentaire::
 fr::documents\processing\DocumentProcess::model::self::name::Nom::Nom du document en cours de traitement.
-fr::documents\processing\DocumentProcess::model::self::ownership_id::Ownership::Dossier de propriété impacté par ce document.
+fr::documents\processing\DocumentProcess::model::self::ownership_id::Copropriétaire::Dossier de propriété impacté par ce document.
 fr::documents\processing\DocumentProcess::model::self::plural::Processus documentaires::
 fr::documents\processing\DocumentProcess::model::self::report_html::Rapport d'analyse::Synthèse HTML des contrôles réalisés.
 fr::documents\processing\DocumentProcess::model::self::status::Statut::Position dans le workflow du traitement documentaire.
@@ -619,12 +619,12 @@ fr::finance\accounting\AccountingEntry\collect::view::search.default::descriptio
 fr::finance\accounting\AccountingEntry\collect::view::search.default::name::::
 fr::finance\accounting\AccountingRule::model::self::accounting_rule_line_ids::Lignes liées à cette règle::Lignes liées à cette règle.
 fr::finance\accounting\AccountingRule::model::self::accounting_rule_type::Type::Type d'opération auquel cette règle se rapporte.
-fr::finance\accounting\AccountingRule::model::self::accounting_rule_type.selection.purchase::achat::
-fr::finance\accounting\AccountingRule::model::self::accounting_rule_type.selection.sale::vente::
+fr::finance\accounting\AccountingRule::model::self::accounting_rule_type.selection.purchase::Achat::
+fr::finance\accounting\AccountingRule::model::self::accounting_rule_type.selection.sale::Vente::
 fr::finance\accounting\AccountingRule::model::self::description::::Brève description de la règle pour servir de mémo.
 fr::finance\accounting\AccountingRule::model::self::label::Règle Comptable::
 fr::finance\accounting\AccountingRule::model::self::name::Nom::Nom de la règle comptable.
-fr::finance\accounting\AccountingRule::model::self::plural::Règles Comptables::
+fr::finance\accounting\AccountingRule::model::self::plural::Règles comptables::
 fr::finance\accounting\AccountingRule::model::self::vat_rule_id::Règle de TVA::Règle de TVA à laquelle cette ligne est liée.
 fr::finance\accounting\AccountingRule::view::form.default::description::Vue par défaut des règles comptables avec tous les champs::
 fr::finance\accounting\AccountingRule::view::form.default::name::Règle comptable::
@@ -800,8 +800,8 @@ fr::finance\accounting\Invoice::model::self::emission_date::Date d'émission::Da
 fr::finance\accounting\Invoice::model::self::invoice_lines_ids::Lignes de facture::Lignes de vente de la facture.
 fr::finance\accounting\Invoice::model::self::invoice_number::Numéro de la facture::Numéro de la facture, selon la logique d'organisation.
 fr::finance\accounting\Invoice::model::self::invoice_type::Type::Type de document comptable.
-fr::finance\accounting\Invoice::model::self::invoice_type.selection.credit_note::note de crédit::
-fr::finance\accounting\Invoice::model::self::invoice_type.selection.invoice::facture::
+fr::finance\accounting\Invoice::model::self::invoice_type.selection.credit_note::Note de crédit::
+fr::finance\accounting\Invoice::model::self::invoice_type.selection.invoice::Facture::
 fr::finance\accounting\Invoice::model::self::label::Facture::
 fr::finance\accounting\Invoice::model::self::name::Numéro::Identification de la facture.
 fr::finance\accounting\Invoice::model::self::organisation_id::Organisation émettrice/réceptrice::Organisation émettrice/réceptrice de la facture.
@@ -809,9 +809,9 @@ fr::finance\accounting\Invoice::model::self::plural::Factures::
 fr::finance\accounting\Invoice::model::self::price::Prix::Montant TVAC de la facture.
 fr::finance\accounting\Invoice::model::self::reversed_invoice_id::Pièce inverse::La pièce comptable inverse de la facture.
 fr::finance\accounting\Invoice::model::self::status::Statut::La situation à un moment donné au cours d'un processus.
-fr::finance\accounting\Invoice::model::self::status.selection.cancelled::annulée::
-fr::finance\accounting\Invoice::model::self::status.selection.posted::facture::
-fr::finance\accounting\Invoice::model::self::status.selection.proforma::pro forma::
+fr::finance\accounting\Invoice::model::self::status.selection.cancelled::Annulée::
+fr::finance\accounting\Invoice::model::self::status.selection.posted::Facture::
+fr::finance\accounting\Invoice::model::self::status.selection.proforma::Pro forma::
 fr::finance\accounting\Invoice::model::self::total::::Total HTVA de la facture.
 fr::finance\accounting\Invoice::view::form.default::description::Détail d'une facture de vente.::
 fr::finance\accounting\Invoice::view::form.default::name::Facture::
@@ -852,13 +852,13 @@ fr::finance\accounting\InvoiceLineGroup::view::list.default::name::Groupes de li
 fr::finance\accounting\Journal::model::self::code::Code du journal::Code facultatif de référence pour correspondance externe.
 fr::finance\accounting\Journal::model::self::description::::Description du rôle du journal.
 fr::finance\accounting\Journal::model::self::journal_type::Type::
-fr::finance\accounting\Journal::model::self::journal_type.selection.ASST::immobilisations::
-fr::finance\accounting\Journal::model::self::journal_type.selection.CASH::trésorerie::
-fr::finance\accounting\Journal::model::self::journal_type.selection.LEDG::grand livre::
-fr::finance\accounting\Journal::model::self::journal_type.selection.MISC::opérations diverses::
-fr::finance\accounting\Journal::model::self::journal_type.selection.PAYR::paies::
-fr::finance\accounting\Journal::model::self::journal_type.selection.PURC::achats::
-fr::finance\accounting\Journal::model::self::journal_type.selection.SALE::ventes::
+fr::finance\accounting\Journal::model::self::journal_type.selection.ASST::Immobilisations::
+fr::finance\accounting\Journal::model::self::journal_type.selection.CASH::Trésorerie::
+fr::finance\accounting\Journal::model::self::journal_type.selection.LEDG::Grand livre::
+fr::finance\accounting\Journal::model::self::journal_type.selection.MISC::Opérations diverses::
+fr::finance\accounting\Journal::model::self::journal_type.selection.PAYR::Paies::
+fr::finance\accounting\Journal::model::self::journal_type.selection.PURC::Achats::
+fr::finance\accounting\Journal::model::self::journal_type.selection.SALE::Ventes::
 fr::finance\accounting\Journal::model::self::label::Journal comptable::
 fr::finance\accounting\Journal::model::self::name::Nom::Nom du journal.
 fr::finance\accounting\Journal::model::self::organisation_id::Organisation::
@@ -955,55 +955,55 @@ fr::finance\accounting\invoice-collect::model::self::price_max::Prix maximal::Pr
 fr::finance\accounting\invoice-collect::model::self::price_min::Prix minimal::Prix minimal pour la facture.
 fr::finance\accounting\invoice-collect::model::self::status::Statut::La situation à un moment donné au cours d'un processus.
 fr::finance\accounting\invoice-collect::model::self::status.selection.all::Toutes::
-fr::finance\accounting\invoice-collect::model::self::status.selection.cancelled::annulée::
-fr::finance\accounting\invoice-collect::model::self::status.selection.invoice::facture::
-fr::finance\accounting\invoice-collect::model::self::status.selection.proforma::pro forma::
+fr::finance\accounting\invoice-collect::model::self::status.selection.cancelled::Annulée::
+fr::finance\accounting\invoice-collect::model::self::status.selection.invoice::Facture::
+fr::finance\accounting\invoice-collect::model::self::status.selection.proforma::Pro forma::
 fr::finance\accounting\invoice\Invoice::model::self::accounting_entry_id::Ecriture comptable::Ecriture validee associee a la facture.
 fr::finance\accounting\invoice\Invoice::model::self::condo_id::Copropriete::Immeuble ou copropriete reference(e) par la facture.
 fr::finance\accounting\invoice\Invoice::model::self::date_from::Debut de periode::Premiere date couverte par la facture.
 fr::finance\accounting\invoice\Invoice::model::self::date_to::Fin de periode::Derniere date couverte par la facture.
 fr::finance\accounting\invoice\Invoice::model::self::description::::Texte interne pour reconnaitre la facture.
 fr::finance\accounting\invoice\Invoice::model::self::due_date::Date d'echeance::Date limite attendue pour le paiement.
-fr::finance\accounting\invoice\Invoice::model::self::emission_date::Date d'emission::Date d'emission dans le systeme d'origine.
-fr::finance\accounting\invoice\Invoice::model::self::fiscal_period_id::Periode comptable::Periode deduite de la date de comptabilisation.
-fr::finance\accounting\invoice\Invoice::model::self::fiscal_year_id::Exercice::Exercice comptable lie a la facture.
-fr::finance\accounting\invoice\Invoice::model::self::funding_id::Financement::Financement a l'origine de la facture (le cas echeant).
-fr::finance\accounting\invoice\Invoice::model::self::has_date_range::Service sur periode::Indique si la facture couvre une periode de prestation.
-fr::finance\accounting\invoice\Invoice::model::self::invoice_line_groups_ids::Groupes de lignes::Regroupements hierarchiques des lignes.
-fr::finance\accounting\invoice\Invoice::model::self::invoice_lines_ids::Lignes::Lignes detaillees composant la facture.
-fr::finance\accounting\invoice\Invoice::model::self::invoice_number::Numero::Numero unique attribue lors de la validation.
-fr::finance\accounting\invoice\Invoice::model::self::invoice_type::Type de document::Nature de la facture (standard, note de credit, appel de fonds, etat).
-fr::finance\accounting\invoice\Invoice::model::self::invoice_type.selection.credit_note::Note de credit::
-fr::finance\accounting\invoice\Invoice::model::self::invoice_type.selection.expense_statement::Etat de depenses::
+fr::finance\accounting\invoice\Invoice::model::self::emission_date::Date d'émission::Date d'émission dans le systeme d'origine.
+fr::finance\accounting\invoice\Invoice::model::self::fiscal_period_id::Periode comptable::Periode déduite de la date de comptabilisation.
+fr::finance\accounting\invoice\Invoice::model::self::fiscal_year_id::Exercice::Exercice comptable lie à la facture.
+fr::finance\accounting\invoice\Invoice::model::self::funding_id::Financement::Financement à l'origine de la facture (le cas écheant).
+fr::finance\accounting\invoice\Invoice::model::self::has_date_range::Service sur période::Indique si la facture couvre une période de prestation.
+fr::finance\accounting\invoice\Invoice::model::self::invoice_line_groups_ids::Groupes de lignes::Regroupements hiérarchiques des lignes.
+fr::finance\accounting\invoice\Invoice::model::self::invoice_lines_ids::Lignes::Lignes détaillées composant la facture.
+fr::finance\accounting\invoice\Invoice::model::self::invoice_number::Numéro::Numéro unique attribué lors de la validation.
+fr::finance\accounting\invoice\Invoice::model::self::invoice_type::Type de document::Nature de la facture (standard, note de crédit, appel de fonds, état).
+fr::finance\accounting\invoice\Invoice::model::self::invoice_type.selection.credit_note::Note de crédit::
+fr::finance\accounting\invoice\Invoice::model::self::invoice_type.selection.expense_statement::Etat de dépenses::
 fr::finance\accounting\invoice\Invoice::model::self::invoice_type.selection.fund_request::Appel de fonds::
 fr::finance\accounting\invoice\Invoice::model::self::invoice_type.selection.invoice::Facture::
 fr::finance\accounting\invoice\Invoice::model::self::label::Facture::
-fr::finance\accounting\invoice\Invoice::model::self::name::Libelle::Libelle calcule (numero ou mention pro forma).
-fr::finance\accounting\invoice\Invoice::model::self::organisation_id::Organisation::Organisation qui emet ou recoit la facture.
-fr::finance\accounting\invoice\Invoice::model::self::payment_reference::Reference de paiement::Communication a utiliser lors du paiement.
-fr::finance\accounting\invoice\Invoice::model::self::payment_status::Statut de paiement::Equilibre entre sommes dues et montants rembourses.
+fr::finance\accounting\invoice\Invoice::model::self::name::Libellé::Libellé calculé (numéro ou mention pro forma).
+fr::finance\accounting\invoice\Invoice::model::self::organisation_id::Organisation::Organisation qui émet ou reçoit la facture.
+fr::finance\accounting\invoice\Invoice::model::self::payment_reference::Référence de paiement::Communication à utiliser lors du paiement.
+fr::finance\accounting\invoice\Invoice::model::self::payment_status::Statut de paiement::Equilibre entre sommes dues et montants remboursés.
 fr::finance\accounting\invoice\Invoice::model::self::payment_status.selection.balanced::Solde nul::
-fr::finance\accounting\invoice\Invoice::model::self::payment_status.selection.credit_balance::Solde a rembourser::
-fr::finance\accounting\invoice\Invoice::model::self::payment_status.selection.debit_balance::Solde a recevoir::
+fr::finance\accounting\invoice\Invoice::model::self::payment_status.selection.credit_balance::Solde à rembourser::
+fr::finance\accounting\invoice\Invoice::model::self::payment_status.selection.debit_balance::Solde à recevoir::
 fr::finance\accounting\invoice\Invoice::model::self::payment_status.selection.pending::Paiement en cours::
 fr::finance\accounting\invoice\Invoice::model::self::plural::Factures::
-fr::finance\accounting\invoice\Invoice::model::self::posting_date::Date comptable::Date de comptabilisation (impacte l'exercice/la periode).
-fr::finance\accounting\invoice\Invoice::model::self::price::Total TVAC::Montant toutes taxes comprises calcule sur les lignes.
-fr::finance\accounting\invoice\Invoice::model::self::reference::Reference client::Note a afficher sur le document pour le destinataire.
-fr::finance\accounting\invoice\Invoice::model::self::reversed_invoice_id::Note de credit associee::Document ayant annule la facture.
-fr::finance\accounting\invoice\Invoice::model::self::status::Statut::Etat du document (brouillon, valide, annule).
-fr::finance\accounting\invoice\Invoice::model::self::status.selection.cancelled::Annulee::
+fr::finance\accounting\invoice\Invoice::model::self::posting_date::Date comptable::Date de comptabilisation (impacte l'exercice/la période).
+fr::finance\accounting\invoice\Invoice::model::self::price::Total TVAC::Montant toutes taxes comprises calculé sur les lignes.
+fr::finance\accounting\invoice\Invoice::model::self::reference::Référence client::Note à afficher sur le document pour le destinataire.
+fr::finance\accounting\invoice\Invoice::model::self::reversed_invoice_id::Note de crédit associée::Document ayant annulé la facture.
+fr::finance\accounting\invoice\Invoice::model::self::status::Statut::État du document (brouillon, validé, annulé).
+fr::finance\accounting\invoice\Invoice::model::self::status.selection.cancelled::Annulée::
 fr::finance\accounting\invoice\Invoice::model::self::status.selection.pending::En cours::
-fr::finance\accounting\invoice\Invoice::model::self::status.selection.posted::Validee::
+fr::finance\accounting\invoice\Invoice::model::self::status.selection.posted::Validée::
 fr::finance\accounting\invoice\Invoice::model::self::status.selection.proforma::Pro forma::
-fr::finance\accounting\invoice\Invoice::model::self::total::Total HT::Montant hors taxes calcule sur les lignes.
-fr::finance\accounting\invoice\Invoice::view::chart.creditNote::description::Graphique des notes de credit emises (HT/TVAC).::
-fr::finance\accounting\invoice\Invoice::view::chart.creditNote::name::Notes de credit::
-fr::finance\accounting\invoice\Invoice::view::chart.invoicedCA::description::Graphique du nombre de factures validees par plage de temps.::
+fr::finance\accounting\invoice\Invoice::model::self::total::Total HT::Montant hors taxes calculé sur les lignes.
+fr::finance\accounting\invoice\Invoice::view::chart.creditNote::description::Graphique des notes de crédit émises (HT/TVAC).::
+fr::finance\accounting\invoice\Invoice::view::chart.creditNote::name::Notes de crédit::
+fr::finance\accounting\invoice\Invoice::view::chart.invoicedCA::description::Graphique du nombre de factures validées par plage de temps.::
 fr::finance\accounting\invoice\Invoice::view::chart.invoicedCA::name::Volume de factures::
-fr::finance\accounting\invoice\Invoice::view::chart.invoicedTotal::description::Graphique cumule des montants HT/TVAC emis sur la periode.::
+fr::finance\accounting\invoice\Invoice::view::chart.invoicedTotal::description::Graphique cumulé des montants HT/TVAC émis sur la période.::
 fr::finance\accounting\invoice\Invoice::view::chart.invoicedTotal::name::Total facture::
-fr::finance\accounting\invoice\Invoice::view::dashboard::description::Liste compacte des factures a afficher sur un tableau de bord.::
+fr::finance\accounting\invoice\Invoice::view::dashboard::description::Liste compacte des factures à afficher sur un tableau de bord.::
 fr::finance\accounting\invoice\Invoice::view::dashboard::name::Factures (tableau)::
 fr::finance\accounting\invoice\Invoice::view::dashboard.default::description::Dashboard combinant alertes, listes et graphiques des factures.::
 fr::finance\accounting\invoice\Invoice::view::dashboard.default::item.finance::::
@@ -1011,7 +1011,7 @@ fr::finance\accounting\invoice\Invoice::view::dashboard.default::item.finance2::
 fr::finance\accounting\invoice\Invoice::view::dashboard.default::item.fundings3::::
 fr::finance\accounting\invoice\Invoice::view::dashboard.default::item.fundings4::::
 fr::finance\accounting\invoice\Invoice::view::dashboard.default::name::Tableau factures::
-fr::finance\accounting\invoice\Invoice::view::form.default::description::Fiche facture avec statut, dates clefs, lignes et ecritures.::
+fr::finance\accounting\invoice\Invoice::view::form.default::description::Fiche facture avec statut, dates clefs, lignes et écritures.::
 fr::finance\accounting\invoice\Invoice::view::form.default::name::Facture::
 fr::finance\accounting\invoice\Invoice::view::form.default::section.accounting_entries::::
 fr::finance\accounting\invoice\Invoice::view::form.default::section.invoice_lines::::
@@ -1019,50 +1019,50 @@ fr::finance\accounting\invoice\Invoice::view::list.dashboard::description::::
 fr::finance\accounting\invoice\Invoice::view::list.dashboard::name::::
 fr::finance\accounting\invoice\Invoice::view::list.default::description::Liste des factures avec date, statut et montants HT/TVAC.::
 fr::finance\accounting\invoice\Invoice::view::list.default::name::Factures::
-fr::finance\accounting\invoice\InvoiceLine::model::self::condo_id::Copropriete::Immeuble concerne par la ligne.
-fr::finance\accounting\invoice\InvoiceLine::model::self::description::::Complement eventuel independant du produit.
-fr::finance\accounting\invoice\InvoiceLine::model::self::discount::Remise::Taux de remise a appliquer.
-fr::finance\accounting\invoice\InvoiceLine::model::self::downpayment_invoice_id::Facture d'acompte::Facture d'acompte rattachee a la ligne.
-fr::finance\accounting\invoice\InvoiceLine::model::self::free_qty::Quantite offerte::Quantite exclue de la facturation.
-fr::finance\accounting\invoice\InvoiceLine::model::self::invoice_id::Facture::Facture associee.
+fr::finance\accounting\invoice\InvoiceLine::model::self::condo_id::Copropriété::Immeuble concerne par la ligne.
+fr::finance\accounting\invoice\InvoiceLine::model::self::description::::Complément éventuel independant du produit.
+fr::finance\accounting\invoice\InvoiceLine::model::self::discount::Remise::Taux de remise à appliquer.
+fr::finance\accounting\invoice\InvoiceLine::model::self::downpayment_invoice_id::Facture d'acompte::Facture d'acompte rattachée à la ligne.
+fr::finance\accounting\invoice\InvoiceLine::model::self::free_qty::Quantité offerte::Quantité exclue de la facturation.
+fr::finance\accounting\invoice\InvoiceLine::model::self::invoice_id::Facture::Facture associée.
 fr::finance\accounting\invoice\InvoiceLine::model::self::invoice_line_group_id::Groupe::Groupe de lignes auquel la ligne appartient.
 fr::finance\accounting\invoice\InvoiceLine::model::self::label::Ligne de facture::
-fr::finance\accounting\invoice\InvoiceLine::model::self::name::Libelle::Libelle principal affiche sur la facture.
+fr::finance\accounting\invoice\InvoiceLine::model::self::name::Libelle::Libellé principal affiché sur la facture.
 fr::finance\accounting\invoice\InvoiceLine::model::self::plural::Lignes de facture::
-fr::finance\accounting\invoice\InvoiceLine::model::self::price::Total TVAC::Montant toutes taxes comprises calcule.
-fr::finance\accounting\invoice\InvoiceLine::model::self::qty::Quantite::Quantite facturee.
-fr::finance\accounting\invoice\InvoiceLine::model::self::total::Total HT::Montant hors taxes calcule.
+fr::finance\accounting\invoice\InvoiceLine::model::self::price::Total TVAC::Montant toutes taxes comprises calculé.
+fr::finance\accounting\invoice\InvoiceLine::model::self::qty::Quantité::Quantité facturée.
+fr::finance\accounting\invoice\InvoiceLine::model::self::total::Total HT::Montant hors taxes calculé.
 fr::finance\accounting\invoice\InvoiceLine::model::self::unit_price::Prix unitaire::Prix unitaire hors taxes.
-fr::finance\accounting\invoice\InvoiceLine::model::self::vat::Montant TVA::TVA calculee sur la ligne.
-fr::finance\accounting\invoice\InvoiceLine::model::self::vat_rate::Taux TVA::Taux de TVA applique.
-fr::finance\accounting\invoice\InvoiceLine::view::form.default::description::Fiche ligne de facture (prix, quantites, groupe et TVA).::
+fr::finance\accounting\invoice\InvoiceLine::model::self::vat::Montant TVA::TVA calculée sur la ligne.
+fr::finance\accounting\invoice\InvoiceLine::model::self::vat_rate::Taux TVA::Taux de TVA appliqué.
+fr::finance\accounting\invoice\InvoiceLine::view::form.default::description::Fiche ligne de facture (prix, quantités, groupe et TVA).::
 fr::finance\accounting\invoice\InvoiceLine::view::form.default::name::Ligne de facture::
 fr::finance\accounting\invoice\InvoiceLine::view::form.default::section.details::::
-fr::finance\accounting\invoice\InvoiceLine::view::list.default::description::Liste des lignes groupees avec montants unitaires et totaux.::
+fr::finance\accounting\invoice\InvoiceLine::view::list.default::description::Liste des lignes groupées avec montants unitaires et totaux.::
 fr::finance\accounting\invoice\InvoiceLine::view::list.default::name::Lignes de facture::
-fr::finance\accounting\invoice\InvoiceLineGroup::model::self::condo_id::Copropriete::Immeuble concerne par le groupe.
+fr::finance\accounting\invoice\InvoiceLineGroup::model::self::condo_id::Copropriete::Immeuble concerné par le groupe.
 fr::finance\accounting\invoice\InvoiceLineGroup::model::self::description::::Texte explicatif facultatif pour le groupe.
-fr::finance\accounting\invoice\InvoiceLineGroup::model::self::invoice_id::Facture::Facture rattachee.
-fr::finance\accounting\invoice\InvoiceLineGroup::model::self::invoice_lines_ids::Lignes du groupe::Lignes rattachees a ce groupe.
-fr::finance\accounting\invoice\InvoiceLineGroup::model::self::is_aggregate::Groupe agrege::Indique si le groupe sert uniquement au regroupement.
+fr::finance\accounting\invoice\InvoiceLineGroup::model::self::invoice_id::Facture::Facture rattachée.
+fr::finance\accounting\invoice\InvoiceLineGroup::model::self::invoice_lines_ids::Lignes du groupe::Lignes rattachées à ce groupe.
+fr::finance\accounting\invoice\InvoiceLineGroup::model::self::is_aggregate::Groupe agrégé::Indique si le groupe sert uniquement au regroupement.
 fr::finance\accounting\invoice\InvoiceLineGroup::model::self::is_visible::Visible sur facture::Afficher ou masquer le groupe sur le document.
 fr::finance\accounting\invoice\InvoiceLineGroup::model::self::label::Groupe de lignes::
-fr::finance\accounting\invoice\InvoiceLineGroup::model::self::name::Libelle::Libelle affiche sur la facture.
+fr::finance\accounting\invoice\InvoiceLineGroup::model::self::name::Libelle::Libellé affiche sur la facture.
 fr::finance\accounting\invoice\InvoiceLineGroup::model::self::order::Ordre::Position du groupe dans la facture.
 fr::finance\accounting\invoice\InvoiceLineGroup::model::self::plural::Groupes de lignes::
-fr::finance\accounting\invoice\InvoiceLineGroup::view::form.default::description::Fiche groupe (nom, ordre, visibilite et description).::
+fr::finance\accounting\invoice\InvoiceLineGroup::view::form.default::description::Fiche groupe (nom, ordre, visibilité et description).::
 fr::finance\accounting\invoice\InvoiceLineGroup::view::form.default::name::Groupe de lignes::
-fr::finance\accounting\invoice\InvoiceLineGroup::view::list.default::description::Liste des groupes rattaches a leurs factures.::
+fr::finance\accounting\invoice\InvoiceLineGroup::view::list.default::description::Liste des groupes rattachés à leurs factures.::
 fr::finance\accounting\invoice\InvoiceLineGroup::view::list.default::name::Groupes de lignes::
 fr::finance\accounting\invoice\invoice-collect::view::search.default::description::::
 fr::finance\accounting\invoice\invoice-collect::view::search.default::name::::
 fr::finance\bank\Bank::model::self::bic::BIC / SWIFT::Code officiel de la banque.
-fr::finance\bank\Bank::model::self::description::Banque referencee comme fournisseur avec champs specifiques (BIC).::
+fr::finance\bank\Bank::model::self::description::Banque referencée comme fournisseur avec champs spécifiques (BIC).::
 fr::finance\bank\Bank::model::self::label::Banque::
-fr::finance\bank\Bank::model::self::object_class::Classe objet::Classe technique rattachee a l'identite.
+fr::finance\bank\Bank::model::self::object_class::Classe objet::Classe technique rattachée à l'identité.
 fr::finance\bank\Bank::model::self::plural::Banques::
-fr::finance\bank\Bank::model::self::supplier_type_code::Type fournisseur::Code interne utilises pour categoriser les banques.
-fr::finance\bank\Bank::view::form.default::description::Fiche banque etendue depuis l'identite (coordonnees + BIC).::
+fr::finance\bank\Bank::model::self::supplier_type_code::Type fournisseur::Code interne utilisé pour catégoriser les banques.
+fr::finance\bank\Bank::view::form.default::description::Fiche banque étendue depuis l'identité (coordonnées + BIC).::
 fr::finance\bank\Bank::view::form.default::name::Banque::
 fr::finance\bank\Bank::view::list.default::description::Liste des banques avec adresse, statut et code BIC.::
 fr::finance\bank\Bank::view::list.default::name::Banques::
@@ -1101,21 +1101,21 @@ fr::finance\bank\BankStatement::model::self::old_balance::Ancien solde::Solde du
 fr::finance\bank\BankStatement::model::self::plural::Relevés Bancaire::
 fr::finance\bank\BankStatement::model::self::statement_lines_ids::Transaction::Les lignes de transaction qui sont affectées à l'extrait.
 fr::finance\bank\BankStatement::model::self::status::Statut::Indicateur d'assignation de l'extrait aux paiements.
-fr::finance\bank\BankStatement::model::self::status.selection.pending::à traiter::
-fr::finance\bank\BankStatement::model::self::status.selection.posted::encodé::
-fr::finance\bank\BankStatement::model::self::status.selection.proforma::proforma::
+fr::finance\bank\BankStatement::model::self::status.selection.pending::À traiter::
+fr::finance\bank\BankStatement::model::self::status.selection.posted::Encodé::
+fr::finance\bank\BankStatement::model::self::status.selection.proforma::Proforma::
 fr::finance\bank\BankStatement::view::form.default::action.post::Passer::Générer la configuration obligatoire.
 fr::finance\bank\BankStatement::view::form.default::action.reconcile::Rapprocher::Tenter de rapprocher puis passer le relevé bancaire.
 fr::finance\bank\BankStatement::view::form.default::description::::
-fr::finance\bank\BankStatement::view::form.default::name::Relevé Bancaire::
+fr::finance\bank\BankStatement::view::form.default::name::Relevé bancaire::
 fr::finance\bank\BankStatement::view::form.default::section.bank_statement::Détails::
 fr::finance\bank\BankStatement::view::form.default::section.statment_lines_section::Lignes de transactions::
 fr::finance\bank\BankStatement::view::list.condo::description::::
 fr::finance\bank\BankStatement::view::list.condo::name::::
 fr::finance\bank\BankStatement::view::list.default::action.import::Importer::
-fr::finance\bank\BankStatement::view::list.default::description::Liste des relevés Bancaire.::
+fr::finance\bank\BankStatement::view::list.default::description::Liste des relevés bancaire.::
 fr::finance\bank\BankStatement::view::list.default::item.status::Statut::
-fr::finance\bank\BankStatement::view::list.default::name::Relevés Bancaire::
+fr::finance\bank\BankStatement::view::list.default::name::Relevés bancaire::
 fr::finance\bank\BankStatement::view::list.processing::description::::
 fr::finance\bank\BankStatement::view::list.processing::name::::
 fr::finance\bank\BankStatementImport::model::self::data::Contenu::Flux binaire du fichier déposé, utilisé pour créer les documents et lancer l'extraction.
@@ -1140,19 +1140,19 @@ fr::finance\bank\BankStatementLine::model::self::communication_type::Type de Com
 fr::finance\bank\BankStatementLine::model::self::customer_id::Client::Le client auquel le paiement se rapporte, s'il est connu.
 fr::finance\bank\BankStatementLine::model::self::date::::Date à laquelle la déclaration a été émise.
 fr::finance\bank\BankStatementLine::model::self::description::::
-fr::finance\bank\BankStatementLine::model::self::label::Ligne de Relevé Bancaire::
-fr::finance\bank\BankStatementLine::model::self::plural::Lignes de Relevé Bancaire::
+fr::finance\bank\BankStatementLine::model::self::label::Ligne de Relevé bancaire::
+fr::finance\bank\BankStatementLine::model::self::plural::Lignes de Relevé bancaire::
 fr::finance\bank\BankStatementLine::model::self::status::Statut::Assignation de la ligne à un paiement.
 fr::finance\bank\BankStatementLine::model::self::status.selection.ignored::ignorée::
-fr::finance\bank\BankStatementLine::model::self::status.selection.pending::à traiter::
-fr::finance\bank\BankStatementLine::model::self::status.selection.posted::enregistrée::
-fr::finance\bank\BankStatementLine::model::self::status.selection.to_refund::à rembourser::
+fr::finance\bank\BankStatementLine::model::self::status.selection.pending::À traiter::
+fr::finance\bank\BankStatementLine::model::self::status.selection.posted::Enregistrée::
+fr::finance\bank\BankStatementLine::model::self::status.selection.to_refund::À rembourser::
 fr::finance\bank\BankStatementLine::view::form.create::description::::
 fr::finance\bank\BankStatementLine::view::form.create::name::::
 fr::finance\bank\BankStatementLine::view::form.default::action.attempt_reconcile::Tenter un rapprochement::Tenter de rapprocher la ligne selon les données fournies.
 fr::finance\bank\BankStatementLine::view::form.default::action.validate::Valider::Valider la ligne de relevé.
 fr::finance\bank\BankStatementLine::view::form.default::description::::
-fr::finance\bank\BankStatementLine::view::form.default::name::Ligne de Relevé Bancaire::
+fr::finance\bank\BankStatementLine::view::form.default::name::Ligne de Relevé bancaire::
 fr::finance\bank\BankStatementLine::view::form.default::section.accounting_entries::::
 fr::finance\bank\BankStatementLine::view::form.default::section.details::::
 fr::finance\bank\BankStatementLine::view::form.default::section.payments::::
@@ -1164,7 +1164,7 @@ fr::finance\bank\BankStatementLine::view::list.create::name::::
 fr::finance\bank\BankStatementLine::view::list.default::action.import::Importer::
 fr::finance\bank\BankStatementLine::view::list.default::action.reconcile::Rapprocher::Rapprocher la ligne.
 fr::finance\bank\BankStatementLine::view::list.default::description::Liste des ligne de relevé bancaire.::
-fr::finance\bank\BankStatementLine::view::list.default::name::Lignes de Relevé Bancaire::
+fr::finance\bank\BankStatementLine::view::list.default::name::Lignes de Relevé bancaire::
 fr::finance\bank\BankStatementLine::view::list.detailed::action.import::Importer::Importer depuis un fichier de relevés bancaires.
 fr::finance\bank\BankStatementLine::view::list.detailed::description::::
 fr::finance\bank\BankStatementLine::view::list.detailed::name::::
@@ -1208,18 +1208,18 @@ fr::finance\bank\OwnershipBankAccount::model::self::bank_account_type::Type de c
 fr::finance\bank\OwnershipBankAccount::model::self::bank_country::Pays banque::Pays ou se trouve la banque.
 fr::finance\bank\OwnershipBankAccount::model::self::bank_name::Banque::Nom de la banque detenant le compte.
 fr::finance\bank\OwnershipBankAccount::model::self::condo_id::Copropriete::Immeuble rattache au compte.
-fr::finance\bank\OwnershipBankAccount::model::self::description::::Libelle calcule reprenant le nom de l'ownership.
-fr::finance\bank\OwnershipBankAccount::model::self::is_primary::Compte principal::Indique si ce compte est definie par defaut pour l'ownership.
-fr::finance\bank\OwnershipBankAccount::model::self::is_validated::Compte valide::Confirme par le proprietaire via le self service.
-fr::finance\bank\OwnershipBankAccount::model::self::label::Compte bancaire coproprietaire::
-fr::finance\bank\OwnershipBankAccount::model::self::owner_identity_id::Identite rattachee::Identite a laquelle le compte bancaire appartient.
-fr::finance\bank\OwnershipBankAccount::model::self::ownership_code::Code ownership::Code unique associe a l'ownership.
-fr::finance\bank\OwnershipBankAccount::model::self::ownership_id::Ownership::Ownership proprietaire du compte.
-fr::finance\bank\OwnershipBankAccount::model::self::plural::Comptes bancaires coproprietaires::
-fr::finance\bank\OwnershipBankAccount::view::form.default::description::Fiche des coordonnees bancaires (IBAN, BIC, coproprietaire, validation).::
-fr::finance\bank\OwnershipBankAccount::view::form.default::name::Compte ownership::
-fr::finance\bank\OwnershipBankAccount::view::list.default::description::Liste etendue des comptes bancaires d'ownership avec solde.::
-fr::finance\bank\OwnershipBankAccount::view::list.default::name::Comptes ownership::
+fr::finance\bank\OwnershipBankAccount::model::self::description::::Libellé calculé reprenant le nom du copropriétaire.
+fr::finance\bank\OwnershipBankAccount::model::self::is_primary::Compte principal::Indique si ce compte est definie par defaut pour le copropriétaire.
+fr::finance\bank\OwnershipBankAccount::model::self::is_validated::Compte valide::Confirmé par le proprietaire via le self service.
+fr::finance\bank\OwnershipBankAccount::model::self::label::Compte bancaire copropriétaire::
+fr::finance\bank\OwnershipBankAccount::model::self::owner_identity_id::Identité rattachée::Identité à laquelle le compte bancaire appartient.
+fr::finance\bank\OwnershipBankAccount::model::self::ownership_code::Code copropriétaire::Code unique associé au copropriétaire.
+fr::finance\bank\OwnershipBankAccount::model::self::ownership_id::Copropriétaire::Copropriétaire propriétaire du compte.
+fr::finance\bank\OwnershipBankAccount::model::self::plural::Comptes bancaires copropriétaires::
+fr::finance\bank\OwnershipBankAccount::view::form.default::description::Fiche des coordonnées bancaires (IBAN, BIC, coproprietaire, validation).::
+fr::finance\bank\OwnershipBankAccount::view::form.default::name::Compte copropriétaire::
+fr::finance\bank\OwnershipBankAccount::view::list.default::description::Liste étendue des comptes bancaires du copropriétaire avec solde.::
+fr::finance\bank\OwnershipBankAccount::view::list.default::name::Comptes Copropriétaire::
 fr::finance\bank\SuppliershipBankAccount::model::self::bank_account_bic::BIC::Code BIC associé à la banque (lecture seule).
 fr::finance\bank\SuppliershipBankAccount::model::self::bank_account_iban::IBAN::IBAN du compte (lecture seule).
 fr::finance\bank\SuppliershipBankAccount::model::self::bank_account_id::Compte bancaire::Compte bancaire de référence (IBAN/BIC).
@@ -1270,8 +1270,8 @@ fr::finance\tax\VatRule::model::self::name::Nom::Nom de la règle TVA.
 fr::finance\tax\VatRule::model::self::plural::Règles de TVA::
 fr::finance\tax\VatRule::model::self::rate::Taux::Taux de TVA de la règle.
 fr::finance\tax\VatRule::model::self::vat_rule_type::Type::Type d'opération auquel la règle se rapporte.
-fr::finance\tax\VatRule::model::self::vat_rule_type.selection.purchase::achat::
-fr::finance\tax\VatRule::model::self::vat_rule_type.selection.sale::vente::
+fr::finance\tax\VatRule::model::self::vat_rule_type.selection.purchase::Achat::
+fr::finance\tax\VatRule::model::self::vat_rule_type.selection.sale::Vente::
 fr::finance\tax\VatRule::view::form.default::description::Les règles de TVA permettent de spécifier quel taux de TVA s'applique pour un type d'opération donné.::
 fr::finance\tax\VatRule::view::form.default::name::Règles de TVA::
 fr::finance\tax\VatRule::view::list.default::description::Cette vue est destinée à afficher les règles de TVA.::
@@ -1307,8 +1307,8 @@ fr::fmt\menu.fmt.left::view::communication.alert.message_models::description::::
 fr::fmt\menu.fmt.left::view::communication.alert.messages::description::::
 fr::fmt\menu.fmt.left::view::communication.alerts::description::::
 fr::fmt\menu.fmt.left::view::communication.emails::description::::
-fr::fmt\menu.fmt.left::view::communication.emails.all::description::Historique de tous les e-mails sortants.::
-fr::fmt\menu.fmt.left::view::communication.emails.mailboxes::description::Boîtes destinées aux e-mails entrants.::
+fr::fmt\menu.fmt.left::view::communication.emails.all::description::Historique de tous les Emails sortants.::
+fr::fmt\menu.fmt.left::view::communication.emails.mailboxes::description::Boîtes destinées aux Emails entrants.::
 fr::fmt\menu.fmt.left::view::communication.templates::description::::
 fr::fmt\menu.fmt.left::view::communication.templates.attachments::description::::
 fr::fmt\menu.fmt.left::view::communication.templates.categories::description::::
@@ -1359,7 +1359,7 @@ fr::fmt\menu.fmt.left::view::item.documents::description::::
 fr::fmt\menu.fmt.left::view::item.documents.bank_statement_processings::description::Suivre et gérer le traitement des extraits bancaires.::
 fr::fmt\menu.fmt.left::view::item.documents.document_processings::description::Suivre et gérer le traitement des documents.::
 fr::fmt\menu.fmt.left::view::item.documents.documents::description::Lister et gérer tous les documents.::
-fr::fmt\menu.fmt.left::view::item.documents.email::description::Consulter et gérer les e-mails reéus.::
+fr::fmt\menu.fmt.left::view::item.documents.email::description::Consulter et gérer les Emails reçus.::
 fr::fmt\menu.fmt.left::view::item.documents.exports::description::::
 fr::fmt\menu.fmt.left::view::item.documents.folders::description::Parcourir et organiser les dossiers de documents.::
 fr::fmt\menu.fmt.left::view::item.documents.invoice_processings::description::Suivre et gérer le traitement des factures d'achat.::
@@ -1520,10 +1520,10 @@ fr::identity\Address::model::self::label::Addresse::
 fr::identity\Address::model::self::name::Adresse::Adresse complète.
 fr::identity\Address::model::self::plural::Addresses::
 fr::identity\Address::model::self::role::::L'objectif principal pour lequel l'adresse doit être préférée.
-fr::identity\Address::model::self::role.selection.delivery::livraison::
-fr::identity\Address::model::self::role.selection.invoice::facture::
-fr::identity\Address::model::self::role.selection.legal::légal::
-fr::identity\Address::model::self::role.selection.other::autre::
+fr::identity\Address::model::self::role.selection.delivery::Livraison::
+fr::identity\Address::model::self::role.selection.invoice::Facture::
+fr::identity\Address::model::self::role.selection.legal::Légal::
+fr::identity\Address::model::self::role.selection.other::Autre::
 fr::identity\Address::view::form.default::description::Formulaire de base pour afficher les informations d'un partenaire::
 fr::identity\Address::view::form.default::name::Addresse::
 fr::identity\Address::view::list.default::description::::
@@ -1543,7 +1543,7 @@ fr::identity\Establishment::model::self::analytic_section_id::Section analytique
 fr::identity\Establishment::model::self::bank_account_bic::BIC::Numéro d'identification de la banque.
 fr::identity\Establishment::model::self::bank_account_iban::IBAN::Numéro de compte bancaire au format international.
 fr::identity\Establishment::model::self::description::Une entreprise ou une autre organisation, ou le lieu où une organisation exerce ses activités.::
-fr::identity\Establishment::model::self::email::::Adresse e-mail de contact officielle.
+fr::identity\Establishment::model::self::email::::Adresse Email de contact officielle.
 fr::identity\Establishment::model::self::label::Unité d'établissement::
 fr::identity\Establishment::model::self::name::Nom::Nom de l'établissement.
 fr::identity\Establishment::model::self::organisation_id::Organisation::L'organisation à laquelle appartient l'établissement.
@@ -1583,7 +1583,7 @@ fr::identity\Identity::model::self::customer_id::Client::Client associé à cett
 fr::identity\Identity::model::self::customers_ids::Clients::Liste des clients de l'organisation.
 fr::identity\Identity::model::self::date_of_birth::Date de naissance::Date de naissance de la personne.
 fr::identity\Identity::model::self::description::::Court contexte pour aider à identifier l'organisation.
-fr::identity\Identity::model::self::email::::Adresse e-mail principale.
+fr::identity\Identity::model::self::email::::Adresse Email principale.
 fr::identity\Identity::model::self::employee_id::Employé::Employé associé à cette identité.
 fr::identity\Identity::model::self::employees_ids::Employés::Liste des employés de l'organisation.
 fr::identity\Identity::model::self::firstname::Prénom::Nom complet du contact (doit être une personne, pas un rôle).
@@ -1644,8 +1644,8 @@ fr::identity\Organisation::model::self::description::Une organisation correspond
 fr::identity\Organisation::model::self::label::::
 fr::identity\Organisation::model::self::plural::::
 fr::identity\Organisation::model::self::profile_image_document_id::Image ou Logo::Image de l'organisation affiché dans les en-têtes officiels.
-fr::identity\Organisation::view::form.default::action.add_mailbox::Ajouter une boîte mail::Ajouter une nouvelle boîte aux lettres pour automatiser la récupération des e-mails.
-fr::identity\Organisation::view::form.default::description::Formulaire de base pour l'affichage d'une organisation'.::
+fr::identity\Organisation::view::form.default::action.add_mailbox::Ajouter une boîte mail::Ajouter une nouvelle boîte aux lettres pour automatiser la récupération des Emails.
+fr::identity\Organisation::view::form.default::description::Formulaire de base pour l'affichage d'une organisation.::
 fr::identity\Organisation::view::form.default::name::::
 fr::identity\Organisation::view::form.default::section.bank_accounts::Comptes bancaires::
 fr::identity\Organisation::view::form.default::section.identity_addresses::Autres adresses::
@@ -1662,7 +1662,7 @@ fr::identity\Partner::model::self::address_state::État::État ou région.
 fr::identity\Partner::model::self::address_street::Rue::Rue et numéro.
 fr::identity\Partner::model::self::address_zip::Code Postal::Code Postal.
 fr::identity\Partner::model::self::description::Les relations sont un lien entre deux Identités (contact, employé, client, fournisseur, payeur, autre).::
-fr::identity\Partner::model::self::email::::Adresse e-mail principale.
+fr::identity\Partner::model::self::email::::Adresse Email principale.
 fr::identity\Partner::model::self::firstname::Prénom::Nom complet du contact (doit être une personne, pas un rôle).
 fr::identity\Partner::model::self::has_vat::Assujetti TVA::Cette organisation a-t-elle un numéro de TVA ?
 fr::identity\Partner::model::self::identity_id::Identité Partenaire::L'identité ciblée (le partenaire).
@@ -1677,12 +1677,12 @@ fr::identity\Partner::model::self::partner_position::Fonction::Rôle du contact 
 fr::identity\Partner::model::self::phone::Numéro de téléphone::Numéro de téléphone.
 fr::identity\Partner::model::self::plural::Relations::
 fr::identity\Partner::model::self::relationship::Relation::Le genre de partenariat qui existe entre les identités.
-fr::identity\Partner::model::self::relationship.selection.contact::contact::
-fr::identity\Partner::model::self::relationship.selection.customer::client::
-fr::identity\Partner::model::self::relationship.selection.employee::employé::
-fr::identity\Partner::model::self::relationship.selection.other::autre::
-fr::identity\Partner::model::self::relationship.selection.payer::payeur::
-fr::identity\Partner::model::self::relationship.selection.provider::fournisseur::
+fr::identity\Partner::model::self::relationship.selection.contact::Contact::
+fr::identity\Partner::model::self::relationship.selection.customer::Client::
+fr::identity\Partner::model::self::relationship.selection.employee::Employé::
+fr::identity\Partner::model::self::relationship.selection.other::Autre::
+fr::identity\Partner::model::self::relationship.selection.payer::Payeur::
+fr::identity\Partner::model::self::relationship.selection.provider::Fournisseur::
 fr::identity\Partner::model::self::short_name::Nom usuel::Nom utilisé en interne pour identifier l'organisation.
 fr::identity\Partner::model::self::type::::Type d'organisation.
 fr::identity\Partner::model::self::type.selection.C::Entreprise::
@@ -1913,7 +1913,7 @@ fr::infra\server\Server::model::self::server_type.selection.s2::Stats (s2)::
 fr::infra\server\Server::model::self::server_type.selection.storage::Stockage::
 fr::infra\server\Server::model::self::softwares_ids::Logiciels::Logiciels installé sur le serveur.
 fr::infra\server\Server::view::form.default::description::::
-fr::infra\server\Server::view::form.default::name::serveur::
+fr::infra\server\Server::view::form.default::name::Serveur::
 fr::infra\server\Server::view::form.default::section::::Description
 fr::infra\server\Server::view::form.default::section.accesses::Accès::
 fr::infra\server\Server::view::form.default::section.instances::::
@@ -1955,8 +1955,8 @@ fr::infra\service\DetailCategory::view::list.default::description::Liste des cat
 fr::infra\service\DetailCategory::view::list.default::name::Liste des catégories::
 fr::infra\service\Service::model::self::customer_id::Client::Le client associé au produit
 fr::infra\service\Service::model::self::description::::Description du service.
-fr::infra\service\Service::model::self::has_external_provider::Fournisseur externe?::Le service a un fournisseur externe?.
-fr::infra\service\Service::model::self::has_subscription::Abonnement?::Le service a-t-il un abonnement?
+fr::infra\service\Service::model::self::has_external_provider::Fournisseur externe ?::Le service a un fournisseur externe ?.
+fr::infra\service\Service::model::self::has_subscription::Abonnement ?::Le service a-t-il un abonnement ?
 fr::infra\service\Service::model::self::is_auto_renew::Renouvelable::Le service se renouvelle-t-il automatiquement ?
 fr::infra\service\Service::model::self::is_billable::Facturable::Le service est-il facturable ?
 fr::infra\service\Service::model::self::is_internal::Interne::Le service est-il interne ?
@@ -1978,7 +1978,7 @@ fr::infra\service\Service::view::list.default::description::Liste des Services.:
 fr::infra\service\Service::view::list.default::name::Liste des Services::
 fr::infra\service\ServiceModel::model::self::description::::Description du modèle de service .
 fr::infra\service\ServiceModel::model::self::has_external_provider::Fournisseur externe::Le modèle de service correspond-t-il a un fournisseur externe ?
-fr::infra\service\ServiceModel::model::self::has_subscription::Abonnement?::Le modèle de service a-t-il un abonnement?
+fr::infra\service\ServiceModel::model::self::has_subscription::Abonnement ?::Le modèle de service a-t-il un abonnement ?
 fr::infra\service\ServiceModel::model::self::is_auto_renew::Renouvelable::Le modèle de service se renouvelle-t-il automatiquement ?
 fr::infra\service\ServiceModel::model::self::is_billable::Facturable::Le modèle de service  est-il facturable ?
 fr::infra\service\ServiceModel::model::self::label::Modèle de service::
@@ -2027,7 +2027,7 @@ fr::infra\service\bulk-expirations::model::self::id::Identifiant::Identifiant de
 fr::infra\service\bulk-expirations::model::self::label::Mise à jour et vérification des expirations::
 fr::infra\service\service-collect::model::self::access_id::Accès::L'accès pour se connecter au service
 fr::infra\service\service-collect::model::self::customer_id::Client::Le client associé au service
-fr::infra\service\service-collect::model::self::has_subscription::Y a-t-il de abonnement?::Le service a-t-il un abonnement ?
+fr::infra\service\service-collect::model::self::has_subscription::Y a-t-il de abonnement ?::Le service a-t-il un abonnement ?
 fr::infra\service\service-collect::model::self::has_subscription.selection.all::Tous::
 fr::infra\service\service-collect::model::self::has_subscription.selection.no::Non::
 fr::infra\service\service-collect::model::self::has_subscription.selection.yes::Oui::
@@ -2194,7 +2194,7 @@ fr::realestate\RentalUnit::model::self::can_partial_rent::Location partielle::Au
 fr::realestate\RentalUnit::model::self::can_rent::Disponible à la location::Permet de marquer temporairement une indisponibilité commerciale.
 fr::realestate\RentalUnit::model::self::capacity::Capacité::Nombre maximal de personnes pouvant séjourner dans l'unité.
 fr::realestate\RentalUnit::model::self::category::Mode d'exploitation::Type de location (gîte autonome, formule hôtelière, …).
-fr::realestate\RentalUnit::model::self::category.selection.hostel::Hébergement géré (hostel)::
+fr::realestate\RentalUnit::model::self::category.selection.hostel::Hébergement géré (hôtel)::
 fr::realestate\RentalUnit::model::self::category.selection.lodge::Logement autonome / lodge::
 fr::realestate\RentalUnit::model::self::children_ids::Liste des sous-unités::Sous-unités composant l'unité actuelle.
 fr::realestate\RentalUnit::model::self::code::::Identifiant court ou mnémotechnique.
@@ -2274,13 +2274,13 @@ fr::realestate\finance\accounting\MoneyRefund::model::self::amount::Montant::Som
 fr::realestate\finance\accounting\MoneyRefund::model::self::bank_account_id::Compte origine::Compte bancaire de la copropriété utilisé pour payer.
 fr::realestate\finance\accounting\MoneyRefund::model::self::condo_id::Copropriété::Immeuble auquel se rattache le remboursement.
 fr::realestate\finance\accounting\MoneyRefund::model::self::description::::Motif ou remarque interne.
-fr::realestate\finance\accounting\MoneyRefund::model::self::fundings_ids::Fundings::Funding(s) créés pour suivre le paiement.
+fr::realestate\finance\accounting\MoneyRefund::model::self::fundings_ids::Appel de fonds::Appel(s) de fonds créé(s) pour suivre le paiement.
 fr::realestate\finance\accounting\MoneyRefund::model::self::label::Remboursement::
 fr::realestate\finance\accounting\MoneyRefund::model::self::ownership_bank_account_id::Compte du propriétaire::Compte bancaire cible lorsque le remboursement est versé à un copropriétaire.
 fr::realestate\finance\accounting\MoneyRefund::model::self::ownership_id::Propriété::Propriétaire concerné (pour un remboursement copropriétaire).
 fr::realestate\finance\accounting\MoneyRefund::model::self::plural::Remboursements::
 fr::realestate\finance\accounting\MoneyRefund::model::self::posting_date::Date comptable::Date prévue pour l'écriture du remboursement.
-fr::realestate\finance\accounting\MoneyRefund::model::self::refund_type::Type de remboursement::Détermine si la cible est un propriétaire ou un fournisseur.
+fr::realestate\finance\accounting\MoneyRefund::model::self::refund_type::Type de remboursement::Détermine si la cible est un copropriétaire ou un fournisseur.
 fr::realestate\finance\accounting\MoneyRefund::model::self::refund_type.selection.owner_refund::Remboursement copropriétaire::
 fr::realestate\finance\accounting\MoneyRefund::model::self::refund_type.selection.supplier_refund::Remboursement fournisseur::
 fr::realestate\finance\accounting\MoneyRefund::model::self::status::Statut::Workflow (pending → proforma → posted → completed).
@@ -2350,7 +2350,7 @@ fr::realestate\funding\ExpenseStatement::model::self::assigned_delta::Delta d'af
 fr::realestate\funding\ExpenseStatement::model::self::common_total::Total charges communes::Montant global imputé aux charges communes.
 fr::realestate\funding\ExpenseStatement::model::self::description::Document émis en fin de période fiscale pour répartir les dépenses communes/privatives entre copropriétaires et générer les appels correspondants.::
 fr::realestate\funding\ExpenseStatement::model::self::fiscal_period_id::Période fiscale::Période couverte par le relevé (détermine la date de comptabilisation).
-fr::realestate\funding\ExpenseStatement::model::self::fundings_ids::Fundings générés::Appels de fonds créés après validation du relevé.
+fr::realestate\funding\ExpenseStatement::model::self::fundings_ids::Appels de fonds générés::Appels de fonds créés après validation du relevé.
 fr::realestate\funding\ExpenseStatement::model::self::invoice_lines_ids::Lignes::Détail des charges réparties (une ligne par propriétaire).
 fr::realestate\funding\ExpenseStatement::model::self::label::Relevé de charges::
 fr::realestate\funding\ExpenseStatement::model::self::name::Libellé::Nom calculé du relevé (période, exercice, type).
@@ -2422,7 +2422,7 @@ fr::realestate\funding\FundRequest::model::self::condo_id::Copropriété::Immeub
 fr::realestate\funding\FundRequest::model::self::date_from::Date de début::Début de la période couverte par l'appel périodique.
 fr::realestate\funding\FundRequest::model::self::date_range_frequency::Fréquence (mois)::Intervalle en mois entre deux exécutions successives.
 fr::realestate\funding\FundRequest::model::self::date_to::Date de fin::Fin de période des montants appelés.
-fr::realestate\funding\FundRequest::model::self::description::Demande formelle envoyée aux copropriétaires pour financer les dépenses communes (fonds de roulement, réserve, provisions, travaux). Le montant appelé est réparti selon les quotes-parts configurées pour chaque ownership.::
+fr::realestate\funding\FundRequest::model::self::description::Demande formelle envoyée aux copropriétaires pour financer les dépenses communes (fonds de roulement, réserve, provisions, travaux). Le montant appelé est réparti selon les quotes-parts configurées pour chaque copropriétaire.::
 fr::realestate\funding\FundRequest::model::self::entry_lots_ids::Entrées par lot::Répartition détaillée par lot privatif.
 fr::realestate\funding\FundRequest::model::self::execution_lines_ids::Lignes d'exécution::Détail des montants appelés par propriétaire et par exécution.
 fr::realestate\funding\FundRequest::model::self::fiscal_period_id::Période::Période (mois/trimestre) utilisée pour dater l'appel et l'écriture comptable.
@@ -2430,7 +2430,7 @@ fr::realestate\funding\FundRequest::model::self::fiscal_year_id::Exercice compta
 fr::realestate\funding\FundRequest::model::self::fundings_ids::Encaissements liés::Paiements reçus en réponse à cet appel.
 fr::realestate\funding\FundRequest::model::self::has_date_range::Appel périodique::Active la génération d'exécutions récurrentes (mensuel, trimestriel...).
 fr::realestate\funding\FundRequest::model::self::label::Appel de fonds::
-fr::realestate\funding\FundRequest::model::self::line_entries_ids::Entrées par ownership::Ventilation des montants par ownership avant passage en exécution.
+fr::realestate\funding\FundRequest::model::self::line_entries_ids::Entrées par copropriétaire::Ventilation des montants par copropriétaire avant passage en exécution.
 fr::realestate\funding\FundRequest::model::self::name::Libellé::Titre court basé sur l'exercice/période (ex. FY2025 - T1).
 fr::realestate\funding\FundRequest::model::self::payment_terms_id::Conditions de paiement::Échéance appliquée aux propriétaires pour solder l'appel.
 fr::realestate\funding\FundRequest::model::self::plural::Appels de fonds::
@@ -2469,7 +2469,7 @@ fr::realestate\funding\FundRequestExecution::model::self::execution_line_entries
 fr::realestate\funding\FundRequestExecution::model::self::execution_lines_ids::Lignes d'exécution::Ventilations par copropriétaire.
 fr::realestate\funding\FundRequestExecution::model::self::fiscal_year_id::Exercice::Exercice sur lequel l'appel est enregistré.
 fr::realestate\funding\FundRequestExecution::model::self::fund_request_id::Appel de fonds::Demande d'appel dont cette exécution provient.
-fr::realestate\funding\FundRequestExecution::model::self::fundings_ids::Fundings générés::Fundings créés lors de l'exécution (un par copropriétaire).
+fr::realestate\funding\FundRequestExecution::model::self::fundings_ids::Appels de fonds générés::Appels de fonds créés lors de l'exécution (un par copropriétaire).
 fr::realestate\funding\FundRequestExecution::model::self::label::Exécution d'appel de fonds::
 fr::realestate\funding\FundRequestExecution::model::self::logs::Journal::Trace textuelle de la génération (utilisée pour le dépannage).
 fr::realestate\funding\FundRequestExecution::model::self::name::Libellé::Nom calculé combinant appel, période et type.
@@ -2491,7 +2491,7 @@ fr::realestate\funding\FundRequestExecution::view::list.default::name::Exécutio
 fr::realestate\funding\FundRequestExecutionLine::model::self::description::Ventilation par copropriétaire lors de l'exécution (montant appelé, liens avec fundings et entrées détaillées).::
 fr::realestate\funding\FundRequestExecutionLine::model::self::execution_line_entries_ids::Entrées d'exécution::Détail par lot utilisé pour générer l'écriture.
 fr::realestate\funding\FundRequestExecutionLine::model::self::fund_request_id::Appel de fonds::Appel à l'origine de la ligne.
-fr::realestate\funding\FundRequestExecutionLine::model::self::funding_id::Funding généré::Funding créé pour suivre le paiement de cette ligne.
+fr::realestate\funding\FundRequestExecutionLine::model::self::funding_id::Appel de fonds généré::Appel de fonds créé pour suivre le paiement de cette ligne.
 fr::realestate\funding\FundRequestExecutionLine::model::self::label::Ligne d'exécution d'appel::
 fr::realestate\funding\FundRequestExecutionLine::model::self::line_entries_ids::Entrées planifiées::Références vers les lignes d'appel original (FundRequestLineEntry).
 fr::realestate\funding\FundRequestExecutionLine::model::self::ownership_id::Propriété::Copropriétaire impacté.
@@ -2522,7 +2522,7 @@ fr::realestate\funding\FundRequestLine::model::self::description::Segment d'un a
 fr::realestate\funding\FundRequestLine::model::self::entry_lots_ids::Entrées lots::Détail par lot privatif pour la clé concernée.
 fr::realestate\funding\FundRequestLine::model::self::fund_request_id::Appel de fonds::Appel parent dont la ligne fait partie.
 fr::realestate\funding\FundRequestLine::model::self::label::Ligne d'appel de fonds::
-fr::realestate\funding\FundRequestLine::model::self::line_entries_ids::Entrées ownership::Liste des montants calculés par ownership.
+fr::realestate\funding\FundRequestLine::model::self::line_entries_ids::Entrées copropriétaire::Liste des montants calculés par copropriétaire.
 fr::realestate\funding\FundRequestLine::model::self::plural::Lignes d'appel de fonds::
 fr::realestate\funding\FundRequestLine::model::self::request_amount::Montant planifié::Budget total affecté à cette clé.
 fr::realestate\funding\FundRequestLine::view::form.default::action.generate_allocation::Générer l'allocation::Générer les lignes de l'appel de fonds.
@@ -2530,33 +2530,33 @@ fr::realestate\funding\FundRequestLine::view::form.default::description::Formula
 fr::realestate\funding\FundRequestLine::view::form.default::name::Ligne d'appel::
 fr::realestate\funding\FundRequestLine::view::list.default::description::Vue tabulaire des lignes (copropriété, clé, montants planifiés/répartis).::
 fr::realestate\funding\FundRequestLine::view::list.default::name::Lignes d'appel::
-fr::realestate\funding\FundRequestLineEntry::model::self::allocated_amount::Montant réparti::Montant total imputé à cet ownership pour la ligne considérée.
+fr::realestate\funding\FundRequestLineEntry::model::self::allocated_amount::Montant réparti::Montant total imputé à ce copropriétaire pour la ligne considérée.
 fr::realestate\funding\FundRequestLineEntry::model::self::apportionment_shares::Quotes-parts::Nombre d'unités (parts) utilisées pour calculer la contribution.
-fr::realestate\funding\FundRequestLineEntry::model::self::condo_id::Copropriété::Immeuble auquel appartient l'ownership.
-fr::realestate\funding\FundRequestLineEntry::model::self::description::Ventilation d'une ligne d'appel de fonds pour un ownership (ou un groupe de lots) avant génération des factures/exécutions.::
+fr::realestate\funding\FundRequestLineEntry::model::self::condo_id::Copropriété::Immeuble auquel appartient le copropriétaire.
+fr::realestate\funding\FundRequestLineEntry::model::self::description::Ventilation d'une ligne d'appel de fonds pour un copropriétaire (ou un groupe de lots) avant génération des factures/exécutions.::
 fr::realestate\funding\FundRequestLineEntry::model::self::entry_lots_ids::Détail par lot::Répartition de l'entrée sur chaque lot détenu (montant et quotes-parts).
 fr::realestate\funding\FundRequestLineEntry::model::self::execution_lines_ids::Lignes d'exécution::Factures / avis qui consomment cette entrée lors de l'envoi aux propriétaires.
 fr::realestate\funding\FundRequestLineEntry::model::self::fund_request_id::Appel de fonds::Appel parent auquel l'entrée est liée (calculé depuis la ligne).
 fr::realestate\funding\FundRequestLineEntry::model::self::label::Entrée d'appel::
-fr::realestate\funding\FundRequestLineEntry::model::self::ownership_id::Ownership::Dossier de propriété concerné par le montant appelé.
+fr::realestate\funding\FundRequestLineEntry::model::self::ownership_id::Copropriétaire::Dossier de propriété concerné par le montant appelé.
 fr::realestate\funding\FundRequestLineEntry::model::self::plural::Entrées d'appel::
 fr::realestate\funding\FundRequestLineEntry::model::self::request_line_id::Ligne d'appel::Ligne (clé de répartition) dont provient l'entrée.
-fr::realestate\funding\FundRequestLineEntry::view::form.default::description::Formulaire technique pour analyser la ventilation par ownership avant exécution.::
+fr::realestate\funding\FundRequestLineEntry::view::form.default::description::Formulaire technique pour analyser la ventilation par copropriétaire avant exécution.::
 fr::realestate\funding\FundRequestLineEntry::view::form.default::name::Entrée d'appel::
-fr::realestate\funding\FundRequestLineEntry::view::list.default::description::Vue d'ensemble des entrées (ownership, montants, quotes-parts).::
+fr::realestate\funding\FundRequestLineEntry::view::list.default::description::Vue d'ensemble des entrées (copropriétaire, montants, quotes-parts).::
 fr::realestate\funding\FundRequestLineEntry::view::list.default::name::Entrées d'appel::
 fr::realestate\funding\FundRequestLineEntryLot::model::self::allocated_amount::Montant appelé::Somme imputée au lot pour cet appel.
 fr::realestate\funding\FundRequestLineEntryLot::model::self::apportionment_shares::Quotes-parts::Nombre de parts utilisées pour la clé sur ce lot.
 fr::realestate\funding\FundRequestLineEntryLot::model::self::condo_id::Copropriété::Immeuble concerné par la ligne.
-fr::realestate\funding\FundRequestLineEntryLot::model::self::description::Détail le montant appelé pour un lot précis (quotes-parts et ownership) avant génération des factures d'exécution.::
+fr::realestate\funding\FundRequestLineEntryLot::model::self::description::Détail le montant appelé pour un lot précis (quotes-parts et copropriétaire) avant génération des factures d'exécution.::
 fr::realestate\funding\FundRequestLineEntryLot::model::self::fund_request_id::Appel de fonds::Appel parent dont provient l'entrée.
 fr::realestate\funding\FundRequestLineEntryLot::model::self::label::Ligne lot d'appel::
-fr::realestate\funding\FundRequestLineEntryLot::model::self::line_entry_id::Entrée ownership::Ligne ownership dont dépend ce lot (permet de recalculer les montants).
-fr::realestate\funding\FundRequestLineEntryLot::model::self::ownership_id::Ownership::Dossier de propriété lié au lot.
+fr::realestate\funding\FundRequestLineEntryLot::model::self::line_entry_id::Entrée copropriétaire::Ligne copropriétaire dont dépend ce lot (permet de recalculer les montants).
+fr::realestate\funding\FundRequestLineEntryLot::model::self::ownership_id::Copropriétaire::Dossier de propriété lié au lot.
 fr::realestate\funding\FundRequestLineEntryLot::model::self::plural::Lignes lot d'appel::
 fr::realestate\funding\FundRequestLineEntryLot::model::self::property_lot_id::Lot privatif::Lot auquel est imputé le montant.
 fr::realestate\funding\FundRequestLineEntryLot::model::self::request_line_id::Ligne d'appel::Clé de répartition à laquelle appartient ce lot.
-fr::realestate\funding\FundRequestLineEntryLot::view::form.default::description::Formulaire technique récapitulant lot, ownership, quotes-parts et montant.::
+fr::realestate\funding\FundRequestLineEntryLot::view::form.default::description::Formulaire technique récapitulant lot, copropriétaire, quotes-parts et montant.::
 fr::realestate\funding\FundRequestLineEntryLot::view::form.default::name::Ligne lot d'appel::
 fr::realestate\funding\FundRequestLineEntryLot::view::list.default::description::Vue tabulaire des montants appelés par lot et par copropriété.::
 fr::realestate\funding\FundRequestLineEntryLot::view::list.default::name::Lignes lot d'appel::
@@ -2615,7 +2615,7 @@ fr::realestate\governance\AssemblyInvitation::model::self::label::Invitation d'a
 fr::realestate\governance\AssemblyInvitation::model::self::plural::Invitations d'assemblée::
 fr::realestate\governance\AssemblyInvitation::view::form.default::description::Formulaire d'une invitation individuelle (destinataire, envoi, pièces).::
 fr::realestate\governance\AssemblyInvitation::view::form.default::name::Invitation::
-fr::realestate\governance\AssemblyInvitation::view::form.default::route.mails::E-mails::
+fr::realestate\governance\AssemblyInvitation::view::form.default::route.mails::Emails::
 fr::realestate\governance\AssemblyInvitation::view::form.default::route.view_invitation::Afficher l'invitation::Afficher l'invitation imprimable.
 fr::realestate\governance\AssemblyInvitation::view::list.default::description::::
 fr::realestate\governance\AssemblyInvitation::view::list.default::name::::
@@ -2737,8 +2737,8 @@ fr::realestate\ownership\Owner::model::self::owner_type::Type::Nature du droit d
 fr::realestate\ownership\Owner::model::self::owner_type.selection.bare::Nue-propriété::
 fr::realestate\ownership\Owner::model::self::owner_type.selection.full::Pleine propriété::
 fr::realestate\ownership\Owner::model::self::owner_type.selection.usufruct::Usufruit::
-fr::realestate\ownership\Owner::model::self::ownership_id::Dossier de propriété::Ownership auquel ce propriétaire est rattaché.
-fr::realestate\ownership\Owner::model::self::ownership_percentage::Pourcentage de détention::Part du propriétaire dans l'ownership en pourcentage.
+fr::realestate\ownership\Owner::model::self::ownership_id::Dossier de propriété::Copropriétaire auquel ce propriétaire est rattaché.
+fr::realestate\ownership\Owner::model::self::ownership_percentage::Pourcentage de détention::Part du propriétaire dans l'indivision en pourcentage.
 fr::realestate\ownership\Owner::model::self::plural::Propriétaires::
 fr::realestate\ownership\Owner::model::self::shares_bare_property::Parts en nue-propriété::Nombre de quotes-parts détenues en nue-propriété.
 fr::realestate\ownership\Owner::model::self::shares_full_property::Parts en pleine propriété::Nombre de quotes-parts détenues en pleine propriété.
@@ -2753,11 +2753,11 @@ fr::realestate\ownership\Owner::view::form.create::name::Nouveau propriétaire::
 fr::realestate\ownership\Owner::view::form.default::action.create_account::Créer un compte utilisateur::Créer un compte utilisateur pour le copropriétaire.
 fr::realestate\ownership\Owner::view::form.default::description::Fiche détaillée d'un propriétaire (identité et quotes-parts).::
 fr::realestate\ownership\Owner::view::form.default::name::Propriétaire::
-fr::realestate\ownership\Owner::view::list.default::description::Vue tableau des propriétaires (identité, ownership et répartition des parts).::
+fr::realestate\ownership\Owner::view::list.default::description::Vue tableau des propriétaires (identité, copropriétaire et répartition des parts).::
 fr::realestate\ownership\Owner::view::list.default::name::Liste des propriétaires::
 fr::realestate\ownership\Ownership::model::self::address_recipient::Destinataire courrier::Ligne (civilité + nom) utilisée pour les envois postaux.
 fr::realestate\ownership\Ownership::model::self::assemblies_ids::Assemblées concernées::Assemblées générales auxquelles le dossier a été convié.
-fr::realestate\ownership\Ownership::model::self::attendees_ids::Participants::Participants ayant représenté l'ownership lors des assemblées.
+fr::realestate\ownership\Ownership::model::self::attendees_ids::Participants::Participants ayant représenté l'indivision lors des assemblées.
 fr::realestate\ownership\Ownership::model::self::code::::Identifiant interne du dossier.
 fr::realestate\ownership\Ownership::model::self::condo_id::Copropriété::Copropriété à laquelle ce dossier est rattaché.
 fr::realestate\ownership\Ownership::model::self::creation_identity_id::Identité à convertir::Identité utilisée lors de la création pour générer un premier propriétaire.
@@ -2766,27 +2766,27 @@ fr::realestate\ownership\Ownership::model::self::date_to::Date de sortie::Date d
 fr::realestate\ownership\Ownership::model::self::description::::Commentaires internes sur le dossier.
 fr::realestate\ownership\Ownership::model::self::extref_owner_reference::Référence externe::Référence utilisée par un système tiers (import, migration…).
 fr::realestate\ownership\Ownership::model::self::fundings_ids::Appels de fonds::Historique des appels de fonds liés à ce dossier.
-fr::realestate\ownership\Ownership::model::self::has_external_representative::Mandataire externe::Indique si une personne externe représente l'ownership.
+fr::realestate\ownership\Ownership::model::self::has_external_representative::Mandataire externe::Indique si une personne externe représente l'indivision.
 fr::realestate\ownership\Ownership::model::self::has_representative::Représentant interne::Indique si l'un des propriétaires est désigné comme représentant officiel.
 fr::realestate\ownership\Ownership::model::self::label::Dossier de propriété::
 fr::realestate\ownership\Ownership::model::self::owners_ids::Propriétaires::Liste des propriétaires liés au dossier.
 fr::realestate\ownership\Ownership::model::self::ownership_bank_accounts_ids::Comptes bancaires::Comptes bancaires ouverts au nom du ou des propriétaires.
 fr::realestate\ownership\Ownership::model::self::ownership_communication_preferences_ids::Préférences de communication::Canaux et destinataires à utiliser selon le type de communication.
 fr::realestate\ownership\Ownership::model::self::ownership_shares::Total des parts::Nombre total de quotes-parts déclarées pour le dossier.
-fr::realestate\ownership\Ownership::model::self::ownership_type::Type d'ownership::Détermine si la propriété est unique ou en indivision.
+fr::realestate\ownership\Ownership::model::self::ownership_type::Type de copropriétaire::Détermine si la propriété est unique ou en indivision.
 fr::realestate\ownership\Ownership::model::self::ownership_type.selection.joint::Propriété conjointe::
 fr::realestate\ownership\Ownership::model::self::ownership_type.selection.unique::Propriété unique::
 fr::realestate\ownership\Ownership::model::self::plural::Dossiers de propriété::
-fr::realestate\ownership\Ownership::model::self::property_lot_ownerships_ids::Historique des lots::Relations historisées entre lots et ownership.
-fr::realestate\ownership\Ownership::model::self::property_lots_ids::Lots actifs::Lots actuellement détenus (ownership actif).
-fr::realestate\ownership\Ownership::model::self::representative_identity_id::Identité mandataire externe::Identité (hors propriétaires) mandatée pour représenter l'ownership.
+fr::realestate\ownership\Ownership::model::self::property_lot_ownerships_ids::Historique des lots::Relations historisées entre lots et copropriétaire.
+fr::realestate\ownership\Ownership::model::self::property_lots_ids::Lots actifs::Lots actuellement détenus (copropriétaire actif).
+fr::realestate\ownership\Ownership::model::self::representative_identity_id::Identité mandataire externe::Identité (hors propriétaires) mandatée pour représenter l'indivision.
 fr::realestate\ownership\Ownership::model::self::representative_owner_id::Propriétaire référent::Propriétaire désigné en tant que représentant légal du dossier.
 fr::realestate\ownership\Ownership::model::self::status::Statut::État du dossier (préparation ou validé).
 fr::realestate\ownership\Ownership::model::self::status.selection.pending::En préparation::
 fr::realestate\ownership\Ownership::model::self::status.selection.validated::Validé::
 fr::realestate\ownership\Ownership::model::self::transfer_from_id::Dossier d'acquisition::Acte ou procédure via laquelle le lot a été acquis.
 fr::realestate\ownership\Ownership::model::self::transfer_to_id::Dossier de cession::Acte ou procédure via laquelle le lot a été cédé.
-fr::realestate\ownership\Ownership::view::form.create::description::Assistant permettant de créer rapidement un ownership et ses propriétaires.::
+fr::realestate\ownership\Ownership::view::form.create::description::Assistant permettant de créer rapidement une indivision et ses membres.::
 fr::realestate\ownership\Ownership::view::form.create::name::Création d'un dossier::
 fr::realestate\ownership\Ownership::view::form.default::action.generate_history::Générer l'historique::Générer l'historique des tantièmes.
 fr::realestate\ownership\Ownership::view::form.default::action.print_funds_request::Imprimer la demande de fonds::Générer le document d'appel de fonds pour l'exercice.
@@ -2802,8 +2802,8 @@ fr::realestate\ownership\Ownership::view::form.transfer_create::description::Sai
 fr::realestate\ownership\Ownership::view::form.transfer_create::name::Création via transfert::
 fr::realestate\ownership\Ownership::view::form.transfer_create::section.owners::::
 fr::realestate\ownership\Ownership::view::list.assembly::description::Filtre dédié aux convocations d'assemblées générales.::
-fr::realestate\ownership\Ownership::view::list.assembly::name::Ownerships pour assemblée::
-fr::realestate\ownership\Ownership::view::list.default::description::Vue liste des ownerships avec références, copropriété et statut.::
+fr::realestate\ownership\Ownership::view::list.assembly::name::Copropriétaires pour assemblée::
+fr::realestate\ownership\Ownership::view::list.default::description::Vue liste des copropriétaires avec références, copropriété et statut.::
 fr::realestate\ownership\Ownership::view::list.default::name::Dossiers de propriété::
 fr::realestate\ownership\OwnershipCommunicationPreference::model::self::address_city::Ville::
 fr::realestate\ownership\OwnershipCommunicationPreference::model::self::address_street::Rue et numéro::Adresse postale utilisée pour les envois courrier.
@@ -2816,15 +2816,15 @@ fr::realestate\ownership\OwnershipCommunicationPreference::model::self::communic
 fr::realestate\ownership\OwnershipCommunicationPreference::model::self::communication_reason.selection.technical_communication::Communication technique::
 fr::realestate\ownership\OwnershipCommunicationPreference::model::self::communication_title::Titre d'adresse::Formule d'appel utilisée dans le corps du courrier.
 fr::realestate\ownership\OwnershipCommunicationPreference::model::self::condo_id::Copropriété::Copropriété concernée.
-fr::realestate\ownership\OwnershipCommunicationPreference::model::self::description::Définit, pour un ownership et un motif précis (convocation, procès-verbal, appels de fonds…), le destinataire et les canaux autorisés.::
-fr::realestate\ownership\OwnershipCommunicationPreference::model::self::email::Courriel::Adresse e-mail récupérée depuis l'identité.
-fr::realestate\ownership\OwnershipCommunicationPreference::model::self::has_channel_email::Envoi par e-mail::Envoi électronique pour ce motif.
+fr::realestate\ownership\OwnershipCommunicationPreference::model::self::description::Définit, pour un copropriétaire et un motif précis (convocation, procès-verbal, appels de fonds…), le destinataire et les canaux autorisés.::
+fr::realestate\ownership\OwnershipCommunicationPreference::model::self::email::Email::Adresse Email récupérée depuis l'identité.
+fr::realestate\ownership\OwnershipCommunicationPreference::model::self::has_channel_email::Envoi par Email::Envoi électronique pour ce motif.
 fr::realestate\ownership\OwnershipCommunicationPreference::model::self::has_channel_postal::Courrier simple::Envoi postal standard.
 fr::realestate\ownership\OwnershipCommunicationPreference::model::self::has_channel_postal_registered::Recommandé::Envoi postal recommandé.
 fr::realestate\ownership\OwnershipCommunicationPreference::model::self::has_channel_postal_registered_receipt::Recommandé & accusé::Envoi recommandé avec accusé de réception.
 fr::realestate\ownership\OwnershipCommunicationPreference::model::self::identity_id::Destinataire::Identité (propriétaire ou mandataire) à contacter.
 fr::realestate\ownership\OwnershipCommunicationPreference::model::self::label::Préférence de communication::
-fr::realestate\ownership\OwnershipCommunicationPreference::model::self::ownership_id::Dossier de propriété::Ownership auquel la préférence s'applique.
+fr::realestate\ownership\OwnershipCommunicationPreference::model::self::ownership_id::Dossier de propriété::Copropriétaire auquel la préférence s'applique.
 fr::realestate\ownership\OwnershipCommunicationPreference::model::self::plural::Préférences de communication::
 fr::realestate\ownership\OwnershipCommunicationPreference::view::form.default::description::Sélection du destinataire et des canaux pour un motif donné.::
 fr::realestate\ownership\OwnershipCommunicationPreference::view::form.default::name::Préférence de communication::
@@ -2984,7 +2984,7 @@ fr::realestate\property\NotaryOffice::view::form.default::name::Étude notariale
 fr::realestate\property\NotaryOffice::view::list.default::description::Liste des études avec leurs coordonnées.::
 fr::realestate\property\NotaryOffice::view::list.default::name::Études notariales::
 fr::realestate\property\OwnershipTransfer::model::self::adjustments_ids::Ajustements::Calculs d'ajustements générés pour équilibrer le transfert.
-fr::realestate\property\OwnershipTransfer::model::self::arrear_fundings_ids::Financements en retard::Demandes de paiement non soldées liées à l'ownership cédant.
+fr::realestate\property\OwnershipTransfer::model::self::arrear_fundings_ids::Financements en retard::Demandes de paiement non soldées liées à au copropriétaire cédant.
 fr::realestate\property\OwnershipTransfer::model::self::attached_documents_ids::Pièces jointes::Documents sélectionnés comme annexes lors des envois.
 fr::realestate\property\OwnershipTransfer::model::self::commons_acquisitions_description::Achats communs::Statut des acquisitions communes récentes (3.94.2.3).
 fr::realestate\property\OwnershipTransfer::model::self::condo_id::Copropriété::Copropriété concernée par la cession.
@@ -3000,7 +3000,7 @@ fr::realestate\property\OwnershipTransfer::model::self::fiscal_period_id::Pério
 fr::realestate\property\OwnershipTransfer::model::self::fiscal_year_id::Exercice comptable::Exercice auquel se rattache le transfert.
 fr::realestate\property\OwnershipTransfer::model::self::fuel_tank_capacity::Capacité de la citerne::Volume de la citerne lorsque le paramètre est activé.
 fr::realestate\property\OwnershipTransfer::model::self::fund_balances_description::Solde des fonds::Texte décrivant l'état actuel des fonds de la copropriété.
-fr::realestate\property\OwnershipTransfer::model::self::fund_balances_ids::Balances des fonds::Lignes reprenant la répartition des soldes de fonds entre les lots.
+fr::realestate\property\OwnershipTransfer::model::self::fund_balances_ids::Balance des fonds::Lignes reprenant la répartition des soldes de fonds entre les lots.
 fr::realestate\property\OwnershipTransfer::model::self::fund_requests_description::Appels de fonds::Texte introductif aux appels de fonds en cours (3.94.2.2).
 fr::realestate\property\OwnershipTransfer::model::self::fund_requests_ids::Lignes d'appels de fonds::Historique des appels de fonds utilisés pour établir le dossier.
 fr::realestate\property\OwnershipTransfer::model::self::general_assembly_minutes_description::PV d'Assemblée::Introduction aux derniers procès-verbaux communiqués (3.94.1.5).
@@ -3013,18 +3013,18 @@ fr::realestate\property\OwnershipTransfer::model::self::is_notary_request::Deman
 fr::realestate\property\OwnershipTransfer::model::self::judiciary_procedures_description::Détails procédures::Résumé des procédures judiciaires et montants concernés.
 fr::realestate\property\OwnershipTransfer::model::self::label::Transfert de propriété::
 fr::realestate\property\OwnershipTransfer::model::self::latest_balance_sheet_description::Dernier bilan::Texte accompagnant le dernier bilan partagé (3.94.1.6).
-fr::realestate\property\OwnershipTransfer::model::self::mails_ids::Courriels envoyés::Messages transmis depuis le dossier de transfert.
+fr::realestate\property\OwnershipTransfer::model::self::mails_ids::Emails envoyés::Messages transmis depuis le dossier de transfert.
 fr::realestate\property\OwnershipTransfer::model::self::maintenance_expenses_description::Délais d'entretien::État synthétique des dépenses de maintenance (3.94.2.1).
-fr::realestate\property\OwnershipTransfer::model::self::new_ownership_id::Ownership acquéreur::Dossier de propriété de l'acquéreur.
-fr::realestate\property\OwnershipTransfer::model::self::old_ownership_id::Ownership cédant::Dossier de propriété actuel (avant transfert).
-fr::realestate\property\OwnershipTransfer::model::self::ownership_shares::Quotes-parts ownership::Quotes-parts détenues par le dossier cédant.
+fr::realestate\property\OwnershipTransfer::model::self::new_ownership_id::Copropriétaire acquéreur::Dossier de propriété de l'acquéreur.
+fr::realestate\property\OwnershipTransfer::model::self::old_ownership_id::Copropriétaire cédant::Dossier de propriété actuel (avant transfert).
+fr::realestate\property\OwnershipTransfer::model::self::ownership_shares::Quotes-parts copropriétaire::Quotes-parts détenues par le dossier cédant.
 fr::realestate\property\OwnershipTransfer::model::self::plural::Transferts de propriété::
 fr::realestate\property\OwnershipTransfer::model::self::property_lot_id::Lot principal::Premier lot concerné lors de la création du dossier.
 fr::realestate\property\OwnershipTransfer::model::self::property_lots_ids::Lots transférés::Ensemble des lots inclus dans ce transfert.
 fr::realestate\property\OwnershipTransfer::model::self::request_contact_address_city::Ville du contact::Localité liée à l'adresse du contact.
 fr::realestate\property\OwnershipTransfer::model::self::request_contact_address_street::Rue du contact::Adresse postale du contact d'origine.
 fr::realestate\property\OwnershipTransfer::model::self::request_contact_address_zip::Code postal du contact::Code postal associé à l'adresse du contact.
-fr::realestate\property\OwnershipTransfer::model::self::request_contact_email::E-mail du contact::Adresse électronique principale utilisée pour les échanges.
+fr::realestate\property\OwnershipTransfer::model::self::request_contact_email::Email du contact::Adresse électronique principale utilisée pour les échanges.
 fr::realestate\property\OwnershipTransfer::model::self::request_contact_name::Nom du contact::Personne qui a introduit la demande lorsque celle-ci ne vient pas d'un notaire.
 fr::realestate\property\OwnershipTransfer::model::self::request_date::Date de demande::Date d'envoi de la demande d'informations.
 fr::realestate\property\OwnershipTransfer::model::self::request_notary_office_id::Étude notariale (demande)::Étude notariale à l'origine de la requête.
@@ -3038,14 +3038,14 @@ fr::realestate\property\OwnershipTransfer::model::self::transfer_fees_ids::Frais
 fr::realestate\property\OwnershipTransfer::view::form.default::action.confirm::Confirmer::Valider les données et démarrer le processus de transfert.
 fr::realestate\property\OwnershipTransfer::view::form.default::action.open::Ouvrir::Valider les données et démarrer le processus de transfert.
 fr::realestate\property\OwnershipTransfer::view::form.default::action.perform_transfer::Effectuer le transfert::Générer les comptes comptables.
-fr::realestate\property\OwnershipTransfer::view::form.default::action.send::Envoyer un e-mail::Envoyer un e-mail avec les pièces jointes sélectionnées à tous les contacts du dossier.
+fr::realestate\property\OwnershipTransfer::view::form.default::action.send::Envoyer un Email::Envoyer un Email avec les pièces jointes sélectionnées à tous les contacts du dossier.
 fr::realestate\property\OwnershipTransfer::view::form.default::action.settle::Clôturer::Valider les données et démarrer le processus de transfert.
 fr::realestate\property\OwnershipTransfer::view::form.default::description::Fiche complète du dossier (contacts, pièces, ajustements et processus).::
 fr::realestate\property\OwnershipTransfer::view::form.default::name::Transfert de propriété::
-fr::realestate\property\OwnershipTransfer::view::form.default::route.preview.pdf::Prévisualiser l'e-mail::Afficher toutes les lignes sans regroupement.
+fr::realestate\property\OwnershipTransfer::view::form.default::route.preview.pdf::Prévisualiser l'Email::Afficher toutes les lignes sans regroupement.
 fr::realestate\property\OwnershipTransfer::view::form.default::section.attachments::Pièces jointes::
 fr::realestate\property\OwnershipTransfer::view::form.default::section.contacts::::
-fr::realestate\property\OwnershipTransfer::view::form.default::section.emails::E-mails::
+fr::realestate\property\OwnershipTransfer::view::form.default::section.emails::Emails::
 fr::realestate\property\OwnershipTransfer::view::form.default::section.information_documents::Informations (3.94 §1)::
 fr::realestate\property\OwnershipTransfer::view::form.default::section.information_settlement::Informations (3.94 §3)::
 fr::realestate\property\OwnershipTransfer::view::form.default::section.information_statements::Informations (3.94 §2)::
@@ -3059,7 +3059,7 @@ fr::realestate\property\OwnershipTransferAdjustmentLine::model::self::condo_id::
 fr::realestate\property\OwnershipTransferAdjustmentLine::model::self::description::Ajustements calculés pour répartir correctement appels de fonds, comptes et montants lors d'un transfert de propriété.::
 fr::realestate\property\OwnershipTransferAdjustmentLine::model::self::fund_request_id::Appel de fonds::Demande de fonds à l'origine du montant.
 fr::realestate\property\OwnershipTransferAdjustmentLine::model::self::label::Ligne d'ajustement de transfert::
-fr::realestate\property\OwnershipTransferAdjustmentLine::model::self::ownership_id::Ownership::Dossier de propriété concerné par l'ajustement.
+fr::realestate\property\OwnershipTransferAdjustmentLine::model::self::ownership_id::Copropriétaire::Dossier de propriété concerné par l'ajustement.
 fr::realestate\property\OwnershipTransferAdjustmentLine::model::self::ownership_transfer_id::Transfert lié::Transfert auquel cette ligne appartient.
 fr::realestate\property\OwnershipTransferAdjustmentLine::model::self::plural::Lignes d'ajustement de transfert::
 fr::realestate\property\OwnershipTransferAdjustmentLine::model::self::property_lot_id::Lot::Lot pour lequel l'ajustement est calculé.
@@ -3074,7 +3074,7 @@ fr::realestate\property\OwnershipTransferAdjustmentLine::view::list.transfer::de
 fr::realestate\property\OwnershipTransferAdjustmentLine::view::list.transfer::name::Lignes d'ajustement::
 fr::realestate\property\OwnershipTransferContact::model::self::condo_id::Copropriété::Copropriété à laquelle le dossier est rattaché.
 fr::realestate\property\OwnershipTransferContact::model::self::description::Contacts identifiés pour recevoir les communications liées à un transfert de propriété (notaire, acquéreur, intermédiaire).::
-fr::realestate\property\OwnershipTransferContact::model::self::email::Adresse e-mail::Courriel utilisé pour l'envoi automatique des documents.
+fr::realestate\property\OwnershipTransferContact::model::self::email::Adresse Email::Email utilisé pour l'envoi automatique des documents.
 fr::realestate\property\OwnershipTransferContact::model::self::label::Contact de transfert::
 fr::realestate\property\OwnershipTransferContact::model::self::name::Nom / société::Nom du destinataire lorsque l'information est disponible.
 fr::realestate\property\OwnershipTransferContact::model::self::ownership_transfer_id::Transfert lié::Dossier de transfert auquel ce contact est associé.
@@ -3145,7 +3145,7 @@ fr::realestate\property\PropertyEntrance::view::form.default::description::Formu
 fr::realestate\property\PropertyEntrance::view::form.default::name::Entrée d'immeuble::
 fr::realestate\property\PropertyEntrance::view::list.default::description::Liste des entrées avec codes, adresses et descriptions.::
 fr::realestate\property\PropertyEntrance::view::list.default::name::Entrées::
-fr::realestate\property\PropertyLot::model::self::active_ownership_id::Ownership actif::Dossier de propriété actuellement associé à ce lot.
+fr::realestate\property\PropertyLot::model::self::active_ownership_id::Copropriétaire actif::Dossier de propriété actuellement associé à ce lot.
 fr::realestate\property\PropertyLot::model::self::active_tenancy_id::Occupation en cours::Contrat d'occupation actif (le cas échéant).
 fr::realestate\property\PropertyLot::model::self::apportionment_shares_ids::Clés de répartition::Clés auxquelles le lot participe.
 fr::realestate\property\PropertyLot::model::self::cadastral_number::Numéro cadastral::Référence cadastrale du lot.
@@ -3179,11 +3179,11 @@ fr::realestate\property\PropertyLot::view::form.default::description::Fiche comp
 fr::realestate\property\PropertyLot::view::form.default::name::Lot privatif::
 fr::realestate\property\PropertyLot::view::form.default::section.apportionments::Clés de répartition::
 fr::realestate\property\PropertyLot::view::form.default::section.comments::Commentaires::
-fr::realestate\property\PropertyLot::view::form.default::section.ownerships::Historique des ownerships::
+fr::realestate\property\PropertyLot::view::form.default::section.ownerships::Historique des copropriétaires::
 fr::realestate\property\PropertyLot::view::form.default::section.secondary_lots::Lots secondaires::
 fr::realestate\property\PropertyLot::view::form.default::section.settings::Paramètres::
 fr::realestate\property\PropertyLot::view::form.default::section.tenancies::Historique des locations::
-fr::realestate\property\PropertyLot::view::list.dashboard::description::Vue synthétique utilisée dans le portail (répartition par nature/ownership).::
+fr::realestate\property\PropertyLot::view::list.dashboard::description::Vue synthétique utilisée dans le portail (répartition par nature/copropriétaire).::
 fr::realestate\property\PropertyLot::view::list.dashboard::name::Lots – tableau de bord::
 fr::realestate\property\PropertyLot::view::list.default::description::Vue tabulaire des lots (codes, références, surfaces, natures).::
 fr::realestate\property\PropertyLot::view::list.default::name::Liste des lots::
@@ -3218,13 +3218,13 @@ fr::realestate\property\PropertyLotOwnership::model::self::condo_id::Copropriét
 fr::realestate\property\PropertyLotOwnership::model::self::date_from::Date d'entrée::Date à partir de laquelle le lot est détenu par ce dossier.
 fr::realestate\property\PropertyLotOwnership::model::self::date_to::Date de sortie::Date de fin de détention (si cédé).
 fr::realestate\property\PropertyLotOwnership::model::self::description::Table de liaison permettant de retracer quels lots ont appartenu à quel dossier de propriété et sur quelles périodes.::
-fr::realestate\property\PropertyLotOwnership::model::self::label::Historique lot / ownership::
-fr::realestate\property\PropertyLotOwnership::model::self::ownership_id::Dossier de propriété::Ownership auquel le lot est/était rattaché.
-fr::realestate\property\PropertyLotOwnership::model::self::plural::Historique lot / ownership::
-fr::realestate\property\PropertyLotOwnership::model::self::property_lot_id::Lot privatif::Lot lié à l'ownership sur la période donnée.
+fr::realestate\property\PropertyLotOwnership::model::self::label::Historique lot / copropriétaire::
+fr::realestate\property\PropertyLotOwnership::model::self::ownership_id::Dossier de propriété::Copropriétaire auquel le lot est/était rattaché.
+fr::realestate\property\PropertyLotOwnership::model::self::plural::Historique lot / copropriétaire::
+fr::realestate\property\PropertyLotOwnership::model::self::property_lot_id::Lot privatif::Lot lié au copropriétaire sur la période donnée.
 fr::realestate\property\PropertyLotOwnership::view::form.default::description::Formulaire affichant la relation entre un lot et un dossier (avec dates).::
-fr::realestate\property\PropertyLotOwnership::view::form.default::name::Lien lot / ownership::
-fr::realestate\property\PropertyLotOwnership::view::list.default::description::Liste chronologique des liens lot ↔ ownership.::
+fr::realestate\property\PropertyLotOwnership::view::form.default::name::Lien lot / copropriétaire::
+fr::realestate\property\PropertyLotOwnership::view::list.default::description::Liste chronologique des liens lot ↔ copropriétaire.::
 fr::realestate\property\PropertyLotOwnership::view::list.default::name::Historique des liens::
 fr::realestate\property\PropertyLotStatutoryQuota::model::self::condo_id::Copropriété::Copropriété concernée.
 fr::realestate\property\PropertyLotStatutoryQuota::model::self::description::Stocke, lot par lot, les quotes-parts issues de l'acte de base (répartition légale).::
@@ -3233,15 +3233,15 @@ fr::realestate\property\PropertyLotStatutoryQuota::model::self::plural::Quotes-p
 fr::realestate\property\PropertyLotStatutoryQuota::model::self::property_lot_id::Lot privatif::Lot auquel la quote-part est associée.
 fr::realestate\property\PropertyLotStatutoryQuota::model::self::property_lot_shares::Parts statutaires::Nombre de parts selon l'acte (utilisé pour contrôle ou migration).
 fr::realestate\property\PropertyLotSuppliershipReference::model::self::condo_id::Copropriété::Copropriété concernée.
-fr::realestate\property\PropertyLotSuppliershipReference::model::self::description::Permet de stocker le code d'identification d'un lot utilisé par un fournisseur (suppliership).::
+fr::realestate\property\PropertyLotSuppliershipReference::model::self::description::Permet de stocker le code d'identification d'un lot utilisé par un fournisseur.::
 fr::realestate\property\PropertyLotSuppliershipReference::model::self::label::Référence fournisseur / lot::
 fr::realestate\property\PropertyLotSuppliershipReference::model::self::plural::Références fournisseur / lot::
 fr::realestate\property\PropertyLotSuppliershipReference::model::self::property_lot_id::Lot privatif::Lot auquel se rapporte la référence fournisseur.
 fr::realestate\property\PropertyLotSuppliershipReference::model::self::property_lot_ref::Référence fournisseur::Code ou identifiant utilisé par le fournisseur pour ce lot.
-fr::realestate\property\PropertyLotSuppliershipReference::model::self::suppliership_id::Fournisseur / contrat::Suppliership ou contrat fournisseur utilisant cette référence.
+fr::realestate\property\PropertyLotSuppliershipReference::model::self::suppliership_id::Fournisseur / contrat::Fournisseur ou contrat fournisseur utilisant cette référence.
 fr::realestate\property\PropertyLotSuppliershipReference::view::form.default::description::Formulaire d'édition du code fournisseur pour un lot donné.::
 fr::realestate\property\PropertyLotSuppliershipReference::view::form.default::name::Référence fournisseur / lot::
-fr::realestate\property\PropertyLotSuppliershipReference::view::list.default::description::Liste des correspondances lot ↔ suppliership.::
+fr::realestate\property\PropertyLotSuppliershipReference::view::list.default::description::Liste des correspondances lot ↔ fournisseur.::
 fr::realestate\property\PropertyLotSuppliershipReference::view::list.default::name::Références fournisseur / lot::
 fr::realestate\property\Tenancy::model::self::condo_id::Copropriété::Copropriété dans laquelle se situe le lot loué.
 fr::realestate\property\Tenancy::model::self::date_from::Début de bail::Date d'entrée en vigueur du contrat.
@@ -3594,7 +3594,7 @@ fr::sale\SaleEntry::view::list.default::name::Entrées de vente::
 fr::sale\accounting\invoice\Invoice::model::self::customer_id::Destinataire::Organisation responsable de payer la facture.
 fr::sale\accounting\invoice\Invoice::model::self::description::::
 fr::sale\accounting\invoice\Invoice::model::self::funding_id::Financement::Financement associé à la facture.
-fr::sale\accounting\invoice\Invoice::model::self::is_downpayment::Facture d'acompte?::Marque la facture comme une facture d'acompte relative à un paiement anticipé
+fr::sale\accounting\invoice\Invoice::model::self::is_downpayment::Facture d'acompte ?::Marque la facture comme une facture d'acompte relative à un paiement anticipé
 fr::sale\accounting\invoice\Invoice::model::self::label::Facture::
 fr::sale\accounting\invoice\Invoice::model::self::organisation_id::Organisation émettrice::Organisation émettrice de la facture.
 fr::sale\accounting\invoice\Invoice::model::self::payment_terms_id::Conditions de paiement::Conditions de paiement d'application pour la facture.
@@ -3637,9 +3637,9 @@ fr::sale\accounting\invoice\collect::model::self::price_max::Prix maximal::Prix 
 fr::sale\accounting\invoice\collect::model::self::price_min::Prix minimal::Prix minimal pour la facture.
 fr::sale\accounting\invoice\collect::model::self::status::Statut::La situation à un moment donné au cours d'un processus.
 fr::sale\accounting\invoice\collect::model::self::status.selection.all::Toutes::
-fr::sale\accounting\invoice\collect::model::self::status.selection.cancelled::annulée::
-fr::sale\accounting\invoice\collect::model::self::status.selection.invoice::facture::
-fr::sale\accounting\invoice\collect::model::self::status.selection.proforma::pro forma::
+fr::sale\accounting\invoice\collect::model::self::status.selection.cancelled::Annulée::
+fr::sale\accounting\invoice\collect::model::self::status.selection.invoice::Facture::
+fr::sale\accounting\invoice\collect::model::self::status.selection.proforma::Pro forma::
 fr::sale\accounting\invoice\collect::view::search.default::description::::
 fr::sale\accounting\invoice\collect::view::search.default::name::::
 fr::sale\autosale\AutosaleCategory::model::self::description::::
@@ -3889,10 +3889,10 @@ fr::sale\contract\Contract::model::self::name::Identification::Nom abrégé du c
 fr::sale\contract\Contract::model::self::plural::Contrats::
 fr::sale\contract\Contract::model::self::price::Prix TTC::Prix total TTC de la commande.
 fr::sale\contract\Contract::model::self::status::Statut::Etat actuel du contrat.
-fr::sale\contract\Contract::model::self::status.selection.cancelled::annulé::
-fr::sale\contract\Contract::model::self::status.selection.pending::en attente::
-fr::sale\contract\Contract::model::self::status.selection.sent::expédié::
-fr::sale\contract\Contract::model::self::status.selection.signed::signé::
+fr::sale\contract\Contract::model::self::status.selection.cancelled::Annulé::
+fr::sale\contract\Contract::model::self::status.selection.pending::en Attente::
+fr::sale\contract\Contract::model::self::status.selection.sent::Expédié::
+fr::sale\contract\Contract::model::self::status.selection.signed::Signé::
 fr::sale\contract\Contract::model::self::total::Total HT::Prix total hors-taxes de la commande.
 fr::sale\contract\Contract::model::self::valid_until::Valable jusque::Date après laquelle le contrat expire s'il n'a pas été approuvé.
 fr::sale\contract\Contract::view::form.default::description::Les contrats sont des accords formels concernant la livraison de produits ou de services conclus entre deux parties.::
@@ -3945,7 +3945,7 @@ fr::sale\customer\AgeRange::view::list.default::description::Liste des tranches 
 fr::sale\customer\AgeRange::view::list.default::name::Tranches d'âges::
 fr::sale\customer\Contact::view::form.default::description::::
 fr::sale\customer\Contact::view::form.default::name::::
-fr::sale\customer\Customer::model::self::address::Adresse::Adresse principale du Client'.
+fr::sale\customer\Customer::model::self::address::Adresse::Adresse principale du Client.
 fr::sale\customer\Customer::model::self::customer_external_ref::Référence externe::Identifiant du client via référence externe.
 fr::sale\customer\Customer::model::self::customer_nature_id::Nature client::La nature (origine) permet d'attribuer une catégorie tarifaire.
 fr::sale\customer\Customer::model::self::customer_type_id::Type de client::Type de client (en relation avec les classes tarifaires).
@@ -4025,9 +4025,9 @@ fr::sale\discount\Condition::model::self::label::::
 fr::sale\discount\Condition::model::self::name::Identification::Nom de la condition.
 fr::sale\discount\Condition::model::self::operand::Opérande::L'opérande de la condition.
 fr::sale\discount\Condition::model::self::operand.selection.count_order_24::count_order_24::
-fr::sale\discount\Condition::model::self::operand.selection.duration::durée::
-fr::sale\discount\Condition::model::self::operand.selection.nb_pers::nombre de personnes::
-fr::sale\discount\Condition::model::self::operand.selection.season::saison::
+fr::sale\discount\Condition::model::self::operand.selection.duration::Durée::
+fr::sale\discount\Condition::model::self::operand.selection.nb_pers::Nombre de personnes::
+fr::sale\discount\Condition::model::self::operand.selection.season::Saison::
 fr::sale\discount\Condition::model::self::operator::Opérateur::L'opérateur à appliquer.
 fr::sale\discount\Condition::model::self::operator.selection.<::::
 fr::sale\discount\Condition::model::self::operator.selection.<=::::
@@ -4048,9 +4048,9 @@ fr::sale\discount\Discount::model::self::label::Remise::
 fr::sale\discount\Discount::model::self::name::Identification::Nom de la remise.
 fr::sale\discount\Discount::model::self::plural::Remises::
 fr::sale\discount\Discount::model::self::type::::Le type de contact, en fonction de ses responsabilités.
-fr::sale\discount\Discount::model::self::type.selection.amount::montant::
-fr::sale\discount\Discount::model::self::type.selection.freebie::gratuité::
-fr::sale\discount\Discount::model::self::type.selection.percent::pourcentage::
+fr::sale\discount\Discount::model::self::type.selection.amount::Montant::
+fr::sale\discount\Discount::model::self::type.selection.freebie::Gratuité::
+fr::sale\discount\Discount::model::self::type.selection.percent::Pourcentage::
 fr::sale\discount\Discount::model::self::value::Valeur::Valeur de remise.
 fr::sale\discount\Discount::view::form.default::description::::
 fr::sale\discount\Discount::view::form.default::name::Remise::
@@ -4103,13 +4103,13 @@ fr::sale\pay\Funding::model::self::description::::Description complémentaire po
 fr::sale\pay\Funding::model::self::due_amount::Montant dû::Montant total à recevoir.
 fr::sale\pay\Funding::model::self::due_date::Date d'échéance::Date limite avant laquelle le financement est attendu.
 fr::sale\pay\Funding::model::self::funding_type::Type::Les délais sont échelonnés sauf le dernier : facture définitive.
-fr::sale\pay\Funding::model::self::funding_type.selection.expense_statement::décompte de charges::
-fr::sale\pay\Funding::model::self::funding_type.selection.fund_request::appel de fonds::
-fr::sale\pay\Funding::model::self::funding_type.selection.installment::acompte::
-fr::sale\pay\Funding::model::self::funding_type.selection.purchase_invoice::facture d'achat::
-fr::sale\pay\Funding::model::self::funding_type.selection.refund::remboursement::
-fr::sale\pay\Funding::model::self::funding_type.selection.sale_invoice::facture de vente::
-fr::sale\pay\Funding::model::self::funding_type.selection.transfer::transfert::
+fr::sale\pay\Funding::model::self::funding_type.selection.expense_statement::Décompte de charges::
+fr::sale\pay\Funding::model::self::funding_type.selection.fund_request::Appel de fonds::
+fr::sale\pay\Funding::model::self::funding_type.selection.installment::Acompte::
+fr::sale\pay\Funding::model::self::funding_type.selection.purchase_invoice::Facture d'achat::
+fr::sale\pay\Funding::model::self::funding_type.selection.refund::Remboursement::
+fr::sale\pay\Funding::model::self::funding_type.selection.sale_invoice::Facture de vente::
+fr::sale\pay\Funding::model::self::funding_type.selection.transfer::Transfert::
 fr::sale\pay\Funding::model::self::invoice_id::Facture associée::La facture visée par le financement, le cas échéant.
 fr::sale\pay\Funding::model::self::is_paid::Payé::Le paiement intégralement reçu ?
 fr::sale\pay\Funding::model::self::issue_date::Date d'émission::Date à partir de laquelle la demande de paiment doit être émise.
@@ -4118,7 +4118,7 @@ fr::sale\pay\Funding::model::self::paid_amount::Montant reçu::Montant payé par
 fr::sale\pay\Funding::model::self::payment_deadline_id::Modèle d'échéance::Le modèle de date limite utilisé pour créer le financement.
 fr::sale\pay\Funding::model::self::payment_reference::Référence::Communication structurée utilisée pour le paiement.
 fr::sale\pay\Funding::model::self::payments_ids::Paiements::Liste de paiements.
-fr::sale\pay\Funding::model::self::plural::FinancementS::
+fr::sale\pay\Funding::model::self::plural::Financements::
 fr::sale\pay\Funding::view::chart.default::description::::
 fr::sale\pay\Funding::view::chart.default::name::::
 fr::sale\pay\Funding::view::form.default::description::::
@@ -4197,8 +4197,8 @@ fr::sale\pay\PaymentDeadline::model::self::description::::
 fr::sale\pay\PaymentDeadline::model::self::label::Échances de Paiement::
 fr::sale\pay\PaymentDeadline::model::self::name::Nom::Court mémo de l'échéance.
 fr::sale\pay\PaymentDeadline::model::self::payment_deadline_type::Type d'échéance::Les délais sont échelonnés sauf le dernier (facture définitive).
-fr::sale\pay\PaymentDeadline::model::self::payment_deadline_type.selection.installment::acompte::
-fr::sale\pay\PaymentDeadline::model::self::payment_deadline_type.selection.invoice::facture::
+fr::sale\pay\PaymentDeadline::model::self::payment_deadline_type.selection.installment::Acompte::
+fr::sale\pay\PaymentDeadline::model::self::payment_deadline_type.selection.invoice::Facture::
 fr::sale\pay\PaymentDeadline::model::self::payment_plan_id::Plan de paiement::Le plan de paiement auquel s'applique la date limite.
 fr::sale\pay\PaymentDeadline::model::self::plural::Échances de Paiement::
 fr::sale\pay\PaymentDeadline::view::form.default::description::::
@@ -4225,22 +4225,22 @@ fr::sale\pay\funding-collect::model::self::description::Contrôleur proposant un
 fr::sale\pay\funding-collect::model::self::due_amount_max::Montant maximum::Montant maximum attendu pour le financement.
 fr::sale\pay\funding-collect::model::self::due_amount_min::Montant minimal::Montant minimal attendu pour le financement.
 fr::sale\pay\funding-collect::model::self::invoice_id::Facture::La facture est liée au financement.
-fr::sale\pay\funding-collect::model::self::label::Recherche avancé de finacement::
-fr::sale\pay\funding-collect::model::self::payment_reference::Réréference::Message permettant d'identifier la raison de la transaction
+fr::sale\pay\funding-collect::model::self::label::Recherche avancé de financement::
+fr::sale\pay\funding-collect::model::self::payment_reference::Référence::Message permettant d'identifier la raison de la transaction
 fr::sale\pay\funding-collect::view::search.default::description::::
 fr::sale\pay\funding-collect::view::search.default::name::::
 fr::sale\price\Price::model::self::accounting_rule_id::Règle comptable::Règle comptable de vente. Elle remplace la règle du produit.
 fr::sale\price\Price::model::self::calculation_method_id::Méthode de calcul::Méthode à utiliser pour le calcul des prix.
 fr::sale\price\Price::model::self::description::Le prix du produit.::
-fr::sale\price\Price::model::self::is_active::Actif?::Le prix est en cours d'application.
+fr::sale\price\Price::model::self::is_active::Actif ?::Le prix est en cours d'application.
 fr::sale\price\Price::model::self::label::Prix::
 fr::sale\price\Price::model::self::name::Nom::Le nom d'affichage du prix.
 fr::sale\price\Price::model::self::plural::Prix::
 fr::sale\price\Price::model::self::price::Prix HTVA::Prix hors taxes.
 fr::sale\price\Price::model::self::price_list_id::Liste de prix::La liste de prix à laquelle appartient le prix.
 fr::sale\price\Price::model::self::price_type::Type::Type de prix.
-fr::sale\price\Price::model::self::price_type.selection.computed::calculé::
-fr::sale\price\Price::model::self::price_type.selection.direct::direct::
+fr::sale\price\Price::model::self::price_type.selection.computed::Calculé::
+fr::sale\price\Price::model::self::price_type.selection.direct::Direct::
 fr::sale\price\Price::model::self::price_vat::Prix TVAC::Prix taxes incluses.
 fr::sale\price\Price::model::self::product_id::Produit::Le produit (sku) auquel le prix s'applique.
 fr::sale\price\Price::model::self::vat_rate::Taux TVA::Taux de TVA appliqué au prix.
@@ -4262,10 +4262,10 @@ fr::sale\price\PriceList::model::self::price_list_category_id::Catégorie de lis
 fr::sale\price\PriceList::model::self::prices_count::Nb prix::Nombre de prix de la liste.
 fr::sale\price\PriceList::model::self::prices_ids::Prix::Les prix qui sont liés à cette liste, le cas échéant.
 fr::sale\price\PriceList::model::self::status::Statut::Statut de la liste.
-fr::sale\price\PriceList::model::self::status.selection.closed::clôturée::
-fr::sale\price\PriceList::model::self::status.selection.paused::en pause::
-fr::sale\price\PriceList::model::self::status.selection.pending::à confirmer::
-fr::sale\price\PriceList::model::self::status.selection.published::publiée::
+fr::sale\price\PriceList::model::self::status.selection.closed::Clôturée::
+fr::sale\price\PriceList::model::self::status.selection.paused::En pause::
+fr::sale\price\PriceList::model::self::status.selection.pending::À confirmer::
+fr::sale\price\PriceList::model::self::status.selection.published::Publiée::
 fr::sale\price\PriceList::view::form.default::description::::
 fr::sale\price\PriceList::view::form.default::name::Liste de prix::
 fr::sale\price\PriceList::view::list.default::description::Liste des prix.::
@@ -4280,7 +4280,7 @@ fr::sale\price\PriceListCategory::model::self::price_list_ids::Liste de prix::Le
 fr::sale\price\PriceListCategory::view::form.default::description::::
 fr::sale\price\PriceListCategory::view::form.default::name::Catégorie de Liste de Prix::
 fr::sale\price\PriceListCategory::view::list.default::description::Liste des catégories de prix.::
-fr::sale\price\PriceListCategory::view::list.default::name::CatégorieS de Liste de Prix::
+fr::sale\price\PriceListCategory::view::list.default::name::Catégories de liste de prix::
 fr::sale\receivable\Receivable::model::self::customer_id::Client::Client auquel le receivable appartient (dérivé de l'entrée de vente).
 fr::sale\receivable\Receivable::model::self::date::::Date de création de la ligne (peut différer de la date de vente).
 fr::sale\receivable\Receivable::model::self::description::::Commentaire détaillant la prestation (copié depuis l'entrée de vente).
@@ -4299,7 +4299,7 @@ fr::sale\receivable\Receivable::model::self::qty::Quantité::Quantité facturabl
 fr::sale\receivable\Receivable::model::self::receivables_queue_id::File de receivables::Queue à laquelle la ligne est attachée (une queue par client).
 fr::sale\receivable\Receivable::model::self::sale_entry_class::Classe d'origine::Classe PHP utilisée pour générer l'entrée (pour logiques custom).
 fr::sale\receivable\Receivable::model::self::sale_entry_id::Entrée de vente::Origine de la ligne (vente ou abonnement) – lecture seule.
-fr::sale\receivable\Receivable::model::self::status::Statut::État du receivable (pending, invoiced, cancelled).
+fr::sale\receivable\Receivable::model::self::status::Statut::État du recevable (pending, invoiced, cancelled).
 fr::sale\receivable\Receivable::model::self::subscription_entry_id::Entrée d'abonnement::Lien éventuel vers la ligne d'abonnement correspondante.
 fr::sale\receivable\Receivable::model::self::total::Total HT::Montant total hors TVA (prise en compte des remises).
 fr::sale\receivable\Receivable::model::self::unit_price::Prix unitaire::Montant unitaire hors remise.
@@ -4314,28 +4314,28 @@ fr::sale\receivable\Receivable::view::list.default::name::Recevables::
 fr::sale\receivable\Receivable::view::list.pending::actions.bulk_invoice::Tout facturer::
 fr::sale\receivable\Receivable::view::list.pending::description::Filtre les lignes non encore facturées.::
 fr::sale\receivable\Receivable::view::list.pending::name::Recevables en attente::
-fr::sale\receivable\Receivable::view::list.queue-selection::description::Permet de choisir la queue d'affectation pour les receivables.::
+fr::sale\receivable\Receivable::view::list.queue-selection::description::Permet de choisir la queue d'affectation pour les recevables.::
 fr::sale\receivable\Receivable::view::list.queue-selection::name::Sélection de file::
-fr::sale\receivable\Receivable::view::receivable-collect.search.default::description::Critères avancés pour filtrer les receivables lors d'une collecte.::
+fr::sale\receivable\Receivable::view::receivable-collect.search.default::description::Critères avancés pour filtrer les recevables lors d'une collecte.::
 fr::sale\receivable\Receivable::view::receivable-collect.search.default::name::Recherche de receveur (collecte)::
-fr::sale\receivable\Receivable::view::receivable-pending-collect.search.default::description::Recherche focalisée sur les receivables non facturés.::
+fr::sale\receivable\Receivable::view::receivable-pending-collect.search.default::description::Recherche focalisée sur les recevables non facturés.::
 fr::sale\receivable\Receivable::view::receivable-pending-collect.search.default::name::Recherche receveur (en attente)::
 fr::sale\receivable\ReceivablesQueue::model::self::customer_id::Client::Client auquel la file est dédiée.
 fr::sale\receivable\ReceivablesQueue::model::self::description::File d'attente par client regroupant toutes les lignes en attente de facturation, avec indicateurs de statut (pending/invoiced).::
 fr::sale\receivable\ReceivablesQueue::model::self::invoiced_receivables_ids::Recevables facturés::Lignes déjà transférées sur facture.
-fr::sale\receivable\ReceivablesQueue::model::self::label::File de receivables::
+fr::sale\receivable\ReceivablesQueue::model::self::label::File de recevables::
 fr::sale\receivable\ReceivablesQueue::model::self::name::Nom::Libellé calculé (généralement le nom du client).
 fr::sale\receivable\ReceivablesQueue::model::self::pending_receivables_count::Nb. en attente::Compteur automatique des receivables non facturés.
 fr::sale\receivable\ReceivablesQueue::model::self::pending_receivables_ids::Recevables en attente::Sous-liste des receivables `pending`.
-fr::sale\receivable\ReceivablesQueue::model::self::plural::Files de receivables::
+fr::sale\receivable\ReceivablesQueue::model::self::plural::Files de recevables::
 fr::sale\receivable\ReceivablesQueue::model::self::receivables_ids::Recevables::Toutes les lignes rattachées (peu importe leur statut).
 fr::sale\receivable\ReceivablesQueue::view::form.default::action.invoice::Facturer::Facturer toutes les créances en attente de la file.
-fr::sale\receivable\ReceivablesQueue::view::form.default::description::Vue regroupant le client, les receivables attachés et les métriques.::
-fr::sale\receivable\ReceivablesQueue::view::form.default::name::File de receivables::
+fr::sale\receivable\ReceivablesQueue::view::form.default::description::Vue regroupant le client, les recevables attachés et les métriques.::
+fr::sale\receivable\ReceivablesQueue::view::form.default::name::File de recevables::
 fr::sale\receivable\ReceivablesQueue::view::form.default::section.invoiced_receivables_ids::Recevables facturés::
 fr::sale\receivable\ReceivablesQueue::view::form.default::section.pending_receivables_ids::Recevables en attente::
 fr::sale\receivable\ReceivablesQueue::view::list.default::description::Tableau des files par client avec nombre d'items en attente.::
-fr::sale\receivable\ReceivablesQueue::view::list.default::name::Files de receivables::
+fr::sale\receivable\ReceivablesQueue::view::list.default::name::Files de recevables::
 fr::sale\receivable\ReceivablesQueue::view::receivables-queue-collect.search.default::description::Filtres avancés pour sélectionner les files à collecter/facturer.::
 fr::sale\receivable\ReceivablesQueue::view::receivables-queue-collect.search.default::name::Recherche de files::
 fr::sale\receivable\receivable-collect::view::search.default::description::::

@@ -57,7 +57,7 @@ if(isset($params['id']) && $params['id']) {
 
 // ensure booking object exists and is readable
 $fundings = Funding::ids($fundings_ids)
-    ->read(['name', 'condo_id', 'bank_account_id' => ['name'], 'due_amount', 'has_mandate'])
+    ->read(['name', 'condo_id', 'bank_account_id' => ['name'], 'due_amount', 'has_mandate', 'is_sent'])
     ->get();
 
 if(count($fundings) <= 0) {
@@ -81,7 +81,12 @@ $exportingTask = ExportingTask::create([
 foreach($map_bank_account_fundings as $bank_account_id => $fundings) {
     $fundings_ids = [];
 
+
     foreach($fundings as $funding) {
+        if($funding['is_sent']) {
+            // sepa_already_sent
+            continue;
+        }
         if($funding['due_amount'] >= 0) {
             // sepa_only_for_outgoing_funding
             continue;
@@ -96,6 +101,8 @@ foreach($map_bank_account_fundings as $bank_account_id => $fundings) {
     if(!count($fundings_ids)) {
         continue;
     }
+
+    Funding::ids($fundings_ids)->update(['is_sent' => true]);
 
     ExportingTaskLine::create([
             'exporting_task_id' => $exportingTask['id'],
