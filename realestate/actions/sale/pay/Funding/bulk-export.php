@@ -57,16 +57,18 @@ if(isset($params['id']) && $params['id']) {
 
 // ensure booking object exists and is readable
 $fundings = Funding::ids($fundings_ids)
-    ->read(['name', 'condo_id', 'bank_account_id', 'due_amount', 'has_mandate'])
+    ->read(['name', 'condo_id', 'bank_account_id' => ['name'], 'due_amount', 'has_mandate'])
     ->get();
 
 if(count($fundings) <= 0) {
     throw new Exception("no_fundings", EQ_ERROR_INVALID_PARAM);
 }
 
+$map_bank_accounts = [];
 $map_bank_account_fundings = [];
 foreach($fundings as $funding) {
-    $map_bank_account_fundings[$funding['bank_account_id']][] = $funding;
+    $map_bank_accounts[$funding['bank_account_id']['id']] = $funding['bank_account_id'];
+    $map_bank_account_fundings[$funding['bank_account_id']['id']][] = $funding;
 }
 
 $exportingTask = ExportingTask::create([
@@ -97,7 +99,7 @@ foreach($map_bank_account_fundings as $bank_account_id => $fundings) {
 
     ExportingTaskLine::create([
             'exporting_task_id' => $exportingTask['id'],
-            'name'              => "Export enveloppe SEPA - {$funding['name']}",
+            'name'              => "Export enveloppe SEPA - {$map_bank_accounts[$bank_account_id]['name']}",
             'controller'        => 'sale_pay_Funding_export-sepa',
             'params'            => json_encode([
                     'ids' => $fundings_ids

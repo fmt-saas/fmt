@@ -30,6 +30,10 @@
             "debit": {
                 "operation": "SUM",
                 "usage": "amount/money:2"
+            },
+            "balance": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
             }
         }
     },
@@ -47,7 +51,12 @@
                 "credit": {
                     "operation": "SUM",
                     "usage": "amount/money:2"
+                },
+                "balance": {
+                    "operation": "SUM",
+                    "usage": "amount/money:2"
                 }
+
             }
         }
     ],
@@ -106,6 +115,11 @@
             {
                 "type": "field",
                 "value": "credit",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "balance",
                 "width": "15%"
             }
         ]

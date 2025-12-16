@@ -68,6 +68,7 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'ondelete'          => 'null',
                 'description'       => "The ownership that the account refers to, if any.",
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'store'             => true,
                 'instant'           => true,
                 'readonly'          => true
             ],
@@ -80,6 +81,7 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'ondelete'          => 'null',
                 'description'       => 'The supplier the account relates to, if any.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'store'             => true,
                 'instant'           => true,
                 'readonly'          => true
             ]
