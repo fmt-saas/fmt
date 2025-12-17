@@ -149,7 +149,6 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
         ];
     }
 
-
     protected static function onupdateDescription($self, $lang) {
         $self->read(['description', 'invoice_lines_ids' => ['description']]);
         foreach($self as $id => $purchaseInvoice) {
@@ -161,6 +160,8 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                     PurchaseInvoiceLine::id($invoice_line_id)->update(['description' => $purchaseInvoice['description']], $lang);
                 }
             }
+            AccountingEntry::search([['purchase_invoice_id', '=', $id]])
+                ->update(['description' => $purchaseInvoice['description']]);
         }
     }
 

@@ -6,7 +6,11 @@
 */
 namespace realestate\governance;
 
-class AssemblyInvitation extends \equal\orm\Model {
+class AssemblyInvitationInstance extends \equal\orm\Model {
+
+    public static function getDescription() {
+        return "Individual invitation to a General Assembly. A convocation to the General Assembly generates at least one invitation per ownership (one invitation per ownership representative).";
+    }
 
     public static function getColumns() {
 
@@ -58,7 +62,7 @@ class AssemblyInvitation extends \equal\orm\Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'core\Mail',
                 'foreign_field'     => 'object_id',
-                'domain'            => ['object_class', '=', 'realestate\governance\AssemblyInvitation'],
+                'domain'            => ['object_class', '=', 'realestate\governance\AssemblyInvitationInstance'],
                 'visible'           => ['communication_method', '=', 'email']
             ],
 

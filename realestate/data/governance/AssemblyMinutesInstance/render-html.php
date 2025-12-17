@@ -5,8 +5,14 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 use core\setting\Setting;
+use documents\DocumentSignature;
 use realestate\governance\Assembly;
+use realestate\governance\AssemblyMinutesInstance;
 use realestate\governance\AssemblyItem;
+use realestate\ownership\Ownership;
+use realestate\property\Apportionment;
+use realestate\property\PropertyLotApportionmentShare;
+use realestate\property\PropertyLotOwnership;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
@@ -14,12 +20,12 @@ use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate a HTML preview of the Assembly invitation (final invites are generated through AssemblyInvite).',
+    'description'   => 'Generate an html view of a Mandate template.',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific AssemblyInvitationInstance to consider.',
+            'description'       => 'Identifier of the specific AssemblyMinutesInstance to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\governance\AssemblyInvitationInstance',
+            'foreign_object'    => 'realestate\governance\AssemblyMinutesInstance',
             'required'          => true
         ],
 
@@ -88,7 +94,29 @@ $getLabels = function($lang) {
 };
 
 
-$assembly = Assembly::id($params['id'])
+$assemblyMinutesInstance = AssemblyMinutesInstance::id($params['id'])
+    ->read([
+        'assembly_id',
+        'owner_id' => [
+            'name',
+            'address_street',
+            'address_dispatch',
+            'address_zip',
+            'address_city',
+            'address_country',
+            'has_vat',
+            'vat_number'
+        ],
+        'ownership_id'
+    ])
+    ->first(true);
+
+if(!$assemblyMinutesInstance) {
+    throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+
+$assembly = Assembly::id($assemblyMinutesInstance['assembly_id'])
     ->read([
         'name',
         'condo_id',
@@ -140,6 +168,7 @@ $lang = $params['lang'];
 
 $values = [
     'title'                     => 'Convocation',
+
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
 
@@ -147,6 +176,7 @@ $values = [
     'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
 
     'date'                      => $assembly['assembly_invitation_date'],
+    'recipient'                 => $assemblyMinutesInstance['owner_id'],
 
     'map_assembly_items'        => $map_assembly_items,
 
@@ -180,11 +210,11 @@ try {
             })
         );
 
-    $template = $twig->load('AssemblyInvitationInstance.'.$params['view_id'].'.html');
+    $template = $twig->load('AssemblyMinutes.'.$params['view_id'].'.html');
     $html = $template->render($values);
 }
 catch(Exception $e) {
-    trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+    trigger_error('APP::Error while rendering template' . $e->getMessage(), EQ_ERROR_INVALID_CONFIG);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 

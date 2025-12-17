@@ -7,10 +7,10 @@
 
 use documents\Document;
 use realestate\governance\Assembly;
-use realestate\governance\AssemblyInvitation;
+use realestate\governance\AssemblyMinutesInstance;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Checks if all owners have been invited to the target assembly.",
+    'description'   => "Export assembly minutes: generate per-invitation documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
@@ -23,27 +23,24 @@ use realestate\governance\AssemblyInvitation;
             'type'              => 'string',
             'description'       => 'Method of sending.',
             'selection'         => [
-                'email',
                 'postal',
                 'postal_registered',
                 'postal_registered_receipt'
             ]
         ]
-
     ],
     'response'      => [
         'content-type'  => 'application/json',
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context', 'dispatch']
+    'providers'     => ['context']
 ]);
 
 /**
  * @var \equal\php\Context                 $context
- * @var \equal\dispatch\Dispatcher         $dispatch
  */
-['context' => $context, 'dispatch' => $dispatch] = $providers;
+['context' => $context] = $providers;
 
 
 $assembly = Assembly::id($params['id'])
@@ -55,7 +52,7 @@ if(!$assembly) {
 }
 
 // fetch invitations relating to given communication_method
-$assemblyInvitations = AssemblyInvitation::search([
+$assemblyMinutesInstances = AssemblyMinutesInstance::search([
         [ 'assembly_id', '=', $assembly['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
@@ -65,24 +62,24 @@ $assemblyInvitations = AssemblyInvitation::search([
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
 
-foreach($assemblyInvitations as $assembly_invitation_id => $assemblyInvitation) {
+foreach($assemblyMinutesInstances as $assembly_invitation_id => $AssemblyMinutesInstance) {
 
-    // #memo - `export-invitations` and `send-invitations` are the only controllers where documents are generated for Assembly invites
-    if(!$assemblyInvitation['document_id']) {
+    // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
+    if(!$AssemblyMinutesInstance['document_id']) {
         // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_governance_AssemblyInvitation_generate-document', ['id' => $assembly_invitation_id]);
+        eQual::run('do', 'realestate_governance_AssemblyMinutesInstance_generate-document', ['id' => $assembly_invitation_id]);
     }
 
-    $assemblyInvitation = AssemblyInvitation::id($assembly_invitation_id)
+    $AssemblyMinutesInstance = AssemblyMinutesInstance::id($assembly_invitation_id)
         ->read(['document_id' => ['data']])
         ->first();
 
-    if(!$assemblyInvitation['document_id']) {
+    if(!$AssemblyMinutesInstance['document_id']) {
         continue;
     }
 
     $temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
-    file_put_contents($temp, $assemblyInvitation['document_id']['data'] ?? '');
+    file_put_contents($temp, $AssemblyMinutesInstance['document_id']['data'] ?? '');
     $temp_files[] = $temp;
 }
 

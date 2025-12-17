@@ -7,7 +7,7 @@
 use core\setting\Setting;
 use documents\DocumentSignature;
 use realestate\governance\Assembly;
-use realestate\governance\AssemblyInvitation;
+use realestate\governance\AssemblyInvitationInstance;
 use realestate\governance\AssemblyItem;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
@@ -23,9 +23,9 @@ use Twig\Extension\ExtensionInterface;
     'description'   => 'Generate an html view of a Mandate template.',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific AssemblyInvitation to consider.',
+            'description'       => 'Identifier of the specific AssemblyInvitationInstance to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\governance\AssemblyInvitation',
+            'foreign_object'    => 'realestate\governance\AssemblyInvitationInstance',
             'required'          => true
         ],
 
@@ -94,7 +94,7 @@ $getLabels = function($lang) {
 };
 
 
-$assemblyInvitation = AssemblyInvitation::id($params['id'])
+$assemblyInvitation = AssemblyInvitationInstance::id($params['id'])
     ->read([
         'assembly_id',
         'owner_id' => [

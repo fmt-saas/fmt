@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<!--
+    Conventions for html templates:
+
+    * template must consist of a single file
+    * provide support for debug mode
+    * use embedded styling embedded in <style> (CSS3)
+    * avoid using `style` attribute in elements and favour classes
+    * in CSS styles use `px` as unit for font size
+    * in HTML elements, avoid using <br /> and favour blocks and inline-blocks
+    * twig format is implicit for template files: use `{entity}.print.{name}.html` as naming convention
+    * avoid assignment and computation of vars in template (when possible, compute values in controller)
+    * twig instructions should be limited to displaying values and providing conditional statements
+-->
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <title>
+        {{ title }}
+    </title>
+
+    {% include 'header.style.html.twig' %}
+    {% include 'footer.style.html.twig' %}
+
+    <style type="text/css">
+        @page {
+            margin: 1cm 1cm;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            /* margin-top must match header::height */
+            margin-top: 100px;
+            /* margin-bottom must match footer::height */
+            margin-bottom: 50px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            text-align: justify;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-size: 21px;
+        }
+
+        h3 {
+            font-size: 15px;
+        }
+
+        main.debug {
+            outline: solid 1px brown;
+        }
+
+    </style>
+</head>
+
+<body>
+    {% include 'header.html.twig' %}
+
+    {% set assemblyTypes = {
+        'statutory': 'Assemblée Générale Statutaire',
+        'takeover': 'Assemblée Générale de Reprise de gestion',
+        'ordinary': 'Assemblée Générale Ordinaire',
+        'extraordinary': 'Assemblée Générale Extraordinaire'
+    } %}
+
+    {% set majorityLabels = {
+        'unanimity': 'Unanimité (100% des quotités)',
+        'absolute': 'Majorité absolue (> 50% des quotités)',
+        '2_3': 'Majorité des 2/3',
+        '4_5': 'Majorité des 4/5'
+    } %}
+
+
+<p>Par la présente, nous vous invitons à assister à l’{{ assemblyTypes[assembly.assembly_type] }} de votre copropriété:</p>
+
+<ul>
+    <li>Date: {{ assembly.assembly_date | format_datetime(pattern='EEEE', locale=locale) }} {{ assembly.assembly_date | date(date_format, timezone) }}</li>
+    <li>Lieu : {{ assembly.assembly_location }}</li>
+    <li>Début de séance: {{ assembly.assembly_date | date('H', timezone) }}h{{ assembly.assembly_date | date('i', timezone) }}</li>
+</ul>
+
+
+        <p>
+            {{ assembly.heading_text_call }}
+        </p>
+
+        {% for item in assembly.assembly_items_ids %}
+        <p>
+            {% set assemblyItem = map_assembly_items[item.id] %}
+
+            <div style="text-decoration: underline; font-weight: bold;">
+                {{ assemblyItem.order }}. {{ assemblyItem.name }}
+                {% if assemblyItem.has_vote_required and assembly.has_call_option_majority %}
+                    &nbsp;-&nbsp;{{ majorityLabels[assemblyItem.majority] }}
+                {% endif %}
+            </div>
+
+            {% if not item.is_group %}
+
+                {% if assemblyItem.description_call is not empty %}
+                    {{ assemblyItem.description_call | raw }}
+                {% endif %}
+
+            {% else %}
+
+                {% if assemblyItem.description_call is not empty %}
+                    {{ assemblyItem.description_call | raw }}
+                {% endif %}
+                <table>
+                    <tr>
+                        <td style="width: 30px;"></td>
+                        <td>
+                            {% for subitem_id in item.children_items_ids %}
+                                {% set assemblyItem = map_assembly_items[subitem_id] %}
+                                <u>{{ item.order }}. {{ assemblyItem.order }}. {{ assemblyItem.name }} </u><br />
+                                <table>
+                                    <tr>
+                                        <td style="width: 30px;"></td>
+                                        <td>
+                                            {{ assemblyItem.description_call }}
+                                            {% if assemblyItem.has_vote_required %}
+                                                {{ majorityLabels[assemblyItem.majority] }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </table>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                </table>
+            {% endif %}
+        </p>
+        {% endfor %}
+
+
+        <p>
+            {{ assembly.closing_text_call }}
+        </p>
+
+
+
+
+<div style="margin-top: 40px; border: solid 1px black; padding: 10px; page-break-inside: avoid;">
+    Pour que l’assemblée générale se déroule efficacement et ne dure pas plus longtemps que nécessaire, les copropriétaires sont invités à transmettre leurs questions au syndic par écrit dès qu’ils en ont connaissance, sans attendre la réunion.
+    Cela concerne notamment les points inscrits à l’ordre du jour, y compris les décomptes et la comptabilité.
+    Cette anticipation permettra d’apporter des réponses avant l’assemblée et d’éviter les prolongations inutiles.
+</div>
+
+<div style="margin-top: 20px; border: solid 1px black; padding: 10px; page-break-inside: avoid;">
+    IMPORTANT :<br />
+    <p>
+    1) Modalité de consultation des documents relatifs aux points inscrits à l’ordre du jour :<br />
+    Les documents sont disponibles sur simple demande au bureau du Syndic.
+    </p>
+    <p>
+    2) Au cas où votre emploi du temps ne vous permettrait pas d'assister à l'assemblée générale, nous vous demandons de donner procuration à un autre copropriétaire ou une personne de votre choix pour vous représenter ; ceci afin de permettre à l’assemblée générale de se tenir valablement.<br />
+    Dans le cas où le quorum n’est pas atteint, il est alors nécessaire de convoquer une deuxième assemblée générale ce qui représente des frais pour la copropriété et dérange une nouvelle fois les propriétaires.
+    </p>
+
+    <p>
+    3) En cas de division du droit de propriété portant sur un lot privatif ou lorsque la propriété d’un lot privatif est grevée d’un droit d’emphytéose, de superficie, d’usufruit, d’usage ou d’habitation, le droit de participation aux délibérations de l’Assemblée Générale est suspendu jusqu’à ce que les intéressés désignent la personne qui sera leur mandataire.
+    </p>
+
+    <p>
+    4) Toute demande ou remarque individuelle à propos de la comptabilité doit être faite 7 jours à l'avance.
+    </p>
+
+</div>
+
+
+{% include 'footer.html.twig' %}
+
+</body>
+
+</html>

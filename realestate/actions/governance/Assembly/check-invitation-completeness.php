@@ -53,14 +53,14 @@ if($assembly['status'] !== 'sent') {
 }
 else {
     $assembly = Assembly::id($params['id'])
-        ->read(['id', 'name', 'condo_id', 'ownerships_ids' => ['owners_ids'], 'assembly_invitations_ids' => ['is_sent', 'owner_id']])
+        ->read(['id', 'name', 'condo_id', 'ownerships_ids' => ['owners_ids'], 'assembly_invitation_instances_ids' => ['is_sent', 'owner_id']])
         ->first();
 
     $is_complete = true;
 
     foreach($assembly['ownerships_ids'] as $ownership) {
         foreach($ownership['owners_ids'] as $owner_id) {
-            foreach($assembly['assembly_invitations_ids'] as $invite) {
+            foreach($assembly['assembly_invitation_instances_ids'] as $invite) {
                 if($invite['owner_id'] === $owner_id) {
                     if(!$invite['is_sent']) {
                         $is_complete = false;
@@ -75,7 +75,7 @@ else {
         $result[] = $assembly['id'];
         $httpResponse->status(eq_error_http(EQ_ERROR_MISSING_PARAM));
         // by convention we dispatch an alert that relates to the controller itself.
-        $dispatch->dispatch('realestate.governance.assembly.incomplete_sending', 'realestate\governance\Assembly', $params['id'], 'important', 'realestate_governance_Assembly_check-invite', ['id' => $params['id']]);
+        $dispatch->dispatch('realestate.governance.assembly.incomplete_sending', 'realestate\governance\Assembly', $params['id'], 'important', 'realestate_governance_Assembly_check-invitation-completeness', ['id' => $params['id']]);
     }
     else {
         // symmetrical removal of the alert (if any)

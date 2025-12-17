@@ -1,7 +1,7 @@
 {
     "name": "Invitation d'assemblée",
     "plural": "Invitations d'assemblée",
-    "description": "Suivi des convocations envoyées aux copropriétaires (canal, accusé, mails).",
+    "description": "Convocations envoyées aux copropriétaires (canal, accusé, mails).",
     "view": {
         "form.default": {
             "name": "Invitation",

@@ -159,16 +159,29 @@ class Assembly extends \equal\orm\Model {
                 'order'          => 'order'
             ],
 
-            'assembly_invitations_ids' => [
+            'assembly_invitation_instances_ids' => [
                 'type'           => 'one2many',
                 'description'    => "Invitations sent for the assembly.",
-                'foreign_object' => 'realestate\governance\AssemblyInvitation',
+                'foreign_object' => 'realestate\governance\AssemblyInvitationInstance',
+                'foreign_field'  => 'assembly_id'
+            ],
+
+            'assembly_minutes_instances_ids' => [
+                'type'           => 'one2many',
+                'description'    => "Invitations sent for the assembly.",
+                'foreign_object' => 'realestate\governance\AssemblyMinutesInstance',
                 'foreign_field'  => 'assembly_id'
             ],
 
             'invitations_exporting_task_id' => [
                 'type'              => 'many2one',
-                'description'       => "Reference to the assembly template, if any.",
+                'description'       => "Reference to the task for exporting paper mails for assembly invitation, if any.",
+                'foreign_object'    => 'documents\export\ExportingTask'
+            ],
+
+            'minutes_exporting_task_id' => [
+                'type'              => 'many2one',
+                'description'       => "Reference to the task for exporting paper mails for assembly minutes, if any.",
                 'foreign_object'    => 'documents\export\ExportingTask'
             ],
 
@@ -196,7 +209,7 @@ class Assembly extends \equal\orm\Model {
                 'domain'         => [['condo_id', '=', 'object.condo_id']]
             ],
 
-            'minutes_entries_ids' => [
+            'assembly_minutes_entries_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\governance\AssemblyMinutesEntry',
                 'foreign_field'     => 'assembly_id',
@@ -457,18 +470,18 @@ class Assembly extends \equal\orm\Model {
                 'function'      => 'doGenerateOwnerships'
             ],
 
-            'generate_invites' => [
+            'generate_invitation_instances' => [
                 'description'   => 'Generate invites.',
                 'help'          => 'This is called in `onbeforeSend` handler.',
                 'policies'      => [],
-                'function'      => 'doGenerateInvites'
+                'function'      => 'doGenerateInvitationInstances'
             ],
 
-            'send_invites' => [
+            'send_invitation' => [
                 'description'   => 'Send invites.',
                 'help'          => 'Only email invites can be sent automatically. Mail & mandates must be sent manually.',
                 'policies'      => [],
-                'function'      => 'doSendInvites'
+                'function'      => 'doSendInvitation'
             ],
 
             'close_attendance' => [
@@ -546,6 +559,7 @@ class Assembly extends \equal\orm\Model {
 
             'generate_signable_minutes' => [
                 'description'   => 'Create immutable version of the minutes to be signed.',
+                'help'          => "The logic is to generate minutes (generate_minutes), but with a naming convention that makes a distinction between signable and printable (final) minutes.",
                 'policies'      => ['can_generate_minutes'],
                 'function'      => 'doGenerateSignableMinutes'
             ],
@@ -566,6 +580,20 @@ class Assembly extends \equal\orm\Model {
                 'description'   => 'Create printable version of the minutes of the Assembly and store it to EDMS.',
                 'policies'      => [/* */],
                 'function'      => 'doGeneratePrintableMinutes'
+            ],
+
+            'generate_minutes_instances' => [
+                'description'   => 'Generate invites.',
+                'help'          => 'This is called in `onbeforeSend` handler.',
+                'policies'      => [],
+                'function'      => 'doGenerateMinutesInstances'
+            ],
+
+            'send_minutes' => [
+                'description'   => 'Send invites.',
+                'help'          => 'Only email invites can be sent automatically. Mail & mandates must be sent manually.',
+                'policies'      => [],
+                'function'      => 'doSendMinutes'
             ]
 
         ];
@@ -685,11 +713,11 @@ class Assembly extends \equal\orm\Model {
      * Mark all invitations as sent.
      */
     protected static function onafterSent($self) {
-        $self->read(['assembly_invitations_ids' => ['communication_method']]);
+        $self->read(['assembly_invitation_instances_ids' => ['communication_method']]);
         $map_invitations_ids = [];
 
         foreach($self as $id => $assembly) {
-            foreach($assembly['assembly_invitations_ids'] as $assembly_invitation_id => $assemblyInvitation) {
+            foreach($assembly['assembly_invitation_instances_ids'] as $assembly_invitation_id => $assemblyInvitation) {
                 if($assemblyInvitation['communication_method'] === 'email') {
                     continue;
                 }
@@ -697,7 +725,7 @@ class Assembly extends \equal\orm\Model {
             }
         }
 
-        AssemblyInvitation::ids(array_keys($map_invitations_ids))
+        AssemblyInvitationInstance::ids(array_keys($map_invitations_ids))
             ->update([
                     'is_sent'   => true,
                     'sent_date' => time()
@@ -814,23 +842,36 @@ class Assembly extends \equal\orm\Model {
         }
     }
 
+
+
+    /**
+     * Marks the general assembly as valid, held and closed.
+     *
+     * Indicates that the assembly (AG) was valid, took place successfully,
+     * and is now finished. The meeting minutes (PV) have been produced and
+     * signed by the secretary and the president, as well as by the attendees
+     * who were present.
+     *
+     * Use when finalizing an assembly: update status, attach signed minutes,
+     * and prevent further modifications to the assembly record.
+     */
     protected static function onafterClose($self) {
-        // L'AG était valide et s'est bien tenue et est à présent terminée
-        // le PV a été généré et signé
+        $self
+            ->do('generate_minutes_instances')
+            ->do('send_minutes');
 
-        // faire signer le PV par le secrétaire et président + présents
-        // -> il faut une trace des personnes ayant signé (ok)
-
-        // il faut générer les envois
-        // planifier les éventuelles tâches liées à des décisions prises durant l'assemblée
-
+        // #todo - planifier les éventuelles tâches liées à des décisions prises durant l'assemblée
+        // use dedicated action
+        $self->read(['assembly_minutes_entries_ids' => ['id']]);
+        foreach($self as $id => $assembly) {
+        }
     }
 
     protected static function onbeforeSend($self) {
         $self
             ->do('generate_ownerships')
-            ->do('generate_invites')
-            ->do('send_invites');
+            ->do('generate_invitation_instances')
+            ->do('send_invitation');
     }
 
     protected static function doAutoAssignLocation($self) {
@@ -977,11 +1018,11 @@ class Assembly extends \equal\orm\Model {
     /**
      * Generate invites for each ownership.
      */
-    protected static function doGenerateInvites($self) {
-        $self->read(['condo_id', 'invitations_exporting_task_id', 'ownerships_ids' => ['representative_owner_id']]);
+    protected static function doGenerateInvitationInstances($self) {
+        $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
         foreach($self as $id => $assembly) {
             // remove any previously created invite
-            AssemblyInvitation::search(['assembly_id', '=', $id])->delete(true);
+            AssemblyInvitationInstance::search(['assembly_id', '=', $id])->delete(true);
 
             foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
                 if(!$ownership['representative_owner_id']) {
@@ -1029,7 +1070,7 @@ class Assembly extends \equal\orm\Model {
                         continue;
                     }
 
-                    AssemblyInvitation::create([
+                    AssemblyInvitationInstance::create([
                         'condo_id'              => $assembly['condo_id'],
                         'assembly_id'           => $id,
                         'ownership_id'          => $ownership_id,
@@ -1042,17 +1083,163 @@ class Assembly extends \equal\orm\Model {
         }
     }
 
+
+
+    /**
+     * Generate minutes report for each ownership.
+     */
+    protected static function doGenerateMinutesInstances($self) {
+        $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
+        foreach($self as $id => $assembly) {
+            // remove any previously created invite
+            AssemblyInvitationInstance::search(['assembly_id', '=', $id])->delete(true);
+
+            foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
+                if(!$ownership['representative_owner_id']) {
+                    continue;
+                }
+
+                // init prefs
+                $communication_methods = [
+                        'email'                     => false,
+                        'postal'                    => false,
+                        'postal_registered'         => false,
+                        'postal_registered_receipt' => false
+                    ];
+
+                // fetch Ownership communication preferences
+                $communicationPreference = OwnershipCommunicationPreference::search([
+                        ['condo_id', '=', $assembly['condo_id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['communication_reason', '=', 'general_assembly_call']
+                    ])
+                    ->read([
+                        'has_channel_email',
+                        'has_channel_postal',
+                        'has_channel_postal_registered',
+                        'has_channel_postal_registered_receipt'
+                    ])
+                    ->first();
+
+                if($communicationPreference) {
+                    $communication_methods = [
+                            'email'                     => $communicationPreference['has_channel_email'],
+                            'postal'                    => $communicationPreference['has_channel_postal'],
+                            'postal_registered'         => $communicationPreference['has_channel_postal_registered'],
+                            'postal_registered_receipt' => $communicationPreference['has_channel_postal_registered_receipt']
+                        ];
+                }
+
+                // if not requested otherwise, invite must be sent through registered postal mail
+                if(!in_array(true, $communication_methods, true)) {
+                    $communication_methods['postal_registered'] = true;
+                }
+
+                foreach($communication_methods as $communication_method => $communication_method_flag) {
+                    if(!$communication_method_flag) {
+                        continue;
+                    }
+
+                    AssemblyMinutesInstance::create([
+                        'condo_id'              => $assembly['condo_id'],
+                        'assembly_id'           => $id,
+                        'ownership_id'          => $ownership_id,
+                        'owner_id'              => $ownership['representative_owner_id'],
+                        'communication_method'  => $communication_method
+                    ]);
+                }
+            }
+
+        }
+    }
+
+
+    /**
+     * Handle minutes sending for each ownership.
+     *   - Queue Emails (Only owners with contact preference set as email are handled)
+     *   - Create an exporting task that will asynchronously generate the export lines & related documents.
+     *
+     */
+    protected static function doSendMinutes($self, $cron) {
+        $self->read([
+            'name',
+            'condo_id',
+            'minutes_exporting_task_id',
+            'assembly_minutes_instances_ids' => ['communication_method']
+        ]);
+
+        foreach($self as $id => $assembly) {
+
+            // remove previously created exporting task (and lines), if any
+            if($assembly['minutes_exporting_task_id']) {
+                ExportingTask::id($assembly['minutes_exporting_task_id'])->delete(true);
+            }
+
+            $map_communication_methods = [];
+
+            foreach($assembly['assembly_minutes_instances_ids'] as $assembly_invitation_id => $assemblyMinutesInstance) {
+                // update global map to acknowledge that at least one invitation uses that communication method
+                $map_communication_methods[$assemblyMinutesInstance['communication_method']] = true;
+            }
+
+            if(isset($map_communication_methods['email'])) {
+                // schedule queuing of invite emails: `realestate_governance_Assembly_send-invitation`
+                $cron->schedule(
+                    "realestate.assembly.send-minutes.{$id}",
+                    time() + (5 * 60),
+                    'realestate_governance_Assembly_send-minutes',
+                    [
+                        'id'  => $id
+                    ]
+                );
+            }
+
+            // handle non-digital communication methods
+            if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
+
+                // schedule generation of a zip archive containing printable invites `realestate_governance_Assembly_export-invitation`
+                $exportingTask = ExportingTask::create([
+                        'name'          => "{$assembly['name']} - Export des courriers du PV",
+                        'condo_id'      => $assembly['condo_id'],
+                        'object_class'  => static::class,
+                        'object_id'     => $id
+                    ])
+                    ->first();
+
+                foreach($map_communication_methods as $communication_method => $flag) {
+                    if($communication_method === 'email') {
+                        continue;
+                    }
+                    ExportingTaskLine::create([
+                            'exporting_task_id' => $exportingTask['id'],
+                            'name'              => "{$assembly['name']} - Export du PV - {$communication_method}",
+                            'controller'        => 'realestate_governance_Assembly_export-minutes',
+                            'params'            => json_encode([
+                                    'id'                    => $id,
+                                    'communication_method'  => $communication_method
+                                ])
+                        ]);
+                }
+
+                self::id($id)->update([
+                        'minutes_exporting_task_id' => $exportingTask['id']
+                    ]);
+            }
+        }
+    }
+
     /**
      * Handle invites sending for each ownership.
      *   - Queue Emails (Only owners with contact preference set as email are handled)
      *   - Create an exporting task that will asynchronously generate the export lines & related documents.
      *
      */
-    protected static function doSendInvites($self, $cron) {
+    protected static function doSendInvitation($self, $cron) {
         $self->read([
             'name',
             'condo_id',
-            'assembly_invitations_ids' => ['communication_method']
+            'invitations_exporting_task_id',
+            'assembly_invitation_instances_ids' => ['communication_method']
         ]);
 
         foreach($self as $id => $assembly) {
@@ -1064,16 +1251,17 @@ class Assembly extends \equal\orm\Model {
 
             $map_communication_methods = [];
 
-            foreach($assembly['assembly_invitations_ids'] as $assembly_invitation_id => $assemblyInvitation) {
+            foreach($assembly['assembly_invitation_instances_ids'] as $assembly_invitation_id => $assemblyInvitation) {
                 // update global map to acknowledge that at least one invitation uses that communication method
                 $map_communication_methods[$assemblyInvitation['communication_method']] = true;
             }
 
             if(isset($map_communication_methods['email'])) {
+                // schedule queuing of invite emails: `realestate_governance_Assembly_send-invitation`
                 $cron->schedule(
-                    "realestate.assembly.send-invitations.{$id}",
-                    time() + (5*60),
-                    'realestate_governance_Assembly_send-invitations',
+                    "realestate.assembly.send-invitation.{$id}",
+                    time() + (5 * 60),
+                    'realestate_governance_Assembly_send-invitation',
                     [
                         'id'  => $id
                     ]
@@ -1083,8 +1271,9 @@ class Assembly extends \equal\orm\Model {
             // handle non-digital communication methods
             if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
 
+                // schedule generation of a zip archive containing printable invites `realestate_governance_Assembly_export-invitation`
                 $exportingTask = ExportingTask::create([
-                        'name'          => "{$assembly['name']} - Export invitations",
+                        'name'          => "{$assembly['name']} - Export des courriers des invitations",
                         'condo_id'      => $assembly['condo_id'],
                         'object_class'  => static::class,
                         'object_id'     => $id
@@ -1098,7 +1287,7 @@ class Assembly extends \equal\orm\Model {
                     ExportingTaskLine::create([
                             'exporting_task_id' => $exportingTask['id'],
                             'name'              => "{$assembly['name']} - Export des invitations - {$communication_method}",
-                            'controller'        => 'realestate_governance_Assembly_export-invitations',
+                            'controller'        => 'realestate_governance_Assembly_export-invitation',
                             'params'            => json_encode([
                                     'id'                    => $id,
                                     'communication_method'  => $communication_method

@@ -248,7 +248,7 @@
             "label": "Check invites",
             "help": "This is a temporary way to trigger the action which is intended to be automated",
             "description": "Checks if all invites have been sent.",
-            "controller": "realestate_governance_Assembly_check-invite",
+            "controller": "realestate_governance_Assembly_check-invitation-completeness",
             "visible": [
                 [
                     "status",
@@ -843,7 +843,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "assembly_invitations_ids",
+                                                "value": "assembly_invitation_instances_ids",
                                                 "width": "100%"
                                             }
                                         ]

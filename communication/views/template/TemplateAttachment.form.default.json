@@ -42,10 +42,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "template_id",
-                                                "width": "50%",
-                                                "widget": {
-                                                    "readonly": true
-                                                }
+                                                "width": "50%"
                                             }
                                         ]
                                     }

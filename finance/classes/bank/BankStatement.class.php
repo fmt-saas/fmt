@@ -248,6 +248,7 @@ class BankStatement extends Model {
                 'description'       => 'Alert flag for the invoice.',
                 'help'              => "Indicates if there is an issue with the invoice that needs attention, by providing an icon: info, warn, major, error.",
                 'function'          => 'calcAlert',
+                'onrevert'          => 'onrevertAlert',
                 'store'             => true
             ]
 
@@ -456,6 +457,17 @@ class BankStatement extends Model {
             }
         }
         return $result;
+    }
+
+    protected static function onrevertAlert($self) {
+        $self->read(['document_process_id']);
+        foreach($self as $id => $bankStatement) {
+            if(!$bankStatement['document_process_id']) {
+                continue;
+            }
+            DocumentProcess::id($bankStatement['document_process_id'])
+                ->update(['alert' => null]);
+        }
     }
 
     protected static function onupdateBankAccountIban($self) {

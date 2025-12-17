@@ -91,10 +91,9 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
 
     public static function canupdate($self, $values) {
         $self->read(['accounting_entry_id' => ['status']]);
-        $allowed_fields = ['status', 'matching_id', 'matching_level', 'clearing_expense_statement_id', 'is_cleared'];
-        $updated_fields = array_keys($values);
+        $allowed_fields = ['status', 'description', 'matching_id', 'matching_level', 'clearing_expense_statement_id', 'is_cleared'];
 
-        if(count(array_diff($updated_fields, $allowed_fields)) > 0) {
+        if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
             foreach($self as $id => $accountingEntryLine) {
                 if($accountingEntryLine['accounting_entry_id']['status'] == 'validated') {
                     return ['accounting_entry_id' => ['not_allowed' => 'Accounting entry cannot be modified once validated.']];

@@ -7,15 +7,15 @@
 
 use Dompdf\Dompdf;
 use Dompdf\Options as DompdfOptions;
-use realestate\governance\AssemblyInvitation;
+use realestate\governance\AssemblyMinutesInstance;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate a PDF Attendance Register for a given Assembly.',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific AssemblyInvitation to consider.',
+            'description'       => 'Identifier of the specific AssemblyMinutesInstance to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\governance\AssemblyInvitation',
+            'foreign_object'    => 'realestate\governance\AssemblyMinutesInstance',
             'required'          => true
         ]
     ],
@@ -33,16 +33,16 @@ use realestate\governance\AssemblyInvitation;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-$assembly = AssemblyInvitation::id($params['id'])
+$assemblyMinutesInstance = AssemblyMinutesInstance::id($params['id'])
     ->first();
 
-if(!$assembly) {
+if(!$assemblyMinutesInstance) {
     throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 try {
 
-    $html = (string) eQual::run('get', 'realestate_governance_AssemblyInvitation_render-html', [
+    $html = (string) eQual::run('get', 'realestate_governance_AssemblyMinutesInstance_render-html', [
             'id'            => $params['id']
         ]);
 

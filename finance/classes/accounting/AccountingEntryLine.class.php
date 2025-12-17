@@ -341,9 +341,7 @@ class AccountingEntryLine extends Model {
                 if($matching) {
                     self::id($id)->update(['matching_id' => $matching['id']]);
                 }
-
             }
-
         }
     }
 
@@ -364,7 +362,7 @@ class AccountingEntryLine extends Model {
 
     public static function canupdate($self, $values) {
         $self->read(['accounting_entry_id' => ['status']]);
-        $allowed_fields = ['status', 'matching_id', 'matching_level'];
+        $allowed_fields = ['status', 'description', 'matching_id', 'matching_level'];
         $updated_fields = array_keys($values);
 
         if(count(array_diff($updated_fields, $allowed_fields)) > 0) {

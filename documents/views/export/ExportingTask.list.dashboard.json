@@ -1,10 +1,12 @@
 {
     "name": "Exporting Task",
     "header": {
+        "layout": "inline",
         "actions": {
             "ACTION.CREATE" : false
         }
     },
+    "domain": ["is_exported", "=", false],
     "layout": {
         "items": [
             {

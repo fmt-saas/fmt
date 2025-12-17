@@ -292,6 +292,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'description'       => 'Alert flag for the invoice.',
                 'help'              => "Indicates if there is an issue with the invoice that needs attention, by providing an icon: success, info, warn, major, error.",
                 'function'          => 'calcAlert',
+                'onrevert'          => 'onrevertAlert',
                 'store'             => true
             ]
 
@@ -879,6 +880,17 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
         }
         $self->do('create_fundings');
+    }
+
+    protected static function onrevertAlert($self) {
+        $self->read(['document_process_id']);
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['document_process_id']) {
+                continue;
+            }
+            DocumentProcess::id($purchaseInvoice['document_process_id'])
+                ->update(['alert' => null]);
+        }
     }
 
     /**

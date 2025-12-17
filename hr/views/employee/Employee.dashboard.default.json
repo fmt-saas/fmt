@@ -39,12 +39,12 @@
                                                 "domain": [ ["ownership_id", "in", "user.ownerships_ids"], ["status", "in", ["pending", "debit_balance"]] ]
                                             },
                                             {
-                                                "id": "item.documents",
-                                                "label": "Derniers documents",
+                                                "id": "item.exporting_tasks",
+                                                "label": "Exports disponibles",
                                                 "description": "",
                                                 "width": "100%",
                                                 "height": "50%",
-                                                "entity": "documents\\Document",
+                                                "entity": "documents\\export\\ExportingTask",
                                                 "view": "list.dashboard"
                                             }
                                         ]

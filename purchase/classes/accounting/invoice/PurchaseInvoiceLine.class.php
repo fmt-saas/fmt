@@ -7,6 +7,8 @@
 
 namespace purchase\accounting\invoice;
 
+use finance\accounting\AccountingEntryLine;
+
 class PurchaseInvoiceLine extends \finance\accounting\invoice\InvoiceLine {
 
     public function getTable() {
@@ -31,7 +33,7 @@ class PurchaseInvoiceLine extends \finance\accounting\invoice\InvoiceLine {
                 'required'          => true,
                 'ondelete'          => 'null',
                 'domain'            => [['is_control_account', '=', false]],
-                'dependent'         => ['name']
+                'dependents'        => ['name']
             ],
 
             'name' => [
@@ -45,7 +47,8 @@ class PurchaseInvoiceLine extends \finance\accounting\invoice\InvoiceLine {
             'description' => [
                 'type'              => 'string',
                 'description'       => 'Complementary description of the line (independent from product).',
-                'multilang'         => true
+                'multilang'         => true,
+                'onupdate'          => 'onupdateDescription'
             ],
 
             'total' => [
@@ -58,5 +61,13 @@ class PurchaseInvoiceLine extends \finance\accounting\invoice\InvoiceLine {
             ],
 
         ];
+    }
+
+    protected static function onupdateDescription($self) {
+        $self->read(['description']);
+        foreach($self as $id => $purchaseInvoiceLine) {
+            AccountingEntryLine::search([['purchase_invoice_line_id', '=', $id]])
+                ->update(['description' => $purchaseInvoiceLine['description']]);
+        }
     }
 }

@@ -5,12 +5,11 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use documents\Document;
 use realestate\governance\Assembly;
-use realestate\governance\AssemblyInvitation;
+use realestate\governance\AssemblyMinutesInstance;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Checks if all owners have been invited to the target assembly.",
+    'description'   => "Send all email minutes reports for the target assembly.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
@@ -23,28 +22,24 @@ use realestate\governance\AssemblyInvitation;
             'type'              => 'string',
             'description'       => 'Method of sending.',
             'help'              => 'This controllers expect only digital communication methods (e.g. email).',
+            'default'           => 'email',
             'selection'         => [
-                'email',
-                'postal',
-                'postal_registered',
-                'postal_registered_receipt'
+                'email'
             ]
         ]
-
     ],
     'response'      => [
         'content-type'  => 'application/json',
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context', 'dispatch']
+    'providers'     => ['context']
 ]);
 
 /**
  * @var \equal\php\Context                 $context
- * @var \equal\dispatch\Dispatcher         $dispatch
  */
-['context' => $context, 'dispatch' => $dispatch] = $providers;
+['context' => $context] = $providers;
 
 
 $assembly = Assembly::id($params['id'])
@@ -56,7 +51,7 @@ if(!$assembly) {
 }
 
 // fetch invitations relating to given communication_method
-$assemblyInvitations = AssemblyInvitation::search([
+$assemblyMinutesInstances = AssemblyMinutesInstance::search([
         [ 'assembly_id', '=', $assembly['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
@@ -64,24 +59,18 @@ $assemblyInvitations = AssemblyInvitation::search([
 
 $assembly_invitations_ids = [];
 
-foreach($assemblyInvitations as $assembly_invitation_id => $assemblyInvitation) {
-
-    // limit to digital communication methods
-    if(!in_array($assemblyInvitation['communication_method'], ['email'], true)) {
-        continue;
-    }
-
-    // #memo - `export-invitations` and `send-invitations` are the only controllers where documents are generated for Assembly invites
-    if(!$assemblyInvitation['document_id']) {
+foreach($assemblyMinutesInstances as $assembly_invitation_id => $AssemblyMinutesInstance) {
+    // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
+    if(!$AssemblyMinutesInstance['document_id']) {
         // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_governance_AssemblyInvitation_generate-document', ['id' => $assembly_invitation_id]);
+        eQual::run('do', 'realestate_governance_AssemblyMinutesInstance_generate-document', ['id' => $assembly_invitation_id]);
     }
 
-    $assemblyInvitation = AssemblyInvitation::id($assembly_invitation_id)
+    $AssemblyMinutesInstance = AssemblyMinutesInstance::id($assembly_invitation_id)
         ->read(['document_id' => ['data']])
         ->first();
 
-    if(!$assemblyInvitation['document_id']) {
+    if(!$AssemblyMinutesInstance['document_id']) {
         continue;
     }
 
@@ -91,7 +80,7 @@ foreach($assemblyInvitations as $assembly_invitation_id => $assemblyInvitation) 
 // send all generated documents
 foreach($assembly_invitations_ids as $assembly_invitation_id) {
     try {
-        eQual::run('do', 'realestate_governance_AssemblyInvitation_send', ['id' => $assembly_invitation_id]);
+        eQual::run('do', 'realestate_governance_AssemblyMinutesInstance_send', ['id' => $assembly_invitation_id]);
     }
     catch(Exception $e) {
         trigger_error('APP::Error while sending documents ' . $e->getMessage(), EQ_REPORT_ERROR);

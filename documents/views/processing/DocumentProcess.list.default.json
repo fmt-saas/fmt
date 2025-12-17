@@ -116,6 +116,12 @@
             },
             {
                 "type": "field",
+                "value": "alert",
+                "width": "10%",
+                "readonly": true
+            },
+            {
+                "type": "field",
                 "value": "status",
                 "width": "10%",
                 "readonly": true,

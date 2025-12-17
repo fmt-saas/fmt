@@ -212,11 +212,22 @@ class DocumentProcess extends Model {
                 'visible'           => [['has_target_object', '=', true], ['document_type_code', '=', 'bank_statement']],
                 'domain'            => [['condo_id', '=', 'object.condo_id']],
                 'onupdate'          => 'onupdateDocumentBankStatementId'
-            ]
+            ],
 
             // #todo - [...] to be completed according to document types that are supported by the DocumentProcess workflow
 
             // consumption_statement_id
+
+            'alert' => [
+                'type'              => 'computed',
+                'usage'             => 'icon',
+                'result_type'       => 'string',
+                'description'       => 'Alert flag for the invoice.',
+                'help'              => "Indicates if there is an issue with the invoice that needs attention, by providing an icon: info, warn, major, error.",
+                'function'          => 'calcAlert',
+                'store'             => true
+            ]
+
         ];
     }
 
@@ -1766,6 +1777,69 @@ class DocumentProcess extends Model {
             }
         }
         return $logs;
+    }
+
+    protected static function calcAlert($self, $orm) {
+        $result = [];
+        $self->read(['document_invoice_id', 'document_bank_statement_id']);
+        foreach($self as $id => $documentProcess) {
+
+            $object_class = null;
+
+            if($documentProcess['document_invoice_id']) {
+                $object_id = $documentProcess['document_invoice_id'];
+                $object_class = 'realestate\purchase\accounting\invoice\PurchaseInvoice';
+            }
+            elseif($documentProcess['document_bank_statement_id']) {
+                $object_id = $documentProcess['document_bank_statement_id'];
+                $object_class = 'finance\bank\BankStatement';
+            }
+            // #todo - continue for other document types
+            // elseif()
+
+            if(!$object_class) {
+                $result[$id] = 'success';
+                continue;
+            }
+
+
+            $messages_ids = $orm->search('core\alert\Message',[ ['object_class', '=', $object_class], ['object_id', '=', $object_id]]);
+            if($messages_ids > 0 && count($messages_ids)) {
+                $max_alert = 0;
+                $map_alert = array_flip([
+                    'notice',           // weight = 1, might lead to a warning
+                    'warning',          // weight = 2, might be important, might require an action
+                    'important',        // weight = 3, requires an action
+                    'error'             // weight = 4, requires immediate action
+                ]);
+                $messages = $orm->read(\core\alert\Message::getType(), $messages_ids, ['severity']);
+                foreach($messages as $mid => $message){
+                    $weight = $map_alert[$message['severity']];
+                    if($weight > $max_alert) {
+                        $max_alert = $weight;
+                    }
+                }
+                switch($max_alert) {
+                    case 0:
+                        $result[$id] = 'info';
+                        break;
+                    case 1:
+                        $result[$id] = 'warn';
+                        break;
+                    case 2:
+                        $result[$id] = 'major';
+                        break;
+                    case 3:
+                    default:
+                        $result[$id] = 'error';
+                        break;
+                }
+            }
+            else {
+                $result[$id] = 'success';
+            }
+        }
+        return $result;
     }
 
     protected static function calcDocumentLink($self) {

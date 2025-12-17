@@ -715,14 +715,17 @@ class AccountingEntry extends Model {
         return parent::candelete($self);
     }
 
-    protected static function onupdateDescription($self) {
-        $self->read(['description', 'entry_lines_ids']);
+    protected static function onupdateDescription($self, $lang) {
+        $self->read(['description', 'entry_lines_ids' => ['description']]);
         foreach($self as $id => $accountingEntry) {
-            if($accountingEntry['description'] && strlen($accountingEntry['description']) > 0) {
-                AccountingEntryLine::ids($accountingEntry['entry_lines_ids'])
-                    ->update(['name' => $accountingEntry['description']]);
+            if(!$accountingEntry['description'] || strlen($accountingEntry['description']) <= 0) {
+                continue;
             }
-
+            foreach($accountingEntry['entry_lines_ids'] as $entry_line_id => $entryLine) {
+                if(!$entryLine['description'] || strlen($entryLine['description']) <= 0) {
+                    AccountingEntryLine::id($entry_line_id)->update(['description' => $accountingEntry['description']], $lang);
+                }
+            }
         }
     }
 
@@ -754,7 +757,7 @@ class AccountingEntry extends Model {
      */
     public static function canupdate($self, $values) {
         $self->read(['entry_number']);
-        $allowed_fields = ['status'];
+        $allowed_fields = ['status', 'description'];
         foreach($self as $id => $accountingEntry) {
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                 if($accountingEntry['entry_number']) {

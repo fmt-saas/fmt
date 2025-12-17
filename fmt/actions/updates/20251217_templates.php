@@ -8,62 +8,6 @@ use communication\template\TemplatePart;
 $events = $orm->disableEvents();
 
 
-/*
-    Templates codes and types
-
-    Template code = même catégorisation que pour les Documents FS Nodes
-        "general_meetings",
-        "tender_documents",
-        "maintenance_logs",
-        "council_minutes",
-        "legal_followup",
-        "insurance_contracts",
-        "syndic_contracts",
-        "works_and_repairs",
-        "sepa_mandates",
-        "regulations",
-        "operation_statements",
-        "bank_statements",
-        "supplier_contracts",
-        "justifications",
-        "internal_memos",
-        "supplier_invoices",
-        "ownership_transfers",
-
-    TemplateTypes (unique)
-        email
-        sms
-        notification
-        form
-        document
-*/
-
-
-// General Assembly Call
-$template = Template::create([
-        'code'          => 'general_meetings_call',
-        'description'   => 'Invitation à une assemblée de la copropriété.',
-        'category_id'   => 5,
-        'type_id'       => 1
-    ])
-    ->first();
-
-TemplatePart::create([
-    'name'          => 'subject',
-    'value'         => '<p>{condo} - Invitation à {assembly}</p>',
-    'template_id'   => $template['id'],
-    'variables'     => '["condo", "assembly", "date"]'
-]);
-
-TemplatePart::create([
-    'name'          => 'body',
-    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Vous êtes cordialement convié à une nouvelle assemblée des copropriétaires de la copropriété {condo}.</p><p><br></p><p>Veuillez trouver l'invitation et les détails en pièce jointe.</p><p><br></p><p>Bien cordialement,</p>",
-    'template_id'   => $template['id'],
-    'variables'     => '["condo", "firstname", "lastname", "date"]'
-]);
-
-
-
 // General Assembly Minutes
 $template = Template::create([
         'code'          => 'general_meetings_minutes',

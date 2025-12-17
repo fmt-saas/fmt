@@ -37,7 +37,9 @@ class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
         ];
     }
 
-
+    public static function getActions() {
+        return array_merge(parent::getActions(), []);
+    }
 
     public static function getWorkflow() {
         return [

@@ -1,6 +1,7 @@
 {
-    "name": "fmt",
-    "description": "FMT Immo Management.",
+    "name": "FMT Syndic",
+    "#todo": "customize name",
+    "description": "LE logiciel de gestion de syndic",
     "version": "1.0",
     "authors": ["Yesbabylon SA"],
     "license": "LGPL-3",

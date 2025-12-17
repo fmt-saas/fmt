@@ -1,0 +1,22 @@
+{
+    "name": "PV d'assemblée",
+    "plural": "PV d'assemblée",
+    "description": "PV envoyées aux copropriétaires (canal, accusé, mails).",
+    "view": {
+        "form.default": {
+            "name": "PV d'Assemblée",
+            "description": "Formulaire d'un PV individuel (destinataire, envoi, pièces).",
+            "layout": {
+                "route.mails": {
+                    "label": "E-mails"
+                }
+            },
+            "routes": {
+                "route.view_invitation": {
+                    "label": "Afficher le PV",
+                    "description": "Afficher le PV imprimable."
+                }
+            }
+        }
+    }
+}

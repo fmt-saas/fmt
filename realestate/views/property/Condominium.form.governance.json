@@ -19,7 +19,7 @@
             "description": "",
             "icon": "rsvp",
             "context": {
-                "entity": "realestate\\governance\\AssemblyInvitation",
+                "entity": "realestate\\governance\\AssemblyInvitationInstance",
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
