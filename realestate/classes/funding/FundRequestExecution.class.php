@@ -318,13 +318,11 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             ->do('assign_invoice_number')
             ->do('generate_accounting_entry')
             ->do('generate_fundings')
-            ->read(['accounting_entry_id']);
-
-        // automatically validate accounting entry
-        foreach($self as $id => $requestExecution) {
-            AccountingEntry::id($requestExecution['accounting_entry_id'])->transition('validate');
-        }
-
+            // automatically validate accounting entry
+            ->read(['accounting_entry_id'])
+            ->each(function($id, $requestExecution) {
+                AccountingEntry::id($requestExecution['accounting_entry_id'])->transition('validate');
+            });
     }
 
     public static function doCancelExecution($self) {
