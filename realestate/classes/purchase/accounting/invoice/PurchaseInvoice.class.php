@@ -223,6 +223,23 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'function'          => 'calcDocumentLink',
             ],
 
+            'email_subject' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Subject of the email at the origin of the purchase invoice\'s document.',
+                'store'             => false,
+                'relation'          => ['document_id' => ['email_id' => 'subject']]
+            ],
+
+            'email_body' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'text/html.medium',
+                'description'       => 'Body of the email at the origin of the purchase invoice\'s document.',
+                'store'             => false,
+                'relation'          => ['document_id' => ['email_id' => 'body']]
+            ],
+
             'payable_amount' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
