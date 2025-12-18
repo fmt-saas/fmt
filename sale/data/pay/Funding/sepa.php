@@ -239,6 +239,6 @@ Funding::ids($ids)->update(['is_sent' => true]);
 $filename = "SEPA_ENVELOPE_" . date('Ymd_His') . ".xml";
 
 $context->httpResponse()
-    ->header('Content-Disposition', 'inline; filename="' . $filename . '"')
+    ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
     ->body($xml, true)
     ->send();
