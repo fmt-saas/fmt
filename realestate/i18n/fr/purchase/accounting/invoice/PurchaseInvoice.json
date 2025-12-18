@@ -123,6 +123,16 @@
             "description": "URL de visualisation du document.",
             "help": "Calculé pour ouvrir le document associé."
         },
+        "email_subject": {
+            "label": "Objet",
+            "description": "Sujet du message.",
+            "help": "Sujet de l'e-mail à l'origine du document lié à la facture."
+        },
+        "email_body": {
+            "label": "Corps",
+            "description": "Contenu HTML du Email.",
+            "help": "Corps de l'e-mail à l'origine du document lié à la facture."
+        },
         "payable_amount": {
             "label": "Montant TTC",
             "description": "Montant final TTC attendu de la facture.",
@@ -182,6 +192,9 @@
             "name": "Facture d'achat",
             "description": "Formulaire détaillant les lignes, imputations et fundings liés.",
             "layout": {
+                "section.origin": {
+                    "label": "Origine"
+                },
                 "section.accounting_entries": {
                     "label": "Écritures comptables"
                 },
