@@ -2,31 +2,8 @@
     {
         "name": "core\\setting\\SettingSection",
         "lang": "en",
+        "#memo": "Sections are imported from core package and must remain untouched for consistency purpose.",
         "data": [
-            {
-                "id": 1,
-                "name": "order",
-                "description": "",
-                "code": "order"
-            },
-            {
-                "id": 2,
-                "name": "accounting",
-                "description": "",
-                "code": "accounting"
-            },
-            {
-                "id": 3,
-                "name": "organization",
-                "description": "",
-                "code": "organization"
-            },
-            {
-                "id": 4,
-                "name": "system",
-                "description": "",
-                "code": "system"
-            }
         ]
     },
     {
