@@ -9,6 +9,7 @@ namespace documents\navigation;
 
 use documents\Document;
 use equal\orm\Model;
+use purchase\supplier\Suppliership;
 
 class Node extends Model {
 
@@ -119,14 +120,38 @@ class Node extends Model {
                 'selection'         => [
                     'public',       // visible to all condo owners + syndic
                     'protected',    // visible only to syndic
-                    'private'       // visible only a single owner (to which the document is linked) + syndic
+                    'private'       // visible only to a single owner or supplier (to which the document is linked) + syndic
                 ],
                 'default'           => 'public',
                 'description'       => 'Defines who can see the node.',
-                'help'              => 'This field is synchronized with the node and is automatically updated when the parent node visibility changes. 
+                'help'              => 'This field is synchronized with the node and is automatically updated when the parent node visibility changes.
                     If this is a child node, the `document_visibility` of the corresponding document is updated.
                     If this is a parent node, all descendant nodes are updated (cascade).',
                 'onupdate'          => 'onupdateNodeVisibility'
+            ],
+
+            'ownership_id' => [
+                'type'              => 'many2one',
+                'description'       => "The ownership that the document relates to, if any.",
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'supplier_id' => [
+                'type'              => 'many2one',
+                'description'       => "The supplier the document originates from.",
+                'foreign_object'    => 'purchase\supplier\Supplier',
+                'dependents'        => ['suppliership_id'],
+            ],
+
+            'suppliership_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'purchase\supplier\Suppliership',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'description'       => "The supplier the document originates from.",
+                'function'          => 'calcSuppliershipId',
+                'store'             => true
             ],
 
             'is_system' => [
@@ -274,6 +299,27 @@ class Node extends Model {
         foreach($self as $id => $node) {
             if($node['document_id']) {
                 $result[$id] = '/document/' . $node['document_id'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcSuppliershipId($self) {
+        $result = [];
+        $self->read(['condo_id', 'supplier_id']);
+        foreach($self as $id => $node) {
+            if(!isset(['condo_id', 'supplier_id'])) {
+                continue;
+            }
+            // find suppliership
+            $suppliership = Suppliership::search([
+                    ['condo_id', '=', $node['condo_id']],
+                    ['supplier_id', '=',  $node['supplier_id']]
+                ])
+                ->first();
+
+            if($suppliership) {
+                $result[$id] = $suppliership['id'];
             }
         }
         return $result;

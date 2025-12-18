@@ -56,10 +56,14 @@ $data = eQual::run('get', 'realestate_governance_AssemblyMinutesCorrespondence_r
 $document = Document::create([
         'name'          => 'Invitation Assemblée - ' . $assemblyMinutesCorrespondence['name'],
         'data'          => $data,
-        'condo_id'      => $assemblyMinutesCorrespondence['condo_id'],
-        'ownership_id'  => $assemblyMinutesCorrespondence['ownership_id']
+        'condo_id'      => $assemblyMinutesCorrespondence['condo_id']
     ])
-    ->update(['parent_node_id' => $parentNode['id'] ?? null])
+    ->update([
+        // place node in dedicated folder
+        'parent_node_id'    => $parentNode['id'] ?? null,
+        // make node private
+        'ownership_id'      => $assemblyMinutesCorrespondence['ownership_id']
+    ])
     ->first();
 
 if(!$document) {

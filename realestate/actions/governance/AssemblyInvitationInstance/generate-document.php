@@ -33,33 +33,37 @@ use realestate\governance\AssemblyInvitationCorrespondence;
 ['context' => $context] = $providers;
 
 
-$assemblyInvitation = AssemblyInvitationCorrespondence::id($params['id'])
+$assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params['id'])
     ->read(['status', 'condo_id', 'ownership_id', 'name'])
     ->first();
 
-if(!$assemblyInvitation) {
+if(!$assemblyInvitationCorrespondence) {
     throw new Exception("unknown_assembly_invitation", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 
 // retrieve FS Node relating to general meetings (assemblies)
 $parentNode = Node::search([
-        ['condo_id', '=', $assemblyInvitation['condo_id'] ],
+        ['condo_id', '=', $assemblyInvitationCorrespondence['condo_id'] ],
         ['node_type', '=', 'folder'],
         ['code', '=', 'general_meetings']
     ])
     ->first();
 
 // generate document and add it to EDMS
-$data = eQual::run('get', 'realestate_governance_AssemblyInvitationCorrespondence_render-pdf', ['id' => $assemblyInvitation['id']]);
+$data = eQual::run('get', 'realestate_governance_AssemblyInvitationCorrespondence_render-pdf', ['id' => $assemblyInvitationCorrespondence['id']]);
 
 $document = Document::create([
-        'name'          => 'Invitation Assemblée - ' . $assemblyInvitation['name'],
+        'name'          => 'Invitation Assemblée - ' . $assemblyInvitationCorrespondence['name'],
         'data'          => $data,
-        'condo_id'      => $assemblyInvitation['condo_id'],
-        'ownership_id'  => $assemblyInvitation['ownership_id']
+        'condo_id'      => $assemblyInvitationCorrespondence['condo_id']
     ])
-    ->update(['parent_node_id' => $parentNode['id'] ?? null])
+    ->update([
+        // place node in dedicated folder
+        'parent_node_id'    => $parentNode['id'] ?? null,
+        // make node private
+        'ownership_id'      => $assemblyInvitationCorrespondence['ownership_id']
+    ])
     ->first();
 
 if(!$document) {
@@ -67,7 +71,7 @@ if(!$document) {
 }
 
 // attach generated document to invitation
-AssemblyInvitationCorrespondence::id($assemblyInvitation['id'])->update(['document_id' => $document['id']]);
+AssemblyInvitationCorrespondence::id($assemblyInvitationCorrespondence['id'])->update(['document_id' => $document['id']]);
 
 
 $context->httpResponse()

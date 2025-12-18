@@ -46,6 +46,7 @@ class Document extends Model {
                 'type'              => 'many2one',
                 'description'       => "The ownership that the document relates to, if any.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
+                'onupdate'          => 'onupdateOwnershipId',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
@@ -60,6 +61,7 @@ class Document extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'purchase\supplier\Suppliership',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'description'       => "The supplier the document originates from.",
                 'function'          => 'calcSuppliershipId',
                 'store'             => true
@@ -161,6 +163,7 @@ class Document extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\navigation\Node',
                 'description'       => 'Node the document is linked with.',
+                'help'              => "This node is generated as a result of parent_node_id assignment, and depends on visibility an assigned owner(ship).",
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
@@ -169,9 +172,10 @@ class Document extends Model {
                 'selection'         => [
                     'public',       // visible to all condo owners + syndic
                     'protected',    // visible only to syndic
-                    'private'       // visible only a single owner (to which the document is linked) + syndic
+                    'private'       // visible only to a single owner (to which the document is linked) + syndic
                 ],
                 'default'           => 'public',
+                'onupdate'          => 'onupdateDocumentVisibility',
                 'description'       => 'Defines who can access the document.',
                 'help'              => 'This field is synchronized with the node and updates automatically when the parent node visibility changes.'
             ],
@@ -501,15 +505,41 @@ class Document extends Model {
         }
     }
 
+    protected static function onupdateOwnershipId($self) {
+        $self
+        ->read(['node_id', 'ownership_id'])
+        ->each(function($id, $document) {
+            if($document['node_id']) {
+                Node::id($document['node_id'])->update(['ownership_id' => $document['ownership_id']]);
+            }
+            if($document['ownership_id']) {
+                self::id($id)->update(['document_visibility' => 'private']);
+            }
+        });
+    }
+
+    protected static function onupdateDocumentVisibility($self) {
+        $self->read(['node_id', 'document_visibility']);
+        foreach($self as $id => $document) {
+            if(!$document['node_id']) {
+                continue;
+            }
+            Node::id($document['node_id'])->update(['node_visibility' => $document['node_id']]);
+        }
+    }
+
     protected static function onupdateParentNodeId($self) {
-        $self->read(['name', 'parent_node_id', 'node_id', 'condo_id']);
+        $self->read(['name', 'parent_node_id', 'node_id', 'condo_id', 'document_visibility', 'supplier_id', 'ownership_id']);
         foreach($self as $id => $document) {
             if(!$document['node_id']) {
                 $node = Node::create([
-                        'name'          => $document['name'],
-                        'node_type'     => 'document',
-                        'document_id'   => $id,
-                        'condo_id'      => $document['condo_id']
+                        'name'              => $document['name'],
+                        'document_id'       => $id,
+                        'condo_id'          => $document['condo_id'],
+                        'node_type'         => 'document',
+                        'node_visibility'   => $document['document_visibility'],
+                        'supplier_id'       => $document['supplier_id'],
+                        'ownership_id'      => $document['ownership_id']
                     ])
                     // #memo - triggers nodes_count update
                     ->update(['parent_id' => $document['parent_node_id']])

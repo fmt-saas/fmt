@@ -119,12 +119,13 @@ $user = User::id($user_id)
     ->adapt('json')
     ->first(true);
 
-$owners = Owner::search(['identity_id', '=', $user['identity_id']['id']])->read(['ownership_id']);
-$ownerships_ids = [];
-
-foreach($owners as $owner) {
-    $ownerships_ids[] = $owner['ownership_id'];
-}
+// #memo `Owner` is a link between an Identity and an Ownership
+$ownerships_ids = array_column(
+    Owner::search(['identity_id', '=', $user['identity_id']['id']])
+        ->read(['ownership_id'])
+        ->get(true),
+    'ownership_id'
+);
 
 $is_employee = false;
 $is_owner = false;
