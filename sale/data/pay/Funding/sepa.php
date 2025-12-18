@@ -10,7 +10,8 @@ use sale\pay\Funding;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate a SEPA XML file for multiple Fundings according to ISO 20022 pain.001.001.03.',
-    'help'          => 'Expected param is either a single Funding id or a list of Funding ids via the "ids" parameter. A maximum of 50 fundings per SEPA file is enforced.',
+    'help'          => 'Expected param is either a single Funding id or a list of Funding ids via the "ids" parameter. A maximum of 50 fundings per SEPA file is enforced.
+        This controller might be used either for generating documents to be grouped in .zip archive, or as a single instant download.',
     'params'        => [
         'id' => [
             'type'              => 'many2one',
@@ -55,6 +56,7 @@ if(count($ids) > 50) {
 $fundings = Funding::ids($ids)
     ->read([
         'id',
+        'name',
         'due_amount',
         'has_mandate',
         'payment_reference',
@@ -236,7 +238,7 @@ $xml = preg_replace(
 
 Funding::ids($ids)->update(['is_sent' => true]);
 
-$filename = "SEPA_ENVELOPE_" . date('Ymd_His') . ".xml";
+$filename = "SEPA_ENVELOPE_" . $funding['payment_reference'] . '_' . date('Ymd_His') . ".xml";
 
 $context->httpResponse()
     ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
