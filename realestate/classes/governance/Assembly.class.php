@@ -159,14 +159,14 @@ class Assembly extends \equal\orm\Model {
                 'order'          => 'order'
             ],
 
-            'assembly_invitation_instances_ids' => [
+            'assembly_invitation_correspondences_ids' => [
                 'type'           => 'one2many',
                 'description'    => "Invitations sent for the assembly.",
                 'foreign_object' => 'realestate\governance\AssemblyInvitationCorrespondence',
                 'foreign_field'  => 'assembly_id'
             ],
 
-            'assembly_minutes_instances_ids' => [
+            'assembly_minutes_correspondences_ids' => [
                 'type'           => 'one2many',
                 'description'    => "Invitations sent for the assembly.",
                 'foreign_object' => 'realestate\governance\AssemblyMinutesCorrespondence',
@@ -470,11 +470,11 @@ class Assembly extends \equal\orm\Model {
                 'function'      => 'doGenerateOwnerships'
             ],
 
-            'generate_invitation_instances' => [
+            'generate_invitation_correspondences' => [
                 'description'   => 'Generate invites.',
                 'help'          => 'This is called in `onbeforeSend` handler.',
                 'policies'      => [],
-                'function'      => 'doGenerateInvitationInstances'
+                'function'      => 'doGenerateInvitationCorrespondences'
             ],
 
             'send_invitation' => [
@@ -582,11 +582,11 @@ class Assembly extends \equal\orm\Model {
                 'function'      => 'doGeneratePrintableMinutes'
             ],
 
-            'generate_minutes_instances' => [
+            'generate_minutes_correspondences' => [
                 'description'   => 'Generate invites.',
                 'help'          => 'This is called in `onbeforeSend` handler.',
                 'policies'      => [],
-                'function'      => 'doGenerateMinutesInstances'
+                'function'      => 'doGenerateMinutesCorrespondences'
             ],
 
             'send_minutes' => [
@@ -713,11 +713,11 @@ class Assembly extends \equal\orm\Model {
      * Mark all invitations as sent.
      */
     protected static function onafterSent($self) {
-        $self->read(['assembly_invitation_instances_ids' => ['communication_method']]);
+        $self->read(['assembly_invitation_correspondences_ids' => ['communication_method']]);
         $map_invitations_ids = [];
 
         foreach($self as $id => $assembly) {
-            foreach($assembly['assembly_invitation_instances_ids'] as $assembly_invitation_id => $assemblyInvitation) {
+            foreach($assembly['assembly_invitation_correspondences_ids'] as $assembly_invitation_id => $assemblyInvitation) {
                 if($assemblyInvitation['communication_method'] === 'email') {
                     continue;
                 }
@@ -857,7 +857,7 @@ class Assembly extends \equal\orm\Model {
      */
     protected static function onafterClose($self) {
         $self
-            ->do('generate_minutes_instances')
+            ->do('generate_minutes_correspondences')
             ->do('send_minutes');
 
         // #todo - planifier les éventuelles tâches liées à des décisions prises durant l'assemblée
@@ -870,7 +870,7 @@ class Assembly extends \equal\orm\Model {
     protected static function onbeforeSend($self) {
         $self
             ->do('generate_ownerships')
-            ->do('generate_invitation_instances')
+            ->do('generate_invitation_correspondences')
             ->do('send_invitation');
     }
 
@@ -1018,7 +1018,7 @@ class Assembly extends \equal\orm\Model {
     /**
      * Generate invites for each ownership.
      */
-    protected static function doGenerateInvitationInstances($self) {
+    protected static function doGenerateInvitationCorrespondences($self) {
         $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
         foreach($self as $id => $assembly) {
             // remove any previously created invite
@@ -1088,7 +1088,7 @@ class Assembly extends \equal\orm\Model {
     /**
      * Generate minutes report for each ownership.
      */
-    protected static function doGenerateMinutesInstances($self) {
+    protected static function doGenerateMinutesCorrespondences($self) {
         $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
         foreach($self as $id => $assembly) {
             // remove any previously created invite
@@ -1165,7 +1165,7 @@ class Assembly extends \equal\orm\Model {
             'name',
             'condo_id',
             'minutes_exporting_task_id',
-            'assembly_minutes_instances_ids' => ['communication_method']
+            'assembly_minutes_correspondences_ids' => ['communication_method']
         ]);
 
         foreach($self as $id => $assembly) {
@@ -1177,7 +1177,7 @@ class Assembly extends \equal\orm\Model {
 
             $map_communication_methods = [];
 
-            foreach($assembly['assembly_minutes_instances_ids'] as $assembly_invitation_id => $assemblyMinutesCorrespondence) {
+            foreach($assembly['assembly_minutes_correspondences_ids'] as $assembly_invitation_id => $assemblyMinutesCorrespondence) {
                 // update global map to acknowledge that at least one invitation uses that communication method
                 $map_communication_methods[$assemblyMinutesCorrespondence['communication_method']] = true;
             }
@@ -1239,7 +1239,7 @@ class Assembly extends \equal\orm\Model {
             'name',
             'condo_id',
             'invitations_exporting_task_id',
-            'assembly_invitation_instances_ids' => ['communication_method']
+            'assembly_invitation_correspondences_ids' => ['communication_method']
         ]);
 
         foreach($self as $id => $assembly) {
@@ -1251,7 +1251,7 @@ class Assembly extends \equal\orm\Model {
 
             $map_communication_methods = [];
 
-            foreach($assembly['assembly_invitation_instances_ids'] as $assembly_invitation_id => $assemblyInvitation) {
+            foreach($assembly['assembly_invitation_correspondences_ids'] as $assembly_invitation_id => $assemblyInvitation) {
                 // update global map to acknowledge that at least one invitation uses that communication method
                 $map_communication_methods[$assemblyInvitation['communication_method']] = true;
             }

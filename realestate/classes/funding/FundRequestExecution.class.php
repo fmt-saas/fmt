@@ -7,12 +7,15 @@
 
 namespace realestate\funding;
 
+use documents\export\ExportingTask;
+use documents\export\ExportingTaskLine;
 use finance\accounting\Journal;
 use finance\accounting\Account;
 use finance\accounting\AccountingEntry;
 use finance\accounting\AccountingEntryLine;
 use realestate\ownership\Ownership;
 use fmt\setting\Setting;
+use realestate\ownership\OwnershipCommunicationPreference;
 use realestate\sale\pay\Funding;
 use sale\pay\Payment;
 
@@ -170,6 +173,16 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'help'          => 'For FundRequestExecution, invoice number is assigned during `perform_execution`.',
                 'policies'      => ['is_proforma'],
                 'function'      => 'doAssignInvoiceNumber'
+            ],
+            'generate_fund_request_correspondences' => [
+                'description'   => 'Generate individual correspondences for requesting the fundings.',
+                'policies'      => [],
+                'function'      => 'doGenerateFundRequestCorrespondences'
+            ],
+            'send_fund_requests' => [
+                'description'   => 'Generate individual correspondences for requesting the fundings.',
+                'policies'      => [],
+                'function'      => 'doSendFundRequests'
             ]
         ]);
     }
@@ -318,11 +331,155 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             ->do('assign_invoice_number')
             ->do('generate_accounting_entry')
             ->do('generate_fundings')
+
+            ->do('generate_fund_request_correspondences') // FundRequestCorrespondence
+            ->do('send_fund_requests')
+
             // automatically validate accounting entry
             ->read(['accounting_entry_id'])
             ->each(function($id, $requestExecution) {
                 AccountingEntry::id($requestExecution['accounting_entry_id'])->transition('validate');
             });
+    }
+
+    /**
+     * Generate invites for each ownership.
+     */
+    protected static function doGenerateFundRequestCorrespondences($self) {
+        $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
+        foreach($self as $id => $assembly) {
+            // remove any previously created invite
+            FundRequestCorrespondence::search(['assembly_id', '=', $id])->delete(true);
+
+            foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
+                if(!$ownership['representative_owner_id']) {
+                    continue;
+                }
+
+                // init prefs
+                $communication_methods = [
+                        'email'                     => false,
+                        'postal'                    => false,
+                        'postal_registered'         => false,
+                        'postal_registered_receipt' => false
+                    ];
+
+                // fetch Ownership communication preferences
+                $communicationPreference = OwnershipCommunicationPreference::search([
+                        ['condo_id', '=', $assembly['condo_id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['communication_reason', '=', 'general_assembly_call']
+                    ])
+                    ->read([
+                        'has_channel_email',
+                        'has_channel_postal',
+                        'has_channel_postal_registered',
+                        'has_channel_postal_registered_receipt'
+                    ])
+                    ->first();
+
+                if($communicationPreference) {
+                    $communication_methods = [
+                            'email'                     => $communicationPreference['has_channel_email'],
+                            'postal'                    => $communicationPreference['has_channel_postal'],
+                            'postal_registered'         => $communicationPreference['has_channel_postal_registered'],
+                            'postal_registered_receipt' => $communicationPreference['has_channel_postal_registered_receipt']
+                        ];
+                }
+
+                // if not requested otherwise, invite must be sent through registered postal mail
+                if(!in_array(true, $communication_methods, true)) {
+                    $communication_methods['postal_registered'] = true;
+                }
+
+                foreach($communication_methods as $communication_method => $communication_method_flag) {
+                    if(!$communication_method_flag) {
+                        continue;
+                    }
+
+                    FundRequestCorrespondence::create([
+                        'condo_id'              => $assembly['condo_id'],
+                        'assembly_id'           => $id,
+                        'ownership_id'          => $ownership_id,
+                        'owner_id'              => $ownership['representative_owner_id'],
+                        'communication_method'  => $communication_method
+                    ]);
+                }
+            }
+
+        }
+    }
+
+
+    protected static function doSendFundRequests($self) {
+        /*
+        $self->read([
+            'name',
+            'condo_id',
+            'minutes_exporting_task_id',
+            'assembly_minutes_correspondences_ids' => ['communication_method']
+        ]);
+
+        foreach($self as $id => $assembly) {
+
+            // remove previously created exporting task (and lines), if any
+            if($assembly['minutes_exporting_task_id']) {
+                ExportingTask::id($assembly['minutes_exporting_task_id'])->delete(true);
+            }
+
+            $map_communication_methods = [];
+
+            foreach($assembly['assembly_minutes_correspondences_ids'] as $assembly_invitation_id => $assemblyMinutesCorrespondence) {
+                // update global map to acknowledge that at least one invitation uses that communication method
+                $map_communication_methods[$assemblyMinutesCorrespondence['communication_method']] = true;
+            }
+
+            if(isset($map_communication_methods['email'])) {
+                // schedule queuing of invite emails: `realestate_governance_Assembly_send-invitation`
+                $cron->schedule(
+                    "realestate.assembly.send-minutes.{$id}",
+                    time() + (5 * 60),
+                    'realestate_governance_Assembly_send-minutes',
+                    [
+                        'id'  => $id
+                    ]
+                );
+            }
+
+            // handle non-digital communication methods
+            if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
+
+                // schedule generation of a zip archive containing printable invites `realestate_governance_Assembly_export-invitation`
+                $exportingTask = ExportingTask::create([
+                        'name'          => "{$assembly['name']} - Export des courriers du PV",
+                        'condo_id'      => $assembly['condo_id'],
+                        'object_class'  => static::class,
+                        'object_id'     => $id
+                    ])
+                    ->first();
+
+                foreach($map_communication_methods as $communication_method => $flag) {
+                    if($communication_method === 'email') {
+                        continue;
+                    }
+                    ExportingTaskLine::create([
+                            'exporting_task_id' => $exportingTask['id'],
+                            'name'              => "{$assembly['name']} - Export du PV - {$communication_method}",
+                            'controller'        => 'realestate_governance_Assembly_export-minutes',
+                            'params'            => json_encode([
+                                    'id'                    => $id,
+                                    'communication_method'  => $communication_method
+                                ])
+                        ]);
+                }
+
+                self::id($id)->update([
+                        'minutes_exporting_task_id' => $exportingTask['id']
+                    ]);
+            }
+        }
+        */
+
     }
 
     public static function doCancelExecution($self) {

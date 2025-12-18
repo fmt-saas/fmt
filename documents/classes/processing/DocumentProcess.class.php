@@ -165,9 +165,23 @@ class DocumentProcess extends Model {
                 'default'           => false
             ],
 
-            'document_origin' => [
+            // #todo - make a computed filed from a document_origin_id
+            'document_origin_code' => [
                 'type'              => 'string',
                 'description'       => 'The channel the document originates from.',
+                'selection'         => [
+                    'manual_import',
+                    'email',
+                    'peppol',
+                    'case_file'
+                    //#todo - to complete
+                ],
+                'default'           => 'import'
+            ],
+
+            'document_origin' => [
+                'type'              => 'string',
+                'description'       => 'The channel category the document originates from.',
                 'selection'         => [
                     'manual',           // manual creation of the accounting document
                     'import',           // upload, email digestor, external source
