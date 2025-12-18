@@ -21,9 +21,12 @@ use realestate\ownership\Owner;
         'content-type'      => 'application/json',
         'charset'           => 'UTF-8',
         'accept-origin'     => '*',
-        'cacheable'     => true,
-        'cache-vary'    => ['user'],
-        'expires'       => 60
+        /*
+        // #memo - delay for changing selected_condo might be quite short
+        'cacheable'         => true,
+        'cache-vary'        => ['user'],
+        'expires'           => 60
+        */
     ],
     'providers'     => ['context', 'auth']
 ]);
@@ -161,7 +164,7 @@ $result = array_merge($user, [
         'is_owner'          => $is_owner,
         'is_employee'       => $is_employee,
         'condos_ids'        => array_keys($map_condos),
-        'selected_condo_id' => (int) Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id])
+        'selected_condo_id' => Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id])
     ]);
 
 unset($result['groups_ids']);
