@@ -17,9 +17,9 @@ use Twig\Extension\ExtensionInterface;
     'description'   => 'Generate a HTML preview of the Assembly invitation (final invites are generated through AssemblyInvite).',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific AssemblyInvitationInstance to consider.',
+            'description'       => 'Identifier of the specific AssemblyInvitationCorrespondence to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\governance\AssemblyInvitationInstance',
+            'foreign_object'    => 'realestate\governance\AssemblyInvitationCorrespondence',
             'required'          => true
         ],
 
@@ -180,7 +180,7 @@ try {
             })
         );
 
-    $template = $twig->load('AssemblyInvitationInstance.'.$params['view_id'].'.html');
+    $template = $twig->load('AssemblyInvitationCorrespondence.'.$params['view_id'].'.html');
     $html = $template->render($values);
 }
 catch(Exception $e) {

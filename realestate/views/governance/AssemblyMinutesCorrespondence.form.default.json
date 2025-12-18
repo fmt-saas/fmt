@@ -6,7 +6,7 @@
             "label": "View Invite",
             "icon": "print",
             "description": "View printable invite.",
-            "route": "/?get=realestate_governance_AssemblyInvitationInstance_render-pdf&id=object.id",
+            "route": "/?get=realestate_governance_AssemblyInvitationCorrespondence_render-pdf&id=object.id",
             "target": "_blank",
             "absolute": true
         }

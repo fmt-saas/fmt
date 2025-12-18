@@ -7,15 +7,15 @@
 
 use Dompdf\Dompdf;
 use Dompdf\Options as DompdfOptions;
-use realestate\governance\AssemblyInvitationInstance;
+use realestate\governance\AssemblyInvitationCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate a PDF Attendance Register for a given Assembly.',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific AssemblyInvitationInstance to consider.',
+            'description'       => 'Identifier of the specific AssemblyInvitationCorrespondence to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\governance\AssemblyInvitationInstance',
+            'foreign_object'    => 'realestate\governance\AssemblyInvitationCorrespondence',
             'required'          => true
         ]
     ],
@@ -33,16 +33,16 @@ use realestate\governance\AssemblyInvitationInstance;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-$assemblyInvitationInstance = AssemblyInvitationInstance::id($params['id'])
+$assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params['id'])
     ->first();
 
-if(!$assemblyInvitationInstance) {
+if(!$assemblyInvitationCorrespondence) {
     throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 try {
 
-    $html = (string) eQual::run('get', 'realestate_governance_AssemblyInvitationInstance_render-html', [
+    $html = (string) eQual::run('get', 'realestate_governance_AssemblyInvitationCorrespondence_render-html', [
             'id'            => $params['id']
         ]);
 

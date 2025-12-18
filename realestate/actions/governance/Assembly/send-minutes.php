@@ -6,7 +6,7 @@
 */
 
 use realestate\governance\Assembly;
-use realestate\governance\AssemblyMinutesInstance;
+use realestate\governance\AssemblyMinutesCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send all email minutes reports for the target assembly.",
@@ -51,7 +51,7 @@ if(!$assembly) {
 }
 
 // fetch invitations relating to given communication_method
-$assemblyMinutesInstances = AssemblyMinutesInstance::search([
+$assemblyMinutesCorrespondences = AssemblyMinutesCorrespondence::search([
         [ 'assembly_id', '=', $assembly['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
@@ -59,18 +59,18 @@ $assemblyMinutesInstances = AssemblyMinutesInstance::search([
 
 $assembly_invitations_ids = [];
 
-foreach($assemblyMinutesInstances as $assembly_invitation_id => $AssemblyMinutesInstance) {
+foreach($assemblyMinutesCorrespondences as $assembly_invitation_id => $AssemblyMinutesCorrespondence) {
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
-    if(!$AssemblyMinutesInstance['document_id']) {
+    if(!$AssemblyMinutesCorrespondence['document_id']) {
         // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_governance_AssemblyMinutesInstance_generate-document', ['id' => $assembly_invitation_id]);
+        eQual::run('do', 'realestate_governance_AssemblyMinutesCorrespondence_generate-document', ['id' => $assembly_invitation_id]);
     }
 
-    $AssemblyMinutesInstance = AssemblyMinutesInstance::id($assembly_invitation_id)
+    $AssemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($assembly_invitation_id)
         ->read(['document_id' => ['data']])
         ->first();
 
-    if(!$AssemblyMinutesInstance['document_id']) {
+    if(!$AssemblyMinutesCorrespondence['document_id']) {
         continue;
     }
 
@@ -80,7 +80,7 @@ foreach($assemblyMinutesInstances as $assembly_invitation_id => $AssemblyMinutes
 // send all generated documents
 foreach($assembly_invitations_ids as $assembly_invitation_id) {
     try {
-        eQual::run('do', 'realestate_governance_AssemblyMinutesInstance_send', ['id' => $assembly_invitation_id]);
+        eQual::run('do', 'realestate_governance_AssemblyMinutesCorrespondence_send', ['id' => $assembly_invitation_id]);
     }
     catch(Exception $e) {
         trigger_error('APP::Error while sending documents ' . $e->getMessage(), EQ_REPORT_ERROR);

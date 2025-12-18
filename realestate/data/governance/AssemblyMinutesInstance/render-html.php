@@ -7,7 +7,7 @@
 use core\setting\Setting;
 use documents\DocumentSignature;
 use realestate\governance\Assembly;
-use realestate\governance\AssemblyMinutesInstance;
+use realestate\governance\AssemblyMinutesCorrespondence;
 use realestate\governance\AssemblyItem;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
@@ -23,9 +23,9 @@ use Twig\Extension\ExtensionInterface;
     'description'   => 'Generate an html view of a Mandate template.',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific AssemblyMinutesInstance to consider.',
+            'description'       => 'Identifier of the specific AssemblyMinutesCorrespondence to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\governance\AssemblyMinutesInstance',
+            'foreign_object'    => 'realestate\governance\AssemblyMinutesCorrespondence',
             'required'          => true
         ],
 
@@ -94,7 +94,7 @@ $getLabels = function($lang) {
 };
 
 
-$assemblyMinutesInstance = AssemblyMinutesInstance::id($params['id'])
+$assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id'])
     ->read([
         'assembly_id',
         'owner_id' => [
@@ -111,12 +111,12 @@ $assemblyMinutesInstance = AssemblyMinutesInstance::id($params['id'])
     ])
     ->first(true);
 
-if(!$assemblyMinutesInstance) {
+if(!$assemblyMinutesCorrespondence) {
     throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 
-$assembly = Assembly::id($assemblyMinutesInstance['assembly_id'])
+$assembly = Assembly::id($assemblyMinutesCorrespondence['assembly_id'])
     ->read([
         'name',
         'condo_id',
@@ -176,7 +176,7 @@ $values = [
     'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
 
     'date'                      => $assembly['assembly_invitation_date'],
-    'recipient'                 => $assemblyMinutesInstance['owner_id'],
+    'recipient'                 => $assemblyMinutesCorrespondence['owner_id'],
 
     'map_assembly_items'        => $map_assembly_items,
 

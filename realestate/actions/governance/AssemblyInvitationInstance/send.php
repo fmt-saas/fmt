@@ -10,14 +10,14 @@ use core\Mail;
 use identity\Organisation;
 use equal\email\Email;
 use equal\email\EmailAttachment;
-use realestate\governance\AssemblyInvitationInstance;
+use realestate\governance\AssemblyInvitationCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a single email for a given Assembly Invitation.",
     'params'        => [
         'id' =>  [
             'type'             => 'many2one',
-            'foreign_object'   => 'realestate\governance\AssemblyInvitationInstance',
+            'foreign_object'   => 'realestate\governance\AssemblyInvitationCorrespondence',
             'description'      => 'Identifier of the Assembly item (resolution).',
         ]
     ],
@@ -52,7 +52,7 @@ if($organisation) {
     $signature = $organisation['signature'];
 }
 
-$assemblyInvitation = AssemblyInvitationInstance::id($params['id'])
+$assemblyInvitation = AssemblyInvitationCorrespondence::id($params['id'])
     ->read([
         'condo_id' => ['name'],
         'name',
@@ -153,11 +153,11 @@ foreach($attachments as $attachment) {
 }
 
 // queue message
-Mail::queue($message, 'realestate\governance\AssemblyInvitationInstance', $assemblyInvitation['id']);
+Mail::queue($message, 'realestate\governance\AssemblyInvitationCorrespondence', $assemblyInvitation['id']);
 
 
 // mark invitation as sent
-AssemblyInvitationInstance::id($assemblyInvitation['id'])
+AssemblyInvitationCorrespondence::id($assemblyInvitation['id'])
     ->update([
         'is_sent'      => true,
         'sent_date'    => date('Y-m-d H:i:s')

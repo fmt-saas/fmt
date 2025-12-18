@@ -10,14 +10,14 @@ use core\Mail;
 use identity\Organisation;
 use equal\email\Email;
 use equal\email\EmailAttachment;
-use realestate\governance\AssemblyMinutesInstance;
+use realestate\governance\AssemblyMinutesCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a single email for a given Assembly Invitation.",
     'params'        => [
         'id' =>  [
             'type'             => 'many2one',
-            'foreign_object'   => 'realestate\governance\AssemblyMinutesInstance',
+            'foreign_object'   => 'realestate\governance\AssemblyMinutesCorrespondence',
             'description'      => 'Identifier of the Assembly item (resolution).',
         ]
     ],
@@ -52,7 +52,7 @@ if($organisation) {
     $signature = $organisation['signature'];
 }
 
-$assemblyMinutesInstance = AssemblyMinutesInstance::id($params['id'])
+$assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id'])
     ->read([
         'condo_id' => ['name'],
         'name',
@@ -64,16 +64,16 @@ $assemblyMinutesInstance = AssemblyMinutesInstance::id($params['id'])
     ])
     ->first();
 
-if(!$assemblyMinutesInstance) {
+if(!$assemblyMinutesCorrespondence) {
     throw new Exception("unknown_assembly_invitation", EQ_ERROR_INVALID_PARAM);
 }
 
-if($assemblyMinutesInstance['communication_method'] !== 'email') {
+if($assemblyMinutesCorrespondence['communication_method'] !== 'email') {
     throw new Exception("invalid_communication_method", EQ_ERROR_INVALID_PARAM);
 }
 
 // #memo - document is expected to have been generated beforehand
-if(!$assemblyMinutesInstance['document_id']) {
+if(!$assemblyMinutesCorrespondence['document_id']) {
     throw new Exception("missing_invite_document", EQ_ERROR_INVALID_PARAM);
 }
 
@@ -93,9 +93,9 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $subject = $part['value'];
 
         $map_values = [
-            'assembly'  => $assemblyMinutesInstance['assembly_id']['name'],
-            'condo'     => $assemblyMinutesInstance['condo_id']['name'],
-            'date'      => $assemblyMinutesInstance['assembly_id']['assembly_date']
+            'assembly'  => $assemblyMinutesCorrespondence['assembly_id']['name'],
+            'condo'     => $assemblyMinutesCorrespondence['condo_id']['name'],
+            'date'      => $assemblyMinutesCorrespondence['assembly_id']['assembly_date']
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -108,10 +108,10 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $body = $part['value'];
 
         $map_values = [
-            'firstname' => $assemblyMinutesInstance['owner_id']['firstname'],
-            'lastname'  => $assemblyMinutesInstance['owner_id']['lastname'],
-            'condo'     => $assemblyMinutesInstance['condo_id']['name'],
-            'date'      => $assemblyMinutesInstance['assembly_id']['assembly_date'],
+            'firstname' => $assemblyMinutesCorrespondence['owner_id']['firstname'],
+            'lastname'  => $assemblyMinutesCorrespondence['owner_id']['lastname'],
+            'condo'     => $assemblyMinutesCorrespondence['condo_id']['name'],
+            'date'      => $assemblyMinutesCorrespondence['assembly_id']['assembly_date'],
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -128,17 +128,17 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
 
 // retrieve recipient
-$recipient_email = $assemblyMinutesInstance['owner_id']['email']
-    ?? $assemblyMinutesInstance['owner_id']['email_alt']
+$recipient_email = $assemblyMinutesCorrespondence['owner_id']['email']
+    ?? $assemblyMinutesCorrespondence['owner_id']['email_alt']
     ?? null;
 
 /** @var EmailAttachment[] */
 $attachments = [];
 
-$main_attachment_name = 'Invitation Assemblée - ' . $assemblyMinutesInstance['condo_id']['name'] . ' - ' . $assemblyMinutesInstance['ownership_id']['name'];
+$main_attachment_name = 'Invitation Assemblée - ' . $assemblyMinutesCorrespondence['condo_id']['name'] . ' - ' . $assemblyMinutesCorrespondence['ownership_id']['name'];
 
 // push main attachment
-$attachments[] = new EmailAttachment($main_attachment_name.'.pdf', (string) $assemblyMinutesInstance['document_id']['data'], 'application/pdf');
+$attachments[] = new EmailAttachment($main_attachment_name.'.pdf', (string) $assemblyMinutesCorrespondence['document_id']['data'], 'application/pdf');
 
 // create message
 $message = new Email();
@@ -153,11 +153,11 @@ foreach($attachments as $attachment) {
 }
 
 // queue message
-Mail::queue($message, 'realestate\governance\AssemblyMinutesInstance', $assemblyMinutesInstance['id']);
+Mail::queue($message, 'realestate\governance\AssemblyMinutesCorrespondence', $assemblyMinutesCorrespondence['id']);
 
 
 // mark invitation as sent
-AssemblyMinutesInstance::id($assemblyMinutesInstance['id'])
+AssemblyMinutesCorrespondence::id($assemblyMinutesCorrespondence['id'])
     ->update([
         'is_sent'      => true,
         'sent_date'    => date('Y-m-d H:i:s')

@@ -162,14 +162,14 @@ class Assembly extends \equal\orm\Model {
             'assembly_invitation_instances_ids' => [
                 'type'           => 'one2many',
                 'description'    => "Invitations sent for the assembly.",
-                'foreign_object' => 'realestate\governance\AssemblyInvitationInstance',
+                'foreign_object' => 'realestate\governance\AssemblyInvitationCorrespondence',
                 'foreign_field'  => 'assembly_id'
             ],
 
             'assembly_minutes_instances_ids' => [
                 'type'           => 'one2many',
                 'description'    => "Invitations sent for the assembly.",
-                'foreign_object' => 'realestate\governance\AssemblyMinutesInstance',
+                'foreign_object' => 'realestate\governance\AssemblyMinutesCorrespondence',
                 'foreign_field'  => 'assembly_id'
             ],
 
@@ -725,7 +725,7 @@ class Assembly extends \equal\orm\Model {
             }
         }
 
-        AssemblyInvitationInstance::ids(array_keys($map_invitations_ids))
+        AssemblyInvitationCorrespondence::ids(array_keys($map_invitations_ids))
             ->update([
                     'is_sent'   => true,
                     'sent_date' => time()
@@ -1022,7 +1022,7 @@ class Assembly extends \equal\orm\Model {
         $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
         foreach($self as $id => $assembly) {
             // remove any previously created invite
-            AssemblyInvitationInstance::search(['assembly_id', '=', $id])->delete(true);
+            AssemblyInvitationCorrespondence::search(['assembly_id', '=', $id])->delete(true);
 
             foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
                 if(!$ownership['representative_owner_id']) {
@@ -1070,7 +1070,7 @@ class Assembly extends \equal\orm\Model {
                         continue;
                     }
 
-                    AssemblyInvitationInstance::create([
+                    AssemblyInvitationCorrespondence::create([
                         'condo_id'              => $assembly['condo_id'],
                         'assembly_id'           => $id,
                         'ownership_id'          => $ownership_id,
@@ -1092,7 +1092,7 @@ class Assembly extends \equal\orm\Model {
         $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
         foreach($self as $id => $assembly) {
             // remove any previously created invite
-            AssemblyInvitationInstance::search(['assembly_id', '=', $id])->delete(true);
+            AssemblyInvitationCorrespondence::search(['assembly_id', '=', $id])->delete(true);
 
             foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
                 if(!$ownership['representative_owner_id']) {
@@ -1140,7 +1140,7 @@ class Assembly extends \equal\orm\Model {
                         continue;
                     }
 
-                    AssemblyMinutesInstance::create([
+                    AssemblyMinutesCorrespondence::create([
                         'condo_id'              => $assembly['condo_id'],
                         'assembly_id'           => $id,
                         'ownership_id'          => $ownership_id,
@@ -1177,9 +1177,9 @@ class Assembly extends \equal\orm\Model {
 
             $map_communication_methods = [];
 
-            foreach($assembly['assembly_minutes_instances_ids'] as $assembly_invitation_id => $assemblyMinutesInstance) {
+            foreach($assembly['assembly_minutes_instances_ids'] as $assembly_invitation_id => $assemblyMinutesCorrespondence) {
                 // update global map to acknowledge that at least one invitation uses that communication method
-                $map_communication_methods[$assemblyMinutesInstance['communication_method']] = true;
+                $map_communication_methods[$assemblyMinutesCorrespondence['communication_method']] = true;
             }
 
             if(isset($map_communication_methods['email'])) {

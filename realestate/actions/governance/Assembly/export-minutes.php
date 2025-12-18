@@ -7,7 +7,7 @@
 
 use documents\Document;
 use realestate\governance\Assembly;
-use realestate\governance\AssemblyMinutesInstance;
+use realestate\governance\AssemblyMinutesCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Export assembly minutes: generate per-invitation documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
@@ -52,7 +52,7 @@ if(!$assembly) {
 }
 
 // fetch invitations relating to given communication_method
-$assemblyMinutesInstances = AssemblyMinutesInstance::search([
+$assemblyMinutesCorrespondences = AssemblyMinutesCorrespondence::search([
         [ 'assembly_id', '=', $assembly['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
@@ -62,24 +62,24 @@ $assemblyMinutesInstances = AssemblyMinutesInstance::search([
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
 
-foreach($assemblyMinutesInstances as $assembly_invitation_id => $AssemblyMinutesInstance) {
+foreach($assemblyMinutesCorrespondences as $assembly_invitation_id => $AssemblyMinutesCorrespondence) {
 
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
-    if(!$AssemblyMinutesInstance['document_id']) {
+    if(!$AssemblyMinutesCorrespondence['document_id']) {
         // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_governance_AssemblyMinutesInstance_generate-document', ['id' => $assembly_invitation_id]);
+        eQual::run('do', 'realestate_governance_AssemblyMinutesCorrespondence_generate-document', ['id' => $assembly_invitation_id]);
     }
 
-    $AssemblyMinutesInstance = AssemblyMinutesInstance::id($assembly_invitation_id)
+    $AssemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($assembly_invitation_id)
         ->read(['document_id' => ['data']])
         ->first();
 
-    if(!$AssemblyMinutesInstance['document_id']) {
+    if(!$AssemblyMinutesCorrespondence['document_id']) {
         continue;
     }
 
     $temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
-    file_put_contents($temp, $AssemblyMinutesInstance['document_id']['data'] ?? '');
+    file_put_contents($temp, $AssemblyMinutesCorrespondence['document_id']['data'] ?? '');
     $temp_files[] = $temp;
 }
 

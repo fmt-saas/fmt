@@ -7,14 +7,14 @@
 
 use documents\Document;
 use documents\navigation\Node;
-use realestate\governance\AssemblyInvitationInstance;
+use realestate\governance\AssemblyInvitationCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Create a document for a given assembly invitation.",
     'params'        => [
         'id' =>  [
             'type'             => 'many2one',
-            'foreign_object'   => 'realestate\governance\AssemblyInvitationInstance',
+            'foreign_object'   => 'realestate\governance\AssemblyInvitationCorrespondence',
             'description'      => 'Identifier of the Assembly invitation.',
             'required'          => true
         ]
@@ -33,7 +33,7 @@ use realestate\governance\AssemblyInvitationInstance;
 ['context' => $context] = $providers;
 
 
-$assemblyInvitation = AssemblyInvitationInstance::id($params['id'])
+$assemblyInvitation = AssemblyInvitationCorrespondence::id($params['id'])
     ->read(['status', 'condo_id', 'ownership_id', 'name'])
     ->first();
 
@@ -51,7 +51,7 @@ $parentNode = Node::search([
     ->first();
 
 // generate document and add it to EDMS
-$data = eQual::run('get', 'realestate_governance_AssemblyInvitationInstance_render-pdf', ['id' => $assemblyInvitation['id']]);
+$data = eQual::run('get', 'realestate_governance_AssemblyInvitationCorrespondence_render-pdf', ['id' => $assemblyInvitation['id']]);
 
 $document = Document::create([
         'name'          => 'Invitation Assemblée - ' . $assemblyInvitation['name'],
@@ -67,7 +67,7 @@ if(!$document) {
 }
 
 // attach generated document to invitation
-AssemblyInvitationInstance::id($assemblyInvitation['id'])->update(['document_id' => $document['id']]);
+AssemblyInvitationCorrespondence::id($assemblyInvitation['id'])->update(['document_id' => $document['id']]);
 
 
 $context->httpResponse()

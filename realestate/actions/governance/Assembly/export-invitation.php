@@ -7,7 +7,7 @@
 
 use documents\Document;
 use realestate\governance\Assembly;
-use realestate\governance\AssemblyInvitationInstance;
+use realestate\governance\AssemblyInvitationCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Export assembly invitation: generate per-invitation documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
@@ -52,7 +52,7 @@ if(!$assembly) {
 }
 
 // fetch invitations relating to given communication_method
-$assemblyInvitations = AssemblyInvitationInstance::search([
+$assemblyInvitations = AssemblyInvitationCorrespondence::search([
         [ 'assembly_id', '=', $assembly['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
@@ -67,10 +67,10 @@ foreach($assemblyInvitations as $assembly_invitation_id => $assemblyInvitation) 
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
     if(!$assemblyInvitation['document_id']) {
         // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_governance_AssemblyInvitationInstance_generate-document', ['id' => $assembly_invitation_id]);
+        eQual::run('do', 'realestate_governance_AssemblyInvitationCorrespondence_generate-document', ['id' => $assembly_invitation_id]);
     }
 
-    $assemblyInvitation = AssemblyInvitationInstance::id($assembly_invitation_id)
+    $assemblyInvitation = AssemblyInvitationCorrespondence::id($assembly_invitation_id)
         ->read(['document_id' => ['data']])
         ->first();
 

@@ -6,10 +6,10 @@
 */
 namespace realestate\governance;
 
-class AssemblyInvitationInstance extends \equal\orm\Model {
+class AssemblyMinutesCorrespondence extends \equal\orm\Model {
 
     public static function getDescription() {
-        return "Individual invitation to a General Assembly. A convocation to the General Assembly generates at least one invitation per ownership (one invitation per ownership representative).";
+        return "Individual minutes report of a General Assembly.";
     }
 
     public static function getColumns() {
@@ -62,7 +62,7 @@ class AssemblyInvitationInstance extends \equal\orm\Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'core\Mail',
                 'foreign_field'     => 'object_id',
-                'domain'            => ['object_class', '=', 'realestate\governance\AssemblyInvitationInstance'],
+                'domain'            => ['object_class', '=', 'realestate\governance\AssemblyInvitationCorrespondence'],
                 'visible'           => ['communication_method', '=', 'email']
             ],
 
@@ -101,18 +101,18 @@ class AssemblyInvitationInstance extends \equal\orm\Model {
 
     protected static function onupdateDocumentId($self) {
         $self->read(['document_id']);
-        foreach($self as $id => $assemblyInvitation) {
-            self::id($id)->update(['has_document' => (bool) $assemblyInvitation['document_id']]);
+        foreach($self as $id => $assemblyMinutesCorrespondence) {
+            self::id($id)->update(['has_document' => (bool) $assemblyMinutesCorrespondence['document_id']]);
         }
     }
 
     protected static function canupdate($self, $values) {
         $self->read(['is_sent']);
         $allowed = ['document_id', 'is_acknowledged'];
-        foreach($self as $id => $assemblyInvitation) {
-            if($assemblyInvitation['is_sent']) {
+        foreach($self as $id => $assemblyMinutesCorrespondence) {
+            if($assemblyMinutesCorrespondence['is_sent']) {
                 if(count(array_diff(array_keys($values), $allowed)) > 0) {
-                    return ['is_sent' => ['non_editable' => 'Invite cannot be changed once sent.']];
+                    return ['is_sent' => ['non_editable' => 'Minutes report cannot be changed once sent.']];
                 }
             }
         }

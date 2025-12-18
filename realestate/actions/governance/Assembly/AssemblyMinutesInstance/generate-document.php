@@ -7,14 +7,14 @@
 
 use documents\Document;
 use documents\navigation\Node;
-use realestate\governance\AssemblyMinutesInstance;
+use realestate\governance\AssemblyMinutesCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Create a document for a given assembly invitation.",
     'params'        => [
         'id' =>  [
             'type'             => 'many2one',
-            'foreign_object'   => 'realestate\governance\AssemblyMinutesInstance',
+            'foreign_object'   => 'realestate\governance\AssemblyMinutesCorrespondence',
             'description'      => 'Identifier of the Assembly invitation.',
             'required'          => true
         ]
@@ -33,31 +33,31 @@ use realestate\governance\AssemblyMinutesInstance;
 ['context' => $context] = $providers;
 
 
-$assemblyMinutesInstance = AssemblyMinutesInstance::id($params['id'])
+$assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id'])
     ->read(['status', 'condo_id', 'ownership_id', 'name'])
     ->first();
 
-if(!$assemblyMinutesInstance) {
+if(!$assemblyMinutesCorrespondence) {
     throw new Exception("unknown_assembly_invitation", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 
 // retrieve FS Node relating to general meetings (assemblies)
 $parentNode = Node::search([
-        ['condo_id', '=', $assemblyMinutesInstance['condo_id'] ],
+        ['condo_id', '=', $assemblyMinutesCorrespondence['condo_id'] ],
         ['node_type', '=', 'folder'],
         ['code', '=', 'general_meetings']
     ])
     ->first();
 
 // generate document and add it to EDMS
-$data = eQual::run('get', 'realestate_governance_AssemblyMinutesInstance_render-pdf', ['id' => $assemblyMinutesInstance['id']]);
+$data = eQual::run('get', 'realestate_governance_AssemblyMinutesCorrespondence_render-pdf', ['id' => $assemblyMinutesCorrespondence['id']]);
 
 $document = Document::create([
-        'name'          => 'Invitation Assemblée - ' . $assemblyMinutesInstance['name'],
+        'name'          => 'Invitation Assemblée - ' . $assemblyMinutesCorrespondence['name'],
         'data'          => $data,
-        'condo_id'      => $assemblyMinutesInstance['condo_id'],
-        'ownership_id'  => $assemblyMinutesInstance['ownership_id']
+        'condo_id'      => $assemblyMinutesCorrespondence['condo_id'],
+        'ownership_id'  => $assemblyMinutesCorrespondence['ownership_id']
     ])
     ->update(['parent_node_id' => $parentNode['id'] ?? null])
     ->first();
@@ -67,7 +67,7 @@ if(!$document) {
 }
 
 // attach generated document to invitation
-AssemblyMinutesInstance::id($assemblyMinutesInstance['id'])->update(['document_id' => $document['id']]);
+AssemblyMinutesCorrespondence::id($assemblyMinutesCorrespondence['id'])->update(['document_id' => $document['id']]);
 
 
 $context->httpResponse()
