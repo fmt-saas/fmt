@@ -419,8 +419,8 @@
             {
                 "sections": [
                     {
-                        "id": "section.origin",
-                        "label": "Origin",
+                        "id": "section.email",
+                        "label": "E-mail",
                         "visible": [
                             ["email_subject", "<>", ""],
                             ["email_subject", "is not", null]
