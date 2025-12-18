@@ -23,7 +23,8 @@ $identity = Identity::create([
         "address_street" => "Rue Theo Van Pe, 4",
         "address_city" => "Ixelles",
         "address_zip" => "1050",
-        "address_country" => "BE"
+        "address_country" => "BE",
+        "registration_number" => "0145.874.544"
     ])
     ->first();
 
@@ -78,7 +79,8 @@ $identity = Identity::create([
         "address_street" => "Rue de la Forge, 43",
         "address_city" => "Woluwe-Saint-Lambert",
         "address_zip" => "1200",
-        "address_country" => "BE"
+        "address_country" => "BE",
+        "registration_number" => "0123.456.789"
     ])
     ->first();
 

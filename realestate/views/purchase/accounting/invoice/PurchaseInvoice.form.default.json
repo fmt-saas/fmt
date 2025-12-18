@@ -419,6 +419,41 @@
             {
                 "sections": [
                     {
+                        "id": "section.email",
+                        "label": "E-mail",
+                        "visible": [
+                            ["email_subject", "<>", ""],
+                            ["email_subject", "is not", null]
+                        ],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "email_subject",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "readonly": true
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "email_body",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "readonly":  true
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "id": "section.fund_usage_lines",
                         "label": "Fund usages",
                         "visible": ["has_fund_usage", "=", true],
