@@ -308,7 +308,7 @@ class Node extends Model {
         $result = [];
         $self->read(['condo_id', 'supplier_id']);
         foreach($self as $id => $node) {
-            if(!isset(['condo_id', 'supplier_id'])) {
+            if(!isset($node['condo_id'], $node['supplier_id'])) {
                 continue;
             }
             // find suppliership
