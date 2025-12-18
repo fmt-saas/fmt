@@ -238,7 +238,8 @@ $xml = preg_replace(
 
 Funding::ids($ids)->update(['is_sent' => true]);
 
-$filename = "SEPA_ENVELOPE_" . $funding['payment_reference'] . '_' . date('Ymd_His') . ".xml";
+// #memo - this does not guarantee resulting filename uniqueness
+$filename = "SEPA_ENVELOPE_" . $funding['payment_reference'] . '_' . date('Ymd') . ".xml";
 
 $context->httpResponse()
     ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')

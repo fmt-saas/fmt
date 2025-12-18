@@ -20,7 +20,10 @@ use realestate\ownership\Owner;
     'response'      => [
         'content-type'      => 'application/json',
         'charset'           => 'UTF-8',
-        'accept-origin'     => '*'
+        'accept-origin'     => '*',
+        'cacheable'     => true,
+        'cache-vary'    => ['user'],
+        'expires'       => 60
     ],
     'providers'     => ['context', 'auth']
 ]);
@@ -114,7 +117,8 @@ $user = User::id($user_id)
         'instance_id' => ['url'],
         'organisation_id',
         'employee_id',
-        'role_assignments_ids' => ['condo_id', 'role_code', 'employee_id', 'is_external']
+        'role_assignments_ids' => ['condo_id', 'role_code', 'employee_id', 'is_external'],
+        'selected_condo_id' => Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id])
     ])
     ->adapt('json')
     ->first(true);
@@ -144,6 +148,8 @@ foreach($user['role_assignments_ids'] as $role_assignment) {
     $map_roles[$role_assignment['role_code']] = true;
     $map_condos[$role_assignment['condo_id']] = true;
 }
+
+
 
 $result = array_merge($user, [
         'groups'            => array_values(array_map(function ($a) {return $a['name'];}, $user['groups_ids'])),

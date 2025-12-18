@@ -29,8 +29,8 @@
             "help": ""
         },
         "download_link": {
-            "label": "Lien de téléchargement",
-            "description": "URL générée quand l'archive ZIP est prête.",
+            "label": "Lien",
+            "description": "Lien de téléchargement lorsque l'archive ZIP est prête.",
             "help": ""
         },
         "status": {

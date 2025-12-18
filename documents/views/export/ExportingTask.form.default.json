@@ -1,5 +1,8 @@
 {
     "name": "Exporting Task",
+    "header": {
+        "actions": false
+    },
     "actions": [
         {
             "id": "action.retry",
@@ -43,12 +46,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "100%"
+                                                "width": "250%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "name",
-                                                "width": "100%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
@@ -67,8 +70,6 @@
             {
                 "sections": [
                     {
-                        "id": "section.export_lines",
-                        "label": "Jobs",
                         "rows": [
                             {
                                 "columns": [

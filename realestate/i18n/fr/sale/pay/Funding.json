@@ -110,7 +110,7 @@
             "help": ""
         },
         "is_sent": {
-            "label": "Envoi SEPA",
+            "label": "Envoyé (SEPA)",
             "description": "Devient vrai quand le flux SEPA a été généré.",
             "help": ""
         },
