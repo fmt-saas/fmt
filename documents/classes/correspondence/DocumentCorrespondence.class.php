@@ -18,13 +18,6 @@ class DocumentCorrespondence extends \equal\orm\Model {
                 'required'          => true
             ],
 
-            'assembly_id' => [
-                'type'              => 'many2one',
-                'description'       => "The assembly the invitation refers to.",
-                'foreign_object'    => 'realestate\governance\Assembly',
-                'required'          => true
-            ],
-
             'owner_id' => [
                 'type'              => 'many2one',
                 'description'       => "The owner concerned by the invitation.",

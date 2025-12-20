@@ -62,24 +62,24 @@ $assemblyMinutesCorrespondences = AssemblyMinutesCorrespondence::search([
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
 
-foreach($assemblyMinutesCorrespondences as $assembly_invitation_id => $AssemblyMinutesCorrespondence) {
+foreach($assemblyMinutesCorrespondences as $assembly_minutes_correspondence_id => $assemblyMinutesCorrespondence) {
 
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
-    if(!$AssemblyMinutesCorrespondence['document_id']) {
+    if(!$assemblyMinutesCorrespondence['document_id']) {
         // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_governance_AssemblyMinutesCorrespondence_generate-document', ['id' => $assembly_invitation_id]);
+        eQual::run('do', 'realestate_governance_AssemblyMinutesCorrespondence_generate-document', ['id' => $assembly_minutes_correspondence_id]);
     }
 
-    $AssemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($assembly_invitation_id)
+    $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($assembly_minutes_correspondence_id)
         ->read(['document_id' => ['data']])
         ->first();
 
-    if(!$AssemblyMinutesCorrespondence['document_id']) {
+    if(!$assemblyMinutesCorrespondence['document_id']) {
         continue;
     }
 
     $temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
-    file_put_contents($temp, $AssemblyMinutesCorrespondence['document_id']['data'] ?? '');
+    file_put_contents($temp, $assemblyMinutesCorrespondence['document_id']['data'] ?? '');
     $temp_files[] = $temp;
 }
 

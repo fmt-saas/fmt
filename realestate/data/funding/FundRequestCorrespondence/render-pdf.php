@@ -7,15 +7,15 @@
 
 use Dompdf\Dompdf;
 use Dompdf\Options as DompdfOptions;
-use realestate\governance\AssemblyMinutesCorrespondence;
+use realestate\funding\FundRequestCorrespondence;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate a PDF Attendance Register for a given Assembly.',
+    'description'   => 'Generate a PDF individual request for a given Fund Request.',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific AssemblyMinutesCorrespondence to consider.',
+            'description'       => 'Identifier of the specific FundRequestCorrespondence to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\governance\AssemblyMinutesCorrespondence',
+            'foreign_object'    => 'realestate\funding\FundRequestCorrespondence',
             'required'          => true
         ]
     ],
@@ -33,16 +33,16 @@ use realestate\governance\AssemblyMinutesCorrespondence;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-$assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id'])
+$fundRequestCorrespondence = FundRequestCorrespondence::id($params['id'])
     ->first();
 
-if(!$assemblyMinutesCorrespondence) {
-    throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
+if(!$fundRequestCorrespondence) {
+    throw new Exception('unknown_fund_request_correspondence', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 try {
 
-    $html = (string) eQual::run('get', 'realestate_governance_AssemblyMinutesCorrespondence_render-html', [
+    $html = (string) eQual::run('get', 'realestate_funding_FundRequestCorrespondence_render-html', [
             'id'            => $params['id']
         ]);
 
@@ -74,7 +74,7 @@ try {
     $output = $dompdf->output();
 }
 catch(Exception $e) {
-    trigger_error('APP::Error while rendering template' . $e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+    trigger_error('APP::Error while rendering template' . $e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 

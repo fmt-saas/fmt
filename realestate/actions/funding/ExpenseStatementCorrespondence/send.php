@@ -10,14 +10,14 @@ use core\Mail;
 use identity\Organisation;
 use equal\email\Email;
 use equal\email\EmailAttachment;
-use realestate\governance\AssemblyInvitationCorrespondence;
+use realestate\funding\ExpenseStatementCorrespondence;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Send a single email for a given Assembly Invitation.",
+    'description'   => "Send a single email for a given Expense Statement correspondence.",
     'params'        => [
         'id' =>  [
             'type'             => 'many2one',
-            'foreign_object'   => 'realestate\governance\AssemblyInvitationCorrespondence',
+            'foreign_object'   => 'realestate\funding\ExpenseStatementCorrespondence',
             'description'      => 'Identifier of the Assembly item (resolution).',
         ]
     ],
@@ -52,28 +52,28 @@ if($organisation) {
     $signature = $organisation['signature'];
 }
 
-$assemblyInvitation = AssemblyInvitationCorrespondence::id($params['id'])
+$expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
     ->read([
         'condo_id' => ['name'],
         'name',
         'communication_method',
         'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
         'ownership_id' => ['name'],
-        'assembly_id' => ['name', 'assembly_date', 'assembly_type'],
+        'expense_statement_id' => ['name', 'emission_date'],
         'document_id' => ['data']
     ])
     ->first();
 
-if(!$assemblyInvitation) {
-    throw new Exception("unknown_assembly_invitation", EQ_ERROR_INVALID_PARAM);
+if(!$expenseStatementCorrespondence) {
+    throw new Exception("unknown_expense_statement_correspondence", EQ_ERROR_INVALID_PARAM);
 }
 
-if($assemblyInvitation['communication_method'] !== 'email') {
+if($expenseStatementCorrespondence['communication_method'] !== 'email') {
     throw new Exception("invalid_communication_method", EQ_ERROR_INVALID_PARAM);
 }
 
 // #memo - document is expected to have been generated beforehand
-if(!$assemblyInvitation['document_id']) {
+if(!$expenseStatementCorrespondence['document_id']) {
     throw new Exception("missing_invite_document", EQ_ERROR_INVALID_PARAM);
 }
 
@@ -93,9 +93,9 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $subject = $part['value'];
 
         $map_values = [
-            'assembly'  => $assemblyInvitation['assembly_id']['name'],
-            'condo'     => $assemblyInvitation['condo_id']['name'],
-            'date'      => $assemblyInvitation['assembly_id']['assembly_date']
+            'expense_statement' => $expenseStatementCorrespondence['expense_statement_id']['name'],
+            'condo'             => $expenseStatementCorrespondence['condo_id']['name'],
+            'date'              => $expenseStatementCorrespondence['expense_statement_id']['emission_date']
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -108,10 +108,10 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $body = $part['value'];
 
         $map_values = [
-            'firstname' => $assemblyInvitation['owner_id']['firstname'],
-            'lastname'  => $assemblyInvitation['owner_id']['lastname'],
-            'condo'     => $assemblyInvitation['condo_id']['name'],
-            'date'      => $assemblyInvitation['assembly_id']['assembly_date'],
+            'firstname' => $expenseStatementCorrespondence['owner_id']['firstname'],
+            'lastname'  => $expenseStatementCorrespondence['owner_id']['lastname'],
+            'condo'     => $expenseStatementCorrespondence['condo_id']['name'],
+            'date'      => $expenseStatementCorrespondence['expense_statement_id']['emission_date'],
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -128,17 +128,17 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
 
 // retrieve recipient
-$recipient_email = $assemblyInvitation['owner_id']['email']
-    ?? $assemblyInvitation['owner_id']['email_alt']
+$recipient_email = $expenseStatementCorrespondence['owner_id']['email']
+    ?? $expenseStatementCorrespondence['owner_id']['email_alt']
     ?? null;
 
 /** @var EmailAttachment[] */
 $attachments = [];
 
-$main_attachment_name = 'Invitation Assemblée - ' . $assemblyInvitation['condo_id']['name'] . ' - ' . $assemblyInvitation['ownership_id']['name'];
+$main_attachment_name = 'Invitation Assemblée - ' . $expenseStatementCorrespondence['condo_id']['name'] . ' - ' . $expenseStatementCorrespondence['ownership_id']['name'];
 
 // push main attachment
-$attachments[] = new EmailAttachment($main_attachment_name.'.pdf', (string) $assemblyInvitation['document_id']['data'], 'application/pdf');
+$attachments[] = new EmailAttachment($main_attachment_name.'.pdf', (string) $expenseStatementCorrespondence['document_id']['data'], 'application/pdf');
 
 // create message
 $message = new Email();
@@ -153,11 +153,11 @@ foreach($attachments as $attachment) {
 }
 
 // queue message
-Mail::queue($message, 'realestate\governance\AssemblyInvitationCorrespondence', $assemblyInvitation['id']);
+Mail::queue($message, 'realestate\governance\ExpenseStatementCorrespondence', $expenseStatementCorrespondence['id']);
 
 
 // mark invitation as sent
-AssemblyInvitationCorrespondence::id($assemblyInvitation['id'])
+ExpenseStatementCorrespondence::id($expenseStatementCorrespondence['id'])
     ->update([
         'is_sent'      => true,
         'sent_date'    => date('Y-m-d H:i:s')

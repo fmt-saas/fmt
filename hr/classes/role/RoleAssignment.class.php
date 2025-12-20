@@ -128,7 +128,7 @@ class RoleAssignment extends \equal\orm\Model {
                 // make sure there is no more than one condo_manager per condominium
                 $roleAssignments = self::search([
                         ['condo_id', '=', $roleAssignment['condo_id']],
-                        ['role_id', '=', $roleAssignment['role_id']],
+                        ['role_id', '=', $roleAssignment['role_id']['id']],
                         ['employee_id', '=', $roleAssignment['employee_id']],
                         ['id', '<>', $id]
                     ]);

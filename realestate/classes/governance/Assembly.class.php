@@ -1183,7 +1183,7 @@ class Assembly extends \equal\orm\Model {
             }
 
             if(isset($map_communication_methods['email'])) {
-                // schedule queuing of invite emails: `realestate_governance_Assembly_send-invitation`
+                // schedule queuing of invite emails
                 $cron->schedule(
                     "realestate.assembly.send-minutes.{$id}",
                     time() + (5 * 60),
@@ -1197,7 +1197,7 @@ class Assembly extends \equal\orm\Model {
             // handle non-digital communication methods
             if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
 
-                // schedule generation of a zip archive containing printable invites `realestate_governance_Assembly_export-invitation`
+                // schedule generation of a zip archive containing printable documents
                 $exportingTask = ExportingTask::create([
                         'name'          => "{$assembly['name']} - Export des courriers du PV",
                         'condo_id'      => $assembly['condo_id'],
@@ -1257,7 +1257,7 @@ class Assembly extends \equal\orm\Model {
             }
 
             if(isset($map_communication_methods['email'])) {
-                // schedule queuing of invite emails: `realestate_governance_Assembly_send-invitation`
+                // schedule queuing of invite emails
                 $cron->schedule(
                     "realestate.assembly.send-invitation.{$id}",
                     time() + (5 * 60),
@@ -1271,7 +1271,7 @@ class Assembly extends \equal\orm\Model {
             // handle non-digital communication methods
             if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
 
-                // schedule generation of a zip archive containing printable invites `realestate_governance_Assembly_export-invitation`
+                // schedule generation of a zip archive containing printable documents
                 $exportingTask = ExportingTask::create([
                         'name'          => "{$assembly['name']} - Export des courriers des invitations",
                         'condo_id'      => $assembly['condo_id'],

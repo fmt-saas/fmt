@@ -42,7 +42,7 @@ try {
     $output = eQual::run('get', 'documents_document', ['id' => $assembly['register_document_id']['signed_document_id']]);
 }
 catch(Exception $e) {
-    trigger_error('APP::Error while retrieving printable attendance register: '.$e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+    trigger_error('APP::Error while retrieving printable attendance register: '.$e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 

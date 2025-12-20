@@ -83,6 +83,17 @@
             {
                 "type": "field",
                 "value": "description",
+                "width": "20%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "ownership_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "supplier_id",
                 "width": "20%"
             },
             {

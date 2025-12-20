@@ -11,8 +11,8 @@ use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 use finance\accounting\Journal;
 use finance\accounting\Account;
-use finance\accounting\AccountingEntry;
-use finance\accounting\AccountingEntryLine;
+use realestate\finance\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntryLine;
 use realestate\ownership\Ownership;
 use fmt\setting\Setting;
 use realestate\ownership\OwnershipCommunicationPreference;
@@ -105,6 +105,19 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'foreign_object'    => 'realestate\sale\pay\Funding',
                 'foreign_field'     => 'fund_request_execution_id',
                 'description'       => 'The fundings that relate to the execution (sale invoice).'
+            ],
+
+            'fund_request_correspondences_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Invitations sent for the assembly.",
+                'foreign_object'    => 'realestate\funding\FundRequestCorrespondence',
+                'foreign_field'     => 'fund_request_execution_id'
+            ],
+
+            'fundings_exporting_task_id' => [
+                'type'              => 'many2one',
+                'description'       => "Reference to the task for exporting paper mails for funding request, if any.",
+                'foreign_object'    => 'documents\export\ExportingTask'
             ],
 
             'logs' => [
@@ -331,10 +344,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             ->do('assign_invoice_number')
             ->do('generate_accounting_entry')
             ->do('generate_fundings')
-
-            ->do('generate_fund_request_correspondences') // FundRequestCorrespondence
+            ->do('generate_fund_request_correspondences')
             ->do('send_fund_requests')
-
             // automatically validate accounting entry
             ->read(['accounting_entry_id'])
             ->each(function($id, $requestExecution) {
@@ -346,12 +357,15 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
      * Generate invites for each ownership.
      */
     protected static function doGenerateFundRequestCorrespondences($self) {
-        $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
-        foreach($self as $id => $assembly) {
+        $self->read(['condo_id', 'execution_lines_ids' => ['ownership_id']]);
+        foreach($self as $id => $fundRequestExecution) {
             // remove any previously created invite
-            FundRequestCorrespondence::search(['assembly_id', '=', $id])->delete(true);
+            FundRequestCorrespondence::search(['fund_request_execution_id', '=', $id])->delete(true);
 
-            foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
+            $ownerships_ids = array_column($fundRequestExecution['execution_lines_ids']->get(true), 'ownership_id');
+            $ownerships = Ownership::ids($ownerships_ids)->read(['representative_owner_id']);
+
+            foreach($ownerships as $ownership_id => $ownership) {
                 if(!$ownership['representative_owner_id']) {
                     continue;
                 }
@@ -366,9 +380,9 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
                 // fetch Ownership communication preferences
                 $communicationPreference = OwnershipCommunicationPreference::search([
-                        ['condo_id', '=', $assembly['condo_id']],
+                        ['condo_id', '=', $fundRequestExecution['condo_id']],
                         ['ownership_id', '=', $ownership_id],
-                        ['communication_reason', '=', 'general_assembly_call']
+                        ['communication_reason', '=', 'fund_request']
                     ])
                     ->read([
                         'has_channel_email',
@@ -398,48 +412,47 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                     }
 
                     FundRequestCorrespondence::create([
-                        'condo_id'              => $assembly['condo_id'],
-                        'assembly_id'           => $id,
-                        'ownership_id'          => $ownership_id,
-                        'owner_id'              => $ownership['representative_owner_id'],
-                        'communication_method'  => $communication_method
+                        'condo_id'                  => $fundRequestExecution['condo_id'],
+                        'fund_request_execution_id' => $id,
+                        'ownership_id'              => $ownership_id,
+                        'owner_id'                  => $ownership['representative_owner_id'],
+                        'communication_method'      => $communication_method
                     ]);
                 }
             }
-
         }
     }
 
 
-    protected static function doSendFundRequests($self) {
-        /*
+    protected static function doSendFundRequests($self, $cron) {
+
         $self->read([
             'name',
             'condo_id',
-            'minutes_exporting_task_id',
-            'assembly_minutes_correspondences_ids' => ['communication_method']
+            'fundings_exporting_task_id',
+            'fund_request_correspondences_ids' => ['communication_method']
         ]);
 
-        foreach($self as $id => $assembly) {
+        foreach($self as $id => $fundRequestExecution) {
 
             // remove previously created exporting task (and lines), if any
-            if($assembly['minutes_exporting_task_id']) {
-                ExportingTask::id($assembly['minutes_exporting_task_id'])->delete(true);
+            if($fundRequestExecution['fundings_exporting_task_id']) {
+                ExportingTask::id($fundRequestExecution['fundings_exporting_task_id'])->delete(true);
             }
 
             $map_communication_methods = [];
 
-            foreach($assembly['assembly_minutes_correspondences_ids'] as $assembly_invitation_id => $assemblyMinutesCorrespondence) {
+            foreach($fundRequestExecution['fund_request_correspondences_ids'] as $fundRequestCorrespondence) {
                 // update global map to acknowledge that at least one invitation uses that communication method
-                $map_communication_methods[$assemblyMinutesCorrespondence['communication_method']] = true;
+                $map_communication_methods[$fundRequestCorrespondence['communication_method']] = true;
             }
 
             if(isset($map_communication_methods['email'])) {
-                // schedule queuing of invite emails: `realestate_governance_Assembly_send-invitation`
+                // schedule queuing of invite emails
                 $cron->schedule(
-                    "realestate.assembly.send-minutes.{$id}",
+                    "realestate.fundrequest.send-fundings.{$id}",
                     time() + (5 * 60),
-                    'realestate_governance_Assembly_send-minutes',
+                    'realestate_funding_FundRequestExecution_send-fundings',
                     [
                         'id'  => $id
                     ]
@@ -449,10 +462,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             // handle non-digital communication methods
             if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
 
-                // schedule generation of a zip archive containing printable invites `realestate_governance_Assembly_export-invitation`
+                // schedule generation of a zip archive containing printable documents
                 $exportingTask = ExportingTask::create([
-                        'name'          => "{$assembly['name']} - Export des courriers du PV",
-                        'condo_id'      => $assembly['condo_id'],
+                        'name'          => "{$fundRequestExecution['name']} - Export des courriers de l'appel de fonds",
+                        'condo_id'      => $fundRequestExecution['condo_id'],
                         'object_class'  => static::class,
                         'object_id'     => $id
                     ])
@@ -464,8 +477,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                     }
                     ExportingTaskLine::create([
                             'exporting_task_id' => $exportingTask['id'],
-                            'name'              => "{$assembly['name']} - Export du PV - {$communication_method}",
-                            'controller'        => 'realestate_governance_Assembly_export-minutes',
+                            'name'              => "{$fundRequestExecution['name']} - Export du PV - {$communication_method}",
+                            'controller'        => 'realestate_funding_FundRequestExecution_export-fundings',
                             'params'            => json_encode([
                                     'id'                    => $id,
                                     'communication_method'  => $communication_method
@@ -474,11 +487,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 }
 
                 self::id($id)->update([
-                        'minutes_exporting_task_id' => $exportingTask['id']
+                        'fundings_exporting_task_id' => $exportingTask['id']
                     ]);
             }
         }
-        */
 
     }
 
@@ -542,14 +554,15 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
             // create an accounting entry
             $accountingEntry = AccountingEntry::create([
-                    'condo_id'              => $requestExecution['condo_id'],
-                    'journal_id'            => $journal['id'],
-                    'invoice_id'            => $id,
-                    'fiscal_year_id'        => $requestExecution['fiscal_year_id'],
-                    'entry_date'            => $requestExecution['emission_date'],
-                    'origin_object_class'   => self::getType(),
-                    'origin_object_id'      => $id,
-                    'sale_invoice_id'       => $id
+                    'condo_id'                  => $requestExecution['condo_id'],
+                    'journal_id'                => $journal['id'],
+                    'invoice_id'                => $id,
+                    'fiscal_year_id'            => $requestExecution['fiscal_year_id'],
+                    'entry_date'                => $requestExecution['emission_date'],
+                    'origin_object_class'       => self::getType(),
+                    'origin_object_id'          => $id,
+                    'sale_invoice_id'           => $id,
+                    'fund_request_execution_id' => $id
                 ])
                 ->first();
 

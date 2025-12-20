@@ -37,6 +37,9 @@ ManagingAgent::create([
 
 // first Employee
 
+$employee = Employee::create()
+    ->first();
+
 $identity = Identity::create([
         'type_id'           => 1,
         'type'              => 'IN',
@@ -48,16 +51,15 @@ $identity = Identity::create([
         'lang_id'           => 2,
         'address_country'   => 'BE',
         'has_vat'           => false,
-        'is_active'         => true
+        'is_active'         => true,
+        'employee_id'       => $employee['id']
     ])
     ->read(['name', 'email'])
     ->first();
 
-$employee = Employee::create([
-        "identity_id" => $identity['id']
-    ])
-    ->do('sync_from_identity')
-    ->first();
+Employee::id($employee['id'])
+    ->update(['identity_id' => $identity['id']])
+    ->do('sync_from_identity');
 
 User::create([
         'login'         => $identity['email'],

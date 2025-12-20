@@ -58,7 +58,7 @@ try {
     $output = (string) eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_batch-pdf', ['fiscal_period_id' => $params['fiscal_period_id']]);
 }
 catch(Exception $e) {
-    trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+    trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 

@@ -7,7 +7,7 @@
 use core\setting\Setting;
 use documents\DocumentSignature;
 use realestate\governance\Assembly;
-use realestate\governance\AssemblyMinutesCorrespondence;
+use realestate\governance\AssemblyInvitationCorrespondence;
 use realestate\governance\AssemblyItem;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
@@ -23,9 +23,9 @@ use Twig\Extension\ExtensionInterface;
     'description'   => 'Generate an html view of a Mandate template.',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific AssemblyMinutesCorrespondence to consider.',
+            'description'       => 'Identifier of the specific AssemblyInvitationCorrespondence to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\governance\AssemblyMinutesCorrespondence',
+            'foreign_object'    => 'realestate\governance\AssemblyInvitationCorrespondence',
             'required'          => true
         ],
 
@@ -94,7 +94,7 @@ $getLabels = function($lang) {
 };
 
 
-$assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id'])
+$assemblyInvitation = AssemblyInvitationCorrespondence::id($params['id'])
     ->read([
         'assembly_id',
         'owner_id' => [
@@ -111,12 +111,12 @@ $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id']
     ])
     ->first(true);
 
-if(!$assemblyMinutesCorrespondence) {
+if(!$assemblyInvitation) {
     throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 
-$assembly = Assembly::id($assemblyMinutesCorrespondence['assembly_id'])
+$assembly = Assembly::id($assemblyInvitation['assembly_id'])
     ->read([
         'name',
         'condo_id',
@@ -176,7 +176,7 @@ $values = [
     'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
 
     'date'                      => $assembly['assembly_invitation_date'],
-    'recipient'                 => $assemblyMinutesCorrespondence['owner_id'],
+    'recipient'                 => $assemblyInvitation['owner_id'],
 
     'map_assembly_items'        => $map_assembly_items,
 
@@ -210,11 +210,11 @@ try {
             })
         );
 
-    $template = $twig->load('AssemblyMinutes.'.$params['view_id'].'.html');
+    $template = $twig->load('AssemblyInvitation.'.$params['view_id'].'.html');
     $html = $template->render($values);
 }
 catch(Exception $e) {
-    trigger_error('APP::Error while rendering template' . $e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+    trigger_error('APP::Error while rendering template' . $e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 

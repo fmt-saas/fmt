@@ -326,8 +326,12 @@ class BankStatement extends Model {
 
     protected static function policyCanPost($self) {
         $result = [];
-        $self->read(['condo_id', 'bank_account_id', 'statement_number', 'opening_date', 'opening_balance', 'closing_balance']);
+        $self->read([
+                'condo_id', 'bank_account_id', 'statement_number', 'opening_date', 'opening_balance', 'closing_balance',
+                'statement_lines_ids' => ['is_expense', 'is_income', 'apportionment_id']
+            ]);
         foreach($self as $id => $bankStatement) {
+
 
             if(!$bankStatement['condo_id']) {
                 $result[$id] = [
@@ -341,6 +345,17 @@ class BankStatement extends Model {
                     'missing_bank_account_id' => "Bank Statement ({$id}) is not linked to a Bank Account."
                 ];
                 continue;
+            }
+
+            foreach($bankStatement['statement_lines_ids'] as $bank_statement_line_id => $bankStatementLine) {
+                if($bankStatementLine['is_expense'] || $bankStatementLine['is_income']) {
+                    if(!$bankStatementLine['apportionment_id']) {
+                        $result[$id] = [
+                            'missing_apportionment_id' => "Bank Statement ({$id}) with Line ({$bank_statement_line_id}) not linked to an apportionment key."
+                        ];
+                        continue 2;
+                    }
+                }
             }
 
             $statement_year = date('Y', $bankStatement['opening_date']);
@@ -373,7 +388,6 @@ class BankStatement extends Model {
                     continue;
                 }
             }
-
 
         }
         return $result;

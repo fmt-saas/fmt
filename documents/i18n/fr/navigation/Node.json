@@ -33,7 +33,7 @@
             }
         },
         "nodes_count": {
-            "label": "Éléments contenus",
+            "label": "Éléments",
             "description": "Nombre de sous-dossiers ou documents (calculé).",
             "help": ""
         },
@@ -61,6 +61,21 @@
             "label": "Visibilité",
             "description": "Définit qui peut consulter le nœud (publique/protégée/privée).",
             "help": "Synchronisé avec la hiérarchie : modifier un dossier met à jour ses descendants et leurs documents."
+        },
+        "ownership_id": {
+            "label": "Propriété",
+            "description": "Propriété ou lot concerné par le document.",
+            "help": "Permet d'associer le document à un droit de propriété particulier."
+        },
+        "supplier_id": {
+            "label": "Fournisseur",
+            "description": "Fournisseur ayant émis le document.",
+            "help": "Identifie l'interlocuteur fournisseur associé au document."
+        },
+        "suppliership_id": {
+            "label": "Relation fournisseur",
+            "description": "Relation fournisseur-copropriété associée (calculée).",
+            "help": "Déduite automatiquement en fonction du fournisseur et de l'immeuble."
         },
         "is_system": {
             "label": "Système",

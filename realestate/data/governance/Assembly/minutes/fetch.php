@@ -49,7 +49,7 @@ try {
     $output = eQual::run('get', 'documents_document', ['id' => $document_id]);
 }
 catch(Exception $e) {
-    trigger_error('APP::Error while retrieving minutes document: ' . $e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+    trigger_error('APP::Error while retrieving minutes document: ' . $e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 

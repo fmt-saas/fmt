@@ -524,7 +524,7 @@ class Document extends Model {
             if(!$document['node_id']) {
                 continue;
             }
-            Node::id($document['node_id'])->update(['node_visibility' => $document['node_id']]);
+            Node::id($document['node_id'])->update(['node_visibility' => $document['document_visibility']]);
         }
     }
 

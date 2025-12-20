@@ -7,6 +7,7 @@
 use core\setting\Setting;
 use finance\accounting\FiscalYear;
 use realestate\funding\FundRequest;
+use realestate\funding\FundRequestCorrespondence;
 use realestate\ownership\Owner;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
@@ -14,28 +15,16 @@ use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
 
-
-list($params, $providers) = eQual::announce([
-    'description'   => 'Generate an html view of given fund request for a single ownership.',
+[$params, $providers] = eQual::announce([
+    'description'   => 'Generate an html view of a Mandate template.',
     'params'        => [
-        'fiscal_year_id' => [
-            'description'       => 'Identifier of the targeted Fiscal Year.',
+        'id' => [
+            'description'       => 'Identifier of the specific FundRequestCorrespondence to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'finance\accounting\FiscalYear',
+            'foreign_object'    => 'realestate\funding\FundRequestCorrespondence',
             'required'          => true
         ],
 
-        'ownership_id' => [
-            'description'       => 'Identifier of the targeted Ownership (from which Owner is deduced).',
-            'type'              => 'many2one',
-            'foreign_object'    => 'realestate\ownership\Ownership',
-            'required'          => true
-        ],
-        'fund_request_id' => [
-            'description'       => 'Identifier of the specific fund request that must be returned.',
-            'type'              => 'many2one',
-            'foreign_object'    => 'realestate\funding\FundRequest'
-        ],
         'debug' => [
             'type'        => 'boolean',
             'default'     => false
@@ -50,7 +39,7 @@ list($params, $providers) = eQual::announce([
         'lang' =>  [
             'description' => 'Language in which labels and multilang field have to be returned (2 letters ISO 639-1).',
             'type'        => 'string',
-            'default'     => constant('DEFAULT_LANG')
+            'default'     => 'fr'
         ]
     ],
     'access'        => [
@@ -58,11 +47,13 @@ list($params, $providers) = eQual::announce([
     ],
     'response'      => [
         'content-type'  => 'text/html',
+        'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
     'providers'     => ['context'],
     'constants'     => ['L10N_TIMEZONE', 'L10N_LOCALE']
 ]);
+
 
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
@@ -163,12 +154,24 @@ $getPaymentQrCodeUri = function($legal_name, $bank_account_iban, $bank_account_b
 };
 
 
-$fund_requests = [];
 $executions = [];
 
 
+$fundRequestCorrespondence = FundRequestCorrespondence::id($params['id'])
+    ->read([
+        'ownership_id',
+        'fund_request_execution_id' => ['fund_request_id' => ['fiscal_year_id']]
+    ])
+    ->first();
+
+if(!$fundRequestCorrespondence) {
+    throw new Exception('unknown_fund_request_correspondence', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+$fundRequestExecution = $fundRequestCorrespondence['fund_request_execution_id'];
+
 // load all fund requests from a given fiscal year
-$fiscalYear = FiscalYear::id($params['fiscal_year_id'])
+$fiscalYear = FiscalYear::id($fundRequestExecution['fund_request_id']['fiscal_year_id'])
     ->read([
         'date_from',
         'date_to',
@@ -192,94 +195,86 @@ if(!$fiscalYear) {
     throw new Exception('unknown_fiscal_year', EQ_ERROR_INVALID_PARAM);
 }
 
-// take all requests of the fiscal year under account
-$fund_requests_ids = $fiscalYear['fund_requests_ids'];
-// unless a specific one is provided
-if(isset($params['fund_request_id'])) {
-    $fund_requests_ids = [$params['fund_request_id']];
+
+$fundRequest = FundRequest::id($fundRequestExecution['fund_request_id']['id'])
+    ->read([
+        'status',
+        'name',
+        'request_date',
+        'has_date_range',
+        'date_range_frequency',
+        'date_from',
+        'date_to',
+        'entry_lots_ids' => [
+            '@domain' => ['ownership_id', '=', $fundRequestCorrespondence['ownership_id']],
+            'ownership_id',
+            'apportionment_shares',
+            'allocated_amount',
+            'property_lot_id'   => ['name', 'code', 'property_lot_ref'],
+            'request_line_id'   => ['apportionment_id' => ['name', 'total_shares'], 'request_amount'],
+            'line_entry_id'     => ['allocated_amount']
+        ],
+        'execution_lines_ids' => [
+            '@domain' => ['ownership_id', '=', $fundRequestCorrespondence['ownership_id']],
+            'ownership_id',
+            'price',
+            'invoice_id' => ['emission_date', 'due_date', 'status']
+        ]
+    ])
+    ->first(true);
+
+if(!$fundRequest) {
+    throw new Exception('unknown_fund_request', EQ_ERROR_INVALID_PARAM);
 }
 
-foreach($fund_requests_ids as $fund_request_id) {
-    $fundRequest = FundRequest::id($fund_request_id)
-        ->read([
-            'status',
-            'name',
-            'request_date',
-            'has_date_range',
-            'date_range_frequency',
-            'date_from',
-            'date_to',
-            'entry_lots_ids' => [
-                '@domain' => ['ownership_id', '=', $params['ownership_id']],
-                'ownership_id',
-                'apportionment_shares',
-                'allocated_amount',
-                'property_lot_id'   => ['name', 'code', 'property_lot_ref'],
-                'request_line_id'   => ['apportionment_id' => ['name', 'total_shares'], 'request_amount'],
-                'line_entry_id'     => ['allocated_amount']
-            ],
-            'execution_lines_ids' => [
-                '@domain' => ['ownership_id', '=', $params['ownership_id']],
-                'ownership_id',
-                'price',
-                'invoice_id' => ['emission_date', 'due_date', 'status']
-            ]
-        ])
-        ->first(true);
+if($fundRequest['status'] != 'active') {
+    throw new Exception('inactive_fund_request', EQ_ERROR_INVALID_PARAM);
+}
 
+$request_name = $fundRequest['name'];
 
-    if($fundRequest['status'] != 'active') {
+if(!$fundRequest['has_date_range']) {
+    $request_name .= ' (' . $getFormattedDate($fundRequest['request_date']) . ')';
+}
+else {
+    $request_name .= ' (' . $getFormattedDate($fundRequest['date_from']) . ' - ' . $getFormattedDate($fundRequest['date_to']) . ')';
+}
+
+$fund_request = [
+        'name'          => $request_name,
+        'lines'         => [],
+        'executions'    => [],
+        'total'         => 0.0
+    ];
+
+foreach($fundRequest['entry_lots_ids'] as $entry_lot) {
+    $line = [
+        'name'          => $entry_lot['property_lot_id']['name'],
+        'code'          => $entry_lot['property_lot_id']['code'],
+        'apportionment' => $entry_lot['request_line_id']['apportionment_id']['name'],
+        'total'         => $entry_lot['request_line_id']['request_amount'],
+        'shares'        => $entry_lot['apportionment_shares'] . '/' . $entry_lot['request_line_id']['apportionment_id']['total_shares'],
+        'amount'        => $entry_lot['allocated_amount']
+    ];
+    $fund_request['total'] += $entry_lot['allocated_amount'];
+    $fund_request['lines'][] = $line;
+}
+
+foreach($fundRequest['execution_lines_ids'] as $execution_line) {
+    if($execution_line['invoice_id']['status'] === 'cancelled') {
         continue;
     }
+    $line = [
+        'issue_date'    => $execution_line['invoice_id']['emission_date'],
+        'due_date'      => $execution_line['invoice_id']['due_date'],
+        'fund_request'  => $request_name,
+        'amount'        => $execution_line['price']
+    ];
+    $executions[] = $line;
 
-    $request_name = $fundRequest['name'];
-
-    if(!$fundRequest['has_date_range']) {
-        $request_name .= ' (' . $getFormattedDate($fundRequest['request_date']) . ')';
-    }
-    else {
-        $request_name .= ' (' . $getFormattedDate($fundRequest['date_from']) . ' - ' . $getFormattedDate($fundRequest['date_to']) . ')';
-    }
-
-    $fund_request = [
-            'name'          => $request_name,
-            'lines'         => [],
-            'executions'    => [],
-            'total'         => 0.0
-        ];
-
-    foreach($fundRequest['entry_lots_ids'] as $entry_lot) {
-        $line = [
-            'name'          => $entry_lot['property_lot_id']['name'],
-            'code'          => $entry_lot['property_lot_id']['code'],
-            'apportionment' => $entry_lot['request_line_id']['apportionment_id']['name'],
-            'total'         => $entry_lot['request_line_id']['request_amount'],
-            'shares'        => $entry_lot['apportionment_shares'] . '/' . $entry_lot['request_line_id']['apportionment_id']['total_shares'],
-            'amount'        => $entry_lot['allocated_amount']
-        ];
-        $fund_request['total'] += $entry_lot['allocated_amount'];
-        $fund_request['lines'][] = $line;
-    }
-
-    foreach($fundRequest['execution_lines_ids'] as $execution_line) {
-        if($execution_line['invoice_id']['status'] === 'cancelled') {
-            continue;
-        }
-        $line = [
-            'issue_date'    => $execution_line['invoice_id']['emission_date'],
-            'due_date'      => $execution_line['invoice_id']['due_date'],
-            'fund_request'  => $request_name,
-            'amount'        => $execution_line['price']
-        ];
-        $executions[] = $line;
-
-    }
-    $fund_requests[] = $fund_request;
 }
 
-usort($executions, function ($a, $b) {
-    return $a['date'] <=> $b['date'];
-});
+
 
 /*
     #todo
@@ -292,7 +287,7 @@ usort($executions, function ($a, $b) {
     sinon soit on prendre le premier owner de la liste, soit on prend le owner_id renseigné dans les params (pour courrier personnalisé, même s'il s'agit du même ownership)
 */
 
-$owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
+$owner = Owner::search(['ownership_id', '=', $fundRequestCorrespondence['ownership_id']])
     ->read([
         'identity_id' => [
             'name', 'address_street', 'address_dispatch', 'address_zip',
@@ -322,7 +317,7 @@ $values = [
             'date_from'     => $fiscalYear['date_from'],
             'date_to'       => $fiscalYear['date_to'],
         ],
-    'fund_requests'       => $fund_requests,
+    'fund_requests'       => [$fund_request],
     'executions'          => $executions,
 
     'organisation'        => $fiscalYear['condo_id']['managing_agent_id'],

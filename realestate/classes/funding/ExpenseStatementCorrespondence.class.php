@@ -6,14 +6,14 @@
 */
 namespace realestate\funding;
 
-class FundRequestCorrespondence extends \documents\correspondence\DocumentCorrespondence {
+class ExpenseStatementCorrespondence extends \documents\correspondence\DocumentCorrespondence {
 
     public function getTable() {
-        return 'realestate_funding_fundrequestcorrespondence';
+        return 'realestate_funding_expensestatementcorrespondence';
     }
 
     public static function getDescription() {
-        return "Individual funding request.";
+        return "Individual expense statement. A condominium Expense Statement generates at least one statement per ownership (representative).";
     }
 
     public static function getColumns() {
@@ -22,14 +22,14 @@ class FundRequestCorrespondence extends \documents\correspondence\DocumentCorres
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'relation'          => ['fund_request_execution_id' => 'name'],
+                'relation'          => ['expense_statement_id' => 'name'],
                 'store'             => true
             ],
 
-            'fund_request_execution_id' => [
+            'expense_statement_id' => [
                 'type'              => 'many2one',
                 'description'       => "The assembly the invitation refers to.",
-                'foreign_object'    => 'realestate\funding\FundRequestExecution',
+                'foreign_object'    => 'realestate\funding\ExpenseStatement',
                 'required'          => true
             ],
 
@@ -37,7 +37,7 @@ class FundRequestCorrespondence extends \documents\correspondence\DocumentCorres
                 'type'              => 'one2many',
                 'foreign_object'    => 'core\Mail',
                 'foreign_field'     => 'object_id',
-                'domain'            => ['object_class', '=', 'realestate\funding\FundRequestCorrespondence'],
+                'domain'            => ['object_class', '=', 'realestate\funding\ExpenseStatementCorrespondence'],
                 'visible'           => ['communication_method', '=', 'email']
             ]
         ];

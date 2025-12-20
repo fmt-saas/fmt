@@ -8,6 +8,10 @@ namespace realestate\governance;
 
 class AssemblyMinutesCorrespondence extends \documents\correspondence\DocumentCorrespondence {
 
+    public function getTable() {
+        return 'realestate_governance_assemblyminutescorrespondence';
+    }
+
     public static function getDescription() {
         return "Individual minutes report of a General Assembly.";
     }
@@ -15,11 +19,25 @@ class AssemblyMinutesCorrespondence extends \documents\correspondence\DocumentCo
     public static function getColumns() {
 
         return [
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['assembly_id' => 'name'],
+                'store'             => true
+            ],
+
+            'assembly_id' => [
+                'type'              => 'many2one',
+                'description'       => "The assembly the invitation refers to.",
+                'foreign_object'    => 'realestate\governance\Assembly',
+                'required'          => true
+            ],
+
             'mails_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'core\Mail',
                 'foreign_field'     => 'object_id',
-                'domain'            => ['object_class', '=', 'realestate\governance\AssemblyInvitationCorrespondence'],
+                'domain'            => ['object_class', '=', 'realestate\governance\AssemblyMinutesCorrespondence'],
                 'visible'           => ['communication_method', '=', 'email']
             ]
         ];

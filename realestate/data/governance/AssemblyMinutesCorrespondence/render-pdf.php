@@ -4,28 +4,20 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
-use realestate\property\OwnershipTransfer;
+
 use Dompdf\Dompdf;
 use Dompdf\Options as DompdfOptions;
-use realestate\governance\Assembly;
+use realestate\governance\AssemblyMinutesCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate a PDF Attendance Register for a given Assembly.',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific Assembly to consider.',
+            'description'       => 'Identifier of the specific AssemblyMinutesCorrespondence to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\governance\Assembly',
-            'required'          => true
-        ],
-
-        'ownership_id' => [
-            'description'       => 'Identifier of the Ownership for whom the mandate is requested.',
-            'type'              => 'many2one',
-            'foreign_object'    => 'realestate\ownership\Ownership',
+            'foreign_object'    => 'realestate\governance\AssemblyMinutesCorrespondence',
             'required'          => true
         ]
-
     ],
     'access'        => [
         'visibility' => 'protected'
@@ -41,18 +33,17 @@ use realestate\governance\Assembly;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-$assembly = Assembly::id($params['id'])
+$assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id'])
     ->first();
 
-if(!$assembly) {
-    throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
+if(!$assemblyMinutesCorrespondence) {
+    throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 try {
 
-    $html = (string) eQual::run('get', 'realestate_governance_Assembly_mandate_render-html', [
-            'id'            => $params['id'],
-            'ownership_id'  => $params['ownership_id']
+    $html = (string) eQual::run('get', 'realestate_governance_AssemblyMinutesCorrespondence_render-html', [
+            'id'            => $params['id']
         ]);
 
     /*
@@ -69,15 +60,21 @@ try {
     $dompdf->render();
     $canvas = $dompdf->getCanvas();
 
+    $page_count = $canvas->get_page_count();
+
     $font = $dompdf->getFontMetrics()->getFont("helvetica", "regular");
-    $canvas->page_text(530, $canvas->get_height() - 35, "p. {PAGE_NUM} / {PAGE_COUNT}", $font, 9, array(0,0,0));
-    // $canvas->page_text(40, $canvas->get_height() - 35, "Export", $font, 9, array(0,0,0));
+    $canvas->page_text(530, $canvas->get_height() - 35, "p. {PAGE_NUM} / {PAGE_COUNT}", $font, 9, [0,0,0]);
+
+    // enforce odd amount of pages
+    if($page_count % 2 !== 0) {
+        $canvas->new_page();
+    }
 
     // get generated PDF raw binary
     $output = $dompdf->output();
 }
 catch(Exception $e) {
-    trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_REPORT_ERROR);
+    trigger_error('APP::Error while rendering template' . $e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 

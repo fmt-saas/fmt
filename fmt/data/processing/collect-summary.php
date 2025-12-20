@@ -106,7 +106,7 @@ if($employee_id) {
         foreach($documentProcesses as $documentProcess) {
             ++$count;
             if($documentProcess['created'] > $date_last) {
-                $date_last = $purchaseInvoice['created'];
+                $date_last = $documentProcess['created'];
             }
             /*
             if($documentProcess['alert'] && !in_array($documentProcess['alert'], ['info', 'success'], true)) {
