@@ -5,7 +5,10 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 use core\setting\Setting;
+use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
+use realestate\funding\ExpenseStatement;
+use realestate\funding\ExpenseStatementCorrespondence;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestCorrespondence;
 use realestate\ownership\Owner;
@@ -16,12 +19,12 @@ use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate an html view of a Mandate template.',
+    'description'   => 'Generate an html view of a Expense Statement.',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific FundRequestCorrespondence to consider.',
+            'description'       => 'Identifier of the specific ExpenseStatementCorrespondence to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\funding\FundRequestCorrespondence',
+            'foreign_object'    => 'realestate\funding\ExpenseStatementCorrespondence',
             'required'          => true
         ],
 
@@ -131,51 +134,37 @@ $getLabels = function($lang) {
     ];
 };
 
-$getPaymentQrCodeUri = function($legal_name, $bank_account_iban, $bank_account_bic, $payment_reference, $amount) {
-    // default to blank image (empty 1x1)
-    $result = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAoMBgDTD2qgAAAAASUVORK5CYII=';
-    try {
-        $image = eQual::run('get', 'finance_payment_generate-qr-code', [
-                'recipient_name'    => $legal_name,
-                'recipient_iban'    => $bank_account_iban,
-                'recipient_bic'     => $bank_account_bic,
-                'payment_reference' => $payment_reference,
-                'payment_amount'    => $amount
-            ]);
-        $result = sprintf('data:%s;base64,%s',
-                'image/png',
-                base64_encode($image)
-            );
-    }
-    catch(Exception $e) {
-        trigger_error("APP::unable to generate QR code for $bank_account_iban: " . $e->getMessage(), EQ_REPORT_WARNING);
-    }
-    return $result;
-};
 
+$expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
+    ->read(['status', 'condo_id', 'expense_statement_id', 'ownership_id', 'name'])
+    ->first();
 
-$executions = [];
+if(!$expenseStatementCorrespondence) {
+    throw new Exception("unknown_expense_statement_correspondence", EQ_ERROR_UNKNOWN_OBJECT);
+}
 
-
-$fundRequestCorrespondence = FundRequestCorrespondence::id($params['id'])
+$statement = ExpenseStatement::id($expenseStatementCorrespondence['expense_statement_id'])
     ->read([
-        'ownership_id',
-        'fund_request_execution_id' => ['fund_request_id' => ['fiscal_year_id']]
+        'invoice_number',
+        'fiscal_period_id',
+        'common_total',
+        'private_total',
+        'statement_owners_ids' => [
+            '@domain' => ['ownership_id', '=', $params['ownership_id']],
+            'schema'
+        ]
     ])
     ->first();
 
-if(!$fundRequestCorrespondence) {
-    throw new Exception('unknown_fund_request_correspondence', EQ_ERROR_UNKNOWN_OBJECT);
+if(!$statement) {
+    throw new Exception('no_matching_statement', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$fundRequestExecution = $fundRequestCorrespondence['fund_request_execution_id'];
 
-// load all fund requests from a given fiscal year
-$fiscalYear = FiscalYear::id($fundRequestExecution['fund_request_id']['fiscal_year_id'])
+$fiscalPeriod = FiscalPeriod::id($statement['fiscal_period_id'])
     ->read([
         'date_from',
         'date_to',
-        'fund_requests_ids',
         'condo_id' => [
             'name', 'address_street', 'address_zip', 'address_city',
             'managing_agent_id' => [
@@ -189,92 +178,30 @@ $fiscalYear = FiscalYear::id($fundRequestExecution['fund_request_id']['fiscal_ye
             ]
         ]
     ])
-    ->first(true);
+    ->first();
 
-if(!$fiscalYear) {
-    throw new Exception('unknown_fiscal_year', EQ_ERROR_INVALID_PARAM);
+if(!$fiscalPeriod) {
+    throw new Exception('unknown_fiscal_period', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 
-$fundRequest = FundRequest::id($fundRequestExecution['fund_request_id']['id'])
-    ->read([
-        'status',
-        'name',
-        'request_date',
-        'has_date_range',
-        'date_range_frequency',
-        'date_from',
-        'date_to',
-        'entry_lots_ids' => [
-            '@domain' => ['ownership_id', '=', $fundRequestCorrespondence['ownership_id']],
-            'ownership_id',
-            'apportionment_shares',
-            'allocated_amount',
-            'property_lot_id'   => ['name', 'code', 'property_lot_ref'],
-            'request_line_id'   => ['apportionment_id' => ['name', 'total_shares'], 'request_amount'],
-            'line_entry_id'     => ['allocated_amount']
-        ],
-        'execution_lines_ids' => [
-            '@domain' => ['ownership_id', '=', $fundRequestCorrespondence['ownership_id']],
-            'ownership_id',
-            'price',
-            'invoice_id' => ['emission_date', 'due_date', 'status']
-        ]
-    ])
-    ->first(true);
 
-if(!$fundRequest) {
-    throw new Exception('unknown_fund_request', EQ_ERROR_INVALID_PARAM);
-}
-
-if($fundRequest['status'] != 'active') {
-    throw new Exception('inactive_fund_request', EQ_ERROR_INVALID_PARAM);
-}
-
-$request_name = $fundRequest['name'];
-
-if(!$fundRequest['has_date_range']) {
-    $request_name .= ' (' . $getFormattedDate($fundRequest['request_date']) . ')';
-}
-else {
-    $request_name .= ' (' . $getFormattedDate($fundRequest['date_from']) . ' - ' . $getFormattedDate($fundRequest['date_to']) . ')';
-}
-
-$fund_request = [
-        'name'          => $request_name,
-        'lines'         => [],
-        'executions'    => [],
-        'total'         => 0.0
+$values = [
+        'date_from'         => $fiscalPeriod['date_from'],
+        'date_to'           => $fiscalPeriod['date_to'],
+        'nb_days'           => round(($fiscalPeriod['date_to'] - $fiscalPeriod['date_from']) / 86400, 0) + 1,
+        'common_total'      => $statement['common_total'],
+        'private_total'     => $statement['private_total'],
+        'owners'            => []
     ];
 
-foreach($fundRequest['entry_lots_ids'] as $entry_lot) {
-    $line = [
-        'name'          => $entry_lot['property_lot_id']['name'],
-        'code'          => $entry_lot['property_lot_id']['code'],
-        'apportionment' => $entry_lot['request_line_id']['apportionment_id']['name'],
-        'total'         => $entry_lot['request_line_id']['request_amount'],
-        'shares'        => $entry_lot['apportionment_shares'] . '/' . $entry_lot['request_line_id']['apportionment_id']['total_shares'],
-        'amount'        => $entry_lot['allocated_amount']
-    ];
-    $fund_request['total'] += $entry_lot['allocated_amount'];
-    $fund_request['lines'][] = $line;
+foreach($statement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
+    $values['owners'][] = $statementOwner['schema'];
 }
 
-foreach($fundRequest['execution_lines_ids'] as $execution_line) {
-    if($execution_line['invoice_id']['status'] === 'cancelled') {
-        continue;
-    }
-    $line = [
-        'issue_date'    => $execution_line['invoice_id']['emission_date'],
-        'due_date'      => $execution_line['invoice_id']['due_date'],
-        'fund_request'  => $request_name,
-        'amount'        => $execution_line['price']
-    ];
-    $executions[] = $line;
-
+if(!count($values['owners'])) {
+    throw new Exception('no_matching_owner', EQ_ERROR_UNKNOWN_OBJECT);
 }
-
-
 
 /*
     #todo
@@ -287,7 +214,7 @@ foreach($fundRequest['execution_lines_ids'] as $execution_line) {
     sinon soit on prendre le premier owner de la liste, soit on prend le owner_id renseigné dans les params (pour courrier personnalisé, même s'il s'agit du même ownership)
 */
 
-$owner = Owner::search(['ownership_id', '=', $fundRequestCorrespondence['ownership_id']])
+$owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
     ->read([
         'identity_id' => [
             'name', 'address_street', 'address_dispatch', 'address_zip',
@@ -304,39 +231,31 @@ if(!$owner) {
 $lang = $owner['identity_id']['lang_id']['code'];
 
 
-// adapt specific properties to TXT output
-/*
-$invoice['payment_reference'] = DataFormatter::format($invoice['payment_reference'], 'scor');
-$invoice['organisation_id']['bank_account_iban'] = DataFormatter::format($invoice['organisation_id']['bank_account_iban'], 'iban');
-$invoice['organisation_id']['phone'] = DataFormatter::format($invoice['organisation_id']['phone'], 'phone');
-*/
+$values = array_merge($values, [
+    'title'               => 'Décompte Propriétaire',
 
-$values = [
-    'title'               => 'Appels de fonds',
-    'fiscal_period'       => [
-            'date_from'     => $fiscalYear['date_from'],
-            'date_to'       => $fiscalYear['date_to'],
-        ],
-    'fund_requests'       => [$fund_request],
-    'executions'          => $executions,
-
-    'organisation'        => $fiscalYear['condo_id']['managing_agent_id'],
-    'organisation_logo'   => $getOrganisationLogo($fiscalYear['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
-
-    'condominium'         => $fiscalYear['condo_id'],
+    'organisation'        => $fiscalPeriod['condo_id']['managing_agent_id'],
+    'organisation_logo'   => $getOrganisationLogo($fiscalPeriod['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
+    'document_number'     => $statement['invoice_number'],
+    'condominium'         => $fiscalPeriod['condo_id'],
 
     'recipient'           => $owner['identity_id'],
 
 //    'payment_qr_code_uri' => $getPaymentQrCodeUri($invoice),
+
     'date'                => time(),
     'timezone'            => constant('L10N_TIMEZONE'),
     'locale'              => constant('L10N_LOCALE'),
     'date_format'         => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
     'currency'            => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
     'labels'              => $getLabels($lang),
-    'debug'               => $params['debug']
-];
+    'debug'               => $params['debug'],
 
+    'fiscal_period'       => [
+        'date_from' => $fiscalPeriod['date_from'],
+        'date_to'   => $fiscalPeriod['date_to']
+    ]
+]);
 
 
 try {
@@ -359,9 +278,8 @@ try {
             })
         );
 
-    $template = $twig->load('FundRequest.'.$params['view_id'].'.html');
+    $template = $twig->load('ExpenseStatement.'.$params['view_id'].'.html');
     $html = $template->render($values);
-
 }
 catch(Exception $e) {
     trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_REPORT_ERROR);

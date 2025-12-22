@@ -67,12 +67,19 @@ if($mailbox['auth_type'] !== 'oauth') {
     throw new Exception("non_oauth_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
-if($mailbox['refresh_token_expiry'] < time()) {
-    throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
-}
+try {
+    if($mailbox['refresh_token_expiry'] < time()) {
+        throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
+    }
 
-if($mailbox['access_token_expiry'] < time()) {
-    eQual::run('do', 'communication_email_Mailbox_refresh-token-gmail', ['id' => $params['id']]);
+    if($mailbox['access_token_expiry'] < time()) {
+        eQual::run('do', 'communication_email_Mailbox_refresh-token-gmail', ['id' => $params['id']]);
+    }
+}
+catch(Exception $e) {
+    // refresh token failed : force the need for OAuth renewal
+    Mailbox::id($params['id'])->update(['status' => 'pending']);
+    throw $e;
 }
 
 // load info required for fetching emails
