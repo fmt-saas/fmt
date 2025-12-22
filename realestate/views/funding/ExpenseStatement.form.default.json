@@ -39,7 +39,7 @@
             "label": "Download Statement",
             "help": "Current view domain is relayed to called controller.",
             "description": "Generate a document for all owners for current statement.",
-            "controller": "realestate_funding_expensestatement_print-pdf"
+            "controller": "realestate_funding_ExpenseStatement_print-pdf"
         }
     ],
     "routes": [

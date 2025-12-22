@@ -423,7 +423,6 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         }
     }
 
-
     protected static function doSendFundRequests($self, $cron) {
 
         $self->read([

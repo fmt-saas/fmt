@@ -6,6 +6,7 @@
 */
 namespace realestate\funding;
 
+use documents\export\ExportingTask;
 use finance\accounting\Account;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\Journal;
@@ -16,6 +17,7 @@ use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
+use realestate\ownership\OwnershipCommunicationPreference;
 use realestate\purchase\accounting\invoice\PurchaseInvoiceLine;
 use realestate\sale\pay\Funding;
 
@@ -82,6 +84,19 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ],
 
             /* additional fields*/
+
+            'statements_exporting_task_id' => [
+                'type'              => 'many2one',
+                'description'       => "Reference to the task for exporting paper mails for expense statement correspondences, if any.",
+                'foreign_object'    => 'documents\export\ExportingTask'
+            ],
+
+            'expense_statement_correspondences_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Correspondences sent for the expense statement.",
+                'foreign_object'    => 'realestate\funding\ExpenseStatementCorrespondence',
+                'foreign_field'     => 'expense_statement_id'
+            ],
 
             'statement_bank_account_id' => [
                 'type'              => 'many2one',
@@ -178,6 +193,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'policies'      => ['can_generate_statement'],
                 'function'      => 'doGenerateStatement'
             ],
+            'generate_expense_statement_correspondences' => [
+                'description'   => 'Generate correspondences for each Ownership.',
+                'policies'      => ['can_generate_statement'],
+                'function'      => 'doGenerateExpenseStatementCorrespondences'
+            ],
             'generate_fundings' => [
                 'description'   => 'Generate fundings for each involved ownership.',
                 'policies'      => [],
@@ -187,6 +207,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'description'   => 'Mark original accounting entries (records) as cleared by expense statement.',
                 'policies'      => [],
                 'function'      => 'doClearAccountingEntryLines'
+            ],
+            'send_expense_statements' => [
+                'description'   => 'Send expense statement correspondences.',
+                'policies'      => [],
+                'function'      => 'doSendExpenseStatements'
             ]
         ]);
     }
@@ -308,7 +333,150 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ->do('generate_fundings')
             ->do('assign_invoice_number')
             ->do('clear_accounting_entry_lines')
-            ->do('validate_accounting_entries');
+            ->do('validate_accounting_entries')
+            ->do('generate_expense_statement_correspondences')
+            ->do('send_expense_statements');
+
+    }
+
+    /**
+     * Generate invites for each ownership.
+     */
+    protected static function doGenerateExpenseStatementCorrespondences($self) {
+        $self->read(['condo_id', 'statement_owners_ids' => ['ownership_id']]);
+        foreach($self as $id => $expenseStatement) {
+            // remove any previously created invite
+            ExpenseStatementCorrespondence::search(['expense_statement_id', '=', $id])->delete(true);
+
+            $ownerships_ids = array_column($expenseStatement['statement_owners_ids']->get(true), 'ownership_id');
+            $ownerships = Ownership::ids($ownerships_ids)->read(['representative_owner_id']);
+
+            foreach($ownerships as $ownership_id => $ownership) {
+                if(!$ownership['representative_owner_id']) {
+                    continue;
+                }
+
+                // init prefs
+                $communication_methods = [
+                        'email'                     => false,
+                        'postal'                    => false,
+                        'postal_registered'         => false,
+                        'postal_registered_receipt' => false
+                    ];
+
+                // fetch Ownership communication preferences
+                $communicationPreference = OwnershipCommunicationPreference::search([
+                        ['condo_id', '=', $expenseStatement['condo_id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['communication_reason', '=', 'expense_statement']
+                    ])
+                    ->read([
+                        'has_channel_email',
+                        'has_channel_postal',
+                        'has_channel_postal_registered',
+                        'has_channel_postal_registered_receipt'
+                    ])
+                    ->first();
+
+                if($communicationPreference) {
+                    $communication_methods = [
+                            'email'                     => $communicationPreference['has_channel_email'],
+                            'postal'                    => $communicationPreference['has_channel_postal'],
+                            'postal_registered'         => $communicationPreference['has_channel_postal_registered'],
+                            'postal_registered_receipt' => $communicationPreference['has_channel_postal_registered_receipt']
+                        ];
+                }
+
+                // if not requested otherwise, invite must be sent through registered postal mail
+                if(!in_array(true, $communication_methods, true)) {
+                    $communication_methods['postal_registered'] = true;
+                }
+
+                foreach($communication_methods as $communication_method => $communication_method_flag) {
+                    if(!$communication_method_flag) {
+                        continue;
+                    }
+
+                    ExpenseStatementCorrespondence::create([
+                        'condo_id'                  => $expenseStatement['condo_id'],
+                        'expense_statement_id'      => $id,
+                        'ownership_id'              => $ownership_id,
+                        'owner_id'                  => $ownership['representative_owner_id'],
+                        'communication_method'      => $communication_method
+                    ]);
+                }
+            }
+        }
+    }
+
+
+    protected static function doSendExpenseStatements($self, $cron) {
+        $self->read([
+            'name',
+            'condo_id',
+            'expense_statements_exporting_task_id',
+            'expense_statements_correspondences_ids' => ['communication_method']
+        ]);
+
+        foreach($self as $id => $fundRequestExecution) {
+
+            // remove previously created exporting task (and lines), if any
+            if($fundRequestExecution['fundings_exporting_task_id']) {
+                ExportingTask::id($fundRequestExecution['fundings_exporting_task_id'])->delete(true);
+            }
+
+            $map_communication_methods = [];
+
+            foreach($fundRequestExecution['fund_request_correspondences_ids'] as $fundRequestCorrespondence) {
+                // update global map to acknowledge that at least one invitation uses that communication method
+                $map_communication_methods[$fundRequestCorrespondence['communication_method']] = true;
+            }
+
+            if(isset($map_communication_methods['email'])) {
+                // schedule queuing of invite emails
+                $cron->schedule(
+                    "realestate.fundrequest.send-fundings.{$id}",
+                    time() + (5 * 60),
+                    'realestate_funding_FundRequestExecution_send-fundings',
+                    [
+                        'id'  => $id
+                    ]
+                );
+            }
+
+            // handle non-digital communication methods
+            if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
+
+                // schedule generation of a zip archive containing printable documents
+                $exportingTask = ExportingTask::create([
+                        'name'          => "{$fundRequestExecution['name']} - Export des courriers de l'appel de fonds",
+                        'condo_id'      => $fundRequestExecution['condo_id'],
+                        'object_class'  => static::class,
+                        'object_id'     => $id
+                    ])
+                    ->first();
+
+                foreach($map_communication_methods as $communication_method => $flag) {
+                    if($communication_method === 'email') {
+                        continue;
+                    }
+                    ExportingTaskLine::create([
+                            'exporting_task_id' => $exportingTask['id'],
+                            'name'              => "{$fundRequestExecution['name']} - Export du PV - {$communication_method}",
+                            'controller'        => 'realestate_funding_FundRequestExecution_export-fundings',
+                            'params'            => json_encode([
+                                    'id'                    => $id,
+                                    'communication_method'  => $communication_method
+                                ])
+                        ]);
+                }
+
+                self::id($id)->update([
+                        'fundings_exporting_task_id' => $exportingTask['id']
+                    ]);
+            }
+        }
+
     }
 
     /**
