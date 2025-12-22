@@ -6,16 +6,16 @@
 */
 
 use documents\Document;
-use realestate\funding\FundRequestExecution;
-use realestate\funding\FundRequestCorrespondence;
+use realestate\funding\ExpenseStatement;
+use realestate\funding\ExpenseStatementCorrespondence;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Export assembly minutes: generate per-invitation documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
+    'description'   => "Export expense statement: generate per-invitation documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
             'description'       => "The Fund Request Execution the export refers to.",
-            'foreign_object'    => 'realestate\funding\FundRequestExecution',
+            'foreign_object'    => 'realestate\funding\ExpenseStatement',
             'required'          => true
         ],
 
@@ -43,17 +43,17 @@ use realestate\funding\FundRequestCorrespondence;
 ['context' => $context] = $providers;
 
 
-$fundRequestExecution = FundRequestExecution::id($params['id'])
+$expenseStatement = ExpenseStatement::id($params['id'])
     ->read(['status', 'condo_id', 'name'])
     ->first();
 
-if(!$fundRequestExecution) {
-    throw new Exception("unknown_assembly", EQ_ERROR_UNKNOWN_OBJECT);
+if(!$expenseStatement) {
+    throw new Exception("unknown_expense_statement", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 // fetch invitations relating to given communication_method
-$fundRequestCorrespondences = FundRequestCorrespondence::search([
-        [ 'fund_request_execution_id', '=', $fundRequestExecution['id'] ],
+$expenseStatementCorrespondences = ExpenseStatementCorrespondence::search([
+        [ 'expense_statement_execution_id', '=', $expenseStatement['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
     ->read(['is_sent', 'document_id']);
@@ -62,24 +62,24 @@ $fundRequestCorrespondences = FundRequestCorrespondence::search([
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
 
-foreach($fundRequestCorrespondences as $fund_request_correspondence_id => $fundRequestCorrespondence) {
+foreach($expenseStatementCorrespondences as $expense_statement_correspondence_id => $expenseStatementCorrespondence) {
 
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
-    if(!$fundRequestCorrespondence['document_id']) {
+    if(!$expenseStatementCorrespondence['document_id']) {
         // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_funding_FundRequestCorrespondence_generate-document', ['id' => $fund_request_correspondence_id]);
+        eQual::run('do', 'realestate_funding_FundRequestCorrespondence_generate-document', ['id' => $expense_statement_correspondence_id]);
     }
 
-    $fundRequestCorrespondence = FundRequestCorrespondence::id($fund_request_correspondence_id)
+    $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($expense_statement_correspondence_id)
         ->read(['document_id' => ['data']])
         ->first();
 
-    if(!$fundRequestCorrespondence['document_id']) {
+    if(!$expenseStatementCorrespondence['document_id']) {
         continue;
     }
 
     $temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
-    file_put_contents($temp, $fundRequestCorrespondence['document_id']['data'] ?? '');
+    file_put_contents($temp, $expenseStatementCorrespondence['document_id']['data'] ?? '');
     $temp_files[] = $temp;
 }
 
@@ -114,10 +114,10 @@ finally {
 
 // store final result as a document (not visible through EDMS)
 $document = Document::create([
-        'name'          => 'Export - ' . $fundRequestExecution['name'] . ' (' . $params['communication_method'] . ')',
+        'name'          => 'Export - ' . $expenseStatement['name'] . ' (' . $params['communication_method'] . ')',
         'content_type'  => 'application/pdf',
         'data'          => $output,
-        'condo_id'      => $fundRequestExecution['condo_id']
+        'condo_id'      => $expenseStatement['condo_id']
     ])
     ->first();
 

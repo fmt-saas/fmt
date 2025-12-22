@@ -7,6 +7,7 @@
 namespace realestate\funding;
 
 use documents\export\ExportingTask;
+use documents\export\ExportingTaskLine;
 use finance\accounting\Account;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\Journal;
@@ -414,20 +415,20 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         $self->read([
             'name',
             'condo_id',
-            'expense_statements_exporting_task_id',
-            'expense_statements_correspondences_ids' => ['communication_method']
+            'statements_exporting_task_id',
+            'expense_statement_correspondences_ids' => ['communication_method']
         ]);
 
-        foreach($self as $id => $fundRequestExecution) {
+        foreach($self as $id => $expenseStatement) {
 
             // remove previously created exporting task (and lines), if any
-            if($fundRequestExecution['fundings_exporting_task_id']) {
-                ExportingTask::id($fundRequestExecution['fundings_exporting_task_id'])->delete(true);
+            if($expenseStatement['statements_exporting_task_id']) {
+                ExportingTask::id($expenseStatement['statements_exporting_task_id'])->delete(true);
             }
 
             $map_communication_methods = [];
 
-            foreach($fundRequestExecution['fund_request_correspondences_ids'] as $fundRequestCorrespondence) {
+            foreach($expenseStatement['expense_statement_correspondences_ids'] as $fundRequestCorrespondence) {
                 // update global map to acknowledge that at least one invitation uses that communication method
                 $map_communication_methods[$fundRequestCorrespondence['communication_method']] = true;
             }
@@ -435,9 +436,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             if(isset($map_communication_methods['email'])) {
                 // schedule queuing of invite emails
                 $cron->schedule(
-                    "realestate.fundrequest.send-fundings.{$id}",
+                    "realestate.expensestatement.send-statements.{$id}",
                     time() + (5 * 60),
-                    'realestate_funding_FundRequestExecution_send-fundings',
+                    'realestate_funding_ExpenseStatement_send-statements',
                     [
                         'id'  => $id
                     ]
@@ -449,8 +450,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 // schedule generation of a zip archive containing printable documents
                 $exportingTask = ExportingTask::create([
-                        'name'          => "{$fundRequestExecution['name']} - Export des courriers de l'appel de fonds",
-                        'condo_id'      => $fundRequestExecution['condo_id'],
+                        'name'          => "{$expenseStatement['name']} - Export des courriers de l'appel de fonds",
+                        'condo_id'      => $expenseStatement['condo_id'],
                         'object_class'  => static::class,
                         'object_id'     => $id
                     ])
@@ -462,8 +463,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     }
                     ExportingTaskLine::create([
                             'exporting_task_id' => $exportingTask['id'],
-                            'name'              => "{$fundRequestExecution['name']} - Export du PV - {$communication_method}",
-                            'controller'        => 'realestate_funding_FundRequestExecution_export-fundings',
+                            'name'              => "{$expenseStatement['name']} - Export du décompte de charges - {$communication_method}",
+                            'controller'        => 'realestate_funding_ExpenseStatement_export-statements',
                             'params'            => json_encode([
                                     'id'                    => $id,
                                     'communication_method'  => $communication_method
@@ -472,7 +473,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 }
 
                 self::id($id)->update([
-                        'fundings_exporting_task_id' => $exportingTask['id']
+                        'statements_exporting_task_id' => $exportingTask['id']
                     ]);
             }
         }
