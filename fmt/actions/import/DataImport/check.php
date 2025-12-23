@@ -406,6 +406,10 @@ elseif($dataImport['import_type'] == 'banks_import') {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing mandatory `registration_number` in banks sheet at row " . ($index + 2);
         }
+        if(!$bank['bic']) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing mandatory `bic` in banks sheet at row " . ($index + 2);
+        }
     }
 }
 

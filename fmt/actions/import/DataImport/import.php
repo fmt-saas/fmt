@@ -80,7 +80,9 @@ $mapBankRowToJson = function (array $row): array {
         "email"               => $row['email_1'] ?? null,
         "email_alt"           => $row['email_2'] ?? null,
         "phone"               => isset($row['phone_1']) ? str_replace(' ', '', $row['phone_1']) : null,
-        "phone_alt"           => isset($row['phone_2']) ? str_replace(' ', '', $row['phone_2']) : null
+        "phone_alt"           => isset($row['phone_2']) ? str_replace(' ', '', $row['phone_2']) : null,
+        "website"             => $row['website'] ?? null,
+        "bic"                 => $row['bic'] ?? null,
     ];
 };
 
