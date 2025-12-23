@@ -176,7 +176,10 @@ try {
                 }
 
                 if(!$bank) {
-                    $bank = Bank::create([ 'identity_id' => $identity['id'] ])
+                    $bank = Bank::create([ 
+                            'identity_id' => $identity['id'],
+                            'bic'         => $values['bic']
+                        ])
                         ->do('sync_from_identity')
                         ->first();
 
@@ -189,7 +192,7 @@ try {
             catch(Exception $e) {
                 // something went wrong for line $i
                 trigger_error("APP::error while importing bank from import file at index $index.", EQ_REPORT_WARNING);
-                $result['logs'][] = "ERR - error while importing bank from import file at index `$index`.";
+                $result['logs'][] = "ERR - error while importing bank from import file at index `$index`: " . $e->getMessage();
             }
         }
         $orm->enableEvents($events);
