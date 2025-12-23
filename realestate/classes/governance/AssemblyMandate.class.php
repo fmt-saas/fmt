@@ -191,7 +191,11 @@ class AssemblyMandate extends \equal\orm\Model {
             }
 
             // 2) retrieve statutory apportionment
-            $apportionment = Apportionment::search(['is_statutory', '=', true], ['condo_id', '=', $assemblyMandate['condo_id']])->first();
+            $apportionment = Apportionment::search([
+                    ['is_statutory', '=', true],
+                    ['condo_id', '=', $assemblyMandate['condo_id']]
+                ])
+                ->first();
 
             if(!$apportionment) {
                 trigger_error('APP::unexpected missing statutory apportionment for condo ' . $assemblyMandate['condo_id'], EQ_REPORT_ERROR);

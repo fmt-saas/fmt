@@ -14,7 +14,6 @@ use realestate\sale\pay\Funding;
 use realestate\sale\pay\Payment;
 use finance\bank\BankStatement;
 use finance\bank\CondominiumBankAccount;
-use realestate\finance\accounting\MoneyTransfer;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
 
@@ -113,6 +112,7 @@ class BankStatementLine extends Model {
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => 'Amount of the transaction.',
+                'help'              => 'Positive amount for incoming transfer, negative amount for outgoing transfer.',
                 'required'          => true
             ],
 

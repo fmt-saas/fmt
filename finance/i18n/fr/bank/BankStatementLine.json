@@ -1,91 +1,227 @@
 {
-    "name": "Ligne de Relevé Bancaire",
-    "plural": "Lignes de Relevé Bancaire",
-    "description": "",
+    "name": "Ligne de relevé bancaire",
+    "plural": "Lignes de relevé bancaire",
+    "description": "Transaction individuelle apparaissant sur un relevé bancaire.",
     "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel est rattachée la ligne.",
+            "help": "Détermine le périmètre comptable et documentaire de la transaction."
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Alias du numéro de séquence de la ligne.",
+            "help": "Correspond au numéro de séquence pour l'affichage."
+        },
+        "sequence_number": {
+            "label": "Séquence",
+            "description": "Numéro de séquence de la ligne dans le relevé.",
+            "help": "Attribué automatiquement lors de la création."
+        },
         "bank_statement_id": {
             "label": "Relevé bancaire",
-            "description": "Le relevé bancaire auquel la ligne se rapporte.",
-            "help": ""
+            "description": "Relevé bancaire auquel la ligne se rapporte.",
+            "help": "Doit être défini pour toute ligne."
+        },
+        "payments_ids": {
+            "label": "Paiements",
+            "description": "Paiements associés à la ligne.",
+            "help": "Chaque paiement contribue au rapprochement de la ligne."
         },
         "date": {
-            "label": "Date",
-            "description": "Date à laquelle la déclaration a été émise.",
-            "help": ""
+            "label": "Date d'opération",
+            "description": "Date fournie par la banque pour la transaction.",
+            "help": "Utilisée pour l'exercice fiscal et le rapprochement."
         },
-        "customer_id": {
-            "label": "Client",
-            "description": "Le client auquel le paiement se rapporte, s'il est connu.",
-            "help": ""
-        },
-        "amount": {
-            "label": "Montant",
-            "description": "Montant du paiement.",
-            "help": ""
-        },
-        "account_iban": {
-            "label": "Compte IBAN",
-            "description": "IBAN à l'origine du paiement.",
-            "help": ""
-        },
-        "account_holder": {
-            "label": "Titulaire du compte",
-            "description": "Nom associé au compte à l'origine du paiement.",
-            "help": ""
-        },
-        "status": {
-            "label": "Statut",
-            "description": "Assignation de la ligne à un paiement.",
-            "help": "",
-            "selection": {
-                "pending": "à traiter",
-                "ignored": "ignorée",
-                "to_refund": "à rembourser",
-                "posted": "enregistrée"
-            }
-        },
-        "communication_type": {
-            "label": "Type de Communication",
-            "description": "Type de communication structurée (VCS/SCOR).",
-            "help": ""
+        "fiscal_year_id": {
+            "label": "Exercice fiscal",
+            "description": "Exercice comptable correspondant à la date de la ligne.",
+            "help": "Calculé automatiquement en fonction de la date."
         },
         "communication": {
             "label": "Communication",
-            "description": "Communication complémentaire.",
+            "description": "Message du payeur ou référence bancaire.",
+            "help": "Une seule communication est gérée (libre ou structurée)."
+        },
+        "communication_type": {
+            "label": "Type de communication",
+            "description": "Nature de la communication (libre ou structurée).",
+            "help": "",
+            "selection": {
+                "free": "Libre",
+                "RF": "Référence RF",
+                "SCOR": "Référence SCOR",
+                "VCS": "Référence VCS"
+            }
+        },
+        "mandate_identifier": {
+            "label": "Identifiant de mandat",
+            "description": "Identifiant de mandat pour les prélèvements SEPA.",
+            "help": "Renseigné lorsque la banque fournit l'identifiant de mandat."
+        },
+        "amount": {
+            "label": "Montant",
+            "description": "Montant de la transaction.",
+            "help": "Positif pour un encaissement, négatif pour un décaissement."
+        },
+        "amount_currency": {
+            "label": "Devise",
+            "description": "Devise du montant de la ligne.",
+            "help": "Par défaut EUR."
+        },
+        "transaction_type": {
+            "label": "Type de transaction",
+            "description": "Type d'opération bancaire (ex. prélèvement SEPA).",
             "help": ""
+        },
+        "remaining_amount": {
+            "label": "Montant restant",
+            "description": "Montant restant à affecter à des paiements.",
+            "help": "Calculé automatiquement en fonction des paiements liés."
+        },
+        "account_iban": {
+            "label": "IBAN contrepartie",
+            "description": "IBAN du compte à l'origine de la transaction.",
+            "help": "Permet d'identifier automatiquement un tiers ou un compte."
+        },
+        "account_suffix": {
+            "label": "Suffixe de compte",
+            "description": "Identifiant complémentaire du compte (sous-compte).",
+            "help": "Utilisé lorsqu'un suffixe propriétaire est fourni (ex. ING)."
+        },
+        "account_bic": {
+            "label": "BIC contrepartie",
+            "description": "Code BIC du compte à l'origine de la transaction.",
+            "help": "Peut être absent pour certains encodages manuels."
+        },
+        "account_holder": {
+            "label": "Titulaire du compte",
+            "description": "Nom du titulaire du compte contrepartie.",
+            "help": ""
+        },
+        "is_reconciled": {
+            "label": "Rapproché",
+            "description": "Indique si la ligne est rapprochée.",
+            "help": "Vrai si la somme des paiements égale le montant de la ligne."
+        },
+        "accounting_account_id": {
+            "label": "Compte comptable",
+            "description": "Compte comptable cible pour la contrepartie.",
+            "help": "Utilisé pour générer les écritures si aucun paiement n'est lié."
+        },
+        "accounting_account_code": {
+            "label": "Code compte comptable",
+            "description": "Code du compte comptable sélectionné.",
+            "help": ""
+        },
+        "matching_id": {
+            "label": "Lettrage",
+            "description": "Lettrage auquel l'écriture est rattachée, le cas échéant.",
+            "help": "Permet de forcer l'association à un lettrage existant."
+        },
+        "is_transfer": {
+            "label": "Virement interne",
+            "description": "Indique s'il s'agit d'un transfert entre comptes.",
+            "help": "Déduit du compte comptable ; déclenche une opération de transfert."
+        },
+        "is_expense": {
+            "label": "Dépense",
+            "description": "Marque la ligne comme dépense inattendue.",
+            "help": "Implique la création d'une opération d'achat autonome."
+        },
+        "is_income": {
+            "label": "Revenu",
+            "description": "Marque la ligne comme revenu inattendu.",
+            "help": "Implique la création d'une opération de vente autonome."
+        },
+        "is_supplier": {
+            "label": "Paiement fournisseur",
+            "description": "Marque la ligne comme paiement lié à un fournisseur.",
+            "help": "Utilisé pour relier la ligne à un Funding fournisseur."
+        },
+        "is_owner": {
+            "label": "Paiement copropriétaire",
+            "description": "Marque la ligne comme paiement lié à un copropriétaire.",
+            "help": "Utilisé pour relier la ligne à un Funding propriétaire."
+        },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé utilisée pour répartir le montant entre copropriétaires.",
+            "help": "Visible pour les lignes marquées en dépense ou revenu."
+        },
+        "owner_share": {
+            "label": "Part propriétaire (%)",
+            "description": "Part du montant imputée au propriétaire.",
+            "help": "Applicable lorsque la clé de répartition est renseignée."
+        },
+        "tenant_share": {
+            "label": "Part locataire (%)",
+            "description": "Part du montant imputée au locataire.",
+            "help": "Applicable lorsque la clé de répartition est renseignée."
+        },
+        "vat_rate": {
+            "label": "Taux TVA",
+            "description": "Taux de TVA appliqué à la ligne.",
+            "help": "Visible pour les lignes marquées en dépense ou revenu."
+        },
+        "ownership_id": {
+            "label": "Propriété liée",
+            "description": "Droit de propriété associé à la ligne (calculé).",
+            "help": "Déduit automatiquement selon le compte ou l'IBAN."
+        },
+        "suppliership_id": {
+            "label": "Relation fournisseur",
+            "description": "Relation fournisseur-copropriété associée à la ligne (calculée).",
+            "help": "Déduite automatiquement selon le compte ou l'IBAN."
+        },
+        "accounting_entry_lines_ids": {
+            "label": "Écritures comptables",
+            "description": "Écritures générées à partir de la ligne.",
+            "help": "Renseigné après comptabilisation."
+        },
+        "status": {
+            "label": "Statut",
+            "description": "État de traitement de la ligne.",
+            "help": "Détermine si la ligne peut encore être rapprochée ou modifiée.",
+            "selection": {
+                "pending": "À traiter",
+                "posted": "Comptabilisée"
+            }
         }
     },
     "view": {
         "form.default": {
-            "name": "Ligne de Relevé Bancaire",
-            "description": "",
-            "layout": {},
+            "name": "Ligne de relevé bancaire",
+            "description": "Fiche de rapprochement et de comptabilisation d'une ligne d'extrait.",
             "actions": {
                 "action.attempt_reconcile": {
                     "label": "Tenter un rapprochement",
-                    "description": "Tenter de rapprocher la ligne selon les données fournies."
+                    "description": "Tenter de rapprocher automatiquement la ligne."
                 },
                 "action.validate": {
                     "label": "Valider",
-                    "description": "Valider la ligne de relevé."
+                    "description": "Valider et comptabiliser la ligne."
+                }
+            },
+            "layout": {
+                "section.payments": {
+                    "label": "Paiements"
+                },
+                "section.details": {
+                    "label": "Détails"
+                },
+                "section.accounting_entries": {
+                    "label": "Écritures comptables"
                 }
             }
         },
-        "list.default": {
-            "name": "Lignes de Relevé Bancaire",
-            "description": "Liste des ligne de relevé bancaire.",
-            "layout": {},
-            "actions": {
-                "action.import": {
-                    "label": "Importer"
-                },
-                "action.reconcile": {
-                    "label": "Rapprocher",
-                    "description": "Rapprocher la ligne."
-                }
-            }
+        "form.create": {
+            "name": "Ligne de relevé bancaire",
+            "description": "Création manuelle d'une ligne d'extrait bancaire."
         },
         "form.detailed": {
+            "name": "Ligne de relevé bancaire",
+            "description": "Consultation détaillée d'une ligne et de ses paiements.",
             "actions": {
                 "action.attempt_reconcile": {
                     "label": "Tenter un rapprochement",
@@ -93,7 +229,23 @@
                 }
             }
         },
+        "list.default": {
+            "name": "Lignes de relevé bancaire",
+            "description": "Liste des lignes d'extraits bancaires.",
+            "actions": {
+                "action.reconcile": {
+                    "label": "Rapprocher",
+                    "description": "Ouvrir l'outil de rapprochement pour la ligne."
+                }
+            }
+        },
+        "list.create": {
+            "name": "Lignes de relevé bancaire",
+            "description": "Lignes d'extrait en création ou import manuel."
+        },
         "list.detailed": {
+            "name": "Lignes de relevé bancaire",
+            "description": "Vue détaillée des lignes d'extraits bancaires.",
             "actions": {
                 "action.import": {
                     "label": "Importer",
@@ -102,6 +254,8 @@
             }
         },
         "list.reconciled": {
+            "name": "Lignes rapprochées",
+            "description": "Lignes de relevé déjà rapprochées ou comptabilisées.",
             "actions": {
                 "action.import": {
                     "label": "Importer",
@@ -112,9 +266,22 @@
     },
     "error": {
         "amount": {
-            "exceeded_price": "La somme des paiements ne peut pas être supérieurs au total de la ligne."
+            "exceeded_price": "La somme des paiements ne peut pas dépasser le montant de la ligne."
+        },
+        "status": {
+            "invalid_status": "Seules les lignes non comptabilisées peuvent être modifiées ou postées.",
+            "incomplete_bank_statement": "Le relevé parent n'est pas équilibré.",
+            "invalid_reconcile_state": "Seules les lignes rapprochées peuvent être comptabilisées.",
+            "incompatible_fiscal_year": "L'exercice fiscal de la ligne doit correspondre à celui du relevé.",
+            "posted_line": "La ligne est comptabilisée et ne peut plus être modifiée."
         },
         "errors": {
+            "missing_mandatory_funding": "Ligne inattendue non liée à un funding.",
+            "missing_mandatory_funding_id": "Funding requis pour cette opération.",
+            "missing_mandatory_journal": "Aucun journal bancaire configuré pour cette copropriété.",
+            "missing_bank_account_condominium": "Aucune copropriété trouvée pour l'IBAN du relevé.",
+            "mismatch_bank_account_with_condominium": "L'IBAN du relevé ne correspond à aucun compte bancaire de la copropriété.",
+            "provided_funding_not_found": "Le funding fourni est introuvable.",
             "already_imported": "Fichier déjà importé."
         }
     }

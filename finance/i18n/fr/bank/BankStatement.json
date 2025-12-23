@@ -1,72 +1,127 @@
 {
-    "name": "Relevé Bancaire",
-    "plural": "Relevés Bancaire",
-    "description": "",
+    "name": "Relevé bancaire",
+    "plural": "Relevés bancaires",
+    "description": "Extrait bancaire décrivant les mouvements d'un compte sur une période donnée.",
     "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel est rattaché le relevé.",
+            "help": "Détermine le périmètre (fiscalité, comptes, utilisateurs) du relevé."
+        },
+        "bank_account_id": {
+            "label": "Compte bancaire",
+            "description": "Compte auquel se rapporte le relevé.",
+            "help": "Renseigné automatiquement à partir de l'IBAN quand il est reconnu."
+        },
         "name": {
             "label": "Nom",
-            "description": "Identifiant de l'extrait.",
-            "help": ""
+            "description": "Libellé affiché du relevé bancaire.",
+            "help": "Construit automatiquement à partir de la copropriété, de l'IBAN et des soldes."
         },
         "date": {
             "label": "Date du relevé",
             "description": "Date de réception du relevé.",
-            "help": ""
+            "help": "Horodatage de réception du fichier ou de l'encodage manuel."
         },
-        "statement_lines_ids": {
-            "label": "Transaction",
-            "description": "Les lignes de transaction qui sont affectées à l'extrait.",
-            "help": ""
+        "statement_number": {
+            "label": "Numéro d'extrait",
+            "description": "Numéro fourni par la banque pour cet extrait.",
+            "help": "Peut rester vide pour un encodage manuel ; souvent 3 chiffres en Belgique."
+        },
+        "statement_currency": {
+            "label": "Devise",
+            "description": "Devise utilisée par le relevé.",
+            "help": "Défaut EUR ; correspond à la devise du compte bancaire."
+        },
+        "opening_date": {
+            "label": "Date d'ouverture",
+            "description": "Première date couverte par le relevé.",
+            "help": "Utilisée pour associer l'extrait à l'exercice et à la période fiscale."
+        },
+        "closing_date": {
+            "label": "Date de clôture",
+            "description": "Dernière date couverte par le relevé.",
+            "help": "Doit être postérieure ou égale à la date d'ouverture."
+        },
+        "opening_balance": {
+            "label": "Solde d'ouverture",
+            "description": "Solde du compte avant les opérations du relevé.",
+            "help": "Doit correspondre au solde de clôture du relevé précédent."
+        },
+        "closing_balance": {
+            "label": "Solde de clôture",
+            "description": "Solde du compte après les opérations du relevé.",
+            "help": "Doit correspondre au solde d'ouverture du relevé suivant."
+        },
+        "bank_account_iban": {
+            "label": "IBAN",
+            "description": "Identifiant international du compte bancaire.",
+            "help": "Utilisé pour retrouver le compte et pré-remplir la copropriété."
         },
         "bank_account_bic": {
             "label": "Code BIC",
             "description": "Code d'identification de la banque.",
-            "help": ""
+            "help": "Identifiant SWIFT de la banque émettrice."
         },
-        "bank_account_number": {
-            "label": "Numéro de compte",
-            "description": "Numéro de compte bancaire.",
-            "help": ""
+        "bank_account_suffix": {
+            "label": "Suffixe de compte",
+            "description": "Identifiant complémentaire du compte (sous-compte, extension).",
+            "help": "Utilisé uniquement si la banque fournit un suffixe propriétaire (ex. sous-compte ING)."
         },
-        "bank_account_iban": {
-            "label": "Numéro IBAN",
-            "description": "Compte bancaire associée à l'extrait.",
-            "help": ""
-        },
-        "old_balance": {
-            "label": "Ancien solde",
-            "description": "Solde du compte avant les transactions.",
-            "help": ""
-        },
-        "closing_balance": {
-            "label": "Nouveau solde",
-            "description": "Solde du compte après les transactions.",
-            "help": ""
-        },
-        "status": {
-            "label": "Statut",
-            "description": "Indicateur d'assignation de l'extrait aux paiements.",
-            "help": "",
-            "selection": {
-                "pending": "à traiter",
-                "proforma": "proforma",
-                "posted": "encodé"
-            }
+        "statement_lines_ids": {
+            "label": "Transactions",
+            "description": "Lignes de transaction affectées à l'extrait.",
+            "help": "Chaque ligne doit être équilibrée et rapprochée avant la clôture du relevé."
         },
         "document_process_id": {
             "label": "Processus documentaire",
-            "description": "Processus documentaire d'où provient l'extrait bancaire.",
-            "help": "Permet de suivre l'état du traitement documentaire."
+            "description": "Processus documentaire dont provient l'extrait bancaire.",
+            "help": "Permet de suivre l'état du traitement du document d'origine."
         },
         "document_id": {
             "label": "Document source",
             "description": "Document reçu à l'origine de l'extrait bancaire.",
-            "help": "Doit être marqué comme document d'origine."
+            "help": "Doit être marqué comme document d'origine ou généré lors de l'encodage."
+        },
+        "fiscal_year_id": {
+            "label": "Exercice fiscal",
+            "description": "Exercice comptable auquel se rattache le relevé.",
+            "help": "Calculé automatiquement selon la date d'ouverture."
+        },
+        "fiscal_period_id": {
+            "label": "Période fiscale",
+            "description": "Période de l'exercice correspondant au relevé.",
+            "help": "Calculée automatiquement à partir de la date d'ouverture."
+        },
+        "is_reconciled": {
+            "label": "Rapproché",
+            "description": "Indique si toutes les lignes du relevé sont rapprochées.",
+            "help": "Passe à vrai lorsque chaque ligne est conciliée ou comptabilisée."
+        },
+        "is_balanced": {
+            "label": "Équilibré",
+            "description": "Vérifie que la somme des lignes correspond au delta de solde.",
+            "help": "Doit être vrai avant de pouvoir comptabiliser le relevé."
+        },
+        "accounting_entries_ids": {
+            "label": "Écritures comptables",
+            "description": "Écritures comptables liées aux lignes de l'extrait.",
+            "help": "Générées lors de la comptabilisation des lignes."
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Indicateur d'assignation de l'extrait aux paiements.",
+            "help": "Définit la capacité à rapprocher et comptabiliser le relevé.",
+            "selection": {
+                "pending": "À traiter",
+                "posted": "Comptabilisé",
+                "cancelled": "Annulé"
+            }
         },
         "document_process_status": {
-            "label": "Statut",
+            "label": "Statut du processus",
             "description": "Statut courant du processus documentaire lié.",
-            "help": "Reflète l'avancement du traitement du document source (créé, assigné, validé, intégré).",
+            "help": "Reflète l'avancement du traitement du document source.",
             "selection": {
                 "created": "Brouillon",
                 "assigned": "Assigné",
@@ -80,20 +135,17 @@
             "label": "Assigné à",
             "description": "Employé en charge du traitement documentaire.",
             "help": "Défini lors de la création ou de l'assignation du processus documentaire."
+        },
+        "alert": {
+            "label": "Alerte",
+            "description": "Indicateur visuel en cas d'anomalie détectée.",
+            "help": "Affiche un niveau d'alerte (info, avertissement, majeur, erreur) selon les messages associés."
         }
     },
     "view": {
         "form.default": {
-            "name": "Relevé Bancaire",
-            "description": "",
-            "layout": {
-                "section.bank_statement": {
-                    "label": "Détails"
-                },
-                "section.statment_lines_section": {
-                    "label": "Lignes de transactions"
-                }
-            },
+            "name": "Relevé bancaire",
+            "description": "Formulaire de consultation et de rapprochement d'un extrait bancaire.",
             "actions": {
                 "action.reconcile": {
                     "label": "Rapprocher",
@@ -103,14 +155,46 @@
                     "label": "Passer",
                     "description": "Générer la configuration obligatoire."
                 }
+            },
+            "layout": {
+                "section.bank_statement": {
+                    "label": "Détails"
+                },
+                "section.statment_lines_section": {
+                    "label": "Lignes de transactions"
+                }
             }
         },
         "list.default": {
-            "name": "Relevés Bancaire",
-            "description": "Liste des relevés Bancaire.",
+            "name": "Relevés bancaires",
+            "description": "Liste des relevés bancaires.",
             "actions": {
                 "action.import": {
-                    "label": "Importer"
+                    "label": "Importer",
+                    "description": "Importer un relevé bancaire."
+                }
+            },
+            "layout": {
+                "item.status": {
+                    "label": "Statut"
+                }
+            }
+        },
+        "list.condo": {
+            "name": "Relevés bancaires",
+            "description": "Relevés bancaires filtrés par copropriété."
+        },
+        "list.processing": {
+            "name": "Relevés bancaires",
+            "description": "Liste des relevés bancaires en traitement documentaire.",
+            "routes": {
+                "item.import": {
+                    "label": "Importer un relevé bancaire",
+                    "description": ""
+                },
+                "route.bank_statement": {
+                    "label": "Extrait",
+                    "description": "Ouvrir le relevé."
                 }
             },
             "layout": {

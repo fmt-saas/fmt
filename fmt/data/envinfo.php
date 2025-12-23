@@ -9,7 +9,7 @@
 use fmt\setting\Setting;
 use fmt\setting\SettingValue;
 
-list( $params, $providers ) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description' => 'Retrieve public configuration intended for front-end.',
     'help'        => "This controller is public, but the information stored as SettingValue objects are only disclosed to authenticated users (user_id <> 0).\n
                      If there are any setting values specific to the current user, these are append to the response.",
@@ -59,13 +59,8 @@ $envinfo = [
     "instance_type"         => constant('FMT_INSTANCE_TYPE')
 ];
 
-try {
-    // retrieve current User
-    $user_id = $auth->userId();
-}
-catch(Exception $e) {
-    $user_id = null;
-}
+// retrieve current User
+$user_id = $auth->userId();
 
 // append settings values if request is made by an authenticated user
 if($user_id) {
