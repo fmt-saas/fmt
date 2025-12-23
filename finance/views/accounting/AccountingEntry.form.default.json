@@ -24,7 +24,8 @@
             "id": "action.cancel",
             "label": "Cancel",
             "controller": "core_model_do",
-            "visible": [["status", "=", "validated"], ["is_cancelled", "=", false]],
+            "visible": false,
+            "visible1": [["status", "=", "validated"], ["is_cancelled", "=", false]],
             "params": {
                 "entity": "finance\\accounting\\AccountingEntry",
                 "action": "cancel",

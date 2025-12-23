@@ -273,12 +273,13 @@ class DocumentProcess extends Model {
                     'revert' => [
                         'description' => 'Revert the document to `created`.',
                         'onafter'     => 'onafterRevertFromAssigned',
-// #todo - update assigned employee                        
+// #todo - update assigned employee
                         'status'      => 'created'
                     ],
                     'complete' => [
                         'description' => 'Update the document to `completed`.',
                         'policies'    => ['is_complete', 'is_unique', 'can_complete'],
+// #todo - update assigned employee
                         'status'      => 'completed'
                     ],
                     'cancel' => [
@@ -295,7 +296,7 @@ class DocumentProcess extends Model {
                     'revert' => [
                         'description' => 'Revert the document to `assigned`.',
                         'onafter'     => 'onafterRevertFromCompleted',
-// #todo - update assigned employee                        
+// #todo - update assigned employee
                         'status'      => 'assigned'
                     ],
                     'validate' => [
@@ -311,6 +312,7 @@ class DocumentProcess extends Model {
                 'transitions' => [
                     'revert' => [
                         'description' => 'Revert the document to `completed`.',
+// #todo - update assigned employee
                         'status'      => 'completed'
                     ],
                     'integrate' => [
@@ -484,19 +486,19 @@ class DocumentProcess extends Model {
 
         foreach($self as $id => $documentProcess) {
             if(!isset($documentProcess['condo_id'])) {
-            $result[$id] = [
-                'missing_condo' => 'Missing condominium for this document process.'
-            ];
+                $result[$id] = [
+                    'missing_condo' => 'Missing condominium for this document process.'
+                ];
             }
             if(!isset($documentProcess['document_type_id'])) {
-            $result[$id] = [
-                'missing_document_type' => 'Missing document type for this document process.'
-            ];
+                $result[$id] = [
+                    'missing_document_type' => 'Missing document type for this document process.'
+                ];
             }
             if(!isset($documentProcess['assigned_employee_id'])) {
-            $result[$id] = [
-                'missing_assigned_employee' => 'No employee assigned to this document process.'
-            ];
+                $result[$id] = [
+                    'missing_assigned_employee' => 'No employee assigned to this document process.'
+                ];
             }
         }
         return $result;

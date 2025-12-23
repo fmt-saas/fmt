@@ -148,7 +148,7 @@ foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $invoiceLine) {
         $dispatch->dispatch('purchase.accounting.invoice.invalid_owner_tenant_ratio', $class, $id, 'important', $script, ['id' => $id]);
         throw new Exception("invalid_owner_tenant_ratio", EQ_ERROR_INVALID_PARAM);
     }
-    if(round($invoiceLine['total'] * (1 + $invoiceLine['vat_rate']), 2) != $invoiceLine['price']) {
+    if(round($invoiceLine['total'] * (1 + $invoiceLine['vat_rate']), 2) != round($invoiceLine['price'], 2)) {
         // error : Non matching price from vat excl amount & applicable vat rate
         $dispatch->dispatch('purchase.accounting.invoice.non_matching_price', $class, $id, 'important', $script, ['id' => $id]);
         throw new Exception("non_matching_price", EQ_ERROR_INVALID_PARAM);
@@ -233,8 +233,12 @@ $previousPurchaseInvoice = PurchaseInvoice::search([
     ->first();
 
 if($previousPurchaseInvoice) {
+    // invoice is a possible duplicate: issue an alert
+    $links = [
+        "[{$previousPurchaseInvoice['supplier_invoice_number']}](/app/#/accounting/purchase-invoice/{$previousPurchaseInvoice['id']})"
+    ];
     // invoice is considered as a duplicate : this is a blocking error (cancel processing)
-    $dispatch->dispatch('purchase.accounting.invoice.duplicate_invoice', $class, $id, 'important');
+    $dispatch->dispatch('purchase.accounting.invoice.duplicate_invoice', $class, $id, 'important', null, [], $links);
     DocumentProcess::id($purchaseInvoice['document_process_id'])->do('cancel');
     throw new Exception("duplicate_invoice", EQ_ERROR_INVALID_PARAM);
 }
