@@ -216,7 +216,7 @@ if(isset($params['account_id']) && $params['account_id'] > 0) {
 // consider only validated entries
 $domain->addCondition(new DomainCondition('status', '=', 'validated'));
 
-$result = AccountingEntryLine ::search($domain->toArray())
+$result = AccountingEntryLine::search($domain->toArray())
     ->read([
         'condo_id' => ['name'],
         'account_id' => ['name', 'ownership_id' => ['name'], 'suppliership_id' => ['name']],

@@ -38,7 +38,19 @@
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
+        },
+        {
+            "id": "route.balance_sheet",
+            "label": "Balance Sheet",
+            "description": "",
+            "icon": "menu_book",
+            "context": {
+                "entity": "finance\\accounting\\balanceSheet\\collect",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
         }
+
     ],
     "layout": {
     }

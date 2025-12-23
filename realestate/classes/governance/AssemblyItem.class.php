@@ -164,6 +164,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'type'              => 'many2one',
                 'description'       => "The apportionment key used for the item (statutory or not).",
                 'foreign_object'    => 'realestate\property\Apportionment',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'visible'           => [['has_vote_required', '=', true], ['condo_id', '=', 'object.condo_id']],
                 'help'              => "This field is mandatory in cas the item is subject to a vote."
             ],

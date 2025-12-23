@@ -1,0 +1,80 @@
+{
+    "name": "Balance Sheet",
+    "controller": "finance_accounting_balanceSheet_collect",
+    "header": {
+        "#memo": "inline layout disables visible actions of the view",
+        "layout": "inline",
+        "exports": false,
+        "actions": false,
+        "advanced_search": {
+            "open": true
+        }
+    },
+    "actions": [
+        {
+            "id": "action.export",
+            "label": "Export",
+            "icon": "list",
+            "description": "Export PDF document from filtered data.",
+            "controller": "finance_accounting_balanceSheet_export",
+            "params": {
+            }
+        }
+    ],
+    "operations": {
+        "total": {
+            "asset_account_balance": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "liability_account_balance": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "layout": {
+        "interactions": {
+            "click": false
+        },
+        "items": [
+            {
+                "type": "field",
+                "label": "Condominium",
+                "value": "condo_id",
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "asset_account_code",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "asset_account_description",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "asset_account_balance",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "liability_account_code",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "liability_account_description",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "liability_account_balance",
+                "width": "15%"
+            }
+        ]
+    }
+}
