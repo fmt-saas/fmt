@@ -43,7 +43,8 @@
                 "ids": []
             },
             "confirm": true,
-            "visible": [
+            "visible": false,
+            "visible1": [
                 "status",
                 "=",
                 "published"

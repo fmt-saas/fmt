@@ -41,7 +41,7 @@ list( $params, $providers ) = eQual::announce([
     'providers'     => ['context', 'auth']
 ] );
 
-list($context, $auth) = [$providers['context'], $providers['auth']];
+['context' => $context, 'auth' => $auth] = $providers;
 
 $envinfo = [
     "env_mode"              => constant('ENV_MODE'),
@@ -59,8 +59,13 @@ $envinfo = [
     "instance_type"         => constant('FMT_INSTANCE_TYPE')
 ];
 
-// retrieve current User
-$user_id = $auth->userId();
+try {
+    // retrieve current User
+    $user_id = $auth->userId();
+}
+catch(Exception $e) {
+    $user_id = null;
+}
 
 // append settings values if request is made by an authenticated user
 if($user_id) {

@@ -2,6 +2,38 @@
     "name": "Assemblée",
     "plural": "Assemblées",
     "description": "Gestion des assemblées générales (convocations, présences, résolutions).",
+    "model": {
+        "name": {
+            "label": "Description",
+            "description": "",
+            "help": ""
+        },
+        "assembly_date": {
+            "label": "Date",
+            "description": "",
+            "help": ""
+        },
+        "assembly_location": {
+            "label": "Lieu",
+            "description": "",
+            "help": ""
+        },
+        "assembly_type": {
+            "label": "Type",
+            "description": "",
+            "help": ""
+        },
+        "session_time_start": {
+            "label": "Début",
+            "description": "",
+            "help": ""
+        },
+        "is_second_session": {
+            "label": "2e séance",
+            "description": "",
+            "help": ""
+        }
+    },
     "view": {
         "form.default": {
             "name": "Assemblée",
