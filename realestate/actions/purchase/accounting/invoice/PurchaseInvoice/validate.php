@@ -148,7 +148,7 @@ foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $invoiceLine) {
         $dispatch->dispatch('purchase.accounting.invoice.invalid_owner_tenant_ratio', $class, $id, 'important', $script, ['id' => $id]);
         throw new Exception("invalid_owner_tenant_ratio", EQ_ERROR_INVALID_PARAM);
     }
-    if(round($invoiceLine['total'] * (1 + $invoiceLine['vat_rate']), 2) != round($invoiceLine['price'], 2)) {
+    if(abs(round($invoiceLine['total'] * (1 + $invoiceLine['vat_rate']), 2)) - abs(round($invoiceLine['price'], 2)) > 0.01) {
         // error : Non matching price from vat excl amount & applicable vat rate
         $dispatch->dispatch('purchase.accounting.invoice.non_matching_price', $class, $id, 'important', $script, ['id' => $id]);
         throw new Exception("non_matching_price", EQ_ERROR_INVALID_PARAM);
