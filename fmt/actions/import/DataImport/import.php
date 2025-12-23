@@ -188,7 +188,8 @@ try {
             }
             catch(Exception $e) {
                 // something went wrong for line $i
-                trigger_error("APP::error while importing bank from import file at index $index.");
+                trigger_error("APP::error while importing bank from import file at index $index.", EQ_REPORT_WARNING);
+                $result['logs'][] = "ERR - error while importing bank from import file at index `$index`.";
             }
         }
         $orm->enableEvents($events);
@@ -236,7 +237,7 @@ try {
             }
             catch(Exception $e) {
                 // something went wrong for line $i
-                trigger_error("APP::error while importing supplier from import file at index $index.");
+                trigger_error("APP::error while importing supplier from import file at index $index.", EQ_REPORT_WARNING);
             }
         }
         $orm->enableEvents($events);
