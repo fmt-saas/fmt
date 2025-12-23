@@ -180,6 +180,9 @@ try {
 
                     $result['logs'][] = "INFO- created new bank with id {$bank['id']} with registration number `{$values['registration_number']}`";
                 }
+                else {
+                    $result['logs'][] = "INFO- retrieved bank id {$bank['id']} for bank with registration number `{$values['registration_number']}`";
+                }
             }
             catch(Exception $e) {
                 // something went wrong for line $i
