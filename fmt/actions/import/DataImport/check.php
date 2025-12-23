@@ -395,6 +395,19 @@ elseif($dataImport['import_type'] == 'suppliers_import') {
         }
     }
 }
+elseif($dataImport['import_type'] == 'banks_import') {
+    $banks_data = current($data);
+    foreach($banks_data as $index => $bank) {
+        if(!$bank['legal_name']) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing mandatory `legal_name` in banks sheet at row " . ($index + 2);
+        }
+        if(!$bank['registration_number']) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing mandatory `registration_number` in banks sheet at row " . ($index + 2);
+        }
+    }
+}
 
 
 DataImport::id($params['id'])
