@@ -48,6 +48,7 @@ class DataImport extends \equal\orm\Model {
             'import_type' => [
                 'type'              => 'string',
                 'selection'         => [
+                    'banks_import',
                     'suppliers_import',
                     'condominium_import'
                 ],

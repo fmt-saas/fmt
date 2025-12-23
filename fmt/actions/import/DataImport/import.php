@@ -9,6 +9,7 @@ use equal\text\TextTransformer;
 use finance\accounting\AccountChart;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
+use finance\bank\Bank;
 use finance\bank\BankAccount;
 use finance\bank\CondominiumBankAccount;
 use fmt\import\DataImport;
@@ -52,6 +53,36 @@ use realestate\ownership\OwnershipCommunicationPreference;
 ]);
 
 ['orm' => $orm] = $providers;
+
+$mapBankRowToJson = function (array $row): array {
+    return [
+        "source"              => "manual",
+        "source_type"         => "manual",
+        "type_id"             => 3,
+        "type"                => "CO",
+        "bank_account_iban"   => isset($row['bank_account_iban']) && $row['bank_account_iban'] !== null
+                ? preg_replace('/[^A-Z0-9]/i', '', $row['bank_account_iban'])
+                : null,
+        "vat_number" => isset($row['vat_number']) && $row['vat_number'] !== null
+                ? preg_replace('/[^A-Z0-9]/i', '', $row['vat_number'])
+                : null,
+        "registration_number" => isset($row['registration_number']) && $row['registration_number'] !== null
+                ? preg_replace('/[^0-9]/i', '', $row['registration_number'])
+                : null,
+        "legal_name"          => $row['legal_name'] ?? '',
+        "short_name"          => $row['short_name'] ?? '',
+        "has_vat"             => !empty($row['vat_number']),
+        "nationality"         => strtoupper($row['country'] ?? 'BE'),
+        "lang_id"             => 2,
+        "address_street"      => $row['street'] ?? null,
+        "address_city"        => $row['city'] ?? null,
+        "address_zip"         => $row['zip'] ?? null,
+        "email"               => $row['email_1'] ?? null,
+        "email_alt"           => $row['email_2'] ?? null,
+        "phone"               => isset($row['phone_1']) ? str_replace(' ', '', $row['phone_1']) : null,
+        "phone_alt"           => isset($row['phone_2']) ? str_replace(' ', '', $row['phone_2']) : null
+    ];
+};
 
 $mapSupplierRowToJson = function (array $row): array {
     return [
@@ -114,7 +145,55 @@ $is_success = false;
 $condominium = null;
 
 try {
-    if($dataImport['import_type'] === 'suppliers_import') {
+    if($dataImport['import_type'] === 'banks_import') {
+        $banks_data = current($data);
+        $events = $orm->disableEvents();
+        foreach($banks_data as $index => $bank) {
+            try {
+                $values = $mapBankRowToJson($bank);
+
+                $identity = null;
+                $bank = null;
+
+                // #memo - we use only registration_number (in case of identity, the citizen_identification is copied into registration_number
+                if($values['registration_number']) {
+                    $identity = Identity::search(['registration_number', '=', $values['registration_number']])->first();
+                    $bank = Bank::search(['registration_number', '=', $values['registration_number']])->first();
+                }
+
+                if(!$identity) {
+                    $identity = Identity::create($values)
+                        ->do('refresh_bank_accounts')
+                        ->do('refresh_addresses')
+                        ->first();
+
+                    $result['logs'][] = "INFO- created identity id {$identity['id']} for bank with registration number `{$values['registration_number']}`";
+                }
+                else {
+                    $result['logs'][] = "INFO- retrieved identity id {$identity['id']} for bank with registration number `{$values['registration_number']}`";
+                }
+
+                if(!$bank) {
+                    $bank = Bank::create([ 'identity_id' => $identity['id'] ])
+                        ->do('sync_from_identity')
+                        ->first();
+
+                    $result['logs'][] = "INFO- created new bank with id {$bank['id']} with registration number `{$values['registration_number']}`";
+                }
+            }
+            catch(Exception $e) {
+                // something went wrong for line $i
+                trigger_error("APP::error while importing bank from import file at index $index.");
+            }
+        }
+        $orm->enableEvents($events);
+
+        $result['logs'][] = "---";
+        $result['logs'][] = "INFO- Banks imported successfully";
+
+        $is_success = true;
+    }
+    elseif($dataImport['import_type'] === 'suppliers_import') {
         $suppliers_data = current($data);
         $events = $orm->disableEvents();
         foreach($suppliers_data as $index => $supplier) {

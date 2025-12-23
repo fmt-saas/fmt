@@ -117,6 +117,19 @@
                         }
                     },
                     {
+                        "id": "item.imports.data_import.banks",
+                        "type": "entry",
+                        "label": "Import Banks",
+                        "icon": "drive_folder_upload",
+                        "description": "Import data from XLS file.",
+                        "context": {
+                            "view": "form.import",
+                            "entity": "fmt\\import\\DataImport",
+                            "purpose": "create",
+                            "domain": ["import_type", "=", "banks_import"]
+                        }
+                    },
+                    {
                         "id": "item.imports.data_imports",
                         "type": "entry",
                         "label": "All Imports",
