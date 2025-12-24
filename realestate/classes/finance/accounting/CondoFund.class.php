@@ -59,7 +59,11 @@ class CondoFund extends \equal\orm\Model {
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account the fund relates to.",
                 'ondelete'          => 'null',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['operation_assignment', 'in', ['working_fund', 'reserve_fund', 'special_reserve_fund']]],
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['operation_assignment', 'in', ['working_fund', 'reserve_fund', 'special_reserve_fund']],
+                    ['is_control_account', '=', false]
+                ],
                 'dependents'        => ['name']
             ],
 
@@ -254,7 +258,8 @@ class CondoFund extends \equal\orm\Model {
 
             $account_code = $templateAccount['code'] . str_pad($index, 2, '0', STR_PAD_LEFT);
 
-            // create the fund account
+            // 1) create the fund account
+
             $fundAccount = Account::create([
                     'condo_id'              => $condoFund['condo_id']['id'],
                     'code'                  => $account_code,
@@ -264,11 +269,12 @@ class CondoFund extends \equal\orm\Model {
                     'operation_assignment'  => $condoFund['fund_type'],
                     'apportionment_id'      => $condoFund['apportionment_id'],
                     'tenant_share'          => 0,
-                    'owner_share'           => 100
+                    'owner_share'           => 100,
+                    'parent_account_id'     => $templateAccount['id']
                 ])
                 ->first();
 
-            // create the variation accounts
+            // 2) create the variation accounts
 
             $collectorAccount = Account::create([
                     'condo_id'              => $condoFund['condo_id']['id'],
@@ -307,7 +313,6 @@ class CondoFund extends \equal\orm\Model {
                     'parent_account_id'     => $collectorAccount['id']
                 ])
                 ->first();
-
 
             self::id($id)->update([
                     'call_account_id'           => $callAccount['id'],

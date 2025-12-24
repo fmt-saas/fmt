@@ -219,17 +219,15 @@ $lines = AccountingEntryLine::search($domain->toArray())
 
 
 
+$balances           = [];
 $balances_asset     = [];
 $balances_liability = [];
 
+// 1) aggregate raw balances first
 foreach($lines as $line) {
 
     $leaf_account_id = $line['account_id'];
-    $storage_account_id = $map_storage[$leaf_account_id] ?? null;
-
-    if(!$storage_account_id) {
-        $storage_account_id = $leaf_account_id;
-    }
+    $storage_account_id = $map_storage[$leaf_account_id] ?? $leaf_account_id;
 
     if(!isset($map_accounts[$storage_account_id])) {
         // this shouldn't occur
@@ -243,61 +241,71 @@ foreach($lines as $line) {
 
     $raw = round($line['debit'], 2) - round($line['credit'], 2);
 
-    $asset_delta     = 0.0;
-    $liability_delta = 0.0;
+    // aggregate raw balance per account
+    if(!isset($balances[$code])) {
+        $balances[$code] = [
+            'account_id'        => $storage_account_id,
+            'account_code'      => $code,
+            'description'       => $storage['description'],
+            'account_nature'    => $nature,
+            'raw'               => 0.0
+        ];
+    }
+
+    $balances[$code]['raw'] += $raw;
+}
+
+
+// 2) split balances into asset / liability
+foreach($balances as $code => $balance) {
+
+    $raw    = round($balance['raw'], 2);
+    $nature = $balance['account_nature'];
+
+    if($raw == 0.0) {
+        continue;
+    }
 
     // special cases: 410 / 440 (DUAL-SIDE ACCOUNTS)
-    if(strpos($code, '410') === 0) {
-        if($raw < 0) {
-            $liability_delta = abs($raw);
+    if(in_array(substr($code, 0, 3), ['410', '440'])) {
+
+        if($raw > 0) {
+            $balances_asset[$code] = [
+                'account_id'   => $balance['account_id'],
+                'account_code' => $code,
+                'description'  => $balance['description'],
+                'balance'      => $raw,
+            ];
         }
         else {
-            $asset_delta = abs($raw);
-        }
-    }
-    elseif(strpos($code, '440') === 0) {
-        if($raw < 0) {
-            $liability_delta = abs($raw);
-        }
-        else {
-            $asset_delta = abs($raw);
+            $balances_liability[$code] = [
+                'account_id'   => $balance['account_id'],
+                'account_code' => $code,
+                'description'  => $balance['description'],
+                'balance'      => abs($raw),
+            ];
         }
     }
     // normal case
     else {
         // asset - increases by debit
         if($nature === 'asset') {
-            $asset_delta = $raw;
+            $balances_asset[$code] = [
+                'account_id'   => $balance['account_id'],
+                'account_code' => $code,
+                'description'  => $balance['description'],
+                'balance'      => $raw,
+            ];
         }
         // liability - increases by credit
-        else {
-            $liability_delta = -$raw;
-        }
-    }
-
-    // AGGREGATE
-    if($asset_delta != 0.0) {
-        if(!isset($balances_asset[$code])) {
-            $balances_asset[$code] = [
-                'account_id'   => $storage_account_id,
-                'account_code' => $code,
-                'description'  => $storage['description'],
-                'balance'      => 0.0,
-            ];
-        }
-        $balances_asset[$code]['balance'] += $asset_delta;
-    }
-
-    if($liability_delta != 0.0) {
-        if(!isset($balances_liability[$code])) {
+        elseif($nature === 'liability') {
             $balances_liability[$code] = [
-                'account_id'   => $storage_account_id,
+                'account_id'   => $balance['account_id'],
                 'account_code' => $code,
-                'description'  => $storage['description'],
-                'balance'      => 0.0,
+                'description'  => $balance['description'],
+                'balance'      => abs($raw),
             ];
         }
-        $balances_liability[$code]['balance'] += $liability_delta;
     }
 }
 
