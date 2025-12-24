@@ -6,10 +6,10 @@
 */
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate a PDF file of the given General Ledger (virtual entity).',
+    'description'   => 'Generate a PDF file of the given General Balance (virtual entity).',
     'params'        => [
         'params' => [
-            'description'       => 'Optional params for rendering the targeted balance sheet.',
+            'description'       => 'Optional params for rendering the targeted general balance.',
             'help'              => 'Expected/possible keys are: condo_id, account_id, fiscal_year_id, date_from, date_to.',
             'type'              => 'array',
             'required'          => true
@@ -35,12 +35,12 @@
 $context = $providers['context'];
 
 // pass data to PDF renderer
-$output = eQual::run('get', 'finance_accounting_generalLedger_render-pdf', [
+$output = eQual::run('get', 'finance_accounting_generalBalance_render-pdf', [
         'params'    => $params['params'],
         'domain'    => $params['domain']
     ]);
 
 $context->httpResponse()
-        ->header('Content-Disposition', 'inline; filename="general-ledger-export.pdf"')
+        ->header('Content-Disposition', 'inline; filename="general-balance-export.pdf"')
         ->body($output)
         ->send();
