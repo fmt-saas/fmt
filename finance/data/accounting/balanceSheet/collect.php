@@ -183,36 +183,33 @@ $map_storage = [];
 
 foreach($map_accounts as $account_id => $account) {
     $code      = $account['code'];
-    $parent_id = $account['parent_account_id'];
+    $parent_account_id = $account['parent_account_id'];
 
-    // Case 1: this account is a level-3 account (exactly 3 digits)
+    // account is a level-3 account (or less)
     if(strlen($code) <= 3) {
         $map_storage[$account_id] = $account_id;
         continue;
     }
     $target_account_id = $account_id;
 
-    // Case 2: parent exists and parent is level-3
-    while($parent_id) {
-        $target_account_id = $parent_id;
-        if(!isset($map_accounts[$parent_id])) {
+    // retrieve first level-3 parent
+    while($parent_account_id) {
+        $target_account_id = $parent_account_id;
+        if(!isset($map_accounts[$parent_account_id])) {
             break;
         }
-        $parent_code = $map_accounts[$parent_id]['code'];
+        $parent_code = $map_accounts[$parent_account_id]['code'];
         if(strlen($parent_code) <= 3) {
             break;
         }
-        $parent_id = $map_accounts[$parent_id]['parent_account_id'];
+        $parent_account_id = $map_accounts[$parent_account_id]['parent_account_id'];
     }
 
     $map_storage[$account_id] = $target_account_id;
 }
 
 
-/* -------------------------------------------------------------------------
- * Retrieve accounting entry lines
- * ------------------------------------------------------------------------- */
-
+// Retrieve accounting entry lines
 $lines = AccountingEntryLine::search($domain->toArray())
     ->read([
         'account_id',
@@ -230,47 +227,55 @@ foreach($lines as $line) {
     $leaf_account_id = $line['account_id'];
     $storage_account_id = $map_storage[$leaf_account_id] ?? null;
 
-    if(!$storage_account_id || !isset($map_accounts[$storage_account_id])) {
+    if(!$storage_account_id) {
         $storage_account_id = $leaf_account_id;
+    }
+
+    if(!isset($map_accounts[$storage_account_id])) {
+        // this shouldn't occur
+        trigger_error("APP::unable to resolve account with id {$storage_account_id}", EQ_REPORT_ERROR);
+        continue;
     }
 
     $storage = $map_accounts[$storage_account_id];
     $code    = $storage['code'];
     $nature  = $storage['account_nature'];
 
-    $raw = (float) $line['debit'] - (float) $line['credit'];
+    $raw = round($line['debit'], 2) - round($line['credit'], 2);
 
     $asset_delta     = 0.0;
     $liability_delta = 0.0;
 
-    /* ---------------------------------------------------------
-     * SPECIAL CASES: 410 / 440 (DUAL-SIDE ACCOUNTS)
-     * --------------------------------------------------------- */
-
+    // special cases: 410 / 440 (DUAL-SIDE ACCOUNTS)
     if(strpos($code, '410') === 0) {
-        // Clients
-        $asset_delta     = -abs($raw);
-        $liability_delta =  abs($raw);
+        if($raw < 0) {
+            $liability_delta = abs($raw);
+        }
+        else {
+            $asset_delta = abs($raw);
+        }
     }
     elseif(strpos($code, '440') === 0) {
-        // Suppliers
-        $asset_delta     =  abs($raw);
-        $liability_delta = -abs($raw);
+        if($raw < 0) {
+            $liability_delta = abs($raw);
+        }
+        else {
+            $asset_delta = abs($raw);
+        }
     }
+    // normal case
     else {
-        // NORMAL CASES
+        // asset - increases by debit
         if($nature === 'asset') {
             $asset_delta = $raw;
         }
-        else { // liability
+        // liability - increases by credit
+        else {
             $liability_delta = -$raw;
         }
     }
 
-    /* ---------------------------------------------------------
-     * AGGREGATE
-     * --------------------------------------------------------- */
-
+    // AGGREGATE
     if($asset_delta != 0.0) {
         if(!isset($balances_asset[$code])) {
             $balances_asset[$code] = [
@@ -283,8 +288,8 @@ foreach($lines as $line) {
         $balances_asset[$code]['balance'] += $asset_delta;
     }
 
-    if ($liability_delta != 0.0) {
-        if (!isset($balances_liability[$code])) {
+    if($liability_delta != 0.0) {
+        if(!isset($balances_liability[$code])) {
             $balances_liability[$code] = [
                 'account_id'   => $storage_account_id,
                 'account_code' => $code,
