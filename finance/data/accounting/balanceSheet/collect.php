@@ -120,21 +120,15 @@ use finance\accounting\FiscalYear;
 /** @var \equal\php\Context $context */
 ['context' => $context] = $providers;
 
-/* -------------------------------------------------------------------------
- * Domain construction
- * ------------------------------------------------------------------------- */
 
-$domain = new Domain($params['domain']);
-
-
-// Condo filter
 if(!isset($params['condo_id'])) {
     throw new Exception('missing_condo_id', EQ_ERROR_MISSING_PARAM);
 }
 
-if(!empty($params['condo_id'])) {
-    $domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
-}
+// build domain
+$domain = new Domain($params['domain']);
+
+$domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
 
 // Resolve date interval
 $dateFrom = null;
@@ -184,11 +178,10 @@ foreach($accounts as $account_id => $account) {
     ];
 }
 
-
+// retrieve storage accounts (collectors) and map with each account
 $map_storage = [];
 
 foreach($map_accounts as $account_id => $account) {
-
     $code      = $account['code'];
     $parent_id = $account['parent_account_id'];
 
@@ -238,7 +231,7 @@ foreach($lines as $line) {
     $storage_account_id = $map_storage[$leaf_account_id] ?? null;
 
     if(!$storage_account_id || !isset($map_accounts[$storage_account_id])) {
-        continue;
+        $storage_account_id = $leaf_account_id;
     }
 
     $storage = $map_accounts[$storage_account_id];

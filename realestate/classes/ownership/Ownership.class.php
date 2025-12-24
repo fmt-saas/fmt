@@ -606,7 +606,10 @@ class Ownership extends \equal\orm\Model {
                 throw new \Exception("missing_mandatory_account", EQ_ERROR_INVALID_CONFIG);
             }
 
-            $parentAccount = Account::search([['condo_id', '=', $ownership['condo_id']], ['code', '=', $assignmentAccount['code'] . $ownership['code']]])
+            $parentAccount = Account::search([
+                    ['condo_id', '=', $ownership['condo_id']],
+                    ['code', '=', $assignmentAccount['code'] . $ownership['code']]
+                ])
                 ->read(['id', 'code'])
                 ->first();
 
@@ -618,7 +621,8 @@ class Ownership extends \equal\orm\Model {
                         'account_category'      => $assignmentAccount['account_category'],
                         'description'           => $ownership['name'],
                         'is_control_account'    => true,
-                        'ownership_id'          => $id
+                        'ownership_id'          => $id,
+                        'parent_account_id'     => $assignmentAccount['id']
                     ])
                     ->read(['id', 'code'])
                     ->first();
@@ -650,7 +654,6 @@ class Ownership extends \equal\orm\Model {
                     Account::create([
                             'code'                  => $assignmentAccount['code'] . $ownership['code'],
                             'condo_id'              => $ownership['condo_id'],
-                            'parent_account_id'     => $assignmentAccount['id'],
                             'account_chart_id'      => $assignmentAccount['account_chart_id'],
                             'account_category'      => $assignmentAccount['account_category'],
                             'description'           => $ownership['name'],

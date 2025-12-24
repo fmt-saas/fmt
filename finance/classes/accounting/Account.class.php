@@ -141,6 +141,7 @@ class Account extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'description'       => 'The parent control account the account is part of.',
                 'help'              => 'The first account that has a common prefix and marked as control control account.',
                 'function'          => 'calcParentAccountId',
