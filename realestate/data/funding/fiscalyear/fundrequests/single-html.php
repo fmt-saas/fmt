@@ -4,6 +4,8 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use communication\template\Template;
 use core\setting\Setting;
 use finance\accounting\FiscalYear;
 use realestate\funding\FundRequest;
@@ -207,8 +209,10 @@ foreach($fund_requests_ids as $fund_request_id) {
             'request_date',
             'has_date_range',
             'date_range_frequency',
+            'fiscal_period_id' => ['name'],
             'date_from',
             'date_to',
+            'condo_id' => ['name'],
             'entry_lots_ids' => [
                 '@domain' => ['ownership_id', '=', $params['ownership_id']],
                 'ownership_id',
@@ -308,6 +312,49 @@ if(!$owner) {
 
 $lang = $owner['identity_id']['lang_id']['code'];
 
+// retrieve template (subject & body)
+$subject = 'Appels de fonds';
+$introduction = '';
+
+$template = Template::search([
+        ['code', '=', 'fund_request'],
+        ['type', '=', 'document']
+    ])
+    ->read(['id','parts_ids' => ['name', 'value']])
+    ->first(true);
+
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'subject') {
+        $subject = strip_tags($part['value']);
+
+        $map_values = [
+            'condo'             => $fundRequest['condo_id']['name'],
+            'period'            => $fundRequest['fiscal_period_id']['name']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $subject);
+    }
+    elseif($part['name'] == 'introduction') {
+        $introduction = $part['value'];
+
+        $map_values = [
+            'firstname'         => $owner['identity_id']['firstname'],
+            'lastname'          => $owner['identity_id']['lastname'],
+            'condo'             => $fundRequest['condo_id']['name'],
+            'period'            => $fundRequest['fiscal_period_id']['name']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $introduction);
+    }
+}
 
 // adapt specific properties to TXT output
 /*
@@ -317,7 +364,9 @@ $invoice['organisation_id']['phone'] = DataFormatter::format($invoice['organisat
 */
 
 $values = [
-    'title'               => 'Appels de fonds',
+    'title'               => $subject,
+    'introduction'        => $introduction,
+
     'fiscal_period'       => [
             'date_from'     => $fiscalYear['date_from'],
             'date_to'       => $fiscalYear['date_to'],

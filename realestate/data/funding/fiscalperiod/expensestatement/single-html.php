@@ -4,6 +4,8 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use communication\template\Template;
 use core\setting\Setting;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
@@ -168,6 +170,7 @@ $statement = ExpenseStatement::search([
         ['invoice_type', '=', 'expense_statement']
     ])
     ->read([
+        'condo_id' => ['name'],
         'invoice_number',
         'common_total',
         'private_total',
@@ -226,9 +229,53 @@ if(!$owner) {
 
 $lang = $owner['identity_id']['lang_id']['code'];
 
+// retrieve template (subject & body)
+$subject = 'Décompte Propriétaire';
+$introduction = '';
+
+$template = Template::search([
+        ['code', '=', 'expense_statement'],
+        ['type', '=', 'document']
+    ])
+    ->read(['id','parts_ids' => ['name', 'value']])
+    ->first(true);
+
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'subject') {
+        $subject = strip_tags($part['value']);
+
+        $map_values = [
+            'condo'             => $statement['condo_id']['name'],
+            'period'            => $fiscalPeriod['name']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $subject);
+    }
+    elseif($part['name'] == 'introduction') {
+        $introduction = $part['value'];
+
+        $map_values = [
+            'firstname'         => $owner['identity_id']['firstname'],
+            'lastname'          => $owner['identity_id']['lastname'],
+            'condo'             => $statement['condo_id']['name'],
+            'period'            => $fiscalPeriod['name']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $introduction);
+    }
+}
 
 $values = array_merge($values, [
-    'title'               => 'Décompte Propriétaire',
+    'title'               => $subject,
+    'introduction'        => $introduction,
 
     'organisation'        => $fiscalPeriod['condo_id']['managing_agent_id'],
     'organisation_logo'   => $getOrganisationLogo($fiscalPeriod['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),

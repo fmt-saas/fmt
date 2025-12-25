@@ -4,6 +4,8 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use communication\template\Template;
 use core\setting\Setting;
 use realestate\governance\Assembly;
 use realestate\governance\AssemblyItem;
@@ -52,6 +54,9 @@ use Twig\Extension\ExtensionInterface;
     'constants'     => ['L10N_TIMEZONE', 'L10N_LOCALE']
 ]);
 
+
+//  #todo - add support for a single ownership / owner_id , in the same way used for FundRequest
+
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
@@ -91,7 +96,6 @@ $getLabels = function($lang) {
 $assembly = Assembly::id($params['id'])
     ->read([
         'name',
-        'condo_id',
         'assembly_type',
         'assembly_date',
         'assembly_invitation_date',
@@ -138,8 +142,57 @@ $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']]
 
 $lang = $params['lang'];
 
+// retrieve template (subject & body)
+$subject = 'Convocation';
+$introduction = '';
+
+$template = Template::search([
+        ['code', '=', 'general_meetings_call'],
+        ['type', '=', 'document']
+    ])
+    ->read( ['id','parts_ids' => ['name', 'value']])
+    ->first(true);
+
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'subject') {
+        $subject = strip_tags($part['value']);
+
+        $map_values = [
+            'condo'             => $assembly['condo_id']['name'],
+            'assembly'          => $assembly['name'],
+            'date'              => $assembly['assembly_date']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $subject);
+
+        $subject = strip_tags($subject);
+    }
+    elseif($part['name'] == 'introduction') {
+        $introduction = $part['value'];
+
+        $map_values = [
+            // 'firstname'         => $owner['identity_id']['firstname'],
+            // 'lastname'          => $owner['identity_id']['lastname'],
+            'condo'             => $assembly['condo_id']['name'],
+            'date'              => $assembly['assembly_date']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $introduction);
+    }
+}
+
 $values = [
-    'title'                     => 'Convocation',
+    'title'                     => $subject,
+    'introduction'              => $introduction,
+
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
 

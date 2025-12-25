@@ -41,6 +41,11 @@
             width: 100%;
         }
 
+        p {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
         h1, h2, h3 {
             margin-top: 0;
             margin-bottom: 0;
@@ -107,7 +112,9 @@
 <body>
     {% include 'header.html.twig' %}
 
-
+    <div class="introduction" style="height: 250px; overflow: hidden; text-overflow: ellipsis;">
+        {{ introduction | raw }}
+    </div>
 
     <!-- fund_requests start -->
 

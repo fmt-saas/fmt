@@ -89,7 +89,7 @@ $template = Template::create([
     ->first();
 TemplatePart::create([
     'name'          => 'subject',
-    'value'         => 'Appel de fonds pour la période {period}',
+    'value'         => 'Appel de fonds',
     'template_id'   => $template['id'],
     'variables'     => '["condo", "period"]'
 ]);
@@ -118,7 +118,7 @@ TemplatePart::create([
 ]);
 TemplatePart::create([
     'name'          => 'introduction',
-    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Veuillez trouver en pièce jointe l'appel de fonds concernant la copropriété <strong>{condo}</strong> pour la période <strong>{period}</strong>.</p><p><br></p><p>Le montant est payable pour le <strong>{due_date}</strong>, selon les modalités précisées dans le document annexé.</p><p><br></p><p>Nous vous remercions de votre attention et restons à votre disposition pour toute information complémentaire.</p>",
+    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Veuillez trouver en pièce jointe l'appel de fonds concernant la copropriété <strong>{condo}</strong> pour la période <strong>{period}</strong>.</p><p><br></p><p>Le montant est payable selon les modalités précisées dans le présent document.</p><p><br></p><p>Nous vous remercions de votre attention et restons à votre disposition pour toute information complémentaire.</p>",
     'template_id'   => $template['id'],
     'variables'     => '["condo", "firstname", "lastname", "period", "due_date"]'
 ]);

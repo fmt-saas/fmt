@@ -4,6 +4,8 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use communication\template\Template;
 use core\setting\Setting;
 use documents\DocumentSignature;
 use realestate\governance\Assembly;
@@ -94,11 +96,13 @@ $getLabels = function($lang) {
 };
 
 
-$assemblyInvitation = AssemblyInvitationCorrespondence::id($params['id'])
+$assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params['id'])
     ->read([
         'assembly_id',
         'owner_id' => [
             'name',
+            'firstname',
+            'lastname',
             'address_street',
             'address_dispatch',
             'address_zip',
@@ -111,12 +115,12 @@ $assemblyInvitation = AssemblyInvitationCorrespondence::id($params['id'])
     ])
     ->first(true);
 
-if(!$assemblyInvitation) {
+if(!$assemblyInvitationCorrespondence) {
     throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 
-$assembly = Assembly::id($assemblyInvitation['assembly_id'])
+$assembly = Assembly::id($assemblyInvitationCorrespondence['assembly_id'])
     ->read([
         'name',
         'condo_id',
@@ -166,8 +170,56 @@ $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']]
 
 $lang = $params['lang'];
 
+// retrieve template (subject & body)
+$subject = 'Convocation';
+$introduction = '';
+
+$template = Template::search([
+        ['code', '=', 'general_meetings_call'],
+        ['type', '=', 'document']
+    ])
+    ->read( ['id','parts_ids' => ['name', 'value']])
+    ->first(true);
+
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'subject') {
+        $subject = strip_tags($part['value']);
+
+        $map_values = [
+            'condo'             => $assembly['condo_id']['name'],
+            'assembly'          => $assembly['name'],
+            'date'              => $assembly['assembly_date']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $subject);
+
+        $subject = strip_tags($subject);
+    }
+    elseif($part['name'] == 'introduction') {
+        $introduction = $part['value'];
+
+        $map_values = [
+            'firstname'         => $assemblyInvitationCorrespondence['owner_id']['firstname'],
+            'lastname'          => $assemblyInvitationCorrespondence['owner_id']['lastname'],
+            'condo'             => $assembly['condo_id']['name'],
+            'date'              => $assembly['assembly_date']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $introduction);
+    }
+}
+
 $values = [
-    'title'                     => 'Convocation',
+    'title'                     => $subject,
+    'introduction'              => $introduction,
 
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
@@ -176,7 +228,7 @@ $values = [
     'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
 
     'date'                      => $assembly['assembly_invitation_date'],
-    'recipient'                 => $assemblyInvitation['owner_id'],
+    'recipient'                 => $assemblyInvitationCorrespondence['owner_id'],
 
     'map_assembly_items'        => $map_assembly_items,
 

@@ -4,6 +4,8 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use communication\template\Template;
 use core\setting\Setting;
 use documents\DocumentSignature;
 use realestate\governance\Assembly;
@@ -119,7 +121,6 @@ if(!$assemblyMinutesCorrespondence) {
 $assembly = Assembly::id($assemblyMinutesCorrespondence['assembly_id'])
     ->read([
         'name',
-        'condo_id',
         'assembly_type',
         'assembly_date',
         'assembly_invitation_date',
@@ -166,8 +167,56 @@ $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']]
 
 $lang = $params['lang'];
 
+// retrieve template (subject & body)
+$subject = 'Compte rendu';
+$introduction = '';
+
+$template = Template::search([
+        ['code', '=', 'general_meetings_minutes'],
+        ['type', '=', 'document']
+    ])
+    ->read( ['id','parts_ids' => ['name', 'value']])
+    ->first(true);
+
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'subject') {
+        $subject = strip_tags($part['value']);
+
+        $map_values = [
+            'condo'             => $assembly['condo_id']['name'],
+            'assembly'          => $assembly['name'],
+            'date'              => $assembly['assembly_date']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $subject);
+
+        $subject = strip_tags($subject);
+    }
+    elseif($part['name'] == 'introduction') {
+        $introduction = $part['value'];
+
+        $map_values = [
+            'firstname'         => $assemblyMinutesCorrespondence['owner_id']['firstname'],
+            'lastname'          => $assemblyMinutesCorrespondence['owner_id']['lastname'],
+            'condo'             => $assembly['condo_id']['name'],
+            'date'              => $assembly['assembly_date']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $introduction);
+    }
+}
+
 $values = [
-    'title'                     => 'Convocation',
+    'title'                     => $subject,
+    'introduction'              => $introduction,
 
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],

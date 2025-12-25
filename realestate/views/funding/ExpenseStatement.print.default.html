@@ -41,6 +41,11 @@
             width: 100%;
         }
 
+        p {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
         h1, h2, h3 {
             margin-top: 0;
             margin-bottom: 10px;
@@ -121,6 +126,9 @@
 <body>
     {% include 'header.html.twig' %}
 
+    <div class="introduction" style="height: 250px; overflow: hidden; text-overflow: ellipsis;">
+        {{ introduction | raw }}
+    </div>
 
     {% for owner in owners %}
         <!-- <h1>{{ owner.name }}</h1> -->

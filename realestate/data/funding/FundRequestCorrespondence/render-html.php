@@ -4,6 +4,8 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use communication\template\Template;
 use core\setting\Setting;
 use finance\accounting\FiscalYear;
 use realestate\funding\FundRequest;
@@ -53,6 +55,11 @@ use Twig\Extension\ExtensionInterface;
     'providers'     => ['context'],
     'constants'     => ['L10N_TIMEZONE', 'L10N_LOCALE']
 ]);
+
+
+// #todo - use single-html instead of duplicating the code here
+
+
 
 
 /** @var \equal\php\Context $context */
@@ -159,6 +166,8 @@ $executions = [];
 
 $fundRequestCorrespondence = FundRequestCorrespondence::id($params['id'])
     ->read([
+        'condo_id' => ['name'],
+        'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
         'ownership_id',
         'fund_request_execution_id' => ['fund_request_id' => ['fiscal_year_id']]
     ])
@@ -203,8 +212,10 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id']['id'])
         'request_date',
         'has_date_range',
         'date_range_frequency',
+        'fiscal_period_id' => ['name'],
         'date_from',
         'date_to',
+        'condo_id' => ['name'],
         'entry_lots_ids' => [
             '@domain' => ['ownership_id', '=', $fundRequestCorrespondence['ownership_id']],
             'ownership_id',
@@ -274,20 +285,7 @@ foreach($fundRequest['execution_lines_ids'] as $execution_line) {
 
 }
 
-
-
-/*
-    #todo
-    copropriétaire
-
-        déterminer le bloc adresse en fonction du ownership_type et has_representant
-        pour le moment, on prend l'identity du premier owner associé au ownership_id
-
-    si has_representative use representative_identity_id
-    sinon soit on prendre le premier owner de la liste, soit on prend le owner_id renseigné dans les params (pour courrier personnalisé, même s'il s'agit du même ownership)
-*/
-
-$owner = Owner::search(['ownership_id', '=', $fundRequestCorrespondence['ownership_id']])
+$owner = Owner::id($fundRequestCorrespondence['owner_id']['id'])
     ->read([
         'identity_id' => [
             'name', 'address_street', 'address_dispatch', 'address_zip',
@@ -303,6 +301,52 @@ if(!$owner) {
 
 $lang = $owner['identity_id']['lang_id']['code'];
 
+// retrieve template (subject & body)
+$subject = 'Appels de fonds';
+$introduction = '';
+
+$template = Template::search([
+        ['code', '=', 'fund_request'],
+        ['type', '=', 'document']
+    ])
+    ->read( ['id','parts_ids' => ['name', 'value']])
+    ->first(true);
+
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'subject') {
+        $subject = strip_tags($part['value']);
+
+        $map_values = [
+            'condo'             => $fundRequest['condo_id']['name'],
+            'period'            => $fundRequest['fiscal_period_id']['name']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $subject);
+
+        $subject = strip_tags($subject);
+    }
+    elseif($part['name'] == 'introduction') {
+        $introduction = $part['value'];
+
+        $map_values = [
+            'firstname'         => $owner['identity_id']['firstname'],
+            'lastname'          => $owner['identity_id']['lastname'],
+            'condo'             => $fundRequest['condo_id']['name'],
+            'period'            => $fundRequest['fiscal_period_id']['name']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $introduction);
+    }
+}
+
 
 // adapt specific properties to TXT output
 /*
@@ -312,7 +356,9 @@ $invoice['organisation_id']['phone'] = DataFormatter::format($invoice['organisat
 */
 
 $values = [
-    'title'               => 'Appels de fonds',
+    'title'               => $subject,
+    'introduction'        => $introduction,
+
     'fiscal_period'       => [
             'date_from'     => $fiscalYear['date_from'],
             'date_to'       => $fiscalYear['date_to'],
