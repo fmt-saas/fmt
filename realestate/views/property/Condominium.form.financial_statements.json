@@ -49,8 +49,18 @@
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
+        },
+        {
+            "id": "route.expense_summary",
+            "label": "Expense Summary",
+            "description": "",
+            "icon": "menu_book",
+            "context": {
+                "entity": "finance\\accounting\\expenseSummary\\collect",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
         }
-
     ],
     "layout": {
     }
