@@ -1,6 +1,6 @@
 {
-    "name": "Balance Sheet",
-    "controller": "finance_accounting_balanceSheet_collect",
+    "name": "Expense Summary",
+    "controller": "finance_accounting_expenseSummary_collect",
     "header": {
         "#memo": "inline layout disables visible actions of the view",
         "layout": "inline",

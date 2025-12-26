@@ -366,6 +366,18 @@
                 "route.general_ledger": {
                     "label": "Grand Livre",
                     "description": ""
+                },
+                "route.general_balance": {
+                    "label": "Balance générale",
+                    "description": ""
+                },
+                "route.balance_sheet": {
+                    "label": "Bilan",
+                    "description": ""
+                },
+                "route.expense_summary": {
+                    "label": "Dépenses courantes",
+                    "description": ""
                 }
             }
         },

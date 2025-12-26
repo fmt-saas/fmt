@@ -184,7 +184,7 @@ $map = [
 
 $result = [];
 
-foreach ($spreadsheet->getWorksheetIterator() as $worksheet) {
+foreach($spreadsheet->getWorksheetIterator() as $worksheet) {
 
     $sheet_name = trim($worksheet->getTitle());
 
