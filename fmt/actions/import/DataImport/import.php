@@ -796,8 +796,8 @@ try {
                 continue;
             }
 
-            $is_primary = (bool) $lot['primary_lot_code'];
             $primary_lot_id = $map_property_lots[$lot['primary_lot_code']] ?? null;
+            $is_primary = ($primary_lot_id === null);
 
             $propertyLot = PropertyLot::create([
                     'property_lot_ref'      => $lot['ref'],

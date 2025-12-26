@@ -646,12 +646,16 @@ class Assembly extends \equal\orm\Model {
         $propertyLotOwnerships = PropertyLotOwnership::search([
                 ['condo_id', '=', $condo_id]
             ])
-            ->read(['date_to', 'ownership_id', 'property_lot_id' => ['is_primary']]);
+            ->read(['date_from', 'date_to', 'ownership_id', 'property_lot_id' => ['is_primary']]);
 
         $map_ownerships_ids = [];
 
         foreach($propertyLotOwnerships as $propertyLotOwnership) {
-            if(!$propertyLotOwnership['date_to'] || $propertyLotOwnership['date_to'] > $assembly_date) {
+            if(
+                (!$propertyLotOwnership['date_from'] || $propertyLotOwnership['date_from'] <= $assembly_date)
+                &&
+                (!$propertyLotOwnership['date_to'] || $propertyLotOwnership['date_to'] > $assembly_date)
+            ) {
                 if($propertyLotOwnership['property_lot_id']['is_primary']) {
                     $map_ownerships_ids[$propertyLotOwnership['ownership_id']] = true;
                 }
@@ -681,27 +685,33 @@ class Assembly extends \equal\orm\Model {
         $result = [];
         $self->read(['condo_id' => ['managing_agent_id' => ['identity_id', 'agent_identity_type']]]);
 
-        // #todo - use RoleAssignment
-        // RoleAssignment::search(['condo_id', '=', ''], ['role_code', '=', 'condo_manager'])
-        
         foreach($self as $id => $assembly) {
             if(!$assembly['condo_id']) {
                 continue;
             }
 
-            // #todo - dans tous les cas on va créer un Employé et des Roles pour l'ACP
-            if($assembly['condo_id']['managing_agent_id']['agent_identity_type'] === 'owner') {
-                $result[$id] = $assembly['condo_id']['managing_agent_id']['identity_id'];
+            $roleAssignment = RoleAssignment::search(['condo_id', '=', $assembly['condo_id']], ['role_code', '=', 'condo_manager'])
+                ->read(['identity_id'])
+                ->first();
+
+            if($roleAssignment) {
+                $result[$id] = $roleAssignment['identity_id'];
             }
-            elseif($assembly['condo_id']['managing_agent_id']['agent_identity_type'] === 'professional') {
-                $assignment = RoleAssignment::search([
-                        ['condo_id', '=', $assembly['condo_id']['id']],
-                        ['role_code', '=', 'condo_manager']
-                    ])
-                    ->read(['identity_id'])
-                    ->first();
-                if($assignment) {
-                    $result[$id] = $assignment['identity_id'];
+            else {
+                // #todo - dans tous les cas on va créer un Employé et des Roles pour l'ACP
+                if($assembly['condo_id']['managing_agent_id']['agent_identity_type'] === 'owner') {
+                    $result[$id] = $assembly['condo_id']['managing_agent_id']['identity_id'];
+                }
+                elseif($assembly['condo_id']['managing_agent_id']['agent_identity_type'] === 'professional') {
+                    $assignment = RoleAssignment::search([
+                            ['condo_id', '=', $assembly['condo_id']['id']],
+                            ['role_code', '=', 'condo_manager']
+                        ])
+                        ->read(['identity_id'])
+                        ->first();
+                    if($assignment) {
+                        $result[$id] = $assignment['identity_id'];
+                    }
                 }
             }
         }
