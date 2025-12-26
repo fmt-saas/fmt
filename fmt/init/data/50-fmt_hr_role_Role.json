@@ -61,7 +61,7 @@
                 "name": "Documents Dispatch Officer",
                 "code": "document_dispatch_officer",
                 "is_external": false,
-                "is_mandatory": true,
+                "is_mandatory": false,
                 "description": "Employee in charge of incoming documents dispatching."
             }
         ]

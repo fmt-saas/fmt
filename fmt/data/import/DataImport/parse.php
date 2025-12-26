@@ -152,7 +152,7 @@ try {
     unlink($tmp);
 }
 catch(Exception $e) {
-    trigger_error("APP:unable to load data from given XLSX with PhpOffice: " . $e->getMessage(), EQ_REPORT_ERROR);
+    trigger_error("APP::unable to load data from given XLSX with PhpOffice: " . $e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception('failed_loading_xlsx', EQ_ERROR_UNKNOWN);
 }
 

@@ -57,6 +57,15 @@ class Supplier extends Identity {
                 'default'           => 'supplier'
             ],
 
+            'type_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\IdentityType',
+                'onupdate'          => 'onupdateTypeId',
+                'default'           => 3,
+                'dependents  '      => ['type', 'name', 'identity_slug', 'slug_hash'],
+                'description'       => 'Type of identity.'
+            ],
+
             /**
              * Specific Supplier columns
              */
