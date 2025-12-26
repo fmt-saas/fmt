@@ -1,0 +1,436 @@
+<?php
+/*
+    Developed by Yesbabylon - https://yesbabylon.com
+    (c) 2025-2026 Yesbabylon SA
+    Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
+*/
+
+use equal\orm\Domain;
+use equal\orm\DomainCondition;
+use finance\accounting\Account;
+use realestate\finance\accounting\AccountingEntryLine;
+use finance\accounting\FiscalYear;
+use realestate\purchase\accounting\invoice\PurchaseInvoice;
+use finance\bank\BankStatement;
+use realestate\property\Apportionment;
+
+[$params, $providers] = eQual::announce([
+    'description' => 'Advanced search for current expenses summary.',
+    'params' => [
+
+        /* Rendering fields */
+
+        'apportionment' => [
+            'type'     => 'string',
+            'readonly' => true
+        ],
+
+        'account' => [
+            'type'     => 'string',
+            'readonly' => true
+        ],
+
+        'description' => [
+            'type'     => 'string',
+            'readonly' => true
+        ],
+
+        'entry_date' => [
+            'type'    => 'date',
+            'readonly'=> true
+        ],
+
+        'entry_reference' => [
+            'type'    => 'string',
+            'readonly'=> true
+        ],
+
+        'supplier_id' => [
+            'type'              => 'many2one',
+            'foreign_object'    => 'purchase\supplier\Supplier',
+            'description'       => 'The supplier the invoice relates to.',
+            'readonly'          => true
+        ],
+
+        'supplier_reference' => [
+            'type'    => 'string',
+            'readonly'=> true
+        ],
+
+        'owner_share'           => [
+            'type'              => 'integer',
+            'description'       => "Value, in percent, of the amount to be imputed to the owner when using the account.",
+        ],
+
+        'tenant_share'          => [
+            'type'              => 'integer',
+            'description'       => "Value, in percent, of the amount to be imputed to the tenant when using the account.",
+        ],
+
+
+        'domain' => [
+            'type'              => 'array',
+            'description'       => "Conditional domain.",
+            'default'           => []
+        ],
+
+        /* Filters */
+
+        'date_from' => [
+            'type'    => 'date',
+            'default' => null
+        ],
+
+        'date_to' => [
+            'type'    => 'date',
+            'default' => null
+        ],
+
+        'condo_id' => [
+            'type'           => 'many2one',
+            'foreign_object' => 'realestate\property\Condominium',
+            'default'        => function ($domain = []) {
+                $condo_id = null;
+                $origDomain = new Domain($domain);
+
+                foreach ($origDomain->getClauses() as $clause) {
+                    foreach ($clause->getConditions() as $condition) {
+                        if ($condition->getOperand() === 'condo_id') {
+                            $condo_id = $condition->getValue();
+                            break 2;
+                        }
+                    }
+                }
+                return $condo_id;
+            }
+        ],
+
+        'fiscal_year_id' => [
+            'type'           => 'many2one',
+            'foreign_object' => 'finance\accounting\FiscalYear',
+            'domain'         => ['condo_id', '=', 'object.condo_id'],
+            'default'        => function ($condo_id = null) {
+                $ids = FiscalYear::search([
+                    ['status', '=', 'open'],
+                    ['condo_id', '=', $condo_id],
+                ], ['sort' => ['date_from' => 'desc']])->ids();
+
+                if (!$ids) {
+                    $ids = FiscalYear::search([
+                        ['status', '=', 'preopen'],
+                        ['condo_id', '=', $condo_id],
+                    ], ['sort' => ['date_from' => 'asc']])->ids();
+                }
+
+                return $ids ? current($ids) : null;
+            }
+        ]
+    ],
+    'response'      => [
+        'content-type'  => 'application/json',
+        'charset'       => 'utf-8',
+        'accept-origin' => '*'
+    ],
+    'providers' => ['context']
+]);
+
+/** @var \equal\php\Context $context */
+['context' => $context] = $providers;
+
+
+if(!isset($params['condo_id'])) {
+    throw new Exception('missing_condo_id', EQ_ERROR_MISSING_PARAM);
+}
+
+// build domain
+$domain = new Domain($params['domain']);
+
+$domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
+
+// Resolve date interval
+$dateFrom = null;
+$dateTo   = null;
+
+if(!empty($params['fiscal_year_id'])) {
+    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
+        ->read(['date_from', 'date_to'])
+        ->first();
+
+    if($fiscalYear) {
+        $dateFrom = $fiscalYear['date_from'];
+        $dateTo   = $fiscalYear['date_to'];
+    }
+}
+
+if(!empty($params['date_from']) && (!$dateFrom || $params['date_from'] > $dateFrom)) {
+    $dateFrom = $params['date_from'];
+}
+
+if(!empty($params['date_to']) && (!$dateTo || $params['date_to'] < $dateTo)) {
+    $dateTo = $params['date_to'];
+}
+
+if($dateFrom && $dateTo) {
+    $domain->addCondition(new DomainCondition('entry_date', '>=', $dateFrom));
+    $domain->addCondition(new DomainCondition('entry_date', '<=', $dateTo));
+}
+
+// Only validated entries
+$domain->addCondition(new DomainCondition('status', '=', 'validated'));
+
+
+// load Chart of Accounts of the condominium
+$accounts = Account::search([
+        ['condo_id', '=', $params['condo_id']]
+    ])
+    ->read(['code', 'name', 'parent_account_id', 'description', 'account_nature', 'account_class', 'is_control_account']);
+
+foreach($accounts as $account_id => $account) {
+    $map_accounts[$account_id] = [
+        'id'                => $account_id,
+        'code'              => (string) $account['code'],
+        'name'              => (string) $account['name'],
+        'parent_account_id' => $account['parent_account_id'] ?? null,
+        'description'       => $account['description'],
+        'account_nature'    => $account['account_nature'],
+        'account_class'     => $account['account_class'],
+        'is_control_account'=> $account['is_control_account']
+    ];
+}
+
+// retrieve storage accounts (collectors) and map with each account
+$map_storage = [];
+
+foreach($map_accounts as $account_id => $account) {
+    $code = $account['code'];
+    $parent_account_id = $account['parent_account_id'];
+
+    // account is a control account (collector)
+    if($account['is_control_account']) {
+        $map_storage[$account_id] = $account_id;
+        continue;
+    }
+
+    // account is a level-3 account (or less)
+    if(strlen($code) <= 3) {
+        $map_storage[$account_id] = $account_id;
+        continue;
+    }
+    $target_account_id = $account_id;
+
+    // retrieve first level-3 parent
+    while($parent_account_id) {
+        $target_account_id = $parent_account_id;
+        if(!isset($map_accounts[$parent_account_id])) {
+            break;
+        }
+        $parent_code = $map_accounts[$parent_account_id]['code'];
+        if(strlen($parent_code) <= 3) {
+            break;
+        }
+        $parent_account_id = $map_accounts[$parent_account_id]['parent_account_id'];
+    }
+
+    $map_storage[$account_id] = $target_account_id;
+}
+
+
+
+
+// Retrieve accounting entry lines
+$lines = AccountingEntryLine::search($domain->toArray())
+    ->read([
+        'account_id',
+        'accounting_entry_id' => ['name'],
+        'purchase_invoice_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'invoice_id'],
+        'bank_statement_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'bank_statement_id'],
+        'description',
+        'entry_date',
+        'debit',
+        'credit'
+    ]);
+
+
+$invoices_ids = [];
+$statements_ids = [];
+$apportionments_ids = [];
+
+// read all involved invoices and bank statements at once
+
+
+
+
+$result = [];
+
+/*
+populate with values for these fields:
+    'apportionment' => [
+    'account' => [
+    'description' => [
+    'entry_date' => [
+    'entry_reference' => [
+    'supplier_id' => [
+    'supplier_reference' => [
+*/
+
+// pass-1 - store references of invoices and statements
+foreach($lines as $line) {
+
+    if(empty($line['account_id'])) {
+        continue;
+    }
+
+    $account_id = $line['account_id'];
+
+    // Keep only accounts class 6 or 7 (expenses / income)
+    if(!isset($map_accounts[$account_id])) {
+        // shouldn't occur
+        continue;
+    }
+
+    $account = $map_accounts[$account_id];
+
+    $account_class = (int) ($account['account_class'] ?? 0);
+    // ignore lines with account_id not matching class 6 or 7
+    if(!in_array($account_class, [6, 7], true)) {
+        continue;
+    }
+
+    // Source documents
+    if($line['purchase_invoice_line_id']) {
+        if($line['purchase_invoice_line_id']['invoice_id']) {
+            $invoices_ids[] = $line['purchase_invoice_line_id']['invoice_id'];
+        }
+        if($line['purchase_invoice_line_id']['apportionment_id']) {
+            $apportionments_ids[] = $line['purchase_invoice_line_id']['apportionment_id'];
+        }
+    }
+
+    if($line['bank_statement_line_id']) {
+        if($line['bank_statement_line_id']['bank_statement_id']) {
+            $statements_ids[] = $line['bank_statement_line_id']['bank_statement_id'];
+        }
+        if($line['bank_statement_line_id']['apportionment_id']) {
+            $apportionments_ids[] = $line['bank_statement_line_id']['apportionment_id'];
+        }
+    }
+}
+
+// Read all involved invoices at once
+$map_invoices = [];
+$map_statements = [];
+$map_apportionments = [];
+
+
+if(!empty($invoices_ids)) {
+    $invoices = PurchaseInvoice::ids($invoices_ids)
+        ->read([
+            'supplier_id',
+            'supplier_invoice_number',
+            'emission_date'
+        ]);
+
+    foreach($invoices as $invoice_id => $invoice) {
+        $map_invoices[$invoice_id] = [
+            'supplier_id' => $invoice['supplier_id'] ?? null,
+            'supplier_reference' => $invoice['supplier_invoice_number'] ?? null
+        ];
+    }
+}
+
+// Read all involved bank statements at once
+if(!empty($statements_ids)) {
+    $statements = BankStatement::ids($statements_ids)
+        ->read([
+            'bank_id',
+            'date',
+            'statement_number'
+        ]);
+
+    foreach($statements as $statement_id => $statement) {
+        $map_statements[$statement_id] = [
+            'supplier_id' => $statement['bank_id'] ?? null,
+            'supplier_reference' => $statement['statement_number'] ?? null
+        ];
+    }
+}
+if(!empty($apportionments_ids)) {
+    $map_apportionments = Apportionment::ids($apportionments_ids)
+        ->read([
+            'name'
+        ])
+        ->get();
+}
+
+$result = [];
+
+foreach($lines as $line_id => $line) {
+    if(empty($line['account_id'])) {
+        continue;
+    }
+
+    $account_id = $line['account_id'];
+
+    if(!isset($map_accounts[$account_id])) {
+        continue;
+    }
+    $account = $map_accounts[$account_id];
+    $account_class = (int) ($account['account_class'] ?? 0);
+
+    // ignore non 6/7
+    if(!in_array($account_class, [6, 7], true)) {
+        continue;
+    }
+
+    // Prefer grouping by storage/collector if you want "summary" by collector
+    // If you want the collector account instead of leaf:
+    $storage_account_id = $map_storage[$account_id] ?? $account_id;
+
+    $account = $map_accounts[$storage_account_id];
+
+    $apportionment_id = null;
+    $supplier_id = null;
+    $supplier_reference = null;
+    $owner_share  = 0;
+    $tenant_share = 0;
+
+    // Determine origin and fetch doc metadata
+    if(!empty($line['purchase_invoice_line_id']['invoice_id'])) {
+        $invoice_id = $line['purchase_invoice_line_id']['invoice_id'];
+        $apportionment_id = $line['purchase_invoice_line_id']['apportionment_id'] ?? null;
+        $owner_share = $line['purchase_invoice_line_id']['owner_share'] ?? 0;
+        $tenant_share = $line['purchase_invoice_line_id']['tenant_share'] ?? 0;
+
+        if(isset($map_invoices[$invoice_id])) {
+            $supplier_id = $map_invoices[$invoice_id]['supplier_id'];
+            $supplier_reference = $map_invoices[$invoice_id]['supplier_reference'];
+        }
+    }
+    elseif(!empty($line['bank_statement_line_id']['bank_statement_id'])) {
+        $statement_id = $line['bank_statement_line_id']['bank_statement_id'];
+        $apportionment_id = $line['bank_statement_line_id']['apportionment_id'] ?? null;
+        $owner_share = $line['bank_statement_line_id']['owner_share'] ?? 0;
+        $tenant_share = $line['bank_statement_line_id']['tenant_share'] ?? 0;
+
+        if(isset($map_statements[$statement_id])) {
+            $supplier_id = $map_statements[$statement_id]['supplier_id'];
+            $supplier_reference = $map_statements[$statement_id]['supplier_reference'];
+        }
+    }
+
+    $result[] = [
+        'apportionment'      => $map_apportionments[$apportionment_id]['name'] ?? '',
+        'account'            => (string) $account['name'],
+        'description'        => (string) $line['description'],
+        'entry_date'         => $line['entry_date'] ?? null,
+        'entry_reference'    => $line['accounting_entry_id']['name'] ?? null,
+        'supplier_id'        => $supplier_id,
+        'supplier_reference' => $supplier_reference,
+        'owner_share'        => $owner_share,
+        'tenant_share'       => $tenant_share
+    ];
+}
+
+$context->httpResponse()
+    ->body($result)
+    ->send();

@@ -163,6 +163,7 @@ class BankAccount extends Model {
         }
         return $result;
     }
+
     protected static function onupdateBankAccountIban($self) {
         $self->read(['owner_identity_id', 'bank_account_iban', 'is_primary']);
         foreach($self as $id => $bankAccount) {

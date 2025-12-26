@@ -47,6 +47,16 @@ class BankStatement extends Model {
                 'dependents'        => ['name']
             ],
 
+            'bank_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\bank\Bank',
+                'description'       => 'The Bank the account is part of.',
+                'help'              => "This is equivalent to supplier_id since Bank inherit from Supplier.",
+                'store'             => false,
+                'relation'          => ['bank_account_id' => 'bank_id']
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',

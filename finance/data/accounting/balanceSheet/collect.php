@@ -166,7 +166,7 @@ $domain->addCondition(new DomainCondition('status', '=', 'validated'));
 $accounts = Account::search([
         ['condo_id', '=', $params['condo_id']]
     ])
-    ->read(['code', 'parent_account_id', 'description', 'account_nature']);
+    ->read(['code', 'parent_account_id', 'description', 'account_nature', 'is_control_account']);
 
 foreach($accounts as $account_id => $account) {
     $map_accounts[$account_id] = [
@@ -175,6 +175,7 @@ foreach($accounts as $account_id => $account) {
         'parent_account_id' => $account['parent_account_id'] ?? null,
         'description'       => $account['description'],
         'account_nature'    => $account['account_nature'],
+        'is_control_account'=> $account['is_control_account']
     ];
 }
 
@@ -182,8 +183,17 @@ foreach($accounts as $account_id => $account) {
 $map_storage = [];
 
 foreach($map_accounts as $account_id => $account) {
-    $code      = $account['code'];
+    $code = $account['code'];
     $parent_account_id = $account['parent_account_id'];
+
+    // account is a control account (collector)
+    if($account['is_control_account']) {
+        /*
+        // #todo
+        $map_storage[$account_id] = $account_id;
+        continue;
+        */
+    }
 
     // account is a level-3 account (or less)
     if(strlen($code) <= 3) {
