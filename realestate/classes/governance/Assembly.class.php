@@ -47,7 +47,9 @@ class Assembly extends \equal\orm\Model {
                 'function'          => 'calcAssemblyOrganizerIdentityId',
                 'description'       => 'Managing agent representative in charge of the organization of the Assembly.',
                 'help'              => 'This identity relates directly or indirectly to the managing agent (owner or professional), and is in charge of the organization of the Assembly.',
-                'store'             => true
+                'store'             => true,
+                // limiter aux identités des employés
+                'domain'            => [['employee_id', '<>', null]]
             ],
 
             'register_document_id' => [
@@ -678,6 +680,10 @@ class Assembly extends \equal\orm\Model {
     protected static function calcAssemblyOrganizerIdentityId($self) {
         $result = [];
         $self->read(['condo_id' => ['managing_agent_id' => ['identity_id', 'agent_identity_type']]]);
+
+        // #todo - use RoleAssignment
+        // RoleAssignment::search(['condo_id', '=', ''], ['role_code', '=', 'condo_manager'])
+        
         foreach($self as $id => $assembly) {
             if(!$assembly['condo_id']) {
                 continue;
@@ -705,7 +711,7 @@ class Assembly extends \equal\orm\Model {
     protected static function onafterPublish($self) {
         // generate the ownerships_ids : list of expected Ownerships allowed to attend the Assembly
         // #memo - uniquement besoin à partir de l'envoi des invitations
-        // $self->do('generate_ownerships');
+        $self->do('generate_ownerships');
     }
 
 

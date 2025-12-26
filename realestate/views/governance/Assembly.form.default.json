@@ -1,6 +1,11 @@
 {
     "name": "Assembly",
     "description": "Edit assembly information, agenda, and logistics.",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [{"id": "SAVE_AND_VIEW"}, {"id": "SAVE_AND_CONTINUE"}, {"id": "SAVE_AND_CLOSE"}]
+        }
+    },
     "actions": [
         {
             "id": "action.publish",
