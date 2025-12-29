@@ -33,6 +33,10 @@
             "label": "Import fournisseurs",
             "description": "Importer des données depuis un fichier XLS."
         },
+        "item.imports.data_import.banks": {
+            "label": "Import Banques",
+            "description": "Importer des données depuis un fichier XLS."
+        },
         "item.imports.data_imports": {
             "label": "Tous les imports",
             "description": "Imports depuis un fichier XLS."
