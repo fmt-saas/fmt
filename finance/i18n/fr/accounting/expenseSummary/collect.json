@@ -1,0 +1,61 @@
+{
+    "name": "Dépenses courantes",
+    "plural": "Dépenses courantes",
+    "description": "Collecteur avancé des écritures pour générer les dépenses courantes.",
+    "model": {
+        "apportionment": {
+            "label": "Clé",
+            "description": "Clé de répartition utilisée pour ventiler le montant entre postes, périodes ou copropriétaires."
+        },
+        "account": {
+            "label": "Compte",
+            "description": "Compte comptable (numéro ou référence) associé à la ligne."
+        },
+        "description": {
+            "label": "Libellé",
+            "description": "Libellé ou description de l'opération."
+        },
+        "entry_date": {
+            "label": "Date",
+            "description": "Date de l'écriture comptable."
+        },
+        "entry_reference": {
+            "label": "Référence",
+            "description": "Référence ou identifiant de l'écriture comptable."
+        },
+        "supplier_id": {
+            "label": "Fournisseur",
+            "description": "Identifiant du fournisseur lié à la facture ou à l'écriture."
+        },
+        "supplier_reference": {
+            "label": "Réf. fournisseur",
+            "description": "Référence fournie par le fournisseur (ex. numéro de facture)."
+        },
+        "owner_share": {
+            "label": "Part Prop.",
+            "description": "Quote-part de la charge attribuée au propriétaire."
+        },
+        "tenant_share": {
+            "label": "part Loc.",
+            "description": "Quote-part de la charge attribuée au locataire."
+        }
+    },
+    "view": {
+        "collect.list.default": {
+            "name": "Dépenses courantes",
+            "description": "Vue détaillée des lignes de dépenses courantes.",
+            "actions": {
+                "action.export": {
+                    "label": "Exporter",
+                    "description": "Exporter un document PDF à partir du filtre actif."
+                }
+            }
+        },
+        "collect.search.default": {
+            "name": "Recherche des dépenses courantes",
+            "description": "Filtres avancés pour sélectionner les écritures de dépenses courantes."
+        }
+    },
+    "error": {
+    }
+}

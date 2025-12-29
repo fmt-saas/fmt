@@ -23,13 +23,7 @@
             {
                 "type": "field",
                 "value": "status",
-                "width": "33%"
-            },
-            {
-                "type": "field",
-                "value": "is_exported",
-                "width": "10%",
-                "visible": false
+                "width": "15%"
             },
             {
                 "type": "field",
@@ -39,6 +33,12 @@
                 "widget": {
                     "link": "icon"
                 }
+            },
+            {
+                "type": "field",
+                "value": "is_exported",
+                "width": "10%",
+                "visible": false
             }
         ]
     }

@@ -153,7 +153,7 @@ class AccountingEntryLine extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'integer',
                 'description'       => "The accounting class of the account (as a number from 1 to 7).",
-                'function'          => 'calcAccountClass',
+                'relation'          => ['account_id' => 'account_class'],
                 'store'             => true,
                 'instant'           => true,
                 'readonly'          => true

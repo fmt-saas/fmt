@@ -54,7 +54,7 @@
             "help": ""
         },
         "ownership_id": {
-            "label": "Copropri�taire",
+            "label": "Copropri�taire",
             "description": "Dossier de propriété impacté par ce document.",
             "help": ""
         },
@@ -108,7 +108,8 @@
                 "completed": "Complété",
                 "validated": "Validé",
                 "integrated": "Intégré",
-                "cancelled": "Annulé"
+                "cancelled": "Annulé",
+                "removed": "Supprimé"
             }
         },
         "document_invoice_id": {

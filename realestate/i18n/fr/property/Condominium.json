@@ -262,7 +262,7 @@
                     "description": ""
                 },
                 "item.governance": {
-                    "label": "Gouvernance",
+                    "label": "Assemblées",
                     "description": ""
                 },
                 "item.config": {
@@ -392,7 +392,7 @@
             }
         },
         "form.governance": {
-            "name": "Gouvernance",
+            "name": "Assemblées",
             "description": "Assemblées, mandats et représentants de la copropriété.",
             "actions": {
                 "action.create_assembly": {

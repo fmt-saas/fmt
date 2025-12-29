@@ -720,8 +720,9 @@ class Assembly extends \equal\orm\Model {
 
     protected static function onafterPublish($self) {
         // generate the ownerships_ids : list of expected Ownerships allowed to attend the Assembly
-        // #memo - uniquement besoin à partir de l'envoi des invitations
-        $self->do('generate_ownerships');
+        $self
+            ->do('generate_ownerships')
+            ->update(['count_shares' => null, 'count_represented_shares' => null, 'count_owners' => null, 'count_represented_owners' => null]);
     }
 
 

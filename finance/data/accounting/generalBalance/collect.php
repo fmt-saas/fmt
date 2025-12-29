@@ -11,7 +11,7 @@ use realestate\finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 
-list($params, $providers) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description'   => 'Advanced search for General Balance.',
     // #memo - this controller is named `collect` but is provides data from its own logic, not directly from the model
     // 'extends'       => 'core_model_collect',
@@ -53,6 +53,11 @@ list($params, $providers) = eQual::announce([
             'default'           => 0.0
         ],
 
+        'domain' => [
+            'type'              => 'array',
+            'description'       => "Conditional domain.",
+            'default'           => []
+        ],
 
         /* additional fields for filtering & rendering */
 
@@ -94,12 +99,9 @@ list($params, $providers) = eQual::announce([
             'description'       => "The condominium the fiscal year refers to.",
             'help'              => "When a fiscal year is not linked to a condominium, it relates to the organisation itself.",
             'foreign_object'    => 'realestate\property\Condominium',
-            'default'           => function($domain=[]) {
+            'default'           => function($domain = []) {
                 // #memo - in some cases fiscal_year_id is provided in $domain and is not valid for Condominium schema
                 $condo_id = null;
-
-                // $user_id = $this->am->userId();
-                // Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id]);
 
                 $origDomain = new Domain($domain);
                 foreach($origDomain->getClauses() as $clause) {
@@ -119,7 +121,7 @@ list($params, $providers) = eQual::announce([
             'description'       => "The fiscal year the balance refers to.",
             'foreign_object'    => 'finance\accounting\FiscalYear',
             'domain'            => ['condo_id', '=', 'object.condo_id'],
-            'default'           => function($condo_id=null) {
+            'default'           => function($condo_id = null) {
                 $fiscal_year_ids = FiscalYear::search([
                         ['status', '=', 'open'],
                         ['condo_id', '=', $condo_id],

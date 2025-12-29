@@ -16,6 +16,8 @@ use realestate\property\Apportionment;
 
 [$params, $providers] = eQual::announce([
     'description' => 'Advanced search for current expenses summary.',
+    // #memo - this controller is named `collect` but is provides data from its own logic, not directly from the model
+    // 'extends'       => 'core_model_collect',
     'params' => [
 
         /* Rendering fields */
@@ -67,6 +69,11 @@ use realestate\property\Apportionment;
             'description'       => "Value, in percent, of the amount to be imputed to the tenant when using the account.",
         ],
 
+        'amount'          => [
+            'type'              => 'float',
+            'usage'             => 'amount/money:2',
+            'description'       => "Value, in percent, of the amount to be imputed to the tenant when using the account.",
+        ],
 
         'domain' => [
             'type'              => 'array',
@@ -92,10 +99,9 @@ use realestate\property\Apportionment;
             'default'        => function ($domain = []) {
                 $condo_id = null;
                 $origDomain = new Domain($domain);
-
-                foreach ($origDomain->getClauses() as $clause) {
-                    foreach ($clause->getConditions() as $condition) {
-                        if ($condition->getOperand() === 'condo_id') {
+                foreach($origDomain->getClauses() as $clause) {
+                    foreach($clause->getConditions() as $condition) {
+                        if($condition->getOperand() === 'condo_id') {
                             $condo_id = $condition->getValue();
                             break 2;
                         }
@@ -110,19 +116,22 @@ use realestate\property\Apportionment;
             'foreign_object' => 'finance\accounting\FiscalYear',
             'domain'         => ['condo_id', '=', 'object.condo_id'],
             'default'        => function ($condo_id = null) {
-                $ids = FiscalYear::search([
-                    ['status', '=', 'open'],
-                    ['condo_id', '=', $condo_id],
-                ], ['sort' => ['date_from' => 'desc']])->ids();
-
-                if (!$ids) {
-                    $ids = FiscalYear::search([
-                        ['status', '=', 'preopen'],
-                        ['condo_id', '=', $condo_id],
-                    ], ['sort' => ['date_from' => 'asc']])->ids();
+                if(!$condo_id) {
+                    return null;
                 }
-
-                return $ids ? current($ids) : null;
+                $fiscal_year_ids = FiscalYear::search([
+                        ['status', '=', 'open'],
+                        ['condo_id', '=', $condo_id],
+                    ],  ['sort' => ['date_from' => 'desc']])
+                    ->ids();
+                if(count($fiscal_year_ids) <= 0) {
+                    $fiscal_year_ids = FiscalYear::search([
+                            ['status', '=', 'preopen'],
+                            ['condo_id', '=', $condo_id],
+                        ],  ['sort' => ['date_from' => 'asc']])
+                        ->ids();
+                }
+                return count($fiscal_year_ids) ? current($fiscal_year_ids) : null;
             }
         ]
     ],
@@ -138,8 +147,42 @@ use realestate\property\Apportionment;
 ['context' => $context] = $providers;
 
 
-if(!isset($params['condo_id'])) {
+
+$condo_id = $params['condo_id'] ?? null;
+
+if(isset($params['domain'])) {
+    $origDomain = new Domain($params['domain']);
+
+    foreach($origDomain->getClauses() as $clause) {
+        foreach($clause->getConditions() as $condition) {
+            if($condition->getOperand() === 'condo_id') {
+                $condo_id = $condition->getValue();
+                break 2;
+            }
+        }
+    }
+}
+
+if(!isset($condo_id)) {
     throw new Exception('missing_condo_id', EQ_ERROR_MISSING_PARAM);
+}
+
+$fiscal_year_ids = FiscalYear::search([
+        ['status', '=', 'open'],
+        ['condo_id', '=', $condo_id],
+    ],  ['sort' => ['date_from' => 'desc']])
+    ->ids();
+
+if(count($fiscal_year_ids) <= 0) {
+    $fiscal_year_ids = FiscalYear::search([
+            ['status', '=', 'preopen'],
+            ['condo_id', '=', $condo_id],
+        ],  ['sort' => ['date_from' => 'asc']])
+        ->ids();
+}
+
+if(count($fiscal_year_ids)) {
+    $domain['fiscal_year_id'] = current($fiscal_year_ids);
 }
 
 // build domain
@@ -148,8 +191,8 @@ $domain = new Domain($params['domain']);
 $domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
 
 // Resolve date interval
-$dateFrom = null;
-$dateTo   = null;
+$date_from = null;
+$date_to   = null;
 
 if(!empty($params['fiscal_year_id'])) {
     $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
@@ -157,26 +200,43 @@ if(!empty($params['fiscal_year_id'])) {
         ->first();
 
     if($fiscalYear) {
-        $dateFrom = $fiscalYear['date_from'];
-        $dateTo   = $fiscalYear['date_to'];
+        $date_from = $fiscalYear['date_from'];
+        $date_to   = $fiscalYear['date_to'];
     }
 }
 
-if(!empty($params['date_from']) && (!$dateFrom || $params['date_from'] > $dateFrom)) {
-    $dateFrom = $params['date_from'];
+if(!empty($params['date_from']) && (!$date_from || $params['date_from'] > $date_from)) {
+    $date_from = $params['date_from'];
 }
 
-if(!empty($params['date_to']) && (!$dateTo || $params['date_to'] < $dateTo)) {
-    $dateTo = $params['date_to'];
+if(!empty($params['date_to']) && (!$date_to || $params['date_to'] < $date_to)) {
+    $date_to = $params['date_to'];
 }
 
-if($dateFrom && $dateTo) {
-    $domain->addCondition(new DomainCondition('entry_date', '>=', $dateFrom));
-    $domain->addCondition(new DomainCondition('entry_date', '<=', $dateTo));
+if($date_from && $date_to) {
+    $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
+    $domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 }
 
 // Only validated entries
 $domain->addCondition(new DomainCondition('status', '=', 'validated'));
+$domain->addCondition(new DomainCondition('account_class', 'in', [6, 7]));
+
+
+// Retrieve accounting entry lines
+$lines = AccountingEntryLine::search($domain->toArray())
+    ->read([
+        'account_id',
+        'account_class',
+        'accounting_entry_id' => ['name'],
+        'purchase_invoice_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'invoice_id'],
+        'bank_statement_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'bank_statement_id'],
+        'description',
+        'entry_date',
+        'debit',
+        'credit'
+    ]);
+
 
 
 // load Chart of Accounts of the condominium
@@ -235,43 +295,13 @@ foreach($map_accounts as $account_id => $account) {
 }
 
 
-
-
-// Retrieve accounting entry lines
-$lines = AccountingEntryLine::search($domain->toArray())
-    ->read([
-        'account_id',
-        'accounting_entry_id' => ['name'],
-        'purchase_invoice_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'invoice_id'],
-        'bank_statement_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'bank_statement_id'],
-        'description',
-        'entry_date',
-        'debit',
-        'credit'
-    ]);
-
-
 $invoices_ids = [];
 $statements_ids = [];
 $apportionments_ids = [];
 
-// read all involved invoices and bank statements at once
-
-
-
 
 $result = [];
 
-/*
-populate with values for these fields:
-    'apportionment' => [
-    'account' => [
-    'description' => [
-    'entry_date' => [
-    'entry_reference' => [
-    'supplier_id' => [
-    'supplier_reference' => [
-*/
 
 // pass-1 - store references of invoices and statements
 foreach($lines as $line) {
@@ -282,7 +312,6 @@ foreach($lines as $line) {
 
     $account_id = $line['account_id'];
 
-    // Keep only accounts class 6 or 7 (expenses / income)
     if(!isset($map_accounts[$account_id])) {
         // shouldn't occur
         continue;
@@ -290,9 +319,8 @@ foreach($lines as $line) {
 
     $account = $map_accounts[$account_id];
 
-    $account_class = (int) ($account['account_class'] ?? 0);
     // ignore lines with account_id not matching class 6 or 7
-    if(!in_array($account_class, [6, 7], true)) {
+    if(!in_array($account['account_class'], [6, 7], true)) {
         continue;
     }
 
@@ -325,35 +353,37 @@ $map_apportionments = [];
 if(!empty($invoices_ids)) {
     $invoices = PurchaseInvoice::ids($invoices_ids)
         ->read([
-            'supplier_id',
+            'supplier_id' => ['name'],
             'supplier_invoice_number',
             'emission_date'
-        ]);
+        ])
+        ->get();
 
     foreach($invoices as $invoice_id => $invoice) {
         $map_invoices[$invoice_id] = [
-            'supplier_id' => $invoice['supplier_id'] ?? null,
-            'supplier_reference' => $invoice['supplier_invoice_number'] ?? null
+            'supplier_id' => $invoice['supplier_id'],
+            'supplier_reference' => $invoice['supplier_invoice_number']
         ];
     }
 }
 
-// Read all involved bank statements at once
 if(!empty($statements_ids)) {
     $statements = BankStatement::ids($statements_ids)
         ->read([
-            'bank_id',
+            'bank_id' => ['name'],
             'date',
             'statement_number'
-        ]);
+        ])
+        ->get();
 
     foreach($statements as $statement_id => $statement) {
         $map_statements[$statement_id] = [
-            'supplier_id' => $statement['bank_id'] ?? null,
-            'supplier_reference' => $statement['statement_number'] ?? null
+            'supplier_id' => $statement['bank_id'],
+            'supplier_reference' => $statement['statement_number']
         ];
     }
 }
+
 if(!empty($apportionments_ids)) {
     $map_apportionments = Apportionment::ids($apportionments_ids)
         ->read([
@@ -366,19 +396,21 @@ $result = [];
 
 foreach($lines as $line_id => $line) {
     if(empty($line['account_id'])) {
+        trigger_error("APP::line without account_id in result set", EQ_REPORT_WARNING);
         continue;
     }
 
     $account_id = $line['account_id'];
 
     if(!isset($map_accounts[$account_id])) {
+        trigger_error("APP::unknown account in result set", EQ_REPORT_WARNING);
         continue;
     }
     $account = $map_accounts[$account_id];
-    $account_class = (int) ($account['account_class'] ?? 0);
 
     // ignore non 6/7
-    if(!in_array($account_class, [6, 7], true)) {
+    if(!in_array($line['account_class'], [6, 7], true)) {
+        trigger_error("APP::line with invalid class in result set", EQ_REPORT_WARNING);
         continue;
     }
 
@@ -419,15 +451,17 @@ foreach($lines as $line_id => $line) {
     }
 
     $result[] = [
-        'apportionment'      => $map_apportionments[$apportionment_id]['name'] ?? '',
+        'id'                 => $line_id,
+        'apportionment'      => $map_apportionments[$apportionment_id]['name'] ?? '(autre)',
         'account'            => (string) $account['name'],
         'description'        => (string) $line['description'],
-        'entry_date'         => $line['entry_date'] ?? null,
+        'entry_date'         => $line['entry_date'] ? (date('c', $line['entry_date'])) : null,
         'entry_reference'    => $line['accounting_entry_id']['name'] ?? null,
         'supplier_id'        => $supplier_id,
         'supplier_reference' => $supplier_reference,
         'owner_share'        => $owner_share,
-        'tenant_share'       => $tenant_share
+        'tenant_share'       => $tenant_share,
+        'amount'             => round($line['debit'] - $line['credit'], 2)
     ];
 }
 

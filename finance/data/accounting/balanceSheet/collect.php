@@ -333,10 +333,11 @@ for($i = 0; $i < $max_lines; $i++) {
     $liability = $liabilities[$i] ?? null;
 
     $result[] = [
+        'id'                            => $i + 1,
         // ASSET (left column)
-        'asset_account_code'        => $asset['account_code'] ?? null,
-        'asset_account_description' => $asset['description']  ?? null,
-        'asset_account_balance'     => $asset['balance']      ?? null,
+        'asset_account_code'            => $asset['account_code'] ?? null,
+        'asset_account_description'     => $asset['description']  ?? null,
+        'asset_account_balance'         => $asset['balance']      ?? null,
 
         // LIABILITY (right column)
         'liability_account_code'        => $liability['account_code'] ?? null,

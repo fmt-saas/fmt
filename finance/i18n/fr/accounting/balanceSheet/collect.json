@@ -1,0 +1,54 @@
+{
+    "name": "Bilan",
+    "plural": "Bilan",
+    "description": "Collecteur avancé des écritures pour générer le bilan.",
+    "model": {
+        "asset_account_code": {
+            "label": "ACTIF",
+            "description": "Montant débité du compte."
+        },
+
+        "asset_account_description": {
+            "label": "",
+            "description": "Montant débité du compte."
+        },
+
+        "asset_account_balance": {
+            "label": "",
+            "description": "Montant débité du compte."
+        },
+
+        "liability_account_code": {
+            "label": "PASSIF",
+            "description": "Montant débité du compte."
+        },
+
+        "liability_account_description": {
+            "label": "",
+            "description": "Montant débité du compte."
+        },
+
+        "liability_account_balance": {
+            "label": "",
+            "description": "Montant débité du compte."
+        }
+    },
+    "view": {
+        "collect.list.default": {
+            "name": "Bilan",
+            "description": "Vue détaillée des lignes du bilan.",
+            "actions": {
+                "action.export": {
+                    "label": "Exporter",
+                    "description": "Exporter un document PDF à partir du filtre actif."
+                }
+            }
+        },
+        "collect.search.default": {
+            "name": "Recherche dans le bilan",
+            "description": "Filtres avancés pour sélectionner les écritures du bilan."
+        }
+    },
+    "error": {
+    }
+}

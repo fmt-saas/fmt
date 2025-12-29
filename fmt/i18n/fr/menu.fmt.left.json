@@ -226,15 +226,15 @@
             "description": "Lister et gérer tous les documents."
         },
         "item.documents.invoice_processings": {
-            "label": "Traitement factures",
+            "label": "Factures",
             "description": "Suivre et gérer le traitement des factures d'achat."
         },
         "item.documents.bank_statement_processings": {
-            "label": "Traitement extraits bancaires",
+            "label": "Extraits bancaires",
             "description": "Suivre et gérer le traitement des extraits bancaires."
         },
         "item.documents.document_processings": {
-            "label": "Traitement documents",
+            "label": "Documents",
             "description": "Suivre et gérer le traitement des documents."
         },
         "item.banks": {

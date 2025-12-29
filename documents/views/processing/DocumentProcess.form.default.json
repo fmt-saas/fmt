@@ -272,7 +272,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Doc Type",
+                                                "label": "JSON",
                                                 "value": "has_document_json",
                                                 "width": "50%",
                                                 "visible": false
@@ -291,7 +291,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Doc Type",
+                                                "label": "Has target",
                                                 "value": "has_target_object",
                                                 "width": "50%",
                                                 "visible": true
