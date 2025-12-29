@@ -1763,12 +1763,12 @@ class Identity extends Model {
                     'message'       => 'Legal name must contain only naming glyphs.',
                     'function'      => function ($legal_name, $values) {
                         $type_id = $values['type_id'] ?? null;
-                        if ($type_id == 1) {
+                        if($type_id == 1) {
                             // skip char check for individuals
                             return true;
                         }
-                        // allowed: letters (Unicode), digits, space, comma, ', &, /, -, ., +, °
-                        return preg_match('/^[\p{L}0-9 \'&\/\-,.+°]+$/u', $legal_name);
+                        // allowed: letters (Unicode), digits, space, comma, parenthesis, ', &, /, -, ., +, °
+                        return preg_match('/^[\p{L}0-9 ()\'&\/\-,.+°]+$/u', $legal_name);
                     }
                 ]
             ],

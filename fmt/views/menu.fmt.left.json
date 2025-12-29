@@ -143,6 +143,26 @@
                 ]
             },
             {
+                "id": "item.governance",
+                "label": "Governance",
+                "description": "",
+                "icon": "how_to_vote",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "item.governance.assemblies",
+                        "type": "entry",
+                        "label": "All assemblies",
+                        "icon": "checklist",
+                        "description": "List of all assemblies.",
+                        "context": {
+                            "entity": "realestate\\governance\\Assembly",
+                            "view": "list.default"
+                        }
+                    }
+                ]
+            },
+            {
                 "id": "item.properties",
                 "label": "Properties",
                 "description": "",
@@ -214,26 +234,6 @@
                             "entity": "realestate\\property\\OwnershipTransfer",
                             "view": "list.default"
                         }
-                    },
-                    {
-                        "id": "item.governance",
-                        "label": "Governance",
-                        "description": "",
-                        "icon": "how_to_vote",
-                        "type": "parent",
-                        "children": [
-                            {
-                                "id": "assembly_templates",
-                                "type": "entry",
-                                "label": "Assembly templates",
-                                "icon": "checklist",
-                                "description": "Define templates for general meetings.",
-                                "context": {
-                                    "entity": "realestate\\governance\\AssemblyTemplate",
-                                    "view": "list.default"
-                                }
-                            }
-                        ]
                     },
                     {
                         "id": "item.energy_consumption",
@@ -854,36 +854,24 @@
                         ]
                     },
                     {
-                        "id": "item.config.pricelist",
-                        "type": "entry",
-                        "label": "Price list",
-                        "icon": "price_check",
-                        "description": "Manage organisation price lists.",
-                        "context": {
-                            "entity": "sale\\price\\PriceList",
-                            "view": "list.org",
-                            "domain": ["condo_id", "=", null]
-                        }
-                    },
-                    {
-                        "id": "item.config.payment_terms",
-                        "type": "entry",
-                        "label": "Payment terms",
-                        "icon": "payments",
-                        "description": "Define customer payment terms.",
-                        "context": {
-                            "entity": "sale\\pay\\PaymentTerms"
-                        }
-                    },
-                    {
-                        "id": "item.config.supplier_types",
-                        "type": "entry",
-                        "label": "Supplier Types",
-                        "icon": "category",
-                        "description": "Manage supplier type categories.",
-                        "context": {
-                            "entity": "purchase\\supplier\\SupplierType"
-                        }
+                        "id": "item.config.governance",
+                        "label": "Governance",
+                        "description": "",
+                        "icon": "how_to_vote",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "item.config.governance.assembly_templates",
+                                "type": "entry",
+                                "label": "Assembly templates",
+                                "icon": "checklist",
+                                "description": "Define templates for general meetings.",
+                                "context": {
+                                    "entity": "realestate\\governance\\AssemblyTemplate",
+                                    "view": "list.default"
+                                }
+                            }
+                        ]
                     },
                     {
                         "id": "communication",
@@ -1011,6 +999,38 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "id": "item.config.pricelist",
+                        "type": "entry",
+                        "label": "Price list",
+                        "icon": "price_check",
+                        "description": "Manage organisation price lists.",
+                        "context": {
+                            "entity": "sale\\price\\PriceList",
+                            "view": "list.org",
+                            "domain": ["condo_id", "=", null]
+                        }
+                    },
+                    {
+                        "id": "item.config.payment_terms",
+                        "type": "entry",
+                        "label": "Payment terms",
+                        "icon": "payments",
+                        "description": "Define customer payment terms.",
+                        "context": {
+                            "entity": "sale\\pay\\PaymentTerms"
+                        }
+                    },
+                    {
+                        "id": "item.config.supplier_types",
+                        "type": "entry",
+                        "label": "Supplier Types",
+                        "icon": "category",
+                        "description": "Manage supplier type categories.",
+                        "context": {
+                            "entity": "purchase\\supplier\\SupplierType"
+                        }
                     }
                 ]
             },

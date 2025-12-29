@@ -73,7 +73,11 @@
             "label": "Assemblées",
             "description": ""
         },
-        "assembly_templates": {
+        "item.governance.assemblies": {
+            "label": "Toutes les assemblées",
+            "description": ""
+        },
+        "item.config.governance.assembly_templates": {
             "label": "Modèles d'assemblée",
             "description": "Définir les modèles d'assemblées."
         },
@@ -309,6 +313,10 @@
             "label": "Régles d'enregistrement",
             "description": "Configurer les régles d'enregistrement de documents."
         },
+        "item.config.governance": {
+            "label": "Assemblées",
+            "description": "Configuration pour les assemblées."
+        },
         "item.config.pricelist": {
             "label": "Liste de prix",
             "description": "Gérer les listes de prix de l'organisation."
@@ -327,7 +335,7 @@
         },
         "communication.templates": {
             "label": "Modèles",
-            "description": ""
+            "description": "Modèles pour les envois automatisés."
         },
         "communication.templates.templates": {
             "label": "Tous les modèles",
@@ -351,11 +359,11 @@
         },
         "communication.alerts": {
             "label": "Alertes",
-            "description": ""
+            "description": "Modèles de messages d'alertes."
         },
         "communication.alert.messages": {
             "label": "Tous les messages",
-            "description": ""
+            "description": "Alertes en cours."
         },
         "communication.alert.message_models": {
             "label": "Modèles de message",
