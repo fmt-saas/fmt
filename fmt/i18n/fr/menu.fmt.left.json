@@ -10,7 +10,7 @@
             "description": "Liste de tous les documents à traiter."
         },
         "item.followup.payments_followups": {
-            "label": "Trait. des paiements",
+            "label": "Traitement paiements",
             "description": "Surveiller les appels impayés et les relances."
         },
         "item.imports": {
@@ -66,7 +66,7 @@
             "description": "Lister les locataires et les contrats."
         },
         "ownership_transfers": {
-            "label": "Transferts de propriétaires",
+            "label": "Mutations",
             "description": "Suivre les transferts de propriétaires et les ventes."
         },
         "item.governance": {
@@ -74,8 +74,8 @@
             "description": ""
         },
         "assembly_templates": {
-            "label": "modèles d'assemblée",
-            "description": "Définir les modèles d'assemblée générale."
+            "label": "Modèles d'assemblée",
+            "description": "Définir les modèles d'assemblées."
         },
         "item.energy_consumption": {
             "label": "Consommations",
@@ -86,7 +86,7 @@
             "description": "Lister et configurer les compteurs énergétiques."
         },
         "consumption_statements": {
-            "label": "Relevés de conso",
+            "label": "Relevés de consommation",
             "description": "Générer et vérifier les données de consommation."
         },
         "item.allocations": {
@@ -102,11 +102,11 @@
             "description": "Définir les natures de lot utilisées pour les clés."
         },
         "item.organization": {
-            "label": "Organisation",
+            "label": "Agence",
             "description": ""
         },
         "organisation": {
-            "label": "Organisation",
+            "label": "Agence",
             "description": "Consulter et modifier les détails de l'organisation."
         },
         "employees": {
@@ -114,7 +114,7 @@
             "description": "Lister et gérer les employés."
         },
         "teams": {
-            "label": "équipes",
+            "label": "Équipes",
             "description": "Gérer les équipes de travail."
         },
         "roles": {
@@ -138,7 +138,7 @@
             "description": "Gérer le plan comptable."
         },
         "item.accounting.accounting_entries": {
-            "label": "écritures comptables",
+            "label": "Écritures comptables",
             "description": "Consulter et gérer les écritures."
         },
         "item.accounting.misc_operations": {
@@ -150,7 +150,7 @@
             "description": "Gérer les appels de fonds des immeubles."
         },
         "item.accounting.expense_statements": {
-            "label": "états de dépenses",
+            "label": "États de dépenses",
             "description": "Consulter et approuver les états de dépenses."
         },
         "purchase_invoices": {
@@ -166,7 +166,7 @@
             "description": "Gérer les journaux comptables."
         },
         "item.accounting.accountcharttemplate": {
-            "label": "modèle de plan",
+            "label": "Plan comptable type",
             "description": "Gérer les modèles de plan comptable."
         },
         "item.accounting.vat_rules": {
@@ -190,7 +190,7 @@
             "description": "Lister et gérer les propriétaires."
         },
         "suppliers": {
-            "label": "Tous les fournisseurs",
+            "label": "Fournisseurs",
             "description": "Gérer tous les fournisseurs enregistrés."
         },
         "bank": {
@@ -202,7 +202,7 @@
             "description": "Gérer les syndics ou gestionnaires."
         },
         "notary_offices": {
-            "label": "études notariales",
+            "label": "Études notariales",
             "description": "Lister et gérer les études notariales."
         },
         "item.documents": {
@@ -226,15 +226,15 @@
             "description": "Lister et gérer tous les documents."
         },
         "item.documents.invoice_processings": {
-            "label": "Trait. factures",
+            "label": "Traitement factures",
             "description": "Suivre et gérer le traitement des factures d'achat."
         },
         "item.documents.bank_statement_processings": {
-            "label": "Trait. extraits bancaires",
+            "label": "Traitement extraits bancaires",
             "description": "Suivre et gérer le traitement des extraits bancaires."
         },
         "item.documents.document_processings": {
-            "label": "Trait. documents",
+            "label": "Traitement documents",
             "description": "Suivre et gérer le traitement des documents."
         },
         "item.banks": {
@@ -326,7 +326,7 @@
             "description": ""
         },
         "communication.templates": {
-            "label": "modèles",
+            "label": "Modèles",
             "description": ""
         },
         "communication.templates.templates": {
@@ -374,7 +374,7 @@
             "description": "Historique de tous les e-mails sortants."
         },
         "item.infra": {
-            "label": "Infra",
+            "label": "Infrastructure",
             "description": ""
         },
         "item.infra.servers": {
