@@ -1621,6 +1621,7 @@ class Assembly extends \equal\orm\Model {
                 case 'in_progress':
                     // on peut modifier les votes sur les assembly_items
                     // on peut générer les minutes
+                    break;
                 case 'held':
                 case 'adjourned':
                     return ['status' => ['not_allowed' => 'Published assembly cannot be modified.']];
