@@ -115,9 +115,15 @@ class Assembly extends \equal\orm\Model {
             ],
 
             'assembly_date' => [
-                'type'              => 'datetime',
-                'description'       => "Scheduled date and time of the assembly (cannot be modified).",
+                'type'              => 'date',
+                'description'       => "Scheduled date of the assembly.",
                 'default'           => time()
+            ],
+
+            'assembly_time' => [
+                'type'              => 'time',
+                'description'       => "Scheduled time of the assembly.",
+                'default'           => 20 * 3600
             ],
 
             'assembly_invitation_date' => [
@@ -158,6 +164,7 @@ class Assembly extends \equal\orm\Model {
                 'description'    => "Items on the assembly agenda.",
                 'foreign_object' => 'realestate\governance\AssemblyItem',
                 'foreign_field'  => 'assembly_id',
+                'onupdate'       => 'onupdateAssemblyItemsIds',
                 'order'          => 'order'
             ],
 
@@ -465,6 +472,12 @@ class Assembly extends \equal\orm\Model {
                 'function'      => 'doAutoAssignLocation'
             ],
 
+            'refresh_items_order' => [
+                'description'   => 'Force a re-compute of the order field of the assembly items.',
+                'policies'      => [/* */],
+                'function'      => 'doRefreshItemsOrder'
+            ],
+
             'generate_ownerships' => [
                 'description'   => 'Generate ownerships.',
                 'help'          => 'i.e. Ownerships that are known, at the current date, to own at least one property lot having at least one share in the statutory apportionment. This action can be re-executed in order to refresh the list, in case a transfer took place in the meantime.',
@@ -666,6 +679,17 @@ class Assembly extends \equal\orm\Model {
 
     protected static function doRefreshIsComplete($self) {
         $self->update(['is_complete' => null]);
+    }
+
+    protected static function doRefreshItemsOrder($self) {
+        $self->read(['assembly_items_ids']);
+        foreach($self as $id => $assembly) {
+            $order = 1;
+            foreach($assembly['assembly_items_ids'] as $assembly_item_id) {
+                AssemblyItem::id($assembly_item_id)->update(['order' => $order]);
+                ++$order;
+            }
+        }
     }
 
     protected static function doGenerateOwnerships($self) {
@@ -1031,6 +1055,9 @@ class Assembly extends \equal\orm\Model {
         }
     }
 
+    protected static function onupdateAssemblyItemsIds($self) {
+        $self->do('refresh_items_order');
+    }
 
     /**
      * Generate invites for each ownership.
@@ -1564,6 +1591,31 @@ class Assembly extends \equal\orm\Model {
         $self
             ->update(['step' => 'assembly_validation'])
             ->do('generate_printable_attendance_register');
+    }
+
+    protected static function canupdate($self, $values) {
+        $self->read(['status']);
+        foreach($self as $id => $assembly) {
+            $allowed_fields = [];
+            switch($assembly['status']) {
+                case 'pending':
+                    // all changes are allowed
+                    break;
+                case 'published':
+                    // en principe on ne peut plus rien modifier à partir d'ici
+                    break;
+                case 'sending':
+                    break;
+                case 'sent':
+                    // en principe on ne peut plus rien modifier à partir d'ici
+                case 'in_progress':
+                case 'held':
+                case 'adjourned':
+                    return ['status' => ['not_allowed' => 'Published assembly cannot be modified.']];
+                    break;
+            }
+        }
+        return parent::canupdate($self);
     }
 
     protected static function policyCanPublish($self) {

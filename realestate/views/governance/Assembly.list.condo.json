@@ -1,15 +1,19 @@
 {
     "name": "Assemblies",
     "description": "Overview of scheduled assemblies and their status.",
+    "header": {
+        "layout": "inline",
+        "actions": false
+    },
     "order": "assembly_date",
     "sort": "desc",
-    "controller": "realestate_governance_Assembly_collect",
     "layout": {
         "items": [
             {
                 "type": "field",
                 "value": "condo_id",
-                "width": "15%"
+                "width": "10%",
+                "visible": false
             },
             {
                 "type": "field",

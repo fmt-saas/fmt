@@ -556,8 +556,13 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "assembly_type",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "name",
-                                                "width": "100%"
+                                                "width": "66%"
                                             },
                                             {
                                                 "type": "field",
@@ -566,7 +571,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "assembly_type",
+                                                "value": "assembly_time",
                                                 "width": "33%"
                                             },
                                             {
@@ -779,35 +784,6 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "count_owners",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "count_represented_owners",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "count_shares",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "count_represented_shares",
-                                                "width": "25%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
                                                 "value": "ownerships_ids",
                                                 "width": "100%",
                                                 "widget": {
@@ -902,6 +878,35 @@
                             ]
                         ],
                         "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "count_owners",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "count_represented_owners",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "count_shares",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "count_represented_shares",
+                                                "width": "25%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
                             {
                                 "columns": [
                                     {

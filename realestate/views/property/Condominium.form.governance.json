@@ -9,7 +9,7 @@
             "icon": "diversity_3",
             "context": {
                 "entity": "realestate\\governance\\Assembly",
-                "view": "list.default",
+                "view": "list.condo",
                 "domain": [["condo_id", "=", "object.id"]]
             }
         },
