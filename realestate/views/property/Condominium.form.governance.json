@@ -7,6 +7,7 @@
             "label": "Assemblies",
             "description": "",
             "icon": "diversity_3",
+            "visible": false,
             "context": {
                 "entity": "realestate\\governance\\Assembly",
                 "view": "list.condo",

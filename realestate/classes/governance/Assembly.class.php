@@ -915,9 +915,18 @@ class Assembly extends \equal\orm\Model {
             ->do('send_invitation');
     }
 
+
+    /**
+     * field assembly_location  must be encoded manually
+     * #todo - set AssemblVenue with preferences for each Condo
+     */
     protected static function doAutoAssignLocation($self) {
-        $self->read(['condo_id' => ['address_street', 'address_zip', 'address_city']]);
+        $self->read(['assembly_location', 'condo_id' => ['address_street', 'address_zip', 'address_city']]);
         foreach($self as $id => $assembly) {
+            /*
+            if(strlen($assembly['assembly_location'] ?? '') > 0) {
+                continue;
+            }
             $location = $assembly['condo_id']['address_street'];
             if($assembly['condo_id']['address_zip']) {
                 $location .= ' ' . $assembly['condo_id']['address_zip'];
@@ -926,6 +935,7 @@ class Assembly extends \equal\orm\Model {
                 $location .= ' ' . $assembly['condo_id']['address_city'];
             }
             self::id($id)->update(['assembly_location' => $location]);
+            */
         }
     }
 
@@ -1603,12 +1613,14 @@ class Assembly extends \equal\orm\Model {
                     break;
                 case 'published':
                     // en principe on ne peut plus rien modifier à partir d'ici
+                    // on peut ajouter des documents sur les assembly_items
                     break;
                 case 'sending':
                     break;
                 case 'sent':
-                    // en principe on ne peut plus rien modifier à partir d'ici
                 case 'in_progress':
+                    // on peut modifier les votes sur les assembly_items
+                    // on peut générer les minutes
                 case 'held':
                 case 'adjourned':
                     return ['status' => ['not_allowed' => 'Published assembly cannot be modified.']];

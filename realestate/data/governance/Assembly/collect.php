@@ -58,7 +58,17 @@ use equal\orm\DomainCondition;
 
         'status' => [
             'type'              => 'string',
-            'description'       => 'Current status of the assemblies being searched.'
+            'description'       => 'Current status of the assemblies being searched.',
+            'selection'      => [
+                    'pending',
+                    'published',
+                    'sending',
+                    'sent',
+                    'in_progress',
+                    'held',
+                    'adjourned',
+                    /*'closed'*/
+                ]
         ],
 
 

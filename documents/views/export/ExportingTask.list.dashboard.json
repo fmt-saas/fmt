@@ -6,8 +6,11 @@
             "ACTION.CREATE" : false
         }
     },
-    "domain": ["is_exported", "=", false],
+    "domain": [["is_exported", "=", false]],
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",

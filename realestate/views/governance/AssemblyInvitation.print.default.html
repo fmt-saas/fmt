@@ -98,7 +98,7 @@
 
 
         <p>
-            {{ assembly.heading_text_call }}
+            {{ assembly.heading_text_call | raw }}
         </p>
 
         {% for item in assembly.assembly_items_ids %}
@@ -151,7 +151,7 @@
 
 
         <p>
-            {{ assembly.closing_text_call }}
+            {{ assembly.closing_text_call | raw }}
         </p>
 
 

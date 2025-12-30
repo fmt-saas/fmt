@@ -52,7 +52,7 @@
                 "value": "created",
                 "width": "10%",
                 "widget": {
-                    "usage": "date/plain.short"
+                    "usage": "datetime/plain.short"
                 },
                 "visible": [
                     "node_type",

@@ -242,4 +242,25 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
 
     }
 
+    public static function onchange($event, $values) {
+        $result = [];
+
+        if(isset($event['has_channel_postal']) && $event['has_channel_postal']) {
+            $result['has_channel_postal_registered'] = false;
+            $result['has_channel_postal_registered_receipt'] = false;
+        }
+
+        if(isset($event['has_channel_postal_registered']) && $event['has_channel_postal_registered']) {
+            $result['has_channel_postal'] = false;
+            $result['has_channel_postal_registered_receipt'] = false;
+        }
+
+        if(isset($event['has_channel_postal_registered_receipt']) && $event['has_channel_postal_registered_receipt']) {
+            $result['has_channel_postal'] = false;
+            $result['has_channel_postal_registered'] = false;
+        }
+
+        return $result;
+    }
+
 }

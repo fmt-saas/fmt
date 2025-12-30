@@ -13,6 +13,11 @@
             "description": "",
             "help": ""
         },
+        "assembly_time": {
+            "label": "Heure",
+            "description": "Heure prÃ©vue de l'assemblÃ©e.",
+            "help": ""
+        },
         "assembly_location": {
             "label": "Lieu",
             "description": "",
