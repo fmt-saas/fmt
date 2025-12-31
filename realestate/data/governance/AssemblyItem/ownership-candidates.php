@@ -23,6 +23,12 @@ use realestate\ownership\Ownership;
             'foreign_object'    => 'realestate\governance\AssemblyItem',
             'required'          => true
         ],
+        'attendee_id' => [
+            'description'       => 'Identifier of the specific AssemblyItem to consider (resolution).',
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\governance\AssemblyAttendee',
+            'required'          => true
+        ],
         'domain' => [
             'description'       => 'Optional conditional domain.',
             'type'              => 'array',
@@ -52,7 +58,18 @@ if(!$assemblyItem) {
 }
 
 // 1) retrieve all owners involved in the resolution (@see AssemblyItem)
-$map_ownerships_ids = array_fill_keys($assemblyItem['involved_ownerships_ids'], true);
+$assemblyAttendee = AssemblyAttendee::id($params['attendee_id'])
+    ->read(['assembly_representations_ids' => ['ownership_id']])
+    ->first();
+
+if(!$assemblyAttendee) {
+    throw new Exception('unknown_assembly_attendee', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+$map_ownerships_ids = [];
+foreach($assemblyAttendee['assembly_representations_ids'] as $assemblyRepresentation) {
+    $map_ownerships_ids[$assemblyRepresentation['ownership_id']] = true;
+}
 
 // 2) remove ownerships for which a vote has already been casted
 $assemblyVotes = AssemblyVote::search([

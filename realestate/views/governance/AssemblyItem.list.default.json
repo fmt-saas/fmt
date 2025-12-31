@@ -89,7 +89,9 @@
                     "assembly_item_id": "object.id"
                 }
             },
-            "visible": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ]
+            "visible1": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ],
+            "visible": false,
+            "#memo": "we only use votes_board here"
         },
         {
             "id": "action.votes_board",

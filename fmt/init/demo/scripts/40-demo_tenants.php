@@ -46,7 +46,6 @@ $identity = Identity::create([
     ->first();
 
 Tenant::create([
-    "id"=> 1,
     "condo_id" => 1,
     "property_lot_id" => 1,
     "tenancy_id" => 1,
@@ -90,7 +89,6 @@ $identity = Identity::create([
     ->first();
 
 Tenant::create([
-    "id"=> 2,
     "condo_id" => 1,
     "property_lot_id" => 1,
     "tenancy_id" => 1,

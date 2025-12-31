@@ -1,6 +1,9 @@
 {
     "name": "Assembly Vote Items",
     "description": "Display vote entries within an assembly decision.",
+    "header": {
+        "layout": "inline"
+    },
     "operations": {
         "total": {
             "vote_weight": {
@@ -18,6 +21,18 @@
             "vote_weight_abstain": {
                 "operation": "SUM",
                 "usage": "number/real:6.5"
+            },
+            "vote_shares_for": {
+                "operation": "SUM",
+                "usage": "number/integer"
+            },
+            "vote_shares_against": {
+                "operation": "SUM",
+                "usage": "number/integer"
+            },
+            "vote_shares_abstain": {
+                "operation": "SUM",
+                "usage": "number/integer"
             }
         }
     },
@@ -64,12 +79,12 @@
                 "type": "field",
                 "label": "Attendee",
                 "value": "assembly_attendee_id",
-                "width": "20%"
+                "width": "15%"
             },
             {
                 "type": "field",
                 "value": "vote_value",
-                "width": "10%",
+                "width": "8%",
                 "widget": {
                     "type": "string",
                     "usage": "icon"
@@ -78,7 +93,7 @@
             {
                 "type": "field",
                 "value": "vote_weight",
-                "width": "10%"
+                "width": "8%"
             },
             {
                 "type": "field",
@@ -96,6 +111,24 @@
                 "type": "field",
                 "label": "Abstain",
                 "value": "vote_weight_abstain",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "For",
+                "value": "vote_shares_for",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "Against",
+                "value": "vote_shares_against",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "Abstain",
+                "value": "vote_shares_abstain",
                 "width": "10%"
             }
         ]

@@ -189,14 +189,11 @@ class AssemblyItem extends AssemblyItemTemplate {
             ],
 
             'documents_ids' => [
-                'type'              => 'many2many',
+                'type'              => 'one2many',
                 'foreign_object'    => 'documents\Document',
-                'foreign_field'     => 'assembly_items_ids',
-                'rel_table'         => 'realestate_governance_assembly_item_rel_document',
-                'rel_foreign_key'   => 'document_id',
-                'rel_local_key'     => 'assembly_item_id',
+                'foreign_field'     => 'assembly_item_id',
                 'description'       => "One or more documents that relate to the point.",
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['assembly_id', '=', 'object.assembly_id'] ]
             ],
 
             'logs' => [

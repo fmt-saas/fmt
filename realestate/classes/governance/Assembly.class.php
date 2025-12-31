@@ -120,12 +120,6 @@ class Assembly extends \equal\orm\Model {
                 'default'           => time()
             ],
 
-            'assembly_time' => [
-                'type'              => 'time',
-                'description'       => "Scheduled time of the assembly.",
-                'default'           => 20 * 3600
-            ],
-
             'assembly_invitation_date' => [
                 'type'              => 'datetime',
                 'description'       => 'Scheduled date and time of the assembly (cannot be modified).',
@@ -182,6 +176,16 @@ class Assembly extends \equal\orm\Model {
                 'foreign_field'  => 'assembly_id'
             ],
 
+            'exporting_tasks_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Reference to the task for exporting paper mails for assembly invitation, if any.",
+                'foreign_object'    => 'documents\export\ExportingTask',
+                'foreign_field'     => 'object_id',
+                'domain'            => [
+                    ['object_class', '=', 'realestate\governance\Assembly']
+                ]
+            ],
+
             'invitations_exporting_task_id' => [
                 'type'              => 'many2one',
                 'description'       => "Reference to the task for exporting paper mails for assembly invitation, if any.",
@@ -229,7 +233,7 @@ class Assembly extends \equal\orm\Model {
                 'type'           => 'datetime',
                 'description'    => "Start time of the session.",
                 'help'           => "This is the expected start of the session, which is preceded by presence checks.",
-                'required'       => false
+                'default'        => 20 * 3600
             ],
 
             'session_time_end' => [
@@ -308,6 +312,14 @@ class Assembly extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\governance\AssemblyMandate',
                 'foreign_field'     => 'assembly_id',
                 'description'       => "The list of mandates registered for the assembly.",
+            ],
+
+            'documents_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\Document',
+                'foreign_field'     => 'assembly_id',
+                'description'       => "One or more documents that relate to the point.",
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'count_shares' => [
@@ -424,8 +436,9 @@ class Assembly extends \equal\orm\Model {
                 'transitions' => [
                     'sent' => [
                         'description'   => 'Marks the Assembly invites as sent.',
-                        'help'          => 'This transition is meant to be done automatically when all invites have been marked as sent.',
-                        'policies'      => [/**/],
+                        'help'          => "This is used to manually mark all paper correspondences as sent (so far system has no mean to know it).
+                            An additional test is made on email invites (`can_mark_sent`) and the action fails if some emails haven't been sent.",
+                        'policies'      => ['can_mark_sent'],
                         'onafter'       => 'onafterSent',
                         'status'        => 'sent'
                     ]
@@ -632,6 +645,11 @@ class Assembly extends \equal\orm\Model {
                 'function'    => 'policyCanScheduleSecondSession'
             ],
 
+            'can_mark_sent' => [
+                'description' => 'Verifies that the assembly is in a state that allows scheduling a second session.',
+                'function'    => 'policyCanMarkSent'
+            ],
+
             'is_assembly_valid' => [
                 'description' => 'Verifies that the constituted assembly is valid.',
                 'help'        => "In order to be valid, the assembly must meet the representation criteria depending on its type.",
@@ -714,7 +732,10 @@ class Assembly extends \equal\orm\Model {
                 continue;
             }
 
-            $roleAssignment = RoleAssignment::search(['condo_id', '=', $assembly['condo_id']], ['role_code', '=', 'condo_manager'])
+            $roleAssignment = RoleAssignment::search([
+                    ['condo_id', '=', $assembly['condo_id']['id']],
+                    ['role_code', '=', 'condo_manager']
+                ])
                 ->read(['identity_id'])
                 ->first();
 
@@ -1380,20 +1401,30 @@ class Assembly extends \equal\orm\Model {
             if(in_array($assembly['step'], ['opening', 'attendance_closure', 'mandate_validation'])) {
                 continue;
             }
+            // remove any previous AssemblyRepresentation
+            AssemblyRepresentation::search(['assembly_id', '=', $id])->delete(true);
+
             $attendees = AssemblyAttendee::ids($assembly['assembly_attendees_ids'])
                 ->read(['identity_id', 'assembly_mandates_ids' => ['status', 'is_valid', 'ownership_id']]);
 
             foreach($attendees as $attendee_id => $attendee) {
 
-                // 1) add the ownerships corresponding to the identity of the attendee
-                $owners = Owner::search([['condo_id', '=', $assembly['condo_id']], ['identity_id', '=', $attendee['identity_id']]])
+                // 1) add the ownerships corresponding to the identity of the attendee (there might be none)
+                $owners = Owner::search([
+                        ['condo_id', '=', $assembly['condo_id']],
+                        ['identity_id', '=', $attendee['identity_id']]
+                    ])
                     ->read(['ownership_id' => ['id', 'ownership_type', 'representative_owner_id']]);
 
                 foreach($owners as $owner_id => $owner) {
                     // #todo - add only if owner is the official mandatory for the joint ownership
                     // if ($owner['ownership_id']['ownership_type'] === 'joint' && $owner['ownership_id']['representative_owner_id'] === $owner_id) {}
                     $ownership_id = $owner['ownership_id']['id'];
-                    $existingRepresentations = AssemblyRepresentation::search([['assembly_id', '=', $id], ['ownership_id', '=', $ownership_id]])->read(['representation_type']);
+                    $existingRepresentations = AssemblyRepresentation::search([
+                            ['assembly_id', '=', $id],
+                            ['ownership_id', '=', $ownership_id]
+                        ])
+                        ->read(['representation_type']);
 
                     foreach($existingRepresentations as $representation_id => $representation) {
                         if($representation['representation_type'] === 'proxy') {
@@ -1508,6 +1539,9 @@ class Assembly extends \equal\orm\Model {
                     'missing_mandate',       // Joint ownership without mandate
                     'conflict'               // disagreement between 2 or more owners from a joint ownership
             */
+
+            // remove any pending (draft) mandates
+            AssemblyMandate::search([['assembly_id','=', $id], ['status', '=', 'pending']])->delete(true);
 
             foreach($assembly['assembly_attendees_ids'] as $assembly_attendee_id => $assemblyAttendee) {
                 $attendee_ownerships_ids = [];
@@ -1683,6 +1717,37 @@ class Assembly extends \equal\orm\Model {
         return $result;
     }
 
+    protected static function policyCanMarkSent($self) {
+        $result = [];
+        $self->read(['assembly_invitation_correspondences_ids' => ['@domain' => ['communication_method', '=', 'email']]]);
+
+        foreach($self as $id => $assembly) {
+            if(empty($assembly['assembly_invitation_correspondences_ids'])) {
+                // no email to send: ignore
+                continue;
+            }
+            foreach($assembly['assembly_invitation_correspondences_ids'] as $assembly_invitation_correspondence_id => $assemblyInvitationCorrespondence) {
+                // find related email (there should be only one)
+                $email = \core\Mail::search([['object_id', '=', $assembly_invitation_correspondence_id], ['object_class', '=', 'realestate\governance\AssemblyInvitationCorrespondence']])
+                    ->read(['status'])
+                    ->first();
+                if(!$email) {
+                    trigger_error("APP::Missing \core\Mail object for AssemblyInvitationCorrespondence[{$assembly_invitation_correspondence_id}]", EQ_REPORT_ERROR);
+                    $result[$id] = [
+                        'invite_email_not_found' => 'At least one correspondence is not attached to a mandatory email.'
+                    ];
+                }
+                if($email['status'] !== 'sent') {
+                    trigger_error("APP::Non-sent email for AssemblyInvitationCorrespondence[{$assembly_invitation_correspondence_id}]", EQ_REPORT_WARNING);
+                    $result[$id] = [
+                        'invite_email_not_sent' => 'At least one email correspondence has not been sent.'
+                    ];
+                }
+            }
+        }
+        return $result;
+    }
+
     protected static function policyCanScheduleSecondSession($self) {
         $result = [];
         $self->read(['status', 'is_valid', 'has_second_session']);
@@ -1772,7 +1837,7 @@ class Assembly extends \equal\orm\Model {
         $self->read(['status', 'step', 'minutes_document_id', 'signed_minutes_document_id']);
 
         foreach($self as $id => $assembly) {
-            if(!in_array($assembly['step'], ["agenda_processing", "minutes_confirmation"])) {
+            if(!in_array($assembly['step'], ['agenda_processing', 'minutes_confirmation'])) {
                 $result[$id] = [
                     'minutes_generation_not_allowed' => 'Current step prohibits creation of the minutes document.'
                 ];
@@ -2173,9 +2238,12 @@ class Assembly extends \equal\orm\Model {
         $self->read(['step', 'assembly_representations_ids']);
         foreach($self as $id => $assembly) {
             // compute only when all attendees have been encoded and proxies have been validated
+            // #memo - this is commented since it is useful for users to have a temporary value, as indication of completeness of the Assembly
+            /*
             if(in_array($assembly['step'], ['opening', 'attendance_closure', 'mandate_validation', 'representation_validation'])) {
                 continue;
             }
+            */
 
             $map_ownerships_ids = [];
 
@@ -2196,9 +2264,12 @@ class Assembly extends \equal\orm\Model {
         $self->read(['status', 'step', 'condo_id', 'assembly_representations_ids', 'assembly_date']);
         foreach($self as $id => $assembly) {
 
+            // #memo - this is commented since it is useful for users to have a temporary value, as indication of completeness of the Assembly
+            /*
             if(in_array($assembly['step'], ['opening', 'attendance_closure', 'mandate_validation', 'representation_validation'])) {
                 continue;
             }
+            */
 
             $property_lots_ids = [];
 

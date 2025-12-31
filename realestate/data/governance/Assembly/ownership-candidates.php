@@ -21,11 +21,6 @@ use realestate\ownership\Ownership;
             'foreign_object'    => 'realestate\governance\Assembly',
             'required'          => true
         ],
-        'owner_id' => [
-            'description'       => 'Optional identifier of the owner for whom the search is requested (to be excluded).',
-            'type'              => 'many2one',
-            'foreign_object'    => 'realestate\ownership\Owner',
-        ],
         'domain' => [
             'description'       => 'Optional conditional domain to apply on Ownerships.',
             'type'              => 'array',
@@ -93,49 +88,33 @@ foreach($mandates as $index => $mandate) {
     }
 }
 
-$ownerships = Ownership::ids(array_keys($map_ownerships_ids))->read(['owners_ids']);
 
-$map_owners_ids = [];
-
-foreach($ownerships as $ownership_id => $ownership) {
-    foreach($ownership['owners_ids'] as $owner_id) {
-        $map_owners_ids[$owner_id] = true;
-    }
-}
-
-// prevent having current owner amongst the results
-if(isset($params['owner_id']) && isset($map_owners_ids[$params['owner_id']])) {
-    unset($map_owners_ids[$params['owner_id']]);
-}
-
-$owners = Owner::ids(array_keys($map_owners_ids))
-    ->read([
-        'name',
-        'identity_id',
-        'ownership_id'
-    ])
-    ->adapt('json')
-    ->get(true);
-
-// 2) filter out identities already marked as attendee of for whom we have received a mandate
-
+// 2) filter out ownerships that relates to an existing attendee
 $attendees = AssemblyAttendee::search([
         ['assembly_id', '=', $params['id']]
     ])
     ->read(['identity_id']);
 
-$map_identities_ids = [];
 
 foreach($attendees as $attendee_id => $attendee) {
-    $map_identities_ids[$attendee['identity_id']] = true;
-}
+    $owners = Owner::search([
+            ['condo_id', '=', $assembly['condo_id']],
+            ['identity_id', '=', $attendee['identity_id']]
+        ])
+        ->read(['ownership_id']);
 
-foreach($owners as $index => $owner) {
-    if(isset($map_identities_ids[$owner['identity_id']])) {
-        unset($owners[$index]);
+    foreach($owners as $owner_id => $owner) {
+        if(isset($map_ownerships_ids[$owner['ownership_id']])) {
+            unset($map_ownerships_ids[$owner['ownership_id']]);
+        }
     }
 }
 
+$ownerships = Ownership::ids(array_keys($map_ownerships_ids))
+    ->read(['name'])
+    ->adapt('json')
+    ->get(true);
+
 $context->httpResponse()
-        ->body(array_values($owners))
+        ->body(array_values($ownerships))
         ->send();

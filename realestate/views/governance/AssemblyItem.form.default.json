@@ -38,6 +38,21 @@
             "visible": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ]
         }
     ],
+    "routes": [
+        {
+            "id": "item.import",
+            "label": "Import Document",
+            "description": "",
+            "icon": "file_upload",
+            "context": {
+                "entity": "documents\\Document",
+                "view": "form.import",
+                "purpose": "create",
+                "mode": "edit",
+                "domain": [ ["condo_id", "=", "object.condo_id"], ["assembly_id", "=", "object.assembly_id"], ["assembly_item_id", "=", "object.id"] ]
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -242,7 +257,16 @@
                                             {
                                                 "type": "field",
                                                 "value": "documents_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.SELECT" : false,
+                                                            "ACTION.ADD" : false
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

@@ -349,6 +349,15 @@ class Document extends Model {
                 'readonly'          => true
             ],
 
+            'fund_request_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\funding\FundRequest',
+                'description'       => 'The fund request targeted by the funding, if any.',
+                'help'              => 'As a convention, this field is set when a funding relates to a fund request. Fund request executions are sale invoices (with invoice_type set to fund_request).',
+                'visible'           => ['funding_type', '=', 'fund_request'],
+                'readonly'          => true
+            ],
+
             'fund_request_execution_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\FundRequestExecution',
@@ -367,12 +376,25 @@ class Document extends Model {
                 'visible'           => ['funding_type', '=', 'misc'],
             ],
 
-
             'ownership_transfer_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\OwnershipTransfer',
                 'description'       => 'Optional link to the related bank statement.',
                 'visible'           => ['document_type_code', '=', 'ownership_transfer_correspondence']
+            ],
+
+            'assembly_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\governance\Assembly',
+                'description'       => 'Optional link to the related assembly item.',
+                'visible'           => ['assembly_id', '<>', null]
+            ],
+
+            'assembly_item_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\governance\AssemblyItem',
+                'description'       => 'Optional link to the related assembly item (resolution).',
+                'visible'           => ['assembly_id', '<>', null]
             ],
 
             // #todo - handle general_assembly_minutes

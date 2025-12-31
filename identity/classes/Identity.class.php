@@ -965,24 +965,25 @@ class Identity extends Model {
             }
             $parts = [];
             if($identity['type'] == 'IN') {
-                if(isset($identity['firstname']) && strlen($identity['firstname'])) {
+                if(isset($identity['firstname']) && strlen($identity['firstname']) > 0) {
                     $parts[] = ucfirst($identity['firstname']);
                 }
-                if(isset($identity['lastname']) && strlen($identity['lastname']) ) {
+                if(isset($identity['lastname']) && strlen($identity['lastname']) > 0) {
                     $parts[] = mb_strtoupper($identity['lastname']);
                 }
             }
             if(empty($parts) ) {
-                if(isset($identity['short_name']) && strlen($identity['short_name'])) {
+                if(isset($identity['short_name']) && strlen($identity['short_name']) > 0) {
                     $parts[] = $identity['short_name'];
                 }
-                elseif(isset($identity['legal_name']) && strlen($identity['legal_name'])) {
+                elseif(isset($identity['legal_name']) && strlen($identity['legal_name']) > 0) {
                     $parts[] = $identity['legal_name'];
                 }
             }
-            if(count($parts)) {
-                $result[$id] = implode(' ', $parts);
+            if(empty($parts)) {
+                continue;
             }
+            $result[$id] = implode(' ', $parts);
         }
         return $result;
     }

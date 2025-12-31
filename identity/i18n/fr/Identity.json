@@ -199,6 +199,11 @@
             "description": "Identifiant BIC lié au compte.",
             "help": ""
         },
+        "identity_id": {
+            "label": "Identité",
+            "description": "Identité (unique) de l'élément.",
+            "help": ""
+        },
         "contact_id": {
             "label": "Contact",
             "description": "Contact associé à cette identité.",

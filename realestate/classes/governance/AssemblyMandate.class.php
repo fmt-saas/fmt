@@ -30,6 +30,7 @@ class AssemblyMandate extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The assembly the proxy refers to.",
                 'foreign_object'    => 'realestate\governance\Assembly',
+                'ondelete'          => 'cascade',
                 'required'          => true
             ],
 
@@ -37,6 +38,7 @@ class AssemblyMandate extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "Attendee holder of the mandate.",
                 'foreign_object'    => 'realestate\governance\AssemblyAttendee',
+                'ondelete'          => 'cascade',
                 // 'required'          => true,
                 'dependents'        => ['identity_id']
             ],
@@ -153,9 +155,9 @@ class AssemblyMandate extends \equal\orm\Model {
                 'icon' => 'sent',
                 'transitions' => [
                     'validate' => [
-                        'description'   => 'Marks the Assembly as open and start allowing attendee encoding.',
+                        'description'   => 'Marks the mandate as validated.',
                         'policies'      => ['can_validate'],
-                        'onafter'       => 'onafterPublish',
+                        'onafter'       => 'onafterValidate',
                         'status'        => 'validated'
                     ]
                 ]
@@ -242,6 +244,34 @@ class AssemblyMandate extends \equal\orm\Model {
         }
 
         return $result;
+    }
+
+    /**
+     * #memo - AssemblyRepresentations are re-built at mandates validation (in Assembly)
+     */
+    protected static function onafterValidate($self) {
+        $self->read(['condo_id', 'assembly_id', 'attendee_id', 'ownership_id']);
+        // Create Representations : add ownerships from valid mandates
+        foreach($self as $id => $assemblyMandate) {
+            if($assemblyMandate['ownership_id']) {
+                $existingRepresentations = AssemblyRepresentation::search([
+                        ['assembly_id', '=', $assemblyMandate['assembly_id']],
+                        ['ownership_id', '=', $assemblyMandate['ownership_id']]
+                    ]);
+                if($existingRepresentations->count() > 0) {
+                    continue;
+                }
+                AssemblyRepresentation::create([
+                    'condo_id'              => $assemblyMandate['condo_id'],
+                    'assembly_id'           => $assemblyMandate['assembly_id'],
+                    'attendee_id'           => $assemblyMandate['attendee_id'],
+                    'ownership_id'          => $assemblyMandate['ownership_id'],
+                    'representation_type'   => 'proxy',
+                    'assembly_mandate_id'   => $id
+                ]);
+            }
+            Assembly::id($assemblyMandate['assembly_id'])->update(['count_represented_shares' => null, 'count_represented_owners' => null]);
+        }
     }
 
 }

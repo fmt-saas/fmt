@@ -1,22 +1,84 @@
 {
-    "name": "Invitation d'assemblée",
-    "plural": "Invitations d'assemblée",
-    "description": "Convocations envoyées aux copropriétaires (canal, accusé, mails).",
+    "name": "Courrier de convocation",
+    "plural": "Courriers de convocation",
+    "description": "Envoi individuel de convocation à une assemblée générale.",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Libellé du courrier de convocation.",
+            "help": ""
+        },
+        "assembly_id": {
+            "label": "Assemblée",
+            "description": "Assemblée concernée par la convocation.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété liée au courrier.",
+            "help": ""
+        },
+        "owner_id": {
+            "label": "Propriétaire",
+            "description": "Propriétaire destinataire de la convocation.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Dossier de propriété concerné par la convocation.",
+            "help": ""
+        },
+        "communication_method": {
+            "label": "Mode de communication",
+            "description": "Canal utilisé pour l'envoi de la convocation.",
+            "help": ""
+        },
+        "sent_date": {
+            "label": "Date d'envoi",
+            "description": "Date d'envoi de la convocation.",
+            "help": ""
+        },
+        "is_sent": {
+            "label": "Envoyé",
+            "description": "Indique si la convocation a été envoyée.",
+            "help": ""
+        },
+        "is_acknowledged": {
+            "label": "Accusé de réception",
+            "description": "Indique si le destinataire a accusé réception.",
+            "help": ""
+        },
+        "mails_ids": {
+            "label": "Emails",
+            "description": "Messages email associés à la convocation.",
+            "help": ""
+        }
+    },
     "view": {
         "form.default": {
-            "name": "Invitation",
-            "description": "Formulaire d'une invitation individuelle (destinataire, envoi, pièces).",
-            "layout": {
-                "route.mails": {
-                    "label": "E-mails"
-                }
-            },
+            "name": "Courrier de convocation",
+            "description": "Détail d'un courrier de convocation à l'assemblée.",
             "routes": {
                 "route.view_invitation": {
-                    "label": "Afficher l'invitation",
+                    "label": "Voir l'invitation",
                     "description": "Afficher l'invitation imprimable."
                 }
+            },
+            "layout": {
+                "route.mails": {
+                    "label": "Email"
+                }
             }
+        },
+        "list.default": {
+            "name": "Courriers de convocation",
+            "description": "Suivi des convocations envoyées aux participants.",
+            "layout": {}
+        },
+        "list.assembly": {
+            "name": "Courriers de convocation",
+            "description": "Suivi des convocations envoyées aux participants.",
+            "layout": {}
         }
     }
 }

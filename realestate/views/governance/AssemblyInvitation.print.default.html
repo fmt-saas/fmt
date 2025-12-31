@@ -93,7 +93,7 @@
 <ul>
     <li>Date: {{ assembly.assembly_date | format_datetime(pattern='EEEE', locale=locale) }} {{ assembly.assembly_date | date(date_format, timezone) }}</li>
     <li>Lieu : {{ assembly.assembly_location }}</li>
-    <li>Début de séance: {{ assembly.assembly_date | date('H', timezone) }}h{{ assembly.assembly_date | date('i', timezone) }}</li>
+    <li>Début de séance: {{ '%02d:%02d'|format( (assembly.session_time_start // 3600), ((assembly.session_time_start % 3600) // 60) ) }}</li>
 </ul>
 
 

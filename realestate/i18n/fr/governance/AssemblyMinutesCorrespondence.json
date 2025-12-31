@@ -1,22 +1,84 @@
 {
-    "name": "PV d'assemblée",
-    "plural": "PV d'assemblée",
-    "description": "PV envoyées aux copropriétaires (canal, accusé, mails).",
+    "name": "Courrier de procès-verbal",
+    "plural": "Courriers de procès-verbal",
+    "description": "Envoi individuel du procès-verbal d'une assemblée générale.",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Libellé du courrier de procès-verbal.",
+            "help": ""
+        },
+        "assembly_id": {
+            "label": "Assemblée",
+            "description": "Assemblée concernée par ce procès-verbal.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété liée au courrier.",
+            "help": ""
+        },
+        "owner_id": {
+            "label": "Propriétaire",
+            "description": "Propriétaire destinataire du procès-verbal.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Dossier de propriété concerné.",
+            "help": ""
+        },
+        "communication_method": {
+            "label": "Mode de communication",
+            "description": "Canal utilisé pour l'envoi du procès-verbal.",
+            "help": ""
+        },
+        "sent_date": {
+            "label": "Date d'envoi",
+            "description": "Date d'envoi du procès-verbal.",
+            "help": ""
+        },
+        "is_sent": {
+            "label": "Envoyé",
+            "description": "Indique si le procès-verbal a été envoyé.",
+            "help": ""
+        },
+        "is_acknowledged": {
+            "label": "Accusé de réception",
+            "description": "Indique si le destinataire a accusé réception.",
+            "help": ""
+        },
+        "mails_ids": {
+            "label": "Emails",
+            "description": "Messages email associés au procès-verbal.",
+            "help": ""
+        }
+    },
     "view": {
         "form.default": {
-            "name": "PV d'Assemblée",
-            "description": "Formulaire d'un PV individuel (destinataire, envoi, pièces).",
-            "layout": {
-                "route.mails": {
-                    "label": "E-mails"
-                }
-            },
+            "name": "Courrier de procès-verbal",
+            "description": "Détail d'un envoi de procès-verbal.",
             "routes": {
                 "route.view_invitation": {
-                    "label": "Afficher le PV",
-                    "description": "Afficher le PV imprimable."
+                    "label": "Voir l'invitation",
+                    "description": "Afficher le document imprimable."
+                }
+            },
+            "layout": {
+                "route.mails": {
+                    "label": "Email"
                 }
             }
+        },
+        "list.default": {
+            "name": "Courriers de procès-verbal",
+            "description": "Suivi des envois de procès-verbal aux participants.",
+            "layout": {}
+        },
+        "list.assembly": {
+            "name": "Courriers de procès-verbal",
+            "description": "Suivi des envois de procès-verbal aux participants.",
+            "layout": {}
         }
     }
 }

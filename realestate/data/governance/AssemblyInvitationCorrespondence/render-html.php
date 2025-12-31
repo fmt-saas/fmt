@@ -126,6 +126,7 @@ $assembly = Assembly::id($assemblyInvitationCorrespondence['assembly_id'])
         'condo_id',
         'assembly_type',
         'assembly_date',
+        'session_time_start',
         'assembly_invitation_date',
         'assembly_location',
         'heading_text_call',

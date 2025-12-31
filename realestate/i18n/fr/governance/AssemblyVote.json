@@ -1,0 +1,116 @@
+{
+    "name": "Vote de résolution",
+    "plural": "Votes de résolution",
+    "description": "Votes exprimés pour les points d'une assemblée générale.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle se rattache le vote.",
+            "help": ""
+        },
+        "assembly_id": {
+            "label": "Assemblée",
+            "description": "Assemblée concernée par le vote.",
+            "help": ""
+        },
+        "assembly_item_id": {
+            "label": "Point à l'ordre du jour",
+            "description": "Point d'ordre du jour auquel se rapporte le vote.",
+            "help": ""
+        },
+        "is_choice": {
+            "label": "Vote sur choix",
+            "description": "Indique si le vote concerne un choix.",
+            "help": ""
+        },
+        "assembly_item_choice_id": {
+            "label": "Choix sélectionné",
+            "description": "Choix auquel le vote est rattaché.",
+            "help": ""
+        },
+        "assembly_attendee_id": {
+            "label": "Votant",
+            "description": "Participant ayant exprimé le vote (mandataire ou présent).",
+            "help": ""
+        },
+        "has_mandate": {
+            "label": "Par procuration",
+            "description": "Vote exprimé via une procuration.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Dossier de propriété concerné par le vote.",
+            "help": ""
+        },
+        "vote_display": {
+            "label": "Valeur affichée",
+            "description": "Valeur affichée du vote (choix ou pour/contre/abstention).",
+            "help": ""
+        },
+        "vote_value": {
+            "label": "Valeur du vote",
+            "description": "Valeur du vote (pour, contre, abstention).",
+            "help": "",
+            "selection": {
+                "for": "Pour",
+                "against": "Contre",
+                "abstain": "Abstention"
+            }
+        },
+        "vote_weight": {
+            "label": "Poids du vote",
+            "description": "Poids calculé du vote selon les quotes-parts et la majorité.",
+            "help": ""
+        },
+        "vote_weight_for": {
+            "label": "Pour (%)",
+            "description": "Poids considéré si le vote est « pour ».",
+            "help": ""
+        },
+        "vote_weight_against": {
+            "label": "Contre (%)",
+            "description": "Poids considéré si le vote est « contre ».",
+            "help": ""
+        },
+        "vote_weight_abstain": {
+            "label": "Abstention (%)",
+            "description": "Poids considéré si le vote est « abstention ».",
+            "help": ""
+        },
+        "vote_shares_for": {
+            "label": "Pour (Q.)",
+            "description": "Parts avec vote « pour ».",
+            "help": ""
+        },
+        "vote_shares_against": {
+            "label": "Contre (Q.)",
+            "description": "Poids avec vote « contre ».",
+            "help": ""
+        },
+        "vote_shares_abstain": {
+            "label": "Abstention (Q.)",
+            "description": "Parts avec vote « abstention ».",
+            "help": ""
+        },
+        "vote_shares": {
+            "label": "Quotités",
+            "description": "Quotités-parts impliquées par le votant.",
+            "help": "Basées sur la clé de répartition applicable et le propriétaire représenté."
+        },
+        "vote_effective_shares": {
+            "label": "Quotes-parts effectives",
+            "description": "Quotes-parts retenues après plafonnement éventuel.",
+            "help": "Maximum 50 % des quotes-parts représentées dans l'assemblée."
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Statut du workflow du vote.",
+            "help": "",
+            "selection": {
+                "pending": "Brouillon",
+                "casted": "Exprimé"
+            }
+        }
+    }
+}

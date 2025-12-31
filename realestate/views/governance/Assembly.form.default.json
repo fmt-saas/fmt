@@ -58,11 +58,13 @@
         {
             "id": "action.invite",
             "label": "Create Invites",
-            "description": "Generate & Send invites.",
+            "description": "Generate & Send invites. This will generate an export task for downloading an archive with all invites meant to be printed. And it will post emails to the sending queue.",
             "controller": "core_model_transition",
+            "confirm": true,
             "params": {
                 "entity": "realestate\\governance\\Assembly",
-                "transition": "send"
+                "transition": "send",
+                "ids": []
             },
             "visible": [
                 "status",
@@ -73,7 +75,7 @@
         {
             "id": "action.sent",
             "label": "Mark as Sent",
-            "description": "Mark invitations as sent.",
+            "description": "Mark all invitations correspondences as sent. If some emails haven't been sent yet, this action will fail.",
             "controller": "core_model_transition",
             "params": {
                 "entity": "realestate\\governance\\Assembly",
@@ -98,30 +100,6 @@
                 "status",
                 "=",
                 "sent"
-            ]
-        },
-        {
-            "id": "action.close_attendance",
-            "label": "Close Attendance",
-            "description": "Close the attendance part of the session: no more attendance will be registered afterward.",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "realestate\\governance\\Assembly",
-                "action": "close_attendance",
-                "ids": []
-            },
-            "confirm": true,
-            "visible": [
-                [
-                    "status",
-                    "=",
-                    "in_progress"
-                ],
-                [
-                    "step",
-                    "=",
-                    "opening"
-                ]
             ]
         },
         {
@@ -312,6 +290,30 @@
             ]
         },
         {
+            "id": "action.close_attendance",
+            "label": "Close Attendance",
+            "description": "Close the attendance part of the session: no more attendance will be registered afterward.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "action": "close_attendance",
+                "ids": []
+            },
+            "confirm": true,
+            "visible": [
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "=",
+                    "opening"
+                ]
+            ]
+        },
+        {
             "id": "action.generate_minutes",
             "label": "Generate minutes",
             "description": "Generate the signable version of the minutes of the Assembly.",
@@ -473,9 +475,9 @@
             ]
         },
         {
-            "id": "route.view_minutes",
+            "id": "route.preview_minutes",
             "type": "entry",
-            "label": "View Minutes",
+            "label": "Preview Minutes",
             "icon": "print",
             "description": "Preview of the signable assembly minutes.",
             "route": "/?get=realestate_governance_Assembly_minutes_fetch&id=object.id",
@@ -569,31 +571,10 @@
                                                 "value": "assembly_date",
                                                 "width": "33%"
                                             },
-                                            {
-                                                "type": "field",
-                                                "value": "assembly_time",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "step",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "assembly_location",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Assembly Organizer",
-                                                "value": "assembly_organizer_identity_id",
-                                                "width": "100%"
-                                            },
-                                            {
+{
                                                 "type": "field",
                                                 "value": "session_time_start",
-                                                "width": "50%",
+                                                "width": "33%",
                                                 "visible": [
                                                     "status",
                                                     "not in",
@@ -608,7 +589,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "session_time_end",
-                                                "width": "50%",
+                                                "width": "33%",
                                                 "visible": [
                                                     "status",
                                                     "not in",
@@ -619,6 +600,17 @@
                                                         "sent"
                                                     ]
                                                 ]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_location",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Assembly Organizer",
+                                                "value": "assembly_organizer_identity_id",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
@@ -651,6 +643,21 @@
                                                 "type": "field",
                                                 "label": "Minutes",
                                                 "value": "minutes_document_id",
+                                                "width": "100%",
+                                                "visible": [
+                                                    "status",
+                                                    "not in",
+                                                    [
+                                                        "pending",
+                                                        "published",
+                                                        "sending",
+                                                        "sent"
+                                                    ]
+                                                ]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "step",
                                                 "width": "100%"
                                             },
                                             {
@@ -769,12 +776,8 @@
                         "id": "section.owners",
                         "label": "Owners",
                         "visible": [
-                            "status",
-                            "not in",
-                            [
-                                "pending",
-                                "published"
-                            ]
+                            [ "status", "not in", [ "pending", "published" ] ],
+                            ["admins", "in", "user.groups"]
                         ],
                         "rows": [
                             {
@@ -797,8 +800,8 @@
                         ]
                     },
                     {
-                        "id": "section.invites",
-                        "label": "Invites",
+                        "id": "section.correspondences",
+                        "label": "Correspondences",
                         "visible": [
                             "status",
                             "not in",
@@ -814,19 +817,37 @@
                                         "width": "100%",
                                         "items": [
                                             {
-                                                "type": "field",
-                                                "value": "invitations_exporting_task_id",
-                                                "width": "50%",
-                                                "visible": [
-                                                    "invitations_exporting_task_id",
-                                                    "<>",
-                                                    null
-                                                ]
+                                                "id": "label.exporting_tasks",
+                                                "type": "label",
+                                                "value": "Export tasks",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "assembly_invitation_instances_ids",
+                                                "value": "exporting_tasks_ids",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_invitation_correspondences_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.assembly",
+                                                    "domain": ["communication_method", "=", "email"]
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_minutes_correspondences_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.assembly",
+                                                    "domain": ["communication_method", "=", "email"]
+                                                },
+                                                "visible": [
+                                                    ["step", "=", "assembly_closing"],
+                                                    ["status", "in", ["in_progress", "held", "adjourned"]]
+                                                ]
                                             }
                                         ]
                                     }
@@ -946,13 +967,15 @@
                         "id": "section.representations",
                         "label": "Representations",
                         "visible": [
-                            "status",
-                            "not in",
                             [
-                                "pending",
-                                "published",
-                                "sending",
-                                "sent"
+                                "status",
+                                "not in",
+                                [
+                                    "pending",
+                                    "published",
+                                    "sending",
+                                    "sent"
+                                ]
                             ]
                         ],
                         "rows": [

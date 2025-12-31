@@ -8,11 +8,18 @@ use identity\Organisation;
 use identity\User;
 use realestate\management\ManagingAgent;
 
+
+['orm' => $orm] = eQual::inject(['orm']);
+
+$events = $orm->disableEvents();
+
 // Main organisation
 $identity = Identity::create([
         'id'                    => 1,
         'type_id'               => 3,
         'type'                  => 'CO',
+        'legal_name'            => 'Nom de votre organisation',
+        'short_name'            => 'Votre nom',
         'registration_number'   => '0755885564',
         'has_parent'            => false,
         'nationality'           => 'BE',
@@ -23,15 +30,22 @@ $identity = Identity::create([
     ])
     ->first();
 
-Organisation::create([
+$organisation = Organisation::create([
         "identity_id" => $identity['id']
     ])
-    ->do('sync_from_identity');
+    ->do('sync_from_identity')
+    ->first();;
 
-ManagingAgent::create([
+$managingAgent = ManagingAgent::create([
         "identity_id" => $identity['id']
     ])
-    ->do('sync_from_identity');
+    ->do('sync_from_identity')
+    ->first();
+
+Identity::id($identity['id'])->update([
+        'organisation_id' => $organisation['id'],
+        'managing_agent_id' => $managingAgent['id']
+    ]);
 
 
 
@@ -109,3 +123,6 @@ RoleAssignment::create([
     ->update([
         'employee_id'   => $employee['id']
     ]);
+
+
+$orm->enableEvents($events);

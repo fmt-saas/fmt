@@ -3,40 +3,252 @@
     "plural": "Assemblées",
     "description": "Gestion des assemblées générales (convocations, présences, résolutions).",
     "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par l'assemblée.",
+            "help": ""
+        },
         "name": {
             "label": "Description",
             "description": "",
             "help": ""
         },
-        "assembly_date": {
-            "label": "Date",
-            "description": "",
+        "assembly_organizer_identity_id": {
+            "label": "Organisateur",
+            "description": "Représentant du syndic chargé de l'organisation.",
+            "help": "Identité liée au syndic (propriétaire ou professionnel) qui organise l'assemblée."
+        },
+        "register_document_id": {
+            "label": "Feuille de présence",
+            "description": "Document généré pour la feuille de présence.",
             "help": ""
         },
-        "assembly_time": {
-            "label": "Heure",
-            "description": "Heure prÃ©vue de l'assemblÃ©e.",
+        "signed_register_document_id": {
+            "label": "Feuille de présence signée",
+            "description": "Version signée de la feuille de présence.",
             "help": ""
+        },
+        "minutes_document_id": {
+            "label": "Procès-verbal",
+            "description": "Document généré contenant le procès-verbal.",
+            "help": ""
+        },
+        "signed_minutes_document_id": {
+            "label": "Procès-verbal signé",
+            "description": "Version signée du procès-verbal.",
+            "help": ""
+        },
+        "heading_text_call": {
+            "label": "En-tête de convocation",
+            "description": "Texte d'en-tête de la convocation.",
+            "help": ""
+        },
+        "heading_text_minutes": {
+            "label": "En-tête du procès-verbal",
+            "description": "Texte d'en-tête du procès-verbal.",
+            "help": ""
+        },
+        "closing_text_call": {
+            "label": "Conclusion de convocation",
+            "description": "Texte de conclusion de la convocation.",
+            "help": ""
+        },
+        "has_call_option_majority": {
+            "label": "Afficher les majorités",
+            "description": "Afficher les majorités requises dans la convocation.",
+            "help": ""
+        },
+        "closing_text_minutes": {
+            "label": "Conclusion du procès-verbal",
+            "description": "Texte de conclusion du procès-verbal.",
+            "help": ""
+        },
+        "assembly_date": {
+            "label": "Date",
+            "description": "Date prévue de l'assemblée.",
+            "help": ""
+        },
+        "assembly_invitation_date": {
+            "label": "Date/heure de convocation",
+            "description": "Date et heure planifiées de l'assemblée (non modifiable).",
+            "help": "Définie lorsque l'assemblée passe au statut « sending »."
         },
         "assembly_location": {
             "label": "Lieu",
-            "description": "",
+            "description": "Lieu annoncé de l'assemblée.",
             "help": ""
         },
         "assembly_type": {
             "label": "Type",
-            "description": "",
+            "description": "Type d'assemblée.",
+            "help": "",
+            "selection": {
+                "constitutive": "Constitutive",
+                "statutory": "Statutaire",
+                "extraordinary": "Extraordinaire",
+                "recovery": "Recouvrement",
+                "special": "Spéciale",
+                "council_meeting": "Conseil de copropriété"
+            }
+        },
+        "assembly_template_id": {
+            "label": "Modèle d'assemblée",
+            "description": "Modèle de référence utilisé, si applicable.",
+            "help": ""
+        },
+        "assembly_items_ids": {
+            "label": "Ordre du jour",
+            "description": "Points de l'ordre du jour de l'assemblée.",
+            "help": ""
+        },
+        "assembly_invitation_correspondences_ids": {
+            "label": "Convocations",
+            "description": "Courriers de convocation envoyés.",
+            "help": ""
+        },
+        "assembly_minutes_correspondences_ids": {
+            "label": "Courriers procès-verbal",
+            "description": "Courriers liés au procès-verbal.",
+            "help": ""
+        },
+        "invitations_exporting_task_id": {
+            "label": "Tâche d'export (convocations)",
+            "description": "Tâche d'export des convocations papier.",
+            "help": ""
+        },
+        "minutes_exporting_task_id": {
+            "label": "Tâche d'export (PV)",
+            "description": "Tâche d'export des procès-verbaux papier.",
+            "help": ""
+        },
+        "assembly_votes_ids": {
+            "label": "Votes",
+            "description": "Votes encodés durant l'assemblée.",
+            "help": ""
+        },
+        "assembly_representations_ids": {
+            "label": "Représentations",
+            "description": "Représentations validées pour l'assemblée.",
+            "help": "Générées automatiquement à partir des mandats pour lier participant et propriétés représentées."
+        },
+        "assembly_attendees_ids": {
+            "label": "Participants",
+            "description": "Participants enregistrés pour l'assemblée.",
+            "help": ""
+        },
+        "assembly_minutes_entries_ids": {
+            "label": "Entrées de procès-verbal",
+            "description": "Entrées du procès-verbal pour tous les points.",
             "help": ""
         },
         "session_time_start": {
-            "label": "Début",
-            "description": "",
+            "label": "Début de séance",
+            "description": "Heure de début prévue de la séance.",
+            "help": "Précède la vérification des présences."
+        },
+        "session_time_end": {
+            "label": "Fin de séance",
+            "description": "Heure réelle de fin de séance.",
+            "help": "Après finalisation des votes et du procès-verbal."
+        },
+        "is_valid": {
+            "label": "Assemblée valide",
+            "description": "Indique si l'assemblée est considérée valide.",
             "help": ""
         },
-        "is_second_session": {
-            "label": "2e séance",
-            "description": "",
+        "is_complete": {
+            "label": "Assemblée complète",
+            "description": "Indique si tous les points de l'ordre du jour ont été traités.",
             "help": ""
+        },
+        "invalidity_reason": {
+            "label": "Raison d'invalidité",
+            "description": "Motif de l'invalidité de l'assemblée.",
+            "help": "",
+            "selection": {
+                "quorum_owners_not_met": "Quorum de propriétaires non atteint",
+                "quorum_shares_not_met": "Quorum de quotes-parts non atteint"
+            }
+        },
+        "is_second_session": {
+            "label": "Seconde session",
+            "description": "L'assemblée est une seconde session.",
+            "help": ""
+        },
+        "has_second_session": {
+            "label": "Seconde session planifiée",
+            "description": "Indique qu'une seconde session est prévue.",
+            "help": "Utilisé lorsque le quorum n'est pas atteint et qu'une seconde session est nécessaire."
+        },
+        "related_assembly_id": {
+            "label": "Assemblée parente",
+            "description": "Assemblée initiale liée (si seconde session).",
+            "help": ""
+        },
+        "second_session_assembly_id": {
+            "label": "Seconde session",
+            "description": "Assemblée de seconde session planifiée.",
+            "help": ""
+        },
+        "ownerships_ids": {
+            "label": "Dossiers de propriété",
+            "description": "Dossiers de propriété concernés par l'assemblée.",
+            "help": "Renseigné automatiquement à la publication de l'assemblée."
+        },
+        "assembly_mandates_ids": {
+            "label": "Mandats",
+            "description": "Mandats enregistrés pour l'assemblée.",
+            "help": ""
+        },
+        "count_shares": {
+            "label": "Quotes-parts totales",
+            "description": "Total des quotes-parts statutaires de la copropriété.",
+            "help": ""
+        },
+        "count_represented_shares": {
+            "label": "Quotes-parts représentées",
+            "description": "Nombre de quotes-parts représentées dans l'assemblée.",
+            "help": ""
+        },
+        "count_owners": {
+            "label": "Propriétaires théoriques",
+            "description": "Nombre théorique de propriétaires de lots principaux.",
+            "help": ""
+        },
+        "count_represented_owners": {
+            "label": "Propriétaires représentés",
+            "description": "Nombre de propriétaires présents ou représentés.",
+            "help": ""
+        },
+        "step": {
+            "label": "Étape",
+            "description": "Étape actuelle de l'assemblée.",
+            "help": "",
+            "selection": {
+                "opening": "Ouverture",
+                "attendance_closure": "Clôture des présences",
+                "mandate_validation": "Validation des mandats",
+                "representation_validation": "Validation des représentations",
+                "assembly_validation": "Validation de l'assemblée",
+                "agenda_processing": "Traitement de l'ordre du jour",
+                "minutes_confirmation": "Confirmation du procès-verbal",
+                "minutes_signing": "Signature du procès-verbal",
+                "assembly_closing": "Clôture de l'assemblée"
+            }
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Statut de workflow de l'assemblée.",
+            "help": "",
+            "selection": {
+                "pending": "Brouillon",
+                "published": "Publié",
+                "sending": "Envoi en cours",
+                "sent": "Envoyé",
+                "in_progress": "En cours",
+                "held": "Tenue",
+                "adjourned": "Ajournée"
+            }
         }
     },
     "view": {
@@ -47,23 +259,23 @@
                 "section.details": {
                     "label": "Détails"
                 },
+                "section.resolutions": {
+                    "label": "Résolutions"
+                },
                 "section.owners": {
                     "label": "Propriétaires"
                 },
-                "section.attendees": {
-                    "label": "Participants"
-                },
-                "section.invites": {
-                    "label": "Invitations"
+                "section.correspondences": {
+                    "label": "Courriers"
                 },
                 "section.proxies": {
                     "label": "Mandats"
                 },
+                "section.attendees": {
+                    "label": "Participants"
+                },
                 "section.representations": {
                     "label": "Représentations"
-                },
-                "section.resolutions": {
-                    "label": "Résolutions"
                 }
             },
             "routes": {
@@ -72,8 +284,12 @@
                     "description": ""
                 },
                 "route.view_attendance_register": {
-                    "label": "Afficher la feuille de présence",
+                    "label": "Voir la feuille de présence",
                     "description": "Afficher la feuille de présence imprimable."
+                },
+                "route.preview_minutes": {
+                    "label": "Afficher le procès-verbal",
+                    "description": ""
                 },
                 "route.view_minutes": {
                     "label": "Afficher le procès-verbal",
@@ -99,15 +315,11 @@
                 },
                 "action.sent": {
                     "label": "Marquer comme envoyé",
-                    "description": "Marquer les invitations comme envoyées."
+                    "description": "Marquer les courriers de convocation comme envoyés. Si certains emails n'ont pas encore été envoyés, cette action échouera."
                 },
                 "action.open": {
                     "label": "Ouvrir l'assemblée",
                     "description": "Ouvrir l'assemblée (en cours)."
-                },
-                "action.close_attendance": {
-                    "label": "Clore les présences",
-                    "description": "Clore l'émargement : plus aucune présence ne pourra être enregistrée."
                 },
                 "action.validate_mandates": {
                     "label": "Valider les mandats",
@@ -141,6 +353,10 @@
                     "label": "Ajouter un participant supplémentaire",
                     "description": "Enregistrer un participant supplémentaire et recueillir ses mandats/signatures."
                 },
+                "action.close_attendance": {
+                    "label": "Clore les présences",
+                    "description": "Clore l'émargement : plus aucune présence ne pourra être enregistrée."
+                },
                 "action.generate_minutes": {
                     "label": "Générer le procès-verbal",
                     "description": "Générer la version à signer du procès-verbal."
@@ -158,6 +374,16 @@
                     "description": "Clore la signature du procès-verbal."
                 }
             }
+        },
+        "list.default": {
+            "name": "Assemblées",
+            "description": "Vue des assemblées planifiées et de leur statut.",
+            "layout": {}
+        },
+        "list.condo": {
+            "name": "Assemblées",
+            "description": "Vue des assemblées planifiées et de leur statut.",
+            "layout": {}
         }
     }
 }

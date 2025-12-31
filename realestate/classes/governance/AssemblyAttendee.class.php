@@ -31,6 +31,7 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The assembly the invitation refers to.",
                 'foreign_object'    => 'realestate\governance\Assembly',
+                'ondelete'          => 'cascade',
                 'required'          => true
             ],
 

@@ -93,7 +93,10 @@ class AssemblyVote extends \equal\orm\Model {
                     'abstain'
                 ],
                 'default'           => 'abstain',
-                'dependents'        => ['vote_weight_for', 'vote_weight_against', 'vote_weight_abstain'],
+                'dependents'        => [
+                    'vote_weight_for', 'vote_weight_against', 'vote_weight_abstain',
+                    'vote_shares_for', 'vote_shares_against', 'vote_shares_abstain'
+                ],
                 'visible'           => ['status', '=', 'casted']
             ],
 
@@ -135,6 +138,36 @@ class AssemblyVote extends \equal\orm\Model {
                 'description'       => "Weight of the vote, if the vote was 'abstain'.",
                 'help'              => "This is used to ease the reading of the results.",
                 'function'          => 'calcVoteWeightAbstain',
+                'store'             => true,
+                'visible'           => ['status', '=', 'casted']
+            ],
+
+            'vote_shares_for' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => "Shares of the vote, if the vote was 'for'.",
+                'help'              => "This is used to ease the reading of the results.",
+                'function'          => 'calcVoteSharesFor',
+                'store'             => true,
+                'visible'           => ['status', '=', 'casted']
+            ],
+
+            'vote_shares_against' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => "Shares of the vote, if the vote was 'against'.",
+                'help'              => "This is used to ease the reading of the results.",
+                'function'          => 'calcVoteSharesAgainst',
+                'store'             => true,
+                'visible'           => ['status', '=', 'casted']
+            ],
+
+            'vote_shares_abstain' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => "Shares of the vote, if the vote was 'abstain'.",
+                'help'              => "This is used to ease the reading of the results.",
+                'function'          => 'calcVoteSharesAbstain',
                 'store'             => true,
                 'visible'           => ['status', '=', 'casted']
             ],
@@ -333,6 +366,43 @@ class AssemblyVote extends \equal\orm\Model {
                 continue;
             }
             $result[$id] = ($assemblyVote['vote_value'] === 'abstain') ? $assemblyVote['vote_weight'] : 0.0;
+        }
+        return $result;
+    }
+
+
+    protected static function calcVoteSharesFor($self) {
+        $result = [];
+        $self->read(['status', 'vote_value', 'vote_effective_shares']);
+        foreach($self as $id => $assemblyVote) {
+            if($assemblyVote['status'] !== 'casted') {
+                continue;
+            }
+            $result[$id] = ($assemblyVote['vote_value'] === 'for') ? $assemblyVote['vote_effective_shares'] : 0;
+        }
+        return $result;
+    }
+
+    protected static function calcVoteSharesAgainst($self) {
+        $result = [];
+        $self->read(['status', 'vote_value', 'vote_effective_shares']);
+        foreach($self as $id => $assemblyVote) {
+            if($assemblyVote['status'] !== 'casted') {
+                continue;
+            }
+            $result[$id] = ($assemblyVote['vote_value'] === 'against') ? $assemblyVote['vote_effective_shares'] : 0;
+        }
+        return $result;
+    }
+
+    protected static function calcVoteSharesAbstain($self) {
+        $result = [];
+        $self->read(['status', 'vote_value', 'vote_effective_shares']);
+        foreach($self as $id => $assemblyVote) {
+            if($assemblyVote['status'] !== 'casted') {
+                continue;
+            }
+            $result[$id] = ($assemblyVote['vote_value'] === 'abstain') ? $assemblyVote['vote_effective_shares'] : 0;
         }
         return $result;
     }

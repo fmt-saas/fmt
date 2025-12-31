@@ -52,15 +52,6 @@ BankAccount::create([
         "bank_account_iban" =>  "BE23510349013565"
     ]);
 
-/*
-$managingAgent = ManagingAgent::create([
-        "id"                    => 1,
-        "supplier_type_id"      => 1,
-        "identity_id"           => 1,
-        'agent_identity_type'   => 'professional'
-    ])
-    ->first();
-*/
 
 Identity::search()->do('refresh_bank_accounts');
 
@@ -96,7 +87,8 @@ $employee = Employee::create([
     ])
     ->first();
 
-Identity::id($identity['id'])->update([
+Identity::id($identity['id'])
+    ->update([
         'employee_id'   => $employee['id'],
         'user_id'       => $user['id']
     ]);
@@ -104,6 +96,9 @@ Identity::id($identity['id'])->update([
 
 User::search()->do('sync_from_identity');
 Employee::search()->do('sync_from_identity');
+// sync values from Identities
+Organisation::search()->do('sync_from_identity');
+
 
 Team::id($team['id'])->update(['employees_ids' => [$employee['id']]]);
 
@@ -119,8 +114,3 @@ $orm->enableEvents($events);
 
 User::search(['login', '=', 'admin@fmt.yb.run'])
     ->update(['password' => 'safe_pass']);
-
-
-// sync values from Identities
-Organisation::search()->do('sync_from_identity');
-ManagingAgent::id($managingAgent['id'])->do('sync_from_identity');

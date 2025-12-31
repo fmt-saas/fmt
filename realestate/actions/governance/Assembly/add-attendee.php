@@ -10,6 +10,7 @@ use realestate\governance\Assembly;
 use realestate\ownership\Owner;
 use identity\Identity;
 use realestate\governance\AssemblyAttendee;
+use realestate\governance\AssemblyRepresentation;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Checks if all owners have been invited to the target assembly.",
@@ -284,6 +285,7 @@ $documentSignature = DocumentSignature::create($values)->first();
 
 // 4) create attendee
 
+// #memo - link with mandates is made through UI calls
 $attendee = AssemblyAttendee::create([
         'condo_id'                       => $assembly['condo_id'],
         'assembly_id'                    => $params['id'],
@@ -299,6 +301,46 @@ $attendee = AssemblyAttendee::create([
 if($assembly['step'] === 'agenda_processing') {
     Assembly::id($assembly['id'])->do('generate_extra_representations', ['assembly_attendee_id', $attendee['id']]);
 }
+
+
+// 5) add the Representations corresponding to the identity of the attendee (there might be none)
+// #memo - AssemblyRepresentations are re-built at mandates validation (in Assembly)
+$owners = Owner::search([
+        ['condo_id', '=', $assembly['condo_id']],
+        ['identity_id', '=', $identity_id]
+    ])
+    ->read(['ownership_id' => ['id', 'ownership_type', 'representative_owner_id']]);
+
+foreach($owners as $owner_id => $owner) {
+    // #todo - add only if owner is the official mandatory for the joint ownership
+    // if ($owner['ownership_id']['ownership_type'] === 'joint' && $owner['ownership_id']['representative_owner_id'] === $owner_id) {}
+    $ownership_id = $owner['ownership_id']['id'];
+    $existingRepresentations = AssemblyRepresentation::search([
+            ['assembly_id', '=', $params['id']],
+            ['ownership_id', '=', $ownership_id]
+        ])
+        ->read(['representation_type']);
+
+    foreach($existingRepresentations as $representation_id => $representation) {
+        if($representation['representation_type'] === 'proxy') {
+            AssemblyRepresentation::id($representation_id)->delete(true);
+        }
+        else {
+            // ownership is already represented by an owner, skip representation
+            continue 2;
+        }
+    }
+    AssemblyRepresentation::create([
+        'condo_id'              => $assembly['condo_id'],
+        'assembly_id'           => $params['id'],
+        'attendee_id'           => $attendee['id'],
+        'ownership_id'          => $ownership_id,
+        'representation_type'   => 'owner'
+    ]);
+}
+
+Assembly::id($params['id'])->update(['count_represented_shares' => null, 'count_represented_owners' => null]);
+
 
 $context->httpResponse()
         ->body($attendee)
