@@ -6,6 +6,12 @@
         "form.default": {
             "name": "Point d'assemblée",
             "description": "Définition d'un point (textes, votes, documents et choix).",
+            "routes": {
+                "route.add_attachment": {
+                    "label": "Ajouter pièce jointe",
+                    "description": "Ajouter un nouveau document comme pièce jointe."
+                }
+            },
             "layout": {
                 "section.details": {
                     "label": "Détails"

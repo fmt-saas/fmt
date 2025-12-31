@@ -40,13 +40,13 @@
     ],
     "routes": [
         {
-            "id": "item.import",
-            "label": "Import Document",
+            "id": "route.add_attachment",
+            "label": "Add attachment",
             "description": "",
             "icon": "file_upload",
             "context": {
                 "entity": "documents\\Document",
-                "view": "form.import",
+                "view": "form.upload",
                 "purpose": "create",
                 "mode": "edit",
                 "domain": [ ["condo_id", "=", "object.condo_id"], ["assembly_id", "=", "object.assembly_id"], ["assembly_item_id", "=", "object.id"] ]
