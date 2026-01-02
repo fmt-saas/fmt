@@ -42,13 +42,15 @@
             {
                 "type": "field",
                 "value": "assembly_item_id",
-                "width": "15%"
+                "width": "15%",
+                "readonly": true
             },
             {
                 "type": "field",
                 "label": "Owner",
                 "value": "ownership_id",
-                "width": "15%"
+                "width": "15%",
+                "readonly": true
             },
             {
                 "type": "field",
@@ -60,7 +62,8 @@
                 "type": "field",
                 "label": "Attendee",
                 "value": "assembly_attendee_id",
-                "width": "20%"
+                "width": "20%",
+                "readonly": true
             },
             {
                 "type": "field",
