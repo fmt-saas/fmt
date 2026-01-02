@@ -44,14 +44,14 @@ $events = $orm->disableEvents();
 // email
 $template = Template::create([
         'code'          => 'general_meetings_call',
-        'description'   => 'Invitation à une assemblée de la copropriété.',
+        'description'   => 'Convocation à une assemblée de la copropriété.',
         'category_id'   => 5,
         'type_id'       => 1
     ])
     ->first();
 TemplatePart::create([
     'name'          => 'subject',
-    'value'         => '<p>{condo} - Invitation à {assembly}</p>',
+    'value'         => '<p>{condo} - Convocation à {assembly}</p>',
     'template_id'   => $template['id'],
     'variables'     => '["condo", "assembly", "date"]'
 ]);

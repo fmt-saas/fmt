@@ -77,7 +77,7 @@
                             <div>{{ organisation.address_street }}</div>
                             <div>{{ organisation.address_zip }} {{ organisation.address_city }}</div>
                             {% if organisation.registration_number | length > 0 %}
-                                <div>{{ labels.registration_number }}: <b>{{ organisation.registration_number }}</b></div>
+                                <div>{{ labels.registration_number }}: {{ organisation.registration_number }}</div>
                             {% endif %}
                         </div>
                     </div>
@@ -156,7 +156,7 @@
                                 <!-- {{ recipient.address_country }} -->
                                 {% if recipient.has_vat and recipient.vat_number | length > 0 %}
                                     <div>
-                                        <b>{{ labels.vat_number }}:</b> {{ recipient.vat_number }}
+                                        {{ labels.vat_number }}: {{ recipient.vat_number }}
                                     </div>
                                 {% endif %}
                             </div>

@@ -75,6 +75,11 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'type'              => 'many2one',
                 'description'       => "Parent group item for this item, if it is a sub-item.",
                 'foreign_object'    => 'realestate\governance\AssemblyItem',
+                'order'             => 'order',
+                'domain'            => [
+                    ['assembly_id', '=', 'object.assembly_id'],
+                    ['is_group', '=', true]
+                ],
                 'visible'           => [
                     ['is_group', '=', false],
                     ['has_parent_group', '=', true],
