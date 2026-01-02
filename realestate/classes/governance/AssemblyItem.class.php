@@ -879,7 +879,7 @@ class AssemblyItem extends AssemblyItemTemplate {
         $self->read(['assembly_id' => ['status']]);
         foreach($self as $id => $assembly) {
             if($assembly['assembly_id']['status'] !== 'pending') {
-                $allowed_fields = ['description_minutes', 'description_ballot'];
+                $allowed_fields = ['description_minutes', 'description_ballot', 'votes_ids', 'votes_count', 'vote_result'];
                 if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                     return ['assembly_id' => ['published_assembly_cannot_be_changed' => 'Once published, assembly items cannot be changed.']];
                 }
