@@ -22,19 +22,54 @@
                 "entity": "realestate\\governance\\AssemblyItem",
                 "transition": "open"
             },
-            "visible": [ ["pending", "=", "object.status"], ["in_progress", "=", "object.assembly_status"], ["agenda_processing", "=", "object.assembly_step"] ]
+            "visible": [
+                ["pending", "=", "object.status"],
+                ["in_progress", "=", "object.assembly_status"],
+                ["agenda_processing", "=", "object.assembly_step"]
+            ]
         },
         {
             "id": "action.close",
             "inline": true,
             "label": "Close",
             "icon": "done",
-            "description": "Close the assembly point. No more vote will be allowed. This cannot be undone.",
+            "description": "Close the assembly resolution. No more vote will be allowed. This cannot be undone.",
             "controller": "core_model_transition",
             "confirm": true,
             "params": {
                 "entity": "realestate\\governance\\AssemblyItem",
-                "transition": "close"
+                "transition": "close",
+                "ids": []
+            },
+            "visible": [ ["open", "=", "object.status"], [true, "=", "object.has_vote_required"] ]
+        },
+        {
+            "id": "action.close_without_confirmation",
+            "inline": true,
+            "label": "Close",
+            "icon": "done",
+            "description": "Close the assembly resolution. No more vote will be allowed. This cannot be undone.",
+            "controller": "core_model_transition",
+            "confirm": false,
+            "params": {
+                "entity": "realestate\\governance\\AssemblyItem",
+                "transition": "close",
+                "ids": []
+            },
+            "visible": [ ["open", "=", "object.status"], [false, "=", "object.has_vote_required"] ]
+        },
+        {
+            "id": "action.adjourn",
+            "inline": true,
+            "label": "Adjourn",
+            "icon": "event_repeat",
+            "description": "Adjourn the assembly resolution. No vote will be allowed. This cannot be undone.",
+            "controller": "core_model_transition",
+            "confirm": true,
+            "params": {
+                "entity": "realestate\\governance\\AssemblyItem",
+                "transition": "adjourn",
+                "ids": []
             },
             "visible": ["open", "=", "object.status"]
         },
@@ -46,6 +81,23 @@
             "description": "Cast a vote.",
             "component": {
                 "name": "assemblyVoteCast",
+                "data": {
+                    "assembly_id": "object.assembly_id",
+                    "assembly_item_id": "object.id"
+                }
+            },
+            "visible1": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ],
+            "visible": false,
+            "#memo": "we only use votes_board here"
+        },
+        {
+            "id": "action.votes_board",
+            "inline": true,
+            "label": "Show board",
+            "icon": "visibility",
+            "description": "Show votes board.",
+            "component": {
+                "name": "assemblyVoteBoard",
                 "data": {
                     "assembly_id": "object.assembly_id",
                     "assembly_item_id": "object.id"
