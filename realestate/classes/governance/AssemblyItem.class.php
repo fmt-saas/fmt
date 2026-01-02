@@ -662,7 +662,7 @@ class AssemblyItem extends AssemblyItemTemplate {
      */
     protected static function policyCanOpen($self) {
         $result = [];
-        $self->read(['status', 'assembly_id' => ['status']]);
+        $self->read(['status', 'has_parent_group', 'parent_group_id', 'assembly_id' => ['status']]);
         foreach($self as $id => $assemblyItem) {
             if($assemblyItem['status'] !== 'pending') {
                 $result[$id] = [
@@ -678,11 +678,17 @@ class AssemblyItem extends AssemblyItemTemplate {
                 continue;
             }
 
-            $openedItem = self::search([
+            $domain = [
                     ['assembly_id', '=', $assemblyItem['assembly_id']['id']],
                     ['status', '=', 'open'],
                     ['id', '<>', $id]
-                ])
+                ];
+
+            if($assemblyItem['has_parent_group']) {
+                $domain[] = ['id', '<>', $assemblyItem['parent_group_id']];
+            }
+
+            $openedItem = self::search($domain)
                 ->first();
 
             if($openedItem) {
