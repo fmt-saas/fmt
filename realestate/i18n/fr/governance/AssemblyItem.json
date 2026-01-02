@@ -1,15 +1,198 @@
 {
     "name": "Point d'assemblée",
     "plural": "Points d'assemblée",
-    "description": "Ordre du jour : points, groupes et résolutions traités durant l'assemblée.",
+    "description": "Points, groupes et résolutions traités durant l'assemblée générale.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par la résolution.",
+            "help": ""
+        },
+        "assembly_id": {
+            "label": "Assemblée",
+            "description": "Assemblée à laquelle la résolution se rapporte.",
+            "help": ""
+        },
+        "order": {
+            "label": "Ordre",
+            "description": "Position de la résolution dans l'ordre du jour.",
+            "help": ""
+        },
+        "assembly_status": {
+            "label": "Statut de l'assemblée",
+            "description": "Statut courant de l'assemblée.",
+            "help": ""
+        },
+        "assembly_step": {
+            "label": "Étape de l'assemblée",
+            "description": "Étape de l'assemblée dans le traitement de l'ordre du jour.",
+            "help": ""
+        },
+        "assembly_template_id": {
+            "label": "Modèle d'assemblée",
+            "description": "Modèle d'assemblée dont le point est issu.",
+            "help": ""
+        },
+        "name": {
+            "label": "Intitulé",
+            "description": "Description courte du point.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Code spécifique d'identification du point.",
+            "help": ""
+        },
+        "helper": {
+            "label": "Aide",
+            "description": "Informations ou base légale liées au point.",
+            "help": ""
+        },
+        "is_group": {
+            "label": "Groupe",
+            "description": "Marque le point comme un groupe de sous-points.",
+            "help": "Les groupes organisent les sous-points mais ne sont pas soumis au vote."
+        },
+        "has_parent_group": {
+            "label": "Sous-groupe",
+            "description": "Indique si le point dépend d'un groupe parent.",
+            "help": ""
+        },
+        "parent_group_id": {
+            "label": "Groupe parent",
+            "description": "Groupe parent auquel le point est rattaché.",
+            "help": ""
+        },
+        "children_items_ids": {
+            "label": "Sous-points",
+            "description": "Sous-points appartenant au groupe.",
+            "help": ""
+        },
+        "items_count": {
+            "label": "Nombre de sous-points",
+            "description": "Nombre de sous-points contenus dans le groupe.",
+            "help": ""
+        },
+        "description_call": {
+            "label": "Texte de convocation",
+            "description": "Description affichée dans la convocation.",
+            "help": ""
+        },
+        "description_minutes": {
+            "label": "Texte du procès-verbal",
+            "description": "Description affichée dans le procès-verbal.",
+            "help": ""
+        },
+        "description_ballot": {
+            "label": "Texte de vote",
+            "description": "Description affichée lors du vote.",
+            "help": ""
+        },
+        "has_vote_required": {
+            "label": "Vote requis",
+            "description": "Indique si un vote est requis pour ce point.",
+            "help": ""
+        },
+        "has_subvote_required": {
+            "label": "Sous-vote requis",
+            "description": "Indique si un sous-vote est requis pour ce point.",
+            "help": ""
+        },
+        "assembly_votes_ids": {
+            "label": "Votes",
+            "description": "Votes exprimés pour ce point.",
+            "help": ""
+        },
+        "votes_count": {
+            "label": "Nombre de votes",
+            "description": "Nombre de votes exprimés pour le point.",
+            "help": ""
+        },
+        "vote_result": {
+            "label": "Résultat du vote",
+            "description": "Résultat des votes à la clôture.",
+            "help": "",
+            "selection": {
+                "approved": "Approuvé",
+                "rejected": "Rejeté"
+            }
+        },
+        "vote_result_choice": {
+            "label": "Résultat (choix)",
+            "description": "Choix retenu à la clôture.",
+            "help": "Correspond à l'un des choix définis pour le point."
+        },
+        "has_choices": {
+            "label": "Choix multiples",
+            "description": "Le point propose plusieurs choix possibles.",
+            "help": ""
+        },
+        "assembly_item_choices_ids": {
+            "label": "Choix",
+            "description": "Choix associés au point.",
+            "help": ""
+        },
+        "majority": {
+            "label": "Majorité requise",
+            "description": "Type de majorité nécessaire pour le vote.",
+            "help": "",
+            "selection": {
+                "unanimity": "Unanimité",
+                "absolute": "Majorité absolue",
+                "2_3": "2/3",
+                "4_5": "4/5"
+            }
+        },
+        "apportionment_code": {
+            "label": "Code de clé de répartition",
+            "description": "Code de la clé de répartition par défaut.",
+            "help": "Obligatoire pour retrouver la clé de répartition applicable."
+        },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé de répartition utilisée pour ce point.",
+            "help": "Obligatoire lorsque le point est soumis au vote."
+        },
+        "involved_ownerships_ids": {
+            "label": "Propriétés concernées",
+            "description": "Propriétés effectivement impactées par la résolution.",
+            "help": ""
+        },
+        "count_represented_shares": {
+            "label": "Quotes-parts représentées",
+            "description": "Nombre de quotes-parts représentées pour la clé sélectionnée.",
+            "help": ""
+        },
+        "documents_ids": {
+            "label": "Documents",
+            "description": "Documents liés au point.",
+            "help": ""
+        },
+        "logs": {
+            "label": "Journal",
+            "description": "Journal de calcul du résultat du vote.",
+            "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Statut du workflow de la résolution.",
+            "help": "",
+            "selection": {
+                "pending": "Brouillon",
+                "open": "Ouvert",
+                "adjourned": "Ajourné",
+                "closed": "Clôturé"
+            }
+        }
+    },
     "view": {
         "form.default": {
             "name": "Point d'assemblée",
             "description": "Définition d'un point (textes, votes, documents et choix).",
             "routes": {
                 "route.add_attachment": {
-                    "label": "Ajouter pièce jointe",
-                    "description": "Ajouter un nouveau document comme pièce jointe."
+                    "label": "Ajout pièce jointe",
+                    "description": "Ajouter un document en pièce jointe."
                 }
             },
             "layout": {
@@ -33,7 +216,7 @@
                 },
                 "action.close": {
                     "label": "Clore",
-                    "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé (action irréversible)."
+                    "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé (action irrémédiable)."
                 },
                 "action.cast_vote": {
                     "label": "Voter",
@@ -42,6 +225,8 @@
             }
         },
         "list.default": {
+            "name": "Résolutions d'assemblée",
+            "description": "Liste des points et résolutions de l'assemblée.",
             "actions": {
                 "action.open": {
                     "label": "Ouvrir",
@@ -49,15 +234,15 @@
                 },
                 "action.close": {
                     "label": "Clore",
-                    "description": "Clore la résolution. Aucun vote supplémentaire ne sera autorisé (action irréversible)."
+                    "description": "Clore la résolution. Aucun vote supplémentaire ne sera autorisé (action irrémédiable)."
                 },
                 "action.close_without_confirmation": {
                     "label": "Clore",
-                    "description": "Clore la résolution. Aucun vote supplémentaire ne sera autorisé (action irréversible)."
+                    "description": "Clore la résolution. Aucun vote supplémentaire ne sera autorisé (action irrémédiable)."
                 },
                 "action.adjourn": {
                     "label": "Ajourner",
-                    "description": "Ajourner la résolution. Aucun vote ne sera ensuite autorisé (action irréversible)."
+                    "description": "Ajourner la résolution. Aucun vote ne sera ensuite autorisé (action irrémédiable)."
                 },
                 "action.cast_vote": {
                     "label": "Voter",
@@ -67,9 +252,12 @@
                     "label": "Afficher le tableau",
                     "description": "Afficher le tableau des votes."
                 }
-            }
+            },
+            "layout": {}
         },
         "list.item": {
+            "name": "Point d'assemblée (ligne)",
+            "description": "",
             "actions": {
                 "action.open": {
                     "label": "Ouvrir",
@@ -77,13 +265,14 @@
                 },
                 "action.close": {
                     "label": "Clore",
-                    "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé (action irréversible)."
+                    "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé (action irrémédiable)."
                 },
                 "action.cast_vote": {
                     "label": "Voter",
                     "description": "Exprimer un vote."
                 }
-            }
+            },
+            "layout": {}
         }
     }
 }

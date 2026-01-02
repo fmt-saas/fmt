@@ -279,6 +279,10 @@
                 }
             },
             "routes": {
+                "route.all_attachments": {
+                    "label": "Toutes les pièces jointes",
+                    "description": ""
+                },
                 "route.preview_invite": {
                     "label": "Prévisualiser l'invitation",
                     "description": ""

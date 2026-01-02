@@ -196,7 +196,7 @@ class Document extends Model {
                 'store'             => true,
                 'instant'           => true,
                 'dependents'        => ['readable_size'],
-                'description'       => 'Size of the document, in octets (from data).'
+                'description'       => 'Size of the document, in bytes (from data).'
             ],
 
             'extension' => [
@@ -1081,5 +1081,21 @@ class Document extends Model {
         return $result;
     }
 
-
+    protected static function cancreate($self, $values): array {
+        if(isset($values['assembly_id'])) {
+            // limit document creation to max 100MB per Assembly
+            $MAX_SIZE = 100 * 1000 * 1000;
+            $documents = Document::search(['assembly_id', '=', $values['assembly_id']])->read(['content_size']);
+            $total_size = 0;
+            foreach($documents as $document_id => $document) {
+                $total_size += $document['content_size'];
+            }
+            if($total_size >= $MAX_SIZE) {
+                return [
+                    'assembly_id' => ['total_documents_size_exceeded' => "Each assembly is limited to max 100MB of documents."],
+                ];
+            }
+        }
+        return parent::cancreate($self, $values);
+    }
 }

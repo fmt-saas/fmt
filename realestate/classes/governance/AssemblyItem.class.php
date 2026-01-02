@@ -437,7 +437,6 @@ class AssemblyItem extends AssemblyItemTemplate {
         return $result;
     }
 
-
     protected static function calcVotesCount($self) {
         $result = [];
         $self->read(['assembly_votes_ids']);
@@ -869,5 +868,15 @@ class AssemblyItem extends AssemblyItemTemplate {
             $result[$id] = array_keys($map_ownerships_ids);
         }
         return $result;
+    }
+
+    protected static function canupdate($self, $values) {
+        $self->read(['assembly_id' => ['status']]);
+        foreach($self as $id => $assembly) {
+            if($assembly['assembly_id']['status'] !== 'pending') {
+                return ['assembly_id' => ['published_assembly_cannot_be_changed' => 'Once published, assembly items cannot be changed.']];
+            }
+        }
+        return parent::canupdate($self, $values);
     }
 }

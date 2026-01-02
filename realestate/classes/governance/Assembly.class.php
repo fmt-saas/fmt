@@ -116,8 +116,8 @@ class Assembly extends \equal\orm\Model {
 
             'assembly_date' => [
                 'type'              => 'date',
-                'description'       => "Scheduled date of the assembly.",
-                'default'           => time()
+                'description'       => "Scheduled date of the assembly."
+                //  #memo - no default here : must be entered by hand
             ],
 
             'assembly_invitation_date' => [
@@ -230,14 +230,15 @@ class Assembly extends \equal\orm\Model {
             ],
 
             'session_time_start' => [
-                'type'           => 'datetime',
+                'type'           => 'time',
                 'description'    => "Start time of the session.",
-                'help'           => "This is the expected start of the session, which is preceded by presence checks.",
-                'default'        => 20 * 3600
+                'help'           => "This is the expected start of the session, which is preceded by presence checks."
+                // #memo - no default here : must be entered by hand
+                // #todo - it could be necessary ti make a distinction between the expected time of the Assembly start an the real moment at which it begun
             ],
 
             'session_time_end' => [
-                'type'           => 'datetime',
+                'type'           => 'time',
                 'description'    => "End time of the session.",
                 'help'           => "This is the time at which the session was actually over, which is after the vote and minutes are finalized.",
                 'required'       => false
@@ -1638,8 +1639,17 @@ class Assembly extends \equal\orm\Model {
     }
 
     protected static function canupdate($self, $values) {
-        $self->read(['status']);
+        $self->read(['status', 'assembly_template_id', 'assembly_date', 'session_time_start']);
         foreach($self as $id => $assembly) {
+            if($assembly['assembly_template_id'] && isset($values['assembly_template_id'])) {
+                return ['assembly_template_id' => ['template_cannot_be_changed' => 'Once set, assembly template cannot be changed.']];
+            }
+            if($assembly['assembly_date'] && isset($values['assembly_date'])) {
+                // return ['assembly_date' => ['date_cannot_be_changed' => 'Once set, assembly date cannot be changed.']];
+            }
+            if($assembly['session_time_start'] && isset($values['session_time_start'])) {
+                // return ['session_time_start' => ['time_cannot_be_changed' => 'Once set, assembly session start time cannot be changed.']];
+            }
             $allowed_fields = [];
             switch($assembly['status']) {
                 case 'pending':
@@ -1662,18 +1672,39 @@ class Assembly extends \equal\orm\Model {
                     break;
             }
         }
-        return parent::canupdate($self);
+        return parent::canupdate($self, $values);
     }
 
     protected static function policyCanPublish($self) {
         $result = [];
-        $self->read(['assembly_location', 'assembly_organizer_identity_id']);
+        $self->read(['assembly_location', 'assembly_date', 'assembly_organizer_identity_id', 'session_time_start', 'session_time_end']);
 
         foreach($self as $id => $assembly) {
 
-            if(strlen($assembly['assembly_location']) <= 0) {
+            if(strlen($assembly['assembly_location']  ?? '') <= 0) {
                 $result[$id] = [
                     'missing_assembly_location' => 'The assembly location is mandatory.'
+                ];
+                continue;
+            }
+
+            if(!$assembly['assembly_date'] || $assembly['assembly_date'] <= 0) {
+                $result[$id] = [
+                    'missing_assembly_date' => 'The assembly date must be provided.'
+                ];
+                continue;
+            }
+
+            if($assembly['assembly_date'] <= strtotime(date('Y-m-d'))) {
+                $result[$id] = [
+                    'passed_assembly_date' => 'Assembly date must be in the future.'
+                ];
+                continue;
+            }
+
+            if(!$assembly['session_time_start'] || $assembly['session_time_start'] <= 0) {
+                $result[$id] = [
+                    'missing_session_time_start' => 'The assembly time start must be provided.'
                 ];
                 continue;
             }

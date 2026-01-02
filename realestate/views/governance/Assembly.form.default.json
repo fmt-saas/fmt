@@ -422,6 +422,17 @@
     ],
     "routes": [
         {
+            "id": "route.all_attachments",
+            "label": "All attachments",
+            "description": "",
+            "icon": "attach_file",
+            "context": {
+                "entity": "documents\\Document",
+                "view": "list.default",
+                "domain": [ ["assembly_id", "=", "object.id"] ]
+            }
+        },
+        {
             "id": "route.preview_invite",
             "type": "entry",
             "label": "Preview Invite",
@@ -574,17 +585,7 @@
 {
                                                 "type": "field",
                                                 "value": "session_time_start",
-                                                "width": "33%",
-                                                "visible": [
-                                                    "status",
-                                                    "not in",
-                                                    [
-                                                        "pending",
-                                                        "published",
-                                                        "sending",
-                                                        "sent"
-                                                    ]
-                                                ]
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
