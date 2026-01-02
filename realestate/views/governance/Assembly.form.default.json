@@ -423,6 +423,26 @@
                     ]
                 ]
             ]
+        },
+        {
+            "id": "action.close",
+            "label": "Close",
+            "description": "Close the assembly (ready for sending).",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "transition": "close"
+            },
+            "visible": [
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step", "=", "assembly_closing"
+                ]
+            ]
         }
     ],
     "routes": [

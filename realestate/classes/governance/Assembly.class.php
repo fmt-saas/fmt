@@ -1737,8 +1737,8 @@ class Assembly extends \equal\orm\Model {
                     'wrong_status' => 'Assembly can only be closed while in progress.'
                 ];
             }
-            foreach($assembly['assembly_items_ids'] as $assembly_item) {
-                if($assembly_item['status'] !== 'closed') {
+            foreach($assembly['assembly_items_ids'] as $assemblyItem) {
+                if(!in_array($assemblyItem['status'], ['closed', 'adjourned'], true)) {
                     $result[$id] = [
                         'assembly_item_not_closed' => 'At least one assembly item is not closed.'
                     ];
