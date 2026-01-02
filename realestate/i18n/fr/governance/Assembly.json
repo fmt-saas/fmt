@@ -246,8 +246,8 @@
                 "sending": "Envoi en cours",
                 "sent": "Envoyé",
                 "in_progress": "En cours",
-                "held": "Tenue",
-                "adjourned": "Ajournée"
+                "held": "Terminée (Tenue)",
+                "adjourned": "Terminée (ajournée)"
             }
         }
     },

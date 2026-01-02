@@ -17,7 +17,8 @@
             {
                 "type": "field",
                 "value": "excerpt",
-                "width": "55%"
+                "width": "55%",
+                "readonly": true
             }
         ]
     }

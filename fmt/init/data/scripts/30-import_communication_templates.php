@@ -66,7 +66,7 @@ TemplatePart::create([
 // invitation (call)
 $template = Template::create([
         'code'          => 'general_meetings_call',
-        'description'   => 'Invitation à une assemblée de la copropriété.',
+        'description'   => 'Convocation à une assemblée de la copropriété.',
         'category_id'   => 5,
         'type_id'       => 5
     ])
