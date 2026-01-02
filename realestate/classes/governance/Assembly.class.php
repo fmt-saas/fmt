@@ -1670,7 +1670,10 @@ class Assembly extends \equal\orm\Model {
                     break;
                 case 'held':
                 case 'adjourned':
-                    return ['status' => ['not_allowed' => 'Published assembly cannot be modified.']];
+                    $allowed_fields = ['minutes_exporting_task_id'];
+                    if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
+                        return ['status' => ['not_allowed' => 'Published assembly cannot be modified.']];
+                    }
                     break;
             }
         }
