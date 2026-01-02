@@ -2238,11 +2238,11 @@ class Assembly extends \equal\orm\Model {
 
     protected static function calcIsComplete($self) {
         $result = [];
-        $self->read(['status', 'step', 'assembly_items_ids' => ['status', 'has_vote_required', 'parent_group_id']]);
+        $self->read(['status', 'step', 'assembly_items_ids' => ['status']]);
 
         foreach($self as $id => $assembly) {
-            foreach($assembly['assembly_items_ids'] as $assembly_item) {
-                if($assembly_item['has_vote_required'] && $assembly_item['status'] !== 'closed') {
+            foreach($assembly['assembly_items_ids'] as $assemblyItem) {
+                if(!in_array($assemblyItem['status'], ['closed', 'adjourned'], true)) {
                     $result[$id] = false;
                     continue 2;
                 }
