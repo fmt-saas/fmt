@@ -286,6 +286,11 @@
                     "step",
                     "=",
                     "agenda_processing"
+                ],
+                [
+                    "count_represented_owners",
+                    "<",
+                    "object.count_owners"
                 ]
             ]
         },

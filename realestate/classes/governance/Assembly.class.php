@@ -2201,7 +2201,7 @@ class Assembly extends \equal\orm\Model {
         $self
             ->update([
                 'step'              => 'minutes_confirmation',
-                'session_time_end'  => time()
+                'session_time_end'  => time() - strtotime('today')
             ])
             ->read(['condo_id', 'minutes_document_id']);
 
