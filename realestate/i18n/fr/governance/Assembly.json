@@ -359,7 +359,7 @@
                 },
                 "action.close_attendance": {
                     "label": "Clore les présences",
-                    "description": "Clore l'émargement : plus aucune présence ne pourra être enregistrée."
+                    "description": "Clore la prise de présence."
                 },
                 "action.generate_minutes": {
                     "label": "Générer le procès-verbal",

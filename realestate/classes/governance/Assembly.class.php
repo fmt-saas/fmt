@@ -1476,6 +1476,7 @@ class Assembly extends \equal\orm\Model {
     protected static function doAddExtraRepresentation($self, $values) {
         $self->read(['condo_id', 'step']);
         foreach($self as $id => $assembly) {
+            // #memo - only while in `agenda_processing`
             if(in_array($assembly['step'], ['opening', 'attendance_closure', 'mandate_validation'])) {
                 continue;
             }

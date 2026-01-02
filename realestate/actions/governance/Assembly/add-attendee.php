@@ -13,7 +13,7 @@ use realestate\governance\AssemblyAttendee;
 use realestate\governance\AssemblyRepresentation;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Checks if all owners have been invited to the target assembly.",
+    'description'   => "Add an attendee to the target assembly.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',

@@ -976,7 +976,8 @@
                                     "published",
                                     "sending",
                                     "sent"
-                                ]
+                                ],
+                                ["admins", "in", "user.groups"]
                             ]
                         ],
                         "rows": [
