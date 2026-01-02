@@ -167,7 +167,8 @@
             {
                 "type": "field",
                 "value": "code",
-                "width": "25"
+                "width": "25%",
+                "visible": false
             },
             {
                 "type": "field",
@@ -186,7 +187,7 @@
                         "border_radius": "40px"
                     }
                 },
-                "visible": [["parent_group_id", "=", null], ["items_count", ">", 0]]
+                "visible": [ ["items_count", ">", 0]]
             },
             {
                 "type": "field",
