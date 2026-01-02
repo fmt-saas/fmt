@@ -135,7 +135,7 @@
                                         <td style="width: 30px;"></td>
                                         <td>
                                             {{ assemblyItem.description_call }}
-                                            {% if assemblyItem.has_vote_required %}
+                                            {% if assemblyItem.has_vote_required and assembly.has_call_option_majority %}
                                                 {{ majorityLabels[assemblyItem.majority] }}
                                             {% endif %}
                                         </td>
