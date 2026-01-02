@@ -59,13 +59,11 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
             ],
 
             'has_parent_group' => [
-                'type'              => 'computed',
-                'result_type'       => 'boolean',
+                'type'              => 'boolean',
                 'description'       => 'Mark the item as a group of sub-items.',
                 'help'              => "Group items are used to organize sub-items in the assembly agenda. They can have a description, but cannot be voted on directly.",
-                'store'             => true,
-                'function'          => 'calcHasParentGroup',
-                'visible'           => ['is_group', '=', false]
+                'visible'           => ['is_group', '=', false],
+                'onupdate'          => 'onupdateHasParentGroup'
             ],
 
             'parent_group_id' => [
@@ -73,7 +71,6 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
                 'description'       => 'Parent group item for this item, if it is a sub-item.',
                 'foreign_object'    => 'realestate\governance\AssemblyItemTemplate',
                 'visible'           => [['is_group', '=', false], ['has_parent_group', '=', true]],
-                'dependents'        => ['has_parent_group'],
                 'onupdate'          => 'onupdateParentGroupId'
             ],
 
@@ -200,6 +197,12 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
         $self->do('refresh_order');
     }
 
+    protected static function onupdateHasParentGroup($self) {
+        $self
+            ->do('refresh_order')
+            ->do('refresh_items_count');
+    }
+
     protected static function onupdateParentGroupId($self) {
         $self
             ->do('refresh_order')
@@ -223,12 +226,4 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
         return $result;
     }
 
-    protected static function calcHasParentGroup($self) {
-        $result = [];
-        $self->read(['parent_group_id']);
-        foreach($self as $id => $item) {
-            $result[$id] = !empty($item['parent_group_id']);
-        }
-        return $result;
-    }
 }
