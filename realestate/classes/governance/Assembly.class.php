@@ -884,7 +884,8 @@ class Assembly extends \equal\orm\Model {
 
         $self
             ->do('generate_signable_attendance_register')
-            ->update(['session_time_start' => time()])
+            // #todo - confirm need for distinction between assembly_time & session_time_start
+            // ->update(['session_time_start' => time()])
             ->read(['condo_id', 'assembly_organizer_identity_id', 'assembly_items_ids']);
 
         foreach($self as $id => $assembly) {

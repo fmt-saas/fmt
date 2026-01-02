@@ -314,8 +314,8 @@
                     "description": "Actualiser la liste des propriétaires si un transfert l'a modifiée."
                 },
                 "action.invite": {
-                    "label": "Créer les invitations",
-                    "description": "Générer et envoyer les invitations."
+                    "label": "Créer les convocations",
+                    "description": "Générer et envoyer les convocations."
                 },
                 "action.sent": {
                     "label": "Marquer comme envoyé",
@@ -346,8 +346,8 @@
                     "description": "Planifier une seconde session pour l'assemblée."
                 },
                 "action.check_invites": {
-                    "label": "Contrôler les invitations",
-                    "description": "Vérifier que toutes les invitations ont été envoyées."
+                    "label": "Contrôler les convocations",
+                    "description": "Vérifier que toutes les convocations ont été envoyées."
                 },
                 "action.add_attendee": {
                     "label": "Ajouter un participant",

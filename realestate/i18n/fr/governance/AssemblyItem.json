@@ -224,6 +224,44 @@
                 }
             }
         },
+        "form.item": {
+            "name": "Point d'assemblée",
+            "description": "Définition d'un point (textes, votes, documents et choix).",
+            "routes": {
+                "route.add_attachment": {
+                    "label": "Ajout pièce jointe",
+                    "description": "Ajouter un document en pièce jointe."
+                }
+            },
+            "layout": {
+                "section.details": {
+                    "label": "Détails"
+                },
+                "section.votes": {
+                    "label": "Votes"
+                },
+                "section.documents": {
+                    "label": "Documents"
+                },
+                "section.choices": {
+                    "label": "Choix"
+                }
+            },
+            "actions": {
+                "action.open": {
+                    "label": "Ouvrir",
+                    "description": "Ouvrir le point de l'assemblée."
+                },
+                "action.close": {
+                    "label": "Clore",
+                    "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé (action irrémédiable)."
+                },
+                "action.cast_vote": {
+                    "label": "Voter",
+                    "description": "Exprimer un vote."
+                }
+            }
+        },
         "list.default": {
             "name": "Résolutions d'assemblée",
             "description": "Liste des points et résolutions de l'assemblée.",
