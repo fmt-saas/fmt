@@ -56,6 +56,7 @@ $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id']
     ->read([
         'condo_id' => ['name'],
         'name',
+        'is_sent',
         'communication_method',
         'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
         'ownership_id' => ['name'],
@@ -70,6 +71,10 @@ if(!$assemblyMinutesCorrespondence) {
 
 if($assemblyMinutesCorrespondence['communication_method'] !== 'email') {
     throw new Exception("invalid_communication_method", EQ_ERROR_INVALID_PARAM);
+}
+
+if($assemblyMinutesCorrespondence['is_sent']) {
+    throw new Exception("correspondence_already_sent", EQ_ERROR_INVALID_PARAM);
 }
 
 // #memo - document is expected to have been generated beforehand
@@ -160,7 +165,7 @@ Mail::queue($message, 'realestate\governance\AssemblyMinutesCorrespondence', $as
 AssemblyMinutesCorrespondence::id($assemblyMinutesCorrespondence['id'])
     ->update([
         'is_sent'      => true,
-        'sent_date'    => date('Y-m-d H:i:s')
+        'sent_date'    => time()
     ]);
 
 $context->httpResponse()

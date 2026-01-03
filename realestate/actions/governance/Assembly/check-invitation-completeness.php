@@ -53,24 +53,18 @@ if($assembly['status'] !== 'sent') {
 }
 else {
     $assembly = Assembly::id($params['id'])
-        ->read(['id', 'name', 'condo_id', 'ownerships_ids' => ['owners_ids'], 'assembly_invitation_instances_ids' => ['is_sent', 'owner_id']])
+        ->read(['id', 'name', 'condo_id', 'assembly_invitation_instances_ids' => ['is_sent', 'owner_id']])
         ->first();
 
     $is_complete = true;
 
-    foreach($assembly['ownerships_ids'] as $ownership) {
-        foreach($ownership['owners_ids'] as $owner_id) {
-            foreach($assembly['assembly_invitation_instances_ids'] as $invite) {
-                if($invite['owner_id'] === $owner_id) {
-                    if(!$invite['is_sent']) {
-                        $is_complete = false;
-                        break 3;
-                    }
-                    break;
-                }
-            }
+    foreach($assembly['assembly_invitation_instances_ids'] as $invite) {
+        if(!$invite['is_sent']) {
+            $is_complete = false;
+            break;
         }
     }
+
     if(!$is_complete) {
         $result[] = $assembly['id'];
         $httpResponse->status(eq_error_http(EQ_ERROR_MISSING_PARAM));

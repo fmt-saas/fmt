@@ -96,10 +96,10 @@ class DocumentCorrespondence extends \equal\orm\Model {
 
     protected static function canupdate($self, $values) {
         $self->read(['is_sent']);
-        $allowed = ['document_id', 'is_acknowledged'];
-        foreach($self as $id => $assemblyInvitation) {
-            if($assemblyInvitation['is_sent']) {
-                if(count(array_diff(array_keys($values), $allowed)) > 0) {
+        $allowed_fields = ['document_id', 'is_acknowledged', 'is_sent', 'sent_date'];
+        foreach($self as $id => $documentCorrespondence) {
+            if($documentCorrespondence['is_sent']) {
+                if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                     return ['is_sent' => ['non_editable' => 'Invite cannot be changed once sent.']];
                 }
             }

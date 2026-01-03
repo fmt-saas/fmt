@@ -99,7 +99,7 @@ $assembly = Assembly::id($params['id'])
         'assembly_type',
         'assembly_date',
         'session_time_start',
-'        has_call_option_majority',
+        'has_call_option_majority',
         'assembly_invitation_date',
         'assembly_location',
         'heading_text_call',

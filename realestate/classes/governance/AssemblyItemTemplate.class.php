@@ -107,7 +107,8 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
             'has_vote_required' => [
                 'type'              => 'boolean',
                 'description'       => 'Flag indicating if a vote is required for this item.',
-                'default'           => false
+                'default'           => false,
+                'visible'           => ['is_group', '=', false]
             ],
 
             'majority' => [
@@ -144,6 +145,11 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
                 'description'   => 'Refresh order according to parent assembly & group.',
                 'policies'      => [],
                 'function'      => 'doRefreshOrder'
+            ],
+            'refresh_subitems_order'  => [
+                'description'   => 'Refresh sub-items count for parent groups.',
+                'policies'      => [],
+                'function'      => 'doRefreshSubitemsOrder'
             ],
             'refresh_items_count'  => [
                 'description'   => 'Refresh sub-items count for parent groups.',
@@ -182,7 +188,6 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
                     'order' => $count + 1
                 ]);
         }
-
     }
 
     protected static function doRefreshItemsCount($self) {
@@ -191,6 +196,13 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
             self::id($assemblyItem['parent_group_id'])->update(['items_count' => null]);
         }
         $self->update(['items_count' => null]);
+    }
+
+    protected static function doRefreshSubitemsOrder($self) {
+        $self->read(['children_items_ids']);
+        foreach($self as $id => $assemblyItem) {
+            self::ids($assemblyItem['children_items_ids'])->do('refresh_order');
+        }
     }
 
     protected static function onupdateAssemblyTemplateId($self) {
@@ -205,14 +217,22 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
 
     protected static function onupdateParentGroupId($self) {
         $self
+            ->read(['assembly_template_id'])
             ->do('refresh_order')
             ->do('refresh_items_count');
+        foreach($self as $id => $assemblyItem) {
+            AssemblyTemplate::id($assemblyItem['assembly_template_id'])
+                ->do('refresh_items_order');
+        }
     }
 
     public static function onchange($event, $values) {
         $result = [];
         if(isset($event['is_group']) && $event['is_group'] === true) {
             $result['has_vote_required'] = false;
+        }
+        if(isset($event['has_parent_group']) && $event['has_parent_group'] === false) {
+            $result['parent_group_id'] = null;
         }
         return $result;
     }

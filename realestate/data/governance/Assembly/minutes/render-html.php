@@ -113,7 +113,7 @@ $assembly = Assembly::id($params['id'])
         'closing_text_minutes',
         'ownerships_ids' => ['name'],
         'assembly_attendees_ids' => [
-            '@domain' => ['is_valid', '=', true],
+            '@domain' => [['is_valid', '=', true], ['has_signed_minutes', '=', true]],
             'name',
             'attendee_role',
             'has_signed_minutes',
@@ -160,6 +160,9 @@ $map_attendees = [];
 
 if($params['signed']) {
     foreach($assembly['assembly_attendees_ids'] as $assemblyAttendee) {
+        if(!$assemblyAttendee['has_signed_minutes']) {
+            continue;
+        }
         if($assemblyAttendee['minutes_document_signature_id'] && $assemblyAttendee['minutes_document_signature_id']['sig_method'] == 'ses') {
             $assemblyAttendee['minutes_document_signature_id']['sig_drawn'] = base64_encode($assemblyAttendee['minutes_document_signature_id']['sig_drawn']);
         }

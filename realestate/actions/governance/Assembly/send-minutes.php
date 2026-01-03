@@ -57,7 +57,7 @@ $assemblyMinutesCorrespondences = AssemblyMinutesCorrespondence::search([
     ])
     ->read(['is_sent', 'document_id']);
 
-$assembly_invitations_ids = [];
+$assembly_minutes_correspondences_ids = [];
 
 foreach($assemblyMinutesCorrespondences as $assembly_invitation_id => $AssemblyMinutesCorrespondence) {
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
@@ -74,11 +74,11 @@ foreach($assemblyMinutesCorrespondences as $assembly_invitation_id => $AssemblyM
         continue;
     }
 
-    $assembly_invitations_ids[] = $assembly_invitation_id;
+    $assembly_minutes_correspondences_ids[] = $assembly_invitation_id;
 }
 
 // send all generated documents
-foreach($assembly_invitations_ids as $assembly_invitation_id) {
+foreach($assembly_minutes_correspondences_ids as $assembly_invitation_id) {
     try {
         eQual::run('do', 'realestate_governance_AssemblyMinutesCorrespondence_send', ['id' => $assembly_invitation_id]);
     }

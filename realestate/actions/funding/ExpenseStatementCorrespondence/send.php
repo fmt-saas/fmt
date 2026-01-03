@@ -160,7 +160,7 @@ Mail::queue($message, 'realestate\governance\ExpenseStatementCorrespondence', $e
 ExpenseStatementCorrespondence::id($expenseStatementCorrespondence['id'])
     ->update([
         'is_sent'      => true,
-        'sent_date'    => date('Y-m-d H:i:s')
+        'sent_date'    => time()
     ]);
 
 $context->httpResponse()

@@ -160,7 +160,7 @@ Mail::queue($message, 'realestate\funding\FundRequestCorrespondence', $fundReque
 FundRequestCorrespondence::id($fundRequestCorrespondence['id'])
     ->update([
         'is_sent'      => true,
-        'sent_date'    => date('Y-m-d H:i:s')
+        'sent_date'    => time()
     ]);
 
 $context->httpResponse()

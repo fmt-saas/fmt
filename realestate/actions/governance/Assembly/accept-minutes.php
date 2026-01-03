@@ -1,0 +1,80 @@
+<?php
+/*
+    Developed by Yesbabylon - https://yesbabylon.com
+    (c) 2025-2026 Yesbabylon SA
+    Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
+*/
+
+use realestate\governance\Assembly;
+use realestate\governance\AssemblyAttendee;
+
+[$params, $providers] = eQual::announce([
+    'description'   => "Accept the minutes of the Assembly and make sure an Attendee is marked as president.",
+    'params'        => [
+        'id' =>  [
+            'type'              => 'many2one',
+            'description'       => "The assembly the invitation refers to.",
+            'foreign_object'    => 'realestate\governance\Assembly',
+            'required'          => true
+        ],
+        // choice of attendee (must be owner) as president
+        'president_attendee_id' => [
+            'type'           => 'many2one',
+            'label'          => 'President Attendee',
+            'description'    => "Attendee the presided the assembly.",
+            'foreign_object' => 'realestate\governance\AssemblyAttendee',
+            'foreign_field'  => 'assembly_id',
+            'domain'         => [
+                ['assembly_id', '=', 'object.id'],
+                ['attendee_role', 'in', ['attendee', 'president']],
+                ['is_valid', '=', true]
+            ],
+            'required'       => true
+        ]
+    ],
+    'constants'     => ['AUTH_SECRET_KEY'],
+    'response'      => [
+        'content-type'  => 'application/json',
+        'charset'       => 'utf-8',
+        'accept-origin' => '*'
+    ],
+    'providers'     => ['context', 'dispatch']
+]);
+
+/**
+ * @var \equal\php\Context                 $context
+ * @var \equal\dispatch\Dispatcher         $dispatch
+ */
+['context' => $context, 'dispatch' => $dispatch] = $providers;
+
+
+$assembly = Assembly::id($params['id'])
+    ->read(['id', 'step', 'status'])
+    ->first();
+
+if(!$assembly) {
+    throw new Exception("unknown_assembly", EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+if($assembly['status'] !== 'in_progress') {
+    throw new Exception("assembly_wrong_status", EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+if($assembly['step'] !== 'minutes_confirmation') {
+    throw new Exception("assembly_wrong_step", EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+$attendee = AssemblyAttendee::id($params['president_attendee_id'])
+    ->first();
+
+if(!$attendee) {
+    throw new Exception('invalid_provided_attendee', EQ_ERROR_INVALID_PARAM);
+}
+
+AssemblyAttendee::id($params['president_attendee_id'])->do('promote_president');
+
+Assembly::id($params['id'])->do('accept_minutes');
+
+$context->httpResponse()
+        ->body($attendee)
+        ->send();

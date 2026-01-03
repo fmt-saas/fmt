@@ -3,6 +3,7 @@
     "description": "Edit assembly information, agenda, and logistics.",
     "header": {
         "actions": {
+            "ACTION.EDIT1": {"visible": ["status", "=", "pending"]},
             "ACTION.SAVE": [{"id": "SAVE_AND_VIEW"}, {"id": "SAVE_AND_CONTINUE"}, {"id": "SAVE_AND_CLOSE"}]
         }
     },
@@ -103,6 +104,28 @@
             ]
         },
         {
+            "id": "action.validate_all",
+            "label": "Validate ",
+            "description": "Attempts to validate mandates, attendees and Assembly.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "action": "validate_all"
+            },
+            "visible": [
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "in",
+                    ["mandate_validation", "representation_validation", "assembly_validation"]
+                ]
+            ]
+        },
+        {
             "id": "action.validate_mandates",
             "label": "Validate Mandates",
             "description": "Validate the Attendees' mandates and step to representation validation.",
@@ -111,7 +134,8 @@
                 "entity": "realestate\\governance\\Assembly",
                 "action": "validate_mandates"
             },
-            "visible": [
+            "visible": false,
+            "visible1": [
                 [
                     "status",
                     "=",
@@ -133,7 +157,8 @@
                 "entity": "realestate\\governance\\Assembly",
                 "action": "validate_representations"
             },
-            "visible": [
+            "visible": false,
+            "visible1": [
                 [
                     "status",
                     "=",
@@ -155,7 +180,8 @@
                 "entity": "realestate\\governance\\Assembly",
                 "action": "validate_assembly"
             },
-            "visible": [
+            "visible": false,
+            "visible1": [
                 [
                     "is_valid",
                     "=",
@@ -224,20 +250,6 @@
                     "has_second_session",
                     "=",
                     false
-                ]
-            ]
-        },
-        {
-            "id": "action.check_invites",
-            "label": "Check invites",
-            "help": "This is a temporary way to trigger the action which is intended to be automated",
-            "description": "Checks if all invites have been sent.",
-            "controller": "realestate_governance_Assembly_check-invitation-completeness",
-            "visible": [
-                [
-                    "status",
-                    "=",
-                    "sent"
                 ]
             ]
         },
@@ -352,10 +364,10 @@
             "id": "action.validate_minutes",
             "label": "Accept minutes",
             "description": "Generate the signable version of the minutes of the Assembly.",
-            "controller": "core_model_do",
+            "controller": "realestate_governance_Assembly_accept-minutes",
+            "confirm": true,
             "params": {
-                "entity": "realestate\\governance\\Assembly",
-                "action": "accept_minutes"
+                "id": "object.id"
             },
             "visible": [
                 [
@@ -854,6 +866,12 @@
                                                 "width": "100%"
                                             },
                                             {
+                                                "id": "label.invitation_correspondences",
+                                                "type": "label",
+                                                "value": "Invitations correspondences",
+                                                "width": "100%"
+                                            },
+                                            {
                                                 "type": "field",
                                                 "value": "assembly_invitation_correspondences_ids",
                                                 "width": "100%",
@@ -861,6 +879,16 @@
                                                     "view": "list.assembly",
                                                     "domain": ["communication_method", "=", "email"]
                                                 }
+                                            },
+                                            {
+                                                "id": "label.minutes_correspondences",
+                                                "type": "label",
+                                                "value": "Minutes correspondences",
+                                                "width": "100%",
+                                                "visible": [
+                                                    ["step", "=", "assembly_closing"],
+                                                    ["status", "in", ["in_progress", "held", "adjourned"]]
+                                                ]
                                             },
                                             {
                                                 "type": "field",

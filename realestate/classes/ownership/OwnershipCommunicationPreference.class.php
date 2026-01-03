@@ -232,7 +232,8 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
         foreach($self as $id => $ownershipCommunicationPreference) {
             if($ownershipCommunicationPreference['has_channel_email']) {
                 $identity = Identity::id($ownershipCommunicationPreference['identity_id'])
-                    ->read(['email','email_alt']);
+                    ->read(['email','email_alt'])
+                    ->first();
                 if(!$identity['email'] && !$identity['email_alt']) {
                     $dispatch->dispatch('realestate.workflow.ownership.invalid_communication_prefs', self::getType(), $ownershipCommunicationPreference['ownership_id'], 'warning');
                     $dispatch->dispatch('realestate.workflow.communication_prefs.email_missing', self::getType(), $id, 'warning');

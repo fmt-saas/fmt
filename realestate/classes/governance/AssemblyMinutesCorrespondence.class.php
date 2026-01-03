@@ -33,6 +33,14 @@ class AssemblyMinutesCorrespondence extends \documents\correspondence\DocumentCo
                 'required'          => true
             ],
 
+            'document_id' => [
+                'type'              => 'many2one',
+                'description'       => 'The document (PDF) of the invitation, if any.',
+                'foreign_object'    => 'documents\Document',
+                'onupdate'          => 'onupdateDocumentId',
+                'visible'           => [['has_document', '=', true], ['communication_method', '<>', 'email']]
+            ],
+
             'mails_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'core\Mail',
@@ -41,6 +49,13 @@ class AssemblyMinutesCorrespondence extends \documents\correspondence\DocumentCo
                 'visible'           => ['communication_method', '=', 'email']
             ]
         ];
+    }
+
+    protected static function onupdateDocumentId($self) {
+        $self->read(['document_id']);
+        foreach($self as $id => $assemblyInvitation) {
+            self::id($id)->update(['has_document' => (bool) $assemblyInvitation['document_id']]);
+        }
     }
 
 }

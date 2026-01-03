@@ -107,6 +107,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'type'              => 'boolean',
                 'description'       => 'Flag indicating if a vote is required for this item.',
                 'default'           => false,
+                'visible'           => ['is_group', '=', false],
                 'onupdate'          => 'onupdateHasVoteRequired'
             ],
 
@@ -266,12 +267,21 @@ class AssemblyItem extends AssemblyItemTemplate {
     }
     public static function getActions() {
         return array_merge(parent::getActions(), [
-            'cast_vote' => [
-                'description'   => 'Perform the update of the balance according to given accounting entry.',
-                'policies'      => ['can_vote'],
-                'function'      => 'doCastVote'
+            'refresh_order' => [
+                'description'   => 'Refresh order according to parent assembly & group.',
+                'policies'      => [],
+                'function'      => 'doRefreshOrder'
             ],
-
+            'refresh_subitems_order'  => [
+                'description'   => 'Refresh sub-items count for parent groups.',
+                'policies'      => [],
+                'function'      => 'doRefreshSubitemsOrder'
+            ],
+            'refresh_items_count'  => [
+                'description'   => 'Refresh sub-items count for parent groups.',
+                'policies'      => [],
+                'function'      => 'doRefreshItemsCount'
+            ],
             'refresh_has_vote' => [
                 'description'   => 'Only for groups (parent items), refresh has_vote based on sub-items.',
                 'policies'      => [],
@@ -283,6 +293,11 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'policies'      => [],
                 'function'      => 'doRefreshVoteResult'
             ],
+            'cast_vote' => [
+                'description'   => 'Perform the update of the balance according to given accounting entry.',
+                'policies'      => ['can_vote'],
+                'function'      => 'doCastVote'
+            ]
         ]);
     }
 
@@ -400,6 +415,52 @@ class AssemblyItem extends AssemblyItemTemplate {
                         ->transition('cast');
                 }
             }
+        }
+    }
+
+    /**
+     * Refresh the whole list (children) if a parent is updated
+     */
+    protected static function doRefreshOrder($self) {
+        $self->read(['state', 'assembly_id', 'has_parent_group', 'parent_group_id']);
+        foreach($self as $id => $item) {
+            if(!$item['assembly_id']) {
+                continue;
+            }
+
+            $conditions = [
+                ['assembly_id', '=', $item['assembly_id']],
+                ['id', '<>', $id]
+            ];
+
+            if($item['has_parent_group']) {
+                $conditions[] = ['parent_group_id', '=', $item['parent_group_id']];
+            }
+            else {
+                $conditions[] = ['parent_group_id', 'is', null];
+            }
+
+            $count = count(self::search($conditions)->ids());
+            self::id($id)
+                ->update([
+                    'state' => $item['state'],
+                    'order' => $count + 1
+                ]);
+        }
+    }
+
+    protected static function doRefreshItemsCount($self) {
+        $self->read(['parent_group_id']);
+        foreach($self as $id => $assemblyItem) {
+            self::id($assemblyItem['parent_group_id'])->update(['items_count' => null]);
+        }
+        $self->update(['items_count' => null]);
+    }
+
+    protected static function doRefreshSubitemsOrder($self) {
+        $self->read(['children_items_ids']);
+        foreach($self as $id => $assemblyItem) {
+            self::ids($assemblyItem['children_items_ids'])->do('refresh_order');
         }
     }
 
@@ -599,6 +660,18 @@ class AssemblyItem extends AssemblyItemTemplate {
 
     protected static function onupdateAssemblyId($self) {
         $self->do('refresh_order');
+    }
+
+// #todo - mettre à jour le items_count du parent group via onbeforeupdate
+    protected static function onupdateParentGroupId($self) {
+        $self
+            ->read(['assembly_template_id', 'parent_group_id'])
+            ->do('refresh_order')
+            ->do('refresh_items_count');
+        foreach($self as $id => $assemblyItem) {
+            AssemblyTemplate::id($assemblyItem['assembly_template_id'])
+                ->do('refresh_items_order');
+        }
     }
 
     /**
@@ -893,4 +966,5 @@ class AssemblyItem extends AssemblyItemTemplate {
         }
         return parent::canupdate($self, $values);
     }
+
 }

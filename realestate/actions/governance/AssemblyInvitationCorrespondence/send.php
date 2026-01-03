@@ -72,6 +72,10 @@ if($assemblyInvitationCorrespondence['communication_method'] !== 'email') {
     throw new Exception("invalid_communication_method", EQ_ERROR_INVALID_PARAM);
 }
 
+if($assemblyInvitationCorrespondence['is_sent']) {
+    throw new Exception("correspondence_already_sent", EQ_ERROR_INVALID_PARAM);
+}
+
 // #memo - document is expected to have been generated beforehand
 if(!$assemblyInvitationCorrespondence['document_id']) {
     throw new Exception("missing_invite_document", EQ_ERROR_INVALID_PARAM);
@@ -160,7 +164,7 @@ Mail::queue($message, 'realestate\governance\AssemblyInvitationCorrespondence', 
 AssemblyInvitationCorrespondence::id($assemblyInvitationCorrespondence['id'])
     ->update([
         'is_sent'      => true,
-        'sent_date'    => date('Y-m-d H:i:s')
+        'sent_date'    => time()
     ]);
 
 $context->httpResponse()

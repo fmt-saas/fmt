@@ -276,6 +276,15 @@
                 },
                 "section.representations": {
                     "label": "Représentations"
+                },
+                "label.exporting_tasks": {
+                    "label": "Tâches d'export"
+                },
+                "label.invitation_correspondences": {
+                    "label": "Courriers de convocation"
+                },
+                "label.minutes_correspondences": {
+                    "label": "Courriers de PV"
                 }
             },
             "routes": {
@@ -324,6 +333,10 @@
                 "action.open": {
                     "label": "Ouvrir l'assemblée",
                     "description": "Ouvrir l'assemblée (en cours)."
+                },
+                "action.validate_all": {
+                    "label": "Valider l'assemblée",
+                    "description": "Tenter de valider les mandats, les présences et l'assemblée."
                 },
                 "action.validate_mandates": {
                     "label": "Valider les mandats",

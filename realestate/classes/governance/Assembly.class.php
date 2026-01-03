@@ -526,15 +526,6 @@ class Assembly extends \equal\orm\Model {
                 'function'      => 'doValidateAttendees'
             ],
 
-            'validate_mandates' => [
-                'description'   => 'Verifies the validity of the proxies and generate links with ownerships.',
-                'help'          => "This action is meant to be performed at the mandate_validation step. We check the validity conditions of each proxy.
-                    If a proxy is invalid, we mark it as invalid and add the reason.
-                    Triggers representations generation, and step to `representation_validation`.",
-                'policies'      => [],
-                'function'      => 'doValidateMandates'
-            ],
-
             'generate_representations' => [
                 'description'   => 'Generate the representations bases on the attendees and valid mandates.',
                 'policies'      => [/* */],
@@ -547,13 +538,6 @@ class Assembly extends \equal\orm\Model {
                 'function'      => 'doAddExtraRepresentation'
             ],
 
-            'validate_representations' => [
-                'description'   => '.',
-                'help'          => ".",
-                'policies'      => [/* */],
-                'function'      => 'doValidateRepresentations'
-            ],
-
             'generate_signable_attendance_register' => [
                 'description'   => 'Create immutable version of the register to be signed.',
                 'policies'      => [/* */],
@@ -564,6 +548,29 @@ class Assembly extends \equal\orm\Model {
                 'description'   => 'Create printable version of the register and store it to EDMS.',
                 'policies'      => [/* */],
                 'function'      => 'doGeneratePrintableAttendanceRegister'
+            ],
+
+            'validate_all' => [
+                'description'   => 'Verifies the validity of the mandates, attendees and assembly (in number).',
+                'help'          => "This action is meant to allow handling  {validate_} actions in bulk, depending on current step.",
+                'policies'      => [],
+                'function'      => 'doValidateAll'
+            ],
+
+            'validate_mandates' => [
+                'description'   => 'Verifies the validity of the proxies and generate links with ownerships.',
+                'help'          => "This action is meant to be performed at the mandate_validation step. We check the validity conditions of each proxy.
+                    If a proxy is invalid, we mark it as invalid and add the reason.
+                    Triggers representations generation, and step to `representation_validation`.",
+                'policies'      => [],
+                'function'      => 'doValidateMandates'
+            ],
+
+            'validate_representations' => [
+                'description'   => '.',
+                'help'          => ".",
+                'policies'      => [/* */],
+                'function'      => 'doValidateRepresentations'
             ],
 
             'validate_assembly' => [
@@ -701,10 +708,13 @@ class Assembly extends \equal\orm\Model {
     }
 
     protected static function doRefreshItemsOrder($self) {
-        $self->read(['assembly_items_ids']);
+        $self->read(['assembly_items_ids' => ['has_parent_group']]);
         foreach($self as $id => $assembly) {
             $order = 1;
-            foreach($assembly['assembly_items_ids'] as $assembly_item_id) {
+            foreach($assembly['assembly_items_ids'] as $assembly_item_id => $assemblyItem) {
+                if($assemblyItem['has_parent_group']) {
+                    continue;
+                }
                 AssemblyItem::id($assembly_item_id)->update(['order' => $order]);
                 ++$order;
             }
@@ -773,10 +783,10 @@ class Assembly extends \equal\orm\Model {
 
 
     /**
-     * Mark all invitations as sent.
+     * Mark all non-email invitations correspondences as sent.
      */
     protected static function onafterSent($self) {
-        $self->read(['assembly_invitation_correspondences_ids' => ['communication_method']]);
+        $self->read(['assembly_invitation_correspondences_ids' => ['@domain' => ['communication_method', '<>', 'email'], 'id', 'communication_method']]);
         $map_invitations_ids = [];
 
         foreach($self as $id => $assembly) {
@@ -1526,7 +1536,6 @@ class Assembly extends \equal\orm\Model {
         }
     }
 
-
     protected static function doCloseAttendance($self) {
         $self
             ->do('validate_attendees')
@@ -1755,12 +1764,27 @@ class Assembly extends \equal\orm\Model {
 
     protected static function policyCanMarkSent($self) {
         $result = [];
-        $self->read(['assembly_invitation_correspondences_ids' => ['@domain' => ['communication_method', '=', 'email']]]);
+        $self->read([
+                'invitations_exporting_task_id' => ['status', 'is_exported'],
+                'assembly_invitation_correspondences_ids' => ['@domain' => ['communication_method', '=', 'email'], 'id']
+            ]);
 
         foreach($self as $id => $assembly) {
-            if(empty($assembly['assembly_invitation_correspondences_ids'])) {
-                // no email to send: ignore
-                continue;
+            // run invites check and dispatch/dismiss alerts if necessary (non-blocking)
+            \eQual::run('do', 'realestate_governance_Assembly_check-invitation-completeness', ['id' => $id]);
+            if($assembly['invitations_exporting_task_id']) {
+                if($assembly['invitations_exporting_task_id']['status'] !== 'ready') {
+                    $result[$id] = [
+                        'invite_export_task_not_ready' => 'Archive holding invitation correspondences not marked as ready.'
+                    ];
+                    continue;
+                }
+                if(!$assembly['invitations_exporting_task_id']['is_exported']) {
+                    $result[$id] = [
+                        'invite_export_not_downloaded' => 'The archive with invitation correspondences has not been downloaded.'
+                    ];
+                    continue;
+                }
             }
             foreach($assembly['assembly_invitation_correspondences_ids'] as $assembly_invitation_correspondence_id => $assemblyInvitationCorrespondence) {
                 // find related email (there should be only one)
@@ -1772,12 +1796,14 @@ class Assembly extends \equal\orm\Model {
                     $result[$id] = [
                         'invite_email_not_found' => 'At least one correspondence is not attached to a mandatory email.'
                     ];
+                    break;
                 }
                 if($email['status'] !== 'sent') {
                     trigger_error("APP::Non-sent email for AssemblyInvitationCorrespondence[{$assembly_invitation_correspondence_id}]", EQ_REPORT_WARNING);
                     $result[$id] = [
                         'invite_email_not_sent' => 'At least one email correspondence has not been sent.'
                     ];
+                    break;
                 }
             }
         }
@@ -2096,6 +2122,30 @@ class Assembly extends \equal\orm\Model {
                     ->first();
             }
 
+        }
+    }
+
+    protected static function doValidateAll($self) {
+        $self->read(['status', 'step']);
+        foreach($self as $id => $assembly) {
+            if($assembly['status'] !== 'in_progress') {
+                continue;
+            }
+            if($assembly['step'] === 'mandate_validation') {
+                self::id($id)
+                    ->do('validate_mandates')
+                    ->do('validate_representations')
+                    ->do('validate_assembly');
+            }
+            elseif($assembly['step'] === 'representation_validation') {
+                self::id($id)
+                    ->do('validate_representations')
+                    ->do('validate_assembly');
+            }
+            elseif($assembly['step'] === 'assembly_validation') {
+                self::id($id)
+                    ->do('validate_assembly');
+            }
         }
     }
 

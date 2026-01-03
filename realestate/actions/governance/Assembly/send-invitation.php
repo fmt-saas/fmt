@@ -53,35 +53,35 @@ if(!$assembly) {
 }
 
 // fetch invitations relating to given communication_method
-$assemblyInvitations = AssemblyInvitationCorrespondence::search([
+$assemblyInvitationCorrespondences = AssemblyInvitationCorrespondence::search([
         [ 'assembly_id', '=', $assembly['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
     ->read(['is_sent', 'document_id']);
 
-$assembly_invitations_ids = [];
+$assembly_invitation_correspondences_ids = [];
 
-foreach($assemblyInvitations as $assembly_invitation_id => $assemblyInvitation) {
+foreach($assemblyInvitationCorrespondences as $assembly_invitation_id => $assemblyInvitationCorrespondence) {
 
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
-    if(!$assemblyInvitation['document_id']) {
+    if(!$assemblyInvitationCorrespondence['document_id']) {
         // generate document, add it to EDMS, and attach it to invitation
         eQual::run('do', 'realestate_governance_AssemblyInvitationCorrespondence_generate-document', ['id' => $assembly_invitation_id]);
     }
 
-    $assemblyInvitation = AssemblyInvitationCorrespondence::id($assembly_invitation_id)
+    $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($assembly_invitation_id)
         ->read(['document_id' => ['data']])
         ->first();
 
-    if(!$assemblyInvitation['document_id']) {
+    if(!$assemblyInvitationCorrespondence['document_id']) {
         continue;
     }
 
-    $assembly_invitations_ids[] = $assembly_invitation_id;
+    $assembly_invitation_correspondences_ids[] = $assembly_invitation_id;
 }
 
 // send all generated documents
-foreach($assembly_invitations_ids as $assembly_invitation_id) {
+foreach($assembly_invitation_correspondences_ids as $assembly_invitation_id) {
     try {
         eQual::run('do', 'realestate_governance_AssemblyInvitationCorrespondence_send', ['id' => $assembly_invitation_id]);
     }

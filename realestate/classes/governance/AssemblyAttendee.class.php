@@ -51,6 +51,8 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'dependents'        => ['name']
             ],
 
+            // #todo - it would be convenient to know if attendee is an owner
+
             'assembly_representations_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\governance\AssemblyRepresentation',

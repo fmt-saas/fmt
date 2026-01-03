@@ -81,4 +81,29 @@ class AssemblyTemplate extends \equal\orm\Model {
             ]
         ];
     }
+
+    public static function getActions() {
+        return [
+            'refresh_items_order' => [
+                'description'   => 'Force a re-compute of the order field of the assembly items.',
+                'policies'      => [/* */],
+                'function'      => 'doRefreshItemsOrder'
+            ]
+        ];
+    }
+
+    protected static function doRefreshItemsOrder($self) {
+        $self->read(['assembly_item_templates_ids' => ['has_parent_group']]);
+        foreach($self as $id => $assembly) {
+            $order = 1;
+            foreach($assembly['assembly_item_templates_ids'] as $assembly_item_id => $assemblyItem) {
+                if($assemblyItem['has_parent_group']) {
+                    continue;
+                }
+                AssemblyItemTemplate::id($assembly_item_id)->update(['order' => $order]);
+                ++$order;
+            }
+        }
+    }
+
 }

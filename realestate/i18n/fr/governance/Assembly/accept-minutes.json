@@ -1,0 +1,27 @@
+{
+    "name": "Validation du procès-verbal",
+    "plural": "Validations du procès-verbal",
+    "description": "Accepte le procès-verbal d'assemblée et confirme le président de séance.",
+    "model": {
+        "id": {
+            "label": "Assemblée",
+            "description": "Assemblée concernée par la validation du proces-verbal.",
+            "help": "Doit être une assemblee en cours et a l'etape de confirmation du proces-verbal."
+        },
+        "president_attendee_id": {
+            "label": "Président de séance",
+            "description": "Participant designé comme president de séance.",
+            "help": "Doit être un participant valide lie a l'assemblee et autorise pour la présidence."
+        }
+    },
+    "error": {
+        "id": {
+            "unknown_assembly": "Aucune assemblee correspondante.",
+            "assembly_wrong_status": "L'assemblee doit être en cours pour valider le procès-verbal.",
+            "assembly_wrong_step": "L'assemblee doit etre a l'etape de confirmation du procès-verbal."
+        },
+        "president_attendee_id": {
+            "invalid_provided_attendee": "Le participant indiqué ne peut pas être désigné président."
+        }
+    }
+}
