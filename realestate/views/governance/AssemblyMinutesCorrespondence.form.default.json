@@ -1,11 +1,11 @@
 {
-    "name": "Assembly Invitation",
+    "name": "Assembly Minutes",
     "routes": [
         {
-            "id": "route.view_invitation",
-            "label": "View Invite",
+            "id": "route.view_minutes",
+            "label": "View Minutes",
             "icon": "print",
-            "description": "View printable invite.",
+            "description": "View printable minutes.",
             "route": "/?get=realestate_governance_AssemblyMinutesCorrespondence_render-pdf&id=object.id",
             "target": "_blank",
             "absolute": true

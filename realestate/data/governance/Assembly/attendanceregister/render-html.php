@@ -6,6 +6,7 @@
 */
 use core\setting\Setting;
 use documents\DocumentSignature;
+use identity\Organisation;
 use realestate\governance\Assembly;
 use realestate\property\Apportionment;
 use realestate\property\PropertyLotApportionmentShare;
@@ -135,6 +136,18 @@ if(!$assembly) {
     throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+$organisation = Organisation::id(1)
+    ->read([
+        'name', 'address_street', 'address_dispatch', 'address_zip',
+        'address_city', 'address_country', 'has_vat', 'vat_number',
+        'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
+        'website', 'email', 'phone', 'has_vat', 'vat_number',
+        'profile_image_document_id' => [
+            'type', 'data'
+        ]
+    ])
+    ->first();
+
 if($params['signed'] && !$assembly['register_document_id']) {
     throw new Exception('missing_original_document', EQ_ERROR_INVALID_PARAM);
 }
@@ -218,8 +231,8 @@ $values = [
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
 
-    'organisation'              => $assembly['condo_id']['managing_agent_id'],
-    'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
+    'organisation'              => $organisation,
+    'organisation_logo'         => $getOrganisationLogo($organisation['id']),
 
     'signed'                    => $params['signed'],
 

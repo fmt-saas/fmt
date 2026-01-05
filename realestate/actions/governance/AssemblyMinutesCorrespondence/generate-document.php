@@ -54,7 +54,7 @@ $parentNode = Node::search([
 $data = eQual::run('get', 'realestate_governance_AssemblyMinutesCorrespondence_render-pdf', ['id' => $assemblyMinutesCorrespondence['id']]);
 
 $document = Document::create([
-        'name'          => 'Invitation Assemblée - ' . $assemblyMinutesCorrespondence['name'],
+        'name'          => 'Procès verbal Assemblée - ' . $assemblyMinutesCorrespondence['name'],
         'data'          => $data,
         'condo_id'      => $assemblyMinutesCorrespondence['condo_id']
     ])

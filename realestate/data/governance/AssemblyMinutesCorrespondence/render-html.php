@@ -8,6 +8,7 @@
 use communication\template\Template;
 use core\setting\Setting;
 use documents\DocumentSignature;
+use identity\Organisation;
 use realestate\governance\Assembly;
 use realestate\governance\AssemblyMinutesCorrespondence;
 use realestate\governance\AssemblyItem;
@@ -62,6 +63,13 @@ use Twig\Extension\ExtensionInterface;
 
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
+
+$getFormattedDate = function($timestamp) {
+    $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
+    $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
+    $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
+    return date($date_format, $timestamp + $tz_offset);
+};
 
 $getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
     $result = '';
@@ -137,6 +145,7 @@ $assembly = Assembly::id($assemblyMinutesCorrespondence['assembly_id'])
         ],
         'condo_id' => [
             'name', 'address', 'address_street', 'address_zip', 'address_city',
+            'registration_number',
             'managing_agent_id' => [
                 'name', 'address_street', 'address_dispatch', 'address_zip',
                 'address_city', 'address_country', 'has_vat', 'vat_number',
@@ -153,6 +162,18 @@ $assembly = Assembly::id($assemblyMinutesCorrespondence['assembly_id'])
 if(!$assembly) {
     throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
 }
+
+$organisation = Organisation::id(1)
+    ->read([
+        'name', 'address_street', 'address_dispatch', 'address_zip',
+        'address_city', 'address_country', 'has_vat', 'vat_number',
+        'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
+        'website', 'email', 'phone', 'has_vat', 'vat_number',
+        'profile_image_document_id' => [
+            'type', 'data'
+        ]
+    ])
+    ->first();
 
 $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']])
     ->read([
@@ -203,7 +224,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'firstname'         => $assemblyMinutesCorrespondence['owner_id']['firstname'],
             'lastname'          => $assemblyMinutesCorrespondence['owner_id']['lastname'],
             'condo'             => $assembly['condo_id']['name'],
-            'date'              => $assembly['assembly_date']
+            'date'              => $getFormattedDate($assembly['assembly_date']),
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -221,8 +242,8 @@ $values = [
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
 
-    'organisation'              => $assembly['condo_id']['managing_agent_id'],
-    'organisation_logo'         => $getOrganisationLogo($assembly['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
+    'organisation'              => $organisation,
+    'organisation_logo'         => $getOrganisationLogo($organisation['id']),
 
     'date'                      => $assembly['assembly_invitation_date'],
     'recipient'                 => $assemblyMinutesCorrespondence['owner_id'],

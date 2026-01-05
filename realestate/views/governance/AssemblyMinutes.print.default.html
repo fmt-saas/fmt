@@ -88,55 +88,163 @@
     } %}
 
 
-<p>Par la présente, nous vous invitons à assister à l’{{ assemblyTypes[assembly.assembly_type] }} de votre copropriété:</p>
+    <p>
+        {{ assembly.heading_text_minutes | raw }}
+    </p>
 
-<ul>
-    <li>Date: {{ assembly.assembly_date | format_datetime(pattern='EEEE', locale=locale) }} {{ assembly.assembly_date | date(date_format, timezone) }}</li>
-    <li>Lieu : {{ assembly.assembly_location }}</li>
-    <li>Début de séance: {{ assembly.assembly_date | date('H', timezone) }}h{{ assembly.assembly_date | date('i', timezone) }}</li>
-</ul>
+    <h3 style="text-align: center;">Procès verbal de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} tenue à l'adresse "{{ assembly.assembly_location }}" le date du <b>{{ assembly.assembly_date | date(date_format, timezone) }}</h3>
 
+    <p>
+        {{ assembly.heading_text_minutes }}
+    </p>
 
-        <p>
-            {{ assembly.heading_text_call }}
-        </p>
-
-        {% for item in assembly.assembly_items_ids %}
+    {% for item in assembly.assembly_items_ids %}
         <p>
             {% set assemblyItem = map_assembly_items[item.id] %}
 
             <div style="text-decoration: underline; font-weight: bold;">
                 {{ assemblyItem.order }}. {{ assemblyItem.name }}
-                {% if assemblyItem.has_vote_required and assembly.has_call_option_majority %}
-                    &nbsp;-&nbsp;{{ majorityLabels[assemblyItem.majority] }}
+                {% if assemblyItem.status == 'adjourned' %}
+                    Reporté
+                {% else %}
+                    {% if assemblyItem.has_vote_required %}
+                        &nbsp;-&nbsp;{{ voteResultLabels[assemblyItem.vote_result] }}
+                    {% else %}
+                        &nbsp;-&nbsp;Présenté & Examiné
+                    {% endif %}
                 {% endif %}
             </div>
 
             {% if not item.is_group %}
+                {% set ownerships_against = [] %}
+                {% set ownerships_abstain = [] %}
 
-                {% if assemblyItem.description_call is not empty %}
-                    {{ assemblyItem.description_call | raw }}
+                {% set weights_for = 0.0 %}
+                {% set weights_against = 0.0 %}
+                {% set weights_abstain = 0.0 %}
+
+                {% for vote in assemblyItem.assembly_votes_ids %}
+                    {% if vote.vote_value == 'against' %}
+                        {% set ownerships_against = ownerships_against | merge([map_ownerships[vote.ownership_id].name]) %}
+                        {% set weights_against = weights_against + vote.vote_weight %}
+                    {% elseif vote.vote_value == 'abstain' %}
+                        {% set ownerships_abstain = ownerships_abstain | merge([map_ownerships[vote.ownership_id].name]) %}
+                        {% set weights_abstain = weights_abstain + vote.vote_weight %}
+                    {% elseif vote.vote_value == 'for' %}
+                        {% set weights_for = weights_for + vote.vote_weight %}
+                    {% endif %}
+                {% endfor %}
+
+                {% set sum_votes = weights_for + weights_against %}
+                {% set ratio = sum_votes > 0 ? (weights_for / sum_votes) : 0.0 %}
+
+                {% if assemblyItem.has_vote_required %}
+                    {{ majorityLabels[assemblyItem.majority] }}
+                    {% if assemblyItem.assembly_votes_ids is not empty and sum_votes > 0 %}
+                        &nbsp;-&nbsp;
+                        Pour: {{ (weights_for / sum_votes * 100) | number_format(1, ',', ' ') }}%
+                        &nbsp;&nbsp;
+                        Contre: {{ (weights_against / sum_votes * 100) | number_format(1, ',', ' ') }}%
+                    {% endif %}
+                    <br /><br />
+                {% endif %}
+
+                <!-- #todo - ajouter un mini détail du résultat des votes -->
+                <!--
+                {% if assemblyItem.has_vote_required %}
+                <div class="vote-summary">
+                    <strong>Résultat du vote :</strong>
+                    {% if assemblyItem.assembly_votes_ids is not empty and sum_votes > 0 %}
+                    <table style="border: solid 1px black;">
+                        <tr>
+                            <td style="width: 60px; font-weight: bold;">Pour</td>
+                            <td style="width: 60px; font-weight: bold;">Contre</td>
+                            <td style="width: 60px; font-weight: bold;">Abstention</td>
+                        </tr>
+                        <tr>
+                            <td>{{ weights_for | number_format(2, ',', ' ') }}</td>
+                            <td>{{ weights_against | number_format(2, ',', ' ') }}</td>
+                            <td>{{ weights_abstain | number_format(2, ',', ' ') }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ (weights_for / sum_votes * 100) | number_format(1, ',', ' ') }}%</td>
+                            <td>{{ (weights_against / sum_votes * 100) | number_format(1, ',', ' ') }}%</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                    {% else %}
+                        Aucun vote enregistré.<br />
+                    {% endif %}
+                </div>
+                {% endif %}
+                -->
+
+                {% if assemblyItem.description_minutes is not empty %}
+                    {{ assemblyItem.description_minutes | raw }}
+                {% endif %}
+
+                {% if ownerships_against is not empty %}
+                    <p><strong>Contre :</strong>
+                        <span style="font-size: 10px;">{{ ownerships_against|join(', ') }}</span>
+                    </p>
+                {% endif %}
+
+                {% if ownerships_abstain is not empty %}
+                    <p><strong>Abstention :</strong>
+                        <span style="font-size: 10px;">{{ ownerships_abstain|join(', ') }}</span>
+                    </p>
                 {% endif %}
 
             {% else %}
 
-                {% if assemblyItem.description_call is not empty %}
-                    {{ assemblyItem.description_call | raw }}
+                {% if assemblyItem.description_minutes is not empty %}
+                    {{ assemblyItem.description_minutes | raw }}
                 {% endif %}
                 <table>
                     <tr>
                         <td style="width: 30px;"></td>
                         <td>
                             {% for subitem_id in item.children_items_ids %}
-                                {% set assemblyItem = map_assembly_items[subitem_id] %}
-                                <u>{{ item.order }}. {{ assemblyItem.order }}. {{ assemblyItem.name }} </u><br />
+                                {% set assemblySubItem = map_assembly_items[subitem_id] %}
+                                <u>
+                                    {{ item.order }}. {{ assemblySubItem.order }}. {{ assemblySubItem.name }} 
+                                    {% if assemblySubItem.has_vote_required %}
+                                        {{ voteResultLabels[assemblySubItem.vote_result] }}
+                                    {% endif %}
+
+                                </u>
+                                <br />
                                 <table>
                                     <tr>
                                         <td style="width: 30px;"></td>
                                         <td>
-                                            {{ assemblyItem.description_call }}
-                                            {% if assemblyItem.has_vote_required %}
-                                                {{ majorityLabels[assemblyItem.majority] }}
+                                            {{ assemblySubItem.description_minutes | raw }}
+                                            {% if assemblySubItem.has_vote_required %}
+                                                {{ majorityLabels[assemblySubItem.majority] }}
+                                                {{ voteResultLabels[assemblySubItem.vote_result] }}
+                                            {% endif %}
+
+                                            {% set ownerships_against = [] %}
+                                            {% set ownerships_abstain = [] %}
+
+                                            {% for vote in assemblySubItem.assembly_votes_ids %}
+                                                {% if vote.vote_value == 'against' %}
+                                                    {% set ownerships_against = ownerships_against | merge([map_ownerships[vote.ownership_id].name]) %}
+                                                {% elseif vote.vote_value == 'abstain' %}
+                                                    {% set ownerships_abstain = ownerships_abstain | merge([map_ownerships[vote.ownership_id].name]) %}
+                                                {% endif %}
+                                            {% endfor %}
+
+                                            {% if ownerships_against is not empty %}
+                                                <p><strong>Contre :</strong>
+                                                    <span style="font-size: 10px;">{{ ownerships_against|join(', ') }}</span>
+                                                </p>
+                                            {% endif %}
+
+                                            {% if ownerships_abstain is not empty %}
+                                                <p><strong>Abstention :</strong>
+                                                    <span style="font-size: 10px;">{{ ownerships_abstain|join(', ') }}</span>
+                                                </p>
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -147,42 +255,13 @@
                 </table>
             {% endif %}
         </p>
-        {% endfor %}
+    {% endfor %}
 
-
-        <p>
-            {{ assembly.closing_text_call }}
-        </p>
-
-
-
-
-<div style="margin-top: 40px; border: solid 1px black; padding: 10px; page-break-inside: avoid;">
-    Pour que l’assemblée générale se déroule efficacement et ne dure pas plus longtemps que nécessaire, les copropriétaires sont invités à transmettre leurs questions au syndic par écrit dès qu’ils en ont connaissance, sans attendre la réunion.
-    Cela concerne notamment les points inscrits à l’ordre du jour, y compris les décomptes et la comptabilité.
-    Cette anticipation permettra d’apporter des réponses avant l’assemblée et d’éviter les prolongations inutiles.
-</div>
-
-<div style="margin-top: 20px; border: solid 1px black; padding: 10px; page-break-inside: avoid;">
-    IMPORTANT :<br />
-    <p>
-    1) Modalité de consultation des documents relatifs aux points inscrits à l’ordre du jour :<br />
-    Les documents sont disponibles sur simple demande au bureau du Syndic.
-    </p>
-    <p>
-    2) Au cas où votre emploi du temps ne vous permettrait pas d'assister à l'assemblée générale, nous vous demandons de donner procuration à un autre copropriétaire ou une personne de votre choix pour vous représenter ; ceci afin de permettre à l’assemblée générale de se tenir valablement.<br />
-    Dans le cas où le quorum n’est pas atteint, il est alors nécessaire de convoquer une deuxième assemblée générale ce qui représente des frais pour la copropriété et dérange une nouvelle fois les propriétaires.
-    </p>
 
     <p>
-    3) En cas de division du droit de propriété portant sur un lot privatif ou lorsque la propriété d’un lot privatif est grevée d’un droit d’emphytéose, de superficie, d’usufruit, d’usage ou d’habitation, le droit de participation aux délibérations de l’Assemblée Générale est suspendu jusqu’à ce que les intéressés désignent la personne qui sera leur mandataire.
+        {{ assembly.closing_text_minutes | raw }}
     </p>
 
-    <p>
-    4) Toute demande ou remarque individuelle à propos de la comptabilité doit être faite 7 jours à l'avance.
-    </p>
-
-</div>
 
 
 {% include 'footer.html.twig' %}
