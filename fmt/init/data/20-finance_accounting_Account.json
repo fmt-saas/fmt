@@ -360,6 +360,7 @@
                 "description": "Co-owners",
                 "account_chart_id": 1,
                 "operation_assignment": "co_owners",
+                "account_nature": "",
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -600,6 +601,7 @@
                 "description": "Suppliers",
                 "account_chart_id": 1,
                 "operation_assignment": "suppliers",
+                "account_nature": "",
                 "tenant_share": 0,
                 "owner_share": 0
             },
@@ -740,6 +742,7 @@
                 "description": "Deferred costs",
                 "account_chart_id": 1,
                 "operation_assignment": "deferred_expenses",
+                "account_nature": "",
                 "tenant_share": 0,
                 "owner_share": 0
             },
