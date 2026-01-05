@@ -102,9 +102,7 @@
         'rejected': 'Rejeté',
     } %}
 
-    <p>
-        Procès verbal de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} tenue à l'adresse "{{ assembly.assembly_location }}" à la date du <b>{{ assembly.assembly_date | date(date_format, timezone) }}</b>.
-    </p>
+    <h3 style="text-align: center;">Procès verbal de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} du {{ assembly.assembly_date | date(date_format, timezone) }}</h3>
 
     <p>
         {{ assembly.heading_text_minutes }}

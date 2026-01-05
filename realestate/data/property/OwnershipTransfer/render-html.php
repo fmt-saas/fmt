@@ -142,7 +142,8 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
         'has_fuel_tank',
         'fuel_tank_capacity',
         'condo_id' => [
-            'name', 'address_street', 'address_city', 'address_zip', 'address_city'
+            'name', 'address_street', 'address_city', 'address_zip', 'address_city',
+            'registration_number'
         ],
         'old_ownership_id' => ['name', 'owners_ids' => ['name']],
         'property_lots_ids' => ['name'],
@@ -198,7 +199,8 @@ $lang = $params['lang'];
 
 // values to fetch from Condominium
 // expense_management_mode
-$organisation = Organisation::search()->read([
+$organisation = Organisation::search()
+    ->read([
         'name', 'address_street', 'address_dispatch', 'address_zip',
         'address_city', 'address_country', 'has_vat', 'vat_number',
         'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',

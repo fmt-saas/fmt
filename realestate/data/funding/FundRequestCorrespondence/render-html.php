@@ -187,6 +187,7 @@ $fiscalYear = FiscalYear::id($fundRequestExecution['fund_request_id']['fiscal_ye
         'fund_requests_ids',
         'condo_id' => [
             'name', 'address_street', 'address_zip', 'address_city',
+            'registration_number',
             'managing_agent_id' => [
                 'name', 'address_street', 'address_dispatch', 'address_zip',
                 'address_city', 'address_country', 'has_vat', 'vat_number',
