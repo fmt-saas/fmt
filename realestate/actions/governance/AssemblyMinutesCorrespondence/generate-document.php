@@ -34,12 +34,13 @@ use realestate\governance\AssemblyMinutesCorrespondence;
 
 
 $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id'])
-    ->read(['status', 'condo_id', 'ownership_id', 'name'])
+    ->read(['status', 'condo_id', 'ownership_id', 'name', 'assembly_id' => ['signed_minutes_document_id']])
     ->first();
 
 if(!$assemblyMinutesCorrespondence) {
     throw new Exception("unknown_assembly_invitation", EQ_ERROR_UNKNOWN_OBJECT);
 }
+
 
 
 // retrieve FS Node relating to general meetings (assemblies)
@@ -51,7 +52,14 @@ $parentNode = Node::search([
     ->first();
 
 // generate document and add it to EDMS
+
+// 1) page d'en-tête
 $data = eQual::run('get', 'realestate_governance_AssemblyMinutesCorrespondence_render-pdf', ['id' => $assemblyMinutesCorrespondence['id']]);
+
+
+// 2) récupérer le PV de l'AG
+
+// 3) fusionner
 
 $document = Document::create([
         'name'          => 'Procès verbal Assemblée - ' . $assemblyMinutesCorrespondence['name'],
