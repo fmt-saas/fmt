@@ -210,6 +210,12 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
     }
 
     protected static function onupdateHasParentGroup($self) {
+        $self->read(['parent_group_id']);
+        foreach($self as $id => $assemblyItem) {
+            if(!$assemblyItem['parent_group_id']) {
+                self::id($id)->update(['has_parent_group' => false]);
+            }
+        }
         $self
             ->do('refresh_order')
             ->do('refresh_items_count');
