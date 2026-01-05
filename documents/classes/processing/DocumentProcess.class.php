@@ -1037,7 +1037,8 @@ class DocumentProcess extends Model {
                         ['process_step', '=', $documentProcess['status']],
                         ['document_type_id', '=', $documentProcess['document_id']['document_type_id']]
                     ])
-                    ->read(['role_id']);
+                    ->read(['role_id'])
+                    ->first();
 
                 if($documentAssignmentRule) {
                     $roleAssignment = RoleAssignment::search([
