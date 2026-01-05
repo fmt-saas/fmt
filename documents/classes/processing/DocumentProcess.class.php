@@ -1870,11 +1870,14 @@ class DocumentProcess extends Model {
         return $result;
     }
 
-    public static function canupdate($self) {
+    public static function canupdate($self, $values) {
         $self->read(['status']);
+        $allowed_fields = ['assigned_employee_id'];
         foreach($self as $id => $chart) {
-            if($chart['status'] == 'integrated') {
-                return ['status' => ['not_allowed' => 'Integrated document cannot be modified.']];
+            if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
+                if($chart['status'] == 'integrated') {
+                    return ['status' => ['not_allowed' => 'Integrated document cannot be modified.']];
+                }
             }
         }
         return parent::canupdate($self);
