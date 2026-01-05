@@ -97,11 +97,13 @@
         {{ assembly.heading_text_call | raw }}
     </p>
 
+    <h3>Ordre du jour</h3>
+
     {% for item in assembly.assembly_items_ids %}
         <p>
             {% set assemblyItem = map_assembly_items[item.id] %}
 
-            <div style="text-decoration: underline; font-weight: bold;">
+            <div style="text-decoration: underline; font-weight: bold; margin-top: 20px;">
                 {{ assemblyItem.order }}. {{ assemblyItem.name }}
                 {% if assemblyItem.has_vote_required and assembly.has_call_option_majority %}
                     &nbsp;-&nbsp;{{ majorityLabels[assemblyItem.majority] }}
