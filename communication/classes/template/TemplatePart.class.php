@@ -60,9 +60,11 @@ class TemplatePart extends Model {
     protected static function onupdateValue($self, $lang) {
         $self->read(['value'], $lang);
         foreach($self as $id => $templatePart) {
+            /*
             preg_match_all('/\{\{\s*([a-zA-Z0-9_\.]+)\s*\}\}/', $templatePart['value'], $matches);
             $variables = json_encode(array_unique($matches[1]), JSON_PRETTY_PRINT);
             self::id($id)->update(['variables' => $variables], $lang);
+            */
         }
     }
 
