@@ -130,6 +130,7 @@ $assembly = Assembly::id($params['id'])
         ],
         'condo_id' => [
             'name', 'address_street', 'address_city', 'address_zip', 'address_city',
+            'registration_number',
             'managing_agent_id' => [
                 'name', 'address_street', 'address_dispatch', 'address_zip',
                 'address_city', 'address_country', 'has_vat', 'vat_number',
