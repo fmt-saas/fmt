@@ -7,6 +7,8 @@
 
 namespace identity;
 
+use realestate\management\ManagingAgent;
+
 class Organisation extends Identity {
 
     public static function getName() {
@@ -133,6 +135,19 @@ class Organisation extends Identity {
             $result[$id] = implode(' ', $parts);
         }
         return $result;
+    }
+
+    /**
+     * In FMT the main organisation is always linked to a managing agent
+     */
+    public static function onafterupdate($self, $values, $orm) {
+        $self->read(['identity_id' => ['managing_agent_id']]);
+        foreach($self as $id => $organisation) {
+            if($organisation['identity_id']['managing_agent_id']) {
+                ManagingAgent::id($organisation['identity_id']['managing_agent_id'])->do('sync_from_identity');
+            }
+        }
+        parent::onafterupdate($self, $values, $orm);
     }
 
 }
