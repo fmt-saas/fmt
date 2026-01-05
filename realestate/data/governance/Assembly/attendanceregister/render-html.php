@@ -106,6 +106,7 @@ $assembly = Assembly::id($params['id'])
         'assembly_date',
         'assembly_location',
         'register_document_id',
+        'count_owners',
         'count_shares',
         'count_represented_shares',
         'assembly_attendees_ids' => [

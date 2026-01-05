@@ -204,11 +204,11 @@ foreach($map_accounts as $account_id => $account) {
 
     // retrieve first level-3 parent
     while($parent_account_id) {
-        $target_account_id = $parent_account_id;
         if(!isset($map_accounts[$parent_account_id])) {
             break;
         }
         $parent_code = $map_accounts[$parent_account_id]['code'];
+        $target_account_id = $parent_account_id;
         if(strlen($parent_code) <= 3) {
             break;
         }

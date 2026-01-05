@@ -384,7 +384,7 @@ class MiscOperationLine extends Model {
         $allowed_fields = ['apportionment_id', 'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id'];
         foreach($self as $id => $miscOperationLine) {
             // #meo - while parent misc operation hasn't been posted, all changes are allowed
-            if($miscOperationLine['misc_operation_id']['status'] === 'posted') {
+            if($miscOperationLine['misc_operation_id']['status'] !== 'pending') {
 
                 // check if related accounting records has been cleared or not
                 $accountingEntryLine = AccountingEntryLine::search(['misc_operation_line_id', '=', $id])

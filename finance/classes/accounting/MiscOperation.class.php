@@ -639,7 +639,7 @@ class MiscOperation extends Model {
         foreach($self as $id => $miscOperation) {
             // only allow editable fields
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
-                if(!in_array($miscOperation['status'], ['pending', 'proforma'], true)) {
+                if($miscOperation['status'] !== 'pending') {
                     return ['status' => ['non_editable' => "Invoice can only be updated while its status is proforma ({$id})."]];
                 }
             }

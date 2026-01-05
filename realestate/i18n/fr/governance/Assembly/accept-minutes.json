@@ -10,8 +10,13 @@
         },
         "president_attendee_id": {
             "label": "Président de séance",
-            "description": "Participant designé comme president de séance.",
-            "help": "Doit être un participant valide lie a l'assemblee et autorise pour la présidence."
+            "description": "Participant designé comme président de séance.",
+            "help": "Doit être un participant valide lie a l'assemblée et autorisé pour la présidence."
+        },
+        "secretary_attendee_id": {
+            "label": "Secrétaire de séance",
+            "description": "Participant designé comme secrétaire de séance.",
+            "help": "Doit être un participant valide lie a l'assemblée et autorisé pour la présidence."
         }
     },
     "error": {
@@ -22,6 +27,9 @@
         },
         "president_attendee_id": {
             "invalid_provided_attendee": "Le participant indiqué ne peut pas être désigné président."
+        },
+        "secretary_attendee_id": {
+            "invalid_provided_attendee": "Le participant indiqué ne peut pas être désigné secrétaire."
         }
     }
 }

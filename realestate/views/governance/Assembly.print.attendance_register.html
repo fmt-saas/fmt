@@ -174,7 +174,7 @@
     </table>
     {% if signed %}
     <p>
-        Certifiée sincère et véritable, la feuille de présence est arrêtée à {{ representations | length }} copropriétaires présents ou représentés, totalisant ensemble {{ assembly.count_represented_shares }} quotités sur {{ assembly.count_shares }}.
+        Certifiée sincère et véritable, la feuille de présence est arrêtée à {{ representations | length }} copropriétaires présents ou représentés sur {{ assembly.count_owners }}, totalisant ensemble {{ assembly.count_represented_shares }} quotités sur {{ assembly.count_shares }}.
     </p>
     {% endif %}
 
