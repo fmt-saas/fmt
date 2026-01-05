@@ -252,6 +252,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                     'adjourn' => [
                         'description'   => 'Marks the Resolution as adjourned.',
                         'policies'      => ['can_adjourn'],
+                        'onafter'       => 'onafterAdjourn',
                         'status'        => 'adjourned'
                     ],
                     'close' => [
@@ -652,6 +653,13 @@ class AssemblyItem extends AssemblyItemTemplate {
     }
 
     protected static function onafterClose($self) {
+        $self->read(['assembly_id']);
+        foreach($self as $id => $assemblyItem) {
+            Assembly::id($assemblyItem['assembly_id'])->do('refresh_is_complete');
+        }
+    }
+
+    protected static function onafterAdjourn($self) {
         $self->read(['assembly_id']);
         foreach($self as $id => $assemblyItem) {
             Assembly::id($assemblyItem['assembly_id'])->do('refresh_is_complete');
