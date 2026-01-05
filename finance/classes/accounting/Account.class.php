@@ -106,6 +106,7 @@ class Account extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'selection' => [
+                    '',
                     'asset',
                     'liability'
                 ],

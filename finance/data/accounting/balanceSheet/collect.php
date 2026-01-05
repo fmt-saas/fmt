@@ -276,28 +276,8 @@ foreach($balances as $code => $balance) {
         continue;
     }
 
-    // special cases: 410 / 440 (DUAL-SIDE ACCOUNTS)
-    if(in_array(substr($code, 0, 3), ['410', '440'])) {
-
-        if($raw > 0) {
-            $balances_asset[$code] = [
-                'account_id'   => $balance['account_id'],
-                'account_code' => $code,
-                'description'  => $balance['description'],
-                'balance'      => $raw,
-            ];
-        }
-        else {
-            $balances_liability[$code] = [
-                'account_id'   => $balance['account_id'],
-                'account_code' => $code,
-                'description'  => $balance['description'],
-                'balance'      => abs($raw),
-            ];
-        }
-    }
     // normal case
-    else {
+    if(in_array($nature, ['asset', 'liability'], true)) {
         // liability - increases by credit
         if($nature === 'liability') {
             $balances_liability[$code] = [
@@ -317,6 +297,27 @@ foreach($balances as $code => $balance) {
             ];
         }
     }
+    else {
+        // special cases: no nature (DUAL-SIDE ACCOUNTS)
+        // 410, 440, 490, ...
+        if($raw > 0) {
+            $balances_asset[$code] = [
+                'account_id'   => $balance['account_id'],
+                'account_code' => $code,
+                'description'  => $balance['description'],
+                'balance'      => $raw,
+            ];
+        }
+        else {
+            $balances_liability[$code] = [
+                'account_id'   => $balance['account_id'],
+                'account_code' => $code,
+                'description'  => $balance['description'],
+                'balance'      => abs($raw),
+            ];
+        }
+    }
+
 }
 
 
