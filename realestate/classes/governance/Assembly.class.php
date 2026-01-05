@@ -1347,7 +1347,8 @@ class Assembly extends \equal\orm\Model {
                 // schedule queuing of invite emails
                 $cron->schedule(
                     "realestate.assembly.send-invitation.{$id}",
-                    time() + (5 * 60),
+                    // #todo - increase delay if necessary
+                    time() + (1 * 60),
                     'realestate_governance_Assembly_send-invitation',
                     [
                         'id'  => $id

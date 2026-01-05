@@ -143,12 +143,12 @@
         },
         "session_time_start": {
             "label": "Début de séance",
-            "description": "Heure de début prévue de la séance.",
+            "description": "hh:mm Heure de début prévue de la séance.",
             "help": "Précède la vérification des présences."
         },
         "session_time_end": {
             "label": "Fin de séance",
-            "description": "Heure réelle de fin de séance.",
+            "description": "hh:mm Heure réelle de fin de séance.",
             "help": "Après finalisation des votes et du procès-verbal."
         },
         "is_valid": {
@@ -367,7 +367,7 @@
                     "description": "Enregistrer un participant et recueillir ses mandats/signatures."
                 },
                 "action.add_extra_attendee": {
-                    "label": "Ajouter un participant supplémentaire",
+                    "label": "Ajouter un participant",
                     "description": "Enregistrer un participant supplémentaire et recueillir ses mandats/signatures."
                 },
                 "action.close_attendance": {

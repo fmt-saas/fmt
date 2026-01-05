@@ -99,6 +99,9 @@ foreach($domain->getClauses() as $clause) {
     }
 }
 
+if(isset($params['condo_id']) && $params['condo_id'] > 0) {
+    $domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
+}
 
 if(isset($params['date_from']) && $params['date_from']) {
     $domain->addCondition(new DomainCondition('assembly_date', '>=', $params['date_from']));

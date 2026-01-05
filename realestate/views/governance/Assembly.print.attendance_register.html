@@ -118,52 +118,57 @@
             <td style="width: 25%;"><b>Signature</b></td>
         </tr>
         {% for ownership_id, ownership in ownerships %}
-        <tr>
             {% set representation = representations[ownership_id] ?? null %}
             {% set attendee = attendees[representation.attendee_id] ?? null %}
-            <td>
-                {{ ownership.name }}
-                {% if ownership.type == 'joint' %}
-                <br />[représentant théorique: {{ ownership.representative }}]
-                {% endif %}
-            </td>
-            <td>
-                {% for lot in ownership.lots %}
-                    {{ lot.name }}{% if not loop.last %}, {% endif %}
-                {% endfor %}
-            </td>
-            <td>{{ ownership.shares }}</td>
-            <td>
-                {% if signed %}
-                    {% if representation is not null %}
-                        {% if representation.representation_type == 'owner' %}
-                            présent(e)
-                            {% if ownership.type == 'joint' %}
-                                <br />{{ attendee.name }}
+
+            {% if not (signed and representation is null) %}
+            <tr>
+                <!-- ne pas montrer l'entrée si le ownership est "absent" -->
+                    <!-- if signed and representation is null %} -->
+                <td>
+                    {{ ownership.name }}
+                    {% if ownership.type == 'joint' %}
+                    <br />[représentant théorique: {{ ownership.representative }}]
+                    {% endif %}
+                </td>
+                <td>
+                    {% for lot in ownership.lots %}
+                        {{ lot.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>{{ ownership.shares }}</td>
+                <td>
+                    {% if signed %}
+                        {% if representation is not null %}
+                            {% if representation.representation_type == 'owner' %}
+                                présent(e)
+                                {% if ownership.type == 'joint' %}
+                                    <br />{{ attendee.name }}
+                                {% endif %}
+                            {% else %}
+                                représenté(e) par {{ attendee.name }}
                             {% endif %}
                         {% else %}
-                            représenté(e) par {{ attendee.name }}
-                        {% endif %}
-                    {% else %}
-                        absent(e)
-                    {% endif %}
-                {% endif %}
-            </td>
-            <td>
-                {% if signed %}
-                    {% if representation is not null %}
-                        {% if attendee.register_document_signature_id.sig_method == 'ses' %}
-                            <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.register_document_signature_id.sig_drawn }}" />
-                        {% else %}
-                            Digitally signed by {{ attendee.name }} <br />
-                            Signature: {{ attendee.register_document_signature_id.sig_hash | slice(0, 40) }} ...<br />
-                            Timestamp: {{ attendee.register_document_signature_id.sig_timestamp }}<br />
-                            Algorithm: {{ attendee.register_document_signature_id.sig_algo }}
+                            absent(e)
                         {% endif %}
                     {% endif %}
-                {% endif %}
-            </td>
-        </tr>
+                </td>
+                <td>
+                    {% if signed %}
+                        {% if representation is not null %}
+                            {% if attendee.register_document_signature_id.sig_method == 'ses' %}
+                                <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.register_document_signature_id.sig_drawn }}" />
+                            {% else %}
+                                Digitally signed by {{ attendee.name }} <br />
+                                Signature: {{ attendee.register_document_signature_id.sig_hash | slice(0, 40) }} ...<br />
+                                Timestamp: {{ attendee.register_document_signature_id.sig_timestamp }}<br />
+                                Algorithm: {{ attendee.register_document_signature_id.sig_algo }}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
         {% endfor %}
 
     </table>

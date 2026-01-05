@@ -76,5 +76,5 @@ AssemblyAttendee::id($params['president_attendee_id'])->do('promote_president');
 Assembly::id($params['id'])->do('accept_minutes');
 
 $context->httpResponse()
-        ->body($attendee)
+        ->status(204)
         ->send();
