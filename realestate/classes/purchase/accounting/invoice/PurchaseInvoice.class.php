@@ -534,7 +534,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
             DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('validate');
             // reset computed relation fields
-            self::id($id)->update(['document_process_status' => null]);
+            self::id($id)->update([
+                    'document_process_status' => null,
+                    'alert' => null
+                ]);
         }
     }
 
@@ -894,7 +897,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     // mark DocumentProcess as integrated
                     ->transition('integrate');
                 // reset computed relation fields
-                self::id($id)->update(['document_process_status' => null]);
+                self::id($id)->update([
+                        'document_process_status' => null,
+                        'alert' => null
+                    ]);
             }
         }
         $self->do('create_fundings');
@@ -1596,10 +1602,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     public static function canupdate($self, $values) {
         $self->read(['status', 'document_process_id' => ['status'], 'fiscal_period_id' => ['status']]);
         foreach($self as $id => $invoice) {
-            $editable_fields = [
+            $allowed_fields = [
                     'status', 'alert', 'name', 'document_process_status', 'invoice_number', 'payment_status', 'has_payment_on_hold', 'customer_ref', 'funding_id', 'reversed_invoice_id'
                 ];
-            if(count(array_diff(array_keys($values), $editable_fields)) > 0) {
+            if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                 if($invoice['status'] !== 'proforma') {
                     return ['status' => ['non_editable' => 'Purchase Invoice cannot be updated after recording.']];
                 }
