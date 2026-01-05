@@ -53,6 +53,7 @@
                 "type": "field",
                 "value": "emission_date",
                 "width": "15%",
+                "sortable": true,
                 "widget": {
                     "usage": "date/short"
                 }
@@ -60,10 +61,7 @@
             {
                 "type": "field",
                 "value": "supplier_invoice_number",
-                "width": "15%",
-                "widget": {
-                    "usage": "date/short"
-                }
+                "width": "15%"
             },
             {
                 "type": "field",
@@ -95,6 +93,7 @@
                 "value": "created",
                 "width": "10%",
                 "readonly": true,
+                "sortable": true,
                 "widget": {
                     "usage": "date"
                 }
