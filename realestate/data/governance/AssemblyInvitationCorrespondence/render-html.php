@@ -149,6 +149,7 @@ $assembly = Assembly::id($assemblyInvitationCorrespondence['assembly_id'])
         ],
         'condo_id' => [
             'name', 'address', 'address_street', 'address_zip', 'address_city',
+            'registration_number',
             'managing_agent_id' => [
                 'identity_id'
             ]
