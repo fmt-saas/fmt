@@ -36,7 +36,7 @@
             {
                 "type": "field",
                 "value": "name",
-                "width": "25%",
+                "width": "15%",
                 "sortable": true
             },
             {
