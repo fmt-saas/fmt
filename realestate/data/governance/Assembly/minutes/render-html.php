@@ -209,7 +209,7 @@ $values = [
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
 
-    'organisation'              => $$organisation,
+    'organisation'              => $organisation,
     'organisation_logo'         => $getOrganisationLogo($organisation['id']),
 
     'signed'                    => $params['signed'],
