@@ -59,6 +59,14 @@
             },
             {
                 "type": "field",
+                "value": "supplier_invoice_number",
+                "width": "15%",
+                "widget": {
+                    "usage": "date/short"
+                }
+            },
+            {
+                "type": "field",
                 "value": "description",
                 "width": "33%",
                 "readonly": true
