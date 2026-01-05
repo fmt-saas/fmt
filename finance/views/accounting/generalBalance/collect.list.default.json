@@ -39,7 +39,7 @@
     },
     "group_by": [
         {
-            "open": true,
+            "open": false,
             "colspan": 3,
             "field": "account_id",
             "order": "name",
