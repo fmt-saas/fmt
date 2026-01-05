@@ -1872,7 +1872,7 @@ class DocumentProcess extends Model {
 
     public static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['assigned_employee_id'];
+        $allowed_fields = ['assigned_employee_id', 'alert'];
         foreach($self as $id => $documentProcess) {
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                 ob_start();
