@@ -143,23 +143,23 @@
         <tbody style="font-size: 10px;">
             {% for line in lines %}
                 <tr>
-                    <td style="width: 10%">
+                    <td style="width: 10%; text-align: left;">
                         {{ line.asset.code }}
                     </td>
                     <td style="width: 30%; text-align: left;">
                         {{ line.asset.description }}
                     </td>
-                    <td style="width: 10%">
+                    <td style="width: 10%; text-align: right;">
                         {{ line.asset.balance | format_money() }}
                     </td>
 
-                    <td style="width: 10%">
+                    <td style="width: 10%; text-align: left;">
                         {{ line.liability.code }}
                     </td>
                     <td style="width: 30%; text-align: left;">
                         {{ line.liability.description }}
                     </td>
-                    <td style="width: 10%">
+                    <td style="width: 10%; text-align: right;">
                         {{ line.liability.balance | format_money() }}
                     </td>
                 </tr>
