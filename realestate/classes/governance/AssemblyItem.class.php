@@ -963,6 +963,11 @@ class AssemblyItem extends AssemblyItemTemplate {
                     return ['assembly_id' => ['published_assembly_cannot_be_changed' => 'Once published, assembly items cannot be changed.']];
                 }
             }
+            if(isset($values['has_parent_group']) && $values['has_parent_group']) {
+                if(!isset($values['parent_group_id'])) {
+                    return ['parent_group_id' => ['parent_must_be_defined_for_subgroup' => 'If subgroup, an item must target a parent group.']];
+                }
+            }
         }
         return parent::canupdate($self, $values);
     }
