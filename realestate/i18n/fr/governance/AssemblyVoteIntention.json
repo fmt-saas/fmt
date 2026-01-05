@@ -1,0 +1,83 @@
+{
+    "name": "Intention de vote",
+    "plural": "Intentions de vote",
+    "description": "Intentions de vote enregistrees pour chaque resolution et proprietaire ou mandataire.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriete",
+            "description": "Copropriete concernee par le vote.",
+            "help": "Determine les lots et quotes-parts applicables."
+        },
+        "assembly_id": {
+            "label": "Assemblee",
+            "description": "Assemblee a laquelle se rapporte le vote.",
+            "help": "Doit correspondre a l'assemblee en cours."
+        },
+        "representation_type": {
+            "label": "Type de representation",
+            "description": "Mode de representation du proprietaire pour ce vote.",
+            "help": "Indique si le vote est exprime par le proprietaire ou via un mandat.",
+            "selection": {
+                "owner": "Proprietaire",
+                "proxy": "Mandataire"
+            }
+        },
+        "assembly_mandate_id": {
+            "label": "Mandat d'assemblee",
+            "description": "Mandat qui justifie la representation, le cas echeant.",
+            "help": "Visible uniquement si le vote est exprime via un mandataire."
+        },
+        "assembly_item_id": {
+            "label": "Resolution",
+            "description": "Point de l'ordre du jour vise par le vote.",
+            "help": "Filtre sur les resolutions de l'assemblee pour lesquelles un vote est requis."
+        },
+        "is_choice": {
+            "label": "Vote sur un choix",
+            "description": "Indique si le vote concerne un choix specifique.",
+            "help": "Renseigne la presence d'un choix associe et ajuste la valeur du vote."
+        },
+        "assembly_item_choice_id": {
+            "label": "Choix associe",
+            "description": "Choix selectionne pour la resolution, si applicable.",
+            "help": "Renseigne le choix vote lorsque la resolution comporte des options."
+        },
+        "ownership_id": {
+            "label": "Dossier de propriete",
+            "description": "Propriete au nom de laquelle le vote est exprime.",
+            "help": "Doit correspondre a un dossier lie a l'assemblee."
+        },
+        "vote_value": {
+            "label": "Vote",
+            "description": "Sens du vote exprime.",
+            "help": "Choisir entre pour, contre ou abstention.",
+            "selection": {
+                "for": "Pour",
+                "against": "Contre",
+                "abstain": "Abstention"
+            }
+        },
+        "vote_weight": {
+            "label": "Poids du vote",
+            "description": "Poids du vote calcule selon les quotes-parts representes.",
+            "help": "Calcule en fonction des shares actifs pour la resolution."
+        },
+        "vote_shares": {
+            "label": "Quotes-parts votantes",
+            "description": "Nombre de quotes-parts prises en compte pour ce vote.",
+            "help": "Somme des shares des lots concernes par la resolution."
+        }
+    },
+    "view": {
+        "list.default": {
+            "name": "Intentions de vote",
+            "description": "Vue des intentions de vote par resolution et proprietaire ou mandataire.",
+            "layout": {}
+        },
+        "list.creation": {
+            "name": "Saisie des intentions de vote",
+            "description": "Creation rapide des intentions de vote pour les resolutions en cours.",
+            "layout": {}
+        }
+    }
+}
