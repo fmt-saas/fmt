@@ -206,7 +206,7 @@ $lang = $params['lang'];
 
 
 $values = [
-    'title'                     => 'Procès-Verbal',
+    'title'                     => '',
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
 
