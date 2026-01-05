@@ -619,7 +619,7 @@
                                                 "value": "assembly_date",
                                                 "width": "33%"
                                             },
-{
+                                            {
                                                 "type": "field",
                                                 "value": "session_time_start",
                                                 "width": "33%"
