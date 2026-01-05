@@ -97,7 +97,7 @@
         {{ assembly.heading_text_call | raw }}
     </p>
 
-    <h3>Ordre du jour</h3>
+    <h3 style="text-align: center;">Ordre du jour de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} {{ assembly.assembly_date | date(date_format, timezone) }}</h3>
 
     {% for item in assembly.assembly_items_ids %}
         <p>
