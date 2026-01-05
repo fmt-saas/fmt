@@ -248,6 +248,7 @@ class BankStatement extends Model {
                 'help'              => 'Assigned employee can evolve over time, and might depend on Role.',
                 'relation'          => ['document_process_id' => 'assigned_employee_id'],
                 'store'             => true,
+                'instant'           => true,
                 'readonly'          => true
             ],
 

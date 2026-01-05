@@ -273,13 +273,12 @@ class DocumentProcess extends Model {
                     'revert' => [
                         'description' => 'Revert the document to `created`.',
                         'onafter'     => 'onafterRevertFromAssigned',
-// #todo - update assigned employee
                         'status'      => 'created'
                     ],
                     'complete' => [
                         'description' => 'Update the document to `completed`.',
                         'policies'    => ['is_complete', 'is_unique', 'can_complete'],
-// #todo - update assigned employee
+                        'onafter'     => 'onafterCompleteFromAssigned',
                         'status'      => 'completed'
                     ],
                     'cancel' => [
@@ -296,12 +295,12 @@ class DocumentProcess extends Model {
                     'revert' => [
                         'description' => 'Revert the document to `assigned`.',
                         'onafter'     => 'onafterRevertFromCompleted',
-// #todo - update assigned employee
                         'status'      => 'assigned'
                     ],
                     'validate' => [
                         'description' => 'Update the document to `validated`.',
                         'policies'    => ['is_valid', 'can_validate'],
+                        'onafter'     => 'onafterValidateFromCompleted',
                         'status'      => 'validated'
                     ]
                 ]
@@ -312,7 +311,7 @@ class DocumentProcess extends Model {
                 'transitions' => [
                     'revert' => [
                         'description' => 'Revert the document to `completed`.',
-// #todo - update assigned employee
+                        'onafter'     => 'onafterRevertFromValidated',
                         'status'      => 'completed'
                     ],
                     'integrate' => [
@@ -320,6 +319,7 @@ class DocumentProcess extends Model {
                         'help'        => 'Integration is meant to be made automatically at the end of the workflow.',
                         'policies'    => [],
                         'onbefore'    => 'onbeforeIntegrate',
+                        'onafter'     => 'onafterIntegrateFromValidated',
                         'status'      => 'integrated'
                     ]
                 ]
@@ -992,7 +992,7 @@ class DocumentProcess extends Model {
             if($documentProcess['document_bank_statement_id']) {
                 BankStatement::id($documentProcess['document_bank_statement_id'])
                     ->update([
-                            'assigned_employee_id'      => $documentProcess['assigned_employee_id'],
+                            'assigned_employee_id'      => null,
                             'document_process_status'   => null
                         ]);
                 continue;
@@ -1000,7 +1000,7 @@ class DocumentProcess extends Model {
             if($documentProcess['document_invoice_id']) {
                 BankStatement::id($documentProcess['document_invoice_id'])
                     ->update([
-                            'assigned_employee_id'      => $documentProcess['assigned_employee_id'],
+                            'assigned_employee_id'      => null,
                             'document_process_status'   => null
                         ]);
                 continue;
@@ -1877,6 +1877,30 @@ class DocumentProcess extends Model {
             }
         }
         return parent::canupdate($self);
+    }
+
+    protected static function onafterRevertFromAssigned($self) {
+        $self->do('attempt_auto_assign');
+    }
+
+    protected static function onafterCompleteFromAssigned($self) {
+        $self->do('attempt_auto_assign');
+    }
+
+    protected static function onafterRevertFromCompleted($self) {
+        $self->do('attempt_auto_assign');
+    }
+
+    protected static function onafterRevertFromValidated($self) {
+        $self->do('attempt_auto_assign');
+    }
+
+    protected static function onafterValidateFromCompleted($self) {
+        $self->do('attempt_auto_assign');
+    }
+
+    protected static function onafterIntegrateFromValidated($self) {
+        $self->do('attempt_auto_assign');
     }
 
 }

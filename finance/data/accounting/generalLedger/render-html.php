@@ -6,6 +6,7 @@
 */
 
 use core\setting\Setting;
+use identity\Organisation;
 use realestate\property\Condominium;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
@@ -134,6 +135,18 @@ if(!$condominium) {
     throw new \Exception('unknown_condominium', EQ_ERROR_INVALID_PARAM);
 }
 
+$organisation = Organisation::id(1)
+    ->read([
+        'name', 'address_street', 'address_dispatch', 'address_zip',
+        'address_city', 'address_country', 'has_vat', 'vat_number',
+        'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
+        'website', 'email', 'phone', 'has_vat', 'vat_number',
+        'profile_image_document_id' => [
+            'type', 'data'
+        ]
+    ])
+    ->first();
+
 $data = eQual::run('get', 'finance_accounting_generalLedger_collect', [
         'domain'            => $params['domain'] ?? [],
         'date_from'         => ($params['params']['date_from']) ? strtotime($params['params']['date_from']) : null,
@@ -232,8 +245,8 @@ foreach($groups as $account_id => &$group) {
 $values = [
     'title'               => 'Grand Livre',
 
-    'organisation'        => $condominium['managing_agent_id'],
-    'organisation_logo'   => $getOrganisationLogo($condominium['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
+    'organisation'        => $organisation,
+    'organisation_logo'   => $getOrganisationLogo($organisation['id']),
     'document_number'     => $statement['invoice_number'],
     'condominium'         => $condominium,
 

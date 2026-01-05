@@ -9,6 +9,7 @@ use communication\template\Template;
 use core\setting\Setting;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
+use identity\Organisation;
 use realestate\funding\ExpenseStatement;
 use realestate\funding\ExpenseStatementCorrespondence;
 use realestate\funding\FundRequest;
@@ -188,7 +189,17 @@ if(!$fiscalPeriod) {
     throw new Exception('unknown_fiscal_period', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-
+$organisation = Organisation::id(1)
+    ->read([
+        'name', 'address_street', 'address_dispatch', 'address_zip',
+        'address_city', 'address_country', 'has_vat', 'vat_number',
+        'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
+        'website', 'email', 'phone', 'has_vat', 'vat_number',
+        'profile_image_document_id' => [
+            'type', 'data'
+        ]
+    ])
+    ->first();
 
 $values = [
         'date_from'         => $fiscalPeriod['date_from'],
@@ -282,8 +293,8 @@ $values = array_merge($values, [
     'title'               => 'Décompte Propriétaire',
     'introduction'        => $introduction,
 
-    'organisation'        => $fiscalPeriod['condo_id']['managing_agent_id'],
-    'organisation_logo'   => $getOrganisationLogo($fiscalPeriod['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
+    'organisation'        => $organisation,
+    'organisation_logo'   => $getOrganisationLogo($organisation['id']),
     'document_number'     => $statement['invoice_number'],
     'condominium'         => $fiscalPeriod['condo_id'],
 

@@ -260,7 +260,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             ],
 
             // #todo - for now we limit this to VCS - with validation
-            'payment_reference' => [
+            'payment_reference' => [ 
                 'type'              => 'string',
                 'description'       => 'Code provided by the supplier to use as reference in the wire transfer.'
             ],
@@ -299,7 +299,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'help'              => 'Assigned employee can evolve over time, and might depend on Role.',
                 'relation'          => ['document_process_id' => 'assigned_employee_id'],
                 'store'             => true,
-                'readonly'          => true
+                'readonly'          => true,
+                'instant'           => true
             ],
 
             'alert' => [

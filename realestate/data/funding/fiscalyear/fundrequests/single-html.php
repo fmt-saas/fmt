@@ -8,6 +8,7 @@
 use communication\template\Template;
 use core\setting\Setting;
 use finance\accounting\FiscalYear;
+use identity\Organisation;
 use realestate\funding\FundRequest;
 use realestate\ownership\Owner;
 use Twig\TwigFilter;
@@ -195,6 +196,18 @@ if(!$fiscalYear) {
     throw new Exception('unknown_fiscal_year', EQ_ERROR_INVALID_PARAM);
 }
 
+$organisation = Organisation::id(1)
+    ->read([
+        'name', 'address_street', 'address_dispatch', 'address_zip',
+        'address_city', 'address_country', 'has_vat', 'vat_number',
+        'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
+        'website', 'email', 'phone', 'has_vat', 'vat_number',
+        'profile_image_document_id' => [
+            'type', 'data'
+        ]
+    ])
+    ->first();
+
 // take all requests of the fiscal year under account
 $fund_requests_ids = $fiscalYear['fund_requests_ids'];
 // unless a specific one is provided
@@ -375,8 +388,8 @@ $values = [
     'fund_requests'       => $fund_requests,
     'executions'          => $executions,
 
-    'organisation'        => $fiscalYear['condo_id']['managing_agent_id'],
-    'organisation_logo'   => $getOrganisationLogo($fiscalYear['condo_id']['managing_agent_id']['id'], 'realestate\management\ManagingAgent'),
+    'organisation'        => $organisation,
+    'organisation_logo'   => $getOrganisationLogo($organisation['id']),
 
     'condominium'         => $fiscalYear['condo_id'],
 
