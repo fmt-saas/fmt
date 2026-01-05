@@ -179,7 +179,7 @@ $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']]
 $lang = $params['lang'];
 
 // retrieve template (subject & body)
-$subject = 'Convocation';
+$subject = '';
 $introduction = '';
 
 $template = Template::search([
@@ -191,6 +191,7 @@ $template = Template::search([
 
 foreach($template['parts_ids'] as $part_id => $part) {
     if($part['name'] == 'subject') {
+        /*
         $subject = strip_tags($part['value']);
 
         $map_values = [
@@ -206,6 +207,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
         }, $subject);
 
         $subject = strip_tags($subject);
+        */
     }
     elseif($part['name'] == 'introduction') {
         $introduction = $part['value'];
@@ -221,6 +223,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'firstname'         => $assemblyInvitationCorrespondence['owner_id']['firstname'],
             'lastname'          => $assemblyInvitationCorrespondence['owner_id']['lastname'],
             'condo'             => $assembly['condo_id']['name'],
+            'assembly'          => $assembly['name'],
             'date'              => $getFormattedDate($assembly['assembly_date']),
             'location'          => $assembly['assembly_location'],
             'type'              => $map_types[$assembly['assembly_type']],

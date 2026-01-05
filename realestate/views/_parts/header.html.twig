@@ -103,21 +103,16 @@
 
                             <!-- fiscal_year-info start -->
                             <div class="fiscal_year-info {{ debug ? 'debug' : '' }}">
+                                {% if title | length > 0 %}
                                 <h2 style="text-transform: uppercase; margin-bottom: 10px;">
                                     {{ title }}
                                 </h2>
-
+                                {% endif %}
                                 <table>
                                     {% if document_number | length > 0 %}
                                     <tr>
                                         <td style="text-align: right; text-transform: uppercase; padding-right: 10px;">N° DOC:</td>
                                         <td style="text-align: left;">{{ document_number }}</td>
-                                    </tr>
-                                    {% endif %}
-                                    {% if date is defined %}
-                                    <tr>
-                                        <td style="text-align: right; text-transform: uppercase; padding-right: 10px; min-width: 125px;">FAIT LE:</td>
-                                        <td style="text-align: left;">{{ date | date(date_format, timezone) }}</td>
                                     </tr>
                                     {% endif %}
                                     {% if fiscal_period is defined %}
@@ -161,6 +156,11 @@
                                 {% endif %}
                             </div>
                         </div>
+                        {% if date is defined %}
+                        <div>
+                            {{ date | date(date_format, timezone) }}
+                        </div>
+                        {% endif %}
                         <!-- recipient-info end -->
                     </td>
                 </tr>
