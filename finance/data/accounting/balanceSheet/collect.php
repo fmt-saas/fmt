@@ -298,22 +298,22 @@ foreach($balances as $code => $balance) {
     }
     // normal case
     else {
-        // asset - increases by debit
-        if($nature === 'asset') {
-            $balances_asset[$code] = [
-                'account_id'   => $balance['account_id'],
-                'account_code' => $code,
-                'description'  => $balance['description'],
-                'balance'      => $raw,
-            ];
-        }
         // liability - increases by credit
-        elseif($nature === 'liability') {
+        if($nature === 'liability') {
             $balances_liability[$code] = [
                 'account_id'   => $balance['account_id'],
                 'account_code' => $code,
                 'description'  => $balance['description'],
                 'balance'      => abs($raw),
+            ];
+        }
+        // asset - increases by debit
+        else {
+            $balances_asset[$code] = [
+                'account_id'   => $balance['account_id'],
+                'account_code' => $code,
+                'description'  => $balance['description'],
+                'balance'      => $raw,
             ];
         }
     }
