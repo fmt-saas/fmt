@@ -154,7 +154,7 @@ foreach($data as $line) {
     $total_asset     += $asset_balance;
     $total_liability += $liability_balance;
 
-    $lines[] = [
+    $line = [
         'asset' => [
             'code'        => $line['asset_account_code'] ?? null,
             'description' => $line['asset_account_description'] ?? null,
@@ -166,6 +166,16 @@ foreach($data as $line) {
             'balance'     => $liability_balance
         ]
     ];
+
+    if(is_null($line['asset']['code'])) {
+        $line['asset']['balance'] = null;
+    }
+
+    if(is_null($line['liability']['code'])) {
+        $line['liability']['balance'] = null;
+    }
+
+    $lines[] = $line;
 }
 
 
@@ -210,7 +220,8 @@ try {
                 if(is_null($value)) {
                     return '';
                 }
-                return number_format((float) $value, 2, ",", ".").'&nbsp;€';
+                // return number_format((float) $value, 2, ",", ".") . ' €';
+                return number_format((float) $value, 2, ",", ".");
             })
         );
 
