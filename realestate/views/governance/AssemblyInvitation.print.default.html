@@ -28,6 +28,10 @@
             margin: 1cm 1cm;
         }
 
+        .page-break {
+            page-break-before: always;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -87,21 +91,13 @@
         '4_5': 'Majorité des 4/5'
     } %}
 
+    <div class="page-break"></div>
 
-<p>Par la présente, nous vous invitons à assister à l’{{ assemblyTypes[assembly.assembly_type] }} de votre copropriété:</p>
+    <p>
+        {{ assembly.heading_text_call | raw }}
+    </p>
 
-<ul>
-    <li>Date: {{ assembly.assembly_date | format_datetime(pattern='EEEE', locale=locale) }} {{ assembly.assembly_date | date(date_format, timezone) }}</li>
-    <li>Lieu : {{ assembly.assembly_location }}</li>
-    <li>Début de séance: {{ '%02d:%02d'|format( (assembly.session_time_start // 3600), ((assembly.session_time_start % 3600) // 60) ) }}</li>
-</ul>
-
-
-        <p>
-            {{ assembly.heading_text_call | raw }}
-        </p>
-
-        {% for item in assembly.assembly_items_ids %}
+    {% for item in assembly.assembly_items_ids %}
         <p>
             {% set assemblyItem = map_assembly_items[item.id] %}
 
@@ -147,12 +143,12 @@
                 </table>
             {% endif %}
         </p>
-        {% endfor %}
+    {% endfor %}
 
 
-        <p>
-            {{ assembly.closing_text_call | raw }}
-        </p>
+    <p>
+        {{ assembly.closing_text_call | raw }}
+    </p>
 
 
 
