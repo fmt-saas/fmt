@@ -234,12 +234,15 @@ $result = AccountingEntryLine::search($domain->toArray())
     ->get(true);
 
 foreach($result as &$line) {
+    /*
+    // #memo - name of the target is already in the Account name
     if($line['account_id']['ownership_id']) {
         $line['account_id']['name'] .= ' (' . $line['account_id']['ownership_id']['name'] . ')';
     }
     elseif($line['account_id']['suppliership_id']) {
         $line['account_id']['name'] .= ' (' . $line['account_id']['suppliership_id']['name'] . ')';
     }
+    */
     $line['balance'] = floatval($line['debit']) - floatval($line['credit']);
 }
 
