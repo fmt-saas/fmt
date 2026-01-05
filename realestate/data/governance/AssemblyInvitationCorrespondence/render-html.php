@@ -253,7 +253,7 @@ $values = [
     'condominium'               => $assembly['condo_id'],
 
     'organisation'              => $$organisation,
-    'organisation_logo'         => $getOrganisationLogo($$organisation['id']),
+    'organisation_logo'         => $getOrganisationLogo($organisation['id']),
 
     'date'                      => $assembly['assembly_invitation_date'],
     'recipient'                 => $assemblyInvitationCorrespondence['owner_id'],
