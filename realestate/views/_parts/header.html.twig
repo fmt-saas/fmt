@@ -73,7 +73,7 @@
                     <!-- organisation-info start  (organisation is the managing agent) -->
                     <div class="organisation-info {{ debug ? 'debug':'' }}">
                         <div style="padding-left: 10px;">
-                            <h3>{{ organisation.legal_name }}</h3>
+                            <div style="font-weight: bold;">{{ organisation.legal_name }}</div>
                             <div>{{ organisation.address_street }}</div>
                             <div>{{ organisation.address_zip }} {{ organisation.address_city }}</div>
                             {% if organisation.registration_number | length > 0 %}
