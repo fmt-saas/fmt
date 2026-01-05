@@ -1873,9 +1873,13 @@ class DocumentProcess extends Model {
     public static function canupdate($self, $values) {
         $self->read(['status']);
         $allowed_fields = ['assigned_employee_id'];
-        foreach($self as $id => $chart) {
+        foreach($self as $id => $documentProcess) {
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
-                if($chart['status'] == 'integrated') {
+                ob_start();
+                print_r($values);
+                $out = ob_get_clean();
+                trigger_error("APP::non allowed field for DocumentProcess update: ". $out, EQ_REPORT_ERROR);
+                if($documentProcess['status'] === 'integrated') {
                     return ['status' => ['not_allowed' => 'Integrated document cannot be modified.']];
                 }
             }
