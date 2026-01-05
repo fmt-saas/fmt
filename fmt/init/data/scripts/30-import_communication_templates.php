@@ -73,15 +73,15 @@ $template = Template::create([
     ->first();
 TemplatePart::create([
     'name'          => 'subject',
-    'value'         => 'Invitation à {assembly}',
+    'value'         => 'Convocation à {assembly}',
     'template_id'   => $template['id'],
     'variables'     => '["condo", "assembly", "date"]'
 ]);
 TemplatePart::create([
     'name'          => 'introduction',
-    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Vous êtes cordialement convié à une nouvelle assemblée des copropriétaires de la copropriété {condo}.</p><p><br></p><p>Veuillez trouver l'invitation et les détails en pièce jointe.</p><p><br></p><p>Bien cordialement,</p>",
+    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Vous êtes cordialement convoqué à une nouvelle assemblée des copropriétaires de la copropriété {condo}.</p><p><br></p><p>Veuillez trouver l'invitation et les détails en pièce jointe.</p><p><br></p><p>Bien cordialement,</p>",
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "firstname", "lastname", "date"]'
+    'variables'     => '["condo", "assembly", "date", "location", "type", "time_start"]'
 ]);
 
 

@@ -60,6 +60,13 @@ use Twig\Extension\ExtensionInterface;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
+$getFormattedDate = function($timestamp) {
+    $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
+    $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
+    $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
+    return date($date_format, $timestamp + $tz_offset);
+};
+
 $getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
     $result = '';
 
@@ -176,11 +183,21 @@ foreach($template['parts_ids'] as $part_id => $part) {
     elseif($part['name'] == 'introduction') {
         $introduction = $part['value'];
 
+        $map_types = [
+            'statutory' => 'Assemblée Générale Statutaire',
+            'takeover' => 'Assemblée Générale de Reprise de gestion',
+            'ordinary' => 'Assemblée Générale Ordinaire',
+            'extraordinary' => 'Assemblée Générale Extraordinaire'
+        ];
+
         $map_values = [
             // 'firstname'         => $owner['identity_id']['firstname'],
             // 'lastname'          => $owner['identity_id']['lastname'],
             'condo'             => $assembly['condo_id']['name'],
-            'date'              => $assembly['assembly_date']
+            'date'              => $getFormattedDate($assembly['assembly_date']),
+            'location'          => $assembly['assembly_location'],
+            'type'              => $map_types[$assembly['assembly_type']],
+            'time_start'        => sprintf('%02d:%02d', $assembly['session_time_start'] / 3600, ($assembly['session_time_start'] % 3600) / 60)
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
