@@ -208,10 +208,10 @@ foreach($map_accounts as $account_id => $account) {
             break;
         }
         $parent_code = $map_accounts[$parent_account_id]['code'];
-        $target_account_id = $parent_account_id;
         if(strlen($parent_code) <= 3) {
             break;
         }
+        $target_account_id = $parent_account_id;
         $parent_account_id = $map_accounts[$parent_account_id]['parent_account_id'];
     }
 
