@@ -78,7 +78,7 @@
                 "type": "field",
                 "label": "Assigned Employee",
                 "value": "assigned_employee_id",
-                "width": "25%",
+                "width": "20%",
                 "readonly": true
             },
             {

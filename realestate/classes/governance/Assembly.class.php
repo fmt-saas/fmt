@@ -158,6 +158,7 @@ class Assembly extends \equal\orm\Model {
                 'description'    => "Items on the assembly agenda.",
                 'foreign_object' => 'realestate\governance\AssemblyItem',
                 'foreign_field'  => 'assembly_id',
+                'domain'         => [ ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null] ],
                 'onupdate'       => 'onupdateAssemblyItemsIds',
                 'order'          => 'order'
             ],
