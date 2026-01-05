@@ -53,6 +53,12 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "variables",
+                                                "width": "100%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "value",
                                                 "width": "100%",
                                                 "widget": {

@@ -33,6 +33,9 @@
     "sort": "asc",
     "limit": 250,
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",

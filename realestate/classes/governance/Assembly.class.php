@@ -347,6 +347,7 @@ class Assembly extends \equal\orm\Model {
                 'type'              => 'computed',
                 'result_type'       => 'integer',
                 'description'       => "The theoretical number of owners that own at least one primary property lot.",
+                'help'              => "This count considers the Ownerships and not individual owners.",
                 'function'          => 'calcCountOwners',
                 'store'             => true,
                 'readonly'          => true
@@ -1788,6 +1789,8 @@ class Assembly extends \equal\orm\Model {
                 }
             }
             foreach($assembly['assembly_invitation_correspondences_ids'] as $assembly_invitation_correspondence_id => $assemblyInvitationCorrespondence) {
+                // #todo #demo - reactivate - for demo only
+                /*
                 // find related email (there should be only one)
                 $email = \core\Mail::search([['object_id', '=', $assembly_invitation_correspondence_id], ['object_class', '=', 'realestate\governance\AssemblyInvitationCorrespondence']])
                     ->read(['status'])
@@ -1806,6 +1809,7 @@ class Assembly extends \equal\orm\Model {
                     ];
                     break;
                 }
+                */
             }
         }
         return $result;
