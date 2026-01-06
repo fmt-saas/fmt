@@ -94,7 +94,10 @@
             {
                 "type": "field",
                 "value": "entry_date",
-                "width": "10%"
+                "width": "10%",
+                "widget": {
+                    "usage": "date/short"
+                }
             },
             {
                 "type": "field",
