@@ -472,7 +472,8 @@ foreach($lines as $line_id => $line) {
         'entry_journal'      => $map_journals[$line['accounting_entry_id']['journal_id']]['mnemo'],
         'entry_date'         => $line['entry_date'] ? (date('c', $line['entry_date'])) : null,
         'timestamp'          => $line['entry_date'] ?? null,
-        'entry_reference'    => preg_replace('#^[^/]+/#', '', $line['accounting_entry_id']['name'] ?? null),
+        // keep only last 3 parts
+        'entry_reference'    => ($ref = $line['accounting_entry_id']['name'] ?? null) ? implode('/', array_slice(explode('/', $ref), -3)) : null,
         'supplier_id'        => $supplier_id,
         'supplier_reference' => $supplier_reference,
         'owner_share'        => $owner_share,

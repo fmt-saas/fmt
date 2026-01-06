@@ -264,7 +264,7 @@ class CondominiumBankAccount extends BankAccount {
                     ->first();
 
                 $parentJournal = Journal::search([['condo_id', '=', $bankAccount['condo_id']], ['journal_type', '=', 'BANK'], ['has_parent', '=', false]])
-                    ->read(['code', 'sub_journals_ids'])
+                    ->read(['code', 'mnemo', 'sub_journals_ids'])
                     ->first();
 
                 if($parentJournal) {
@@ -272,6 +272,7 @@ class CondominiumBankAccount extends BankAccount {
                     Journal::create([
                             'condo_id'              => $bankAccount['condo_id'],
                             'code'                  => $journal_code,
+                            'mnemo'                 => $parentJournal['mnemo'],
                             'description'           => $bankAccount['name'],
                             'journal_type'          => 'BANK',
                             'has_parent'            => true,
