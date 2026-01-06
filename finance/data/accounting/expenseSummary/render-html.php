@@ -227,7 +227,7 @@ $values = [
     'groups'              => $groups,
     'grand_total'         => $grand_total,
 
-    'date'                => $date,
+    'date'                => null,
     'timezone'            => constant('L10N_TIMEZONE'),
     'locale'              => constant('L10N_LOCALE'),
     'date_format'         => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
