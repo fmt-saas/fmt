@@ -172,35 +172,49 @@ if(isset($params['fiscal_year_id'])) {
 $groups = [];
 $grand_total = 0.0;
 
-foreach ($data as $line) {
+foreach($data as $line) {
 
-    $apportionment = $line['apportionment'];
-    $account       = $line['account'];
-    $amount        = (float) $line['amount'];
+    $apportionment  = $line['apportionment'];
+    $parentAccount  = $line['parent_account'] ?? '—';
+    $account        = $line['account'];
+    $amount         = (float) $line['amount'];
 
+    // Apportionment
     if (!isset($groups[$apportionment])) {
         $groups[$apportionment] = [
-            'label'    => $apportionment,
+            'label'           => $apportionment,
+            'parent_accounts' => [],
+            'total'           => 0.0
+        ];
+    }
+
+    // Parent account
+    if (!isset($groups[$apportionment]['parent_accounts'][$parentAccount])) {
+        $groups[$apportionment]['parent_accounts'][$parentAccount] = [
+            'label'    => $parentAccount,
             'accounts' => [],
             'total'    => 0.0
         ];
     }
 
-    if (!isset($groups[$apportionment]['accounts'][$account])) {
-        $groups[$apportionment]['accounts'][$account] = [
+    // Account
+    if (!isset($groups[$apportionment]['parent_accounts'][$parentAccount]['accounts'][$account])) {
+        $groups[$apportionment]['parent_accounts'][$parentAccount]['accounts'][$account] = [
             'label' => $account,
             'lines' => [],
             'total' => 0.0
         ];
     }
 
-    $groups[$apportionment]['accounts'][$account]['lines'][] = $line;
+    // Lines
+    $groups[$apportionment]['parent_accounts'][$parentAccount]['accounts'][$account]['lines'][] = $line;
 
-    $groups[$apportionment]['accounts'][$account]['total'] += $amount;
+    // Totals
+    $groups[$apportionment]['parent_accounts'][$parentAccount]['accounts'][$account]['total'] += $amount;
+    $groups[$apportionment]['parent_accounts'][$parentAccount]['total'] += $amount;
     $groups[$apportionment]['total'] += $amount;
     $grand_total += $amount;
 }
-
 
 $values = [
     'title'               => 'Dépenses courantes',

@@ -153,17 +153,27 @@
                 </td>
             </tr>
 
-            {% for account in group.accounts %}
+            {% for parent in group.parent_accounts %}
+
+            <!-- Parent account -->
+            <tr class="group-header parent-account">
+                <td colspan="5" style="padding-left: 15px; font-weight: bold;">
+                    {{ parent.label }} — Total : {{ parent.total | format_money }}
+                </td>
+            </tr>
+
+            {% for account in parent.accounts %}
+
                 <!-- Account -->
-                <tr class="group-header">
-                    <td colspan="5" style="padding-left: 15px;">
+                <tr class="group-header account">
+                    <td colspan="5" style="padding-left: 30px;">
                         {{ account.label }} — Total : {{ account.total | format_money }}
                     </td>
                 </tr>
 
                 {% for line in account.lines %}
                     <tr>
-                        <td style="padding-left: 30px;">
+                        <td style="padding-left: 45px;">
                             {{ line.description }}
                         </td>
                         <td>
@@ -182,6 +192,7 @@
                 {% endfor %}
 
             {% endfor %}
+
         {% endfor %}
 
         </tbody>
