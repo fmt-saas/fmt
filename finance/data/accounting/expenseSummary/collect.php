@@ -392,7 +392,9 @@ if(!empty($statements_ids)) {
 if(!empty($apportionments_ids)) {
     $map_apportionments = Apportionment::ids($apportionments_ids)
         ->read([
-            'name'
+            'name',
+            'code',
+            'description'
         ])
         ->get();
 }
@@ -457,7 +459,7 @@ foreach($lines as $line_id => $line) {
 
     $result[] = [
         'id'                 => $line_id,
-        'apportionment'      => $map_apportionments[$apportionment_id]['name'] ?? '(autre)',
+        'apportionment'      => 'clé ' . ($map_apportionments[$apportionment_id]['code'] ?? '(autre)'),
         'account'            => (string) $account['name'],
         'description'        => (string) $line['description'],
         'entry_date'         => $line['entry_date'] ? (date('c', $line['entry_date'])) : null,
