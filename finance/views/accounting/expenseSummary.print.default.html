@@ -160,8 +160,11 @@
         {% for group in groups %}
             <!-- Apportionment -->
             <tr class="group-header apportionment">
-                <td colspan="5" style="font-size: 12px;">
-                    {{ group.label }} — Total : {{ group.total | format_money }}
+                <td colspan="4" style="font-size: 12px;">
+                    {{ group.label }}
+                </td>
+                <td style="font-size: 12px;">
+                    {{ group.total | format_money }}
                 </td>
             </tr>
 
@@ -169,8 +172,11 @@
 
             <!-- Parent account -->
             <tr class="group-header parent-account">
-                <td colspan="5" style="padding-left: 15px; font-size: 11px;">
-                    {{ parent.label }} — Total : {{ parent.total | format_money }}
+                <td colspan="4" style="padding-left: 15px; font-size: 11px;">
+                    {{ parent.label }}
+                </td>
+                <td>
+                    {{ parent.total | format_money }}
                 </td>
             </tr>
 
@@ -178,8 +184,11 @@
 
                     <!-- Account -->
                     <tr class="group-header account">
-                        <td colspan="5" style="padding-left: 30px;">
-                            {{ account.label }} — Total : {{ account.total | format_money }}
+                        <td colspan="4" style="padding-left: 30px;">
+                            {{ account.label }}
+                        </td>
+                        <td >
+                            {{ account.total | format_money }}
                         </td>
                     </tr>
 
