@@ -402,7 +402,12 @@ foreach($lines as $line_id => $line) {
 
     // Prefer grouping by storage/collector if you want "summary" by collector
     $account = $map_accounts[$account_id];
-    $parentAccount = $map_parent_storage[$account_id] ?? null;
+
+    $parentAccount = null;
+    if(isset($map_parent_storage[$account_id])) {
+        $parentAccount = $map_accounts[$map_parent_storage[$account_id]] ?? null;
+    }
+
     $apportionment_id = null;
     $supplier_id = null;
     $supplier_reference = null;
@@ -438,7 +443,7 @@ foreach($lines as $line_id => $line) {
         'apportionment'      => 'clé ' . ($map_apportionments[$apportionment_id]['code'] ?? '(autre)'),
         'apportionment_name' => $map_apportionments[$apportionment_id]['name'] ?? '(autre)',
         'account'            => (string) ($account['name'] ?? ''),
-        'parent_account'     => $account['parent_account_id'],
+        'parent_account'     => (string) ($parentAccount['name'] ?? ''),
         'description'        => (string) $line['description'],
         'entry_date'         => $line['entry_date'] ? (date('c', $line['entry_date'])) : null,
         'entry_reference'    => $line['accounting_entry_id']['name'] ?? null,
