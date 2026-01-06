@@ -124,7 +124,15 @@
         tr.group-header.apportionment {
         }
 
+        tr.group-header.apportionment td {
+            font-size: 12px;
+        }
+
         tr.group-header.parent_account {
+        }
+
+        tr.group-header.parent_account td {
+            font-size: 11px;
         }
 
         tr.group-header.account {
@@ -160,10 +168,10 @@
         {% for group in groups %}
             <!-- Apportionment -->
             <tr class="group-header apportionment">
-                <td colspan="4" style="font-size: 12px;">
+                <td colspan="4">
                     {{ group.label }}
                 </td>
-                <td style="font-size: 12px;">
+                <td>
                     {{ group.total | format_money }}
                 </td>
             </tr>
@@ -172,7 +180,7 @@
 
             <!-- Parent account -->
             <tr class="group-header parent-account">
-                <td colspan="4" style="padding-left: 15px; font-size: 11px;">
+                <td colspan="4">
                     {{ parent.label }}
                 </td>
                 <td>
@@ -184,17 +192,17 @@
 
                     <!-- Account -->
                     <tr class="group-header account">
-                        <td colspan="4" style="padding-left: 30px;">
+                        <td colspan="4">
                             {{ account.label }}
                         </td>
-                        <td >
+                        <td>
                             {{ account.total | format_money }}
                         </td>
                     </tr>
 
                     {% for line in account.lines %}
                         <tr>
-                            <td style="padding-left: 45px;">
+                            <td>
                                 {{ line.description }}
                             </td>
                             <td>
