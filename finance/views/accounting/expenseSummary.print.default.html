@@ -34,7 +34,7 @@
             /* margin-bottom must match footer::height */
             margin-bottom: 50px;
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
+            font-size: 10px;
             text-align: justify;
             width: 100%;
         }
@@ -110,12 +110,21 @@
             border-top: 1px solid black;
         }
 
-        .group-header td {
+        tr.group-header td {
             font-weight: bold;
             background: #f5f5f5;
             border-top: 2px solid black;
             border-bottom: 2px solid black;
             text-align: left !important;
+        }
+
+        tr.group-header.apportionment {
+        }
+
+        tr.group-header.parent_account {
+        }
+
+        tr.group-header.account {
         }
 
         .total-footer {
@@ -147,8 +156,8 @@
 
         {% for group in groups %}
             <!-- Apportionment -->
-            <tr class="group-header">
-                <td colspan="5">
+            <tr class="group-header apportionment">
+                <td colspan="5" style="font-size: 12px;">
                     {{ group.label }} — Total : {{ group.total | format_money }}
                 </td>
             </tr>
@@ -157,7 +166,7 @@
 
             <!-- Parent account -->
             <tr class="group-header parent-account">
-                <td colspan="5" style="padding-left: 15px; font-weight: bold;">
+                <td colspan="5" style="padding-left: 15px; font-size: 11px;">
                     {{ parent.label }} — Total : {{ parent.total | format_money }}
                 </td>
             </tr>
@@ -193,7 +202,18 @@
 
                 {% endfor %}
 
+            <tr>
+                <td colspan="5">
+                    &nbsp;
+                </td>
+            </tr>
+
             {% endfor %}
+            <tr>
+                <td colspan="5">
+                    &nbsp;
+                </td>
+            </tr>
 
         {% endfor %}
 
