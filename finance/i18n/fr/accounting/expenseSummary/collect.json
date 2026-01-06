@@ -1,61 +1,120 @@
 {
-    "name": "Dépenses courantes",
-    "plural": "Dépenses courantes",
-    "description": "Collecteur avancé des écritures pour générer les dépenses courantes.",
+    "name": "Depenses courantes",
+    "plural": "Depenses courantes",
+    "description": "Collecteur avance des ecritures pour generer les depenses courantes.",
     "model": {
         "apportionment": {
-            "label": "Clé",
-            "description": "Clé de répartition utilisée pour ventiler le montant entre postes, périodes ou copropriétaires."
+            "label": "Cle",
+            "description": "Cle de repartition utilisee pour ventiler le montant entre postes, periodes ou coproprietaires.",
+            "help": "Nom de la cle issue des repartitions associees aux operations."
+        },
+        "parent_account": {
+            "label": "Compte collecteur",
+            "description": "Compte de controle regroupant les ecritures detaillees.",
+            "help": "Plus haut compte parent marque comme compte de controle pour l'imputation."
         },
         "account": {
             "label": "Compte",
-            "description": "Compte comptable (numéro ou référence) associé à la ligne."
+            "description": "Compte comptable (numero ou reference) associe a la ligne.",
+            "help": "Compte detail de la classe 6 ou 7."
         },
         "description": {
-            "label": "Libellé",
-            "description": "Libellé ou description de l'opération."
+            "label": "Libelle",
+            "description": "Libelle ou description de l'operation.",
+            "help": "Intitule issu de la ligne d'ecriture ou du justificatif."
+        },
+        "entry_journal": {
+            "label": "Journal",
+            "description": "Mnemo du journal comptable d'origine.",
+            "help": "Identifie le journal de l'ecriture comptable."
         },
         "entry_date": {
             "label": "Date",
-            "description": "Date de l'écriture comptable."
+            "description": "Date de l'ecriture comptable.",
+            "help": "Date de comptabilisation de la ligne."
         },
         "entry_reference": {
-            "label": "Référence",
-            "description": "Référence ou identifiant de l'écriture comptable."
+            "label": "Reference",
+            "description": "Reference ou identifiant de l'ecriture comptable.",
+            "help": "Reference simplifiee de l'ecriture (sans prefixe)."
         },
         "supplier_id": {
             "label": "Fournisseur",
-            "description": "Identifiant du fournisseur lié à la facture ou à l'écriture."
+            "description": "Identifiant du fournisseur lie a la facture ou a l'ecriture.",
+            "help": "Renseigne la contrepartie fournisseur ou la banque."
         },
         "supplier_reference": {
-            "label": "Réf. fournisseur",
-            "description": "Référence fournie par le fournisseur (ex. numéro de facture)."
+            "label": "Ref. fournisseur",
+            "description": "Reference fournie par le fournisseur (ex. numero de facture).",
+            "help": "Numero de facture ou reference de releve."
         },
         "owner_share": {
             "label": "Part Prop.",
-            "description": "Quote-part de la charge attribuée au propriétaire."
+            "description": "Quote-part de la charge attribuee au proprietaire.",
+            "help": "Pourcentage impute au proprietaire pour cette ligne."
         },
         "tenant_share": {
-            "label": "part Loc.",
-            "description": "Quote-part de la charge attribuée au locataire."
+            "label": "Part Loc.",
+            "description": "Quote-part de la charge attribuee au locataire.",
+            "help": "Pourcentage impute au locataire pour cette ligne."
+        },
+        "vat_rate": {
+            "label": "TVA",
+            "description": "Taux de TVA applique a l'operation.",
+            "help": "Taux associe a la ligne facture ou releve."
+        },
+        "amount": {
+            "label": "Montant",
+            "description": "Montant TTC ou mouvement comptable de la ligne.",
+            "help": "Difference debit-credit, arrondie a deux decimales."
+        },
+        "domain": {
+            "label": "Filtre",
+            "description": "Domaine de recherche applique aux lignes.",
+            "help": "Conditions techniques utilisees pour collecter les ecritures."
+        },
+        "date_from": {
+            "label": "Date debut",
+            "description": "Debut de l'intervalle de dates des ecritures.",
+            "help": "Filtre optionnel; sinon la periode fiscale ouverte est utilisee."
+        },
+        "date_to": {
+            "label": "Date fin",
+            "description": "Fin de l'intervalle de dates des ecritures.",
+            "help": "Filtre optionnel; sinon la periode fiscale ouverte est utilisee."
+        },
+        "condo_id": {
+            "label": "Copropriete",
+            "description": "Copropriete pour laquelle collecter les depenses.",
+            "help": "Obligatoire; determine comptes, journaux et periode fiscale."
+        },
+        "fiscal_year_id": {
+            "label": "Exercice fiscal",
+            "description": "Exercice utilise pour borner les dates des ecritures.",
+            "help": "Par defaut l'exercice ouvert le plus recent est selectionne."
         }
     },
     "view": {
         "collect.list.default": {
-            "name": "Dépenses courantes",
-            "description": "Vue détaillée des lignes de dépenses courantes.",
+            "name": "Depenses courantes",
+            "description": "Vue detaillee des lignes de depenses courantes.",
             "actions": {
                 "action.export": {
                     "label": "Exporter",
-                    "description": "Exporter un document PDF à partir du filtre actif."
+                    "description": "Exporter un document PDF a partir du filtre actif."
                 }
-            }
+            },
+            "layout": {}
         },
         "collect.search.default": {
-            "name": "Recherche des dépenses courantes",
-            "description": "Filtres avancés pour sélectionner les écritures de dépenses courantes."
+            "name": "Recherche des depenses courantes",
+            "description": "Filtres avances pour selectionner les ecritures de depenses courantes.",
+            "layout": {}
         }
     },
     "error": {
+        "condo_id": {
+            "missing_condo_id": "Aucune copropriete specifiee pour collecter les depenses."
+        }
     }
 }
