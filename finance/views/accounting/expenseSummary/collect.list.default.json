@@ -123,6 +123,11 @@
             },
             {
                 "type": "field",
+                "value": "vat_rate",
+                "width": "10%"
+            },
+            {
+                "type": "field",
                 "value": "amount",
                 "width": "15%"
             }
