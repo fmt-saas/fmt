@@ -17,7 +17,7 @@
             "context": {
                 "entity": "documents\\processing\\DocumentProcess",
                 "view": "list.processing",
-                "domain": ["status", "<>", "integrated"]
+                "domain": ["status", "not in", ["integrated", "cancelled", "removed"]]
             },
             "visible": [
                 ["document", "=", "object.document_type_code"]
@@ -32,7 +32,7 @@
             "context": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                 "view": "list.processing",
-                "domain": ["document_process_status", "<>", "integrated"]
+                "domain": ["document_process_status", "not in", ["integrated", "cancelled", "removed"]]
             },
             "visible": [
                 ["invoice", "=", "object.document_type_code"]
@@ -47,7 +47,7 @@
             "context": {
                 "entity": "finance\\bank\\BankStatement",
                 "view": "list.processing",
-                "domain": ["document_process_status", "<>", "integrated"]
+                "domain": ["document_process_status", "not in", ["integrated", "cancelled", "removed"]]
             },
             "visible": [
                 ["bank_statement", "=", "object.document_type_code"]
