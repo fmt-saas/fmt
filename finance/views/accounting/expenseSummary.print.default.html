@@ -160,10 +160,11 @@
     <table>
         <thead>
             <tr>
-                <th>Description</th>
-                <th>Référence</th>
                 <th>Fournisseur</th>
+                <th>Journal</th>
+                <th>Référence</th>
                 <th>Date</th>
+                <th>Description</th>
                 <th>Montant</th>
             </tr>
         </thead>
@@ -173,7 +174,7 @@
         {% for group in groups %}
             <!-- Apportionment -->
             <tr class="group-header apportionment">
-                <td colspan="4">
+                <td colspan="5">
                     {{ group.label }}
                 </td>
                 <td>
@@ -185,7 +186,7 @@
 
             <!-- Parent account -->
             <tr class="group-header parent-account">
-                <td colspan="4">
+                <td colspan="5">
                     {{ parent.label }}
                 </td>
                 <td>
@@ -197,7 +198,7 @@
 
                     <!-- Account -->
                     <tr class="group-header account">
-                        <td colspan="4">
+                        <td colspan="5">
                             {{ account.label }}
                         </td>
                         <td style="text-align: right;">
@@ -208,16 +209,19 @@
                     {% for line in account.lines %}
                         <tr>
                             <td>
-                                {{ line.description }}
+                                {{ line.supplier_id.name }}
+                            </td>
+                            <td>
+                                {{ line.entry_journal }}
                             </td>
                             <td>
                                 {{ line.entry_reference }}
                             </td>
                             <td>
-                                {{ line.supplier_id.name }}
+                                {{ line.entry_date | date("d/m/Y") }}
                             </td>
                             <td>
-                                {{ line.entry_date | date("d/m/Y") }}
+                                {{ line.description }}
                             </td>
                             <td style="text-align: right;">
                                 {{ line.amount | format_money }}
@@ -228,14 +232,14 @@
                 {% endfor %}
 
             <tr>
-                <td colspan="5" style="font-size: 4px;">
+                <td colspan="6" style="font-size: 4px;">
                     &nbsp;
                 </td>
             </tr>
 
             {% endfor %}
             <tr>
-                <td colspan="5" style="font-size: 4px;">
+                <td colspan="6" style="font-size: 4px;">
                     &nbsp;
                 </td>
             </tr>
@@ -246,7 +250,7 @@
 
         <tfoot>
             <tr class="total-footer">
-                <td colspan="4" style="text-align: right;">
+                <td colspan="5" style="text-align: right;">
                     Total général
                 </td>
                 <td>
