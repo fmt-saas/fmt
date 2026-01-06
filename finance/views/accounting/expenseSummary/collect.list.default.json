@@ -30,6 +30,11 @@
         {
             "open": true,
             "colspan": 3,
+            "field": "parent_account"
+        },
+        {
+            "open": true,
+            "colspan": 3,
             "field": "account"
         }
     ],
@@ -49,6 +54,12 @@
                 "type": "field",
                 "value": "apportionment",
                 "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "parent_account",
+                "width": "25%",
                 "visible": false
             },
             {

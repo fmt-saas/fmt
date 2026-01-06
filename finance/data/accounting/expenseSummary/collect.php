@@ -260,43 +260,26 @@ foreach($accounts as $account_id => $account) {
 
 // retrieve storage accounts (collectors) and map with each account
 $map_storage = [];
+$map_parent_storage = [];
 
 foreach($map_accounts as $account_id => $account) {
     $code = $account['code'];
 
     $map_storage[$account_id] = $account_id;
-    continue;
 
-    // #todo - remove if not necessary
     $parent_account_id = $account['parent_account_id'];
 
-    // account is a control account (collector)
-    if($account['is_control_account']) {
-        $map_storage[$account_id] = $account_id;
-        continue;
-    }
-
-    // account is a level-3 account (or less)
-    if(strlen($code) <= 3) {
-        $map_storage[$account_id] = $account_id;
-        continue;
-    }
-    $target_account_id = $account_id;
-
-    // retrieve first level-3 parent
     while($parent_account_id) {
-        $target_account_id = $parent_account_id;
         if(!isset($map_accounts[$parent_account_id])) {
             break;
         }
-        $parent_code = $map_accounts[$parent_account_id]['code'];
-        if(strlen($parent_code) <= 3) {
+        $parentAccount = $map_accounts[$parent_account_id];
+        if($parentAccount['is_control_account']) {
+            $map_parent_storage[$account_id] = $parent_account_id;
             break;
         }
-        $parent_account_id = $map_accounts[$parent_account_id]['parent_account_id'];
+        $parent_account_id = $parentAccount['parent_account_id'];
     }
-
-    $map_storage[$account_id] = $target_account_id;
 }
 
 
@@ -426,7 +409,7 @@ foreach($lines as $line_id => $line) {
     $storage_account_id = $map_storage[$account_id] ?? $account_id;
 
     $account = $map_accounts[$storage_account_id];
-
+    $parentAccount = $map_parent_storage[$storage_account_id] ?? null;
     $apportionment_id = null;
     $supplier_id = null;
     $supplier_reference = null;
@@ -460,7 +443,9 @@ foreach($lines as $line_id => $line) {
     $result[] = [
         'id'                 => $line_id,
         'apportionment'      => 'clé ' . ($map_apportionments[$apportionment_id]['code'] ?? '(autre)'),
-        'account'            => (string) $account['name'],
+        'apportionment_name' => $map_apportionments[$apportionment_id]['name'] ?? '(autre)',
+        'account'            => (string) ($account['name'] ?? ''),
+        'parent_account'     => (string) ($parentAccount['name'] ?? ''),
         'description'        => (string) $line['description'],
         'entry_date'         => $line['entry_date'] ? (date('c', $line['entry_date'])) : null,
         'entry_reference'    => $line['accounting_entry_id']['name'] ?? null,
