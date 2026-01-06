@@ -263,6 +263,11 @@ $map_storage = [];
 
 foreach($map_accounts as $account_id => $account) {
     $code = $account['code'];
+
+    $map_storage[$account_id] = $account_id;
+    continue;
+
+    // #todo - remove if not necessary
     $parent_account_id = $account['parent_account_id'];
 
     // account is a control account (collector)

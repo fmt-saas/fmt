@@ -202,6 +202,7 @@ foreach($map_accounts as $account_id => $account) {
         */
     }
 
+    // #todo - use account_class
     if(in_array(substr($code, 0, 1), ['6', '7'])) {
         $map_storage[$account_id] = $adjustmentAccount['id'];
         continue;
