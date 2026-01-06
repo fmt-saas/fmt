@@ -673,11 +673,11 @@ class AssemblyItem extends AssemblyItemTemplate {
 // #todo - mettre à jour le items_count du parent group via onbeforeupdate
     protected static function onupdateParentGroupId($self) {
         $self
-            ->read(['assembly_template_id', 'parent_group_id'])
+            ->read(['assembly_id', 'parent_group_id'])
             ->do('refresh_order')
             ->do('refresh_items_count');
         foreach($self as $id => $assemblyItem) {
-            AssemblyTemplate::id($assemblyItem['assembly_template_id'])
+            Assembly::id($assemblyItem['assembly_id'])
                 ->do('refresh_items_order');
         }
     }

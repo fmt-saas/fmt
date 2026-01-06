@@ -217,33 +217,57 @@
                         {% for subitem_id in item.children_items_ids %}
                             {% set assemblySubItem = map_assembly_items[subitem_id] %}
                             <u>
-                                {{ item.order }}. {{ assemblySubItem.order }}. {{ assemblySubItem.name }} 
-                                {% if assemblySubItem.has_vote_required %}
-                                    {{ voteResultLabels[assemblySubItem.vote_result] }}
+                                {{ item.order }}. {{ assemblySubItem.order }}. {{ assemblySubItem.name }}
+                                {% if assemblySubItem.status == 'adjourned' %}
+                                    Reporté
+                                {% else %}
+                                    {% if assemblySubItem.has_vote_required %}
+                                        &nbsp;-&nbsp;{{ voteResultLabels[assemblySubItem.vote_result] }}
+                                    {% else %}
+                                        &nbsp;-&nbsp;Présenté & Examiné
+                                    {% endif %}
                                 {% endif %}
-
                             </u>
                             <br />
                             <table>
                                 <tr>
                                     <td style="width: 30px;"></td>
                                     <td>
-                                        {{ assemblySubItem.description_minutes | raw }}
-                                        {% if assemblySubItem.has_vote_required %}
-                                            {{ majorityLabels[assemblySubItem.majority] }}
-                                            {{ voteResultLabels[assemblySubItem.vote_result] }}
-                                        {% endif %}
 
                                         {% set ownerships_against = [] %}
                                         {% set ownerships_abstain = [] %}
 
+                                        {% set weights_for = 0.0 %}
+                                        {% set weights_against = 0.0 %}
+                                        {% set weights_abstain = 0.0 %}
+
                                         {% for vote in assemblySubItem.assembly_votes_ids %}
                                             {% if vote.vote_value == 'against' %}
                                                 {% set ownerships_against = ownerships_against | merge([map_ownerships[vote.ownership_id].name]) %}
+                                                {% set weights_against = weights_against + vote.vote_weight %}
                                             {% elseif vote.vote_value == 'abstain' %}
                                                 {% set ownerships_abstain = ownerships_abstain | merge([map_ownerships[vote.ownership_id].name]) %}
+                                                {% set weights_abstain = weights_abstain + vote.vote_weight %}
+                                            {% elseif vote.vote_value == 'for' %}
+                                                {% set weights_for = weights_for + vote.vote_weight %}
                                             {% endif %}
                                         {% endfor %}
+
+                                        {% set sum_votes = weights_for + weights_against %}
+                                        {% set ratio = sum_votes > 0 ? (weights_for / sum_votes) : 0.0 %}
+
+                                        {% if assemblySubItem.has_vote_required %}
+                                            {{ majorityLabels[assemblySubItem.majority] }}
+                                            {% if assemblySubItem.assembly_votes_ids is not empty and sum_votes > 0 %}
+                                                &nbsp;-&nbsp;
+                                                Pour: {{ (weights_for / sum_votes * 100) | number_format(1, ',', ' ') }}%
+                                                &nbsp;&nbsp;
+                                                Contre: {{ (weights_against / sum_votes * 100) | number_format(1, ',', ' ') }}%
+                                            {% endif %}
+                                            <br /><br />
+                                        {% endif %}
+
+                                        {{ assemblySubItem.description_minutes | raw }}
 
                                         {% if ownerships_against is not empty %}
                                             <p><strong>Contre :</strong>

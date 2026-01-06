@@ -21,12 +21,25 @@ use realestate\governance\AssemblyAttendee;
         'president_attendee_id' => [
             'type'           => 'many2one',
             'label'          => 'President Attendee',
-            'description'    => "Attendee the presided the assembly.",
+            'description'    => "Attendee who presided the assembly.",
             'foreign_object' => 'realestate\governance\AssemblyAttendee',
             'foreign_field'  => 'assembly_id',
             'domain'         => [
                 ['assembly_id', '=', 'object.id'],
                 ['attendee_role', 'in', ['attendee', 'president']],
+                ['is_valid', '=', true]
+            ],
+            'required'       => true
+        ],
+        'secretary_attendee_id' => [
+            'type'           => 'many2one',
+            'label'          => 'Secretary Attendee',
+            'description'    => "Attendee who acted as secretary for the assembly.",
+            'foreign_object' => 'realestate\governance\AssemblyAttendee',
+            'foreign_field'  => 'assembly_id',
+            'domain'         => [
+                ['assembly_id', '=', 'object.id'],
+                ['attendee_role', 'in', ['attendee', 'secretary']],
                 ['is_valid', '=', true]
             ],
             'required'       => true
@@ -72,6 +85,14 @@ if(!$attendee) {
 }
 
 AssemblyAttendee::id($params['president_attendee_id'])->do('promote_president');
+
+// si on a recu un secrétaire
+if($params['secretary_attendee_id']) {
+    // vérifier s'il y en a déjà un : si oui, et que c'est un owner, on met attendee
+    AssemblyAttendee::search(['attendee_role', '=', 'secretary'])->update(['attendee_role' => 'attendee']);
+    // dans tous les cas, on marque l'attendee sélectionné comme secretary et on le valide
+    AssemblyAttendee::id($params['secretary_attendee_id'])->update(['attendee_role' => 'secretary']);
+}
 
 Assembly::id($params['id'])->do('accept_minutes');
 
