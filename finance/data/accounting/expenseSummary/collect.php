@@ -241,7 +241,7 @@ $domain->addCondition(new DomainCondition('account_class', 'in', [6, 7]));
 
 
 // Retrieve accounting entry lines
-$lines = AccountingEntryLine::search($domain->toArray(), ['sort'  => ['entry_date' => 'asc']])
+$lines = AccountingEntryLine::search($domain->toArray())
     ->read([
         'account_id',
         'account_class',
@@ -471,6 +471,7 @@ foreach($lines as $line_id => $line) {
         'description'        => (string) $line['description'],
         'entry_journal'      => $map_journals[$line['accounting_entry_id']['journal_id']]['mnemo'],
         'entry_date'         => $line['entry_date'] ? (date('c', $line['entry_date'])) : null,
+        'timestamp'          => $line['entry_date'] ?? null,
         'entry_reference'    => preg_replace('#^[^/]+/#', '', $line['accounting_entry_id']['name'] ?? null),
         'supplier_id'        => $supplier_id,
         'supplier_reference' => $supplier_reference,
@@ -485,18 +486,23 @@ usort($result, function ($a, $b) {
 
     // 1. Apportionment
     $cmp = strnatcasecmp($a['apportionment'], $b['apportionment']);
-    if ($cmp !== 0) {
+    if($cmp !== 0) {
         return $cmp;
     }
 
     // 2. Parent account
     $cmp = strnatcasecmp($a['parent_account'], $b['parent_account']);
-    if ($cmp !== 0) {
+    if($cmp !== 0) {
         return $cmp;
     }
 
     // 3. Account
-    return strnatcasecmp($a['account'], $b['account']);
+    $cmp = strnatcasecmp($a['account'], $b['account']);
+    if($cmp !== 0) {
+        return $cmp;
+    }
+
+    return $a['timestamp'] <=> $b['timestamp'];
 });
 
 
