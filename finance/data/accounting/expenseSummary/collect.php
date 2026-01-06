@@ -258,7 +258,7 @@ $lines = AccountingEntryLine::search($domain->toArray())
 $map_journals = Journal::search([
         ['condo_id', '=', $params['condo_id']]
     ])
-    ->read(['code', 'name', 'description'])
+    ->read(['mnemo', 'code', 'name', 'description'])
     ->get();
 
 
@@ -469,7 +469,7 @@ foreach($lines as $line_id => $line) {
         'account'            => (string) ($account['name'] ?? ''),
         'parent_account'     => (string) ($parentAccount['name'] ?? ''),
         'description'        => (string) $line['description'],
-        'entry_journal'      => $map_journals[$line['accounting_entry_id']['journal_id']]['name'],
+        'entry_journal'      => $map_journals[$line['accounting_entry_id']['journal_id']]['mnemo'],
         'entry_date'         => $line['entry_date'] ? (date('c', $line['entry_date'])) : null,
         'entry_reference'    => preg_replace('#^[^/]+/#', '', $line['accounting_entry_id']['name'] ?? null),
         'supplier_id'        => $supplier_id,
