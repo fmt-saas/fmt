@@ -17,7 +17,7 @@
             "context": {
                 "entity": "documents\\processing\\DocumentProcess",
                 "view": "list.processing",
-                "domain": ["document_process_status", "<>", "integrated"]
+                "domain": ["status", "<>", "integrated"]
             },
             "visible": [
                 ["document", "=", "object.document_type_code"]
