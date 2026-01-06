@@ -160,12 +160,12 @@
     <table>
         <thead>
             <tr>
-                <th>Fournisseur</th>
-                <th>JNL</th>
-                <th>Référence</th>
-                <th>Date</th>
-                <th style="text-align: left;">Description</th>
-                <th>Montant</th>
+                <th style="width: 15%;">Fournisseur</th>
+                <th style="width: 10%;">JNL</th>
+                <th style="width: 20%;">Référence</th>
+                <th style="width: 10%;">Date</th>
+                <th style="width: 25%; text-align: left;">Description</th>
+                <th style="width: 20%;">Montant</th>
             </tr>
         </thead>
 
@@ -211,13 +211,13 @@
                             <td>
                                 {{ line.supplier_id.name }}
                             </td>
-                            <td>
+                            <td style="text-align: center;">
                                 {{ line.entry_journal }}
                             </td>
-                            <td>
+                            <td style="text-align: center;">
                                 {{ line.entry_reference }}
                             </td>
-                            <td>
+                            <td style="text-align: center;">
                                 {{ line.entry_date | date("d/m/Y") }}
                             </td>
                             <td style="text-align: left;">
