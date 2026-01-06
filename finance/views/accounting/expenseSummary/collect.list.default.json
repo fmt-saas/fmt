@@ -25,12 +25,24 @@
         {
             "open": true,
             "colspan": 3,
-            "field": "apportionment"
+            "field": "apportionment",
+            "operations": {
+                "amount": {
+                    "operation": "SUM",
+                    "usage": "amount/money:2"
+                }
+            }
         },
         {
             "open": true,
             "colspan": 3,
-            "field": "parent_account"
+            "field": "parent_account",
+            "operations": {
+                "amount": {
+                    "operation": "SUM",
+                    "usage": "amount/money:2"
+                }
+            }
         },
         {
             "open": true,
