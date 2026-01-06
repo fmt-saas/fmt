@@ -27,11 +27,6 @@ use realestate\property\Apportionment;
             'readonly' => true
         ],
 
-        'apportionment_name' => [
-            'type'     => 'string',
-            'readonly' => true
-        ],
-
         'parent_account' => [
             'type'     => 'string',
             'readonly' => true
@@ -459,7 +454,6 @@ foreach($lines as $line_id => $line) {
     $result[] = [
         'id'                 => $line_id,
         'apportionment'      => $map_apportionments[$apportionment_id]['name'] ?? '(autre)',
-        'apportionment_name' => $map_apportionments[$apportionment_id]['name'] ?? '(autre)',
         'account'            => (string) ($account['name'] ?? ''),
         'parent_account'     => (string) ($parentAccount['name'] ?? ''),
         'description'        => (string) $line['description'],
@@ -473,6 +467,25 @@ foreach($lines as $line_id => $line) {
         'amount'             => round($line['debit'] - $line['credit'], 2)
     ];
 }
+
+usort($result, function ($a, $b) {
+
+    // 1. Apportionment
+    $cmp = strnatcasecmp($a['apportionment'], $b['apportionment']);
+    if ($cmp !== 0) {
+        return $cmp;
+    }
+
+    // 2. Parent account
+    $cmp = strnatcasecmp($a['parent_account'], $b['parent_account']);
+    if ($cmp !== 0) {
+        return $cmp;
+    }
+
+    // 3. Account
+    return strnatcasecmp($a['account'], $b['account']);
+});
+
 
 $context->httpResponse()
     ->body($result)
