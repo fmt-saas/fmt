@@ -471,6 +471,7 @@ foreach($lines as $line_id => $line) {
         'description'        => (string) $line['description'],
         'entry_journal'      => $map_journals[$line['accounting_entry_id']['journal_id']]['mnemo'],
         'entry_date'         => $line['entry_date'] ? (date('c', $line['entry_date'])) : null,
+        // for sorting
         'timestamp'          => $line['entry_date'] ?? null,
         // keep only last 3 parts
         'entry_reference'    => ($ref = $line['accounting_entry_id']['name'] ?? null) ? implode('/', array_slice(explode('/', $ref), -3)) : null,
