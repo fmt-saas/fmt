@@ -27,6 +27,16 @@ use realestate\property\Apportionment;
             'readonly' => true
         ],
 
+        'apportionment_name' => [
+            'type'     => 'string',
+            'readonly' => true
+        ],
+
+        'parent_account' => [
+            'type'     => 'string',
+            'readonly' => true
+        ],
+
         'account' => [
             'type'     => 'string',
             'readonly' => true
