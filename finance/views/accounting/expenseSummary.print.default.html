@@ -161,10 +161,10 @@
         <thead>
             <tr>
                 <th>Fournisseur</th>
-                <th>Journal</th>
+                <th>JNL</th>
                 <th>Référence</th>
                 <th>Date</th>
-                <th>Description</th>
+                <th style="text-align: left;">Description</th>
                 <th>Montant</th>
             </tr>
         </thead>
@@ -220,7 +220,7 @@
                             <td>
                                 {{ line.entry_date | date("d/m/Y") }}
                             </td>
-                            <td>
+                            <td style="text-align: left;">
                                 {{ line.description }}
                             </td>
                             <td style="text-align: right;">
