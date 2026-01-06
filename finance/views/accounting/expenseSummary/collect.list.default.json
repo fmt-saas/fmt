@@ -96,7 +96,7 @@
                 "value": "entry_date",
                 "width": "10%",
                 "widget": {
-                    "usage": "date/short"
+                    "usage": "date"
                 }
             },
             {
