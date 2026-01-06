@@ -75,6 +75,7 @@ class MiscOperation extends Model {
 
             'posting_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date the operation is posted in the accounting system.',
                 'default'           => function () { return time(); }
             ],
@@ -88,6 +89,7 @@ class MiscOperation extends Model {
 
             'date_from' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'First date of the date range.',
                 'default'           => function () { return time(); },
                 'visible'           => ['has_date_range', '=', true]
@@ -95,6 +97,7 @@ class MiscOperation extends Model {
 
             'date_to' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Last date of the date range.',
                 'default'           => function () { return time(); },
                 'visible'           => ['has_date_range', '=', true]

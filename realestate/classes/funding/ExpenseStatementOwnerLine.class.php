@@ -140,6 +140,7 @@ class ExpenseStatementOwnerLine extends \sale\accounting\invoice\SaleInvoiceLine
 
             'date'=> [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date of the expense the line relates to.',
                 'help'              => 'This field is necessary for identifying lines relating to a private expense.'
             ],

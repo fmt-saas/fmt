@@ -62,6 +62,7 @@ class AssemblyMandate extends \equal\orm\Model {
 
             'mandate_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => "Date for which the proxy was granted (as stated on document).",
                 'default'           => time()
             ],

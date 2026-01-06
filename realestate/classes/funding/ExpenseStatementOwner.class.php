@@ -78,11 +78,13 @@ class ExpenseStatementOwner extends \equal\orm\Model {
 
             'date_from' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => "Date from which the owner is considered for the statement."
             ],
 
             'date_to' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => "Date until when the owner is considered for the statement."
             ],
 

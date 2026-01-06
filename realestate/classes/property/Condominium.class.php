@@ -140,36 +140,43 @@ class Condominium extends Identity {
 
             'construction_permit_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date at which the permit was issued.'
             ],
 
             'construction_start_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date at which the construction started.'
             ],
 
             'construction_compliance_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date at which the compliancy documentation was issued.'
             ],
 
             'construction_completion_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date at which the construction finished.'
             ],
 
             'condo_creation_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date at which the condominium was constituted.'
             ],
 
             'condo_regulations_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date of the latest update of the condominium regulations.'
             ],
 
             'general_assembly_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date of the next general assembly.',
                 'help'              => 'This is the date of the first day of the period during which the next general assembly has to be scheduled.'
             ],
@@ -181,12 +188,14 @@ class Condominium extends Identity {
 
             'fiscal_year_start' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date at which the first regular fiscal year started or is planned.',
                 'help'              => 'In some cases, the first year might start earlier or after that date.'
             ],
 
             'fiscal_year_end' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date at which the first fiscal year ends.',
                 'help'              => 'This date reflects the initial notary deed but can be changed in general assembly (only day and month are considered).'
             ],

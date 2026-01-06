@@ -116,6 +116,7 @@ class Assembly extends \equal\orm\Model {
 
             'assembly_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => "Scheduled date of the assembly."
                 //  #memo - no default here : must be entered by hand
             ],

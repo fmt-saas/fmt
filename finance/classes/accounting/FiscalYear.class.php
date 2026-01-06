@@ -108,6 +108,7 @@ class FiscalYear extends Model {
 
             'date_from' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'First day of the fiscal year (included).',
                 'dependents'        => ['name', 'code', 'previous_fiscal_year_id'],
                 'onupdate'          => 'onupdateDateFrom'
@@ -115,6 +116,7 @@ class FiscalYear extends Model {
 
             'date_to' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Last day of the fiscal year (included).',
                 'dependents'        => ['name', 'code', 'previous_fiscal_year_id'],
                 'onupdate'          => 'onupdateDateTo'

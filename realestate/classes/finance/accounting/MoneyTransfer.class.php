@@ -91,6 +91,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
 
             'posting_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date the operation is posted in the accounting system.',
                 'default'           => function () { return time(); },
                 'dependents'        => ['fiscal_year_id', 'fiscal_period_id']

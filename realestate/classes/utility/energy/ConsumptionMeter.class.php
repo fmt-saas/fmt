@@ -54,6 +54,7 @@ class ConsumptionMeter extends \equal\orm\Model {
 
             'date_opening' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'The date of the consumption meter opening.',
                 'default'           => time()
             ],

@@ -84,6 +84,7 @@ class FundRequest extends \equal\orm\Model {
 
             'request_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date at which the request was emitted.',
                 'visible'           => [['has_date_range', '=', false]]
             ],
@@ -121,6 +122,7 @@ class FundRequest extends \equal\orm\Model {
 
             'date_from' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'First day (included) of the range.',
                 'visible'           => ['has_date_range', '=', true],
                 'onupdate'          => 'onupdateDateFrom',
@@ -128,6 +130,7 @@ class FundRequest extends \equal\orm\Model {
 
             'date_to' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Last day (included) of the range.',
                 'visible'           => ['has_date_range', '=', true]
             ],
