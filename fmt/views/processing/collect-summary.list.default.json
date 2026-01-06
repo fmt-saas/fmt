@@ -16,7 +16,8 @@
             "icon": "visibility",
             "context": {
                 "entity": "documents\\processing\\DocumentProcess",
-                "view": "list.processing"
+                "view": "list.processing",
+                "domain": ["document_process_status", "<>", "integrated"]
             },
             "visible": [
                 ["document", "=", "object.document_type_code"]
@@ -45,7 +46,8 @@
             "icon": "visibility",
             "context": {
                 "entity": "finance\\bank\\BankStatement",
-                "view": "list.processing"
+                "view": "list.processing",
+                "domain": ["document_process_status", "<>", "integrated"]
             },
             "visible": [
                 ["bank_statement", "=", "object.document_type_code"]
