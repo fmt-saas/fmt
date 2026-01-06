@@ -260,7 +260,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             ],
 
             // #todo - for now we limit this to VCS - with validation
-            'payment_reference' => [ 
+            'payment_reference' => [
                 'type'              => 'string',
                 'description'       => 'Code provided by the supplier to use as reference in the wire transfer.'
             ],
@@ -1014,6 +1014,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'suppliership_id',
                 'invoice_lines_ids' => [
                     'expense_account_id',
+                    'description',
                     'price',
                     'is_private_expense',
                     'has_instant_reinvoice',
@@ -1032,7 +1033,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             // remove previously created entries, if any (there should be none)
             AccountingEntry::search([
-                    ['status', '=', 'pensing'],
+                    ['status', '=', 'pending'],
                     ['origin_object_class', '=', 'realestate\purchase\accounting\invoice\PurchaseInvoice'],
                     ['origin_object_id', '=', $id]
                 ])
@@ -1084,15 +1085,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             // map for keeping track of scheduled accounting entries based on periods dates (ued as key)
             $map_planned_accounting_entries = [];
 
-            $description = $invoice['description'];
-
-            if($date_from == $date_to) {
-                $description .= ' (' . date('Y-m-d', $date_from) . ')';
-            }
-            else {
-                $description .= ' (' . date('Y-m-d', $date_from) . ' - ' . date('Y-m-d', $date_to) . ')';
-            }
-
             $suppliershipAccount = Account::search([
                     ['condo_id', '=', $invoice['condo_id']],
                     ['suppliership_id', '=', $invoice['suppliership_id']]
@@ -1103,7 +1095,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             AccountingEntryLine::create([
                     'condo_id'              => $invoice['condo_id'],
                     'accounting_entry_id'   => $accountingEntry['id'],
-                    'description'           => $description,
+                    'description'           => $invoice['description'],
                     'account_id'            => $suppliershipAccount['id'],
                     'debit'                 => 0.0,
                     'credit'                => $invoice['price']
@@ -1157,7 +1149,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     AccountingEntryLine::create([
                             'condo_id'                  => $invoice['condo_id'],
                             'accounting_entry_id'       => $accountingEntry['id'],
-                            'description'               => $invoice['description'],
+                            'description'               => $invoiceLine['description'],
                             'account_id'                => $privateExpenseAccount['id'],
                             'purchase_invoice_line_id'  => $invoice_line_id,
                             'debit'                     => $invoiceLine['price'],
@@ -1262,7 +1254,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             AccountingEntryLine::create([
                                     'condo_id'                  => $invoice['condo_id'],
                                     'accounting_entry_id'       => $accountingEntry['id'],
-                                    'description'               => $description,
+                                    'description'               => $invoiceLine['description'],
                                     'account_id'                => $invoiceLine['expense_account_id'],
                                     'purchase_invoice_line_id'  => $invoice_line_id,
                                     'debit'                     => $invoiceLine['price'],
