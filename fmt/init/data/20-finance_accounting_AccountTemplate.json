@@ -790,6 +790,7 @@
                 "description": "Accruals",
                 "account_chart_id": 1,
                 "operation_assignment": "adjustment_account",
+                "account_nature": "",
                 "tenant_share": 0,
                 "owner_share": 0
             },

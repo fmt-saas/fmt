@@ -161,6 +161,13 @@ if($dateFrom && $dateTo) {
 // Only validated entries
 $domain->addCondition(new DomainCondition('status', '=', 'validated'));
 
+$adjustmentAccount = Account::search([['condo_id', '=', $params['condo_id']], ['operation_assignment', '=', 'adjustment_account']])
+    ->read(['id', 'code', 'description', 'account_nature', ''])
+    ->first();
+
+if(!$adjustmentAccount) {
+    throw new Exception('missing_adjustment_account', EQ_ERROR_MISSING_PARAM);
+}
 
 // load Chart of Accounts of the condominium
 $accounts = Account::search([
@@ -193,6 +200,11 @@ foreach($map_accounts as $account_id => $account) {
         $map_storage[$account_id] = $account_id;
         continue;
         */
+    }
+
+    if(in_array(substr($code, 0, 1), ['6', '7'])) {
+        $map_storage[$account_id] = $adjustmentAccount['id'];
+        continue;
     }
 
     // account is a level-3 account (or less)
