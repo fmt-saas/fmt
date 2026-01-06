@@ -6,6 +6,7 @@
             "ACTION.CREATE": false
         }
     },
+    "domain": ["document_process_status", "<>", "integrated"],
     "routes": [
         {
             "id": "item.import",
