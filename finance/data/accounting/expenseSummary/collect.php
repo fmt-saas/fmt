@@ -259,13 +259,9 @@ foreach($accounts as $account_id => $account) {
 }
 
 // retrieve storage accounts (collectors) and map with each account
-$map_storage = [];
 $map_parent_storage = [];
 
 foreach($map_accounts as $account_id => $account) {
-    $code = $account['code'];
-
-    $map_storage[$account_id] = $account_id;
 
     $parent_account_id = $account['parent_account_id'];
 
@@ -405,11 +401,8 @@ foreach($lines as $line_id => $line) {
     }
 
     // Prefer grouping by storage/collector if you want "summary" by collector
-    // If you want the collector account instead of leaf:
-    $storage_account_id = $map_storage[$account_id] ?? $account_id;
-
-    $account = $map_accounts[$storage_account_id];
-    $parentAccount = $map_parent_storage[$storage_account_id] ?? null;
+    $account = $map_accounts[$account_id];
+    $parentAccount = $map_parent_storage[$account_id] ?? null;
     $apportionment_id = null;
     $supplier_id = null;
     $supplier_reference = null;
