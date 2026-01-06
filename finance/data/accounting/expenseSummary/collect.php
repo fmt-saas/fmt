@@ -241,7 +241,7 @@ $domain->addCondition(new DomainCondition('account_class', 'in', [6, 7]));
 
 
 // Retrieve accounting entry lines
-$lines = AccountingEntryLine::search($domain->toArray())
+$lines = AccountingEntryLine::search($domain->toArray(), ['sort'  => ['entry_date' => 'asc']])
     ->read([
         'account_id',
         'account_class',
