@@ -148,6 +148,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             'emission_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'Date at which the invoice was emitted by the supplier.',
                 'required'          => true,
                 'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
@@ -181,6 +182,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             'posting_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => 'The date on which the invoice is recorded in the accounting system.',
                 'default'           => function () { return time(); },
                 'visible'           => ['has_date_range', '=', false],
