@@ -46,8 +46,14 @@
         },
         {
             "open": true,
-            "colspan": 3,
-            "field": "account"
+            "colspan": 4,
+            "field": "account",
+            "operations": {
+                "amount": {
+                    "operation": "SUM",
+                    "usage": "amount/money:2"
+                }
+            }
         }
     ],
     "layout": {
