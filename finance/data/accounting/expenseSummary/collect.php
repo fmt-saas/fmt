@@ -10,6 +10,7 @@ use equal\orm\DomainCondition;
 use finance\accounting\Account;
 use realestate\finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
+use finance\accounting\Journal;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 use finance\bank\BankStatement;
 use realestate\property\Apportionment;
@@ -40,6 +41,11 @@ use realestate\property\Apportionment;
         'description' => [
             'type'     => 'string',
             'readonly' => true
+        ],
+
+        'entry_journal' => [
+            'type'    => 'string',
+            'readonly'=> true
         ],
 
         'entry_date' => [
@@ -239,7 +245,7 @@ $lines = AccountingEntryLine::search($domain->toArray())
     ->read([
         'account_id',
         'account_class',
-        'accounting_entry_id' => ['name'],
+        'accounting_entry_id' => ['name', 'journal_id'],
         'purchase_invoice_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'invoice_id'],
         'bank_statement_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'bank_statement_id'],
         'description',
@@ -248,6 +254,12 @@ $lines = AccountingEntryLine::search($domain->toArray())
         'credit'
     ]);
 
+// load Journals of the condominium
+$map_journals = Journal::search([
+        ['condo_id', '=', $params['condo_id']]
+    ])
+    ->read(['code', 'name', 'description'])
+    ->get();
 
 
 // load Chart of Accounts of the condominium
@@ -457,8 +469,9 @@ foreach($lines as $line_id => $line) {
         'account'            => (string) ($account['name'] ?? ''),
         'parent_account'     => (string) ($parentAccount['name'] ?? ''),
         'description'        => (string) $line['description'],
+        'entry_journal'      => $map_journals[$line['accounting_entry_id']['journal_id']]['name'],
         'entry_date'         => $line['entry_date'] ? (date('c', $line['entry_date'])) : null,
-        'entry_reference'    => $line['accounting_entry_id']['name'] ?? null,
+        'entry_reference'    => preg_replace('#^[^/]+/#', '', $line['accounting_entry_id']['name'] ?? null),
         'supplier_id'        => $supplier_id,
         'supplier_reference' => $supplier_reference,
         'owner_share'        => $owner_share,

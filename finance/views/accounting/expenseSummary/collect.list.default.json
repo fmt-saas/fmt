@@ -101,6 +101,11 @@
             },
             {
                 "type": "field",
+                "value": "entry_journal",
+                "width": "10%"
+            },
+            {
+                "type": "field",
                 "value": "entry_reference",
                 "width": "20%"
             },
