@@ -74,6 +74,12 @@ use realestate\property\Apportionment;
             'description'       => "Value, in percent, of the amount to be imputed to the owner when using the account.",
         ],
 
+        'vat_rate' => [
+            'type'              => 'float',
+            'usage'             => 'amount/rate',
+            'description'       => 'VAT rate to be applied.',
+        ],
+
         'tenant_share'          => [
             'type'              => 'integer',
             'description'       => "Value, in percent, of the amount to be imputed to the tenant when using the account.",
@@ -239,8 +245,8 @@ $lines = AccountingEntryLine::search($domain->toArray())
         'account_id',
         'account_class',
         'accounting_entry_id' => ['name'],
-        'purchase_invoice_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'invoice_id'],
-        'bank_statement_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'bank_statement_id'],
+        'purchase_invoice_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'invoice_id'],
+        'bank_statement_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'bank_statement_id'],
         'description',
         'entry_date',
         'debit',
@@ -430,6 +436,7 @@ foreach($lines as $line_id => $line) {
         $apportionment_id = $line['purchase_invoice_line_id']['apportionment_id'] ?? null;
         $owner_share = $line['purchase_invoice_line_id']['owner_share'] ?? 0;
         $tenant_share = $line['purchase_invoice_line_id']['tenant_share'] ?? 0;
+        $vat_rate = $line['purchase_invoice_line_id']['vat_rate'] ?? 0;
 
         if(isset($map_invoices[$invoice_id])) {
             $supplier_id = $map_invoices[$invoice_id]['supplier_id'];
@@ -441,6 +448,7 @@ foreach($lines as $line_id => $line) {
         $apportionment_id = $line['bank_statement_line_id']['apportionment_id'] ?? null;
         $owner_share = $line['bank_statement_line_id']['owner_share'] ?? 0;
         $tenant_share = $line['bank_statement_line_id']['tenant_share'] ?? 0;
+        $vat_rate = $line['bank_statement_line_id']['vat_rate'] ?? 0;
 
         if(isset($map_statements[$statement_id])) {
             $supplier_id = $map_statements[$statement_id]['supplier_id'];
@@ -450,7 +458,7 @@ foreach($lines as $line_id => $line) {
 
     $result[] = [
         'id'                 => $line_id,
-        'apportionment'      => 'clé ' . ($map_apportionments[$apportionment_id]['code'] ?? '(autre)'),
+        'apportionment'      => $map_apportionments[$apportionment_id]['name'] ?? '(autre)',
         'apportionment_name' => $map_apportionments[$apportionment_id]['name'] ?? '(autre)',
         'account'            => (string) ($account['name'] ?? ''),
         'parent_account'     => (string) ($parentAccount['name'] ?? ''),
@@ -461,6 +469,7 @@ foreach($lines as $line_id => $line) {
         'supplier_reference' => $supplier_reference,
         'owner_share'        => $owner_share,
         'tenant_share'       => $tenant_share,
+        'vat_rate'           => $vat_rate,
         'amount'             => round($line['debit'] - $line['credit'], 2)
     ];
 }
