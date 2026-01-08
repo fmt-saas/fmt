@@ -1204,7 +1204,7 @@ class DocumentProcess extends Model {
             $values = [];
             $logs = [];
 
-            if(strlen($report_html) > 0) {
+            if(strlen($documentProcess['report_html']) > 0) {
                 $logs[] = "";
             }
 
@@ -1588,6 +1588,7 @@ class DocumentProcess extends Model {
                         ]);
                 }
                 else {
+                    $recordingRuleLines = [];
                     // #memo - recording rules might not apply on specific documents (e.g. bank statements)
                     trigger_error("APP::No matching Recording Rule found for Process {$documentProcess['id']} - Document {$documentProcess['document_id']['name']} ({$documentProcess['document_id']['id']}) of type {$documentProcess['document_type_code']}/{$documentProcess['document_subtype_id']}", EQ_REPORT_INFO);
                 }
