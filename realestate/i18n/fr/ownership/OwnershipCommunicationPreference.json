@@ -30,8 +30,13 @@
             "description": "Formule d'appel utilisée dans le corps du courrier.",
             "help": ""
         },
-        "identity_id": {
+        "owner_id": {
             "label": "Destinataire",
+            "description": "Propriétaire à contacter.",
+            "help": ""
+        },
+        "identity_id": {
+            "label": "Destinataire (identité)",
             "description": "Identité (propriétaire ou mandataire) à contacter.",
             "help": ""
         },

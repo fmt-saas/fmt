@@ -38,7 +38,7 @@
             },
             {
                 "type": "field",
-                "value": "identity_id",
+                "value": "owner_id",
                 "width": "25%"
             },
             {

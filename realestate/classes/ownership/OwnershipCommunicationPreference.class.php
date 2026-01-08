@@ -81,6 +81,15 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'dependents'        => ['communication_title']
             ],
 
+            'owner_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\ownership\Owner',
+                'description'       => 'The Owner the communication preference refers to.',
+                'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.ownership_id'] ],
+                'help'              => 'This field might be empty in case of an external representant (not an owner)',
+                'onupdate'          => 'onupdateOwnerId'
+            ],
+
             'identity_id' => [
                 'type'              => 'many2one',
                 'description'       => "Identity of an external person.",
@@ -158,6 +167,14 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
         ];
     }
 
+    protected static function onupdateOwnerId($self) {
+        $self->read(['owner_id' => ['identity_id']]);
+        foreach($self as $id => $ownershipCommunicationPreference) {
+            if($ownershipCommunicationPreference['owner_id']) {
+                self::id($id)->update(['identity_id' => $ownershipCommunicationPreference['owner_id']['identity_id']]);
+            }
+        }
+    }
 
     /**
      * #memo - we allow only several identity for a same communication reason for the `email` channel.
