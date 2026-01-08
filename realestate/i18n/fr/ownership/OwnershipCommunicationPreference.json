@@ -1,94 +1,105 @@
 {
-    "name": "Préférence de communication",
-    "plural": "Préférences de communication",
-    "description": "Définit, pour un ownership et un motif précis (convocation, procès-verbal, appels de fonds…), le destinataire et les canaux autorisés.",
+    "name": "Preference de communication",
+    "plural": "Preferences de communication",
+    "description": "Definition, pour un dossier de propriete et un motif donne, du destinataire et des canaux autorises (email, courrier simple ou recommande).",
     "model": {
         "condo_id": {
-            "label": "Copropriété",
-            "description": "Copropriété concernée.",
-            "help": ""
+            "label": "Copropriete",
+            "description": "Copropriete concernee par la communication.",
+            "help": "Determine les destinataires autorises et les canaux disponibles."
         },
         "ownership_id": {
-            "label": "Dossier de propriété",
-            "description": "Ownership auquel la préférence s'applique.",
-            "help": ""
+            "label": "Dossier de propriete",
+            "description": "Dossier auquel la preference s applique.",
+            "help": "Doit correspondre a la copropriete selectionnee."
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Nom de la preference (alias du motif).",
+            "help": "Correspond au motif de communication choisi."
         },
         "communication_reason": {
             "label": "Motif",
-            "description": "Type de communication visé.",
+            "description": "Type de communication vise.",
+            "help": "Choisir le document ou la notification concernee.",
             "selection": {
-                "general_assembly_call": "Convocation d'AG",
-                "general_assembly_minutes": "Procès-verbal d'AG",
-                "expense_statement": "Décompte / relevé de charges",
+                "general_assembly_call": "Convocation d AG",
+                "general_assembly_minutes": "Proces-verbal d AG",
+                "expense_statement": "Decompte / releve de charges",
                 "fund_request": "Appel de fonds",
                 "technical_communication": "Communication technique"
-            },
-            "help": ""
+            }
         },
         "communication_title": {
-            "label": "Titre d'adresse",
-            "description": "Formule d'appel utilisée dans le corps du courrier.",
-            "help": ""
+            "label": "Titre d adresse",
+            "description": "Formule d appel utilisee dans le courrier.",
+            "help": "Calculee depuis le destinataire selectionne."
+        },
+        "is_owner": {
+            "label": "Destinataire proprietaire",
+            "description": "Indique si le destinataire est un proprietaire du dossier.",
+            "help": "Permet d autoriser un representant externe si decoche."
         },
         "owner_id": {
-            "label": "Destinataire",
-            "description": "Propriétaire à contacter.",
-            "help": ""
+            "label": "Destinataire (proprietaire)",
+            "description": "Proprietaire a contacter.",
+            "help": "Filtre sur les proprietaires lies au dossier."
         },
         "identity_id": {
-            "label": "Destinataire (identité)",
-            "description": "Identité (propriétaire ou mandataire) à contacter.",
-            "help": ""
+            "label": "Destinataire (identite)",
+            "description": "Identite a contacter (proprietaire ou representant).",
+            "help": "Renseigner uniquement si le destinataire n est pas directement un proprietaire."
         },
         "email": {
             "label": "Courriel",
-            "description": "Adresse e-mail récupérée depuis l'identité.",
-            "help": ""
+            "description": "Adresse email du destinataire.",
+            "help": "Recuperee automatiquement depuis l identite."
         },
         "address_street": {
-            "label": "Rue et numéro",
-            "description": "Adresse postale utilisée pour les envois courrier.",
-            "help": ""
+            "label": "Rue et numero",
+            "description": "Adresse postale pour les envois courrier.",
+            "help": "Recuperee depuis l adresse du destinataire."
         },
         "address_city": {
             "label": "Ville",
-            "description": "",
-            "help": ""
+            "description": "Ville de l adresse postale.",
+            "help": "Recuperee depuis l adresse du destinataire."
         },
         "address_zip": {
             "label": "Code postal",
-            "description": "",
-            "help": ""
+            "description": "Code postal de l adresse postale.",
+            "help": "Recupere depuis l adresse du destinataire."
         },
         "has_channel_email": {
-            "label": "Envoi par e-mail",
-            "description": "Envoi électronique pour ce motif.",
-            "help": ""
+            "label": "Envoi par email",
+            "description": "Autoriser l envoi electronique pour ce motif.",
+            "help": "Necessite une adresse email valide sur le destinataire."
         },
         "has_channel_postal": {
             "label": "Courrier simple",
-            "description": "Envoi postal standard.",
-            "help": ""
+            "description": "Autoriser l envoi postal standard.",
+            "help": "Rend les champs d adresse obligatoires."
         },
         "has_channel_postal_registered": {
-            "label": "Recommandé",
-            "description": "Envoi postal recommandé.",
-            "help": ""
+            "label": "Courrier recommande",
+            "description": "Autoriser l envoi postal recommande.",
+            "help": "Exige une adresse postale complete."
         },
         "has_channel_postal_registered_receipt": {
-            "label": "Recommandé & accusé",
-            "description": "Envoi recommandé avec accusé de réception.",
-            "help": ""
+            "label": "Recommande avec AR",
+            "description": "Autoriser l envoi recommande avec accuse de reception.",
+            "help": "Exige une adresse postale complete."
         }
     },
     "view": {
         "form.default": {
-            "name": "Préférence de communication",
-            "description": "Sélection du destinataire et des canaux pour un motif donné."
+            "name": "Preference de communication",
+            "description": "Selection du destinataire et des canaux pour un motif donne."
         },
         "list.default": {
-            "name": "Préférences de communication",
-            "description": "Vue liste des préférences par dossier et type de communication."
+            "name": "Preferences de communication",
+            "description": "Liste des preferences par dossier et type de communication."
         }
-    }
+    },
+    "error": {}
 }

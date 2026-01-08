@@ -516,13 +516,29 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function policyCanMarkValidated($self) {
         $result = [];
-        $self->read(['document_process_status', 'document_process_id']);
+        $self->read(['document_process_status', 'document_process_id',
+                'invoice_lines_ids' => [
+                        'expense_account_id' => ['account_class'],
+                        'apportionment_id',
+                ]
+            ]);
+
         foreach($self as $id => $purchaseInvoice) {
             if($purchaseInvoice['document_process_status'] !== 'completed') {
                 $result[$id] = [
                         'wrong_document_status_completed' => 'Only `completed` documents can be marked as valid.'
                     ];
                 continue;
+            }
+            foreach($purchaseInvoice['invoice_lines_ids'] as $invoice_line_id => $purchaseInvoiceLine) {
+                if(in_array($purchaseInvoiceLine['expense_account_id']['account_class'], ['6', '7'])) {
+                    if(!$purchaseInvoiceLine['apportionment_id']) {
+                        $result[$id] = [
+                                'missing_mandatory_line_apportionment' => 'Lines referring to expense or income must have an apportionment set.'
+                            ];
+                        continue;
+                    }
+                }
             }
         }
         return $result;
