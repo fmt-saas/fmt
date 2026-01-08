@@ -50,7 +50,13 @@ list($params, $providers) = eQual::announce([
             'type'              => 'many2one',
             'foreign_object'    => 'purchase\supplier\Supplier',
             'description'       => "The supplier the invoice relates to."
-        ]
+        ],
+
+        'order' => [
+            'type'              => 'string',
+            'description'       => 'Sorting order.',
+        ],
+
     ],
     'response'      => [
         'content-type'  => 'application/json',
