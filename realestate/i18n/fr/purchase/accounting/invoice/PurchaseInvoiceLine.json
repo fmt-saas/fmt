@@ -1,97 +1,128 @@
 {
-    "name": "Ligne de facture",
-    "plural": "Lignes de facture",
-    "description": "Détail (produit, quantité et montants) faisant partie d'une facture.",
+    "name": "Ligne de facture d'achat",
+    "plural": "Lignes de facture d'achat",
+    "description": "Detail d'une facture d'achat (compte de charge, ventilations, montants et TVA).",
     "model": {
         "condo_id": {
-            "label": "Copropriété",
-            "description": "Immeuble concerné par la ligne.",
-            "help": ""
+            "label": "Copropriete",
+            "description": "Immeuble concerne par la ligne.",
+            "help": "Determine les comptes et ventilations disponibles."
         },
         "name": {
-            "label": "Libellé",
-            "description": "Libellé principal affiché sur la facture.",
-            "help": ""
+            "label": "Libelle",
+            "description": "Libelle principal affiche sur la facture.",
+            "help": "Par defaut le nom du compte de charge selectionne."
         },
         "description": {
             "label": "Description",
-            "description": "Complément éventuel indépendant du produit.",
-            "help": ""
+            "description": "Complement eventuel independant du produit.",
+            "help": "Champ multilingue pour preciser le detail de la ligne."
         },
         "invoice_line_group_id": {
             "label": "Groupe",
             "description": "Groupe de lignes auquel la ligne appartient.",
-            "help": ""
+            "help": "Permet de regrouper plusieurs lignes sur la facture."
         },
         "invoice_id": {
             "label": "Facture",
-            "description": "Facture associée.",
-            "help": ""
+            "description": "Facture associee.",
+            "help": "Doit etre une facture d'achat existante."
+        },
+        "expense_account_id": {
+            "label": "Compte de charge",
+            "description": "Compte comptable impute pour la ligne.",
+            "help": "Selectionner un compte non controle (classe 3, 4, 6 ou 7) de la copropriete."
+        },
+        "apportionment_id": {
+            "label": "Cle de repartition",
+            "description": "Cle de repartition utilisee pour ventiler le montant entre proprietaires.",
+            "help": "Valide et active; non applicable si la depense est privee."
+        },
+        "owner_share": {
+            "label": "Part proprietaire",
+            "description": "Pourcentage du montant impute au proprietaire.",
+            "help": "Par defaut 100%; complete la part locataire."
+        },
+        "tenant_share": {
+            "label": "Part locataire",
+            "description": "Pourcentage du montant impute au locataire.",
+            "help": "Calcule le complement a la part proprietaire."
+        },
+        "ownership_id": {
+            "label": "Dossier de propriete",
+            "description": "Dossier cible pour une depense privee.",
+            "help": "Visible si la ligne est marquee comme depense privee."
+        },
+        "property_lot_id": {
+            "label": "Lot",
+            "description": "Lot concerne par la depense privee.",
+            "help": "Filtre sur les lots lies au dossier selectionne."
         },
         "unit_price": {
             "label": "Prix unitaire",
             "description": "Prix unitaire hors taxes.",
-            "help": ""
+            "help": "Combine avec la quantite pour calculer le total HT."
         },
         "vat_rate": {
             "label": "Taux TVA",
-            "description": "Taux de TVA appliqué.",
-            "help": ""
+            "description": "Taux de TVA applique.",
+            "help": "Exprimable en pourcentage; converti en taux decimal."
         },
         "qty": {
-            "label": "Quantité",
-            "description": "Quantité facturée.",
-            "help": ""
+            "label": "Quantite",
+            "description": "Quantite facturee.",
+            "help": "Nombre d'unites facturees."
         },
         "free_qty": {
-            "label": "Quantité offerte",
-            "description": "Quantité exclue de la facturation.",
-            "help": ""
+            "label": "Quantite offerte",
+            "description": "Quantite exclue de la facturation.",
+            "help": "Permet de deduire les unites offertes."
         },
         "discount": {
             "label": "Remise",
-            "description": "Taux de remise à appliquer.",
-            "help": ""
+            "description": "Taux de remise a appliquer.",
+            "help": "Exprime en pourcentage."
         },
         "vat": {
             "label": "Montant TVA",
-            "description": "TVA calculée sur la ligne.",
-            "help": ""
+            "description": "TVA calculee sur la ligne.",
+            "help": "Calculee a partir du total HT et du taux."
         },
         "total": {
             "label": "Total HT",
-            "description": "Montant hors taxes calculé.",
-            "help": ""
+            "description": "Montant hors taxes de la ligne.",
+            "help": "Calcule ou saisi librement selon la facture."
         },
         "price": {
             "label": "Total TVAC",
-            "description": "Montant toutes taxes comprises calculé.",
-            "help": ""
+            "description": "Montant toutes taxes comprises de la ligne.",
+            "help": "Resultat du total HT plus TVA."
         },
         "downpayment_invoice_id": {
             "label": "Facture d'acompte",
-            "description": "Facture d'acompte rattachée à la ligne.",
-            "help": ""
+            "description": "Facture d'acompte rattachee a la ligne.",
+            "help": "Reference la facture d'acompte deductee."
         },
         "is_private_expense": {
-            "label": "Charge privée",
-            "description": "Marque la ligne comme dépense privée.",
-            "help": "Les dépenses privées peuvent être refacturées immédiatement ou affectées aux comptes propriétaires."
+            "label": "Depense privee",
+            "description": "Marque la ligne comme depense privee.",
+            "help": "Active le ciblage sur un dossier/lot et la refacturation."
         },
         "has_instant_reinvoice": {
-            "label": "Refacturation immédiate",
-            "description": "Refacture automatiquement la dépense privée dès son enregistrement.",
-            "help": "Active la création immédiate des écritures de refacturation pour la charge privée."
+            "label": "Refacturation immediate",
+            "description": "Refacture automatiquement la depense privee des son enregistrement.",
+            "help": "Cree sans delai les ecritures de refacturation."
         }
     },
     "view": {
         "form.default": {
             "name": "Ligne de facture",
-            "description": "Fiche ligne de facture (prix, quantités, groupe et TVA)."
+            "description": "Fiche ligne de facture (prix, quantites, compte, ventilations et TVA)."
         },
         "list.default": {
             "name": "Lignes de facture",
-            "description": "Liste des lignes groupées avec montants unitaires et totaux."
+            "description": "Liste des lignes groupees avec montants unitaires et totaux."
         }
-    }
+    },
+    "error": {}
 }
