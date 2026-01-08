@@ -8,6 +8,7 @@
 namespace realestate\purchase\accounting;
 
 use finance\accounting\Account;
+use realestate\finance\accounting\AccountingEntryLine;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\property\PropertyLot;
@@ -27,7 +28,8 @@ class FundUsageLine extends \equal\orm\Model {
 
             'description' => [
                 'type'              => 'string',
-                'description'       => 'Short optional description of the fund usage line.'
+                'description'       => 'Short optional description of the fund usage line.',
+                'onupdate'          => 'onupdateDescription'
             ],
 
             'invoice_id' => [
@@ -98,15 +100,23 @@ class FundUsageLine extends \equal\orm\Model {
     public static function calcExpenseAccountId($self) {
         $result = [];
         $self->read(['condo_id', 'fund_account_id']);
-        foreach($self as $id => $usageLine) {
-            if($usageLine['fund_account_id']) {
-                $expense_account_id = self::computeExpenseAccountId($usageLine['fund_account_id']);
+        foreach($self as $id => $fundUsageLine) {
+            if($fundUsageLine['fund_account_id']) {
+                $expense_account_id = self::computeExpenseAccountId($fundUsageLine['fund_account_id']);
                 if($expense_account_id) {
                     $result[$id] = $expense_account_id;
                 }
             }
         }
         return $result;
+    }
+
+    protected static function onupdateDescription($self) {
+        $self->read(['description']);
+        foreach($self as $id => $fundUsageLine) {
+            AccountingEntryLine::search([['fund_usage_line_id', '=', $id]])
+                ->update(['description' => $fundUsageLine['description']]);
+        }
     }
 
     public static function onchange($event, $values) {
