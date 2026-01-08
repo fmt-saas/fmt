@@ -205,8 +205,7 @@ elseif(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
 if($params['suppliers_only']) {
     $domain->addCondition(new DomainCondition('suppliership_id', '<>', null));
 }
-
-if($params['ownerships_only']) {
+elseif($params['ownerships_only']) {
     $domain->addCondition(new DomainCondition('ownership_id', '<>', null));
 }
 
