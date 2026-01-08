@@ -152,7 +152,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
         if($purchaseInvoiceLine['invoice_id']['status'] === 'posted') {
             // update price
             if(array_key_exists('vat_rate', $event)) {
-                $result['total'] = round($purchaseInvoiceLine['price'] / (1 + $event['vat_rate']), 2);
+                $result['total'] = round($purchaseInvoiceLine['price'] / (1 + $event['vat_rate']), 4);
             }
         }
         else {
