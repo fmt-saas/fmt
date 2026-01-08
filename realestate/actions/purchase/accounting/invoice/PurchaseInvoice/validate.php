@@ -56,7 +56,7 @@ $purchaseInvoice = PurchaseInvoice::id($id)
         'emission_date',
         'price',
         'invoice_lines_ids' => [
-            'total', 'price', 'vat_rate', 'owner_share', 'tenant_share'
+            'expense_account_id' => ['account_class'], 'total', 'price', 'vat_rate', 'owner_share', 'tenant_share'
         ],
         'fund_usage_lines_ids' => [
             'fund_account_id', 'amount', 'apportionment_id', 'expense_account_id'
@@ -144,9 +144,11 @@ else {
 $lines_total = 0.0;
 foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $invoiceLine) {
     if(($invoiceLine['owner_share'] + $invoiceLine['tenant_share']) != 100) {
-        // error : invalid (non-balanced) owner/tenant ratio
-        $dispatch->dispatch('purchase.accounting.invoice.invalid_owner_tenant_ratio', $class, $id, 'important', $script, ['id' => $id]);
-        throw new Exception("invalid_owner_tenant_ratio", EQ_ERROR_INVALID_PARAM);
+        if(in_array($invoiceLine['expense_account_id']['account_class'], [6, 7])) {
+            // error : invalid (non-balanced) owner/tenant ratio for income/expense account
+            $dispatch->dispatch('purchase.accounting.invoice.invalid_owner_tenant_ratio', $class, $id, 'important', $script, ['id' => $id]);
+            throw new Exception("invalid_owner_tenant_ratio", EQ_ERROR_INVALID_PARAM);
+        }
     }
     if(abs(round($invoiceLine['total'] * (1 + $invoiceLine['vat_rate']), 2)) - abs(round($invoiceLine['price'], 2)) > 0.01) {
         // error : Non matching price from vat excl amount & applicable vat rate
