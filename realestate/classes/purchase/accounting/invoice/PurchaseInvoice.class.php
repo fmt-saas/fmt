@@ -485,6 +485,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     // logs specific errors to ease debugging
                     if(isset($errors['invalid_document'])) {
                         foreach($errors['invalid_document'] as $error_id => $error_message) {
+                            if(is_array($error_message)) {
+                                $error_message = json_encode($error_message);
+                            }
                             trigger_error("APP::unexpected error on PurchaseInvoice [{$id}]: {$error_id} - {$error_message}", EQ_REPORT_ERROR);
                         }
                     }
