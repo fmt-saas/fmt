@@ -454,7 +454,7 @@ foreach($lines as $line_id => $line) {
         $apportionment_id = $line['purchase_invoice_line_id']['apportionment_id'] ?? null;
         $owner_share = $line['purchase_invoice_line_id']['owner_share'] ?? 0;
         $tenant_share = $line['purchase_invoice_line_id']['tenant_share'] ?? 0;
-        $vat_rate = $line['purchase_invoice_line_id']['vat_rate'] ?? 0;
+        $vat_rate = $line['purchase_invoice_line_id']['vat_rate'] ?? 0.0;
 
         if(isset($map_invoices[$invoice_id])) {
             $supplier_id = $map_invoices[$invoice_id]['supplier_id'];
@@ -466,7 +466,7 @@ foreach($lines as $line_id => $line) {
         $apportionment_id = $line['bank_statement_line_id']['apportionment_id'] ?? null;
         $owner_share = $line['bank_statement_line_id']['owner_share'] ?? 0;
         $tenant_share = $line['bank_statement_line_id']['tenant_share'] ?? 0;
-        $vat_rate = $line['bank_statement_line_id']['vat_rate'] ?? 0;
+        $vat_rate = $line['bank_statement_line_id']['vat_rate'] ?? 0.0;
 
         if(isset($map_statements[$statement_id])) {
             $supplier_id = $map_statements[$statement_id]['supplier_id'];
@@ -476,6 +476,8 @@ foreach($lines as $line_id => $line) {
     elseif(!empty($line['fund_usage_line_id']['invoice_id'])) {
         $invoice_id = $line['fund_usage_line_id']['invoice_id'];
         $apportionment_id = $line['fund_usage_line_id']['apportionment_id'] ?? null;
+        $owner_share = 100;
+        $vat_rate = 0.0;
     }
 
     $result[] = [
