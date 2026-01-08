@@ -31,15 +31,6 @@
     "layout": {
         "update": {
             "item.name": {
-                "before": [
-                    {
-                        "type": "field",
-                        "label": "Condominium",
-                        "value": "condo_id",
-                        "width": "20%",
-                        "sortable": true
-                    }
-                ],
                 "after": [
                     {
                         "type": "field",

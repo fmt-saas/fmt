@@ -99,7 +99,7 @@
             "description": "",
             "context": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
-                "view": "list.default",
+                "view": "list.condo",
                 "domain": [["condo_id", "=", "object.id"]]
             }
         },
