@@ -1875,11 +1875,11 @@ class DocumentProcess extends Model {
         $allowed_fields = ['assigned_employee_id', 'alert'];
         foreach($self as $id => $documentProcess) {
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
-                ob_start();
-                print_r($values);
-                $out = ob_get_clean();
-                trigger_error("APP::non allowed field for DocumentProcess update: ". $out, EQ_REPORT_ERROR);
                 if($documentProcess['status'] === 'integrated') {
+                    ob_start();
+                    print_r($values);
+                    $out = ob_get_clean();
+                    trigger_error("APP::non allowed field for DocumentProcess update: ". $out, EQ_REPORT_ERROR);
                     return ['status' => ['not_allowed' => 'Integrated document cannot be modified.']];
                 }
             }

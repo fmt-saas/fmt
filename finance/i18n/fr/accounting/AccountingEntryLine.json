@@ -34,8 +34,8 @@
             "help": ""
         },
         "description": {
-            "label": "Libellé",
-            "description": "Mémo décrivant l'opération.",
+            "label": "Description",
+            "description": "Courte description décrivant l'opération.",
             "help": ""
         },
         "debit": {
