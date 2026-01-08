@@ -29,6 +29,7 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'ondelete'          => 'cascade'
             ],
 
+            // #memo - in realestate package, 'purchase_invoice_line_id' targets `ExpenseStatementOwnerLine` and `FundRequestExecutionLine`
             'purchase_invoice_line_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoiceLine',
@@ -38,7 +39,14 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
-            // #memo - in realestate package, 'purchase_invoice_line_id' targets `ExpenseStatementOwnerLine` and `FundRequestExecutionLine`
+            'fund_usage_line_id'  => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\purchase\accounting\FundUsageLine',
+                'description'       => 'Fund usage line the entry line relates to, if any.',
+                'help'              => 'This is necessary for retrieving the Fund usage corresponding to the entry line and, further, the apportionment.',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
 
             'clearing_expense_statement_id' => [
                 'type'              => 'many2one',

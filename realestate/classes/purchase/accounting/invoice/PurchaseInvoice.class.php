@@ -1131,8 +1131,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'accounting_entry_id'   => $accountingEntry['id'],
                             'description'           => $invoice['description'],
                             'account_id'            => $fundUsageLine['expense_account_id'],
-                            'debit'                 => $fundUsageLine['amount'],
-                            'credit'                => 0.0
+                            'fund_usage_line_id'    => $usage_line_id,
+                            'debit'                 => 0.0,
+                            'credit'                => $fundUsageLine['amount']
                         ]);
 
                     // create the credit line on the reserve fund
@@ -1141,8 +1142,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'accounting_entry_id'   => $accountingEntry['id'],
                             'description'           => $invoice['description'],
                             'account_id'            => $fundUsageLine['fund_account_id'],
-                            'debit'                 => 0.0,
-                            'credit'                => $fundUsageLine['amount']
+                            'fund_usage_line_id'    => $usage_line_id,
+                            'debit'                 => $fundUsageLine['amount'],
+                            'credit'                => 0.0
                         ]);
                 }
             }

@@ -249,6 +249,7 @@ $lines = AccountingEntryLine::search($domain->toArray())
         'account_id',
         'account_class',
         'accounting_entry_id' => ['name', 'journal_id'],
+        'fund_usage_line_id' => ['apportionment_id', 'invoice_id'],
         'purchase_invoice_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'invoice_id'],
         'bank_statement_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'bank_statement_id'],
         'description',
@@ -343,8 +344,15 @@ foreach($lines as $line) {
             $apportionments_ids[] = $line['purchase_invoice_line_id']['apportionment_id'];
         }
     }
-
-    if($line['bank_statement_line_id']) {
+    elseif($line['fund_usage_line_id']) {
+        if($line['fund_usage_line_id']['invoice_id']) {
+            $invoices_ids[] = $line['fund_usage_line_id']['invoice_id'];
+        }
+        if($line['fund_usage_line_id']['apportionment_id']) {
+            $apportionments_ids[] = $line['fund_usage_line_id']['apportionment_id'];
+        }
+    }
+    elseif($line['bank_statement_line_id']) {
         if($line['bank_statement_line_id']['bank_statement_id']) {
             $statements_ids[] = $line['bank_statement_line_id']['bank_statement_id'];
         }
