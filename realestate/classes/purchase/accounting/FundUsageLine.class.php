@@ -25,6 +25,12 @@ class FundUsageLine extends \equal\orm\Model {
                 'readonly'          => true
             ],
 
+            'description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:256',
+                'description'       => 'Short optional description of the fund usage line.'
+            ],
+
             'invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
