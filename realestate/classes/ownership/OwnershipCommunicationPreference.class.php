@@ -94,7 +94,8 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'visible'           => ['is_owner', '=', true],
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.ownership_id'] ],
                 'help'              => 'This field might be empty in case of an external representant (not an owner)',
-                'onupdate'          => 'onupdateOwnerId'
+                'onupdate'          => 'onupdateOwnerId',
+                'oncreate'          => 'onupdateOwnerId'
             ],
 
             'identity_id' => [
