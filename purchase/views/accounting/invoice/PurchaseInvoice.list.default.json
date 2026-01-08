@@ -49,6 +49,21 @@
                         "sortable": true
                     }
                 ]
+            },
+            "item.emission.date": {
+                "after": [
+                    {
+                        "type": "field",
+                        "label": "Supplier Ref",
+                        "value": "supplier_invoice_number",
+                        "width": "20%"
+                    },
+                    {
+                        "type": "field",
+                        "value": "description",
+                        "width": "20%"
+                    }
+                ]
             }
         }
     }
