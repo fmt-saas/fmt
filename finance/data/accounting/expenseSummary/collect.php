@@ -344,20 +344,20 @@ foreach($lines as $line) {
             $apportionments_ids[] = $line['purchase_invoice_line_id']['apportionment_id'];
         }
     }
-    elseif($line['fund_usage_line_id']) {
-        if($line['fund_usage_line_id']['invoice_id']) {
-            $invoices_ids[] = $line['fund_usage_line_id']['invoice_id'];
-        }
-        if($line['fund_usage_line_id']['apportionment_id']) {
-            $apportionments_ids[] = $line['fund_usage_line_id']['apportionment_id'];
-        }
-    }
     elseif($line['bank_statement_line_id']) {
         if($line['bank_statement_line_id']['bank_statement_id']) {
             $statements_ids[] = $line['bank_statement_line_id']['bank_statement_id'];
         }
         if($line['bank_statement_line_id']['apportionment_id']) {
             $apportionments_ids[] = $line['bank_statement_line_id']['apportionment_id'];
+        }
+    }
+    elseif($line['fund_usage_line_id']) {
+        if($line['fund_usage_line_id']['invoice_id']) {
+            $invoices_ids[] = $line['fund_usage_line_id']['invoice_id'];
+        }
+        if($line['fund_usage_line_id']['apportionment_id']) {
+            $apportionments_ids[] = $line['fund_usage_line_id']['apportionment_id'];
         }
     }
 }
@@ -472,6 +472,10 @@ foreach($lines as $line_id => $line) {
             $supplier_id = $map_statements[$statement_id]['supplier_id'];
             $supplier_reference = $map_statements[$statement_id]['supplier_reference'];
         }
+    }
+    elseif(!empty($line['fund_usage_line_id']['invoice_id'])) {
+        $invoice_id = $line['fund_usage_line_id']['invoice_id'];
+        $apportionment_id = $line['fund_usage_line_id']['apportionment_id'] ?? null;
     }
 
     $result[] = [
