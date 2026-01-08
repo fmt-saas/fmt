@@ -176,7 +176,7 @@ try {
                 }
 
                 if(!$bank) {
-                    $bank = Bank::create([ 
+                    $bank = Bank::create([
                             'identity_id' => $identity['id'],
                             'bic'         => $values['bic']
                         ])

@@ -495,7 +495,7 @@ class Condominium extends Identity {
                 ];
             }
 
-            // #todo - vérifier que le code est unique
+            // verify that the code is unique
             $duplicate = self::search([
                     ['id', '<>', $id],
                     ['code', 'ilike', $condominium['code']]
@@ -504,7 +504,7 @@ class Condominium extends Identity {
 
             if($duplicate) {
                 $result[$id] = [
-                    'duplicate_code' => 'The code is already in use.'
+                    'duplicate_code' => 'The condominium code is already in use.'
                 ];
             }
 

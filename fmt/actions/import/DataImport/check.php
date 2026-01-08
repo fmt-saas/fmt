@@ -8,6 +8,7 @@
 use core\Lang;
 use fmt\import\DataImport;
 use hr\employee\Employee;
+use identity\Identity;
 use purchase\supplier\Supplier;
 use realestate\property\Condominium;
 use realestate\property\PropertyLotNature;
@@ -126,6 +127,32 @@ if($dataImport['import_type'] == 'condominium_import') {
         if($index > 0) {
             ++$result['errors'];
             $result['logs'][] = "ERR - more than one Condominium found in Condominium sheet at row " . ($index + 2);
+        }
+        $duplicate = Condominium::search([
+                ['code', 'ilike', $condo['code']]
+            ])
+            ->first();
+        if($duplicate) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - existing Condominium found for `code` {$condo['code']} in Condominium sheet at row " . ($index + 2);
+        }
+        if(isset($condo['registration_number']) && strlen($condo['registration_number']) > 0) {
+            $duplicate = Condominium::search([
+                    ['registration_number', '=', $condo['registration_number']]
+                ])
+                ->first();
+            if($duplicate) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - existing Condominium found for `registration_number` {$condo['registration_number']} in Condominium sheet at row " . ($index + 2);
+            }
+            $duplicate = Identity::search([
+                    ['registration_number', '=', $condo['registration_number']]
+                ])
+                ->first();
+            if($duplicate) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - existing Identity found for `registration_number` {$condo['registration_number']} in Condominium sheet at row " . ($index + 2);
+            }
         }
         if(isset($condo['manager_code'])) {
             $managerEmployee = Employee::search(['id', '=', $condo['manager_code']])->first();
