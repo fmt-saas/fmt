@@ -1,0 +1,32 @@
+{
+    "name": "Ligne de facture d'achat",
+    "plural": "Lignes de facture d'achat",
+    "description": "Lignes de facture d'achat avec compte de charge, libelle et montant HT.",
+    "model": {
+        "invoice_id": {
+            "label": "Facture",
+            "description": "Facture d'achat a laquelle la ligne appartient.",
+            "help": "Doit pointer vers une facture d'achat existante."
+        },
+        "expense_account_id": {
+            "label": "Compte de charge",
+            "description": "Compte comptable impute pour la ligne.",
+            "help": "Selectionner un compte non controle pour enregistrer la depense."
+        },
+        "name": {
+            "label": "Libelle",
+            "description": "Libelle par defaut de la ligne.",
+            "help": "Renseigne automatiquement le nom du compte de charge."
+        },
+        "description": {
+            "label": "Description",
+            "description": "Description complementaire de la ligne.",
+            "help": "Texte multilingue independant du produit ou du compte."
+        },
+        "total": {
+            "label": "Montant HT",
+            "description": "Montant total hors taxe de la ligne.",
+            "help": "Valeur libre pour la facture d'achat; unitaires et quantites sont optionnels."
+        }
+    }
+}
