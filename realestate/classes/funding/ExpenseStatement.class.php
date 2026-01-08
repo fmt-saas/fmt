@@ -1089,13 +1089,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                                     'shares'        => $shares,
                                     'total_shares'  => $total_shares,
                                     'total_amount'  => $line_amount,
-                                    'owner'         => 0.0,
+                                    'owner'         => round($amount, 2),
                                     'tenant'        => 0.0
                                 ];
                         }
-                        // use of reserve fund only applies to the owners
-                        $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']]['owner'] += round($amount, 2);
-                        $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']]['total_amount'] += $line_amount;
+                        else {
+                            // use of reserve fund only applies to the owners
+                            $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']]['owner'] += round($amount, 2);
+                            $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']]['total_amount'] += $line_amount;
+                        }
 
                         $map_property_lots_ids[$property_lot_id] = true;
                     }
