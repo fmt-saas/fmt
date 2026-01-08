@@ -132,121 +132,134 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
         }
     }
 
-    public static function onchange($event, $values, $view) {
+    public static function onchange($self, $event, $values, $view) {
         $result = [];
+        $self->read(['price', 'invoice_id' => ['status']]);
 
-        // check VAT
-        if(isset($event['vat_rate']) && $event['vat_rate'] >= 1) {
-            $result['vat_rate'] = round($event['vat_rate'] / 100, 2);
-            $event['vat_rate'] = $result['vat_rate'];
-        }
-
-        if(isset($event['price'])) {
-            if(isset($event['vat_rate']) || isset($values['vat_rate'])) {
-                $vat_rate = $event['vat_rate'] ?? $values['vat_rate'];
-                // #memo - qty is fixed to 1
-                $result['total'] = round($event['price'] / (1 + $vat_rate), 2);
-                $result['unit_price'] = round($event['price'] / (1 + $vat_rate), 2);
+        foreach($self as $id => $purchaseInvoiceLine) {
+            // check VAT
+            if(isset($event['vat_rate']) && $event['vat_rate'] >= 1) {
+                $result['vat_rate'] = round($event['vat_rate'] / 100, 2);
+                $event['vat_rate'] = $result['vat_rate'];
             }
-            else {
-                $result['total'] = $event['price'];
-                $result['unit_price'] = $event['price'];
-            }
-        }
 
-/*
-        switch($view) {
-            case 'list.default':
-            break;
-        }
-*/
-
-        // update price
-        if(array_key_exists('vat_rate', $event) && isset($values['total'])) {
-            $result['price'] = round($values['total'] * (1 + $event['vat_rate']), 2);
-        }
-        if(array_key_exists('total', $event)) {
-            if($values['vat_rate']) {
-                $result['price'] = round($event['total'] * (1 + $values['vat_rate']), 2);
-            }
-            else {
-                $result['price'] = round($event['total'], 2);
-            }
-        }
-        // update expense account
-        if(isset($event['is_private_expense']) && $event['is_private_expense']) {
-            $account = Account::search([['condo_id', '=', $values['condo_id']], ['operation_assignment', '=', 'private_expenses']])
-                ->read(['id', 'name'])
-                ->first();
-            if($account) {
-                $result['expense_account_id'] = [
-                        'id'    => $account['id'],
-                        'name'  => $account['name']
-                    ];
-            }
-        }
-
-        if(isset($event['tenant_share'])) {
-            $result['owner_share'] = 100 - intval($event['tenant_share']);
-        }
-        elseif(isset($event['owner_share'])) {
-            $result['tenant_share'] = 100 - intval($event['owner_share']);
-        }
-
-        // synchronize ownership & property lots
-        // #memo - we must be able to assign any ownership (not only active ones)
-        if(array_key_exists('ownership_id', $event)) {
-            if($event['ownership_id']) {
-                $propertyOwnerships = PropertyLotOwnership::search([['ownership_id', '=', $event['ownership_id']]])->read(['property_lot_id'])->get(true);
-                $property_lots_ids = array_map(function ($a) {return $a['property_lot_id'];}, $propertyOwnerships);
-                if(!$values['property_lot_id'] || !in_array($values['property_lot_id'], $property_lots_ids) ) {
-                    $result['property_lot_id'] = [
-                        'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $property_lots_ids]]
-                    ];
+            if($purchaseInvoiceLine['invoice_id']['status'] === 'posted') {
+                // update price
+                if(array_key_exists('vat_rate', $event)) {
+                    $result['total'] = round($purchaseInvoiceLine['price'] / (1 + $event['vat_rate']), 2);
                 }
             }
             else {
-                $result['ownership_id'] = [
-                    'domain' => ['condo_id', '=', $values['condo_id']]
-                ];
-                $result['property_lot_id'] = [
-                    'domain' => ['condo_id', '=', $values['condo_id']]
-                ];
+                // update price
+                if(array_key_exists('vat_rate', $event) && isset($values['total'])) {
+                    $result['price'] = round($values['total'] * (1 + $event['vat_rate']), 2);
+                }
             }
-        }
-        if(array_key_exists('property_lot_id', $event)) {
-            if($event['property_lot_id']) {
-                $propertyOwnerships = PropertyLotOwnership::search([['property_lot_id', '=', $event['property_lot_id']]])->read(['ownership_id'])->get(true);
-                $ownerships_ids = array_map(function ($a) {return $a['ownership_id'];}, $propertyOwnerships);
-                if(!$values['ownership_id'] || !in_array($values['ownership_id'], $ownerships_ids) ) {
+
+            if(isset($event['price'])) {
+                if(isset($event['vat_rate']) || isset($values['vat_rate'])) {
+                    $vat_rate = $event['vat_rate'] ?? $values['vat_rate'];
+                    // #memo - qty is fixed to 1
+                    $result['total'] = round($event['price'] / (1 + $vat_rate), 2);
+                    $result['unit_price'] = round($event['price'] / (1 + $vat_rate), 2);
+                }
+                else {
+                    $result['total'] = $event['price'];
+                    $result['unit_price'] = $event['price'];
+                }
+            }
+
+            /*
+            switch($view) {
+                case 'list.default':
+                break;
+            }
+            */
+
+            if(array_key_exists('total', $event)) {
+                if($values['vat_rate']) {
+                    $result['price'] = round($event['total'] * (1 + $values['vat_rate']), 2);
+                }
+                else {
+                    $result['price'] = round($event['total'], 2);
+                }
+            }
+            // update expense account
+            if(isset($event['is_private_expense']) && $event['is_private_expense']) {
+                $account = Account::search([['condo_id', '=', $values['condo_id']], ['operation_assignment', '=', 'private_expenses']])
+                    ->read(['id', 'name'])
+                    ->first();
+                if($account) {
+                    $result['expense_account_id'] = [
+                            'id'    => $account['id'],
+                            'name'  => $account['name']
+                        ];
+                }
+            }
+
+            if(isset($event['tenant_share'])) {
+                $result['owner_share'] = 100 - intval($event['tenant_share']);
+            }
+            elseif(isset($event['owner_share'])) {
+                $result['tenant_share'] = 100 - intval($event['owner_share']);
+            }
+
+            // synchronize ownership & property lots
+            // #memo - we must be able to assign any ownership (not only active ones)
+            if(array_key_exists('ownership_id', $event)) {
+                if($event['ownership_id']) {
+                    $propertyOwnerships = PropertyLotOwnership::search([['ownership_id', '=', $event['ownership_id']]])->read(['property_lot_id'])->get(true);
+                    $property_lots_ids = array_map(function ($a) {return $a['property_lot_id'];}, $propertyOwnerships);
+                    if(!$values['property_lot_id'] || !in_array($values['property_lot_id'], $property_lots_ids) ) {
+                        $result['property_lot_id'] = [
+                            'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $property_lots_ids]]
+                        ];
+                    }
+                }
+                else {
                     $result['ownership_id'] = [
-                        'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $ownerships_ids]]
+                        'domain' => ['condo_id', '=', $values['condo_id']]
+                    ];
+                    $result['property_lot_id'] = [
+                        'domain' => ['condo_id', '=', $values['condo_id']]
                     ];
                 }
             }
-            else {
-                $result['ownership_id'] = [
-                    'domain' => ['condo_id', '=', $values['condo_id']]
-                ];
-                $result['property_lot_id'] = [
-                    'domain' => ['condo_id', '=', $values['condo_id']]
-                ];
+            if(array_key_exists('property_lot_id', $event)) {
+                if($event['property_lot_id']) {
+                    $propertyOwnerships = PropertyLotOwnership::search([['property_lot_id', '=', $event['property_lot_id']]])->read(['ownership_id'])->get(true);
+                    $ownerships_ids = array_map(function ($a) {return $a['ownership_id'];}, $propertyOwnerships);
+                    if(!$values['ownership_id'] || !in_array($values['ownership_id'], $ownerships_ids) ) {
+                        $result['ownership_id'] = [
+                            'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $ownerships_ids]]
+                        ];
+                    }
+                }
+                else {
+                    $result['ownership_id'] = [
+                        'domain' => ['condo_id', '=', $values['condo_id']]
+                    ];
+                    $result['property_lot_id'] = [
+                        'domain' => ['condo_id', '=', $values['condo_id']]
+                    ];
+                }
+            }
+            if(isset($event['expense_account_id'])) {
+                $expenseAccount = Account::id($event['expense_account_id'])->read(['id', 'apportionment_id', 'tenant_share', 'owner_share'])->first();
+                if($expenseAccount) {
+                    $result['apportionment_id'] = $expenseAccount['apportionment_id'];
+                    $result['tenant_share'] = $expenseAccount['tenant_share'];
+                    $result['owner_share'] = $expenseAccount['owner_share'];
+                }
             }
         }
-        if(isset($event['expense_account_id'])) {
-            $expenseAccount = Account::id($event['expense_account_id'])->read(['id', 'apportionment_id', 'tenant_share', 'owner_share'])->first();
-            if($expenseAccount) {
-                $result['apportionment_id'] = $expenseAccount['apportionment_id'];
-                $result['tenant_share'] = $expenseAccount['tenant_share'];
-                $result['owner_share'] = $expenseAccount['owner_share'];
-            }
-        }
+
         return $result;
     }
 
     public static function canupdate($self, $values) {
         $self->read(['invoice_id' => ['status', 'document_process_id' => ['status']]]);
-        $allowed_fields = ['apportionment_id', 'description', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id'];
+        $allowed_fields = ['apportionment_id', 'description', 'total', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id'];
         foreach($self as $id => $invoiceLine) {
             if($invoiceLine['invoice_id']['status'] === 'posted') {
                 // check if related accounting records has been cleared or not

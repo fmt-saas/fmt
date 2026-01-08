@@ -23,6 +23,13 @@
     "layout": {
         "items": [
             {
+                "id": "item.id",
+                "type": "field",
+                "value": "id",
+                "width": "10%",
+                "visible": false
+            },
+            {
                 "id": "item.name",
                 "type": "field",
                 "value": "name",
