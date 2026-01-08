@@ -17,6 +17,12 @@
         "items": [
             {
                 "type": "field",
+                "value": "id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "name",
                 "width": "20%"
             },
