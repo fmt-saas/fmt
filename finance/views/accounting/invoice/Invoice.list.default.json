@@ -48,11 +48,6 @@
             },
             {
                 "type": "field",
-                "value": "status",
-                "width": "20%"
-            },
-            {
-                "type": "field",
                 "value": "total",
                 "width": "15%"
             },
@@ -60,6 +55,11 @@
                 "type": "field",
                 "value": "price",
                 "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "20%"
             }
         ]
     }
