@@ -67,7 +67,7 @@
                 "value": "date_last",
                 "width": "25%",
                 "widget": {
-                    "usage": "date/plain"
+                    "usage": "date"
                 }
             },
             {

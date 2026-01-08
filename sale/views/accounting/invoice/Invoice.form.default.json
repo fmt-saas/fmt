@@ -125,7 +125,7 @@
                                                 "value": "emission_date",
                                                 "width": "50%",
                                                 "widget": {
-                                                    "usage": "date/plain"
+                                                    "usage": "date"
                                                 }
                                             }
                                         ]

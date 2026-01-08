@@ -43,7 +43,7 @@
                 "width": "20%",
                 "sortable": true,
                 "widget": {
-                    "usage": "date/plain.short"
+                    "usage": "date"
                 }
             },
             {
