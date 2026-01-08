@@ -987,21 +987,21 @@ class DocumentProcess extends Model {
     }
 
     protected static function onafterAssign($self) {
-        $self->read(['assigned_employee_id', 'document_bank_statement_id', 'document_invoice_id']);
+        $self->read(['status', 'assigned_employee_id', 'document_bank_statement_id', 'document_invoice_id']);
         foreach($self as $id => $documentProcess) {
             if($documentProcess['document_bank_statement_id']) {
                 BankStatement::id($documentProcess['document_bank_statement_id'])
                     ->update([
-                            'assigned_employee_id'      => null,
-                            'document_process_status'   => null
+                            'assigned_employee_id'      => $documentProcess['assigned_employee_id'],
+                            'document_process_status'   => $documentProcess['status']
                         ]);
                 continue;
             }
             if($documentProcess['document_invoice_id']) {
-                BankStatement::id($documentProcess['document_invoice_id'])
+                PurchaseInvoice::id($documentProcess['document_invoice_id'])
                     ->update([
-                            'assigned_employee_id'      => null,
-                            'document_process_status'   => null
+                            'assigned_employee_id'      => $documentProcess['assigned_employee_id'],
+                            'document_process_status'   => $documentProcess['status']
                         ]);
                 continue;
             }

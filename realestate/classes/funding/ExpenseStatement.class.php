@@ -1095,6 +1095,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         }
                         // use of reserve fund only applies to the owners
                         $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']]['owner'] += round($amount, 2);
+                        $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']]['total_amount'] += $line_amount;
 
                         $map_property_lots_ids[$property_lot_id] = true;
                     }
