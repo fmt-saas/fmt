@@ -160,39 +160,39 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             if(array_key_exists('vat_rate', $event) && isset($values['total'])) {
                 $result['price'] = round($values['total'] * (1 + $event['vat_rate']), 2);
             }
-        }
 
-        if(isset($event['price'])) {
-            if(isset($event['vat_rate']) || isset($values['vat_rate'])) {
-                $vat_rate = $event['vat_rate'] ?? $values['vat_rate'];
-                // #memo - qty is fixed to 1
-                $result['total'] = round($event['price'] / (1 + $vat_rate), 2);
-                $result['unit_price'] = round($event['price'] / (1 + $vat_rate), 2);
+            if(isset($event['price'])) {
+                if(isset($event['vat_rate']) || isset($values['vat_rate'])) {
+                    $vat_rate = $event['vat_rate'] ?? $values['vat_rate'];
+                    // #memo - qty is fixed to 1
+                    $result['total'] = round($event['price'] / (1 + $vat_rate), 2);
+                    $result['unit_price'] = round($event['price'] / (1 + $vat_rate), 2);
+                }
+                else {
+                    $result['total'] = $event['price'];
+                    $result['unit_price'] = $event['price'];
+                }
             }
-            else {
-                $result['total'] = $event['price'];
-                $result['unit_price'] = $event['price'];
-            }
-        }
 
-        if(array_key_exists('total', $event)) {
-            if($values['vat_rate']) {
-                $result['price'] = round($event['total'] * (1 + $values['vat_rate']), 2);
+            if(array_key_exists('total', $event)) {
+                if($values['vat_rate']) {
+                    $result['price'] = round($event['total'] * (1 + $values['vat_rate']), 2);
+                }
+                else {
+                    $result['price'] = round($event['total'], 2);
+                }
             }
-            else {
-                $result['price'] = round($event['total'], 2);
-            }
-        }
-        // update expense account
-        if(isset($event['is_private_expense']) && $event['is_private_expense']) {
-            $account = Account::search([['condo_id', '=', $values['condo_id']], ['operation_assignment', '=', 'private_expenses']])
-                ->read(['id', 'name'])
-                ->first();
-            if($account) {
-                $result['expense_account_id'] = [
-                        'id'    => $account['id'],
-                        'name'  => $account['name']
-                    ];
+            // update expense account
+            if(isset($event['is_private_expense']) && $event['is_private_expense']) {
+                $account = Account::search([['condo_id', '=', $values['condo_id']], ['operation_assignment', '=', 'private_expenses']])
+                    ->read(['id', 'name'])
+                    ->first();
+                if($account) {
+                    $result['expense_account_id'] = [
+                            'id'    => $account['id'],
+                            'name'  => $account['name']
+                        ];
+                }
             }
         }
 
