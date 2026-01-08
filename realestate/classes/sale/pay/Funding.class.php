@@ -200,13 +200,27 @@ class Funding extends \sale\pay\Funding {
                 'readonly'          => true
             ],
 
+            'has_free_payment_reference' => [
+                'type'              => 'boolean',
+                'default'           => false,
+            ],
+
+            'free_payment_reference' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:140',
+                'description'       => 'Free message for identifying the purpose of the transaction.',
+                'help'              => 'An arbitrary payment reference can be assigned at Funding creation to override the computation logic.',
+                'visible'           => ['has_free_payment_reference', '=', true]
+            ],
+
             'payment_reference' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'description'       => 'Message for identifying the purpose of the transaction.',
-                'help'              => 'An arbitrary payment reference can be assigned at Funding creation to override the computation logic.',
+                'visible'           => ['has_free_payment_reference', '=', false],
                 'store'             => true,
                 'instant'           => true,
+                'readonly'          => true,
                 'function'          => 'calcPaymentReference'
             ],
 

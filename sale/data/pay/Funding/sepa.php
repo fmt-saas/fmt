@@ -59,6 +59,8 @@ $fundings = Funding::ids($ids)
         'name',
         'due_amount',
         'has_mandate',
+        'has_free_payment_reference',
+        'free_payment_reference',
         'payment_reference',
         'bank_account_id' => ['bank_account_iban','bank_account_bic','owner_identity_id' => ['name']],
         'counterpart_bank_account_id' => ['bank_account_iban','bank_account_bic','owner_identity_id' => ['name']]
@@ -169,13 +171,19 @@ foreach($fundings as $funding) {
     $toName = $funding['counterpart_bank_account_id']['owner_identity_id']['name'];
     $toIban = $funding['counterpart_bank_account_id']['bank_account_iban'];
     $toBic  = $funding['counterpart_bank_account_id']['bank_account_bic'];
-    $reference = $funding['payment_reference'] ?: ('PAY-' . $funding['id']);
+
+    $reference = (
+            $funding['has_free_payment_reference']
+            && !empty($funding['free_payment_reference'])
+        )
+        ? $funding['free_payment_reference']
+        : ($funding['payment_reference'] ?: ('PAY-' . $funding['id']));
 
     $pmtInf[] = [
         'name'  => $n('CdtTrfTxInf'),
         'value' => [
             $n('PmtId') => [
-                $n('EndToEndId') => $reference
+                $n('EndToEndId') => 'PAY-' . $funding['id']
             ],
 
             $n('Amt') => [
@@ -239,7 +247,7 @@ $xml = preg_replace(
 Funding::ids($ids)->update(['is_sent' => true]);
 
 // #memo - this does not guarantee resulting filename uniqueness
-$filename = "SEPA_ENVELOPE_" . $funding['payment_reference'] . '_' . date('Ymd') . ".xml";
+$filename = "SEPA_ENVELOPE_" . $group_id . '_' . date('Ymd') . ".xml";
 
 $context->httpResponse()
     ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
