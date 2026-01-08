@@ -1,95 +1,101 @@
 {
-    "name": "Balance générale",
-    "plural": "Balances générales",
-    "description": "Collecteur avancé des écritures pour la balance générale.",
+    "name": "Balance generale",
+    "plural": "Balances generales",
+    "description": "Collecteur avance des ecritures validees pour la balance generale.",
     "model": {
         "entry_date": {
-            "label": "Date d'écriture",
-            "description": "Date à laquelle l'écriture est comptabilisée.",
-            "help": "Filtre les lignes sur la date d'enregistrement."
+            "label": "Date d'ecriture",
+            "description": "Date a laquelle l'ecriture est enregistree et impacte l'exercice.",
+            "help": "Utilisee pour filtrer les lignes par intervalle de dates."
         },
         "description": {
             "label": "Description",
-            "description": "Libellé ou note interne de l'opération.",
-            "help": "Permet de rechercher ou d'afficher le libellé de la ligne."
+            "description": "Libelle ou note interne de l'operation.",
+            "help": "Permet d'afficher ou de filtrer le libelle de la ligne."
         },
         "debit": {
-            "label": "Débit",
-            "description": "Montant débité du compte.",
-            "help": "Valeur monétaire débitée sur la ligne."
+            "label": "Debit",
+            "description": "Montant debite sur la ligne.",
+            "help": "Valeur monetaire en debit sur le compte cible."
         },
         "credit": {
-            "label": "Crédit",
-            "description": "Montant crédité du compte.",
-            "help": "Valeur monétaire créditée sur la ligne."
+            "label": "Credit",
+            "description": "Montant credite sur la ligne.",
+            "help": "Valeur monetaire en credit sur le compte cible."
         },
         "balance": {
             "label": "Solde",
-            "description": "Différence entre débits et crédits.",
-            "help": "Calculé comme débit moins crédit pour la ligne."
+            "description": "Debit moins credit pour la ligne collectee.",
+            "help": "Calcule automatiquement a partir des montants debit et credit."
         },
-        "ownership_id": {
-            "label": "Propriétaire",
-            "description": "Propriétaire lié au compte, si présent.",
-            "help": "Filtre les écritures associées à ce propriétaire."
-        },
-        "suppliership_id": {
-            "label": "Fournisseur",
-            "description": "Fournisseur auquel le compte est associé, si présent.",
-            "help": "Filtre les écritures associées à ce fournisseur."
+        "domain": {
+            "label": "Domaine",
+            "description": "Domaine de recherche applique aux lignes.",
+            "help": "Conditions techniques construites a partir des filtres avances."
         },
         "accounting_entry_id": {
-            "label": "Écriture comptable",
-            "description": "Écriture comptable à laquelle la ligne est rattachée.",
-            "help": "Affiche la pièce comptable liée à la ligne."
+            "label": "Ecriture comptable",
+            "description": "Piece comptable a laquelle la ligne est rattachee.",
+            "help": "Affiche la reference de l'ecriture d'origine."
         },
         "date_from": {
-            "label": "Date de début",
-            "description": "Première date de l'intervalle analysé.",
-            "help": "Limite les écritures à partir de cette date."
+            "label": "Date debut",
+            "description": "Premiere date de l'intervalle analyse.",
+            "help": "Applique un filtre >= sur la date des ecritures."
         },
         "date_to": {
-            "label": "Date de fin",
-            "description": "Dernière date de l'intervalle analysé.",
-            "help": "Limite les écritures jusqu'à cette date."
+            "label": "Date fin",
+            "description": "Derniere date de l'intervalle analyse.",
+            "help": "Applique un filtre <= sur la date des ecritures."
+        },
+        "suppliers_only": {
+            "label": "Fournisseurs uniquement",
+            "description": "Limiter aux ecritures liees a un fournisseur.",
+            "help": "Ajoute une condition sur les lignes rattachees a un suppliership."
+        },
+        "ownerships_only": {
+            "label": "Proprietaires uniquement",
+            "description": "Limiter aux ecritures liees a un dossier de propriete.",
+            "help": "Ajoute une condition sur les lignes rattachees a un ownership."
         },
         "condo_id": {
-            "label": "Copropriété",
-            "description": "Copropriété à laquelle se rapporte l'exercice.",
-            "help": "Filtre les écritures sur la copropriété sélectionnée."
+            "label": "Copropriete",
+            "description": "Copropriete concernee par la balance.",
+            "help": "Determine les journaux, comptes et exercices proposes."
         },
         "fiscal_year_id": {
             "label": "Exercice fiscal",
-            "description": "Exercice fiscal de référence.",
-            "help": "Détermine automatiquement l'intervalle de dates utilisé."
+            "description": "Exercice utilise pour borner les dates des ecritures.",
+            "help": "Par defaut l'exercice ouvert ou preouvert le plus recent de la copropriete."
         },
         "journal_id": {
             "label": "Journal",
-            "description": "Journal comptable lié aux écritures recherchées.",
-            "help": "Limite les résultats à un journal spécifique."
+            "description": "Journal comptable cible.",
+            "help": "Filtre les ecritures sur un journal specifique (hors journal general LEDG)."
         },
         "account_id": {
             "label": "Compte",
-            "description": "Compte comptable concerné par les lignes.",
-            "help": "Filtre les écritures sur le compte choisi."
+            "description": "Compte comptable concerne par les lignes.",
+            "help": "Filtre les ecritures sur le compte selectionne."
         }
     },
     "view": {
         "collect.list.default": {
-            "name": "Balance générale",
-            "description": "Vue détaillée des lignes de la balance générale.",
+            "name": "Balance generale",
+            "description": "Vue detaillee des lignes de balance generale avec totaux par compte.",
             "actions": {
                 "action.export": {
                     "label": "Exporter",
-                    "description": "Exporter un document PDF depuis les filtres actifs."
+                    "description": "Exporter un document PDF a partir des filtres actifs."
                 }
-            }
+            },
+            "layout": {}
         },
         "collect.search.default": {
-            "name": "Recherche balance générale",
-            "description": "Filtres avancés pour sélectionner les écritures de la balance générale."
+            "name": "Recherche balance generale",
+            "description": "Filtres avances pour la balance generale (dates, journal, compte, fournisseurs/proprietaires).",
+            "layout": {}
         }
     },
-    "error": {
-    }
+    "error": {}
 }

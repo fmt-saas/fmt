@@ -24,38 +24,38 @@ use realestate\property\Apportionment;
         /* Rendering fields */
 
         'apportionment' => [
-            'type'     => 'string',
-            'readonly' => true
+            'type'              => 'string',
+            'readonly'          => true
         ],
 
         'parent_account' => [
-            'type'     => 'string',
-            'readonly' => true
+            'type'              => 'string',
+            'readonly'          => true
         ],
 
         'account' => [
-            'type'     => 'string',
-            'readonly' => true
+            'type'              => 'string',
+            'readonly'          => true
         ],
 
         'description' => [
-            'type'     => 'string',
-            'readonly' => true
+            'type'              => 'string',
+            'readonly'          => true
         ],
 
         'entry_journal' => [
-            'type'    => 'string',
-            'readonly'=> true
+            'type'              => 'string',
+            'readonly'          => true
         ],
 
         'entry_date' => [
-            'type'    => 'date',
-            'readonly'=> true
+            'type'              => 'date',
+            'readonly'          => true
         ],
 
         'entry_reference' => [
-            'type'    => 'string',
-            'readonly'=> true
+            'type'              => 'string',
+            'readonly'          => true
         ],
 
         'supplier_id' => [
@@ -66,24 +66,27 @@ use realestate\property\Apportionment;
         ],
 
         'supplier_reference' => [
-            'type'    => 'string',
-            'readonly'=> true
+            'type'              => 'string',
+            'readonly'          => true
         ],
 
         'owner_share'           => [
             'type'              => 'integer',
             'description'       => "Value, in percent, of the amount to be imputed to the owner when using the account.",
+            'readonly'          => true
+        ],
+
+        'tenant_share'          => [
+            'type'              => 'integer',
+            'description'       => "Value, in percent, of the amount to be imputed to the tenant when using the account.",
+            'readonly'          => true
         ],
 
         'vat_rate' => [
             'type'              => 'float',
             'usage'             => 'amount/rate',
             'description'       => 'VAT rate to be applied.',
-        ],
-
-        'tenant_share'          => [
-            'type'              => 'integer',
-            'description'       => "Value, in percent, of the amount to be imputed to the tenant when using the account.",
+            'readonly'          => true
         ],
 
         'amount'          => [

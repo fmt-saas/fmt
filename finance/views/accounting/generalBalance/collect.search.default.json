@@ -20,40 +20,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "account_id",
-                                                "label": "Account",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "25%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "ownership_id",
-                                                "label": "Owner",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "suppliership_id",
-                                                "label": "Supplier",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "25%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "journal_id",
-                                                "label": "Journal",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "label": "Fiscal year",
                                                 "value": "fiscal_year_id",
                                                 "width": "100%"
@@ -71,6 +37,23 @@
                                             {
                                                 "type": "field",
                                                 "value": "date_to",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Suppliers only",
+                                                "value": "suppliers_only",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Owners only",
+                                                "value": "ownerships_only",
                                                 "width": "100%"
                                             }
                                         ]

@@ -57,6 +57,23 @@
                                                 "width": "100%"
                                             }
                                         ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "owner",
+                                                "value": "ownership_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "supplier",
+                                                "value": "suppliership_id",
+                                                "width": "100%"
+                                            }
+                                        ]
                                     }
                                 ]
                             }

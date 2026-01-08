@@ -61,20 +61,6 @@ use finance\accounting\Journal;
 
         /* additional fields for filtering & rendering */
 
-        'ownership_id' => [
-            'type'              => 'many2one',
-            'foreign_object'    => 'realestate\ownership\Ownership',
-            'description'       => "The ownership that the account refers to, if any.",
-            'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
-        ],
-
-        'suppliership_id' => [
-            'type'              => 'many2one',
-            'foreign_object'    => 'purchase\supplier\Suppliership',
-            'description'       => 'The supplier the account relates to, if any.',
-            'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
-        ],
-
         'accounting_entry_id' => [
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\finance\accounting\AccountingEntry',
@@ -92,6 +78,18 @@ use finance\accounting\Journal;
             'type'              => 'date',
             'description'       => "Last date of the time interval.",
             'default'           => null
+        ],
+
+        'suppliers_only' => [
+            'type'              => 'boolean',
+            'description'       => "Show only entries relating to suppliers.",
+            'default'           => false
+        ],
+
+        'ownerships_only' => [
+            'type'              => 'boolean',
+            'description'       => "Show only entries relating to suppliers.",
+            'default'           => false
         ],
 
         'condo_id' => [
@@ -121,20 +119,34 @@ use finance\accounting\Journal;
             'description'       => "The fiscal year the balance refers to.",
             'foreign_object'    => 'finance\accounting\FiscalYear',
             'domain'            => ['condo_id', '=', 'object.condo_id'],
-            'default'           => function($condo_id = null) {
-                $fiscal_year_ids = FiscalYear::search([
-                        ['status', '=', 'open'],
-                        ['condo_id', '=', $condo_id],
-                    ],  ['sort' => ['date_from' => 'desc']])
-                    ->ids();
-                if(count($fiscal_year_ids) <= 0) {
-                    $fiscal_year_ids = FiscalYear::search([
-                            ['status', '=', 'preopen'],
-                            ['condo_id', '=', $condo_id],
-                        ],  ['sort' => ['date_from' => 'asc']])
-                        ->ids();
+            'default'           => function($condo_id = null, $domain = []) {
+                if(is_null($condo_id)) {
+                    $origDomain = new Domain($domain);
+                    foreach($origDomain->getClauses() as $clause) {
+                        foreach($clause->getConditions() as $condition) {
+                            if($condition->getOperand() === 'condo_id') {
+                                $condo_id = $condition->getValue();
+                                break 2;
+                            }
+                        }
+                    }
                 }
-                return count($fiscal_year_ids) ? current($fiscal_year_ids) : null;
+                if($condo_id) {
+                    $fiscal_year_ids = FiscalYear::search([
+                            ['status', '=', 'open'],
+                            ['condo_id', '=', $condo_id],
+                        ],  ['sort' => ['date_from' => 'desc']])
+                        ->ids();
+                    if(count($fiscal_year_ids) <= 0) {
+                        $fiscal_year_ids = FiscalYear::search([
+                                ['status', '=', 'preopen'],
+                                ['condo_id', '=', $condo_id],
+                            ],  ['sort' => ['date_from' => 'asc']])
+                            ->ids();
+                    }
+                    return count($fiscal_year_ids) ? current($fiscal_year_ids) : null;
+                }
+                return null;
             }
         ],
 
@@ -171,37 +183,31 @@ if(isset($params['condo_id']) && $params['condo_id'] > 0) {
     $domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
 }
 
-if(isset($params['date_from'], $params['date_to']) || isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
-    if(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
-        $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
-            ->read(['date_from', 'date_to'])
-            ->first();
-        $date_from = $fiscalYear['date_from'];
-        $date_to = $fiscalYear['date_to'];
+if(isset($params['date_from'], $params['date_to'])) {
+    $date_from = $params['date_from'];
+    $date_to = $params['date_to'];
 
-        if(isset($params['date_from']) && $params['date_from'] > $date_from && $params['date_from'] < $date_to ) {
-            $date_from = $params['date_from'];
-        }
+    $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
+    $domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
+}
+elseif(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
+    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
+        ->read(['date_from', 'date_to'])
+        ->first();
 
-        if(isset($params['date_to']) && $params['date_to'] < $date_to && $params['date_to'] > $date_from ) {
-            $date_to = $params['date_to'];
-        }
-    }
-    else {
-        $date_from = $params['date_from'];
-        $date_to = $params['date_to'];
-    }
+    $date_from = $fiscalYear['date_from'];
+    $date_to = $fiscalYear['date_to'];
 
     $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
     $domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 }
 
-
-if(isset($params['ownership_id']) && $params['ownership_id'] > 0) {
-    $domain->addCondition(new DomainCondition('ownership_id', '=', $params['ownership_id']));
+if($params['suppliers_only']) {
+    $domain->addCondition(new DomainCondition('suppliership_id', '<>', null));
 }
-else if(isset($params['suppliership_id']) && $params['suppliership_id'] > 0) {
-    $domain->addCondition(new DomainCondition('suppliership_id', '=', $params['suppliership_id']));
+
+if($params['ownerships_only']) {
+    $domain->addCondition(new DomainCondition('ownership_id', '<>', null));
 }
 
 if(isset($params['journal_id']) && $params['journal_id'] > 0) {
@@ -222,7 +228,7 @@ $result = AccountingEntryLine::search($domain->toArray())
     ->read([
         'condo_id' => ['name'],
         'account_id' => ['name', 'ownership_id' => ['name'], 'suppliership_id' => ['name']],
-        'journal_id' => ['name'],
+        'journal_id' => ['name', 'mnemo'],
         'accounting_entry_id' => ['name'],
         'entry_date',
         'description',

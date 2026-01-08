@@ -1,89 +1,100 @@
 {
     "name": "Grand livre",
     "plural": "Grand livre",
-    "description": "Collecteur avancé des écritures pour générer le grand livre.",
+    "description": "Collecteur avance des ecritures pour generer le grand livre.",
     "model": {
         "entry_date": {
-            "label": "Date d'écriture",
-            "description": "Date à laquelle l'écriture est comptabilisée.",
-            "help": "Filtre les lignes sur la date d'enregistrement dans le livre."
+            "label": "Date d'ecriture",
+            "description": "Date a laquelle l'ecriture est comptabilisee et impacte l'exercice.",
+            "help": "Utilisee pour filtrer les lignes par intervalle de dates."
         },
         "description": {
             "label": "Description",
-            "description": "Libellé ou note interne de l'opération.",
-            "help": "Permet d'afficher ou de rechercher sur le libellé de la ligne."
+            "description": "Libelle ou note interne de l'operation.",
+            "help": "Permet d'afficher ou de filtrer le libelle de la ligne."
         },
         "debit": {
-            "label": "Débit",
-            "description": "Montant débité du compte.",
-            "help": "Valeur monétaire débitée sur la ligne."
+            "label": "Debit",
+            "description": "Montant debite du compte.",
+            "help": "Valeur monetaire en debit sur le compte cible."
         },
         "credit": {
-            "label": "Crédit",
-            "description": "Montant crédité du compte.",
-            "help": "Valeur monétaire créditée sur la ligne."
+            "label": "Credit",
+            "description": "Montant credite du compte.",
+            "help": "Valeur monetaire en credit sur le compte cible."
         },
         "status": {
             "label": "Statut",
-            "description": "État de validation de la ligne d'écriture.",
-            "help": "Indique si la ligne est en attente ou validée.",
+            "description": "Etat de validation de la ligne d'ecriture.",
+            "help": "Indique si la ligne est en attente ou validee.",
             "selection": {
                 "pending": "En attente",
-                "validated": "Validée"
+                "validated": "Validee"
             }
         },
+        "ownership_id": {
+            "label": "Proprietaire",
+            "description": "Dossier de propriete rattache au compte, si present.",
+            "help": "Permet de filtrer les ecritures liees a ce proprietaire."
+        },
+        "suppliership_id": {
+            "label": "Fournisseur",
+            "description": "Contrat fournisseur rattache au compte, si present.",
+            "help": "Permet de filtrer les ecritures liees a ce fournisseur."
+        },
         "accounting_entry_id": {
-            "label": "Écriture comptable",
-            "description": "Écriture comptable à laquelle la ligne est rattachée.",
-            "help": "Affiche la pièce comptable associée."
+            "label": "Ecriture comptable",
+            "description": "Piece comptable a laquelle la ligne est rattachee.",
+            "help": "Affiche la reference de l'ecriture d'origine."
         },
         "date_from": {
-            "label": "Date de début",
-            "description": "Première date de l'intervalle analysé.",
-            "help": "Utilisée pour limiter les écritures à partir de cette date."
+            "label": "Date debut",
+            "description": "Premiere date de l'intervalle analyse.",
+            "help": "Applique un filtre >= sur la date des ecritures."
         },
         "date_to": {
-            "label": "Date de fin",
-            "description": "Dernière date de l'intervalle analysé.",
-            "help": "Utilisée pour limiter les écritures jusqu'à cette date."
+            "label": "Date fin",
+            "description": "Derniere date de l'intervalle analyse.",
+            "help": "Applique un filtre <= sur la date des ecritures."
         },
         "condo_id": {
-            "label": "Copropriété",
-            "description": "Copropriété à laquelle l'exercice est associé.",
-            "help": "Filtre les écritures sur la copropriété sélectionnée."
+            "label": "Copropriete",
+            "description": "Copropriete concernee par la consultation du grand livre.",
+            "help": "Determine les journaux, comptes et exercices proposes."
         },
         "fiscal_year_id": {
             "label": "Exercice fiscal",
-            "description": "Exercice fiscal de référence.",
-            "help": "Précise l'exercice utilisé pour le filtrage temporel."
+            "description": "Exercice utilise pour borner les dates des ecritures.",
+            "help": "Par defaut l'exercice ouvert ou preouvert le plus recent de la copropriete."
         },
         "journal_id": {
             "label": "Journal",
-            "description": "Journal comptable lié aux écritures recherchées.",
-            "help": "Limite les résultats à un journal spécifique."
+            "description": "Journal comptable cible.",
+            "help": "Filtre les ecritures sur un journal specifique (hors journal general LEDG)."
         },
         "account_id": {
             "label": "Compte",
-            "description": "Compte comptable concerné par les lignes.",
-            "help": "Filtre les écritures sur un compte donné."
+            "description": "Compte comptable concerne par les lignes.",
+            "help": "Filtre les ecritures sur le compte selectionne."
         }
     },
     "view": {
         "collect.list.default": {
             "name": "Grand livre",
-            "description": "Vue détaillée des lignes du grand livre.",
+            "description": "Vue detaillee des lignes du grand livre.",
             "actions": {
                 "action.export": {
                     "label": "Exporter",
-                    "description": "Exporter un document PDF à partir du filtre actif."
+                    "description": "Exporter un document PDF a partir du filtre actif."
                 }
-            }
+            },
+            "layout": {}
         },
         "collect.search.default": {
             "name": "Recherche du grand livre",
-            "description": "Filtres avancés pour sélectionner les écritures du grand livre."
+            "description": "Filtres avances pour selectionner les ecritures du grand livre.",
+            "layout": {}
         }
     },
-    "error": {
-    }
+    "error": {}
 }

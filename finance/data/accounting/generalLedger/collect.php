@@ -56,8 +56,23 @@ list($params, $providers) = eQual::announce([
             'default'           => 'pending'
         ],
 
-
         /* additional fields for filtering & rendering */
+
+        'ownership_id' => [
+            'type'              => 'many2one',
+            'description'       => "The ownership that the owner refers to.",
+            'foreign_object'    => 'realestate\ownership\Ownership',
+            'domain'            => ['condo_id', '=', 'object.condo_id'],
+            'default'           => null
+        ],
+
+        'suppliership_id' => [
+            'type'              => 'many2one',
+            'foreign_object'    => 'purchase\supplier\Suppliership',
+            'description'       => 'The supplier the account relates to, if any.',
+            'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+            'default'           => null
+        ],
 
         'accounting_entry_id' => [
             'type'              => 'many2one',
@@ -159,29 +174,30 @@ if(isset($params['condo_id']) && $params['condo_id'] > 0) {
     $domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
 }
 
-if(isset($params['date_from'], $params['date_to']) || isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
-    if(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
-        $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
-            ->read(['date_from', 'date_to'])
-            ->first();
-        $date_from = $fiscalYear['date_from'];
-        $date_to = $fiscalYear['date_to'];
-
-        if(isset($params['date_from']) && $params['date_from'] > $date_from && $params['date_from'] < $date_to ) {
-            $date_from = $params['date_from'];
-        }
-
-        if(isset($params['date_to']) && $params['date_to'] < $date_to && $params['date_to'] > $date_from ) {
-            $date_to = $params['date_to'];
-        }
-    }
-    else {
-        $date_from = $params['date_from'];
-        $date_to = $params['date_to'];
-    }
+if(isset($params['date_from'], $params['date_to'])) {
+    $date_from = $params['date_from'];
+    $date_to = $params['date_to'];
 
     $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
     $domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
+}
+elseif(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
+    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
+        ->read(['date_from', 'date_to'])
+        ->first();
+
+    $date_from = $fiscalYear['date_from'];
+    $date_to = $fiscalYear['date_to'];
+
+    $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
+    $domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
+}
+
+if($params['suppliership_id']) {
+    $domain->addCondition(new DomainCondition('suppliership_id', '=', $params['suppliership_id']));
+}
+elseif($params['ownership_id']) {
+    $domain->addCondition(new DomainCondition('ownership_id', '=', $params['ownership_id']));
 }
 
 if(isset($params['journal_id']) && $params['journal_id'] > 0) {

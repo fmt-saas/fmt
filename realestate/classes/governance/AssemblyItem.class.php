@@ -670,15 +670,32 @@ class AssemblyItem extends AssemblyItemTemplate {
         $self->do('refresh_order');
     }
 
-// #todo - mettre à jour le items_count du parent group via onbeforeupdate
     protected static function onupdateParentGroupId($self) {
-        $self
-            ->read(['assembly_id', 'parent_group_id'])
-            ->do('refresh_order')
-            ->do('refresh_items_count');
+        $self->read(['assembly_id', 'parent_group_id']);
         foreach($self as $id => $assemblyItem) {
-            Assembly::id($assemblyItem['assembly_id'])
-                ->do('refresh_items_order');
+            // immediate update of has_parent_group
+            self::id($id)->update(['has_parent_group' => (bool) $assemblyItem['parent_group_id']]);
+            Assembly::id($assemblyItem['assembly_id'])->do('refresh_items_order');
+        }
+
+        $self->do('refresh_order')
+            // #memo - this also resets parent_group items_count
+            ->do('refresh_items_count');
+    }
+
+    /**
+     *  update  parent group items_count if parent_group_id is about to be set to null
+     */
+    protected static function onbeforeupdate($self, $values) {
+        // matching_id is about to be reset to null
+        if(array_key_exists('parent_group_id', $values) && $values['parent_group_id'] === null) {
+            $self->read(['parent_group_id' => ['items_count']]);
+            foreach($self as $id => $assemblyItem) {
+                if($assemblyItem['parent_group_id']) {
+                    $current_count = $assemblyItem['parent_group_id']['items_count'] ?? 0;
+                    self::id($assemblyItem['parent_group_id']['id'])->update(['items_count' => max(0, $current_count - 1)]);
+                }
+            }
         }
     }
 

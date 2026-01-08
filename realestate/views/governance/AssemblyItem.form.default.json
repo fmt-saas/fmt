@@ -54,6 +54,9 @@
         }
     ],
     "layout": {
+        "interactions": {
+            "autofocus": false
+        },
         "groups": [
             {
                 "sections": [

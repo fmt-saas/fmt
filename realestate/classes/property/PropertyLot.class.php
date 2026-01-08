@@ -98,6 +98,7 @@ class PropertyLot extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "Parent of the property lot.",
                 'foreign_object'    => 'realestate\property\PropertyLot',
+                'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['is_primary', '=', true] ],
                 'visible'           => ['is_primary', '=', false],
             ],
 
