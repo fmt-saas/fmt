@@ -26,6 +26,11 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "description",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "fund_account_id",
                                                 "width": "100%"
                                             },
