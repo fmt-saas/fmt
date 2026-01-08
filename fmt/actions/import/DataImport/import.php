@@ -263,6 +263,7 @@ try {
 
         $condominium = null;
         $map_ownership_representative_identity = [];
+        $map_ownership_representative_owner = [];
 
         $roles = Role::search()->read(['id', 'code']);
         foreach($roles as $role_id => $role) {
@@ -733,6 +734,7 @@ try {
 
                 if($representative_identity_id) {
                     $map_ownership_representative_identity[$ownership_id] = $representative_identity_id;
+                    $map_ownership_representative_owner[$ownership_id] = $owner_id;
                     Ownership::id($ownership_id)
                         ->update([
                             'has_representative'        => true,
@@ -864,6 +866,7 @@ try {
             $preferences = ['general_assembly_call', 'general_assembly_minutes', 'expense_statement', 'fund_request', 'technical_communication'];
 
             $representative_identity_id = $map_ownership_representative_identity[$ownership_id] ?? null;
+            $representative_owner_id = $map_ownership_representative_owner[$ownership_id] ?? null;
 
             foreach($preferences as $preference) {
                 if(!$communication_preferences[$preference]) {
@@ -874,6 +877,7 @@ try {
                     'condo_id'                              => $condominium['id'],
                     'ownership_id'                          => $ownership_id,
                     'identity_id'                           => $representative_identity_id,
+                    'owner_id'                              => $representative_owner_id,
                     'communication_reason'                  => strtolower($preference),
                     'has_channel_email'                     => false,
                     'has_channel_postal'                    => false,

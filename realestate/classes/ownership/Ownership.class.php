@@ -706,14 +706,22 @@ class Ownership extends \equal\orm\Model {
         foreach($self as $id => $ownership) {
 
             $identity_id = null;
+            $owner_id = null;
+            $is_owner = false;
 
-            if($ownership['has_external_representative']) {
-                $identity_id = $ownership['representative_identity_id'] ?? null;
+            if(!$ownership['has_external_representative']) {
+                $is_owner = true;
             }
-            else {
+
+            if($is_owner) {
+                $owner_id = $ownership['representative_owner_id']['id'] ?? null;
                 $identity_id = $ownership['representative_owner_id']['identity_id'] ?? null;
             }
+            else {
+                $identity_id = $ownership['representative_identity_id'] ?? null;
+            }
 
+            // skip if no identity can be retrieved
             if(!$identity_id) {
                 continue;
             }
@@ -729,6 +737,7 @@ class Ownership extends \equal\orm\Model {
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
                         'identity_id'                           => $identity_id,
+                        'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'general_assembly_call',
                         'has_channel_email'                     => false,
                         'has_channel_postal'                    => false,
@@ -748,6 +757,7 @@ class Ownership extends \equal\orm\Model {
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
                         'identity_id'                           => $identity_id,
+                        'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'general_assembly_minutes',
                         'has_channel_email'                     => false,
                         'has_channel_postal'                    => true,
@@ -767,6 +777,7 @@ class Ownership extends \equal\orm\Model {
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
                         'identity_id'                           => $identity_id,
+                        'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'expense_statement',
                         'has_channel_email'                     => false,
                         'has_channel_postal'                    => true,
@@ -786,6 +797,7 @@ class Ownership extends \equal\orm\Model {
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
                         'identity_id'                           => $identity_id,
+                        'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'fund_request',
                         'has_channel_email'                     => false,
                         'has_channel_postal'                    => true,
@@ -805,6 +817,7 @@ class Ownership extends \equal\orm\Model {
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
                         'identity_id'                           => $identity_id,
+                        'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'technical_communication',
                         'has_channel_email'                     => false,
                         'has_channel_postal'                    => true,

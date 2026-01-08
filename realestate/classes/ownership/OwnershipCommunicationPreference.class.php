@@ -81,10 +81,17 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'dependents'        => ['communication_title']
             ],
 
+            'is_owner' => [
+                'type'              => 'boolean',
+                'description'       => "Mark the recipient as an owner (from ownership).",
+                'default'           => true
+            ],
+
             'owner_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'description'       => 'The Owner the communication preference refers to.',
+                'visible'           => ['is_owner', '=', true],
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.ownership_id'] ],
                 'help'              => 'This field might be empty in case of an external representant (not an owner)',
                 'onupdate'          => 'onupdateOwnerId'
@@ -94,7 +101,7 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "Identity of an external person.",
                 'foreign_object'    => 'identity\Identity',
-                'domain'            => ['type_id', '=', 1],
+                'visible'           => ['is_owner', '=', false],
                 'dependents'        => ['name', 'email', 'address_street', 'address_city', 'address_zip']
             ],
 
