@@ -1043,7 +1043,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'fund_usage_lines_ids' => [
                     'amount',
                     'fund_account_id',
-                    'expense_account_id'
+                    'expense_account_id',
+                    'description'
                 ]
             ]);
 
@@ -1129,7 +1130,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     AccountingEntryLine::create([
                             'condo_id'              => $invoice['condo_id'],
                             'accounting_entry_id'   => $accountingEntry['id'],
-                            'description'           => $invoice['description'],
+                            'description'           => $fundUsageLine['description'] ?? $invoice['description'],
                             'account_id'            => $fundUsageLine['expense_account_id'],
                             'fund_usage_line_id'    => $usage_line_id,
                             'debit'                 => 0.0,
@@ -1140,7 +1141,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     AccountingEntryLine::create([
                             'condo_id'              => $invoice['condo_id'],
                             'accounting_entry_id'   => $accountingEntry['id'],
-                            'description'           => $invoice['description'],
+                            'description'           => $fundUsageLine['description'] ?? $invoice['description'],
                             'account_id'            => $fundUsageLine['fund_account_id'],
                             'fund_usage_line_id'    => $usage_line_id,
                             'debit'                 => $fundUsageLine['amount'],

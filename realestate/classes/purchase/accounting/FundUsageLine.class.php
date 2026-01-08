@@ -27,7 +27,6 @@ class FundUsageLine extends \equal\orm\Model {
 
             'description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain:256',
                 'description'       => 'Short optional description of the fund usage line.'
             ],
 
