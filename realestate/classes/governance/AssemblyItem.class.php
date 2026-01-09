@@ -673,8 +673,6 @@ class AssemblyItem extends AssemblyItemTemplate {
     protected static function onupdateParentGroupId($self) {
         $self->read(['assembly_id', 'parent_group_id']);
         foreach($self as $id => $assemblyItem) {
-            // immediate update of has_parent_group
-            self::id($id)->update(['has_parent_group' => (bool) $assemblyItem['parent_group_id']]);
             Assembly::id($assemblyItem['assembly_id'])->do('refresh_items_order');
         }
 
