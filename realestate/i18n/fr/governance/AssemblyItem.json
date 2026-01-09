@@ -69,7 +69,7 @@
             "help": ""
         },
         "items_count": {
-            "label": "Nombre de sous-points",
+            "label": "Nb sous-points",
             "description": "Nombre de sous-points contenus dans le groupe.",
             "help": ""
         },

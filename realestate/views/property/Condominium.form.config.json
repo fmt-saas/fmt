@@ -182,6 +182,7 @@
                     {
                         "label": "Sequences",
                         "id": "section.sequences",
+                        "visible": ["admins", "in", "user.groups"],
                         "rows": [
                             {
                                 "columns": [

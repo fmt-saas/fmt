@@ -38,6 +38,7 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
                 'type'              => 'computed',
                 'result_type'       => 'integer',
                 'description'       => 'Number of items contained by the node.',
+                'visible'           => ['is_group', '=', true],
                 'store'             => true,
                 'function'          => 'calcItemsCount'
             ],

@@ -463,6 +463,9 @@
             "label": "All attachments",
             "description": "",
             "icon": "attach_file",
+            "visible": {
+                "edit": false
+            },
             "context": {
                 "entity": "documents\\Document",
                 "view": "list.default",
