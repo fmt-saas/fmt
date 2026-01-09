@@ -55,11 +55,11 @@
             {
                 "type": "field",
                 "value": "link",
-                "width": "33%",
+                "width": "10%",
                 "readonly": true,
                 "widget": {
                     "icon": "visibility",
-                    "link": true
+                    "link": "icon"
                 }
             }
         ]
