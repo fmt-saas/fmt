@@ -312,7 +312,7 @@ class AssemblyVote extends \equal\orm\Model {
             // #memo - Art. 3.87 §7 - Nul ne peut prendre part au vote, même comme mandant ou mandataire, pour un nombre de voix supérieur à la somme des voix dont disposent les autres copropriétaires présents ou représentés
             $shares = $assemblyVote['vote_shares'];
             $max = $assemblyVote['assembly_item_id']['count_represented_shares'] - $assemblyVote['ownership_id']['ownership_shares'];
-            $result[$id] = max($shares, $max);
+            $result[$id] = min($shares, $max);
         }
         return $result;
     }
