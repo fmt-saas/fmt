@@ -133,6 +133,10 @@ $assembly = Assembly::id($params['id'])
         'heading_text_minutes',
         'closing_text_minutes',
         'ownerships_ids' => ['name'],
+        'count_owners',
+        'count_represented_owners',
+        'count_shares',
+        'count_represented_shares',
         'assembly_attendees_ids' => [
             '@domain' => [['is_valid', '=', true], ['has_signed_minutes', '=', true]],
             'name',
@@ -274,8 +278,14 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'assembly'          => $assembly['name'],
             'date'              => $getFormattedDate($assembly['assembly_date']),
             'location'          => $assembly['assembly_location'],
+            'condo_city'        => $assembly['condo_id']['address_city'],
             'type'              => $map_types[$assembly['assembly_type']],
-            'time_start'        => $getFormattedTime($assembly['session_time_start'])
+            'time_start'        => $getFormattedTime($assembly['session_time_start']),
+            'time_end'          => $getFormattedTime($assembly['session_time_end']),
+            'count_owners'      => $assembly['count_owners'],
+            'count_represented_owners'=> $assembly['count_represented_owners'],
+            'count_shares'      => $assembly['count_shares'],
+            'count_represented_shares'=> $assembly['count_represented_shares']
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -292,6 +302,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'assembly'          => $assembly['name'],
             'date'              => $getFormattedDate($assembly['assembly_date']),
             'location'          => $assembly['assembly_location'],
+            'condo_city'        => $assembly['condo_id']['address_city'],
             'type'              => $map_types[$assembly['assembly_type']],
             'time_end'          => $getFormattedTime($assembly['session_time_end'])
         ];

@@ -12,7 +12,10 @@ $events = $orm->disableEvents();
 /* General Assembly - Minutes */
 
 // invitation (minutes)
-$template = Template::search(['code', '=', 'general_meetings_minutes'])
+$template = Template::search([
+        ['type', '=', 'document'],
+        ['code', '=', 'general_meetings_minutes']
+    ])
     ->first();
 
 TemplatePart::create([

@@ -125,15 +125,56 @@ TemplatePart::create([
 ]);
 TemplatePart::create([
     'name'          => 'introduction',
-    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Veuillez trouver en pièce jointe le procès-verbal de l'Assemblée Générale des copropriétaires de la copropriété <strong>{condo}</strong>, tenue le <strong>{date}</strong>.</p><p><br></p><p>Ce document reprend l'ensemble des décisions et résolutions adoptées lors de cette assemblée.</p><p><br></p><p>Nous restons à votre disposition pour toute question ou précision complémentaire.</p>",
+    'value'         => "
+<p>La liste de présences dûment signée dénombre {count_represented_owners} Copropriétaires présents ou réprésentés sur {count_owners}, représentant {count_represented_shares} quotités sur {count_shares}.
+<p>Le <strong>{date} à {time_start}</strong>, les copropriétaires de l'immeuble <strong>{condo}</strong> à {condo_city} se sont réunis en assemblée générale sur convocation régulière adressée par le syndic à tous les copropriétaires.</p>
+<p>Il a été dressé une feuille de présence qui a été signée par tous les copropriétaires présents et par les mandataires de ceux qui se sont fait représenter. Le quorum étant atteint, les membres peuvent débattre de l'ordre du jour.</p>
+    ",
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "firstname", "lastname", "date"]'
+    'variables'     => '["condo", "condo_city", "date", "time_start", "count_owners", "count_represented_owners", "count_shares", "count_represented_shares"]'
 ]);
 TemplatePart::create([
     'name'          => 'conclusion',
+    'value'         => "
+<p>L'Ordre du Jour étant épuisé, la séance est levée à <strong>{time_end}</strong>.</p>
+<p>Il est rappelé que, conformément à l'article 3.87 §10 du Code civil, le syndic rédige le procès-verbal des décisions prises par l'assemblée générale avec indication des majorités obtenues et du nom des copropriétaires qui ont voté contre ou qui se sont abstenus.</p>
+<p>À la fin de la séance et après lecture, ce procès-verbal est signé par le président de l'assemblée générale, par le secrétaire désigné lors de l'ouverture de la séance et par tous les copropriétaires encore présents à ce moment ou leurs mandataires.</p>
+<p>Les membres de l'association des copropriétaires peuvent prendre à l'unanimité et par écrit toutes les décisions relevant des compétences de l'assemblée générale, à l'exception de celles qui doivent être passées par acte authentique. Le syndic en dresse le procès-verbal conformément à l'article 3.87 §11.</p>
+<p>Le syndic consigne les décisions visées aux paragraphes 10 et 11 dans le registre prévu à l'article 3.93, §4, dans les trente jours suivant l'assemblée générale, et transmet celles-ci, dans le même délai, à tout titulaire d'un droit réel sur un lot disposant, le cas échéant en vertu de l'article 3.87, §1er, alinéa 2, du droit de vote à l'assemblée générale, et aux autres syndics. Si l'un d'eux n'a pas reçu le procès-verbal dans le délai fixé, il en informe le syndic par écrit.</p>
+<p>Tout copropriétaire peut demander au juge d'annuler ou de réformer une décision irrégulière, frauduleuse ou abusive de l'assemblée générale si elle lui cause un préjudice personnel.</p>
+<p>Cette action doit être intentée dans un délai de quatre mois, à compter de la date à laquelle l'assemblée générale a eu lieu, conformément à l'article 3.92 §3 du Code civil.</p>
+<p>{condo_city}, le <strong>{date}</strong></p>
+    ",
+    'template_id'   => $template['id'],
+    'variables'     => '["condo", "date", "time_end", "condo_city"]'
+]);
+
+TemplatePart::create([
+    'name'          => 'introduction.adjourned',
     'value'         => "",
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "date"]'
+    'variables'     => '[]'
+]);
+
+TemplatePart::create([
+    'name'          => 'introduction.second_session',
+    'value'         => "",
+    'template_id'   => $template['id'],
+    'variables'     => '[]'
+]);
+
+TemplatePart::create([
+    'name'          => 'conclusion.adjourned',
+    'value'         => "",
+    'template_id'   => $template['id'],
+    'variables'     => '[]'
+]);
+
+TemplatePart::create([
+    'name'          => 'conclusion.second_session',
+    'value'         => "",
+    'template_id'   => $template['id'],
+    'variables'     => '[]'
 ]);
 
 
