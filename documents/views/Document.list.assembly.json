@@ -6,17 +6,10 @@
             "ACTION.CREATE" : false
         }
     },
-    "routes": [
-        {
-            "id": "route.download",
-            "label": "download",
-            "inline": true,
-            "description": "",
-            "icon": "visibility",
-            "route": "/?get=documents_document&id=object.id"
-        }
-    ],
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",
@@ -54,20 +47,21 @@
             },
             {
                 "type": "field",
+                "value": "assembly_item_id",
+                "label": "Assembly item",
+                "width": "20%",
+                "readonly": true
+            },
+            {
+                "type": "field",
                 "value": "link",
                 "width": "33%",
                 "readonly": true,
                 "visible": false,
                 "widget": {
+                    "icon": "visibility",
                     "link": true
                 }
-            },
-            {
-                "type": "field",
-                "value": "assembly_item_id",
-                "label": "Assembly item",
-                "width": "20%",
-                "readonly": true
             }
         ]
     }
