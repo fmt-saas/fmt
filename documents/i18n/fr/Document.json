@@ -59,7 +59,7 @@
             "help": ""
         },
         "preview_image": {
-            "label": "Aperçu",
+            "label": "Type",
             "description": "Vignette générée pour visualiser le document.",
             "help": ""
         },
@@ -81,6 +81,11 @@
         "analysis_json": {
             "label": "Analyse JSON",
             "description": "Résultats d'analyse du document.",
+            "help": ""
+        },
+        "assembly_item_id": {
+            "label": "Résolution",
+            "description": "Point de résolutiion auquel se rapporte le document.",
             "help": ""
         }
     },

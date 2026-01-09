@@ -191,7 +191,7 @@
             "description": "Définition d'un point (textes, votes, documents et choix).",
             "routes": {
                 "route.add_attachment": {
-                    "label": "Ajout pièce jointe",
+                    "label": "Ajouter une pièce jointe",
                     "description": "Ajouter un document en pièce jointe."
                 }
             },
@@ -229,7 +229,7 @@
             "description": "Définition d'un point (textes, votes, documents et choix).",
             "routes": {
                 "route.add_attachment": {
-                    "label": "Ajout pièce jointe",
+                    "label": "Ajouter une pièce jointe",
                     "description": "Ajouter un document en pièce jointe."
                 }
             },

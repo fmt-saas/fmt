@@ -37,7 +37,8 @@
                 "type": "field",
                 "label": "Type",
                 "value": "content_type",
-                "width": "10%"
+                "width": "10%",
+                "visible": false
             },
             {
                 "type": "field",
