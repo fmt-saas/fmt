@@ -42,9 +42,12 @@
             },
             {
                 "type": "field",
-                "label": "Language",
+                "label": "Size",
                 "value": "readable_size",
-                "width": "10%"
+                "width": "10%",
+                "widget": {
+                    "align": "right"
+                }
             },
             {
                 "type": "field",
