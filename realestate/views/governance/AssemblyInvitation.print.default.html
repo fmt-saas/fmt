@@ -127,15 +127,17 @@
                         <td>
                             {% for subitem_id in item.children_items_ids %}
                                 {% set assemblyItem = map_assembly_items[subitem_id] %}
-                                <u>{{ item.order }}. {{ assemblyItem.order }}. {{ assemblyItem.name }} </u><br />
+                                <u>{{ item.order }}. {{ assemblyItem.order }}. {{ assemblyItem.name }}
+                                    {% if assemblyItem.has_vote_required and assembly.has_call_option_majority %}
+                                        {{ majorityLabels[assemblyItem.majority] }}
+                                    {% endif %}
+                                </u><br />
                                 <table>
                                     <tr>
                                         <td style="width: 30px;"></td>
                                         <td>
-                                            {{ assemblyItem.description_call }}
-                                            {% if assemblyItem.has_vote_required and assembly.has_call_option_majority %}
-                                                {{ majorityLabels[assemblyItem.majority] }}
-                                            {% endif %}
+                                            {% if assemblyItem.description_call is not empty %}
+                                            {{ assemblyItem.description_call | raw }}
                                         </td>
                                     </tr>
                                 </table>
