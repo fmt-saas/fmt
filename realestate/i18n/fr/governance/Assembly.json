@@ -85,10 +85,7 @@
             "selection": {
                 "constitutive": "Constitutive",
                 "statutory": "Statutaire",
-                "extraordinary": "Extraordinaire",
-                "recovery": "Recouvrement",
-                "special": "Spéciale",
-                "council_meeting": "Conseil de copropriété"
+                "extraordinary": "Extraordinaire"
             }
         },
         "assembly_template_id": {
