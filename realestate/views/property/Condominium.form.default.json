@@ -15,6 +15,17 @@
             }
         },
         {
+            "id": "item.council_members",
+            "label": "Council Members",
+            "description": "",
+            "icon": "psychology",
+            "context": {
+                "entity": "realestate\\governance\\CouncilMember",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
             "id": "item.property_lots",
             "label": "Property Lots",
             "description": "",
@@ -75,7 +86,7 @@
             "id": "suppliers",
             "type": "entry",
             "label": "Suppliers",
-            "icon": "storefront",
+            "icon": "local_shipping",
             "description": "",
             "context": {
                 "entity": "purchase\\supplier\\Suppliership",
@@ -91,7 +102,7 @@
             "context": {
                 "entity": "realestate\\governance\\Assembly",
                 "view": "list.condo",
-                "domain": [["id", "=", "object.id"]]
+                "domain": [["condo_id", "=", "object.id"]]
             }
         },
         {
