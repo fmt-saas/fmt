@@ -6,7 +6,20 @@
             "ACTION.CREATE" : false
         }
     },
+    "routes": [
+        {
+            "id": "route.download",
+            "label": "download",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "route": "/?get=documents_document&id=object.id"
+        }
+    ],
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",
@@ -47,6 +60,7 @@
                 "value": "link",
                 "width": "33%",
                 "readonly": true,
+                "visible": false,
                 "widget": {
                     "link": true
                 }

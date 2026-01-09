@@ -271,6 +271,7 @@
                                                 "value": "documents_ids",
                                                 "width": "100%",
                                                 "widget": {
+                                                    "view": "list.assembly",
                                                     "header": {
                                                         "layout": "inline",
                                                         "actions": {
