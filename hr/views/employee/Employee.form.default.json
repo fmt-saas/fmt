@@ -15,7 +15,8 @@
             "icon": "play_arrow",
             "description": "Create a user account relating to the Employee.",
             "controller": "hr_employee_Employee_create-user",
-            "confirm": false
+            "confirm": false,
+            "visible": ["admins", "in", "user.groups"]
         }
     ],
     "layout": {

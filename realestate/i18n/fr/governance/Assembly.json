@@ -196,7 +196,7 @@
             "help": "Renseigné automatiquement à la publication de l'assemblée."
         },
         "assembly_mandates_ids": {
-            "label": "Mandats",
+            "label": "Procurations",
             "description": "Mandats enregistrés pour l'assemblée.",
             "help": ""
         },
@@ -269,7 +269,7 @@
                     "label": "Courriers"
                 },
                 "section.proxies": {
-                    "label": "Mandats"
+                    "label": "Procurations"
                 },
                 "section.attendees": {
                     "label": "Participants"

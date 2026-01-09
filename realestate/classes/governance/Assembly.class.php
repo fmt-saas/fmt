@@ -151,9 +151,11 @@ class Assembly extends \equal\orm\Model {
                     'constitutive',     // First general meeting of a new condominium association – formal activation (property manager, budget, funds…)
                     'statutory',        // Mandatory annual general meeting (art. 3.87 §1 C.C.)
                     'extraordinary',    // Extraordinary general meeting convened outside the cycle for specific decision(s)
+                    /*
                     'recovery',         // General meeting for recovery after blockage, deficiency, or change of property manager
                     'special',          // Special cases: judicial general meeting, by block, by section, undivided ownership, etc.
                     'council_meeting'   // Meeting of the Condominium Council (non-decisional except with mandate)
+                    */
                 ],
                 'default'           => 'statutory'
             ],
@@ -934,6 +936,12 @@ class Assembly extends \equal\orm\Model {
 
         foreach($self as $id => $assembly) {
             // create a special attendee as 'secretary' relating to the organizer (can be manually modified afterwards)
+            AssemblyAttendee::search([
+                    ['assembly_id', '=', $id],
+                    ['attendee_role', '=', 'secretary']
+                ])
+                ->delete(true);
+
             AssemblyAttendee::create([
                     'assembly_id'   => $id,
                     'condo_id'      => $assembly['condo_id'],

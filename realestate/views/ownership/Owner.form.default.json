@@ -8,7 +8,8 @@
             "icon": "play_arrow",
             "description": "Create a user account relating to the Owner.",
             "controller": "realestate_ownership_Owner_create-user",
-            "confirm": false
+            "confirm": false,
+            "visible": ["admins", "in", "user.groups"]
         }
     ],
     "layout": {
