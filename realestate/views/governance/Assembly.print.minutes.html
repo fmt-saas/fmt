@@ -51,6 +51,11 @@
             margin-bottom: 0;
         }
 
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
         h2 {
             font-size: 21px;
         }
@@ -110,12 +115,12 @@
 
     <!-- <p>{{ assembly.heading_text_minutes }}</p> -->
 
-    <div class="introduction">
+    <div class="introduction" style="margin-bottom: 30px;">
         {{ introduction | raw }}
     </div>
 
     {% for item in assembly.assembly_items_ids %}
-    <div style="page-break-inside: avoid;">
+    <div style="page-break-inside: avoid; margin-top: 10px;">
         {% set assemblyItem = map_assembly_items[item.id] %}
 
         <div style="text-decoration: underline; font-weight: bold;">
