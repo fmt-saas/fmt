@@ -57,7 +57,6 @@
                 "value": "link",
                 "width": "33%",
                 "readonly": true,
-                "visible": false,
                 "widget": {
                     "icon": "visibility",
                     "link": true
