@@ -468,7 +468,7 @@
             },
             "context": {
                 "entity": "documents\\Document",
-                "view": "list.default",
+                "view": "list.assembly",
                 "domain": [ ["assembly_id", "=", "object.id"] ]
             }
         },
