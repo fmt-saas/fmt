@@ -244,12 +244,20 @@ class AssemblyVote extends \equal\orm\Model {
         $result = [];
         $self->read(['is_choice', 'vote_value', 'assembly_item_choice_id' => ['name']]);
 
+        // #todo - translate
+        $map_vote_translations = [
+            'for' => 'pour',
+            'against' => 'contre',
+            'abstain' => 'abstention'
+        ];
+
         foreach($self as $id => $assemblyVote) {
-            $value = $assemblyVote['vote_value'];
             if($assemblyVote['is_choice']) {
-                $value = $assemblyVote['assembly_item_choice_id']['name'];
+                $result[$id] = $assemblyVote['assembly_item_choice_id']['name'];
             }
-            $result[$id] = $value;
+            else {
+                $result[$id] = $map_vote_translations[$assemblyVote['vote_value']];
+            }
         }
 
         return $result;

@@ -6,52 +6,52 @@
         "condo_id": {
             "label": "Copropriété",
             "description": "Copropriété à laquelle se rattache le vote.",
-            "help": ""
+            "help": "Doit correspondre à la copropriété de l'assemblée."
         },
         "assembly_id": {
             "label": "Assemblée",
             "description": "Assemblée concernée par le vote.",
-            "help": ""
+            "help": "Contexte utilisé pour la validation du vote."
         },
         "assembly_item_id": {
             "label": "Point à l'ordre du jour",
             "description": "Point d'ordre du jour auquel se rapporte le vote.",
-            "help": ""
+            "help": "Résolution ou point soumis au vote."
         },
         "is_choice": {
             "label": "Vote sur choix",
             "description": "Indique si le vote concerne un choix.",
-            "help": ""
+            "help": "Positionné quand la résolution propose des choix prédéfinis."
         },
         "assembly_item_choice_id": {
             "label": "Choix sélectionné",
             "description": "Choix auquel le vote est rattaché.",
-            "help": ""
+            "help": "Obligatoire lorsque la résolution est à choix multiples."
         },
         "assembly_attendee_id": {
             "label": "Votant",
             "description": "Participant ayant exprimé le vote (mandataire ou présent).",
-            "help": ""
+            "help": "Identifie l'attendee qui porte le vote."
         },
         "has_mandate": {
             "label": "Par procuration",
             "description": "Vote exprimé via une procuration.",
-            "help": ""
+            "help": "Vrai si le votant agit comme mandataire."
         },
         "ownership_id": {
             "label": "Dossier de propriété",
             "description": "Dossier de propriété concerné par le vote.",
-            "help": ""
+            "help": "Utilisé pour calculer les quotes-parts représentées."
         },
         "vote_display": {
             "label": "Valeur affichée",
             "description": "Valeur affichée du vote (choix ou pour/contre/abstention).",
-            "help": ""
+            "help": "Représentation lisible du vote exprimé."
         },
         "vote_value": {
             "label": "Valeur du vote",
             "description": "Valeur du vote (pour, contre, abstention).",
-            "help": "",
+            "help": "Visible après expression du vote.",
             "selection": {
                 "for": "Pour",
                 "against": "Contre",
@@ -61,47 +61,47 @@
         "vote_weight": {
             "label": "Poids du vote",
             "description": "Poids calculé du vote selon les quotes-parts et la majorité.",
-            "help": ""
+            "help": "Basé sur les quotes-parts effectives représentées."
         },
         "vote_weight_for": {
             "label": "Pour (%)",
             "description": "Poids considéré si le vote est « pour ».",
-            "help": ""
+            "help": "Rendu pour lecture rapide des résultats."
         },
         "vote_weight_against": {
             "label": "Contre (%)",
             "description": "Poids considéré si le vote est « contre ».",
-            "help": ""
+            "help": "Rendu pour lecture rapide des résultats."
         },
         "vote_weight_abstain": {
             "label": "Abstention (%)",
             "description": "Poids considéré si le vote est « abstention ».",
-            "help": ""
+            "help": "Rendu pour lecture rapide des résultats."
         },
         "vote_shares_for": {
             "label": "Pour (Q.)",
-            "description": "Parts avec vote « pour ».",
-            "help": ""
+            "description": "Quotes-parts si le vote est « pour ».",
+            "help": "Quotes-parts effectives rattachées à un vote pour."
         },
         "vote_shares_against": {
             "label": "Contre (Q.)",
-            "description": "Poids avec vote « contre ».",
-            "help": ""
+            "description": "Quotes-parts si le vote est « contre ».",
+            "help": "Quotes-parts effectives rattachées à un vote contre."
         },
         "vote_shares_abstain": {
             "label": "Abstention (Q.)",
-            "description": "Parts avec vote « abstention ».",
-            "help": ""
+            "description": "Quotes-parts si le vote est « abstention ».",
+            "help": "Quotes-parts effectives rattachées à un vote abstention."
         },
         "vote_shares": {
-            "label": "Quotités",
-            "description": "Quotités-parts impliquées par le votant.",
-            "help": "Basées sur la clé de répartition applicable et le propriétaire représenté."
+            "label": "Quotes-parts",
+            "description": "Quotes-parts impliquées par le votant.",
+            "help": "Basées sur la clé de répartition et le propriétaire représenté."
         },
         "vote_effective_shares": {
             "label": "Quotes-parts effectives",
             "description": "Quotes-parts retenues après plafonnement éventuel.",
-            "help": "Maximum 50 % des quotes-parts représentées dans l'assemblée."
+            "help": "Plafond à 50 % des quotes-parts représentées dans l'assemblée."
         },
         "status": {
             "label": "Statut",
@@ -109,8 +109,10 @@
             "help": "",
             "selection": {
                 "pending": "Brouillon",
-                "casted": "Exprimé"
+                "casted": "Exprimé"
             }
         }
-    }
+    },
+    "view": {},
+    "error": {}
 }

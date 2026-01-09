@@ -1757,6 +1757,25 @@ class Assembly extends \equal\orm\Model {
                 continue;
             }
 
+            // #todo - complete consistency tests
+            $assemblyItems = AssemblyItem::search(['assembly_id', '=', $id])->read(['has_choices', 'assembly_item_choices_ids']);
+            foreach($assemblyItems as $assembly_item_id => $assemblyItem) {
+                if($assemblyItem['has_choices']) {
+                    if(count($assembly['assembly_item_choices_ids']) <= 0) {
+                        $result[$id] = [
+                            'missing_assembly_item_choices' => 'At least one item marked with choices has no choices.'
+                        ];
+                        continue 2;
+                    }
+                    if(count($assembly['assembly_item_choices_ids']) > 5) {
+                        $result[$id] = [
+                            'exceeded_assembly_item_choices' => 'An assembly item cannot have more than 5 choices.'
+                        ];
+                        continue 2;
+                    }
+                }
+            }
+
         }
 
         return $result;
