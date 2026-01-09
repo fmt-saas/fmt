@@ -1,5 +1,8 @@
 {
     "name": "Assembly Minutes",
+    "header": {
+        "actions": false
+    },
     "routes": [
         {
             "id": "route.view_minutes",

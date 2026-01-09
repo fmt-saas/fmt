@@ -1,5 +1,8 @@
 {
     "name": "Assembly Invitation",
+    "header": {
+        "actions": false
+    },
     "routes": [
         {
             "id": "route.view_invitation",

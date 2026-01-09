@@ -242,7 +242,7 @@
             "help": "",
             "selection": {
                 "pending": "Brouillon",
-                "published": "Publié",
+                "published": "Prêt",
                 "sending": "Envoi en cours",
                 "sent": "Envoyé",
                 "in_progress": "En cours",
@@ -281,10 +281,10 @@
                     "label": "Tâches d'export"
                 },
                 "label.invitation_correspondences": {
-                    "label": "Courriers de convocation"
+                    "label": "Courriers de convocation par email"
                 },
                 "label.minutes_correspondences": {
-                    "label": "Courriers de PV"
+                    "label": "Courriers de Procès verabl par email"
                 }
             },
             "routes": {
