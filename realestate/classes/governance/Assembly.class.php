@@ -1630,7 +1630,7 @@ class Assembly extends \equal\orm\Model {
      * #memo - we must wait before the assembly validation since encoding or choice of applicable mandate should be possible while assembly is not yet constituted
      */
     protected static function doValidateMandates($self) {
-        $self->read(['count_shares', 'ownerships_ids', 'assembly_attendees_ids' => ['is_valid', 'assembly_mandates_ids']]);
+        $self->read(['condo_id', 'count_shares', 'ownerships_ids', 'assembly_attendees_ids' => ['is_owner', 'is_valid', 'identity_id', 'assembly_mandates_ids']]);
         foreach($self as $id => $assembly) {
             $map_covered_ownerships_ids = [];
 
@@ -1639,28 +1639,37 @@ class Assembly extends \equal\orm\Model {
                 $assemblyMandates = AssemblyMandate::ids($assemblyAttendee['assembly_mandates_ids'])
                     ->read(['mandate_shares', 'mandate_type', 'has_wet_signature', 'ownership_id', 'mandate_document_id']);
 
+                // if the attendee is an owner, add his own shares
                 $count_mandate_shares = 0;
                 $count_proxies = 0;
 
+                if($assemblyAttendee['is_owner']) {
+                    $owner = Owner::search([['condo_id', '=', $assembly['condo_id']], ['identity_id', '=', $assemblyAttendee['identity_id']]])
+                        ->read(['ownership_id' => ['ownership_shares']])
+                        ->first();
+
+                    if($owner) {
+                        $count_mandate_shares = $owner['ownership_id']['ownership_shares'];
+                    }
+                }
+
+                // pass-1 - sum mandates & shares
+                foreach($assemblyMandates as $assembly_mandate_id => $assemblyMandate) {
+                    ++$count_proxies;
+                    $count_mandate_shares += $assemblyMandate['mandate_shares'];
+                }
+                // pass-2 - check consistency
                 foreach($assemblyMandates as $assembly_mandate_id => $assemblyMandate) {
                     if(!$assemblyAttendee['is_valid']) {
                         AssemblyMandate::id($assembly_mandate_id)->update(['is_valid' => false, 'invalidity_reason' => 'invalid_attendee']);
                         continue;
                     }
 
-                    ++$count_proxies;
-
                     if(!in_array($assemblyMandate['ownership_id'], $assembly['ownerships_ids'])) {
                         AssemblyMandate::id($assembly_mandate_id)->update(['is_valid' => false, 'invalidity_reason' => 'not_owner']);
                         continue;
                     }
-                    $count_mandate_shares += $assemblyMandate['mandate_shares'];
-                    if($count_mandate_shares > $assembly['count_shares'] * 0.1) {
-                        if($count_proxies > 3) {
-                            AssemblyMandate::id($assembly_mandate_id)->update(['is_valid' => false, 'invalidity_reason' => 'too_many_proxies']);
-                            continue;
-                        }
-                    }
+
                     if($assemblyMandate['mandate_type'] === 'written') {
                         if(!$assemblyMandate['has_wet_signature']) {
                             AssemblyMandate::id($assembly_mandate_id)->update(['is_valid' => false, 'invalidity_reason' => 'no_signature']);
@@ -1669,7 +1678,7 @@ class Assembly extends \equal\orm\Model {
                     }
                     // electronic signature
                     else {
-                        // retrouver le doc et vérifier la signature électronique
+                        // #todo - retrouver le doc et vérifier la signature électronique
                     }
 
                     if(isset($map_covered_ownerships_ids[$assemblyMandate['ownership_id']])) {
@@ -1677,8 +1686,14 @@ class Assembly extends \equal\orm\Model {
                         continue;
                     }
 
+                    if($count_proxies > 3 && $count_mandate_shares > $assembly['count_shares'] * 0.1) {
+                        AssemblyMandate::id($assembly_mandate_id)->update(['is_valid' => false, 'invalidity_reason' => 'too_many_proxies']);
+                        continue;
+                    }
+
                     $map_covered_ownerships_ids[$assemblyMandate['ownership_id']] = true;
                 }
+
             }
         }
         $self

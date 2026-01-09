@@ -290,6 +290,7 @@ $attendee = AssemblyAttendee::create([
         'condo_id'                       => $assembly['condo_id'],
         'assembly_id'                    => $params['id'],
         'identity_id'                    => $identity_id,
+        'is_owner'                       => $params['is_owner'],
         'has_mandate'                    => $params['has_mandate'],
         'register_document_signature_id' => $documentSignature['id'],
         'has_signed_register'            => true

@@ -51,7 +51,11 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'dependents'        => ['name']
             ],
 
-            // #todo - it would be convenient to know if attendee is an owner
+            'is_owner' => [
+                'type'              => 'boolean',
+                'description'       => "Mark the attendee as owner.",
+                'default'           => true
+            ],
 
             'assembly_representations_ids' => [
                 'type'              => 'one2many',
