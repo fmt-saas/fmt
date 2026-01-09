@@ -1,0 +1,109 @@
+{
+    "name": "Mandat d'assemblée",
+    "plural": "Mandats d'assemblée",
+    "description": "Mandats (procurations) attribués à un participant pour représenter un propriétaire lors de l'assemblée.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par le mandat.",
+            "help": "Détermine les propriétaires et clés de répartition applicables."
+        },
+        "assembly_id": {
+            "label": "Assemblée",
+            "description": "Assemblée à laquelle se rattache le mandat.",
+            "help": "Le mandat n'est valable que pour cette assemblée."
+        },
+        "attendee_id": {
+            "label": "Mandataire (participant)",
+            "description": "Participant titulaire du mandat.",
+            "help": "Doit être présent ou validé comme mandataire."
+        },
+        "identity_id": {
+            "label": "Mandataire (identité)",
+            "description": "Personne physique ou morale détenant la procuration.",
+            "help": "Renseigné automatiquement depuis le participant."
+        },
+        "ownership_id": {
+            "label": "Dossier représenté",
+            "description": "Dossier de propriété représenté par le mandat.",
+            "help": "Utilisé pour calculer les quotes-parts représentées."
+        },
+        "mandate_date": {
+            "label": "Date du mandat",
+            "description": "Date indiquée sur la procuration.",
+            "help": "Doit correspondre à l'assemblée visée."
+        },
+        "mandate_type": {
+            "label": "Type de mandat",
+            "description": "Mode de signature de la procuration.",
+            "help": "",
+            "selection": {
+                "written": "Écrit",
+                "electronic": "Électronique"
+            }
+        },
+        "mandate_document_id": {
+            "label": "Document du mandat",
+            "description": "Document original ou scanné de la procuration.",
+            "help": "Scan pour signature manuscrite ou document signé électroniquement."
+        },
+        "mandate_shares": {
+            "label": "Quotes-parts du mandat",
+            "description": "Quotes-parts représentées par le mandat.",
+            "help": "Calculées sur la clé statutaire du syndicat."
+        },
+        "has_wet_signature": {
+            "label": "Signature manuscrite",
+            "description": "Indique que le mandat comporte une signature manuscrite.",
+            "help": ""
+        },
+        "has_vote_intentions": {
+            "label": "Instructions de vote",
+            "description": "Indique que des intentions de vote sont jointes au mandat.",
+            "help": ""
+        },
+        "is_valid": {
+            "label": "Mandat valide",
+            "description": "Indique si le mandat est validé après vérification.",
+            "help": "Concerne la conformité légale du mandat."
+        },
+        "invalidity_reason": {
+            "label": "Raison d'invalidité",
+            "description": "Motif d'invalidation du mandat.",
+            "help": "",
+            "selection": {
+                "no_signature": "Signature manquante",
+                "missing_or_wrong_date": "Date absente ou incorrecte",
+                "invalid_signature": "Signature électronique invalide",
+                "invalid_document": "Document incomplet ou incorrect",
+                "expired_or_mismatch": "Mandat expiré ou pour une autre assemblée",
+                "too_many_proxies": "Trop de procurations pour le mandataire",
+                "duplicated_owner": "Propriétaire ayant donné plusieurs mandats",
+                "not_owner": "Mandant non légitime",
+                "invalid_attendee": "Participant invalide (identité ou signature manquante)"
+            }
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Statut du workflow du mandat.",
+            "help": "",
+            "selection": {
+                "pending": "En attente",
+                "validated": "Validé"
+            }
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Mandat d'assemblée",
+            "description": "Fiche mandat : mandataire, dossier représenté, type, document et validité.",
+            "layout": {}
+        },
+        "list.default": {
+            "name": "Mandats d'assemblée",
+            "description": "Liste des procurations enregistrées pour l'assemblée.",
+            "layout": {}
+        }
+    },
+    "error": {}
+}
