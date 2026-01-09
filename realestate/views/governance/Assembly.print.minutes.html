@@ -29,6 +29,10 @@
             margin: 1cm 1cm;
         }
 
+        .page-break {
+            page-break-before: always;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -104,9 +108,12 @@
 
     <h3 style="text-align: center;">Procès verbal de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} du {{ assembly.assembly_date | date(date_format, timezone) }}</h3>
 
-    <p>
-        {{ assembly.heading_text_minutes }}
-    </p>
+    <!-- <p>{{ assembly.heading_text_minutes }}</p> -->
+
+    <div class="introduction" style="height: 450px; overflow: hidden; text-overflow: ellipsis;">
+        {{ introduction | raw }}
+    </div>
+
 
     {% for item in assembly.assembly_items_ids %}
     <p>
@@ -292,11 +299,15 @@
     {% endfor %}
 
 
-    <p>
-        {{ assembly.closing_text_minutes }}
-    </p>
+    <div class="introduction" style="height: 450px; overflow: hidden; text-overflow: ellipsis;">
+        {{ conclusion | raw }}
+    </div>
+
+    <!-- <p>{{ assembly.closing_text_minutes }}</p> -->
 
     {% if signed %}
+        <div class="page-break"></div>
+
         <table class="attendance-table">
 
             <tr class="first">

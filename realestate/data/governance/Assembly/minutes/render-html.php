@@ -4,6 +4,8 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use communication\template\Template;
 use core\setting\Setting;
 use documents\DocumentSignature;
 use identity\Organisation;
@@ -68,6 +70,22 @@ use Twig\Extension\ExtensionInterface;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
+$getFormattedDate = function($timestamp) {
+    $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
+    $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
+    $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
+    return date($date_format, $timestamp + $tz_offset);
+};
+
+$getFormattedTime = function($timestamp) {
+    $tz = new \DateTimeZone(constant('L10N_TIMEZONE'));
+    $tz_offset = $tz->getOffset(new \DateTime('@' . time()));
+    $local_time = time() + $tz_offset;
+    $local_today = strtotime('today', $local_time);
+    $time = $local_time - $local_today;
+    return sprintf('%02d:%02d', $time / 3600, ($time % 3600) / 60);
+};
+
 $getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
     $result = '';
 
@@ -108,6 +126,8 @@ $assembly = Assembly::id($params['id'])
         'condo_id',
         'assembly_type',
         'assembly_date',
+        'session_time_start',
+        'session_time_end',
         'assembly_location',
         'minutes_document_id',
         'heading_text_minutes',
@@ -205,8 +225,90 @@ $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']]
 $lang = $params['lang'];
 
 
+// retrieve template (subject & body)
+$subject = '';
+$introduction = '';
+$conclusion = '';
+
+$template = Template::search([
+        ['code', '=', 'general_meetings_minutes'],
+        ['type', '=', 'document']
+    ])
+    ->read( ['id','parts_ids' => ['name', 'value']])
+    ->first(true);
+
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'subject') {
+        /*
+        $subject = strip_tags($part['value']);
+
+        $map_values = [
+            'condo'             => $assembly['condo_id']['name'],
+            'assembly'          => $assembly['name'],
+            'date'              => $assembly['assembly_date']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $subject);
+
+        $subject = strip_tags($subject);
+        */
+    }
+    elseif($part['name'] == 'introduction') {
+        $introduction = $part['value'];
+
+        $map_types = [
+            'statutory' => 'Assemblée Générale Statutaire',
+            'takeover' => 'Assemblée Générale de Reprise de gestion',
+            'ordinary' => 'Assemblée Générale Ordinaire',
+            'extraordinary' => 'Assemblée Générale Extraordinaire'
+        ];
+
+        $map_values = [
+            // 'firstname'         => $owner['identity_id']['firstname'],
+            // 'lastname'          => $owner['identity_id']['lastname'],
+            'condo'             => $assembly['condo_id']['name'],
+            'assembly'          => $assembly['name'],
+            'date'              => $getFormattedDate($assembly['assembly_date']),
+            'location'          => $assembly['assembly_location'],
+            'type'              => $map_types[$assembly['assembly_type']],
+            'time_start'        => $getFormattedTime($assembly['session_time_start'])
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $introduction);
+    }
+    elseif($part['name'] == 'conclusion') {
+        $conclusion = $part['value'];
+
+        $map_values = [
+            'condo'             => $assembly['condo_id']['name'],
+            'assembly'          => $assembly['name'],
+            'date'              => $getFormattedDate($assembly['assembly_date']),
+            'location'          => $assembly['assembly_location'],
+            'type'              => $map_types[$assembly['assembly_type']],
+            'time_end'          => $getFormattedTime($assembly['session_time_end'])
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $conclusion = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $conclusion);
+    }
+}
+
 $values = [
-    'title'                     => '',
+    'title'                     => $subject,
+    'introduction'              => $introduction,
+    'conclusion'                => $conclusion,
+
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
 

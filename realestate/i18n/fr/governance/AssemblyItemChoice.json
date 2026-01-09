@@ -1,0 +1,44 @@
+{
+    "name": "Choix de résolution",
+    "plural": "Choix de résolution",
+    "description": "Options proposées pour une résolution soumise au vote d’assemblée.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par la résolution.",
+            "help": "Doit correspondre à la copropriété de l’assemblée."
+        },
+        "assembly_id": {
+            "label": "Assemblée",
+            "description": "Assemblée à laquelle le choix se rattache.",
+            "help": "Détermine le contexte de vote et les droits associés."
+        },
+        "assembly_item_id": {
+            "label": "Résolution",
+            "description": "Point de l’ordre du jour concerné.",
+            "help": "Référence la résolution pour laquelle le choix est proposé."
+        },
+        "name": {
+            "label": "Libellé",
+            "description": "Libellé du choix (doit être unique pour la résolution).",
+            "help": "Texte affiché dans le vote et dans le récapitulatif."
+        },
+        "description": {
+            "label": "Description",
+            "description": "Description courte du choix.",
+            "help": "Précise le contexte ou les conséquences du choix."
+        },
+        "assembly_votes_ids": {
+            "label": "Votes associés",
+            "description": "Votes exprimés pour ce choix.",
+            "help": "Liste des votes rattachés à ce choix."
+        },
+        "votes_count": {
+            "label": "Votes pour",
+            "description": "Nombre de votes en faveur de ce choix.",
+            "help": "Calculé à partir des votes marqués « pour »."
+        }
+    },
+    "view": {},
+    "error": {}
+}

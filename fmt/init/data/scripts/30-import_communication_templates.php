@@ -129,6 +129,12 @@ TemplatePart::create([
     'template_id'   => $template['id'],
     'variables'     => '["condo", "firstname", "lastname", "date"]'
 ]);
+TemplatePart::create([
+    'name'          => 'conclusion',
+    'value'         => "",
+    'template_id'   => $template['id'],
+    'variables'     => '["condo", "date"]'
+]);
 
 
 

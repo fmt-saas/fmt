@@ -84,24 +84,39 @@ class Assembly extends \equal\orm\Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
+            // #deprecated
             'heading_text_call' => [
+                'deprecated'        => true,
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
                 'description'       => "Text of the assembly call.",
                 'required'          => false
             ],
 
+            // #deprecated
             'heading_text_minutes' => [
+                'deprecated'        => true,
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
                 'description'       => "Heading text of the assembly minutes.",
                 'required'          => false
             ],
 
+            // #deprecated
             'closing_text_call' => [
+                'deprecated'        => true,
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
                 'description'       => "Closing text of the assembly call.",
+                'required'          => false
+            ],
+
+            // #deprecated
+            'closing_text_minutes' => [
+                'deprecated'        => true,
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Closing text of the assembly minutes.",
                 'required'          => false
             ],
 
@@ -109,13 +124,6 @@ class Assembly extends \equal\orm\Model {
                 'type'              => 'boolean',
                 'description'       => "Show required majorities in the assembly call.",
                 'default'           => false
-            ],
-
-            'closing_text_minutes' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain.small',
-                'description'       => "Closing text of the assembly minutes.",
-                'required'          => false
             ],
 
             'assembly_date' => [

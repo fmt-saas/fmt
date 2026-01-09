@@ -757,22 +757,26 @@
                                             {
                                                 "type": "field",
                                                 "value": "heading_text_call",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "closing_text_call",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "heading_text_minutes",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "closing_text_minutes",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "label",
