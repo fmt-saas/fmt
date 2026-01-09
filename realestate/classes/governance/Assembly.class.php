@@ -22,6 +22,10 @@ use realestate\property\PropertyLotOwnership;
 
 class Assembly extends \equal\orm\Model {
 
+    public static function constants() {
+        return ['L10N_TIMEZONE'];
+    }
+
     public static function getColumns() {
 
         return [
@@ -253,10 +257,8 @@ class Assembly extends \equal\orm\Model {
             ],
 
             'is_complete' => [
-                'type'           => 'computed',
-                'result_type'    => 'boolean',
+                'type'           => 'boolean',
                 'description'    => "Flag marking the assembly as completed (all items have been reviewed).",
-                'function'       => 'calcIsComplete',
                 'store'          => true,
                 'instant'        => true
             ],
@@ -707,7 +709,28 @@ class Assembly extends \equal\orm\Model {
     }
 
     protected static function doRefreshIsComplete($self) {
-        $self->update(['is_complete' => null]);
+        $self->read(['status', 'step', 'assembly_items_ids' => ['status']]);
+
+        foreach($self as $id => $assembly) {
+            $is_complete = true;
+            foreach($assembly['assembly_items_ids'] as $assemblyItem) {
+                if(!in_array($assemblyItem['status'], ['closed', 'adjourned'], true)) {
+                    $is_complete = false;
+                    break;
+                }
+            }
+            $values = [
+                'is_complete' => $is_complete
+            ];
+            if($is_complete) {
+                $tz = new \DateTimeZone(constant('L10N_TIMEZONE'));
+                $tz_offset = $tz->getOffset(new \DateTime('@' . time()));
+                $local_time = time() + $tz_offset;
+                $local_today = strtotime('today', $local_time);
+                $values['session_time_end'] = $local_time - $local_today;
+            }
+            self::id($id)->update($values);
+        }
     }
 
     protected static function doRefreshItemsOrder($self) {
@@ -2259,10 +2282,7 @@ class Assembly extends \equal\orm\Model {
 
     protected static function doGenerateSignableMinutes($self) {
         $self
-            ->update([
-                'step'              => 'minutes_confirmation',
-                'session_time_end'  => time() - strtotime('today')
-            ])
+            ->update(['step' => 'minutes_confirmation'])
             ->read(['condo_id', 'minutes_document_id']);
 
         foreach($self as $id => $assembly) {
@@ -2294,23 +2314,6 @@ class Assembly extends \equal\orm\Model {
                 throw($e);
             }
         }
-    }
-
-    protected static function calcIsComplete($self) {
-        $result = [];
-        $self->read(['status', 'step', 'assembly_items_ids' => ['status']]);
-
-        foreach($self as $id => $assembly) {
-            foreach($assembly['assembly_items_ids'] as $assemblyItem) {
-                if(!in_array($assemblyItem['status'], ['closed', 'adjourned'], true)) {
-                    $result[$id] = false;
-                    continue 2;
-                }
-            }
-            $result[$id] = true;
-        }
-
-        return $result;
     }
 
 
