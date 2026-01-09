@@ -1051,6 +1051,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             // 2) reserve fund
             // #memo - limit to lines related to use of reserve fund
             // #todo - change to 6813 ?
+            // #todo - check for fund_usage_line_id assignment instead
             elseif(substr($accountingEntryLine['account_code'], 0, 4) === '6816') {
 
                 // retrieve account according to account_id and ReserveFund

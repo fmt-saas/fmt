@@ -4,8 +4,8 @@
     "description": "Collecteur avance des ecritures pour generer les depenses courantes.",
     "model": {
         "apportionment": {
-            "label": "Cle",
-            "description": "Cle de repartition utilisee pour ventiler le montant entre postes, periodes ou coproprietaires.",
+            "label": "Clé",
+            "description": "Clé de répartition utilisee pour ventiler le montant entre postes, periodes ou coproprietaires.",
             "help": "Nom de la cle issue des repartitions associees aux operations."
         },
         "parent_account": {

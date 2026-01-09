@@ -85,12 +85,12 @@
         },
         {
             "id": "item.governance",
-            "label": "Governance",
-            "description": "",
+            "label": "Assemblies",
+            "description": "List of general assemblies of the Condominium.",
             "icon": "how_to_vote",
             "context": {
-                "entity": "realestate\\property\\Condominium",
-                "view": "form.governance",
+                "entity": "realestate\\governance\\Assembly",
+                "view": "list.condo",
                 "domain": [["id", "=", "object.id"]]
             }
         },
