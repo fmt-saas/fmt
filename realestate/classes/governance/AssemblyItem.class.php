@@ -416,6 +416,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                         ->transition('cast');
                 }
             }
+            Assembly::id($assemblyItem['assembly_id'])->do('refresh_is_complete');
         }
     }
 

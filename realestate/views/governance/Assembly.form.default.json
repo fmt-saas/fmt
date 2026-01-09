@@ -1032,9 +1032,9 @@
                                     "published",
                                     "sending",
                                     "sent"
-                                ],
-                                ["admins", "in", "user.groups"]
-                            ]
+                                ]
+                            ],
+                            ["admins", "in", "user.groups"]
                         ],
                         "rows": [
                             {
