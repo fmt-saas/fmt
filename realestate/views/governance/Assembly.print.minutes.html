@@ -115,13 +115,13 @@
     </div>
 
     {% for item in assembly.assembly_items_ids %}
-    <p>
+    <div style="page-break-inside: avoid;">
         {% set assemblyItem = map_assembly_items[item.id] %}
 
         <div style="text-decoration: underline; font-weight: bold;">
             {{ assemblyItem.order }}. {{ assemblyItem.name }}
             {% if assemblyItem.status == 'adjourned' %}
-                Reporté
+                &nbsp;-&nbsp;Reporté
             {% else %}
                 {% if assemblyItem.has_vote_required %}
                     &nbsp;-&nbsp;{{ voteResultLabels[assemblyItem.vote_result] }}
@@ -225,7 +225,7 @@
                             <u>
                                 {{ item.order }}. {{ assemblySubItem.order }}. {{ assemblySubItem.name }}
                                 {% if assemblySubItem.status == 'adjourned' %}
-                                    Reporté
+                                    &nbsp;-&nbsp;Reporté
                                 {% else %}
                                     {% if assemblySubItem.has_vote_required %}
                                         &nbsp;-&nbsp;{{ voteResultLabels[assemblySubItem.vote_result] }}
@@ -294,7 +294,7 @@
                 </tr>
             </table>
         {% endif %}
-    </p>
+    </div>
     {% endfor %}
 
     <div class="conclusion">
