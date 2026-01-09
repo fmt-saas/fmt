@@ -101,7 +101,7 @@
             "icon": "how_to_vote",
             "context": {
                 "entity": "realestate\\governance\\Assembly",
-                "view": "list.condo",
+                "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
         },
