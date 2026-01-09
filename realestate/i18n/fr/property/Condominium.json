@@ -234,7 +234,11 @@
             },
             "routes": {
                 "item.ownerships": {
-                    "label": "Propriétaires",
+                    "label": "Copropriétaires",
+                    "description": ""
+                },
+                "item.council_members": {
+                    "label": "Conseil de copropriété",
                     "description": ""
                 },
                 "item.property_lots": {
