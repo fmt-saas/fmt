@@ -150,7 +150,7 @@
                             {% if recipient.address_city | length > 0 %}
                                 <div>{{ recipient.address_zip }} {{ recipient.address_city }}  </div>
                             {% endif %}
-                            {% if recipient.address_country and recipient.address_country | length > 0 %}
+                            {% if recipient.address_country and recipient.address_country | length > 0 and recipient.address_country != 'BE' %}
                                 <div>
                                     {{ recipient.address_country }}
                                 </div>
