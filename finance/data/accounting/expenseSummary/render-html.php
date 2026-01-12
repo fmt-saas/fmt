@@ -121,7 +121,9 @@ if(!isset($params['params']['condo_id'])) {
     throw new \Exception('missing_mandatory_condo_id', EQ_ERROR_MISSING_PARAM);
 }
 
-$condominium = Condominium::id($params['params']['condo_id'])
+$condo_id = $params['params']['condo_id'];
+
+$condominium = Condominium::id($condo_id)
     ->read([
         'name', 'address_street', 'address_zip', 'address_city',
         'registration_number',
@@ -163,12 +165,24 @@ $data = eQual::run('get', 'finance_accounting_expenseSummary_collect', [
         'account_id'        => $params['params']['account_id'] ?? null,
     ]);
 
-if(isset($params['fiscal_year_id'])) {
-    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])->read(['date_from', 'date_to'])->first();
-    if($fiscalYear) {
-        $date_from = $fiscalYear['date_from'];
-        $date_to = $fiscalYear['date_to'];
-    }
+
+$fiscalYear = FiscalYear::search([
+        ['status', '=', 'open'],
+        ['condo_id', '=', $condo_id],
+    ],  ['sort' => ['date_from' => 'desc']])
+    ->ids();
+
+if(!$fiscalYear) {
+    $fiscalYear = FiscalYear::search([
+            ['status', '=', 'preopen'],
+            ['condo_id', '=', $condo_id],
+        ],  ['sort' => ['date_from' => 'asc']])
+        ->first();
+}
+
+if($fiscalYear) {
+    $date_from = $fiscalYear['date_from'];
+    $date_to = $fiscalYear['date_to'];
 }
 
 if(isset($params['params']['date_from'], $params['params']['date_to']) && $params['params']['date_from'] && $params['params']['date_to']) {
