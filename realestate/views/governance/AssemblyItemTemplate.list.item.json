@@ -8,9 +8,16 @@
     }],
     "order": "order",
     "sort": "asc",
-    "limit": 100,
+    "draggable": true,
+    "limit": 150,
     "layout": {
         "items": [
+            {
+                "type": "field",
+                "value": "assembly_template_id",
+                "width": "0%",
+                "visible": false
+            },
             {
                 "type": "field",
                 "value": "order",
@@ -23,14 +30,19 @@
             },
             {
                 "type": "field",
-                "label": "Group",
                 "value": "is_group",
-                "width": "10%",
+                "width": "0%",
                 "visible": false
             },
             {
                 "type": "field",
-                "label": "Parent",
+                "value": "has_parent_group",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Group",
                 "value": "parent_group_id",
                 "width": "11%",
                 "visible": false
@@ -42,6 +54,7 @@
             },
             {
                 "type": "field",
+                "label": "Vote",
                 "value": "has_vote_required",
                 "width": "10%"
             },

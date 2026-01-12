@@ -208,6 +208,11 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
                 'description'   => 'Refresh sub-items count for parent groups.',
                 'policies'      => [],
                 'function'      => 'doRefreshItemsCount'
+            ],
+            'refresh_has_vote' => [
+                'description'   => 'Only for groups (parent items), refresh has_vote based on sub-items.',
+                'policies'      => [],
+                'function'      => 'doRefreshHasVote'
             ]
         ];
     }
@@ -255,6 +260,26 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
         $self->read(['children_items_ids']);
         foreach($self as $id => $assemblyItem) {
             self::ids($assemblyItem['children_items_ids'])->do('refresh_order');
+        }
+    }
+
+    protected static function doRefreshHasVote($self) {
+        $self->read(['has_parent_group', 'children_items_ids' => ['has_vote_required']]);
+        foreach($self as $id => $assemblyItem) {
+            // applies only on parents items/groups
+            if($assemblyItem['has_parent_group']) {
+                continue;
+            }
+            $has_vote = false;
+            foreach($assemblyItem['children_items_ids'] as $item) {
+                if($item['has_vote_required']) {
+                    $has_vote = true;
+                    break;
+                }
+            }
+            if($has_vote) {
+                self::id($id)->update(['has_subvote_required' =>  true]);
+            }
         }
     }
 

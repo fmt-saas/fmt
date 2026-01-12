@@ -1,20 +1,27 @@
 {
     "name": "Assembly Template",
     "layout": {
+        "interactions": {
+            "autofocus": false
+        },
         "groups": [
             {
-                "id": "group.0",
                 "sections": [
                     {
-                        "id": "section.0",
+                        "id": "section.details",
+                        "label": "Details",
                         "rows": [
                             {
-                                "id": "row.0",
                                 "columns": [
                                     {
-                                        "id": "column.0",
                                         "width": "100%",
                                         "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_template_id",
+                                                "width": "50%",
+                                                "visible": false
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "name",
@@ -24,25 +31,15 @@
                                                 "type": "field",
                                                 "value": "code",
                                                 "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "assembly_template_id",
-                                                "width": "25%",
-                                                "visible": false
                                             }
                                         ]
                                     }
                                 ]
                             },
                             {
-                                "id": "row.1",
-                                "label": "New Row",
                                 "columns": [
                                     {
-                                        "id": "column.1",
-                                        "label": "New Column",
-                                        "width": "50%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
@@ -62,12 +59,32 @@
                                             {
                                                 "type": "field",
                                                 "value": "has_vote_required",
-                                                "width": "50%"
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_choices",
+                                                "width": "25%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "25%",
+                                                "visible": ["has_vote_required", "=", false]
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "majority",
-                                                "width": "25%"
+                                                "width": "25%",
+                                                "visible": ["has_choices", "=", false]
+                                            },
+                                            {
+                                                "id": "label.choices_notice",
+                                                "type": "label",
+                                                "value": "Please provide choices.",
+                                                "width": "25%",
+                                                "visible": ["has_choices", "=", true]
                                             },
                                             {
                                                 "type": "field",
@@ -79,10 +96,8 @@
                                 ]
                             },
                             {
-                                "id": "row.2",
                                 "columns": [
                                     {
-                                        "id": "column.1",
                                         "width": "100%",
                                         "items": [
                                             {
@@ -116,6 +131,27 @@
                                                 "widget": {
                                                     "view": "list.item"
                                                 }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.choices",
+                        "label": "Choices",
+                        "visible": [["has_vote_required", "=", true], ["has_choices", "=", true]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_item_choices_ids",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

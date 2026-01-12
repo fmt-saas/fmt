@@ -8,7 +8,8 @@
     }],
     "order": "order",
     "sort": "asc",
-    "limit": 100,
+    "draggable": true,
+    "limit": 150,
     "domain": [
         ["has_parent_group", "=", false]
     ],
