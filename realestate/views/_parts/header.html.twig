@@ -56,10 +56,10 @@
                 <td style="width: 33%;">
                     <!-- condominium-info start -->
                     <div class="condominium-info {{ debug ? 'debug' : '' }}">
-                        <div style="font-weight: bold;">{{ condominium.name }}</div>
+                        <div style="text-transform: uppercase; font-weight: bold;">{{ condominium.name }}</div>
                         <div>{{ condominium.address_street }}</div>
                         <div>{{ condominium.address_zip }} {{ condominium.address_city }}</div>
-                        <div>{{ labels.registration_number }}: {{ condominium.registration_number }}</div>
+                        <div style="text-transform: uppercase;">{{ labels.registration_number }}: {{ condominium.registration_number }}</div>
                     </div>
                     <!-- condominium-info stop -->
                 </td>
@@ -74,11 +74,11 @@
                     <!-- organisation-info start  (organisation is the managing agent) -->
                     <div class="organisation-info right {{ debug ? 'debug':'' }}">
                         <div style="padding-left: 10px;">
-                            <div style="font-weight: bold;">{{ organisation.legal_name }}</div>
+                            <div style="text-transform: uppercase; font-weight: bold;">{{ organisation.legal_name }}</div>
                             <div>{{ organisation.address_street }}</div>
                             <div>{{ organisation.address_zip }} {{ organisation.address_city }}</div>
                             {% if organisation.registration_number | length > 0 %}
-                                <div>{{ labels.registration_number }}: {{ organisation.registration_number }}</div>
+                                <div style="text-transform: uppercase;">{{ labels.registration_number }}: {{ organisation.registration_number }}</div>
                             {% endif %}
                         </div>
                     </div>
