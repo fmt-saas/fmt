@@ -170,13 +170,15 @@ $fiscalYear = FiscalYear::search([
         ['status', '=', 'open'],
         ['condo_id', '=', $condo_id],
     ],  ['sort' => ['date_from' => 'desc']])
-    ->ids();
+    ->read(['date_from', 'date_to'])
+    ->first();
 
 if(!$fiscalYear) {
     $fiscalYear = FiscalYear::search([
             ['status', '=', 'preopen'],
             ['condo_id', '=', $condo_id],
         ],  ['sort' => ['date_from' => 'asc']])
+        ->read(['date_from', 'date_to'])
         ->first();
 }
 
