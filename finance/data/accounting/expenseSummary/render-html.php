@@ -45,6 +45,13 @@ use Twig\Extension\ExtensionInterface;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
+$getFormattedDate = function($timestamp) {
+    $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
+    $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
+    $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
+    return date($date_format, $timestamp + $tz_offset);
+};
+
 $getTwigCurrency = function($equal_currency) {
     $equal_twig_currency_map = [
         '€'   => 'EUR',
@@ -156,17 +163,17 @@ $data = eQual::run('get', 'finance_accounting_expenseSummary_collect', [
         'account_id'        => $params['params']['account_id'] ?? null,
     ]);
 
-$date = time();
-
-if(isset($params['params']['date_to']) && $params['params']['date_to']) {
-    $date = $params['params']['date_to'];
+if(isset($params['fiscal_year_id'])) {
+    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])->read(['date_from', 'date_to'])->first();
+    if($fiscalYear) {
+        $date_from = $fiscalYear['date_from'];
+        $date_to = $fiscalYear['date_to'];
+    }
 }
 
-if(isset($params['fiscal_year_id'])) {
-    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])->read(['date_to'])->first();
-    if($fiscalYear) {
-        $date = $fiscalYear['date_to'];
-    }
+if(isset($params['params']['date_from'], $params['params']['date_to']) && $params['params']['date_from'] && $params['params']['date_to']) {
+    $date_from = $params['params']['date_from'];
+    $date_to = $params['params']['date_to'];
 }
 
 $groups = [];
@@ -216,8 +223,25 @@ foreach($data as $line) {
     $grand_total += $amount;
 }
 
+$subject = 'Dépenses courantes du {date_from} au {date_to}';
+$introduction = '';
+
+$map_values = [
+    'condo'             => $assembly['condo_id']['name'],
+    'date_from'         => $date_from,
+    'date_to'           => $date_to
+];
+
+// Replace {var} items with corresponding values, set in $map_values
+$subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+    $key = $matches[1];
+    return $map_values[$key] ?? '';
+}, $subject);
+
+$subject = strip_tags($subject);
+
 $values = [
-    'title'               => 'Dépenses courantes',
+    'title'               => $subject,
 
     'organisation'        => $organisation,
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),
