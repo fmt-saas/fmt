@@ -150,13 +150,16 @@
                             {% if recipient.address_city | length > 0 %}
                                 <div>{{ recipient.address_zip }} {{ recipient.address_city }}  </div>
                             {% endif %}
-                            <!-- {{ recipient.address_country }} -->
+                            {% if recipient.address_country and recipient.address_country | length > 0 %}
+                                <div>
+                                    {{ recipient.address_country }}
+                                </div>
+                            {% endif %}
                             {% if recipient.has_vat and recipient.vat_number | length > 0 %}
                                 <div>
                                     {{ labels.vat_number }}: {{ recipient.vat_number }}
                                 </div>
                             {% endif %}
-
                         </div>
                         {% if date is defined %}
                         <div style="margin-top: 10px;">
