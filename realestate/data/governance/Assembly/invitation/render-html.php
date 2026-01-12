@@ -182,13 +182,21 @@ $template = Template::search([
 
 foreach($template['parts_ids'] as $part_id => $part) {
     if($part['name'] == 'subject') {
-        /*
+
         $subject = strip_tags($part['value']);
+
+        $map_types = [
+            'statutory' => 'Assemblée Générale Statutaire',
+            'takeover' => 'Assemblée Générale de Reprise de gestion',
+            'ordinary' => 'Assemblée Générale Ordinaire',
+            'extraordinary' => 'Assemblée Générale Extraordinaire'
+        ];
 
         $map_values = [
             'condo'             => $assembly['condo_id']['name'],
             'assembly'          => $assembly['name'],
-            'date'              => $assembly['assembly_date']
+            'type'              => $map_types[$assembly['assembly_type']],
+            'date'              => $getFormattedTime($assembly['assembly_date'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -198,7 +206,6 @@ foreach($template['parts_ids'] as $part_id => $part) {
         }, $subject);
 
         $subject = strip_tags($subject);
-        */
     }
     elseif($part['name'] == 'introduction') {
         $introduction = $part['value'];
