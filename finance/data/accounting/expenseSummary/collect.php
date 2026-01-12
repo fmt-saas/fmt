@@ -365,18 +365,7 @@ foreach($lines as $line) {
 // Read all involved invoices at once
 $map_invoices = [];
 $map_statements = [];
-$map_apportionments = [
-    null => [
-        'name'          => '(autre)',
-        'code'          => null,
-        'description'   => null
-    ],
-    'private_expense'  => [
-        'name'          => 'Frais privatifs',
-        'code'          => 'private_expense',
-        'description'   => 'Frais privatifs'
-    ]
-];
+$map_apportionments = [];
 
 
 if(!empty($invoices_ids)) {
@@ -414,15 +403,20 @@ if(!empty($statements_ids)) {
 }
 
 if(!empty($apportionments_ids)) {
-    $map_apportionments = array_merge($map_apportionments, Apportionment::ids($apportionments_ids)
+    $map_apportionments = Apportionment::ids($apportionments_ids)
         ->read([
             'name',
             'code',
             'description'
         ])
-        ->get()
-    );
+        ->get();
 }
+
+$map_apportionments['private_expense'] = [
+    'name'        => 'Frais privatifs',
+    'code'        => 'private_expense',
+    'description' => 'Dépense non imputable à la& copropriété.'
+];
 
 $result = [];
 
@@ -497,7 +491,7 @@ foreach($lines as $line_id => $line) {
 
     $result[] = [
         'id'                 => $line_id,
-        'apportionment'      => $map_apportionments[$apportionment_id]['name'],
+        'apportionment'      => $map_apportionments[$apportionment_id]['name'] ?? '(autre)',
         'account'            => (string) ($account['name'] ?? ''),
         'parent_account'     => (string) ($parentAccount['name'] ?? ''),
         'description'        => (string) $line['description'],
