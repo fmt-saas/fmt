@@ -468,7 +468,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             // #memo - it is the invoice (and not the DocumentProcess) that is responsible for ensuring all required information is complete
             // #todo - this should be called through a ValidationRule
             try {
-                \eQual::run('do', 'realestate_purchase_accounting_invoice_PurchaseInvoice_validate', ['id' => $id]);
+                // validate controller is called at `MarkValidated` step
+                // \eQual::run('do', 'realestate_purchase_accounting_invoice_PurchaseInvoice_validate', ['id' => $id]);
 
                 // #memo - an additional validation is made on the JSON schema (should always pass) - this ensures completeness but not consistency
                 try {
@@ -519,12 +520,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function policyCanMarkValidated($self) {
         $result = [];
-        $self->read(['document_process_status', 'document_process_id',
-                'invoice_lines_ids' => [
-                        'expense_account_id' => ['account_class'],
-                        'apportionment_id',
-                ]
-            ]);
+        $self->read(['document_process_status', 'document_process_id']);
 
         foreach($self as $id => $purchaseInvoice) {
             if($purchaseInvoice['document_process_status'] !== 'completed') {
@@ -533,16 +529,20 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     ];
                 continue;
             }
-            foreach($purchaseInvoice['invoice_lines_ids'] as $invoice_line_id => $purchaseInvoiceLine) {
-                if(in_array($purchaseInvoiceLine['expense_account_id']['account_class'], ['6', '7'])) {
-                    if(!$purchaseInvoiceLine['apportionment_id']) {
-                        $result[$id] = [
-                                'missing_mandatory_line_apportionment' => 'Lines referring to expense or income must have an apportionment set.'
-                            ];
-                        continue;
-                    }
-                }
+
+            try {
+                \eQual::run('do', 'realestate_purchase_accounting_invoice_PurchaseInvoice_validate', ['id' => $id]);
             }
+            catch(\Exception $e) {
+                trigger_error("APP::PurchaseInvoice [{$id}] cannot be marked as completed: " . $e->getMessage(), EQ_REPORT_WARNING);
+                $result[$id] = [
+                        ($e->getCode()) => 'Some mandatory fields are missing or invoice is a duplicate.'
+                    ];
+            }
+            finally {
+                self::id($id)->update(['alert' => null]);
+            }
+
         }
         return $result;
     }

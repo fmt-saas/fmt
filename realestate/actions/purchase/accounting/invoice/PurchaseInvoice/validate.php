@@ -56,7 +56,7 @@ $purchaseInvoice = PurchaseInvoice::id($id)
         'emission_date',
         'price',
         'invoice_lines_ids' => [
-            'expense_account_id' => ['account_class'], 'total', 'price', 'vat_rate', 'owner_share', 'tenant_share'
+            'expense_account_id' => ['account_class'], 'apportionment_id', 'is_private_expense', 'total', 'price', 'vat_rate', 'owner_share', 'tenant_share'
         ],
         'fund_usage_lines_ids' => [
             'fund_account_id', 'amount', 'apportionment_id', 'expense_account_id'
@@ -143,11 +143,16 @@ else {
 
 $lines_total = 0.0;
 foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $invoiceLine) {
-    if(($invoiceLine['owner_share'] + $invoiceLine['tenant_share']) != 100) {
-        if(in_array($invoiceLine['expense_account_id']['account_class'], [6, 7])) {
+    if(in_array($invoiceLine['expense_account_id']['account_class'], [6, 7])) {
+        if(($invoiceLine['owner_share'] + $invoiceLine['tenant_share']) != 100) {
             // error : invalid (non-balanced) owner/tenant ratio for income/expense account
             $dispatch->dispatch('purchase.accounting.invoice.invalid_owner_tenant_ratio', $class, $id, 'important', $script, ['id' => $id]);
             throw new Exception("invalid_owner_tenant_ratio", EQ_ERROR_INVALID_PARAM);
+        }
+        if(!$purchaseInvoiceLine['apportionment_id'] && !$purchaseInvoiceLine['is_private_expense']) {
+            $dispatch->dispatch('purchase.accounting.invoice.missing_mandatory_line_apportionment', $class, $id, 'important', $script, ['id' => $id]);
+            throw new Exception("missing_mandatory_line_apportionment", EQ_ERROR_INVALID_PARAM);
+            // 'missing_mandatory_line_apportionment' => 'Lines referring to expense or income must have an apportionment set.'
         }
     }
     if(abs(round($invoiceLine['total'] * (1 + $invoiceLine['vat_rate']), 2)) - abs(round($invoiceLine['price'], 2)) > 0.01) {
@@ -157,6 +162,7 @@ foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $invoiceLine) {
     }
     $lines_total += $invoiceLine['price'];
 }
+
 // symmetrical removal of the alerts (if any)
 $dispatch->cancel('purchase.accounting.invoice.invalid_owner_tenant_ratio', $class, $id);
 $dispatch->cancel('purchase.accounting.invoice.non_matching_price', $class, $id);
