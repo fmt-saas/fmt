@@ -73,12 +73,6 @@
 <body>
     {% include 'header.html.twig' %}
 
-    {% if title | length > 0 %}
-    <h2 style="text-transform: uppercase; margin-bottom: 10px;">
-        {{ title }}
-    </h2>
-    {% endif %}
-
     <div class="introduction" style="height: 450px; overflow: hidden; text-overflow: ellipsis;">
         {{ introduction | raw }}
     </div>

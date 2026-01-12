@@ -157,12 +157,6 @@
 
     {% include 'header.html.twig' %}
 
-    {% if title | length > 0 %}
-    <h2 style="text-transform: uppercase; margin-bottom: 10px;">
-        {{ title }}
-    </h2>
-    {% endif %}
-
     <table>
         <thead>
             <tr>
@@ -196,7 +190,7 @@
                     {{ parent.label }}
                 </td>
                 <td>
-                    <div style="padding-left: 10px;">{{ parent.total | format_money }}</div>
+                    <div style="padding-left: 15px;">{{ parent.total | format_money }}</div>
                 </td>
             </tr>
 

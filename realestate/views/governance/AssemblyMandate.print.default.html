@@ -61,12 +61,6 @@
 <body>
     {% include 'header.html.twig' %}
 
-    {% if title | length > 0 %}
-    <h2 style="text-transform: uppercase; margin-bottom: 10px;">
-        {{ title }}
-    </h2>
-    {% endif %}
-
     <p>Je soussigné(e), <strong>{{ ownership.representative_owner_id.name }}</strong>,</p>
     <p>Demeurant à l’adresse : <strong>{{ ownership.representative_owner_id.address }}</strong>,</p>
 

@@ -228,6 +228,7 @@ $lang = $params['lang'];
 
 
 $values = [
+    'title'                     => 'Liste des présences',
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
 

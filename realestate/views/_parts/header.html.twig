@@ -104,7 +104,7 @@
 
                             <!-- fiscal_year-info start -->
                             <div class="fiscal_year-info {{ debug ? 'debug' : '' }}">
-                                <!-- #memo this has been moved to each single template
+                                <!-- #memo this has been moved below table
                                 {% if title | length > 0 %}
                                 <h2 style="text-transform: uppercase; margin-bottom: 10px;">
                                     {{ title }}
@@ -168,6 +168,12 @@
                     </td>
                 </tr>
             </table>
+
+            {% if title | length > 0 %}
+            <div class="main-title">
+                {{ title }}
+            </div>
+            {% endif %}
 
         </div>
         <!-- body-header end -->
