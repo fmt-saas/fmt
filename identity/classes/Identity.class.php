@@ -923,13 +923,14 @@ class Identity extends Model {
     // #memo - this is also done in onupdate handler
     protected static function doRefreshAddresses($self) {
         // sync primary address
-        $self->read(['address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_state', 'address_country']);
+        $self->read(['identity_id', 'address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_state', 'address_country']);
 
         foreach($self as $id => $identity) {
             if(!$identity['address_street'] || strlen($identity['address_street']) <= 0) {
                 continue;
             }
-            $mainAddress = Address::search([['owner_identity_id', '=', $id], ['is_primary', '=', true]]);
+            $identity_id = $identity['identity_id'] ?? $id;
+            $mainAddress = Address::search([['owner_identity_id', '=', $identity_id], ['is_primary', '=', true]]);
             if(!$mainAddress) {
                 $mainAddress = Address::create([
                     'owner_identity_id' => $id,

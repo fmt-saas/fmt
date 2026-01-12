@@ -313,6 +313,7 @@ try {
                     'address_zip'               => $condominium_data['zip'],
                     'address_country'           => $condominium_data['country'],
                 ])
+                ->do('refresh_addresses')
                 ->first();
 
             $condo_code = null;
@@ -481,6 +482,7 @@ try {
                     ])
                     // #memo - events are deactivated
                     ->do('refresh_legal_name')
+                    ->do('refresh_addresses')
                     ->do('refresh_registration_number')
                     ->read(['slug_hash'])
                     ->first();
@@ -601,6 +603,7 @@ try {
                     ])
                     // #memo - events are deactivated
                     ->do('refresh_legal_name')
+                    ->do('refresh_addresses')
                     ->do('refresh_registration_number')
                     ->read(['slug_hash'])
                     ->first();
