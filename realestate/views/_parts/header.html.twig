@@ -94,7 +94,7 @@
         <div class="main-header">
             <table style="width: 100%;">
                 <tr>
-                    <td style="width: 66%;">
+                    <td style="width: 50%;">
                         <!-- document-info start -->
                         <div class="document-info {{ debug ? 'debug' : '' }}">
                             <!-- fiscal_year-ref start -->
@@ -138,26 +138,25 @@
                     <td>
                         <!-- recipient-info start -->
                         <div class="recipient-info {{ debug ? 'debug' : '' }}">
-                            <div style="padding-left: 20px;">
-                                <div>{{ recipient.name }}</div>
-                                {% if recipient.address_street | length > 0 %}
-                                    <div>{{ recipient.address_street }}</div>
-                                {% endif %}
+                            <div>{{ recipient.name }}</div>
+                            {% if recipient.address_street | length > 0 %}
+                                <div>{{ recipient.address_street }}</div>
+                            {% endif %}
 
-                                {% if recipient.address_dispatch | length > 0 %}
-                                    <div>{{ recipient.address_dispatch }}</div>
-                                {% endif %}
+                            {% if recipient.address_dispatch | length > 0 %}
+                                <div>{{ recipient.address_dispatch }}</div>
+                            {% endif %}
 
-                                {% if recipient.address_city | length > 0 %}
-                                    <div>{{ recipient.address_zip }} {{ recipient.address_city }}  </div>
-                                {% endif %}
-                                <!-- {{ recipient.address_country }} -->
-                                {% if recipient.has_vat and recipient.vat_number | length > 0 %}
-                                    <div>
-                                        {{ labels.vat_number }}: {{ recipient.vat_number }}
-                                    </div>
-                                {% endif %}
-                            </div>
+                            {% if recipient.address_city | length > 0 %}
+                                <div>{{ recipient.address_zip }} {{ recipient.address_city }}  </div>
+                            {% endif %}
+                            <!-- {{ recipient.address_country }} -->
+                            {% if recipient.has_vat and recipient.vat_number | length > 0 %}
+                                <div>
+                                    {{ labels.vat_number }}: {{ recipient.vat_number }}
+                                </div>
+                            {% endif %}
+
                         </div>
                         {% if date is defined %}
                         <div style="padding-left: 20px; margin-top: 10px;">
