@@ -123,6 +123,12 @@
 <body>
     {% include 'footer.html.twig' %}
 
+    {% if title | length > 0 %}
+    <h2 style="text-transform: uppercase; margin-bottom: 10px;">
+        {{ title }}
+    </h2>
+    {% endif %}
+
     <header>
         <table>
             <tr>

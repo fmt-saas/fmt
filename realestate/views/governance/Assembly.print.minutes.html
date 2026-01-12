@@ -57,7 +57,8 @@
         }
 
         h2 {
-            font-size: 21px;
+            font-size: 15px;
+            text-align: center;
         }
 
         h3 {
@@ -91,6 +92,12 @@
 
     {% include 'header.html.twig' %}
 
+    {% if title | length > 0 %}
+    <h2 style="text-transform: uppercase; margin-bottom: 10px;">
+        Procès verbal de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} du {{ assembly.assembly_date | date(date_format, timezone) }}
+    </h2>
+    {% endif %}
+
 
     {% set assemblyTypes = {
         'statutory': 'Assemblée Générale Statutaire',
@@ -111,7 +118,6 @@
         'rejected': 'Rejeté',
     } %}
 
-    <h3 style="text-align: center;">Procès verbal de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} du {{ assembly.assembly_date | date(date_format, timezone) }}</h3>
 
     <!-- <p>{{ assembly.heading_text_minutes }}</p> -->
 
