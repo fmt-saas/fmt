@@ -244,8 +244,8 @@ $introduction = '';
 
 $map_values = [
     'condo'             => $assembly['condo_id']['name'],
-    'date_from'         => $date_from,
-    'date_to'           => $date_to
+    'date_from'         => $getFormattedDate($date_from),
+    'date_to'           => $getFormattedDate($date_to)
 ];
 
 // Replace {var} items with corresponding values, set in $map_values
