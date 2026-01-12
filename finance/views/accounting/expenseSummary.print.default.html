@@ -111,6 +111,7 @@
         main table tfoot tr td {
             border-right: 1px solid black;
             border-top: 1px solid black;
+            border-right: 0;
         }
 
         tr.group-header td {
@@ -145,6 +146,7 @@
 
         .total-footer {
             font-weight: bold;
+            font-size: 12px;
         }
 
         .page-break {
@@ -251,7 +253,7 @@
         <tfoot>
             <tr class="total-footer">
                 <td colspan="5" style="text-align: right;">
-                    Total général
+                    Total général:
                 </td>
                 <td>
                     {{ grand_total | format_money }}
