@@ -123,12 +123,16 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             if(!$invoiceLine['is_private_expense']) {
                 continue;
             }
+            $values = [
+                'apportionment_id'    => null
+            ];
             // set expense_account_id to 643xxx
             $account = Account::search([['condo_id', '=', $invoiceLine['condo_id']], ['operation_assignment', '=', 'private_expenses']])
                 ->first();
             if($account) {
-                self::id($id)->update(['expense_account_id' => $account['id']]);
+                $values['expense_account_id'] = $account['id'];
             }
+            self::id($id)->update($values);
         }
     }
 

@@ -250,7 +250,7 @@ $lines = AccountingEntryLine::search($domain->toArray())
         'account_class',
         'accounting_entry_id' => ['name', 'journal_id'],
         'fund_usage_line_id' => ['apportionment_id', 'invoice_id'],
-        'purchase_invoice_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'invoice_id'],
+        'purchase_invoice_line_id' => ['is_private_expense', 'apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'invoice_id'],
         'bank_statement_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'bank_statement_id'],
         'description',
         'entry_date',
@@ -365,7 +365,18 @@ foreach($lines as $line) {
 // Read all involved invoices at once
 $map_invoices = [];
 $map_statements = [];
-$map_apportionments = [];
+$map_apportionments = [
+    null => [
+        'name'          => '(autre)',
+        'code'          => null,
+        'description'   => null
+    ],
+    'private_expense'  => [
+        'name'          => 'Frais privatifs',
+        'code'          => 'private_expense',
+        'description'   => 'Frais privatifs'
+    ]
+];
 
 
 if(!empty($invoices_ids)) {
@@ -403,13 +414,14 @@ if(!empty($statements_ids)) {
 }
 
 if(!empty($apportionments_ids)) {
-    $map_apportionments = Apportionment::ids($apportionments_ids)
+    $map_apportionments = array_merge($map_apportionments, Apportionment::ids($apportionments_ids)
         ->read([
             'name',
             'code',
             'description'
         ])
-        ->get();
+        ->get()
+    );
 }
 
 $result = [];
@@ -452,6 +464,9 @@ foreach($lines as $line_id => $line) {
     if(!empty($line['purchase_invoice_line_id']['invoice_id'])) {
         $invoice_id = $line['purchase_invoice_line_id']['invoice_id'];
         $apportionment_id = $line['purchase_invoice_line_id']['apportionment_id'] ?? null;
+        if($line['purchase_invoice_line_id']['is_private_expense']) {
+            $apportionment_id = 'private_expense';
+        }
         $owner_share = $line['purchase_invoice_line_id']['owner_share'] ?? 0;
         $tenant_share = $line['purchase_invoice_line_id']['tenant_share'] ?? 0;
         $vat_rate = $line['purchase_invoice_line_id']['vat_rate'] ?? 0.0;
@@ -482,7 +497,7 @@ foreach($lines as $line_id => $line) {
 
     $result[] = [
         'id'                 => $line_id,
-        'apportionment'      => $map_apportionments[$apportionment_id]['name'] ?? '(autre)',
+        'apportionment'      => $map_apportionments[$apportionment_id]['name'],
         'account'            => (string) ($account['name'] ?? ''),
         'parent_account'     => (string) ($parentAccount['name'] ?? ''),
         'description'        => (string) $line['description'],
