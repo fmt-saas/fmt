@@ -212,8 +212,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $map_values = [
             'condo'             => $assembly['condo_id']['name'],
             'assembly'          => $assembly['name'],
-            'date'              => $getFormattedDate($assembly['assembly_date']),
-            'type'              => $map_types[$assembly['assembly_type']]
+            'type'              => $map_types[$assembly['assembly_type']],
+            'date'              => $getFormattedDate($assembly['assembly_date'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -231,7 +231,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'statutory' => 'Assemblée Générale Statutaire',
             'takeover' => 'Assemblée Générale de Reprise de gestion',
             'ordinary' => 'Assemblée Générale Ordinaire',
-            'extraordinary' => 'Assemblée Générale Extraordinaire'
+            'extraordinary' => 'Assemblée Générale Extraordinaire',
+            'constitutive' => 'Assemblée Générale Constitutive'
         ];
 
         $map_values = [
