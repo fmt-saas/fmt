@@ -87,6 +87,7 @@ class DocumentCorrespondence extends \equal\orm\Model {
 
             'email_address' => [
                 'type'              => 'computed',
+                'result_type'       => 'string',
                 'relation'          => ['owner_id' => 'email'],
                 'description'       => "Email address of the owner.",
                 'readonly'          => true,
