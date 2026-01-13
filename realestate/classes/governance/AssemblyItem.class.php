@@ -348,9 +348,13 @@ class AssemblyItem extends AssemblyItemTemplate {
      *
      */
     protected static function onafterOpen($self) {
-        $self->read(['has_vote_required', 'condo_id', 'assembly_id', 'involved_ownerships_ids']);
+        $self->read(['has_parent_group', 'parent_group_id', 'has_vote_required', 'condo_id', 'assembly_id', 'involved_ownerships_ids']);
 
         foreach($self as $id => $assemblyItem) {
+            if($assemblyItem['has_parent_group'] && $assemblyItem['parent_group_id']) {
+                self::id($assemblyItem['parent_group_id'])->update(['status' => 'open']);
+            }
+
             if(!$assemblyItem['has_vote_required']) {
                 // discard resolutions not subject to a vote
                 continue;

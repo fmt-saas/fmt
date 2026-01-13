@@ -1,11 +1,123 @@
 {
     "name": "Participant d'assemblée",
     "plural": "Participants d'assemblée",
-    "description": "Entrées représentant les personnes présentes ou représentées lors d'une assemblée.",
+    "description": "Personnes présentes ou représentées lors d'une assemblée générale.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle est rattaché le participant.",
+            "help": ""
+        },
+        "assembly_id": {
+            "label": "Assemblée",
+            "description": "Assemblée concernée par le participant.",
+            "help": ""
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Nom du participant (issu de l'identité).",
+            "help": ""
+        },
+        "identity_id": {
+            "label": "Identité",
+            "description": "Identité associée au participant.",
+            "help": "Utilisée pour récupérer le nom et les coordonnées."
+        },
+        "is_owner": {
+            "label": "Propriétaire",
+            "description": "Indique si le participant est propriétaire.",
+            "help": "Décochez pour un mandataire externe ou un invité."
+        },
+        "assembly_representations_ids": {
+            "label": "Représentations",
+            "description": "Représentations validées portées par ce participant pour l'assemblée.",
+            "help": "Générées automatiquement depuis les mandats et lient le participant aux dossiers représentés."
+        },
+        "assembly_mandates_ids": {
+            "label": "Mandats",
+            "description": "Mandats détenus par ce participant pour l'assemblée.",
+            "help": "Permet de compléter les dossiers représentés en fonction des mandats fournis."
+        },
+        "has_mandate": {
+            "label": "Détient un mandat",
+            "description": "Indique si le participant présente au moins un mandat.",
+            "help": "Active la saisie des mandats pour représenter d'autres copropriétaires."
+        },
+        "has_representation": {
+            "label": "Représente des dossiers",
+            "description": "Indique si le participant représente au moins un dossier de propriété.",
+            "help": "Certains participants (ex. secrétaire) peuvent être présents sans voter."
+        },
+        "register_document_id": {
+            "label": "Registre de présence",
+            "description": "Document original du registre de présence.",
+            "help": ""
+        },
+        "register_document_signature_id": {
+            "label": "Signature du registre",
+            "description": "Signature du participant sur le registre de présence.",
+            "help": "Filtrée sur l'identité et l'assemblée."
+        },
+        "minutes_document_id": {
+            "label": "Procès-verbal original",
+            "description": "Document original (immuable) du procès-verbal.",
+            "help": ""
+        },
+        "minutes_document_signature_id": {
+            "label": "Signature du procès-verbal",
+            "description": "Signature du participant sur le procès-verbal.",
+            "help": "Filtrée sur l'identité et l'assemblée."
+        },
+        "has_signed_register": {
+            "label": "Registre signé",
+            "description": "Indique si le participant a signé le registre de présence.",
+            "help": ""
+        },
+        "has_signed_minutes": {
+            "label": "Procès-verbal signé",
+            "description": "Indique si le participant a signé le procès-verbal.",
+            "help": ""
+        },
+        "attendee_role": {
+            "label": "Rôle",
+            "description": "Type de participant dans l'assemblée.",
+            "help": "Permet d'identifier les rôles obligatoires.",
+            "selection": {
+                "attendee": "Participant",
+                "president": "Président",
+                "secretary": "Secrétaire"
+            }
+        },
+        "is_valid": {
+            "label": "Valide",
+            "description": "Peut être invalidé après vérification.",
+            "help": ""
+        },
+        "invalidity_reason": {
+            "label": "Motif d'invalidité",
+            "description": "Motif d'invalidité de la représentation.",
+            "help": "",
+            "selection": {
+                "invalid_attendee": "Participant non désigné ou non autorisé",
+                "double_attendance": "Présence en double (le propriétaire présent prime)",
+                "missing_mandate": "Mandat manquant pour la copropriété conjointe",
+                "conflict": "Conflit entre copropriétaires du même dossier"
+            }
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Statut du participant dans le workflow.",
+            "help": "",
+            "selection": {
+                "pending": "En attente",
+                "validated": "Validé"
+            }
+        }
+    },
     "view": {
         "form.default": {
             "name": "Participant",
-            "description": "Fiche participant avec mandats, représentations et signatures.",
+            "description": "Gestion du participant, de ses mandats et de ses signatures.",
             "layout": {
                 "section.proxies": {
                     "label": "Mandats"
@@ -20,7 +132,7 @@
                     "description": "Promouvoir ce participant comme président de séance."
                 },
                 "action.demote_president": {
-                    "label": "Rétrograder la présidence",
+                    "label": "Retirer la présidence",
                     "description": "Retirer le rôle de président à ce participant."
                 },
                 "action.validate": {
@@ -28,6 +140,12 @@
                     "description": "Valider le participant."
                 }
             }
+        }
+    },
+    "error": {
+        "errors": {
+            "not_an_owner": "Le participant n'est ni propriétaire ni porteur d'un mandat.",
+            "presidency_already_assigned": "Un participant est déjà marqué comme président."
         }
     }
 }

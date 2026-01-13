@@ -59,7 +59,7 @@
             "help": "Récupérée automatiquement depuis les coordonnées du propriétaire."
         },
         "download_link": {
-            "label": "Lien de téléchargement",
+            "label": "Lien",
             "description": "Lien pour télécharger le document généré.",
             "help": "Disponible une fois le document généré."
         }

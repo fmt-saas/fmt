@@ -231,10 +231,10 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'description' => 'Verifies that the attendee can be promoted/marked as president of the Assembly.',
                 'help'        => "In order to be valid, the assembly must meet the representation criteria depending on its type.",
                 'function'    => 'policyCanPromotePresident'
-            ],
-
+            ]
         ];
     }
+
     public static function getActions() {
         return [
             'promote_president' => [

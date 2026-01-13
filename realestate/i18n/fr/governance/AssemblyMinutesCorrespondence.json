@@ -52,6 +52,16 @@
             "label": "Emails",
             "description": "Messages email associés au procès-verbal.",
             "help": ""
+        },
+        "email_address": {
+            "label": "Adresse e-mail",
+            "description": "Adresse e-mail du propriétaire.",
+            "help": "Récupérée automatiquement depuis les coordonnées du propriétaire."
+        },
+        "download_link": {
+            "label": "Lien",
+            "description": "Lien pour télécharger le procès-verbal généré.",
+            "help": "Disponible une fois le document généré."
         }
     },
     "view": {
