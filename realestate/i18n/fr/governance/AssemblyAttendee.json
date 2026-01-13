@@ -34,8 +34,8 @@
             "help": "Générées automatiquement depuis les mandats et lient le participant aux dossiers représentés."
         },
         "assembly_mandates_ids": {
-            "label": "Mandats",
-            "description": "Mandats détenus par ce participant pour l'assemblée.",
+            "label": "Procurations",
+            "description": "Mandats de procuration détenus par ce participant pour l'assemblée.",
             "help": "Permet de compléter les dossiers représentés en fonction des mandats fournis."
         },
         "has_mandate": {
