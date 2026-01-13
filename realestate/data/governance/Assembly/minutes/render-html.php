@@ -80,7 +80,7 @@ $getFormattedDate = function($timestamp) {
 $getFormattedTime = function($timestamp) {
     $tz = new \DateTimeZone(constant('L10N_TIMEZONE'));
     $tz_offset = $tz->getOffset(new \DateTime('@' . time()));
-    $local_time = time() + $tz_offset;
+    $local_time = $timestamp + $tz_offset;
     $local_today = strtotime('today', $local_time);
     $time = $local_time - $local_today;
     return sprintf('%02d:%02d', $time / 3600, ($time % 3600) / 60);
@@ -246,10 +246,18 @@ foreach($template['parts_ids'] as $part_id => $part) {
         /*
         $subject = strip_tags($part['value']);
 
+        $map_types = [
+            'statutory' => 'Assemblée Générale Statutaire',
+            'takeover' => 'Assemblée Générale de Reprise de gestion',
+            'ordinary' => 'Assemblée Générale Ordinaire',
+            'extraordinary' => 'Assemblée Générale Extraordinaire'
+        ];
+
         $map_values = [
             'condo'             => $assembly['condo_id']['name'],
             'assembly'          => $assembly['name'],
-            'date'              => $assembly['assembly_date']
+            'type'              => $map_types[$assembly['assembly_type']],
+            'date'              => $getFormattedDate($assembly['assembly_date'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
