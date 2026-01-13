@@ -343,9 +343,21 @@
                     "label": "Clore",
                     "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé (action irrémédiable)."
                 },
+                "action.close_without_confirmation": {
+                    "label": "Clore",
+                    "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé (action irrémédiable)."
+                },
+                "action.adjourn": {
+                    "label": "Ajourner",
+                    "description": "Ajourner la résolution. Aucun vote ne sera ensuite autorisé."
+                },
                 "action.cast_vote": {
                     "label": "Voter",
                     "description": "Exprimer un vote."
+                },
+                "action.votes_board": {
+                    "label": "Afficher le tableau",
+                    "description": "Afficher le tableau des votes."
                 }
             },
             "layout": {}
