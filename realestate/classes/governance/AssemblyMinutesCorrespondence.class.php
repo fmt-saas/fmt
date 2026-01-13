@@ -71,8 +71,12 @@ class AssemblyMinutesCorrespondence extends \documents\correspondence\DocumentCo
 
     protected static function calcDownloadLink($self) {
         $result = [];
+        $self->read(['document_id']);
         foreach($self as $id => $assemblyMinutesCorrespondence) {
-            $result[$id] = '/?get=realestate_governance_AssemblyMinutesCorrespondence_render-pdf&id=' . $id;
+            if(!$assemblyMinutesCorrespondence['document_id']) {
+                continue;
+            }
+            $result[$id] = '/?get=documents_document&id=' . $assemblyMinutesCorrespondence['document_id'];
         }
         return $result;
     }

@@ -70,8 +70,12 @@ class AssemblyInvitationCorrespondence extends \documents\correspondence\Documen
 
     protected static function calcDownloadLink($self) {
         $result = [];
+        $self->read(['document_id']);
         foreach($self as $id => $assemblyInvitationCorrespondence) {
-            $result[$id] = '/?get=realestate_governance_AssemblyInvitationCorrespondence_render-pdf&id=' . $id;
+            if(!$assemblyInvitationCorrespondence['document_id']) {
+                continue;
+            }
+            $result[$id] = '/?get=documents_document&id=' . $assemblyInvitationCorrespondence['document_id'];
         }
         return $result;
     }
