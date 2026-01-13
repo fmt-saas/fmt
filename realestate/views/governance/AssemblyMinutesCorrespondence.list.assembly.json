@@ -38,7 +38,13 @@
             {
                 "type": "field",
                 "value": "communication_method",
-                "width": "12%"
+                "width": "12%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "email_address",
+                "width": "20%"
             },
             {
                 "type": "field",
@@ -60,7 +66,7 @@
                 "type": "field",
                 "label": "Link",
                 "value": "download_link",
-                "width": "15%",
+                "width": "10%",
                 "widget": {
                     "link": "icon"
                 }

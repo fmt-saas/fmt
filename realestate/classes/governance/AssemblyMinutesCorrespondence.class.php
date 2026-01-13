@@ -58,6 +58,7 @@ class AssemblyMinutesCorrespondence extends \documents\correspondence\DocumentCo
                 'store'             => true,
                 'readonly'          => true
             ]
+
         ];
     }
 

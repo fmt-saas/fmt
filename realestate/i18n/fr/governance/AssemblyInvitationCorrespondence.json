@@ -52,6 +52,16 @@
             "label": "Emails",
             "description": "Messages email associés à la convocation.",
             "help": ""
+        },
+        "email_address": {
+            "label": "Adresse e-mail",
+            "description": "Adresse e-mail du propriétaire.",
+            "help": "Récupérée automatiquement depuis les coordonnées du propriétaire."
+        },
+        "download_link": {
+            "label": "Lien de téléchargement",
+            "description": "Lien pour télécharger le document généré.",
+            "help": "Disponible une fois le document généré."
         }
     },
     "view": {

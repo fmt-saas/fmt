@@ -23,7 +23,8 @@ class DocumentCorrespondence extends \equal\orm\Model {
                 'description'       => "The owner concerned by the invitation.",
                 'help'              => 'A single invite is generated for each Ownership (representative).',
                 'foreign_object'    => 'realestate\ownership\Owner',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['email_address']
             ],
 
             'ownership_id' => [
@@ -82,6 +83,15 @@ class DocumentCorrespondence extends \equal\orm\Model {
                 'type'              => 'boolean',
                 'description'       => "Indicates whether the invitation has been acknowledged by the owner.",
                 'default'           => false
+            ],
+
+            'email_address' => [
+                'type'              => 'computed',
+                'relation'          => ['owner_id' => 'email'],
+                'description'       => "Email address of the owner.",
+                'readonly'          => true,
+                'store'             => true,
+                'visible'           => ['communication_method', '=', 'email']
             ]
 
         ];

@@ -38,7 +38,13 @@
             {
                 "type": "field",
                 "value": "communication_method",
-                "width": "12%"
+                "width": "12%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "email_address",
+                "width": "20%"
             },
             {
                 "type": "field",
