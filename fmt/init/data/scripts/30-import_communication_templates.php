@@ -121,7 +121,7 @@ $template = Template::create([
     ->first();
 TemplatePart::create([
     'name'          => 'subject',
-    'value'         => 'PV de {assembly}',
+    'value'         => 'PV de l\'{type} du {date}',
     'template_id'   => $template['id'],
     'variables'     => '["condo", "assembly", "date"]'
 ]);

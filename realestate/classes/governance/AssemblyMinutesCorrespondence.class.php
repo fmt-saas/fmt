@@ -47,15 +47,32 @@ class AssemblyMinutesCorrespondence extends \documents\correspondence\DocumentCo
                 'foreign_field'     => 'object_id',
                 'domain'            => ['object_class', '=', 'realestate\governance\AssemblyMinutesCorrespondence'],
                 'visible'           => ['communication_method', '=', 'email']
+            ],
+
+            'download_link' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/url.relative',
+                'description'       => 'URL for downloading the export.',
+                'function'          => 'calcDownloadLink',
+                'store'             => true,
+                'readonly'          => true
             ]
         ];
     }
 
     protected static function onupdateDocumentId($self) {
         $self->read(['document_id']);
-        foreach($self as $id => $assemblyInvitation) {
-            self::id($id)->update(['has_document' => (bool) $assemblyInvitation['document_id']]);
+        foreach($self as $id => $assemblyMinutesCorrespondence) {
+            self::id($id)->update(['has_document' => (bool) $assemblyMinutesCorrespondence['document_id']]);
         }
     }
 
+    protected static function calcDownloadLink($self) {
+        $result = [];
+        foreach($self as $id => $assemblyMinutesCorrespondence) {
+            $result[$id] = '/?get=realestate_governance_AssemblyMinutesCorrespondence_render-pdf&id=' . $id;
+        }
+        return $result;
+    }
 }

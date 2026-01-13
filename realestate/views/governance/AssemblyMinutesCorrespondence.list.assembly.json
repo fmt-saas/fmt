@@ -6,6 +6,9 @@
         "actions": false
     },
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",
@@ -52,6 +55,15 @@
                 "value": "is_acknowledged",
                 "width": "12%",
                 "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Link",
+                "value": "download_link",
+                "width": "15%",
+                "widget": {
+                    "link": "icon"
+                }
             }
         ]
     }

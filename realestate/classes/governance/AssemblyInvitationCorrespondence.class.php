@@ -47,15 +47,33 @@ class AssemblyInvitationCorrespondence extends \documents\correspondence\Documen
                 'foreign_field'     => 'object_id',
                 'domain'            => ['object_class', '=', 'realestate\governance\AssemblyInvitationCorrespondence'],
                 'visible'           => ['communication_method', '=', 'email']
+            ],
+
+            'download_link' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/url.relative',
+                'description'       => 'URL for downloading the export.',
+                'function'          => 'calcDownloadLink',
+                'store'             => true,
+                'readonly'          => true
             ]
         ];
     }
 
     protected static function onupdateDocumentId($self) {
         $self->read(['document_id']);
-        foreach($self as $id => $assemblyInvitation) {
-            self::id($id)->update(['has_document' => (bool) $assemblyInvitation['document_id']]);
+        foreach($self as $id => $assemblyInvitationCorrespondence) {
+            self::id($id)->update(['has_document' => (bool) $assemblyInvitationCorrespondence['document_id']]);
         }
+    }
+
+    protected static function calcDownloadLink($self) {
+        $result = [];
+        foreach($self as $id => $assemblyInvitationCorrespondence) {
+            $result[$id] = '/?get=realestate_governance_AssemblyInvitationCorrespondence_render-pdf&id=' . $id;
+        }
+        return $result;
     }
 
 }
