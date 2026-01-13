@@ -111,7 +111,7 @@ TemplatePart::create([
     'variables'     => '["condo", "firstname", "lastname", "date"]'
 ]);
 
-// invitation (minutes)
+// correspondence
 $template = Template::create([
         'code'          => 'general_meetings_minutes',
         'description'   => 'Procès verbal d\'Assemblée Générale',
@@ -205,7 +205,7 @@ TemplatePart::create([
 ]);
 
 
-// invitation (minutes)
+// correspondence
 $template = Template::create([
         'code'          => 'expense_statement',
         'description'   => 'Décompte de charges',
