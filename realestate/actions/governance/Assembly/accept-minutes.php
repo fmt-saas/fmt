@@ -86,12 +86,14 @@ if(!$attendee) {
 
 AssemblyAttendee::id($params['president_attendee_id'])->do('promote_president');
 
-// si on a recu un secrétaire
+// if a secretary was provided
 if($params['secretary_attendee_id']) {
-    // vérifier s'il y en a déjà un : si oui, et que c'est un owner, on met attendee
+    // check if there is already one: if so, and it's an owner, set to attendee
     AssemblyAttendee::search(['attendee_role', '=', 'secretary'])->update(['attendee_role' => 'attendee']);
-    // dans tous les cas, on marque l'attendee sélectionné comme secretary et on le valide
-    AssemblyAttendee::id($params['secretary_attendee_id'])->update(['attendee_role' => 'secretary']);
+    // in any case, mark the selected attendee as secretary and validate them
+    AssemblyAttendee::id($params['secretary_attendee_id'])
+        ->update(['attendee_role' => 'secretary'])
+        ->transition('validate');
 }
 
 Assembly::id($params['id'])->do('accept_minutes');
