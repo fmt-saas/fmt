@@ -281,7 +281,7 @@
                     "label": "Courriers de convocation par email"
                 },
                 "label.minutes_correspondences": {
-                    "label": "Courriers de Procès verabl par email"
+                    "label": "Courriers de Procès-verbal par email"
                 }
             },
             "routes": {

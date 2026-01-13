@@ -34,7 +34,7 @@ use realestate\governance\AssemblyInvitationCorrespondence;
 
 
 $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params['id'])
-    ->read(['status', 'condo_id', 'ownership_id', 'name'])
+    ->read(['status', 'condo_id', 'assembly_id', 'ownership_id', 'name'])
     ->first();
 
 if(!$assemblyInvitationCorrespondence) {
@@ -50,12 +50,57 @@ $parentNode = Node::search([
     ])
     ->first();
 
+
+$temp_files = [];
+$output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
+
 // generate document and add it to EDMS
-$data = eQual::run('get', 'realestate_governance_AssemblyInvitationCorrespondence_render-pdf', ['id' => $assemblyInvitationCorrespondence['id']]);
+$data1 = eQual::run('get', 'realestate_governance_AssemblyInvitationCorrespondence_render-pdf', ['id' => $assemblyInvitationCorrespondence['id']]);
+
+$temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+file_put_contents($temp, $data1 ?? '');
+$temp_files[] = $temp;
+
+$data2 = eQual::run('get', 'realestate_governance_Assembly_mandate_render-pdf', ['id' => $assemblyInvitationCorrespondence['assembly_id'], 'ownership_id' => $assemblyInvitationCorrespondence['ownership_id']]);
+
+$temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+file_put_contents($temp, $data2 ?? '');
+$temp_files[] = $temp;
+
+
+// merge all generated documents
+try {
+    if(!count($temp_files)) {
+        throw new Exception('no_files_generated', EQ_ERROR_UNKNOWN);
+    }
+    $escaped_files = array_map('escapeshellarg', $temp_files);
+    $escaped_output = escapeshellarg($output_file);
+    $cmd = 'qpdf --empty --pages ' . implode(' ', $escaped_files) . ' -- ' . $escaped_output . ' 2>&1';
+
+    exec($cmd, $output_lines, $result_code);
+
+    if($result_code !== 0 || !file_exists($output_file)) {
+        trigger_error("APP::qpdf merge failed:\n" . implode("\n", $output_lines), EQ_REPORT_ERROR);
+        throw new Exception('pdf_merge_failed', EQ_ERROR_UNKNOWN);
+    }
+
+    $output = file_get_contents($output_file);
+}
+catch(Exception $e) {
+    trigger_error('APP::Error while merging documents ' . $e->getMessage(), EQ_REPORT_ERROR);
+    throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+}
+finally {
+    foreach($temp_files as $file) {
+        @unlink($file);
+    }
+    @unlink($output_file);
+}
+
 
 $document = Document::create([
-        'name'          => 'Invitation Assemblée - ' . $assemblyInvitationCorrespondence['name'],
-        'data'          => $data,
+        'name'          => 'Convocation Assemblée - ' . $assemblyInvitationCorrespondence['name'],
+        'data'          => $output,
         'condo_id'      => $assemblyInvitationCorrespondence['condo_id']
     ])
     ->update([

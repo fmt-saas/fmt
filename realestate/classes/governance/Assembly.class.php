@@ -1221,7 +1221,7 @@ class Assembly extends \equal\orm\Model {
         $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
         foreach($self as $id => $assembly) {
             // remove any previously created invite
-            AssemblyInvitationCorrespondence::search(['assembly_id', '=', $id])->delete(true);
+            AssemblyMinutesCorrespondence::search(['assembly_id', '=', $id])->delete(true);
 
             foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
                 if(!$ownership['representative_owner_id']) {
