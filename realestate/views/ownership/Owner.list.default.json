@@ -24,6 +24,13 @@
             },
             {
                 "type": "field",
+                "label": "Condominium",
+                "value": "condo_id",
+                "width": "20%"
+            },
+
+            {
+                "type": "field",
                 "value": "name",
                 "width": "20%"
             },
