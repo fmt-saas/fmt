@@ -39,7 +39,7 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'description'       => "Name of the attendee (from identity).",
-                'relation'          => ['identity_id' => 'name'],
+                'function'          => 'calcName',
                 'store'             => true
             ],
 
@@ -170,7 +170,8 @@ class AssemblyAttendee extends \equal\orm\Model {
                 ],
                 'description'       => "Additional information about the type of attendee.",
                 'help'              => "This field is necessary in order to keep track of the mandatory roles.",
-                'default'           => 'attendee'
+                'default'           => 'attendee',
+                'dependents'        => ['name']
             ],
 
             'is_valid' => [
@@ -306,6 +307,21 @@ class AssemblyAttendee extends \equal\orm\Model {
                     continue;
                 }
             }
+        }
+        return $result;
+    }
+
+    protected static function calcName($self) {
+        $result = [];
+        $self->read(['attendee_role', 'identity_id' => ['name']]);
+        foreach($self as $id => $assemblyAttendee) {
+            $name = $assemblyAttendee['identity_id']['name'];
+            if($assemblyAttendee['attendee_role'] === 'president') {
+                $name .= ' (Président) ';
+            } elseif($assemblyAttendee['attendee_role'] === 'secretary') {
+                $name .= ' (Secrétaire)';
+            }
+            $result[$id] = $name;
         }
         return $result;
     }
