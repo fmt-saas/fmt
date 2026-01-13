@@ -95,8 +95,9 @@
             <table style="width: 100%;">
                 <tr>
                     <td style="width: 50%;">
+                    {% if (document_number is defined and document_number | length > 0) or (fiscal_year is defined and fiscal_year | length > 0) or (fiscal_period is defined) %}
                         <!-- document-info start -->
-                        <div class="document-info {{ debug ? 'debug' : '' }}">
+                        <div style="padding-top: 25px; padding-bottom: 30px;" class="document-info {{ debug ? 'debug' : '' }}">
                             <!-- fiscal_year-ref start -->
                             <div class="fiscal_year-ref {{ debug ? 'debug' : '' }}">
                             </div>
@@ -104,13 +105,6 @@
 
                             <!-- fiscal_year-info start -->
                             <div class="fiscal_year-info {{ debug ? 'debug' : '' }}">
-                                <!-- #memo this has been moved below table
-                                {% if title | length > 0 %}
-                                <h2 style="text-transform: uppercase; margin-bottom: 10px;">
-                                    {{ title }}
-                                </h2>
-                                {% endif %}
-                                -->
                                 <table>
                                     {% if document_number | length > 0 %}
                                     <tr>
@@ -133,11 +127,12 @@
                             <!-- fiscal_year-info end -->
                         </div>
                         <!-- document-info end -->
-
+                        {% endif %}
                     </td>
-                    <td style="padding-left: 40px; padding-top: 25px; padding-bottom: 30px;">
+                    <td style="padding-left: 40px;">
+                    {% if recipient is defined and recipient.name | length > 0 %}
                         <!-- recipient-info start -->
-                        <div class="recipient-info {{ debug ? 'debug' : '' }}">
+                        <div style="padding-top: 25px; padding-bottom: 30px;" class="recipient-info {{ debug ? 'debug' : '' }}">
                             <div>{{ recipient.name }}</div>
                             {% if recipient.address_street | length > 0 %}
                                 <div>{{ recipient.address_street }}</div>
@@ -160,13 +155,14 @@
                                     {{ labels.vat_number }}: {{ recipient.vat_number }}
                                 </div>
                             {% endif %}
+                            {% if date is defined %}
+                            <div style="margin-top: 10px;">
+                                {{ date | date(date_format, timezone) }}
+                            </div>
+                            {% endif %}
                         </div>
-                        {% if date is defined %}
-                        <div style="margin-top: 10px;">
-                            {{ date | date(date_format, timezone) }}
-                        </div>
-                        {% endif %}
                         <!-- recipient-info end -->
+                    {% endif %}
                     </td>
                 </tr>
             </table>
