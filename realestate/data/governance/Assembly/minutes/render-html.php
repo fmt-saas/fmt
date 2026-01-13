@@ -77,13 +77,15 @@ $getFormattedDate = function($timestamp) {
     return date($date_format, $timestamp + $tz_offset);
 };
 
-$getFormattedTime = function($timestamp) {
-    $tz = new \DateTimeZone(constant('L10N_TIMEZONE'));
-    $tz_offset = $tz->getOffset(new \DateTime('@' . time()));
-    $local_time = $timestamp + $tz_offset;
-    $local_today = strtotime('today', $local_time);
-    $time = $local_time - $local_today;
-    return sprintf('%02d:%02d', $time / 3600, ($time % 3600) / 60);
+$getFormattedTime = function($timestamp, $adapt=false) {
+    if($adapt) {
+        $tz = new \DateTimeZone(constant('L10N_TIMEZONE'));
+        $tz_offset = $tz->getOffset(new \DateTime('@' . time()));
+        $local_time = $timestamp + $tz_offset;
+        $local_today = strtotime('today', $local_time);
+        $timestamp = $local_time - $local_today;
+    }
+    return sprintf('%02d:%02d', $timestamp / 3600, ($timestamp % 3600) / 60);
 };
 
 $getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {

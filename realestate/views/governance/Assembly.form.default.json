@@ -352,12 +352,12 @@
                         "agenda_processing",
                         "minutes_confirmation"
                     ]
-                ],
-                [
-                    "is_complete",
-                    "=",
-                    true
                 ]
+            ],
+            "visible1": [
+                "is_complete",
+                "=",
+                true
             ]
         },
         {
