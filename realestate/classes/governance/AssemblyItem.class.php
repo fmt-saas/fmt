@@ -361,6 +361,7 @@ class AssemblyItem extends AssemblyItemTemplate {
             }
             $map_ownerships_ids = array_fill_keys($assemblyItem['involved_ownerships_ids'], true);
 
+            // #memo AssemblyRepresentation are created only for validated mandates or for attendees present in person
             $representations = AssemblyRepresentation::search(['assembly_id', '=', $assemblyItem['assembly_id']])
                 ->read(['attendee_id', 'ownership_id', 'representation_type', 'assembly_mandate_id' => ['id', 'status', 'is_valid']]);
 
@@ -986,7 +987,7 @@ class AssemblyItem extends AssemblyItemTemplate {
         $self->read(['assembly_id' => ['status']]);
         foreach($self as $id => $assembly) {
             if($assembly['assembly_id']['status'] !== 'pending') {
-                $allowed_fields = ['description_minutes', 'description_ballot', 'votes_ids', 'votes_count', 'vote_result', 'logs'];
+                $allowed_fields = ['status', 'description_minutes', 'description_ballot', 'votes_ids', 'votes_count', 'vote_result', 'logs'];
                 if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                     return ['assembly_id' => ['published_assembly_cannot_be_changed' => 'Once published, assembly items cannot be changed.']];
                 }
