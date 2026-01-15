@@ -816,7 +816,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 // #memo - we need this to retrieve details for private expenses
                 'purchase_invoice_line_id',
                 'bank_statement_line_id',
-                'misc_operation_line_id'
+                'misc_operation_line_id',
+                'fund_usage_line_id'
             ]);
 
         $map_accounting_entries_ids = [];
@@ -1106,7 +1107,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $map_accounts_ids[$accountingEntryLine['account_id']] = true;
             }
 
-
             // 3) common expense
             elseif(substr($accountingEntryLine['account_code'], 0, 1) === '6' || substr($accountingEntryLine['account_code'], 0, 1) === '7') {
                 // handle all possible sources: PurchaseInvoiceLine soit BankStatementLine soit MiscOperation
@@ -1142,6 +1142,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     if(!$sourceLine) {
                         throw new \Exception('missing_mandatory_misc_operation_line', EQ_ERROR_INVALID_CONFIG);
                     }
+                }
+                elseif(isset($accountingEntryLine['fund_usage_line_id'])) {
+                    // condominium fund usage (accounting entry line related to a class 7 account) must not be considered
+                    // this is handled in ownership accounting with paid amount on previous expense statements
+                    continue;
                 }
                 else {
                     throw new \Exception('missing_mandatory_source_line', EQ_ERROR_INVALID_CONFIG);
