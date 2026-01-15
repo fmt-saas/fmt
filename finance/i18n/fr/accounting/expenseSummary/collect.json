@@ -49,12 +49,12 @@
             "help": "Numero de facture ou reference de releve."
         },
         "owner_share": {
-            "label": "Part Prop.",
+            "label": "% Prop.",
             "description": "Quote-part de la charge attribuee au proprietaire.",
             "help": "Pourcentage impute au proprietaire pour cette ligne."
         },
         "tenant_share": {
-            "label": "Part Loc.",
+            "label": "% Loc.",
             "description": "Quote-part de la charge attribuee au locataire.",
             "help": "Pourcentage impute au locataire pour cette ligne."
         },

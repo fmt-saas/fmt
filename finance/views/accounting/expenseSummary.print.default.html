@@ -167,7 +167,8 @@
                 <th style="width:  4%; text-align: center;">JNL</th>
                 <th style="width:  9%; text-align: center;">Référence</th>
                 <th style="width:  9%; text-align: center;">Date</th>
-                <th style="width: 40%; text-align: left;">Description</th>
+                <th style="width: 36%; text-align: left;">Description</th>
+                <th style="width: 4%; text-align: left;">% Loc.</th>
                 <th style="width: 18%;">Montant</th>
             </tr>
         </thead>
@@ -177,7 +178,7 @@
         {% for group in groups %}
             <!-- Apportionment -->
             <tr class="group-header apportionment">
-                <td colspan="5">
+                <td colspan="6">
                     {{ group.label }}
                 </td>
                 <td>
@@ -189,7 +190,7 @@
 
             <!-- Parent account -->
             <tr class="group-header parent-account">
-                <td colspan="5">
+                <td colspan="6">
                     {{ parent.label }}
                 </td>
                 <td>
@@ -201,7 +202,7 @@
 
                     <!-- Account -->
                     <tr class="group-header account">
-                        <td colspan="5">
+                        <td colspan="6">
                             {{ account.label }}
                         </td>
                         <td style="text-align: right;">
@@ -226,6 +227,9 @@
                             <td style="text-align: left;">
                                 {{ line.description }}
                             </td>
+                            <td style="text-align: left;">
+                                {{ line.tenant_share }}
+                            </td>
                             <td style="text-align: right;">
                                 {{ line.amount | format_money(false) }}
                             </td>
@@ -235,14 +239,14 @@
                 {% endfor %}
 
             <tr>
-                <td colspan="6" style="font-size: 4px;">
+                <td colspan="7" style="font-size: 4px;">
                     &nbsp;
                 </td>
             </tr>
 
             {% endfor %}
             <tr>
-                <td colspan="6" style="font-size: 4px;">
+                <td colspan="7" style="font-size: 4px;">
                     &nbsp;
                 </td>
             </tr>
@@ -253,7 +257,7 @@
 
         <tfoot>
             <tr class="total-footer">
-                <td colspan="5" style="text-align: right; text-transform: uppercase;">
+                <td colspan="6" style="text-align: right; text-transform: uppercase;">
                     Total :
                 </td>
                 <td>
