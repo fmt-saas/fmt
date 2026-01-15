@@ -177,6 +177,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                     'has_reserve_fund'      => false,
                     'has_private_expense'   => false,
                     'has_common_expense'    => false,
+                    'has_provisions'        => false,
                     'property_lots'         => []
                 ];
 
@@ -197,6 +198,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                         'has_reserve_fund'      => false,
                         'has_private_expense'   => false,
                         'has_common_expense'    => false,
+                        'has_provisions'        => false,
                         'expenses'              => []
                     ];
                 }

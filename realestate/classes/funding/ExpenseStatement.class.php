@@ -783,7 +783,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
      * Build a resulting map with the following hierarchy:
      *  ownership > property_lot > {expense type} > apportionment > account > {share}
      *
-     *  - {expense type} : is based on on the code of the account associated to each accounting entry line, and can be amongst these: 'private_expense', 'common_expense', 'reserve_fund'
+     *  - {expense type} : is based on on the code of the account associated to each accounting entry line, and can be amongst these: 'provisions', 'private_expense', 'common_expense', 'reserve_fund'
      *  - {share} : there are always two keys: 'owner' and 'tenant'. For reserve_fund, owner is always 100.
      *  - apportionment : for private expense, we usa a fake apportionment ('0'), so that the structure remains the same in all situations.
      *
@@ -848,7 +848,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             $map_fund_request_executions_ids[$accountingEntryLine['fund_request_execution_id']] = true;
         }
 
-        $fundRequestExecutions = FundRequestExecution::id(array_keys($map_fund_request_executions_ids))
+        $fundRequestExecutions = FundRequestExecution::ids(array_keys($map_fund_request_executions_ids))
             ->read(['fund_request_id' => ['name', 'request_type']])
             ->get();
 
@@ -983,9 +983,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'invoice_id' => ['posting_date']
                     ])
                     ->first();
-                // retrieve date_from and date_to from purchase invoice line, to determine nb_days
-                $start = max($sourceLine['invoice_id']['posting_date'], $ownerships[$ownership_id]['date_from'] ?? $sourceLine['invoice_id']['posting_date']);
-                $end   = min($sourceLine['invoice_id']['posting_date'], $ownerships[$ownership_id]['date_to'] ?? $sourceLine['invoice_id']['posting_date']);
 
                 $posting_date = $sourceLine['invoice_id']['posting_date'] ?? null;
 
@@ -1384,6 +1381,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'id',
                 'common_total',
                 'private_total',
+                'provisions_total',
                 'fiscal_period_id' => ['date_from', 'date_to'],
                 'statement_owners_ids' => ['schema']
             ]);
@@ -1395,6 +1393,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'date_to'           => $statement['fiscal_period_id']['date_to'],
                     'common_total'      => $statement['common_total'],
                     'private_total'     => $statement['private_total'],
+                    'provisions_total'  => $statement['provisions_total'],
                     'nb_days'           => round(($statement['fiscal_period_id']['date_to'] - $statement['fiscal_period_id']['date_from']) / 86400, 0) + 1,
                     'owners'            => []
                 ];

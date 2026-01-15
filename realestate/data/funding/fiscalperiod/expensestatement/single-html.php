@@ -17,7 +17,7 @@ use identity\Organisation;
 use realestate\funding\ExpenseStatement;
 use realestate\ownership\Owner;
 
-list($params, $providers) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description'   => 'Generate an html view of given fund request.',
     'help'          => "variation de la génération d'un expense statement en fournissant un statement_id et un ownership_id",
     'params'        => [
@@ -176,6 +176,7 @@ $statement = ExpenseStatement::search([
         'invoice_number',
         'common_total',
         'private_total',
+        'provisions_total',
         'statement_owners_ids' => [
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
             'schema'
@@ -205,6 +206,7 @@ $values = [
         'nb_days'           => round(($fiscalPeriod['date_to'] - $fiscalPeriod['date_from']) / 86400, 0) + 1,
         'common_total'      => $statement['common_total'],
         'private_total'     => $statement['private_total'],
+        'provisions_total'  => $statement['provisions_total'],
         'owners'            => []
     ];
 
