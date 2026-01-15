@@ -1240,7 +1240,7 @@ class Assembly extends \equal\orm\Model {
                 $communicationPreference = OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $assembly['condo_id']],
                         ['ownership_id', '=', $ownership_id],
-                        ['communication_reason', '=', 'general_assembly_call']
+                        ['communication_reason', '=', 'general_assembly_minutes']
                     ])
                     ->read([
                         'has_channel_email',

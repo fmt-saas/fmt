@@ -167,7 +167,7 @@ $dispatch->cancel('purchase.accounting.invoice.invalid_owner_tenant_ratio', $cla
 $dispatch->cancel('purchase.accounting.invoice.non_matching_price', $class, $id);
 
 
-if($purchaseInvoice['price'] != $lines_total || $purchaseInvoice['payable_amount'] != $lines_total) {
+if(round($purchaseInvoice['price'], 2) != round($lines_total, 2) || round($purchaseInvoice['payable_amount'], 2) != round($lines_total, 2)) {
     // error : Invoice total and lines total do not match
     $dispatch->dispatch('purchase.accounting.invoice.non_matching_lines_total', $class, $id, 'important', $script, ['id' => $id]);
     throw new Exception("non_matching_lines_total", EQ_ERROR_INVALID_PARAM);
