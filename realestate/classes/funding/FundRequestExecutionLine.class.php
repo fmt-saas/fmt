@@ -99,6 +99,14 @@ class FundRequestExecutionLine extends \sale\accounting\invoice\SaleInvoiceLine 
                 'foreign_object'    => 'realestate\sale\pay\Funding',
                 'description'       => 'The funding relating to the execution line, if any.',
                 'help'              => 'Fundings are created when execution is validated. In case of cancellation, only paid or partially paid fundings remain.'
+            ],
+
+            'apportionment_id' => [
+                'type'              => 'many2one',
+                'description'       => "The key that the apportionment refers to.",
+                'foreign_object'    => 'realestate\property\Apportionment',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_statutory', '=', false], ['is_active', '=', true], ['status', '=', 'validated']],
+                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed."
             ]
 
         ];

@@ -1121,6 +1121,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         throw new \Exception('missing_mandatory_sale_invoice_line', EQ_ERROR_INVALID_CONFIG);
                     }
                 }
+                // FundRequestExecutionLine (ExpenseStatementOwnerLine have been excluded above while testing on expense_statement_id)
+                elseif(isset($accountingEntryLine['sale_invoice_line_id'])) {
+                    $sourceLine = [
+                        'apportionment_id'  => 0,
+                        'owner_share'       => 100,
+                        'tenant_share'      => 0,
+                        'vat_rate'          => 0.0
+                    ];
+                }
                 elseif(isset($accountingEntryLine['bank_statement_line_id'])) {
                     $sourceLine = BankStatementLine::id($accountingEntryLine['bank_statement_line_id'])
                         ->read([

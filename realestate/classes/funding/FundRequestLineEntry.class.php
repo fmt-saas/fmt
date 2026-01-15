@@ -57,6 +57,17 @@ class FundRequestLineEntry extends \equal\orm\Model {
                 'description'       => 'Total amount currently requested to co-owners.'
             ],
 
+            'apportionment_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'relation'          => ['request_line_id' => 'apportionment_id'],
+                'description'       => "The apportionment the entry refers to.",
+                'foreign_object'    => 'realestate\property\Apportionment',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_statutory', '=', false]],
+                'store'             => true,
+                'readonly'          => true
+            ],
+
             'apportionment_shares' => [
                 'type'              => 'computed',
                 'result_type'       => 'integer',
