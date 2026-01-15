@@ -413,14 +413,19 @@ try {
 
     // #todo - temp workaround against LOCALE mixups
     $twig->addFilter(
-            new TwigFilter('format_money', function ($value) {
-                return number_format((float) $value, 2, ",", ".").' €';
+            new TwigFilter('format_money', function ($value, $currency=true) {
+                if(is_null($value)) {
+                    return '';
+                }
+                if($currency) {
+                    return number_format((float) $value, 2, ",", ".") . ' €';
+                }
+                return number_format((float) $value, 2, ",", ".");
             })
         );
 
     $template = $twig->load('FundRequest.'.$params['view_id'].'.html');
     $html = $template->render($values);
-
 }
 catch(Exception $e) {
     trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_REPORT_ERROR);

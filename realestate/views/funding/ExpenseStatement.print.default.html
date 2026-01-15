@@ -145,104 +145,106 @@
 
         <!-- pass-1 common expenses -->
         {% if owner.has_common_expense or owner.has_reserve_fund %}
-        <h2>Charges communes (Prorata: {{ owner.nb_days }} / {{ nb_days }} jours)</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 33%;">Désignation</th>
-                    <th style="width: 12%;">Quotités</th>
-                    <th style="width: 11%;">Copro</th>
-                    <th style="width: 11%;">Lot</th>
-                    <th style="width: 11%;">TVA</th>
-                    <th style="width: 11%;">Prop</th>
-                    <th style="width: 11%;">Loc</th>
-                </tr>
-            </thead>
-            <tbody>
-
-            {% for lot in owner.property_lots %}
-                    {% set total_apport = 0 %}
-                    {% set total_owner = 0 %}
-                    {% set total_tenant = 0 %}
-                    {% set total_vat = 0 %}
+        <div style="page-break-inside: avoid;">
+            <h2>Charges communes <!-- (Prorata: {{ owner.nb_days }} / {{ nb_days }} jours) --></h2>
+            <table>
+                <thead>
                     <tr>
-                        <td colspan="2"><strong>{{ lot.code }} - {{ lot.ref }} ({{ lot.nature }})</strong></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <th style="width: 33%;">Désignation</th>
+                        <th style="width: 12%;">Quotités</th>
+                        <th style="width: 11%;">Copro</th>
+                        <th style="width: 11%;">Lot</th>
+                        <th style="width: 11%;">TVA</th>
+                        <th style="width: 11%;">Prop</th>
+                        <th style="width: 11%;">Loc</th>
                     </tr>
+                </thead>
+                <tbody>
 
-                    {% for expense in lot.expenses %}
-                        {% if expense.name == 'common_expense' or expense.name == 'reserve_fund' %}
-                            {% for apport in expense.apportionments %}
-                                {% set quotites = apport.shares ~ ' / ' ~ apport.total_shares %}
-                                {% set apport_total = 0 %}
-                                {% set apport_owner = 0 %}
-                                {% set apport_tenant = 0 %}
-                                {% set apport_vat = 0 %}
+                {% for lot in owner.property_lots %}
+                        {% set total_apport = 0 %}
+                        {% set total_owner = 0 %}
+                        {% set total_tenant = 0 %}
+                        {% set total_vat = 0 %}
+                        <tr>
+                            <td colspan="2"><strong>{{ lot.code }} - {{ lot.ref }} ({{ lot.nature }})</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
 
-                                <tr>
-                                    <td colspan="2"><div style="padding-left: 10px;"><strong>{{ apport.name }}</strong></div></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-
-                                {% for account in apport.accounts %}
-                                    {% set apport_total = apport_total + account.total_amount %}
-                                    {% set apport_owner = apport_owner + account.owner %}
-                                    {% set apport_tenant = apport_tenant + account.tenant %}
-                                    {% set apport_vat = apport_vat + account.vat %}
+                        {% for expense in lot.expenses %}
+                            {% if expense.name == 'common_expense' or expense.name == 'reserve_fund' %}
+                                {% for apport in expense.apportionments %}
+                                    {% set quotites = apport.shares ~ ' / ' ~ apport.total_shares %}
+                                    {% set apport_total = 0 %}
+                                    {% set apport_owner = 0 %}
+                                    {% set apport_tenant = 0 %}
+                                    {% set apport_vat = 0 %}
 
                                     <tr>
-                                        <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
-                                        <td>{{ quotites }}</td>
-                                        <td>{{ account.total_amount | format_money() }}</td>
-                                        <td>{{ (account.owner + account.tenant) | format_money() }}</td>
-                                        <td>{{ account.vat | format_money() }}</td>
-                                        <td>{{ account.owner | format_money() }}</td>
-                                        <td>{{ account.tenant | format_money() }}</td>
+                                        <td colspan="2"><div style="padding-left: 10px;"><strong>{{ apport.name }}</strong></div></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
                                     </tr>
+
+                                    {% for account in apport.accounts %}
+                                        {% set apport_total = apport_total + account.total_amount %}
+                                        {% set apport_owner = apport_owner + account.owner %}
+                                        {% set apport_tenant = apport_tenant + account.tenant %}
+                                        {% set apport_vat = apport_vat + account.vat %}
+
+                                        <tr>
+                                            <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
+                                            <td>{{ quotites }}</td>
+                                            <td>{{ account.total_amount | format_money() }}</td>
+                                            <td>{{ (account.owner + account.tenant) | format_money() }}</td>
+                                            <td>{{ account.vat | format_money() }}</td>
+                                            <td>{{ account.owner | format_money() }}</td>
+                                            <td>{{ account.tenant | format_money() }}</td>
+                                        </tr>
+                                    {% endfor %}
+
+                                    {% set total_apport = total_apport + apport_total %}
+                                    {% set total_owner = total_owner + apport_owner %}
+                                    {% set total_tenant = total_tenant + apport_tenant %}
+                                    {% set total_vat = total_vat + apport_vat %}
                                 {% endfor %}
+                            {% endif %}
+                        {% endfor %}
 
-                                {% set total_apport = total_apport + apport_total %}
-                                {% set total_owner = total_owner + apport_owner %}
-                                {% set total_tenant = total_tenant + apport_tenant %}
-                                {% set total_vat = total_vat + apport_vat %}
-                            {% endfor %}
-                        {% endif %}
-                    {% endfor %}
-
+                        <tr class="total-footer">
+                            <td style="text-align: right;">Total {{ lot.code }} - {{ lot.ref }}</td>
+                            <td></td>
+                            <td>{{ total_apport | format_money() }}</td>
+                            <td>{{ (total_owner + total_tenant) | format_money() }}</td>
+                            <td>{{ total_vat | format_money() }}</td>
+                            <td>{{ total_owner | format_money() }}</td>
+                            <td>{{ total_tenant | format_money() }}</td>
+                        </tr>
+                    {% set common_total_owner = common_total_owner + total_owner  %}
+                    {% set common_total_tenant = common_total_tenant + total_tenant  %}
+                    {% set common_total_vat = common_total_vat + total_vat %}
+                {% endfor %}
+                </tbody>
+                <tfoot>
                     <tr class="total-footer">
-                        <td style="text-align: right;">Total {{ lot.code }} - {{ lot.ref }}</td>
-                        <td></td>
-                        <td>{{ total_apport | format_money() }}</td>
-                        <td>{{ (total_owner + total_tenant) | format_money() }}</td>
-                        <td>{{ total_vat | format_money() }}</td>
-                        <td>{{ total_owner | format_money() }}</td>
-                        <td>{{ total_tenant | format_money() }}</td>
-                    </tr>
-                {% set common_total_owner = common_total_owner + total_owner  %}
-                {% set common_total_tenant = common_total_tenant + total_tenant  %}
-                {% set common_total_vat = common_total_vat + total_vat %}
-            {% endfor %}
-            </tbody>
-            <tfoot>
-                <tr class="total-footer">
-                        <td style="text-align: right;">Totaux généraux</td>
-                        <td></td>
-                        <td>{{ common_total | format_money() }}</td>
-                        <td><strong>{{ (common_total_owner + common_total_tenant) | format_money() }}</strong></td>
-                        <td>{{ common_total_vat | format_money() }}</td>
-                        <td>{{ common_total_owner | format_money() }}</td>
-                        <td>{{ common_total_tenant | format_money() }}</td>
-                    </tr>
-            </tfoot>
-        </table>
+                            <td style="text-align: right;">Totaux généraux</td>
+                            <td></td>
+                            <td>{{ common_total | format_money() }}</td>
+                            <td><strong>{{ (common_total_owner + common_total_tenant) | format_money() }}</strong></td>
+                            <td>{{ common_total_vat | format_money() }}</td>
+                            <td>{{ common_total_owner | format_money() }}</td>
+                            <td>{{ common_total_tenant | format_money() }}</td>
+                        </tr>
+                </tfoot>
+            </table>
+        </div>
         {% endif %}
 
         <!-- pass-2 provisions -->

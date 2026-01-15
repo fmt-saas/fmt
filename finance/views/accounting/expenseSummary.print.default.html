@@ -181,7 +181,7 @@
                     {{ group.label }}
                 </td>
                 <td>
-                    <div style="text-align: right; padding-right: 20px;">{{ group.total | format_money }}</div>
+                    <div style="text-align: right; padding-right: 20px;">{{ group.total | format_money(false) }}</div>
                 </td>
             </tr>
 
@@ -193,7 +193,7 @@
                     {{ parent.label }}
                 </td>
                 <td>
-                    <div style="text-align: right; padding-right: 10px;">{{ parent.total | format_money }}</div>
+                    <div style="text-align: right; padding-right: 10px;">{{ parent.total | format_money(false) }}</div>
                 </td>
             </tr>
 
@@ -205,7 +205,7 @@
                             {{ account.label }}
                         </td>
                         <td style="text-align: right;">
-                            {{ account.total | format_money }}
+                            {{ account.total | format_money(false) }}
                         </td>
                     </tr>
 
@@ -227,7 +227,7 @@
                                 {{ line.description }}
                             </td>
                             <td style="text-align: right;">
-                                {{ line.amount | format_money }}
+                                {{ line.amount | format_money(false) }}
                             </td>
                         </tr>
                     {% endfor %}
@@ -257,7 +257,7 @@
                     Total :
                 </td>
                 <td>
-                    {{ grand_total | format_money }}
+                    {{ grand_total | format_money(true) }}
                 </td>
             </tr>
         </tfoot>

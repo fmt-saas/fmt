@@ -1086,7 +1086,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $property_lot_id = $sourceLine['property_lot_id'];
 
                 // #todo - this is set earlier, should we overwrite it here ?
-                $ownerships[$ownership_id]['nb_days'] = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
+                // $ownerships[$ownership_id]['nb_days'] = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
 
                 $amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
 
@@ -1153,7 +1153,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         $prorata = $ownership_nb_days / $nb_days;
                         $shares = $apportionment[$property_lot_id];
                         $total_shares = $apportionments[$apportionment_id]['total_shares'];
+
                         $amount = $prorata * ($line_amount * $shares / $total_shares);
+
                         if(!isset($map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']])) {
                             $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']] = [
                                     'shares'        => $shares,

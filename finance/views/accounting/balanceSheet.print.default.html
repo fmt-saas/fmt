@@ -150,7 +150,7 @@
                         {{ line.asset.description }}
                     </td>
                     <td style="width: 10%; text-align: right;">
-                        {{ line.asset.balance | format_money() }}
+                        {{ line.asset.balance | format_money(false) }}
                     </td>
 
                     <td style="width: 10%; text-align: left;">
@@ -160,7 +160,7 @@
                         {{ line.liability.description }}
                     </td>
                     <td style="width: 10%; text-align: right;">
-                        {{ line.liability.balance | format_money() }}
+                        {{ line.liability.balance | format_money(false) }}
                     </td>
                 </tr>
             {% endfor %}
@@ -169,9 +169,9 @@
         <tfoot>
             <tr class="total-footer">
                 <td colspan="2" style="width: 40%; text-align: center;">Total actif</td>
-                <td style="width: 10%">{{ total_asset | format_money() }}</td>
+                <td style="width: 10%">{{ total_asset | format_money(false) }}</td>
                 <td colspan="2" style="width: 40%; text-align: center;">Total passif</td>
-                <td style="width: 10%">{{ total_liability | format_money() }}</td>
+                <td style="width: 10%">{{ total_liability | format_money(false) }}</td>
             </tr>
         </tfoot>
     </table>

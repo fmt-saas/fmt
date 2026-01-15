@@ -280,8 +280,14 @@ try {
 
     // #todo - temp workaround against LOCALE mixups
     $twig->addFilter(
-            new TwigFilter('format_money', function ($value) {
-                return number_format((float) $value, 2, ",", ".").' €';
+            new TwigFilter('format_money', function ($value, $currency=true) {
+                if(is_null($value)) {
+                    return '';
+                }
+                if($currency) {
+                    return number_format((float) $value, 2, ",", ".") . ' €';
+                }
+                return number_format((float) $value, 2, ",", ".");
             })
         );
 
