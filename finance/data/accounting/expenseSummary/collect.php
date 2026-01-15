@@ -268,11 +268,13 @@ $map_journals = Journal::search([
 
 
 // load Chart of Accounts of the condominium
-$accounts = Account::search([
+$map_accounts = Account::search([
         ['condo_id', '=', $params['condo_id']]
     ])
-    ->read(['code', 'name', 'parent_account_id', 'description', 'account_nature', 'account_class', 'is_control_account']);
+    ->read(['code', 'name', 'parent_account_id', 'description', 'operation_assignment', 'account_nature', 'account_class', 'is_control_account'])
+    ->get();
 
+/*
 foreach($accounts as $account_id => $account) {
     $map_accounts[$account_id] = [
         'id'                => $account_id,
@@ -285,6 +287,7 @@ foreach($accounts as $account_id => $account) {
         'is_control_account'=> $account['is_control_account']
     ];
 }
+*/
 
 // retrieve storage accounts (collectors) and map with each account
 $map_parent_storage = [];
