@@ -906,7 +906,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         $map_private_expenses = [];
 
         foreach($accountingEntryLines as $accountingEntryLine) {
-            if(substr($accountingEntryLine['account_code'], 0, 3) === '643' && $accountingEntryLine['credit'] > 0 && $accountingEntryLine['sale_invoice_line_id']) {
+            if(substr($accountingEntryLine['account_code'], 0, 3) === '643' && round($accountingEntryLine['credit'], 2) > 0 && $accountingEntryLine['sale_invoice_line_id']) {
                 $map_private_expenses[$accountingEntryLine['id']] = true;
             }
         }
@@ -1129,6 +1129,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 }
                 // FundRequestExecutionLine (ExpenseStatementOwnerLine have been excluded above while testing on expense_statement_id)
                 elseif(isset($accountingEntryLine['sale_invoice_line_id'])) {
+                    trigger_error("APP::found sale_invoice_line_id {$accountingEntryLine['sale_invoice_line_id']} on accounting entry line {$accountingEntryLine['id']} - assuming deferred expense", EQ_REPORT_ERROR);
                     $sourceLine = [
                         'apportionment_id'  => 0,
                         'owner_share'       => 100,
