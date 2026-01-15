@@ -1123,6 +1123,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 }
                 // FundRequestExecutionLine (ExpenseStatementOwnerLine have been excluded above while testing on expense_statement_id)
                 elseif(isset($accountingEntryLine['sale_invoice_line_id'])) {
+                    if(round($accountingEntryLine['credit'], 2) > 0.00) {
+                        // discard lines relating to total fund request
+                        continue;
+                    }
                     $sourceLine = [
                         'apportionment_id'  => 0,
                         'owner_share'       => 100,
