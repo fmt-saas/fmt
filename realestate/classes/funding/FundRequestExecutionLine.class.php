@@ -27,6 +27,14 @@ class FundRequestExecutionLine extends \sale\accounting\invoice\SaleInvoiceLine 
                 'required'          => true
             ],
 
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['request_execution_id' => 'name'],
+                'description'       => "Short description of the request execution.",
+                'store'             => true
+            ],
+
             'fund_request_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\FundRequest',

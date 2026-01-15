@@ -969,7 +969,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 foreach($subAccountingEntryLines as $sub_accounting_entry_line_id => $subAccountingEntryLine) {
                     $sourceLine = FundRequestExecutionLine::id($subAccountingEntryLine['sale_invoice_line_id'])
                         ->read([
-                            'description',
+                            'name',
                             'execution_line_entries_ids' => ['ownership_id', 'property_lot_id', 'called_amount'],
                             'invoice_id' => ['posting_date']
                         ])
@@ -993,7 +993,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                                 'owner'         => $amount,
                                 'tenant'        => 0.0,
                                 'vat'           => 0.0,
-                                'description'   => $sourceLine['description'],
+                                'description'   => $sourceLine['name'],
                                 // type : "provisions"
                                 'date'          => $posting_date
                             ];
