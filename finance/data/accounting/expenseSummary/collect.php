@@ -454,7 +454,7 @@ foreach($lines as $line_id => $line) {
     // Prefer grouping by storage/collector if you want "summary" by collector
     $account = $map_accounts[$account_id];
 
-    $is_provision = in_array($account['operation_assignment'], ['expense_provisions', 'work_provisions']);
+    $is_provision = in_array($account['operation_assignment'], ['expense_provisions', 'work_provisions'], true);
 
     $parentAccount = null;
     if(isset($map_parent_storage[$account_id])) {

@@ -843,15 +843,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ])
             ->get();
 
-        $map_fund_request_executions_ids = [];
-        foreach($accountingEntryLines as $accountingEntryLine) {
-            $map_fund_request_executions_ids[$accountingEntryLine['fund_request_execution_id']] = true;
-        }
-
-        $fundRequestExecutions = FundRequestExecution::ids(array_keys($map_fund_request_executions_ids))
-            ->read(['fund_request_id' => ['name', 'request_type']])
-            ->get();
-
         /*
             Prefetch required objects (condominium configuration)
         */
@@ -960,60 +951,58 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             // 1) provisions (fund requests)
             if($accountingEntry['fund_request_execution_id']) {
 
-                if(round($accountingEntryLine['credit'], 2) > 0.00) {
-                    // discard lines relating to total fund request
-                    trigger_error("APP::skipping accounting entry line {$accountingEntryLine['id']} relating to total fund request amount", EQ_REPORT_ERROR);
-                    continue;
-                }
-                $fundRequest = $fundRequestExecutions[$accountingEntry['fund_request_execution_id']]['fund_request_id'];
-
                 // consider only provisions
-                if(!in_array($fundRequest['request_type'], ['expense_provisions', 'work_provisions'])) {
+                if(!in_array($accountingEntryLine['account_code'], ['701', '702'], true)) {
                     trigger_error("APP::skipping accounting entry line {$accountingEntryLine['id']} relating to non-provision fund request", EQ_REPORT_ERROR);
                     continue;
                 }
 
-                // #memo `$accountingEntryLine['account_id']` should target an account from ownership '410xxxxx'
-
-                if(!isset($accountingEntryLine['sale_invoice_line_id'])) {
-                    throw new \Exception('missing_mandatory_source_line', EQ_ERROR_INVALID_CONFIG);
-                }
                 trigger_error("APP::considering accounting entry line {$accountingEntryLine['id']} as provisions", EQ_REPORT_ERROR);
 
-                $sourceLine = FundRequestExecutionLine::id($accountingEntryLine['sale_invoice_line_id'])
-                    ->read([
-                        'description',
-                        'execution_line_entries_ids' => ['ownership_id', 'property_lot_id', 'called_amount'],
-                        'invoice_id' => ['posting_date']
+                // we must take into account accounting entries on co-owners' 401xxx accounts
+                $subAccountingEntryLines = AccountingEntryLine::search([
+                        ['accounting_entry_id', '=', $accountingEntryLine['accounting_entry_id']],
+                        ['account_class', '=', 4]
                     ])
-                    ->first();
+                    ->read(['sale_invoice_line_id']);
 
-                $posting_date = $sourceLine['invoice_id']['posting_date'] ?? null;
+                foreach($subAccountingEntryLines as $sub_accounting_entry_line_id => $subAccountingEntryLine) {
+                    $sourceLine = FundRequestExecutionLine::id($subAccountingEntryLine['sale_invoice_line_id'])
+                        ->read([
+                            'description',
+                            'execution_line_entries_ids' => ['ownership_id', 'property_lot_id', 'called_amount'],
+                            'invoice_id' => ['posting_date']
+                        ])
+                        ->first();
 
-                foreach($sourceLine['execution_line_entries_ids'] as $execution_line_entry_id => $executionLineEntry) {
-                    $ownership_id = $executionLineEntry['ownership_id'];
-                    $property_lot_id = $executionLineEntry['property_lot_id'];
+                    $posting_date = $sourceLine['invoice_id']['posting_date'] ?? null;
 
-                    $amount = -$executionLineEntry['called_amount'];
+                    foreach($sourceLine['execution_line_entries_ids'] as $execution_line_entry_id => $executionLineEntry) {
+                        $ownership_id = $executionLineEntry['ownership_id'];
+                        $property_lot_id = $executionLineEntry['property_lot_id'];
 
-                    $provisions_total += $amount;
+                        $amount = -$executionLineEntry['called_amount'];
 
-                    if(!isset($map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']])) {
-                        $map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']] = [];
+                        $provisions_total += $amount;
+
+                        if(!isset($map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']])) {
+                            $map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']] = [];
+                        }
+
+                        $map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']][] = [
+                                'owner'         => $amount,
+                                'tenant'        => 0.0,
+                                'vat'           => 0.0,
+                                'description'   => $sourceLine['description'],
+                                // type : "provisions"
+                                'date'          => $posting_date
+                            ];
+
+                        $map_accounts_ids[$accountingEntryLine['account_id']] = true;
+                        $map_property_lots_ids[$property_lot_id] = true;
                     }
-
-                    $map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']][] = [
-                            'owner'         => $amount,
-                            'tenant'        => 0.0,
-                            'vat'           => 0.0,
-                            'description'   => $fundRequest['name'],
-                            // type : "provisions"
-                            'date'          => $posting_date
-                        ];
-
-                    $map_accounts_ids[$accountingEntryLine['account_id']] = true;
-                    $map_property_lots_ids[$property_lot_id] = true;
                 }
+
             }
 
             // 2) private expense (relates to a purchase invoice line or a bank statement line)
