@@ -412,10 +412,11 @@ if(!empty($apportionments_ids)) {
         ->get();
 }
 
+// create a pseudo-apportionment for private expenses
 $map_apportionments['private_expense'] = [
     'name'        => 'Frais privatifs',
     'code'        => 'private_expense',
-    'description' => 'Dépense non imputable à la& copropriété.'
+    'description' => 'Dépense non imputable à la copropriété.'
 ];
 
 $result = [];

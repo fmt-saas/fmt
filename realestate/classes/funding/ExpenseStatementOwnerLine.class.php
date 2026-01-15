@@ -157,6 +157,7 @@ class ExpenseStatementOwnerLine extends \sale\accounting\invoice\SaleInvoiceLine
                     'private_expense',
                     'common_expense',
                     'reserve_fund',
+                    'provisions',
                     'consumptions'
                 ],
                 'description'       => 'Kind of expense the line relates to.',

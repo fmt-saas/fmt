@@ -131,7 +131,14 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             'private_total' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
-                'description'       => 'Total amount assigned from common expenses.',
+                'description'       => 'Total amount assigned from private expenses.',
+                'dependents'        => ['price', 'total']
+            ],
+
+            'provisions_total' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => 'Total amount assigned from requested provisions.',
                 'dependents'        => ['price', 'total']
             ],
 
@@ -492,9 +499,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             $data = self::computeExpenseStatementData($expenseStatement['fiscal_period_id']);
             self::id($id)
                 ->update([
-                    'private_total'  => $data['private_total'],
-                    'common_total'   => $data['common_total'],
-                    'assigned_delta' => $data['assigned_delta']
+                    'provisions_total'  => $data['provisions_total'],
+                    'private_total'     => $data['private_total'],
+                    'common_total'      => $data['common_total'],
+                    'assigned_delta'    => $data['assigned_delta']
                 ]);
 
             // temporarily link involved records with current statement (has no implication while statement is not posted and `is_cleared` is not set to true)
@@ -835,6 +843,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ])
             ->get();
 
+        $map_fund_request_executions_ids = [];
+        foreach($accountingEntryLines as $accountingEntryLine) {
+            $map_fund_request_executions_ids[$accountingEntryLine['fund_request_execution_id']] = true;
+        }
+
+        $fundRequestExecutions = FundRequestExecution::id(array_keys($map_fund_request_executions_ids))
+            ->read(['fund_request_id' => ['name', 'request_type']])
+            ->get();
+
         /*
             Prefetch required objects (condominium configuration)
         */
@@ -901,6 +918,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
          * Total amount of private expenses in the current statement (all owners included).
          */
         $private_total = 0.0;
+        /**
+         * @var float $provisions_total
+         * Total amount of provisions in the current statement (all owners included).
+         */
+        $provisions_total = 0.0;
 
         // pass-1 - identify private expenses that have been reinvoiced
         $map_private_expenses = [];
@@ -928,11 +950,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 continue;
             }
 
-            // discard lines relating to total fund request
-            if($accountingEntry['fund_request_execution_id'] && round($accountingEntryLine['credit'], 2) > 0.00) {
-                continue;
-            }
-
             // ignore out of range accounting entries
             if($accountingEntry['entry_date'] < $fiscalPeriod['date_from'] || $accountingEntry['entry_date'] > $fiscalPeriod['date_to']) {
                 continue;
@@ -940,18 +957,72 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             $map_accounting_entry_lines_ids[$accountingEntryLine['id']] = true;
 
+            // 1) provisions (fund requests)
+            if($accountingEntry['fund_request_execution_id']) {
+                if(round($accountingEntryLine['credit'], 2) > 0.00) {
+                    // discard lines relating to total fund request
+                    continue;
+                }
+                $fundRequest = $fundRequestExecutions[$accountingEntry['fund_request_execution_id']]['fund_request_id'];
 
-            // 1) private expense (relates to a purchase invoice line or a bank statement line)
+                // consider only provisions
+                if(!in_array($fundRequest['request_type'], ['expense_provisions', 'work_provisions'])) {
+                    continue;
+                }
 
+                // #memo `$accountingEntryLine['account_id']` should target an account from ownership '410xxxxx'
+
+                if(!isset($accountingEntryLine['sale_invoice_line_id'])) {
+                    throw new \Exception('missing_mandatory_source_line', EQ_ERROR_INVALID_CONFIG);
+                }
+
+                $sourceLine = FundRequestExecutionLine::id($accountingEntryLine['sale_invoice_line_id'])
+                    ->read([
+                        'description',
+                        'execution_line_entries_ids' => ['ownership_id', 'property_lot_id', 'called_amount'],
+                        'invoice_id' => ['posting_date']
+                    ])
+                    ->first();
+                // retrieve date_from and date_to from purchase invoice line, to determine nb_days
+                $start = max($sourceLine['invoice_id']['posting_date'], $ownerships[$ownership_id]['date_from'] ?? $sourceLine['invoice_id']['posting_date']);
+                $end   = min($sourceLine['invoice_id']['posting_date'], $ownerships[$ownership_id]['date_to'] ?? $sourceLine['invoice_id']['posting_date']);
+
+                $posting_date = $sourceLine['invoice_id']['posting_date'] ?? null;
+
+                foreach($sourceLine['execution_line_entries_ids'] as $execution_line_entry_id => $executionLineEntry) {
+                    $ownership_id = $executionLineEntry['ownership_id'];
+                    $property_lot_id = $executionLineEntry['property_lot_id'];
+
+                    $amount = -$executionLineEntry['called_amount'];
+
+                    $provisions_total += $amount;
+
+                    if(!isset($map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']])) {
+                        $map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']] = [];
+                    }
+
+                    $map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']][] = [
+                            'owner'         => $amount,
+                            'tenant'        => 0.0,
+                            'vat'           => 0.0,
+                            'description'   => $fundRequest['name'],
+                            // type : "provisions"
+                            'date'          => $posting_date
+                        ];
+
+                    $map_accounts_ids[$accountingEntryLine['account_id']] = true;
+                    $map_property_lots_ids[$property_lot_id] = true;
+                }
+            }
+
+            // 2) private expense (relates to a purchase invoice line or a bank statement line)
             /*
             Encodage des factures sur le compte correspondant à l'énergie consommée 61200
               + utilisation d'un compte dédié au décomptes de consommation (compteur) 61240
               + création d'un total consommations privatives
             */
-
             // #memo - consider both debit and credit lines here (to void already reinvoiced private expenses)
-            // private expenses
-            if(substr($accountingEntryLine['account_code'], 0, 3) === '643') {
+            elseif(substr($accountingEntryLine['account_code'], 0, 3) === '643') {
 
                 // skip private expense that have been reinvoiced
                 if(isset($map_private_expenses[$accountingEntryLine['id']])) {
@@ -1024,6 +1095,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $ownership_id = $sourceLine['ownership_id'];
                 $property_lot_id = $sourceLine['property_lot_id'];
 
+                // #todo - this is set earlier, should we overwrite it here ?
                 $ownerships[$ownership_id]['nb_days'] = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
 
                 $amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
@@ -1055,7 +1127,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $map_property_lots_ids[$property_lot_id] = true;
             }
 
-            // 2) reserve fund
+            // 3) reserve fund
             // #memo - limit to lines related to use of reserve fund
             // #todo - change to 6813 ?
             // #todo - check for fund_usage_line_id assignment instead
@@ -1113,9 +1185,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $map_accounts_ids[$accountingEntryLine['account_id']] = true;
             }
 
-            // 3) common expense
+            // 4) common expense
             elseif(substr($accountingEntryLine['account_code'], 0, 1) === '6' || substr($accountingEntryLine['account_code'], 0, 1) === '7') {
-                // handle all possible sources: PurchaseInvoiceLine soit BankStatementLine soit MiscOperation
+                // handle all possible sources: PurchaseInvoiceLine, or BankStatementLine, or MiscOperation
                 if(isset($accountingEntryLine['purchase_invoice_line_id'])) {
                     $sourceLine = PurchaseInvoiceLine::id($accountingEntryLine['purchase_invoice_line_id'])
                         ->read([
@@ -1126,16 +1198,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     if(!$sourceLine) {
                         throw new \Exception('missing_mandatory_sale_invoice_line', EQ_ERROR_INVALID_CONFIG);
                     }
-                }
-                // FundRequestExecutionLine (ExpenseStatementOwnerLine have been excluded above while testing on expense_statement_id)
-                elseif(isset($accountingEntryLine['sale_invoice_line_id'])) {
-                    trigger_error("APP::found sale_invoice_line_id {$accountingEntryLine['sale_invoice_line_id']} on accounting entry line {$accountingEntryLine['id']} - assuming deferred expense", EQ_REPORT_ERROR);
-                    $sourceLine = [
-                        'apportionment_id'  => 0,
-                        'owner_share'       => 100,
-                        'tenant_share'      => 0,
-                        'vat_rate'          => 0.0
-                    ];
                 }
                 elseif(isset($accountingEntryLine['bank_statement_line_id'])) {
                     $sourceLine = BankStatementLine::id($accountingEntryLine['bank_statement_line_id'])
@@ -1162,6 +1224,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 elseif(isset($accountingEntryLine['fund_usage_line_id'])) {
                     // condominium fund usage (accounting entry line related to a class 7 account) must not be considered
                     // this is handled in ownership accounting with paid amount on previous expense statements
+                    continue;
+                }
+                // FundRequestExecutionLine (ExpenseStatementOwnerLine have been excluded above while testing on expense_statement_id)
+                elseif(isset($accountingEntryLine['sale_invoice_line_id'])) {
+                    // we should not reach this point, either FundRequestExecutionLine or ExpenseStatementOwnerLine
+                    // Expense Statements are discarded and Fund Requests are handled separately
                     continue;
                 }
                 else {
@@ -1236,6 +1304,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
         // generate output response
         $result = [
+                'provisions_total'           => $provisions_total,
                 'private_total'              => $private_total,
                 'common_total'               => $common_total,
                 // #memo - a positive amount means that a part of the purchase invoice was not allocated to owners
