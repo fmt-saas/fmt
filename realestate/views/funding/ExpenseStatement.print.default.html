@@ -132,6 +132,8 @@
     {% for owner in owners %}
         <!-- <h1>{{ owner.name }}</h1> -->
 
+        {% set provisions_total_owner = 0 %}
+
         {% set private_total_tenant = 0 %}
         {% set private_total_owner = 0 %}
         {% set private_total_vat = 0 %}
@@ -243,7 +245,72 @@
         </table>
         {% endif %}
 
-        <!-- pass-2 private expenses -->
+        <!-- pass-2 provisions -->
+        {% if owner.has_provisions %}
+        <h2 style="margin-top: 20px;">Provisions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 35%;">Désignation</th>
+                    <th style="width: 15%;">Quotités</th>
+                    <th style="width: 12%;">Copro</th>
+                    <th style="width: 12%;">Lot</th>
+                    <th style="width: 12%;">TVA</th>
+                    <th style="width: 13%;">Prop</th>
+                    <th style="width: 13%;">Loc</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {% for lot in owner.property_lots %}
+                {% if lot.has_provisions %}
+                    {% set total_owner = 0 %}
+
+                    <tr>
+                        <td colspan="7" style="border-bottom: solid 1px black;"><strong>{{ lot.code }} - {{ lot.ref }} ({{ lot.nature }})</strong></td>
+                    </tr>
+
+                    {% for expense in lot.expenses %}
+                        {% if expense.name == 'provisions' %}
+                            <!-- there is a single account for private expenses -->
+                            {% for apport in expense.apportionments %}
+                            {% for account in apport.accounts %}
+
+                                <tr>
+                                    <td><div style="padding-left: 20px;">{{ account.date | date('d/m/Y') }} - {{account.description }}</div></td>
+                                    <td>/</td>
+                                    <td></td>
+                                    <td>{{ account.owner | format_money() }}</td>
+                                    <td></td>
+                                    <td>{{ account.owner | format_money() }}</td>
+                                    <td></td>
+                                </tr>
+
+                                {% set total_owner = total_owner + account.owner %}
+                            {% endfor %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <tr class="total-loc">
+                        <td style="text-align: right;">Total {{ lot.code }} - {{ lot.ref }}</td>
+                        <td ></td>
+                        <td ></td>
+                        <td >{{ total_owner | format_money() }}</td>
+                        <td ></td>
+                        <td >{{ total_owner | format_money() }}</td>
+                        <td ></td>
+                    </tr>
+                    {% set provisions_total_owner = provisions_total_owner + total_owner  %}
+
+                {% endif %}
+
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        <!-- pass-3 private expenses -->
         {% if owner.has_private_expense %}
         <h2 style="margin-top: 20px;">Frais privatifs</h2>
         <table>
@@ -313,9 +380,10 @@
         </table>
         {% endif %}
 
-        <!-- pass-3 consumptions -->
+        <!-- pass-4 consumptions -->
+        <!-- #TODO -->
 
-        <!-- pass-4 TOTAL expenses -->
+        <!-- pass-5 TOTAL expenses -->
         <h2 style="margin-top: 20px;">Total des charges</h2>
         <table>
             <thead>
