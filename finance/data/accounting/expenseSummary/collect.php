@@ -454,6 +454,8 @@ foreach($lines as $line_id => $line) {
     // Prefer grouping by storage/collector if you want "summary" by collector
     $account = $map_accounts[$account_id];
 
+    $is_provision = in_array($account['operation_assignment'], ['expense_provisions', 'work_provisions']);
+
     $parentAccount = null;
     if(isset($map_parent_storage[$account_id])) {
         $parentAccount = $map_accounts[$map_parent_storage[$account_id]] ?? null;
@@ -499,16 +501,13 @@ foreach($lines as $line_id => $line) {
         $owner_share = 100;
         $vat_rate = 0.0;
     }
-    elseif(!empty($line['sale_invoice_line_id']['invoice_id'])) {
-        $invoice_id = $line['sale_invoice_line_id']['invoice_id'];
+    elseif($is_provision) {
         $apportionment_id = 'provisions_restitution';
-        $owner_share = 100;
-        $vat_rate = 0.0;
     }
 
     $result[] = [
         'id'                 => $line_id,
-        'apportionment'      => $map_apportionments[$apportionment_id]['name'] ?? '(autre)',
+        'apportionment'      => $map_apportionments[$apportionment_id]['name'] ?? 'Autre',
         'account'            => (string) ($account['name'] ?? ''),
         'parent_account'     => (string) ($parentAccount['name'] ?? ''),
         'description'        => (string) $line['description'],
