@@ -318,7 +318,7 @@
                     "description": ""
                 },
                 "route.expense_statements": {
-                    "label": "Relevés de charges",
+                    "label": "Décomptes de charges",
                     "description": ""
                 },
                 "route.accounting_entries": {

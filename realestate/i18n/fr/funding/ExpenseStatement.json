@@ -1,6 +1,6 @@
 {
-    "name": "Relevé de charges",
-    "plural": "Relevés de charges",
+    "name": "Décomptes de charges",
+    "plural": "Décomptes de charges",
     "description": "Document émis en fin de période fiscale pour répartir les dépenses communes/privatives entre copropriétaires et générer les appels correspondants.",
     "model": {
         "name": {
@@ -101,7 +101,7 @@
             }
         },
         "list.default": {
-            "name": "Relevés de charges",
+            "name": "Décomptes de charges",
             "description": "Liste des relevés avec période, statut et montants clés."
         }
     }
