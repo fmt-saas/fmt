@@ -248,11 +248,11 @@ $lines = AccountingEntryLine::search($domain->toArray())
     ->read([
         'account_id',
         'account_class',
-        'accounting_entry_id' => ['name', 'journal_id'],
-        'fund_usage_line_id' => ['apportionment_id', 'invoice_id'],
-        'sale_invoice_line_id' => ['invoice_id'],
-        'purchase_invoice_line_id' => ['is_private_expense', 'apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'invoice_id'],
-        'bank_statement_line_id' => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'bank_statement_id'],
+        'accounting_entry_id'       => ['name', 'journal_id'],
+        'fund_usage_line_id'        => ['apportionment_id', 'invoice_id'],
+        'sale_invoice_line_id'      => ['invoice_id'],
+        'purchase_invoice_line_id'  => ['is_private_expense', 'apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'invoice_id'],
+        'bank_statement_line_id'    => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'bank_statement_id'],
         'description',
         'entry_date',
         'debit',
@@ -497,7 +497,7 @@ foreach($lines as $line_id => $line) {
         $vat_rate = 0.0;
     }
     elseif(!empty($line['sale_invoice_line_id']['invoice_id'])) {
-        $invoice_id = $line['fund_usage_line_id']['invoice_id'];
+        $invoice_id = $line['sale_invoice_line_id']['invoice_id'];
         $apportionment_id = 'provisions_restitution';
         $owner_share = 100;
         $vat_rate = 0.0;
