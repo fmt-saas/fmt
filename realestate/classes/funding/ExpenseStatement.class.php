@@ -812,6 +812,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'account_id', 'account_code', 'debit', 'credit',
                 // #memo - we need this to discard records from expense statements
                 'expense_statement_id',
+                // #memo - we need this to reject entry lines relating to fund requests global amounts
+                'fund_request_execution_id',
                 'sale_invoice_line_id',
                 // #memo - we need this to retrieve details for private expenses
                 'purchase_invoice_line_id',
@@ -924,6 +926,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             // ignore accounting entries already cleared by an expense statement
             if($accountingEntry['expense_statement_id']) {
+                continue;
+            }
+
+            // discard lines relating to total fund request
+            if($accountingEntry['fund_request_execution_id'] && round($accountingEntryLine['credit'], 2) > 0.00) {
                 continue;
             }
 
@@ -1123,10 +1130,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 }
                 // FundRequestExecutionLine (ExpenseStatementOwnerLine have been excluded above while testing on expense_statement_id)
                 elseif(isset($accountingEntryLine['sale_invoice_line_id'])) {
-                    if(round($accountingEntryLine['credit'], 2) > 0.00) {
-                        // discard lines relating to total fund request
-                        continue;
-                    }
                     $sourceLine = [
                         'apportionment_id'  => 0,
                         'owner_share'       => 100,
