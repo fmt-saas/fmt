@@ -713,7 +713,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ]);
 
         foreach($self as $id => $expenseStatement) {
-            // supprimer les funding déjà existant si'il y en a 
+            // #todo - supprimer les funding déjà existant si'il y en a
             foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
                 $ownership_id = $statementOwner['ownership_id']['id'];
 
@@ -959,14 +959,17 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             // 1) provisions (fund requests)
             if($accountingEntry['fund_request_execution_id']) {
+
                 if(round($accountingEntryLine['credit'], 2) > 0.00) {
                     // discard lines relating to total fund request
+                    trigger_error("APP::skipping accounting entry line {$accountingEntryLine['id']} relating to total fund request amount", EQ_REPORT_ERROR);
                     continue;
                 }
                 $fundRequest = $fundRequestExecutions[$accountingEntry['fund_request_execution_id']]['fund_request_id'];
 
                 // consider only provisions
                 if(!in_array($fundRequest['request_type'], ['expense_provisions', 'work_provisions'])) {
+                    trigger_error("APP::skipping accounting entry line {$accountingEntryLine['id']} relating to non-provision fund request", EQ_REPORT_ERROR);
                     continue;
                 }
 
@@ -975,6 +978,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 if(!isset($accountingEntryLine['sale_invoice_line_id'])) {
                     throw new \Exception('missing_mandatory_source_line', EQ_ERROR_INVALID_CONFIG);
                 }
+                trigger_error("APP::considering accounting entry line {$accountingEntryLine['id']} as provisions", EQ_REPORT_ERROR);
 
                 $sourceLine = FundRequestExecutionLine::id($accountingEntryLine['sale_invoice_line_id'])
                     ->read([
