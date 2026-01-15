@@ -1149,6 +1149,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     continue;
                 }
                 else {
+                    trigger_error("APP::unable to find source line for accounting entry line {$accountingEntryLine['id']}", EQ_REPORT_ERROR);
                     throw new \Exception('missing_mandatory_source_line', EQ_ERROR_INVALID_CONFIG);
                 }
 
