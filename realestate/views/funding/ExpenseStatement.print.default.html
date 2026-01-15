@@ -278,7 +278,12 @@
                                 {% for account in apport.accounts %}
 
                                     <tr>
-                                        <td><div style="padding-left: 20px;">{{ account.date | date('d/m/Y') }} - {{account.description }}</div></td>
+                                        <td><div style="padding-left: 20px;">
+                                            <!--
+                                            {{ account.date | date('d/m/Y') }} - 
+                                            -->
+                                            {{account.description }}</div>
+                                        </td>
                                         <td>/</td>
                                         <td></td>
                                         <td>{{ account.owner | format_money() }}</td>
