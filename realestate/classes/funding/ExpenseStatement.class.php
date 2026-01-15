@@ -948,7 +948,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             $map_accounting_entry_lines_ids[$accountingEntryLine['id']] = true;
 
-            // 1) provisions (fund requests)
+            // 1) provisions (fund requests with request_type=expense_provisions,work_provisions)
             if($accountingEntry['fund_request_execution_id']) {
 
                 // consider only provisions
@@ -986,17 +986,17 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         $provisions_total += $amount;
 
                         if(!isset($map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']])) {
-                            $map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']] = [];
-                        }
-
-                        $map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']][] = [
-                                'owner'         => $amount,
+                            $map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']] = [
+                                'owner'         => 0.0,
                                 'tenant'        => 0.0,
                                 'vat'           => 0.0,
                                 'description'   => $sourceLine['name'],
                                 // type : "provisions"
                                 'date'          => $posting_date
                             ];
+                        }
+
+                        $map_result[$ownership_id][$property_lot_id]['provisions'][0][$accountingEntryLine['account_id']]['owner'] += round($amount, 2);
 
                         $map_accounts_ids[$accountingEntryLine['account_id']] = true;
                         $map_property_lots_ids[$property_lot_id] = true;
