@@ -153,6 +153,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'result_type'       => 'string',
                 'usage'             => 'application/json',
                 'function'          => 'calcSchema',
+                'store'             => false,
                 'help'              => 'This field is not intended to be stored and can safely be computed at any time since its relies on immutable data.'
             ]
 

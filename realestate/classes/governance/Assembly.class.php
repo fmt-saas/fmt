@@ -946,7 +946,8 @@ class Assembly extends \equal\orm\Model {
                     'assembly_id'   => $id,
                     'condo_id'      => $assembly['condo_id'],
                     'identity_id'   => $assembly['assembly_organizer_identity_id'],
-                    'attendee_role' => 'secretary'
+                    'attendee_role' => 'secretary',
+                    'is_owner'      => false
                 ]);
         }
     }

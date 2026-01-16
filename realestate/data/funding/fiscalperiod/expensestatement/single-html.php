@@ -19,7 +19,7 @@ use realestate\ownership\Owner;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate an html view of given fund request.',
-    'help'          => "variation de la génération d'un expense statement en fournissant un statement_id et un ownership_id",
+    'help' => 'This action is a variation of the expense statement generation, producing a preview PDF for a single ownership within a specified fiscal period.',
     'params'        => [
 
         'fiscal_period_id' => [

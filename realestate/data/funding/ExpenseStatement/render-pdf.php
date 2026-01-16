@@ -5,9 +5,11 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 use realestate\funding\ExpenseStatement;
+use finance\accounting\FiscalPeriod;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate an html view of given fund request.',
+    'help'          => 'This action generates a preview of the Expense Statement, with a PDF file merging all individual expense statements for all ownerships in the given fiscal period.',
     'params'        => [
 
         'id' => [
@@ -48,11 +50,6 @@ use realestate\funding\ExpenseStatement;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-/*
-    #todo - not sure to handle single and grouped printing
-    This controller should remain synced with packages\realestate\data\funding\fiscalperiod\expensestatement\batch-pdf.php (which uses single-html & single-pdf)
-*/
-
 $statement = ExpenseStatement::id($params['id'])
     ->read(['fiscal_period_id'])
     ->first();
@@ -61,16 +58,68 @@ if(!$statement) {
     throw new Exception('unknown_expense_statement', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+$fiscalPeriod = FiscalPeriod::id($$statement['fiscal_period_id'])
+    ->read(['condo_id' => ['ownerships_ids' => ['date_to']]])
+    ->first();
+
+if(!$fiscalPeriod) {
+    throw new Exception('unknown_fiscal_year', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+// ensure qpdf compliance
+$call_qpdf = shell_exec("qpdf --version 2>&1");
+if(stripos($call_qpdf, 'qpdf version') === false) {
+    trigger_error("APP::qpdf is not available or not in PATH. Output: " . $call_qpdf, EQ_REPORT_ERROR);
+    throw new Exception('missing_mandatory_qpdf_library', EQ_ERROR_INVALID_CONFIG);
+}
+
+$temp_files = [];
+$output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
+
 try {
-    $output = (string) eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_batch-pdf', ['fiscal_period_id' => $statement['fiscal_period_id']]);
+
+    foreach($fiscalPeriod['condo_id']['ownerships_ids'] as $ownership_id => $ownership) {
+        if(!($ownership['date_to']) || $ownership['date_to'] > $fiscalPeriod['date_to']) {
+            try {
+                $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-pdf', [
+                        'fiscal_period_id'  => $params['fiscal_period_id'],
+                        'ownership_id'      => $ownership_id
+                    ]);
+                $temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+                file_put_contents($temp, $pdf);
+                $temp_files[] = $temp;
+            }
+            catch(Exception $e) {
+                // ignore (ownership with no expense ?)
+            }
+        }
+    }
+
+    $escaped_files = array_map('escapeshellarg', $temp_files);
+    $escaped_output = escapeshellarg($output_file);
+    $cmd = 'qpdf --empty --pages ' . implode(' ', $escaped_files) . ' -- ' . $escaped_output . ' 2>&1';
+
+    exec($cmd, $output_lines, $result_code);
+
+    if ($result_code !== 0 || !file_exists($output_file)) {
+        trigger_error("APP::qpdf merge failed:\n" . implode("\n", $output_lines), EQ_REPORT_ERROR);
+        throw new Exception('pdf_merge_failed', EQ_ERROR_UNKNOWN);
+    }
+
+    $output = file_get_contents($output_file);
 }
 catch(Exception $e) {
     trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
+finally {
+    foreach ($temp_files as $file) {
+        @unlink($file);
+    }
+    @unlink($output_file);
+}
 
 $context->httpResponse()
-        // ->header('Content-Disposition', 'attachment; filename="document.pdf"')
         ->header('Content-Disposition', 'inline; filename="document.pdf"')
         ->body($output)
         ->send();

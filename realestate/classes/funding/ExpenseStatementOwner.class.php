@@ -98,6 +98,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                 'result_type'       => 'string',
                 'usage'             => 'application/json',
                 'function'          => 'calcSchema',
+                'store'             => false,
                 'help'              => 'This field is not intended to be stored and can safely be computed at any time since its relies on immutable data.'
             ]
         ];
@@ -129,7 +130,12 @@ class ExpenseStatementOwner extends \equal\orm\Model {
         return $result;
     }
 
-    public static function calcSchema($self) {
+
+    /**
+     * Compute a structured JSON schema of the expense statement for given ownership.
+     * This is used for easier rendering.
+     */
+    protected static function calcSchema($self) {
         $result = [];
 
         $self->read([
@@ -160,13 +166,18 @@ class ExpenseStatementOwner extends \equal\orm\Model {
             // load all dependencies at once
             $invoice_lines = $statementOwner['statement_owner_lines_ids']->toArray();
 
-            $apportionments_ids = array_map(function ($a) {return $a['apportionment_id'];}, $invoice_lines);
-            $accounts_ids = array_map(function ($a) {return $a['account_id'];}, $invoice_lines);
-            $property_lots_ids = array_map(function ($a) {return $a['property_lot_id'];}, $invoice_lines);
+            $apportionments_ids = array_map(fn($a) => $a['apportionment_id'], $invoice_lines);
+            $accounts_ids       = array_map(fn($a) => $a['account_id'], $invoice_lines);
+            $property_lots_ids  = array_map(fn($a) => $a['property_lot_id'], $invoice_lines);
 
             $accounts = Account::ids($accounts_ids)->read(['name', 'code'])->get();
             $property_lots = PropertyLot::ids($property_lots_ids)->read(['name', 'code', 'property_lot_ref', 'property_lot_nature'])->get();
             $apportionments = Apportionment::ids($apportionments_ids)->read(['name', 'total_shares'])->get();
+
+            $account_code_map = [];
+            foreach($accounts as $account_id => $account) {
+                $account_code_map[$account_id] = $account['code'];
+            }
 
             $owner = [
                     'id'                    => $statementOwner['ownership_id']['id'],
@@ -183,12 +194,12 @@ class ExpenseStatementOwner extends \equal\orm\Model {
 
             foreach($invoice_lines as $line_id => $line) {
 
-                $property_lot_id = $line['property_lot_id'];
-                $expense_type = $line['expense_type'];
-                $account_id = $line['account_id'];
-                $apportionment_id = $line['apportionment_id'] ?? 0;
+                $property_lot_id   = $line['property_lot_id'];
+                $expense_type      = $line['expense_type'];
+                $account_id        = $line['account_id'];
+                $apportionment_id  = $line['apportionment_id'] ?? 0;
 
-                if (!isset($owner['property_lots'][$property_lot_id])) {
+                if(!isset($owner['property_lots'][$property_lot_id])) {
                     $owner['property_lots'][$property_lot_id] = [
                         'id'                    => $property_lot_id,
                         'name'                  => $property_lots[$property_lot_id]['name'],
@@ -225,7 +236,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                     ];
                 }
 
-                $expense_ref['apportionments'][$apportionment_id]['accounts'][] = [
+                $expense_ref['apportionments'][$apportionment_id]['accounts'][$account_id][] = [
                     'id'            => $account_id,
                     'name'          => $accounts[$account_id]['name'],
                     'code'          => $accounts[$account_id]['code'],
@@ -236,6 +247,32 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                     'description'   => $line['description'],
                     'date'          => $line['date']
                 ];
+            }
+
+            foreach($owner['property_lots'] as &$lot) {
+                foreach($lot['expenses'] as &$expense) {
+                    foreach($expense['apportionments'] as &$apportionment) {
+
+                        uksort(
+                            $apportionment['accounts'],
+                            static function ($a, $b) use ($account_code_map) {
+                                return strcmp(
+                                    $account_code_map[$a] ?? '',
+                                    $account_code_map[$b] ?? ''
+                                );
+                            }
+                        );
+
+                        $sorted_accounts = [];
+                        foreach($apportionment['accounts'] as $lines) {
+                            foreach($lines as $line) {
+                                $sorted_accounts[] = $line;
+                            }
+                        }
+
+                        $apportionment['accounts'] = $sorted_accounts;
+                    }
+                }
             }
 
             $owner['property_lots'] = array_values($owner['property_lots']);
@@ -253,5 +290,6 @@ class ExpenseStatementOwner extends \equal\orm\Model {
 
         return $result;
     }
+
 
 }

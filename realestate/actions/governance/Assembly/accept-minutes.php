@@ -27,7 +27,8 @@ use realestate\governance\AssemblyAttendee;
             'domain'         => [
                 ['assembly_id', '=', 'object.id'],
                 ['attendee_role', 'in', ['attendee', 'president']],
-                ['is_valid', '=', true]
+                ['is_valid', '=', true],
+                ['is_owner', '=', true]
             ],
             'required'       => true
         ],
@@ -91,9 +92,15 @@ if($params['secretary_attendee_id']) {
     // check if there is already one: if so, and it's an owner, set to attendee
     AssemblyAttendee::search(['attendee_role', '=', 'secretary'])->update(['attendee_role' => 'attendee']);
     // in any case, mark the selected attendee as secretary and validate them
-    AssemblyAttendee::id($params['secretary_attendee_id'])
+    $secretary = AssemblyAttendee::id($params['secretary_attendee_id'])
+        ->read(['status'])
         ->update(['attendee_role' => 'secretary'])
-        ->transition('validate');
+        ->first();
+
+    if($secretary['status'] !== 'validated') {
+        // transition to validated
+        AssemblyAttendee::id($params['secretary_attendee_id'])->transition('validate');
+    }
 }
 
 Assembly::id($params['id'])->do('accept_minutes');

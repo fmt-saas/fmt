@@ -87,6 +87,28 @@ TemplatePart::create([
 ]);
 
 
+// mandate (call)
+$template = Template::create([
+        'code'          => 'general_meetings_mandate',
+        'description'   => 'Mandat de procuration pour une assemblée de la copropriété.',
+        'category_id'   => 5,
+        'type_id'       => 5
+    ])
+    ->first();
+TemplatePart::create([
+    'name'          => 'subject',
+    'value'         => "Procuration",
+    'template_id'   => $template['id'],
+    'variables'     => '["condo", "assembly", "type", "date"]'
+]);
+// #todo - create parts according to existing template AssemblyMandate.print.html
+TemplatePart::create([
+    'name'          => 'introduction',
+    'value'         => "
+    ",
+    'template_id'   => $template['id'],
+    'variables'     => '["condo", "assembly", "date", "location", "type", "time_start"]'
+]);
 
 /* General Assembly - Minutes */
 

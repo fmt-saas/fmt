@@ -69,12 +69,19 @@ if($mailbox['refresh_token_expiry'] < time()) {
 }
 
 /* Refresh token if needed */
-if($mailbox['access_token_expiry'] < time()) {
-    eQual::run('do', 'communication_email_Mailbox_refresh-token-outlook', ['id' => $params['id']]);
+try {
+    if($mailbox['access_token_expiry'] < time()) {
+        eQual::run('do', 'communication_email_Mailbox_refresh-token-outlook', ['id' => $params['id']]);
 
-    $mailbox = Mailbox::id($params['id'])
-        ->read(['access_token', 'email', 'date_last_sync'])
-        ->first();
+        $mailbox = Mailbox::id($params['id'])
+            ->read(['access_token', 'email', 'date_last_sync'])
+            ->first();
+    }
+}
+catch(Exception $e) {
+    // refresh token failed : force the need for OAuth renewal
+    Mailbox::id($params['id'])->update(['status' => 'pending']);
+    throw $e;
 }
 
 

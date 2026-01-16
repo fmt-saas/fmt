@@ -42,7 +42,7 @@ if(!$fundRequestCorrespondence) {
 
 try {
 
-    $html = (string) eQual::run('get', 'realestate_funding_FundRequestCorrespondence_render-html', [
+    $html = (string) eQual::run('get', 'realestate_funding_ExpenseStatementCorrespondence_render-html', [
             'id'            => $params['id']
         ]);
 
