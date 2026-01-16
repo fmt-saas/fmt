@@ -157,7 +157,7 @@
                         date_to: lot.date_to,
                         nb_days: lot.nb_days,
                         refs: [lot.ref],
-                        shares: lot.property_lot_shares
+                        shares: lot.property_lot_shares,
                         count: 1
                     }
                 }) %}
@@ -165,7 +165,7 @@
                 {% set recap = recap | merge({
                     (key): recap[key] | merge({
                         refs: recap[key].refs | merge([lot.ref]),
-                        shares: recap[key].shares + lot.property_lot_shares
+                        shares: recap[key].shares + lot.property_lot_shares,
                         count: recap[key].count + 1
                     })
                 }) %}
