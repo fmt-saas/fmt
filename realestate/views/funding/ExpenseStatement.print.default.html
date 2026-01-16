@@ -238,12 +238,7 @@
                         {% set total_tenant = 0 %}
                         {% set total_vat = 0 %}
                         <tr>
-                            <td colspan="2"><strong>{{ lot.code }} - {{ lot.ref }} ({{ lot.nature }})</strong></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td colspan="7"><strong>{{ lot.code }} - {{ lot.ref }} ({{ lot.nature }})</strong></td>
                         </tr>
 
                         {% for expense in lot.expenses %}
@@ -256,12 +251,7 @@
                                     {% set apport_vat = 0 %}
 
                                     <tr>
-                                        <td colspan="2"><div style="padding-left: 10px;"><strong>{{ apport.name }}</strong></div></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
+                                        <td colspan="7"><div style="padding-left: 10px;"><strong>{{ apport.name }}</strong></div></td>
                                     </tr>
 
                                     {% for account in apport.accounts %}
