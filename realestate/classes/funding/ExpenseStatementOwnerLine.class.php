@@ -99,7 +99,7 @@ class ExpenseStatementOwnerLine extends \sale\accounting\invoice\SaleInvoiceLine
                 'description'       => 'Owner shares considered fot the line (according to apportionment).',
             ],
 
-            'total_shares' => [
+            'lot_shares' => [
                 'type'              => 'integer',
                 'description'       => 'Shares of the Property Lot the line relates to.',
             ],

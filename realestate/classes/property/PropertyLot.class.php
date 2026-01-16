@@ -242,7 +242,7 @@ class PropertyLot extends \equal\orm\Model {
         $result = [];
         $self->read(['state', 'condo_id']);
         foreach($self as $id => $propertyLot) {
-            if($propertyLot['state'] != 'instance') {
+            if($propertyLot['state'] === 'draft') {
                 continue;
             }
             $propertyLotApportionmentShare = PropertyLotApportionmentShare::search([
