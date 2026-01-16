@@ -143,6 +143,57 @@
         {% set common_total_vat = 0 %}
 
 
+        {% set lot_refs = [] %}
+        {% set natures = {} %}
+
+        {% for lot in owner.property_lots %}
+            {% set lot_refs = lot_refs | merge([lot.ref]) %}
+
+            {% if natures[lot.nature] is not defined %}
+                {% set natures = natures | merge({ (lot.nature): 1 }) %}
+            {% else %}
+                {% set natures = natures | merge({ (lot.nature): natures[lot.nature] + 1 }) %}
+            {% endif %}
+        {% endfor %}
+
+
+        <!-- first part : recap -->
+        <div style="page-break-inside: avoid; margin-bottom: 20px;">
+            <h2>Récapitulatif</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Références</th>
+                        <th>Nature</th>
+                        <th>Quotités</th>
+                        <th>Jours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            {{ lot_refs | join(', ') }}
+                        </td>
+                        <td>
+                            {% for nature, count in natures %}
+                                {{ nature }} ({{ count }}){% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {# volontairement simple / explicite #}
+                            {% for lot in owner.property_lots %}
+                                {{ lot.ref }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {{ owner.nb_days }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
         <!-- pass-1 common expenses -->
         {% if owner.has_common_expense or owner.has_reserve_fund %}
         <div style="page-break-inside: avoid;">
