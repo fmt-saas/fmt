@@ -222,7 +222,7 @@
                 <thead>
                     <tr>
                         <th style="width: 33%;">Désignation</th>
-                        <th style="width: 12%;">Quotités</th>
+                        <th style="width: 12%; text-align: center;">Quotités</th>
                         <th style="width: 11%;">Copro</th>
                         <th style="width: 11%;">Lot</th>
                         <th style="width: 11%;">TVA</th>
@@ -262,7 +262,7 @@
 
                                         <tr>
                                             <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
-                                            <td>{{ quotites }}</td>
+                                            <td style="text-align: center;">{{ quotites }}</td>
                                             <td>{{ account.total_amount | format_money() }}</td>
                                             <td>{{ (account.owner + account.tenant) | format_money() }}</td>
                                             <td>{{ account.vat | format_money() }}</td>
