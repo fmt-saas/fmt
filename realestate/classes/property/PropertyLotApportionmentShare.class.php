@@ -32,14 +32,17 @@ class PropertyLotApportionmentShare extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'ondelete'          => 'cascade',
                 'required'          => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'dependents'        => ['is_statutory' ]
             ],
 
             'is_statutory' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
+                'store'             => true,
+                'instant'           => true,
                 'description'       => "The apportionment describes the statutory quotas.",
-                'help'              => "Apportionment describes the rights on the condominium's common areas as defined in the notary deed.",
+                'help'              => "Apportionment share describes the rights on the condominium's common areas as defined in the notary deed.",
                 'relation'          => ['apportionment_id' => 'is_statutory']
             ],
 

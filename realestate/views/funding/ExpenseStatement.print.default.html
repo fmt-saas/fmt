@@ -157,6 +157,7 @@
                         date_to: lot.date_to,
                         nb_days: lot.nb_days,
                         refs: [lot.ref],
+                        shares: lot.shares
                         count: 1
                     }
                 }) %}
@@ -164,6 +165,7 @@
                 {% set recap = recap | merge({
                     (key): recap[key] | merge({
                         refs: recap[key].refs | merge([lot.ref]),
+                        shares: recap[key].shares + lot.shares
                         count: recap[key].count + 1
                     })
                 }) %}
@@ -195,11 +197,13 @@
                             {{ row.nature }} ({{ row.count }})
                         </td>
                         <td>
-                            {# volontairement neutre à ce stade #}
-                            /
+
+                            / {{ total_shares }}
                         </td>
                         <td>
                             {{ row.nb_days }}
+                            &nbsp;
+                            {{ row.date_from | date('d/m/Y') }} - {{ row.date_to | date('d/m/Y') }}
                         </td>
                     </tr>
                 {% endfor %}

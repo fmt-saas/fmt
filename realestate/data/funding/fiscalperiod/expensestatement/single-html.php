@@ -172,7 +172,7 @@ $statement = ExpenseStatement::search([
         ['invoice_type', '=', 'expense_statement']
     ])
     ->read([
-        'condo_id' => ['name'],
+        'condo_id' => ['name', 'total_shares'],
         'invoice_number',
         'common_total',
         'private_total',
@@ -201,6 +201,7 @@ $organisation = Organisation::id(1)
     ->first();
 
 $values = [
+        'total_shares'      => $statement['condo_id']['total_shares'],
         'date_from'         => $fiscalPeriod['date_from'],
         'date_to'           => $fiscalPeriod['date_to'],
         'nb_days'           => round(($fiscalPeriod['date_to'] - $fiscalPeriod['date_from']) / 86400, 0) + 1,

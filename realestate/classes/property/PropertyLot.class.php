@@ -18,7 +18,8 @@ class PropertyLot extends \equal\orm\Model {
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'required'          => true,
-                'readonly'          => true
+                'readonly'          => true,
+                'dependents'        => ['statutory_shares']
             ],
 
             'name' => [
@@ -192,6 +193,15 @@ class PropertyLot extends \equal\orm\Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'statutory_shares' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => "Statutory shares of the property lot in the condominium.",
+                'function'          => 'calcStatutoryShares',
+                'store'             => true,
+                'readonly'          => true
+            ],
+
             // settings
 
             'has_grouped_statements' => [
@@ -210,7 +220,7 @@ class PropertyLot extends \equal\orm\Model {
         ];
     }
 
-    public static function calcName($self) {
+    protected static function calcName($self) {
         $result = [];
         $self->read(['property_lot_ref', 'code', 'nature_id' => ['name'], 'active_ownership_id' => ['name']]);
         foreach($self as $id => $propertyLot) {
@@ -228,7 +238,29 @@ class PropertyLot extends \equal\orm\Model {
         return $result;
     }
 
-    public static function calcPropertyLotCode($self) {
+    protected static function calcStatutoryShares($self) {
+        $result = [];
+        $self->read(['state', 'condo_id']);
+        foreach($self as $id => $propertyLot) {
+            if($propertyLot['state'] != 'instance') {
+                continue;
+            }
+            $propertyLotApportionmentShare = PropertyLotApportionmentShare::search([
+                    ['condo_id', '=', $propertyLot['condo_id']],
+                    ['is_statutory', '=', true],
+                    ['property_lot_id','=', $id]
+                ])
+                ->read(['property_lot_shares'])
+                ->first();
+
+            if($propertyLotApportionmentShare) {
+                $result[$id] = $propertyLotApportionmentShare['property_lot_shares'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcPropertyLotCode($self) {
         $result = [];
         $self->read(['state', 'condo_id']);
         foreach($self as $id => $propertyLot) {
@@ -253,7 +285,7 @@ class PropertyLot extends \equal\orm\Model {
         return $result;
     }
 
-    public static function onbeforeupdate($self, $values) {
+    protected static function onbeforeupdate($self, $values) {
         // trigger update for count_property_lots of previously assigned nature
         if(isset($values['nature_id'])) {
             $natures_ids = array_map(function ($a) { return $a['nature_id'];}, $self->read(['nature_id'])->get(true));

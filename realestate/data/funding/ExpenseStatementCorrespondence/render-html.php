@@ -148,7 +148,7 @@ if(!$expenseStatementCorrespondence) {
 
 $statement = ExpenseStatement::id($expenseStatementCorrespondence['expense_statement_id'])
     ->read([
-        'condo_id' => ['name'],
+        'condo_id' => ['name', 'total_shares'],
         'invoice_number',
         'fiscal_period_id',
         'common_total',
@@ -202,6 +202,7 @@ $organisation = Organisation::id(1)
     ->first();
 
 $values = [
+        'total_shares'      => $statement['condo_id']['total_shares'],
         'date_from'         => $fiscalPeriod['date_from'],
         'date_to'           => $fiscalPeriod['date_to'],
         'nb_days'           => round(($fiscalPeriod['date_to'] - $fiscalPeriod['date_from']) / 86400, 0) + 1,
