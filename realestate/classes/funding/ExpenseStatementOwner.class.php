@@ -140,9 +140,10 @@ class ExpenseStatementOwner extends \equal\orm\Model {
 
         /*
         // #todo - this should be a param on each Condo / Ownership
+        // !! this implies a reload of chart of account for each statement owner
         // !! nothing is tested to make sure there is a consistency between accounts apportionment and parent account apportionment (might differ or even not be set)
         */
-        $group_by_collector_account = true;
+        $group_by_collector_account = false;
 
         $self->read([
                 'id',
