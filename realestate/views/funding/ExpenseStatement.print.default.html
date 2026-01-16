@@ -180,10 +180,10 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Références</th>
-                        <th>Nature</th>
-                        <th>Quotités</th>
-                        <th>Jours</th>
+                        <th style="width: 45%;">Références</th>
+                        <th style="width: 20%;">Nature</th>
+                        <th style="width: 15%;">Quotités</th>
+                        <th style="width: 20%;">Jours</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -202,8 +202,10 @@
                         </td>
                         <td>
                             {{ row.nb_days }}
+                            {% if date_from != row.date_from or date_to != row.date_to %}
                             &nbsp;
                             {{ row.date_from | date('d/m/Y') }} - {{ row.date_to | date('d/m/Y') }}
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
