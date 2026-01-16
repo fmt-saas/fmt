@@ -1148,19 +1148,16 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $apportionment = $map_apportionments[$apportionment_id];
 
                 foreach($ownerships as $ownership_id => $ownership) {
-                    foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
-                        $property_lot_id = $property_lot_ownership['property_lot_id'];
-                        if($property_lot_ownership['date_to'] && $property_lot_ownership['date_to'] < $fiscalPeriod['date_from']) {
+                    foreach($ownership['property_lots'] as $property_lot_id => $propertyLotOwnership) {
+
+                        if($propertyLotOwnership['date_to'] && $propertyLotOwnership['date_to'] < $fiscalPeriod['date_from']) {
                             continue;
                         }
                         if(!isset($apportionment[$property_lot_id])) {
                             continue;
                         }
-                        $start = max($fiscalPeriod['date_from'], $property_lot_ownership['date_from'] ?? $fiscalPeriod['date_from']);
-                        $end   = min($fiscalPeriod['date_to'], $property_lot_ownership['date_to'] ?? $fiscalPeriod['date_to']);
-                        $property_lot_ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
 
-                        $prorata = $property_lot_ownership_nb_days / $nb_days;
+                        $prorata = $propertyLotOwnership['nb_days'] / $nb_days;
                         $shares = $apportionment[$property_lot_id];
                         $total_shares = $apportionments[$apportionment_id]['total_shares'];
 
@@ -1248,20 +1245,16 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $apportionment = $map_apportionments[$sourceLine['apportionment_id']];
 
                 foreach($ownerships as $ownership_id => $ownership) {
-                    foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
-                        $property_lot_id = $property_lot_ownership['property_lot_id'];
-                        if($property_lot_ownership['date_to'] && $property_lot_ownership['date_to'] < $fiscalPeriod['date_from']) {
+                    foreach($ownership['property_lots'] as $property_lot_id => $propertyLotOwnership) {
+
+                        if($propertyLotOwnership['date_to'] && $propertyLotOwnership['date_to'] < $fiscalPeriod['date_from']) {
                             continue;
                         }
                         if(!isset($apportionment[$property_lot_id])) {
                             continue;
                         }
 
-                        $start = max($fiscalPeriod['date_from'], $property_lot_ownership['date_from'] ?? $fiscalPeriod['date_from']);
-                        $end   = min($fiscalPeriod['date_to'], $property_lot_ownership['date_to'] ?? $fiscalPeriod['date_to']);
-                        $property_lot_ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
-
-                        $prorata = $property_lot_ownership_nb_days / $nb_days;
+                        $prorata = $propertyLotOwnership['nb_days'] / $nb_days;
                         $shares = $apportionment[$property_lot_id];
                         $total_shares = $apportionments[$sourceLine['apportionment_id']]['total_shares'];
 
