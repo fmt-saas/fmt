@@ -58,7 +58,7 @@ if(!$statement) {
     throw new Exception('unknown_expense_statement', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$fiscalPeriod = FiscalPeriod::id($$statement['fiscal_period_id'])
+$fiscalPeriod = FiscalPeriod::id($statement['fiscal_period_id'])
     ->read(['condo_id' => ['ownerships_ids' => ['date_to']]])
     ->first();
 
@@ -82,7 +82,7 @@ try {
         if(!($ownership['date_to']) || $ownership['date_to'] > $fiscalPeriod['date_to']) {
             try {
                 $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-pdf', [
-                        'fiscal_period_id'  => $params['fiscal_period_id'],
+                        'fiscal_period_id'  => $fiscalPeriod['id'],
                         'ownership_id'      => $ownership_id
                     ]);
                 $temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
