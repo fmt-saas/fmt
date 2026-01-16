@@ -143,19 +143,33 @@
         {% set common_total_vat = 0 %}
 
 
-        {% set lot_refs = [] %}
-        {% set natures = {} %}
+        {% set recap = {} %}
 
         {% for lot in owner.property_lots %}
-            {% set lot_refs = lot_refs | merge([lot.ref]) %}
 
-            {% if natures[lot.nature] is not defined %}
-                {% set natures = natures | merge({ (lot.nature): 1 }) %}
+            {% set key = lot.nature ~ '|' ~ lot.date_from ~ '|' ~ lot.date_to %}
+
+            {% if recap[key] is not defined %}
+                {% set recap = recap | merge({
+                    (key): {
+                        nature: lot.nature,
+                        date_from: lot.date_from,
+                        date_to: lot.date_to,
+                        nb_days: lot.nb_days,
+                        refs: [lot.ref],
+                        count: 1
+                    }
+                }) %}
             {% else %}
-                {% set natures = natures | merge({ (lot.nature): natures[lot.nature] + 1 }) %}
+                {% set recap = recap | merge({
+                    (key): recap[key] | merge({
+                        refs: recap[key].refs | merge([lot.ref]),
+                        count: recap[key].count + 1
+                    })
+                }) %}
             {% endif %}
-        {% endfor %}
 
+        {% endfor %}
 
         <!-- first part : recap -->
         <div style="page-break-inside: avoid; margin-bottom: 20px;">
@@ -171,25 +185,25 @@
                     </tr>
                 </thead>
                 <tbody>
+
+                {% for row in recap %}
                     <tr>
                         <td>
-                            {{ lot_refs | join(', ') }}
+                            {{ row.refs | join(', ') }}
                         </td>
                         <td>
-                            {% for nature, count in natures %}
-                                {{ nature }} ({{ count }}){% if not loop.last %}, {% endif %}
-                            {% endfor %}
+                            {{ row.nature }} ({{ row.count }})
                         </td>
                         <td>
-                            {# volontairement simple / explicite #}
-                            {% for lot in owner.property_lots %}
-                                {{ lot.ref }}{% if not loop.last %}, {% endif %}
-                            {% endfor %}
+                            {# volontairement neutre à ce stade #}
+                            /
                         </td>
                         <td>
-                            {{ owner.nb_days }}
+                            {{ row.nb_days }}
                         </td>
                     </tr>
+                {% endfor %}
+
                 </tbody>
             </table>
         </div>
