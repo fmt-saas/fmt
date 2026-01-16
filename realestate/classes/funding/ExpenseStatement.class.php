@@ -541,6 +541,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                             'date'                  => $line['date'] ?? null,
                             'expense_type'          => $line['expense_type'],
                             'shares'                => $line['shares'] ?? null,
+                            'date_from'             => $line['date_from'] ?? null,
+                            'date_to'               => $line['date_to'] ?? null,
+                            'nb_days'               => $line['nb_days'] ?? null,
                         ]);
                 }
 

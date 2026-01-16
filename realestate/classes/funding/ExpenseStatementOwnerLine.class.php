@@ -162,6 +162,23 @@ class ExpenseStatementOwnerLine extends \sale\accounting\invoice\SaleInvoiceLine
                 ],
                 'description'       => 'Kind of expense the line relates to.',
                 'help'              => 'This is required for expense statement.'
+            ],
+
+            'date_from' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => "Date from which the owner is considered for the statement."
+            ],
+
+            'date_to' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => "Date until when the owner is considered for the statement."
+            ],
+
+            'nb_days' => [
+                'type'              => 'integer',
+                'description'       => "The number of days covered by the ownership on the statement period."
             ]
 
         ];
