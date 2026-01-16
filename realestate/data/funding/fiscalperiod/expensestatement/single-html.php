@@ -295,7 +295,7 @@ $values = array_merge($values, [
     'introduction'        => $introduction,
 
     'organisation'        => $organisation,
-    'organisation_logo'   => $getOrganisationLogo($organisation),
+    'organisation_logo'   => $getOrganisationLogo($organisation['id']),
     'document_number'     => $statement['invoice_number'],
     'condominium'         => $fiscalPeriod['condo_id'],
 
