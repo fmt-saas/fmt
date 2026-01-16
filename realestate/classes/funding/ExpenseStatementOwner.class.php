@@ -165,7 +165,10 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                     'date',
                     'expense_type',
                     'shares',
-                    'description'
+                    'description',
+                    'date_from',
+                    'date_to',
+                    'nb_days'
                 ]
             ]);
 
@@ -244,6 +247,9 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                         'has_private_expense'   => false,
                         'has_common_expense'    => false,
                         'has_provisions'        => false,
+                        'date_from'             => null,
+                        'date_to'               => null,
+                        'nb_days'               => null,
                         'expenses'              => []
                     ];
                 }
@@ -281,6 +287,10 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                     'description'   => $line['description'],
                     'date'          => $line['date']
                 ];
+
+                $owner['property_lots'][$property_lot_id]['date_from'] = $line['date_from'];
+                $owner['property_lots'][$property_lot_id]['date_to'] = $line['date_to'];
+                $owner['property_lots'][$property_lot_id]['nb_days'] = $line['nb_days'];
             }
 
             // sort accounts on their code
