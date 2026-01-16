@@ -853,7 +853,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ->read(['name', 'date_from', 'date_to', 'property_lot_ownerships_ids' => ['property_lot_id', 'date_from', 'date_to']])
             ->get();
 
-
         // compute nb_days of Ownership to apply prorata
         // #memo - we assume ownerships remain consistent and that a property lot is always owned by someone (for a same property lot, sum of ownerships nb_days matches the nb_days of the period)
         // #memo - this can be adapted below if invoice line was encoded to map a specific time interval
@@ -861,6 +860,16 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             $start = max($fiscalPeriod['date_from'], $ownership['date_from'] ?? $fiscalPeriod['date_from']);
             $end   = min($fiscalPeriod['date_to'], $ownership['date_to'] ?? $fiscalPeriod['date_to']);
             $ownerships[$ownership_id]['nb_days'] = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
+            foreach($ownerships[$ownership_id]['property_lot_ownerships_ids'] as $property_lot_ownership_id => $propertyLotOwnership) {
+                $start = max($fiscalPeriod['date_from'], $propertyLotOwnership['date_from'] ?? $fiscalPeriod['date_from']);
+                $end   = min($fiscalPeriod['date_to'], $propertyLotOwnership['date_to'] ?? $fiscalPeriod['date_to']);
+                $property_lot_ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
+                $ownerships[$ownership_id]['property_lots'][$propertyLotOwnership['property_lot_id']] = [
+                    'nb_days'   => ($start <= $end) ? (($end-$start)/86400 + 1) : 0,
+                    'date_from' => $start,
+                    'date_to'   => $end
+                ];
+            }
         }
 
         // retrieve applicable reserve funds
@@ -1086,9 +1095,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $ownership_id = $sourceLine['ownership_id'];
                 $property_lot_id = $sourceLine['property_lot_id'];
 
-                // #todo - this is set earlier, should we overwrite it here ?
-                // $ownerships[$ownership_id]['nb_days'] = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
-
                 $amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
 
                 $private_total += $amount;
@@ -1149,9 +1155,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         }
                         $start = max($fiscalPeriod['date_from'], $property_lot_ownership['date_from'] ?? $fiscalPeriod['date_from']);
                         $end   = min($fiscalPeriod['date_to'], $property_lot_ownership['date_to'] ?? $fiscalPeriod['date_to']);
-                        $ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
+                        $property_lot_ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
 
-                        $prorata = $ownership_nb_days / $nb_days;
+                        $prorata = $property_lot_ownership_nb_days / $nb_days;
                         $shares = $apportionment[$property_lot_id];
                         $total_shares = $apportionments[$apportionment_id]['total_shares'];
 
@@ -1250,9 +1256,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                         $start = max($fiscalPeriod['date_from'], $property_lot_ownership['date_from'] ?? $fiscalPeriod['date_from']);
                         $end   = min($fiscalPeriod['date_to'], $property_lot_ownership['date_to'] ?? $fiscalPeriod['date_to']);
-                        $ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
+                        $property_lot_ownership_nb_days = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
 
-                        $prorata = $ownership_nb_days / $nb_days;
+                        $prorata = $property_lot_ownership_nb_days / $nb_days;
                         $shares = $apportionment[$property_lot_id];
                         $total_shares = $apportionments[$sourceLine['apportionment_id']]['total_shares'];
 
@@ -1337,6 +1343,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                                             'vat'               => $account_entry['vat'],
                                             'description'       => $account_entry['description'] ?? null,
                                             'date'              => $account_entry['date'] ?? null,
+                                            'date_from'         => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['date_from'],
+                                            'date_to'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['date_to'],
+                                            'nb_days'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['nb_days']
                                         ];
                                 }
                             }
@@ -1351,6 +1360,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                                         'vat'               => $account['vat'] ?? 0.0,
                                         'description'       => $account['description'] ?? null,
                                         'date'              => $account['date'] ?? null,
+                                        'date_from'         => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['date_from'],
+                                        'date_to'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['date_to'],
+                                        'nb_days'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['nb_days'],
                                         'shares'            => $account['shares'] ?? null,
                                         'total_amount'      => $account['total_amount'],
                                     ];
