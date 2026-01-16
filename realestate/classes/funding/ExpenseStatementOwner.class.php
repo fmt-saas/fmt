@@ -168,8 +168,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                     'description',
                     'date_from',
                     'date_to',
-                    'nb_days',
-                    'lot_shares'
+                    'nb_days'
                 ]
             ]);
 
@@ -209,7 +208,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
             $property_lots_ids  = array_map(fn($a) => $a['property_lot_id'], $invoice_lines);
 
             $accounts = Account::ids($accounts_ids)->read(['name', 'code'])->get();
-            $property_lots = PropertyLot::ids($property_lots_ids)->read(['name', 'code', 'property_lot_ref', 'property_lot_nature'])->get();
+            $property_lots = PropertyLot::ids($property_lots_ids)->read(['name', 'code', 'property_lot_ref', 'property_lot_nature', 'statutory_shares'])->get();
             $apportionments = Apportionment::ids($apportionments_ids)->read(['name', 'total_shares'])->get();
 
             $account_code_map = [];
@@ -251,7 +250,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                         'date_from'             => null,
                         'date_to'               => null,
                         'nb_days'               => null,
-                        'total_shares'          => 0,
+                        'property_lot_shares'   => $property_lots[$property_lot_id]['statutory_shares'],
                         'expenses'              => []
                     ];
                 }
@@ -293,7 +292,6 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                 $owner['property_lots'][$property_lot_id]['date_from'] = $line['date_from'];
                 $owner['property_lots'][$property_lot_id]['date_to'] = $line['date_to'];
                 $owner['property_lots'][$property_lot_id]['nb_days'] = $line['nb_days'];
-                $owner['property_lots'][$property_lot_id]['lot_shares'] = $line['lot_shares'];
             }
 
             // sort accounts on their code

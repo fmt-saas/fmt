@@ -853,7 +853,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
         // retrieve all ownerships of given Condo, whatever their history
         $ownerships = Ownership::search(['condo_id', '=', $fiscalPeriod['condo_id']])
-            ->read(['name', 'date_from', 'date_to', 'property_lot_ownerships_ids' => ['property_lot_id' => ['id', 'statutory_shares'], 'date_from', 'date_to']])
+            ->read(['name', 'date_from', 'date_to', 'property_lot_ownerships_ids' => ['property_lot_id', 'date_from', 'date_to']])
             ->get();
 
         // compute nb_days of Ownership to apply prorata
@@ -868,11 +868,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             foreach($ownerships[$ownership_id]['property_lot_ownerships_ids'] as $property_lot_ownership_id => $propertyLotOwnership) {
                 $start = max($fiscalPeriod['date_from'], $propertyLotOwnership['date_from'] ?? $fiscalPeriod['date_from']);
                 $end   = min($fiscalPeriod['date_to'], $propertyLotOwnership['date_to'] ?? $fiscalPeriod['date_to']);
-                $ownerships[$ownership_id]['property_lots'][$propertyLotOwnership['property_lot_id']['id']] = [
+                $ownerships[$ownership_id]['property_lots'][$propertyLotOwnership['property_lot_id']] = [
                     'nb_days'    => ($start <= $end) ? (($end-$start)/86400 + 1) : 0,
                     'date_from'  => $start,
-                    'date_to'    => $end,
-                    'lot_shares' => $propertyLotOwnership['property_lot_id']['statutory_shares']
+                    'date_to'    => $end
                 ];
             }
         }
@@ -1343,9 +1342,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                                             'date'              => $account_entry['date'] ?? null,
                                             'date_from'         => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['date_from'],
                                             'date_to'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['date_to'],
-                                            'nb_days'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['nb_days'],
-                                            'shares'            => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['lot_shares'],
-                                            'lot_shares'        => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['lot_shares']
+                                            'nb_days'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['nb_days']
                                         ];
                                 }
                             }
@@ -1364,7 +1361,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                                         'date_to'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['date_to'],
                                         'nb_days'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['nb_days'],
                                         'shares'            => $account['shares'] ?? null,
-                                        'lot_shares'        => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['lot_shares'],
                                         'total_amount'      => $account['total_amount'],
                                     ];
                             }
