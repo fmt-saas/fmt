@@ -274,21 +274,6 @@ $map_accounts = Account::search([
     ->read(['code', 'name', 'parent_account_id', 'description', 'operation_assignment', 'account_nature', 'account_class', 'is_control_account'])
     ->get();
 
-/*
-foreach($accounts as $account_id => $account) {
-    $map_accounts[$account_id] = [
-        'id'                => $account_id,
-        'code'              => (string) $account['code'],
-        'name'              => (string) $account['name'],
-        'parent_account_id' => $account['parent_account_id'] ?? null,
-        'description'       => $account['description'],
-        'account_nature'    => $account['account_nature'],
-        'account_class'     => $account['account_class'],
-        'is_control_account'=> $account['is_control_account']
-    ];
-}
-*/
-
 // retrieve storage accounts (collectors) and map with each account
 $map_parent_storage = [];
 

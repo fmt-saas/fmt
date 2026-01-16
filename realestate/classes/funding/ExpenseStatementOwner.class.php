@@ -138,8 +138,15 @@ class ExpenseStatementOwner extends \equal\orm\Model {
     protected static function calcSchema($self) {
         $result = [];
 
+        /*
+        // #todo - this should be a param on each Condo / Ownership
+        // !! nothing is tested to make sure there is a consistency between accounts apportionment and parent account apportionment (might differ or even not be set)
+        */
+        $group_by_collector_account = true;
+
         $self->read([
                 'id',
+                'condo_id',
                 'date_from',
                 'date_to',
                 'nb_days',
@@ -162,6 +169,32 @@ class ExpenseStatementOwner extends \equal\orm\Model {
             ]);
 
         foreach($self as $id => $statementOwner) {
+
+            // create accounts map based on chart of account
+            $map_parent_storage = [];
+
+            if($group_by_collector_account) {
+                $map_accounts = Account::search([
+                        ['condo_id', '=', $statementOwner['condo_id']]
+                    ])
+                    ->read(['code', 'name', 'parent_account_id', 'is_control_account'])
+                    ->get();
+
+                foreach($map_accounts as $account_id => $account) {
+                    $parent_account_id = $account['parent_account_id'];
+                    while($parent_account_id) {
+                        if(!isset($map_accounts[$parent_account_id])) {
+                            break;
+                        }
+                        $parent = $map_accounts[$parent_account_id];
+                        if($parent['is_control_account']) {
+                            $map_parent_storage[$account_id] = $parent_account_id;
+                            break;
+                        }
+                        $parent_account_id = $parent['parent_account_id'];
+                    }
+                }
+            }
 
             // load all dependencies at once
             $invoice_lines = $statementOwner['statement_owner_lines_ids']->toArray();
@@ -249,32 +282,78 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                 ];
             }
 
+            // sort accounts on their code
             foreach($owner['property_lots'] as &$lot) {
                 foreach($lot['expenses'] as &$expense) {
                     foreach($expense['apportionments'] as &$apportionment) {
 
-                        uksort(
-                            $apportionment['accounts'],
-                            static function ($a, $b) use ($account_code_map) {
-                                return strcmp(
-                                    $account_code_map[$a] ?? '',
-                                    $account_code_map[$b] ?? ''
-                                );
-                            }
-                        );
+                        if($group_by_collector_account) {
 
-                        $sorted_accounts = [];
-                        foreach($apportionment['accounts'] as $lines) {
-                            foreach($lines as $line) {
-                                $sorted_accounts[] = $line;
+                            $grouped_accounts = [];
+
+                            foreach($apportionment['accounts'] as $lines) {
+                                foreach($lines as $line) {
+
+                                    $account_id   = $line['id'];
+                                    $collector_id = $map_parent_storage[$account_id] ?? $account_id;
+
+                                    if(!isset($grouped_accounts[$collector_id])) {
+
+                                        $collector = $map_accounts[$collector_id];
+
+                                        $grouped_accounts[$collector_id] = [
+                                            'id'            => $collector_id,
+                                            'name'          => $collector['name'],
+                                            'code'          => $collector['code'],
+                                            'total_amount'  => 0.0,
+                                            'owner'         => 0.0,
+                                            'tenant'        => 0.0,
+                                            'vat'           => 0.0
+                                        ];
+                                    }
+
+                                    $grouped_accounts[$collector_id]['total_amount'] += $line['total_amount'];
+                                    $grouped_accounts[$collector_id]['owner']        += $line['owner'];
+                                    $grouped_accounts[$collector_id]['tenant']       += $line['tenant'];
+                                    $grouped_accounts[$collector_id]['vat']          += $line['vat'];
+                                }
                             }
+
+                            $apportionment['accounts'] = array_values($grouped_accounts);
+
+                            usort(
+                                $apportionment['accounts'],
+                                static function ($a, $b) {
+                                    return strcmp($a['code'], $b['code']);
+                                }
+                            );
+
                         }
+                        else {
+                            uksort(
+                                $apportionment['accounts'],
+                                static function ($a, $b) use ($account_code_map) {
+                                    return strcmp(
+                                        $account_code_map[$a] ?? '',
+                                        $account_code_map[$b] ?? ''
+                                    );
+                                }
+                            );
 
-                        $apportionment['accounts'] = $sorted_accounts;
+                            $sorted_accounts = [];
+                            foreach($apportionment['accounts'] as $lines) {
+                                foreach($lines as $line) {
+                                    $sorted_accounts[] = $line;
+                                }
+                            }
+
+                            $apportionment['accounts'] = $sorted_accounts;
+                        }
                     }
                 }
             }
 
+            // flatten arrays for choosing the grouping and ease rendering
             $owner['property_lots'] = array_values($owner['property_lots']);
 
             foreach($owner['property_lots'] as &$lot) {
