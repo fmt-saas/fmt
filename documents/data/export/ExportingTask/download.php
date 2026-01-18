@@ -46,11 +46,15 @@ if($exportingTask['status'] !== 'ready') {
 }
 
 // generate the zip archive
-$tmp_file = tempnam(sys_get_temp_dir(), 'zip');
+$tmp_file = sys_get_temp_dir()
+          . DIRECTORY_SEPARATOR
+          . uniqid('zip_', true)
+          . '.zip';
+
 $zip = new ZipArchive();
-if($zip->open($tmp_file, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+if($zip->open($tmp_file, ZipArchive::CREATE) !== true) {
     // could not create the ZIP archive
-    throw new Exception("Unable to create a ZIP file.", EQ_ERROR_UNKNOWN);
+    throw new Exception("failed_creating_zip_archive", EQ_ERROR_UNKNOWN);
 }
 
 foreach($exportingTask['exporting_task_lines_ids'] as $exporting_task_line_id => $exportingTaskLine) {
@@ -67,9 +71,17 @@ foreach($exportingTask['exporting_task_lines_ids'] as $exporting_task_line_id =>
 
 $zip->close();
 
+if(!is_file($tmp_file)) {
+    throw new Exception('zip_file_not_available', EQ_ERROR_UNKNOWN);
+}
+
 // read raw data
-$data = file_get_contents($tmp_file);
-unlink($tmp_file);
+$data = '';
+
+if(isset($tmp_file) && is_file($tmp_file)) {
+    $data = file_get_contents($tmp_file);
+    unlink($tmp_file);
+}
 
 $max_length = 128;
 $export_name = substr(str_replace(' ', '_', TextTransformer::normalize($exportingTask['name'])), 0, $max_length);

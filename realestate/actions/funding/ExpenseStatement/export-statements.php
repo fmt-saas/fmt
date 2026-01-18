@@ -53,14 +53,14 @@ if(!$expenseStatement) {
 
 // fetch invitations relating to given communication_method
 $expenseStatementCorrespondences = ExpenseStatementCorrespondence::search([
-        [ 'expense_statement_execution_id', '=', $expenseStatement['id'] ],
+        [ 'expense_statement_id', '=', $expenseStatement['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
     ->read(['is_sent', 'document_id']);
 
 // merge all generated documents (for each ownership) into a single PDF
 $temp_files = [];
-$output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
+$output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
 foreach($expenseStatementCorrespondences as $expense_statement_correspondence_id => $expenseStatementCorrespondence) {
 
@@ -78,12 +78,14 @@ foreach($expenseStatementCorrespondences as $expense_statement_correspondence_id
         continue;
     }
 
-    $temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+    $temp = tempnam(sys_get_temp_dir(), 'pdf_');
     file_put_contents($temp, $expenseStatementCorrespondence['document_id']['data'] ?? '');
     $temp_files[] = $temp;
 }
 
 // merge all generated documents
+$output = '';
+
 try {
     if(!count($temp_files)) {
         throw new Exception('no_files_generated', EQ_ERROR_UNKNOWN);
@@ -107,9 +109,13 @@ catch(Exception $e) {
 }
 finally {
     foreach($temp_files as $file) {
-        @unlink($file);
+        if(isset($file) && is_file($file)) {
+            @unlink($file);
+        }
     }
-    @unlink($output_file);
+    if(isset($output_file) && is_file($output_file)) {
+        @unlink($output_file);
+    }
 }
 
 // store final result as a document (not visible through EDMS)

@@ -37,7 +37,7 @@ $extractTxtFromPdf = function ($document_data) {
     $result = '';
 
     try {
-        $output_file = tempnam(sys_get_temp_dir(), 'extract_') . '.pdf';
+        $output_file = tempnam(sys_get_temp_dir(), 'extract_pdf_');
         file_put_contents($output_file, $document_data);
 
         $call_shell = shell_exec("pdffonts -v 2>&1");
@@ -66,8 +66,6 @@ $extractTxtFromPdf = function ($document_data) {
         $command = escapeshellcmd("pdftotext -enc UTF-8 -layout -nopgbrk " . escapeshellarg($output_file) . " -");
         $raw_text = shell_exec($command);
 
-        unlink($output_file);
-
         if($raw_text === null) {
             throw new Exception('document_extract_failed', EQ_ERROR_UNKNOWN);
         }
@@ -76,6 +74,12 @@ $extractTxtFromPdf = function ($document_data) {
     catch(Exception $e) {
         trigger_error("APP::PDF document extraction failed: ".$e->getMessage(), EQ_REPORT_WARNING);
     }
+    finally {
+        if(isset($output_file) && is_file($output_file)) {
+            @unlink($output_file);
+        }
+    }
+
 
     return $result;
 };

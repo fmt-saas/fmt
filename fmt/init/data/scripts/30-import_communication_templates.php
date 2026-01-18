@@ -237,13 +237,13 @@ $template = Template::create([
     ->first();
 TemplatePart::create([
     'name'          => 'subject',
-    'value'         => 'Décompte de charges {period}',
+    'value'         => 'Décompte de charges',
     'template_id'   => $template['id'],
     'variables'     => '["condo", "period"]'
 ]);
 TemplatePart::create([
     'name'          => 'introduction',
-    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Veuillez trouver en pièce jointe le décompte de charge de la copropriété <strong>{condo}</strong>, pour la période <strong>{period}</strong>.</p>",
+    'value'         => "<p><small><big>Madame, Monsieur,</big></small></p><p><small><big>Nous vous prions de trouver ci-joint le détail de votre participation dans le décompte de charges de a copropriété dénommée {condo} pour la période allant du {period}, et en particulier les documents suivants :</big></small></p><ol><li><small><big>Votre décompte de charges ;</big></small></li><li><small><big>Le détail de votre situation de compte copropriétaire ;</big></small></li><li><small><big>Le bilan comptable de la copropriété à la date de clôture ;</big></small></li><li><small><big>La liste des dépenses faisant partie du décompte ;</big></small></li></ol><p><small><big>Le montant total à payer ainsi que les modalités de paiement se trouvent dans le tableau ci-dessous.</big></small></p><p><small><big>Le montant tient compte d'un éventuel ancien solde, qu'il soit en votre faveur ou en faveur de la copropriété.</big></small></p><p><small><big>Nous restons à votre disposition pour toute question.</big></small></p><p><small><big>Cordialement,</big></small></p><p><small><big>Le syndic</big></small></p>",
     'template_id'   => $template['id'],
     'variables'     => '["condo", "firstname", "lastname", "period"]'
 ]);

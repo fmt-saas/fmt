@@ -39,7 +39,9 @@
             "label": "Download Statement",
             "help": "Current view domain is relayed to called controller.",
             "description": "Generate a document for all owners for current statement.",
-            "controller": "realestate_funding_ExpenseStatement_render-pdf"
+            "controller": "realestate_funding_ExpenseStatement_render-pdf",
+            "visible_help": "Download relies on related Exporting Task",
+            "visible": false
         }
     ],
     "routes": [
@@ -196,6 +198,48 @@
                                                 "type": "field",
                                                 "value": "accounting_entry_id",
                                                 "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.correspondences",
+                        "label": "Correspondences",
+                        "visible": ["status", "=", "posted"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "id": "label.exporting_tasks",
+                                                "type": "label",
+                                                "value": "Export tasks",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "exporting_tasks_ids",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "id": "label.expense_statement_correspondences",
+                                                "type": "label",
+                                                "value": "Correspondences",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "expense_statement_correspondences_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.default",
+                                                    "domain": ["communication_method", "=", "email"]
+                                                }
                                             }
                                         ]
                                     }

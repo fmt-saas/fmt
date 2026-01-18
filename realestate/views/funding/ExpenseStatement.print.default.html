@@ -460,59 +460,60 @@
         <!-- #TODO -->
 
         <!-- pass-5 TOTAL expenses -->
-        <h2 style="margin-top: 20px;">Total des charges</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 50%;">Désignation</th>
-                    <th style="width: 12%;">Copro</th>
-                    <th style="width: 12%;">Lot</th>
-                    <th style="width: 12%;">TVA</th>
-                    <th style="width: 13%;">Prop</th>
-                    <th style="width: 13%;">Loc</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Charges communes</td>
-                    <td>{{ common_total | format_money() }}</td>
-                    <td>{{ (common_total_owner + common_total_tenant) | format_money() }}</td>
-                    <td>{{ common_total_vat | format_money() }}</td>
-                    <td>{{ common_total_owner | format_money() }}</td>
-                    <td>{{ common_total_tenant | format_money() }}</td>
-                </tr>
-                <!-- #todo - add consumptions
-                <tr>
-                    <td>Charges communes</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                -->
-                {% if private_total > 0 %}
-                <tr>
-                    <td>Frais privatifs</td>
-                    <td></td>
-                    <td>{{ (private_total_owner + private_total_tenant)| format_money() }}</td>
-                    <td>{{ private_total_vat | format_money() }}</td>
-                    <td>{{ private_total_owner | format_money() }}</td>
-                    <td>{{ private_total_tenant | format_money() }}</td>
-                </tr>
-                {% endif %}
-            </tbody>
-            <tfoot>
-                <tr class="total-footer">
-                    <td style="text-align: right;">Totaux généraux</td>
-                    <td></td>
-                    <td>{{ (common_total_owner + private_total_owner + common_total_tenant + private_total_tenant) | format_money() }}</td>
-                    <td>{{ (common_total_vat + private_total_vat) | format_money() }}</td>
-                    <td>{{ (common_total_owner + private_total_owner) | format_money() }}</td>
-                    <td>{{ (common_total_tenant + private_total_tenant) | format_money() }}</td>
-                </tr>
-            </tfoot>
-        </table>
-
+        <div style="page-break-inside: avoid;">
+            <h2 style="margin-top: 20px;">Total des charges</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50%;">Désignation</th>
+                        <th style="width: 12%;">Copro</th>
+                        <th style="width: 12%;">Lot</th>
+                        <th style="width: 12%;">TVA</th>
+                        <th style="width: 13%;">Prop</th>
+                        <th style="width: 13%;">Loc</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Charges communes</td>
+                        <td>{{ common_total | format_money() }}</td>
+                        <td>{{ (common_total_owner + common_total_tenant) | format_money() }}</td>
+                        <td>{{ common_total_vat | format_money() }}</td>
+                        <td>{{ common_total_owner | format_money() }}</td>
+                        <td>{{ common_total_tenant | format_money() }}</td>
+                    </tr>
+                    <!-- #todo - add consumptions
+                    <tr>
+                        <td>Charges communes</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    -->
+                    {% if private_total > 0 %}
+                    <tr>
+                        <td>Frais privatifs</td>
+                        <td></td>
+                        <td>{{ (private_total_owner + private_total_tenant)| format_money() }}</td>
+                        <td>{{ private_total_vat | format_money() }}</td>
+                        <td>{{ private_total_owner | format_money() }}</td>
+                        <td>{{ private_total_tenant | format_money() }}</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+                <tfoot>
+                    <tr class="total-footer">
+                        <td style="text-align: right;">Totaux généraux</td>
+                        <td></td>
+                        <td>{{ (common_total_owner + private_total_owner + common_total_tenant + private_total_tenant) | format_money() }}</td>
+                        <td>{{ (common_total_vat + private_total_vat) | format_money() }}</td>
+                        <td>{{ (common_total_owner + private_total_owner) | format_money() }}</td>
+                        <td>{{ (common_total_tenant + private_total_tenant) | format_money() }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     {% endfor %}
 
 

@@ -74,7 +74,7 @@ if(stripos($call_qpdf, 'qpdf version') === false) {
 }
 
 $temp_files = [];
-$output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
+$output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
 try {
 
@@ -85,7 +85,7 @@ try {
                         'fiscal_period_id'  => $fiscalPeriod['id'],
                         'ownership_id'      => $ownership_id
                     ]);
-                $temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+                $temp = tempnam(sys_get_temp_dir(), 'pdf_');
                 file_put_contents($temp, $pdf);
                 $temp_files[] = $temp;
             }
@@ -113,10 +113,14 @@ catch(Exception $e) {
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 finally {
-    foreach ($temp_files as $file) {
-        @unlink($file);
+    foreach($temp_files as $file) {
+        if(isset($file) && is_file($file)) {
+            @unlink($file);
+        }
     }
-    @unlink($output_file);
+    if(isset($output_file) && is_file($output_file)) {
+        @unlink($output_file);
+    }
 }
 
 $context->httpResponse()

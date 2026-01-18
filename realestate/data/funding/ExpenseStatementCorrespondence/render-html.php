@@ -154,7 +154,7 @@ $statement = ExpenseStatement::id($expenseStatementCorrespondence['expense_state
         'common_total',
         'private_total',
         'statement_owners_ids' => [
-            '@domain' => ['ownership_id', '=', $params['ownership_id']],
+            '@domain' => ['ownership_id', '=', $expenseStatementCorrespondence['ownership_id']],
             'schema'
         ]
     ])
@@ -230,7 +230,7 @@ if(!count($values['owners'])) {
     sinon soit on prendre le premier owner de la liste, soit on prend le owner_id renseigné dans les params (pour courrier personnalisé, même s'il s'agit du même ownership)
 */
 
-$owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
+$owner = Owner::search(['ownership_id', '=', $expenseStatementCorrespondence['ownership_id']])
     ->read([
         'identity_id' => [
             'name', 'address_street', 'address_dispatch', 'address_zip',

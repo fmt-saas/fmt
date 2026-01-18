@@ -1,0 +1,94 @@
+{
+    "name": "Courrier de relevé de charges",
+    "plural": "Courriers de relevé de charges",
+    "description": "Envoi individuel d'un relevé de charges à un propriétaire ou son représentant.",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Libellé du courrier de relevé de charges.",
+            "help": ""
+        },
+        "expense_statement_id": {
+            "label": "Relevé de charges",
+            "description": "Relevé de charges concerné par l'envoi.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle le courrier est rattaché.",
+            "help": ""
+        },
+        "owner_id": {
+            "label": "Propriétaire",
+            "description": "Propriétaire destinataire du relevé.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Dossier de propriété concerné par l'envoi.",
+            "help": ""
+        },
+        "document_id": {
+            "label": "Document",
+            "description": "Document PDF du relevé, le cas échéant.",
+            "help": ""
+        },
+        "has_document": {
+            "label": "Document généré",
+            "description": "Indique si le document du relevé a été généré.",
+            "help": ""
+        },
+        "mails_ids": {
+            "label": "Emails",
+            "description": "Messages email associés à l'envoi.",
+            "help": ""
+        },
+        "sent_date": {
+            "label": "Date d'envoi",
+            "description": "Date d'envoi initial du relevé.",
+            "help": ""
+        },
+        "communication_method": {
+            "label": "Mode de communication",
+            "description": "Canal utilisé pour l'envoi du relevé.",
+            "help": "",
+            "selection": {
+                "email": "Email",
+                "postal": "Courrier postal",
+                "postal_registered": "Courrier recommandé",
+                "postal_registered_receipt": "Courrier recommandé avec accusé"
+            }
+        },
+        "is_sent": {
+            "label": "Envoyé",
+            "description": "Indique si le relevé a été envoyé.",
+            "help": ""
+        },
+        "is_acknowledged": {
+            "label": "Accusé de réception",
+            "description": "Indique si le destinataire a accusé réception.",
+            "help": ""
+        },
+        "email_address": {
+            "label": "Adresse e-mail",
+            "description": "Adresse e-mail du propriétaire.",
+            "help": "Récupérée automatiquement depuis les coordonnées du propriétaire."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Courrier de relevé de charges",
+            "description": "Détail de l'envoi d'un relevé de charges.",
+            "layout": {
+                "route.mails": {
+                    "label": "Email"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Courriers de relevé de charges",
+            "description": "Suivi des relevés de charges envoyés aux copropriétaires.",
+            "layout": {}
+        }
+    }
+}

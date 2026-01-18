@@ -86,6 +86,16 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             /* additional fields*/
 
+            'exporting_tasks_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Reference to the task for exporting paper mails for assembly invitation, if any.",
+                'foreign_object'    => 'documents\export\ExportingTask',
+                'foreign_field'     => 'object_id',
+                'domain'            => [
+                    ['object_class', '=', 'realestate\funding\ExpenseStatement']
+                ]
+            ],
+
             'statements_exporting_task_id' => [
                 'type'              => 'many2one',
                 'description'       => "Reference to the task for exporting paper mails for expense statement correspondences, if any.",

@@ -52,18 +52,18 @@ $parentNode = Node::search([
 
 
 $temp_files = [];
-$output_file = tempnam(sys_get_temp_dir(), 'merged_') . '.pdf';
+$output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
 // generate document and add it to EDMS
 $data1 = eQual::run('get', 'realestate_governance_AssemblyInvitationCorrespondence_render-pdf', ['id' => $assemblyInvitationCorrespondence['id']]);
 
-$temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+$temp = tempnam(sys_get_temp_dir(), 'pdf_');
 file_put_contents($temp, $data1 ?? '');
 $temp_files[] = $temp;
 
 $data2 = eQual::run('get', 'realestate_governance_Assembly_mandate_render-pdf', ['id' => $assemblyInvitationCorrespondence['assembly_id'], 'ownership_id' => $assemblyInvitationCorrespondence['ownership_id']]);
 
-$temp = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+$temp = tempnam(sys_get_temp_dir(), 'pdf_');
 file_put_contents($temp, $data2 ?? '');
 $temp_files[] = $temp;
 
@@ -92,9 +92,13 @@ catch(Exception $e) {
 }
 finally {
     foreach($temp_files as $file) {
-        @unlink($file);
+        if(isset($file) && is_file($file)) {
+            @unlink($file);
+        }
     }
-    @unlink($output_file);
+    if(isset($output_file) && is_file($output_file)) {
+        @unlink($output_file);
+    }
 }
 
 
