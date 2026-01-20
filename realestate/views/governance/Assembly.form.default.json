@@ -205,6 +205,33 @@
             ]
         },
         {
+            "id": "action.reopen_assembly",
+            "label": "Reopen Assembly",
+            "description": "Go back the attendance step.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "transition": "reopen"
+            },
+            "visible": [
+                [
+                    "is_valid",
+                    "=",
+                    false
+                ],
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "=",
+                    "assembly_validation"
+                ]
+            ]
+        },
+        {
             "id": "action.adjourn_assembly",
             "label": "Adjourn Assembly",
             "description": "Close the Assembly, mark it as adjourned.",

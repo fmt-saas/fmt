@@ -276,10 +276,12 @@ class Assembly extends \equal\orm\Model {
             'invalidity_reason' => [
                 'type'        => 'string',
                 'selection'   => [
+                    '',                             // Valid assembly
                     'quorum_owners_not_met',       // Not enough owners present or represented
                     'quorum_shares_not_met'        // Not enough shares represented
                 ],
                 'description' => "Reason for invalidity of the Assembly.",
+                'default'     => '',
                 'visible'     => ['is_valid', '=', false]
             ],
 
@@ -482,6 +484,11 @@ class Assembly extends \equal\orm\Model {
                         'policies'      => ['can_close'],
                         'onafter'       => 'onafterClose',
                         'status'        => 'held'
+                    ],
+                    'reopen' => [
+                        'description'   => '',
+                        'onafter'       => 'onafterReopen',
+                        'status'        => 'in_progress'
                     ],
                     'adjourn' => [
                         'description'   => '',
@@ -948,6 +955,15 @@ class Assembly extends \equal\orm\Model {
                     'is_owner'      => false
                 ]);
         }
+    }
+
+    protected static function onafterReopen($self) {
+        $self->update([
+                'is_valid'          => true,
+                'invalidity_reason' => '',
+                'is_complete'       => false,
+                'session_time_end'  => null
+            ]);
     }
 
     protected static function onafterAdjourn($self, $dispatch) {
