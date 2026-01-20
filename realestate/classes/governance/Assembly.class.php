@@ -962,16 +962,16 @@ class Assembly extends \equal\orm\Model {
                 'is_valid'          => true,
                 'invalidity_reason' => '',
                 'is_complete'       => false,
-                'session_time_end'  => null
+                'session_time_end'  => null,
+                'step'              => 'opening'
             ]);
     }
 
     protected static function onafterAdjourn($self, $dispatch) {
 
-
         foreach($self as $id => $assembly) {
             // invalidity alert is not relevant anymore
-            $dispatch->cancel('realestate.governance.assembly.invalid', 'realestate\governance\Assembly', $id);
+            $dispatch->cancel('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $id);
         }
     }
 
@@ -2047,7 +2047,7 @@ class Assembly extends \equal\orm\Model {
                 // at least half of the shares of the statutory apportionment
                 if( ($assembly['count_represented_shares'] / $assembly['count_shares']) < 0.5) {
                     $result[$id] = [
-                        'invalid_count_shares' => 'Less that 50% of the shares are censed for the assembly.'
+                        'quorum_shares_not_met' => 'Less than 50% of the shares are censed for the assembly.'
                     ];
                     continue;
                 }
@@ -2273,16 +2273,25 @@ class Assembly extends \equal\orm\Model {
                             'invalidity_reason' => 'quorum_shares_not_met'
                         ]);
                 }
+                // other errors are considered as blocking and mistake from the user
+                /*
+                'invalid_count_shares' => 'Less than 50% of the shares are censed for the assembly.'
+                'invalid_count_owners' => 'No owners are censed for the assembly.'
+                'invalid_count_owners' => 'Some Owners should be present but are missing.'
+                'missing_president' => 'A president must be selected amongst attendees.'
+                'multiple_presidents' => 'Only one president can be selected amongst attendees.'
+                'missing_secretary' => 'A secretary must be selected amongst attendees.'
+                'multiple_secretaries' => 'Only one secretary can be selected amongst attendees.'
+                */
                 else {
                     throw new \Exception(serialize(['is_valid' => $inconsistencies]), EQ_ERROR_INVALID_PARAM);
                 }
-
-                $dispatch->dispatch('realestate.governance.assembly.invalid', 'realestate\governance\Assembly', $id, 'important');
+                $dispatch->dispatch('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $id, 'important');
                 continue;
             }
 
             // remove previous alert (if any)
-            $dispatch->cancel('realestate.governance.assembly.invalid', 'realestate\governance\Assembly', $id);
+            $dispatch->cancel('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $id);
             // assembly is valid, move one step forward
             self::id($id)->update(['step' => 'agenda_processing']);
         }

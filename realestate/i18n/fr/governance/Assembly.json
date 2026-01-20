@@ -351,6 +351,10 @@
                     "label": "Valider l'assemblée",
                     "description": "Tenter de valider l'assemblée."
                 },
+                "action.reopen_assembly": {
+                    "label": "Réouvrir les présences",
+                    "description": "Reprendre les présences de l'assemblée."
+                },
                 "action.adjourn_assembly": {
                     "label": "Ajourner l'assemblée",
                     "description": "Clore l'assemblée et la marquer comme ajournée."
