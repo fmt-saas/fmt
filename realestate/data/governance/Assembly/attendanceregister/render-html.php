@@ -123,7 +123,7 @@ $assembly = Assembly::id($params['id'])
             'register_document_signature_id' => ['sig_method', 'sig_drawn', 'sig_hash', 'sig_algo', 'sig_timestamp']
         ],
         'assembly_representations_ids' => ['attendee_id', 'ownership_id', 'representation_type'],
-        'ownerships_ids' => ['id', 'name'],
+        'ownerships_ids' => ['id', 'name', 'address_recipient'],
         'condo_id' => [
             'name', 'address_street', 'address_city', 'address_zip', 'address_city',
             'registration_number',

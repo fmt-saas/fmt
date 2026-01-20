@@ -122,7 +122,10 @@
             {% if full_register %}
             <tr>
                 <td>
+                    <!--
                     {{ ownership.name }}
+                    -->
+                    {{ ownership.address_recipient }}
                     {% if ownership.type == 'joint' %}
                     <br />[représentant théorique: {{ ownership.representative }}]
                     {% endif %}
