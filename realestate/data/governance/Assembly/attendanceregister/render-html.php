@@ -176,10 +176,11 @@ foreach($propertyLotOwnerships as $propertyLotOwnership) {
     if((!$propertyLotOwnership['date_to'] || $propertyLotOwnership['date_to'] > $assembly['assembly_date']) && $propertyLotOwnership['property_lot_id']['is_primary']) {
         if(!isset($map_ownerships_lots[$propertyLotOwnership['ownership_id']['id']])) {
             $map_ownerships_lots[$propertyLotOwnership['ownership_id']['id']] = [
-                'name'      => $propertyLotOwnership['ownership_id']['name'],
-                'lots'      => [],
-                'shares'    => 0.0,
-                'type'      => $propertyLotOwnership['ownership_id']['ownership_type']
+                'name'              => $propertyLotOwnership['ownership_id']['name'],
+                'address_recipient' => $propertyLotOwnership['ownership_id']['address_recipient'],
+                'lots'              => [],
+                'shares'            => 0.0,
+                'type'              => $propertyLotOwnership['ownership_id']['ownership_type']
             ];
             if($propertyLotOwnership['ownership_id']['ownership_type'] === 'joint') {
                 $map_ownerships_lots[$propertyLotOwnership['ownership_id']['id']]['representative'] = $propertyLotOwnership['ownership_id']['representative_owner_id']['name'];
