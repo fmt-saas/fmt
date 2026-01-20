@@ -55,7 +55,7 @@
             "controller": "core_model_do",
             "params": {
                 "entity": "realestate\\governance\\AssemblyItem",
-                "transition": "reopen"
+                "action": "reopen"
             },
             "visible": ["status", "in", ["adjourned", "closed"]]
         }
