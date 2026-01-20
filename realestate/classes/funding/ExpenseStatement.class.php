@@ -972,7 +972,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             $map_accounting_entry_lines_ids[$accountingEntryLine['id']] = true;
 
-            // 1) provisions (fund requests with request_type=expense_provisions,work_provisions)
+            // 1) provisions (fund requests with request_type=expense_provisions,work_provisions ; account 70x)
             if($accountingEntry['fund_request_execution_id']) {
 
                 // consider only provisions
@@ -980,8 +980,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     trigger_error("APP::skipping accounting entry line {$accountingEntryLine['id']} relating to non-provision fund request", EQ_REPORT_ERROR);
                     continue;
                 }
-
-                trigger_error("APP::considering accounting entry line {$accountingEntryLine['id']} as provisions", EQ_REPORT_ERROR);
 
                 // we must take into account accounting entries on co-owners' 401xxx accounts
                 $subAccountingEntryLines = AccountingEntryLine::search([
@@ -991,6 +989,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ->read(['sale_invoice_line_id']);
 
                 foreach($subAccountingEntryLines as $sub_accounting_entry_line_id => $subAccountingEntryLine) {
+
+                    $map_accounting_entry_lines_ids[$subAccountingEntryLine['id']] = true;
+
                     $sourceLine = FundRequestExecutionLine::id($subAccountingEntryLine['sale_invoice_line_id'])
                         ->read([
                             'name',
