@@ -36,7 +36,7 @@
             /* margin-bottom must match footer::height */
             margin-bottom: 50px;
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 10px;
+            font-size: 12px;
             text-align: justify;
             width: 100%;
         }
@@ -69,6 +69,10 @@
             border-collapse: collapse;
             page-break-inside: avoid;
             border: 1px solid black;
+        }
+
+        main .main-body table {
+            font-size: 10px;
         }
 
         main table th, main table td {
@@ -129,6 +133,7 @@
         {{ introduction | raw }}
     </div>
 
+    <div class="main-body">
     {% for owner in owners %}
         <!-- <h1>{{ owner.name }}</h1> -->
 
@@ -516,6 +521,7 @@
         </div>
     {% endfor %}
 
+    </div>
 
     {% include 'footer.html.twig' %}
 </body>
