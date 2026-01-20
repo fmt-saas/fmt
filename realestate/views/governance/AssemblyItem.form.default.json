@@ -57,7 +57,7 @@
                 "entity": "realestate\\governance\\AssemblyItem",
                 "action": "reopen"
             },
-            "visible": ["status", "in", ["adjourned", "closed"]]
+            "visible": [ ["status", "in", ["adjourned", "closed"]] ]
         }
     ],
     "routes": [
