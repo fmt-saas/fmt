@@ -399,6 +399,8 @@ class Assembly extends \equal\orm\Model {
                 'dependents'      => ['count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']
             ],
 
+            // #todo - add a is_minutes_sent (? calc from minutes correspondences)
+            // +statut "held_sent" ?
             'status' => [
                 'type'           => 'string',
                 'description'    => "Workflow status of the assembly.",
@@ -2310,7 +2312,6 @@ class Assembly extends \equal\orm\Model {
             ->update(['step' => 'assembly_closing'])
             ->do('generate_printable_minutes')
             ->transition('close');
-        // #todo - use a specific controller for confirming the auto actions to perform
     }
 
     protected static function doGeneratePrintableMinutes($self) {
