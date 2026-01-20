@@ -168,7 +168,7 @@ $propertyLotOwnerships = PropertyLotOwnership::search([
     ])
     ->read([
             'date_to',
-            'ownership_id' => ['id', 'name', 'ownership_type', 'representative_owner_id' => ['name']],
+            'ownership_id' => ['id', 'name', 'ownership_type', 'address_recipient', 'representative_owner_id' => ['name']],
             'property_lot_id' => ['name', 'code', 'is_primary']
         ]);
 
