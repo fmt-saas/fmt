@@ -95,6 +95,7 @@
                                         "width": "100%",
                                         "items": [
                                             {
+                                                "id": "label.information_request",
                                                 "type": "label",
                                                 "value": "Information request",
                                                 "width": "100%"
@@ -106,6 +107,7 @@
                                                 "width": "50%"
                                             },
                                             {
+                                                "id": "label.condo_owner",
                                                 "type": "label",
                                                 "value": "Condominium & Owner",
                                                 "width": "100%"
@@ -153,6 +155,7 @@
                                         "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null]],
                                         "items": [
                                             {
+                                                "id": "label.selected_property_lots",
                                                 "type": "label",
                                                 "value": "Selected Property Lots",
                                                 "width": "100%"
@@ -188,6 +191,7 @@
                                         "width": "50%",
                                         "items": [
                                             {
+                                                "id": "label.contact",
                                                 "type": "label",
                                                 "value": "Contact",
                                                 "width": "100%"
@@ -256,6 +260,7 @@
                                         "width": "100%",
                                         "items": [
                                             {
+                                                "id": "label.funds_balances",
                                                 "type": "label",
                                                 "value": "1° Condominium funds balances",
                                                 "width": "100%"
@@ -280,6 +285,7 @@
                                                 }
                                             },
                                             {
+                                                "id": "label.seller_arrears",
                                                 "type": "label",
                                                 "value": "2° Seller arrears",
                                                 "width": "100%"
@@ -310,6 +316,7 @@
                                                 }
                                             },
                                             {
+                                                "id": "label.transfer_file_fees",
                                                 "type": "label",
                                                 "value": "2° bis Transfer file fees",
                                                 "width": "100%"
@@ -320,6 +327,7 @@
                                                 "width": "100%"
                                             },
                                             {
+                                                "id": "label.voted_fund_requests",
                                                 "type": "label",
                                                 "value": "3° Fund requests voted in GA",
                                                 "width": "100%"
@@ -330,6 +338,7 @@
                                                 "width": "100%"
                                             },
                                             {
+                                                "id": "label.judiciary_procedures",
                                                 "type": "label",
                                                 "value": "4° Judiciary Procedures",
                                                 "width": "100%"
@@ -345,6 +354,7 @@
                                                 "width": "100%"
                                             },
                                             {
+                                                "id": "label.minutes_and_statements",
                                                 "type": "label",
                                                 "value": "5° General Assembly minutes (last 3 years) & periodic expense statements (last 2 years)",
                                                 "width": "100%"
@@ -355,6 +365,7 @@
                                                 "width": "100%"
                                             },
                                             {
+                                                "id": "label.latest_balance_sheet",
                                                 "type": "label",
                                                 "value": "6° Latest Balance sheet validated by General Assembly",
                                                 "width": "100%"
@@ -408,6 +419,7 @@
                                         "width": "100%",
                                         "items": [
                                             {
+                                                "id": "label.maintenance_expenses",
                                                 "type": "label",
                                                 "value": "1° Maintenance Expenses",
                                                 "width": "100%"
@@ -418,6 +430,7 @@
                                                 "width": "100%"
                                             },
                                             {
+                                                "id": "label.fund_requests",
                                                 "type": "label",
                                                 "value": "2° Fund Requests",
                                                 "width": "100%"
@@ -442,6 +455,7 @@
                                                 }
                                             },
                                             {
+                                                "id": "label.common_acquisitions",
                                                 "type": "label",
                                                 "value": "3° Common areas acquisitions",
                                                 "width": "100%"
@@ -452,6 +466,7 @@
                                                 "width": "100%"
                                             },
                                             {
+                                                "id": "label.condo_debts",
                                                 "type": "label",
                                                 "value": "4° Condominium debts",
                                                 "width": "100%"
@@ -462,6 +477,7 @@
                                                 "width": "100%"
                                             },
                                             {
+                                                "id": "label.seller_arrears_debts",
                                                 "type": "label",
                                                 "value": "5° Seller arrears debts",
                                                 "width": "100%"
@@ -477,6 +493,7 @@
                                                 "width": "100%"
                                             },
                                             {
+                                                "id": "label.additional_information",
                                                 "type": "label",
                                                 "value": "Additional information",
                                                 "width": "100%"
