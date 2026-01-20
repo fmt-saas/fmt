@@ -1179,12 +1179,18 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                         $amount = $prorata * ($line_amount * $shares / $total_shares);
 
+                        $amount_owner = round($amount, 2);
+                        $adjust = round($amount, 2) - $amount_owner;
+                        $amount_owner += $adjust;
+                        // add up the delta (cents to reinvoice later): if delta is < 0, it will be reimbursed at some point
+                        $delta_total += $amount - $amount_owner;
+
                         if(!isset($map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']])) {
                             $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']] = [
                                     'shares'        => $shares,
                                     'total_shares'  => $total_shares,
                                     'total_amount'  => $line_amount,
-                                    'owner'         => round($amount, 2),
+                                    'owner'         => $amount_owner,
                                     'tenant'        => 0.0
                                 ];
                         }
