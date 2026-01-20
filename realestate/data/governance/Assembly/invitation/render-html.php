@@ -229,7 +229,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'date'              => $getFormattedDate($assembly['assembly_date']),
             'location'          => $assembly['assembly_location'],
             'type'              => $map_types[$assembly['assembly_type']],
-            'time_start'        => $getFormattedTime($assembly['session_time_start'])
+            'time_start'        => $getFormattedTime($assembly['session_time_start'], true)
         ];
 
         // Replace {var} items with corresponding values, set in $map_values

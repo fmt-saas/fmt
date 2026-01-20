@@ -492,6 +492,30 @@
             ]
         },
         {
+            "id": "route.print_attendance_register_full",
+            "type": "entry",
+            "label": "Empty Attendance register",
+            "icon": "print",
+            "description": "View printable attendance register.",
+            "route": "/?get=realestate_governance_Assembly_attendanceregister_render-pdf&id=object.id&full=true",
+            "target": "_blank",
+            "absolute": true,
+            "visible": [
+                [
+                    [
+                        "status",
+                        "=",
+                        "in_progress"
+                    ],
+                    [
+                        "step",
+                        "=",
+                        "opening"
+                    ]
+                ]
+            ]
+        },
+        {
             "id": "route.view_attendance_register",
             "type": "entry",
             "label": "View Attendance register",
@@ -535,16 +559,6 @@
             "target": "_blank",
             "absolute": true,
             "visible": [
-                [
-                    [
-                        "status",
-                        "in",
-                        [
-                            "held",
-                            "adjourned"
-                        ]
-                    ]
-                ],
                 [
                     [
                         "status",

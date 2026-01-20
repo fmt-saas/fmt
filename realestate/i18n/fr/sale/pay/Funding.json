@@ -110,8 +110,8 @@
             "help": ""
         },
         "is_sent": {
-            "label": "Envoyé (SEPA)",
-            "description": "Devient vrai quand le flux SEPA a été généré.",
+            "label": "Envoyé",
+            "description": "Marqué `vrai` quand l'ordre SEPA a été généré.",
             "help": ""
         },
         "status": {

@@ -97,7 +97,7 @@
             "id": "action.votes_board",
             "inline": true,
             "label": "Show board",
-            "icon": "visibility",
+            "icon": "how_to_vote",
             "description": "Show votes board.",
             "component": {
                 "name": "assemblyVoteBoard",
@@ -107,6 +107,30 @@
                 }
             },
             "visible": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ]
+        },
+        {
+            "id": "action.edit_notes",
+            "inline": true,
+            "label": "Edit minutes",
+            "icon": "edit",
+            "description": "Edit minutes notes.",
+            "component": {
+                "name": "assemblyEditItemMinutes",
+                "data": {
+                    "assembly_id": "object.assembly_id",
+                    "assembly_item_id": "object.id"
+                }
+            },
+            "visible": [
+                [
+                    ["in_progress", "=", "object.assembly_status"],
+                    ["agenda_processing", "=", "object.assembly_step"]
+                ],
+                [
+                    ["in_progress", "=", "object.assembly_status"],
+                    ["minutes_confirmation", "=", "object.assembly_step"]
+                ]
+            ]
         }
     ],
     "layout": {
@@ -138,12 +162,12 @@
             {
                 "type": "field",
                 "value": "order",
-                "width": "10%"
+                "width": "8%"
             },
             {
                 "type": "field",
                 "value": "name",
-                "width": "40%"
+                "width": "30%"
             },
             {
                 "type": "field",
@@ -208,7 +232,7 @@
             {
                 "type": "field",
                 "value": "status",
-                "width": "15%",
+                "width": "10%",
                 "visible": ["assembly_status", "=", "in_progress"]
             }
         ]

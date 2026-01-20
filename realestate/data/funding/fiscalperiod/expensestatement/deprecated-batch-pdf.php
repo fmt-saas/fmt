@@ -86,7 +86,7 @@ catch(Exception $e) {
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 finally {
-    foreach ($temp_files as $file) {
+    foreach($temp_files as $file) {
         if(isset($file) && is_file($file)) {
             @unlink($file);
         }

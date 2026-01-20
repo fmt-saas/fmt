@@ -293,6 +293,10 @@
                     "label": "Prévisualiser l'invitation",
                     "description": ""
                 },
+                "route.print_attendance_register_full": {
+                    "label": "Feuille de présence vièrge",
+                    "description": "Afficher la feuille de présence théorique complète."
+                },
                 "route.view_attendance_register": {
                     "label": "Voir la feuille de présence",
                     "description": "Afficher la feuille de présence imprimable."

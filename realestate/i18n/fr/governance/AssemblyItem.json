@@ -214,6 +214,10 @@
                     "label": "Ouvrir",
                     "description": "Ouvrir le point de l'assemblée."
                 },
+                "action.revert": {
+                    "label": "Revenir en attente",
+                    "description": "Revenir au statut en attente (annule l'ouverture du point)."
+                },
                 "action.close": {
                     "label": "Clore",
                     "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé."
@@ -221,6 +225,10 @@
                 "action.cast_vote": {
                     "label": "Voter",
                     "description": "Exprimer un vote."
+                },
+                "action.reopen": {
+                    "label": "Réouvrir",
+                    "description": "Réouvrir le point et réinitialiser les votes existants."
                 }
             }
         },
@@ -252,6 +260,10 @@
                     "label": "Ouvrir",
                     "description": "Ouvrir le point de l'assemblée."
                 },
+                "action.revert": {
+                    "label": "Revenir en attente",
+                    "description": "Revenir au statut en attente (annule l'ouverture du point)."
+                },
                 "action.close": {
                     "label": "Clore",
                     "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé."
@@ -259,6 +271,10 @@
                 "action.cast_vote": {
                     "label": "Voter",
                     "description": "Exprimer un vote."
+                },
+                "action.reopen": {
+                    "label": "Réouvrir",
+                    "description": "Réouvrir le point et réinitialiser les votes existants."
                 }
             }
         },
@@ -290,6 +306,10 @@
                     "label": "Ouvrir",
                     "description": "Ouvrir le point de l'assemblée."
                 },
+                "action.revert": {
+                    "label": "Revenir en attente",
+                    "description": "Revenir au statut en attente (annule l'ouverture du point)."
+                },
                 "action.close": {
                     "label": "Clore",
                     "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé."
@@ -297,6 +317,10 @@
                 "action.cast_vote": {
                     "label": "Voter",
                     "description": "Exprimer un vote."
+                },
+                "action.reopen": {
+                    "label": "Réouvrir",
+                    "description": "Réouvrir le point et réinitialiser les votes existants."
                 }
             }
         },

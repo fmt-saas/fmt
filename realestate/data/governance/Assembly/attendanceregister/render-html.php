@@ -27,6 +27,13 @@ use Twig\Extension\ExtensionInterface;
             'required'          => true
         ],
 
+        'full' => [
+            'description'       => 'Flag for requesting the "full" / empty version of the list.',
+            'help'              => 'If set to true, the register will include all attendees without condideration of their representation or signature status.',
+            'type'              => 'boolean',
+            'default'           => false
+        ],
+
         'signed' => [
             'description'       => 'Flag for requesting the signed version of the register.',
             'type'              => 'boolean',
@@ -235,6 +242,7 @@ $values = [
     'organisation'              => $organisation,
     'organisation_logo'         => $getOrganisationLogo($organisation['id']),
 
+    'full_register'             => $params['full'],
     'signed'                    => $params['signed'],
 
     'ownerships'                => $map_ownerships_lots,

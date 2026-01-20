@@ -93,7 +93,7 @@ foreach($mandates as $index => $mandate) {
     }
 }
 
-$ownerships = Ownership::ids(array_keys($map_ownerships_ids))->read(['owners_ids']);
+$ownerships = Ownership::ids(array_keys($map_ownerships_ids))->read(['owners_ids', 'statutory_shares'])->get();
 
 $map_owners_ids = [];
 
@@ -134,6 +134,11 @@ foreach($owners as $index => $owner) {
     if(isset($map_identities_ids[$owner['identity_id']])) {
         unset($owners[$index]);
     }
+}
+
+// inject ownership statutory shares
+foreach($owners as $index => $owner) {
+    $owners[$index]['ownership_statutory_shares'] = $ownerships[$owner['ownership_id']]['statutory_shares'] ?? 0;
 }
 
 $context->httpResponse()

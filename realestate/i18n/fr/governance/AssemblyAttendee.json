@@ -138,6 +138,10 @@
                 "action.validate": {
                     "label": "Valider",
                     "description": "Valider le participant."
+                },
+                "action.leave_assembly": {
+                    "label": "Acter le départ",
+                    "description": "Marquer le participant comme ayant quitté l'assemblée."
                 }
             }
         }

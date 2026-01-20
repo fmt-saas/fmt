@@ -245,8 +245,9 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'icon'          => 'done',
                 'transitions'   => [
                     'revert' => [
-                        'description'   => 'Marks the Resolution as open.',
+                        'description'   => 'Reverts the Assembly Item to pending status (undo \'open\').',
                         'policies'      => ['can_revert'],
+                        'onafter'       => 'onafterRevert',
                         'status'        => 'pending'
                     ],
                     'adjourn' => [
@@ -288,16 +289,20 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'policies'      => [],
                 'function'      => 'doRefreshHasVote'
             ],
-
             'refresh_vote_result' => [
-                'description'   => 'Perform the update of the balance according to given accounting entry.',
+                'description'   => 'Refresh the vote result based on casted votes.',
                 'policies'      => [],
                 'function'      => 'doRefreshVoteResult'
             ],
             'cast_vote' => [
-                'description'   => 'Perform the update of the balance according to given accounting entry.',
+                'description'   => 'Cast a vote for the assembly item (resolution).',
                 'policies'      => ['can_vote'],
                 'function'      => 'doCastVote'
+            ],
+            'reopen' => [
+                'description'   => 'Reopen the assembly point. This will reset all existing votes.',
+                'policies'      => ['can_reopen'],
+                'function'      => 'doReopen'
             ]
         ]);
     }
@@ -316,6 +321,11 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'description' => 'Verifies that an assembly item can be closed.',
                 'help'        => 'A resolution can be closed even if some votes have not been casted.',
                 'function'    => 'policyCanClose'
+            ],
+            'can_reopen' => [
+                'description' => 'Verifies that an assembly item can be reopened.',
+                'help'        => 'A resolution can be reopened if Assembly is not finished and if item has been already held.',
+                'function'    => 'policyCanReopen'
             ],
             'can_adjourn' => [
                 'description' => 'Verifies that an assembly item can be closed.',
@@ -340,11 +350,17 @@ class AssemblyItem extends AssemblyItemTemplate {
     }
 
     /**
-     * Create votes for all persons eligible to vote:
-     *  - one pending vote per ownership affected by the item and present or represented at the assembly
-     *  - if representation_type == 'proxy', verify assembly_mandate_id has status 'validated' and is_valid
+     * Create votes for all ownerships affected by the resolution.
      *
-     * For each ownership, check whether a vote intention exists for this item; if so, use its values.
+     * For each represented ownership:
+     *  - create a vote with default value 'abstain' (pending status),
+     *  - if the ownership is represented by proxy, ensure the mandate is validated and valid,
+     *  - if a valid written vote intention exists, apply it and cast the vote,
+     *    regardless of the proxy holder's presence at opening time,
+     *  - if no vote intention exists and the proxy holder has left the assembly,
+     *    automatically cast the vote as an abstention.
+     *
+     * Absence of a proxy holder without a written vote intention results in an abstention.
      *
      */
     protected static function onafterOpen($self) {
@@ -363,7 +379,7 @@ class AssemblyItem extends AssemblyItemTemplate {
 
             // #memo AssemblyRepresentation are created only for validated mandates or for attendees present in person
             $representations = AssemblyRepresentation::search(['assembly_id', '=', $assemblyItem['assembly_id']])
-                ->read(['attendee_id', 'ownership_id', 'representation_type', 'assembly_mandate_id' => ['id', 'status', 'is_valid']]);
+                ->read(['attendee_id' => ['id', 'has_left'], 'ownership_id', 'representation_type', 'assembly_mandate_id' => ['id', 'status', 'is_valid']]);
 
             foreach($representations as $representation) {
                 $ownership_id = $representation['ownership_id'];
@@ -379,13 +395,13 @@ class AssemblyItem extends AssemblyItemTemplate {
                     }
                 }
 
-                // create an empty vote (status = 'pending')
+                // create an empty vote (`status` = 'pending', `vote_value`= 'abstain')
                 $assemblyVote = AssemblyVote::create([
                         'condo_id'              => $assemblyItem['condo_id'],
                         'assembly_id'           => $assemblyItem['assembly_id'],
                         'assembly_item_id'      => $id,
                         'ownership_id'          => $ownership_id,
-                        'assembly_attendee_id'  => $representation['attendee_id']
+                        'assembly_attendee_id'  => $representation['attendee_id']['id']
                     ])
                     ->first();
 
@@ -418,6 +434,11 @@ class AssemblyItem extends AssemblyItemTemplate {
                             // #memo - assembly_item_choice_id might be null
                             'assembly_item_choice_id'   => $assemblyVoteIntention['assembly_item_choice_id']
                         ])
+                        ->transition('cast');
+                }
+                elseif($representation['attendee_id']['has_left']) {
+                    // cast abstention vote (default vote_value)
+                    AssemblyVote::id($assemblyVote['id'])
                         ->transition('cast');
                 }
             }
@@ -672,6 +693,34 @@ class AssemblyItem extends AssemblyItemTemplate {
         }
     }
 
+    protected static function onafterRevert($self) {
+        $self->read([
+            'assembly_id',
+            'has_parent_group',
+            'parent_group_id',
+            'has_vote_required'
+        ]);
+
+        foreach($self as $id => $assemblyItem) {
+
+            // 1) Delete all votes related to this item
+            if($assemblyItem['has_vote_required']) {
+                AssemblyVote::search([
+                        ['assembly_item_id', '=', $id]
+                    ])
+                    ->delete(true);
+            }
+
+            // 2) Revert parent group status if needed
+            if($assemblyItem['has_parent_group'] && $assemblyItem['parent_group_id']) {
+                self::id($assemblyItem['parent_group_id'])->update(['status' => 'pending']);
+            }
+
+            // 3) Refresh assembly completion status
+            Assembly::id($assemblyItem['assembly_id'])->do('refresh_is_complete');
+        }
+    }
+
     protected static function onupdateAssemblyId($self) {
         $self->do('refresh_order');
     }
@@ -724,6 +773,55 @@ class AssemblyItem extends AssemblyItemTemplate {
                 continue;
             }
         }
+        return $result;
+    }
+
+    /**
+     * A resolution can be reopened only if it has already been closed or adjourned,
+     * the assembly is still in progress, and no other resolution is currently open.
+     * Reopening resets all previous votes and starts a new voting cycle.
+     */
+    protected static function policyCanReopen($self) {
+        $result = [];
+
+        $self->read([
+            'status',
+            'assembly_id' => ['status', 'step']
+        ]);
+
+        foreach($self as $id => $assemblyItem) {
+
+            // 1) Item must have already been processed
+            if(!in_array($assemblyItem['status'], ['closed', 'adjourned'], true)) {
+                $result[$id] = [
+                    'item_not_reopenable' => 'Assembly item can only be reopened if it has been closed or adjourned.'
+                ];
+                continue;
+            }
+
+            // 2) Assembly must still be in progress
+            if($assemblyItem['assembly_id']['status'] !== 'in_progress' || $assemblyItem['assembly_id']['step'] !== 'agenda_processing') {
+                $result[$id] = [
+                    'assembly_not_in_progress' => 'Assembly is not in progress.'
+                ];
+                continue;
+            }
+
+            // 3) No other item may be open
+            $openedItem = self::search([
+                    ['assembly_id', '=', $assemblyItem['assembly_id']['id']],
+                    ['status', '=', 'open']
+                ])
+                ->first();
+
+            if($openedItem) {
+                $result[$id] = [
+                    'other_item_opened' => 'Another assembly item is already open.'
+                ];
+                continue;
+            }
+        }
+
         return $result;
     }
 
@@ -880,6 +978,14 @@ class AssemblyItem extends AssemblyItemTemplate {
 
             AssemblyVote::id($vote['id'])->transition('cast');
         }
+    }
+
+    protected static function doReopen($self) {
+        $self
+            ->update(['status' => 'open'])
+            // set back to 'pending' (remove all votes)
+            ->transition('revert')
+            ->transition('open');
     }
 
     protected static function calcCountRepresentedShares($self) {

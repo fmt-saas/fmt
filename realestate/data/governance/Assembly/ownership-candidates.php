@@ -111,7 +111,7 @@ foreach($attendees as $attendee_id => $attendee) {
 }
 
 $ownerships = Ownership::ids(array_keys($map_ownerships_ids))
-    ->read(['name'])
+    ->read(['name', 'statutory_shares'])
     ->adapt('json')
     ->get(true);
 

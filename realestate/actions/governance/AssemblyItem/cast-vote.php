@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use realestate\governance\AssemblyAttendee;
 use realestate\governance\AssemblyItem;
 use realestate\property\PropertyLotApportionmentShare;
 use realestate\property\PropertyLotOwnership;
@@ -90,6 +91,18 @@ $apportionmentShares = PropertyLotApportionmentShare::search([
 
 if($apportionmentShares->count() <= 0) {
     throw new Exception("ownership_without_shares", EQ_ERROR_INVALID_PARAM);
+}
+
+$attendee = AssemblyAttendee::id($params['attendee_id'])
+    ->read(['has_left'])
+    ->first();
+
+if(!$attendee) {
+    throw new Exception("unknown_attendee", EQ_ERROR_INVALID_PARAM);
+}
+
+if($attendee['has_left']) {
+    throw new Exception("left_attendee_cannot_cast_vote", EQ_ERROR_INVALID_PARAM);
 }
 
 AssemblyItem::id($params['id'])

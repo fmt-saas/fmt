@@ -19,7 +19,7 @@
             {
                 "type": "field",
                 "value": "assembly_date",
-                "width": "15%",
+                "width": "10%",
                 "widget": {
                     "usage": "date/plain.short"
                 }
@@ -32,21 +32,26 @@
             {
                 "type": "field",
                 "value": "assembly_type",
-                "width": "15%"
-            },
-            {
-                "type": "field",
-                "value": "session_time_start",
-                "width": "15%"
-            },
-            {
-                "type": "field",
-                "value": "is_second_session",
                 "width": "10%"
             },
             {
                 "type": "field",
+                "value": "is_second_session",
+                "width": "8%"
+            },
+            {
+                "type": "field",
+                "value": "session_time_start",
+                "width": "8%"
+            },
+            {
+                "type": "field",
                 "value": "status",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "step",
                 "width": "15%"
             }
         ]

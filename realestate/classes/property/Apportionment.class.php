@@ -295,7 +295,8 @@ class Apportionment extends \equal\orm\Model {
                         'condo_id'              => $apportionment['condo_id'],
                         'apportionment_id'      => $new_apportionment['id'],
                         'property_lot_id'       => $share['property_lot_id'],
-                        'property_lot_shares'   => $share['property_lot_shares']
+                        'property_lot_shares'   => $share['property_lot_shares'],
+                        'is_statutory'          => false
                     ]);
             }
         }

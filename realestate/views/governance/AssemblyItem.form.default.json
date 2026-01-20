@@ -13,9 +13,20 @@
             "visible": [["assembly_status", "=", "in_progress"], ["status", "=", "pending"]]
         },
         {
+            "id": "action.revert",
+            "label": "Revert",
+            "description": "Reverts the Assembly Item to pending status (undo 'open').",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyItem",
+                "transition": "revert"
+            },
+            "visible": ["status", "=", "open"]
+        },
+        {
             "id": "action.close",
             "label": "Close",
-            "description": "Close the assembly point. No more vote will be allowed. This cannot be undone.",
+            "description": "Close the assembly point. No more vote will be allowed.",
             "controller": "core_model_transition",
             "params": {
                 "entity": "realestate\\governance\\AssemblyItem",
@@ -36,6 +47,17 @@
                 }
             },
             "visible": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ]
+        },
+        {
+            "id": "action.reopen",
+            "label": "Reopen",
+            "description": "Reopen the assembly point. This will reset all existing votes.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyItem",
+                "transition": "reopen"
+            },
+            "visible": ["status", "in", ["adjourned", "closed"]]
         }
     ],
     "routes": [

@@ -71,6 +71,17 @@ $getFormattedDate = function($timestamp) {
     return date($date_format, $timestamp + $tz_offset);
 };
 
+$getFormattedTime = function($timestamp, $adapt=false) {
+    if($adapt) {
+        $tz = new \DateTimeZone(constant('L10N_TIMEZONE'));
+        $tz_offset = $tz->getOffset(new \DateTime('@' . time()));
+        $local_time = $timestamp + $tz_offset;
+        $local_today = strtotime('today', $local_time);
+        $timestamp = $local_time - $local_today;
+    }
+    return sprintf('%02d:%02d', $timestamp / 3600, ($timestamp % 3600) / 60);
+};
+
 $getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
     $result = '';
 
@@ -243,7 +254,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'date'              => $getFormattedDate($assembly['assembly_date']),
             'location'          => $assembly['assembly_location'],
             'type'              => $map_types[$assembly['assembly_type']],
-            'time_start'        => sprintf('%02d:%02d', $assembly['session_time_start'] / 3600, ($assembly['session_time_start'] % 3600) / 60)
+            'time_start'        => $getFormattedTime($assembly['session_time_start'], true)
         ];
 
         // Replace {var} items with corresponding values, set in $map_values

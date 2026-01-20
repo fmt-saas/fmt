@@ -43,6 +43,17 @@
                 "transition": "validate"
             },
             "visible": ["status", "=", "pending"]
+        },
+        {
+            "id": "action.leave_assembly",
+            "label": "Record departure",
+            "description": "Mark the attendee as having left the Assembly.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyAttendee",
+                "action": "leave_assembly"
+            },
+            "visible": ["has_left", "=", false]
         }
     ],
     "layout": {
@@ -71,6 +82,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "register_document_id",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_left",
                                                 "width": "100%",
                                                 "visible": false
                                             },

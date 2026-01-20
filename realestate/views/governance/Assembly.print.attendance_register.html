@@ -111,17 +111,33 @@
             <td style="width: 25%;"><b>Copropriétaire</b></td>
             <td style="width: 20%;"><b>Lots</b></td>
             <td style="width: 10%;"><b>Quotités statutaires</b></td>
-            <td style="width: 20%;"><b>Présence</b></td>
+            <td style="width: 20%;"><b>Présence / Représentation</b></td>
             <td style="width: 25%;"><b>Signature</b></td>
         </tr>
         {% for ownership_id, ownership in ownerships %}
             {% set representation = representations[ownership_id] ?? null %}
             {% set attendee = attendees[representation.attendee_id] ?? null %}
 
-            {% if not (signed and representation is null) %}
+            <!-- #memo unless for full_register, do not show the entry if ownership is "absent" -->
+            {% if full_register %}
             <tr>
-                <!-- ne pas montrer l'entrée si le ownership est "absent" -->
-                    <!-- if signed and representation is null %} -->
+                <td>
+                    {{ ownership.name }}
+                    {% if ownership.type == 'joint' %}
+                    <br />[représentant théorique: {{ ownership.representative }}]
+                    {% endif %}
+                </td>
+                <td>
+                    {% for lot in ownership.lots %}
+                        {{ lot.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>{{ ownership.shares }}</td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% elseif representation is not null %}
+            <tr>
                 <td>
                     {{ ownership.name }}
                     {% if ownership.type == 'joint' %}
@@ -169,10 +185,17 @@
         {% endfor %}
 
     </table>
-    {% if signed %}
-    <p>
-        Certifiée sincère et véritable, la feuille de présence est arrêtée à {{ representations | length }} copropriétaires présents ou représentés sur {{ assembly.count_owners }}, totalisant ensemble {{ assembly.count_represented_shares }} quotités sur {{ assembly.count_shares }}.
-    </p>
+
+    {% if full_register %}
+        <p>
+            Certifiée sincère et véritable, la feuille de présence est arrêtée à ........ copropriétaires présents ou représentés sur {{ assembly.count_owners }}, totalisant ensemble .......... quotités sur {{ assembly.count_shares }}.
+        </p>
+    {% else %}
+        {% if signed %}
+        <p>
+            Certifiée sincère et véritable, la feuille de présence est arrêtée à {{ representations | length }} copropriétaires présents ou représentés sur {{ assembly.count_owners }}, totalisant ensemble {{ assembly.count_represented_shares }} quotités sur {{ assembly.count_shares }}.
+        </p>
+        {% endif %}
     {% endif %}
 
 

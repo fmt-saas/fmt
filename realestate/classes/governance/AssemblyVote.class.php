@@ -37,6 +37,12 @@ class AssemblyVote extends \equal\orm\Model {
                 'dependents'        => ['vote_weight', 'is_choice']
             ],
 
+            'cast_by' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\User',
+                'visible'           => ['status', '=', 'casted']
+            ],
+
             'is_choice' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
@@ -209,8 +215,9 @@ class AssemblyVote extends \equal\orm\Model {
                 'icon' => 'sent',
                 'transitions' => [
                     'cast' => [
-                        'description'   => 'Marks the Assembly vote as casted.',
+                        'description'   => 'Marks the Assembly vote as `casted`.',
                         'policies'      => ['can_cast'],
+                        'onafter'       => 'onafterCast',
                         'status'        => 'casted'
                     ]
                 ]
@@ -221,7 +228,7 @@ class AssemblyVote extends \equal\orm\Model {
     public static function getPolicies(): array {
         return [
             'can_cast' => [
-                'description' => 'Verifies that a vote can be casted.',
+                'description' => 'Verifies that a vote can be `casted`.',
                 'function'    => 'policyCanCast'
             ]
         ];
@@ -240,15 +247,20 @@ class AssemblyVote extends \equal\orm\Model {
         }
     }
 
+    protected static function onafterCast($self, $auth) {
+        $user_id = $auth->userId();
+        $self->update(['cast_by' => $user_id]);
+    }
+
     protected static function calcVoteDisplay($self) {
         $result = [];
         $self->read(['is_choice', 'vote_value', 'assembly_item_choice_id' => ['name']]);
 
         // #todo - translate
         $map_vote_translations = [
-            'for' => 'pour',
-            'against' => 'contre',
-            'abstain' => 'abstention'
+            'for'       => 'pour',
+            'against'   => 'contre',
+            'abstain'   => 'abstention'
         ];
 
         foreach($self as $id => $assemblyVote) {
@@ -272,7 +284,7 @@ class AssemblyVote extends \equal\orm\Model {
                 continue;
             }
 
-            // 1) identify the lots
+            // 1) identify the property lots
             $property_lots_ids = [];
 
             $ownership = Ownership::id($assemblyVote['ownership_id'])

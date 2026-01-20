@@ -316,6 +316,7 @@ class Identity extends Model {
                 'description'       => 'Organization registration number (company number).',
                 'visible'           => [ ['type', '<>', 'IN'] ],
                 'unique'            => true,
+                'dependents'        => ['hash_sha256'],
                 'onupdate'          => 'onupdateRegistrationNumber'
             ],
 
@@ -328,6 +329,7 @@ class Identity extends Model {
                 'description'       => 'Citizen registration number, if any.',
                 'visible'           => [ ['type', '=', 'IN'] ],
                 'unique'            => true,
+                'dependents'        => ['hash_sha256'],
                 'onupdate'          => 'onupdateCitizenIdentification'
             ],
 

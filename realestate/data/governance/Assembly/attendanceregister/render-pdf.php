@@ -18,6 +18,14 @@ use realestate\governance\Assembly;
             'foreign_object'    => 'realestate\governance\Assembly',
             'required'          => true
         ],
+
+        'full' => [
+            'description'       => 'Flag for requesting the "full" / empty version of the list.',
+            'help'              => 'If set to true, the register will include all attendees without condideration of their representation or signature status.',
+            'type'              => 'boolean',
+            'default'           => false
+        ],
+
         'signed' => [
             'description'       => 'Flag for requesting the signed version of the register.',
             'type'              => 'boolean',
@@ -49,7 +57,8 @@ try {
 
     $html = (string) eQual::run('get', 'realestate_governance_Assembly_attendanceregister_render-html', [
             'id'        => $params['id'],
-            'signed'    => $params['signed']
+            'signed'    => $params['signed'],
+            'full'      => $params['full']
         ]);
 
     /*

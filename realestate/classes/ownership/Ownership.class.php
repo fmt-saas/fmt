@@ -115,6 +115,15 @@ class Ownership extends \equal\orm\Model {
                 'dependents'        => ['owners_ids' => 'ownership_percentage']
             ],
 
+            'statutory_shares' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => "Sum of Statutory shares of the property lot of the Ownership.",
+                'function'          => 'calcStatutoryShares',
+                'store'             => false,
+                'readonly'          => true
+            ],
+
             // #memo - an Ownership might be linked to several Accounts of the Accounting Chart
             // 'accounting_account_id'
             // 'accounting_accounts_ids'
@@ -400,6 +409,21 @@ class Ownership extends \equal\orm\Model {
             $result[$id] = implode(' ' . $and . ' ', array_unique(array_filter($names)));
         }
 
+        return $result;
+    }
+
+    protected static function calcStatutoryShares($self) {
+        $result = [];
+        $self->read(['state', 'property_lots_ids' => ['statutory_shares']]);
+        foreach($self as $id => $ownership) {
+            if($ownership['state'] === 'draft') {
+                continue;
+            }
+            $result[$id] = 0.0;
+            foreach($ownership['property_lots_ids'] as $property_lot_id => $propertyLot) {
+                $result[$id] += $propertyLot['statutory_shares'] ?? 0;
+            }
+        }
         return $result;
     }
 

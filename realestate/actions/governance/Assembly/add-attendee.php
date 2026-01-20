@@ -55,7 +55,7 @@ use realestate\governance\AssemblyRepresentation;
             'type'              => 'string',
             'selection'         => ['ses', 'qes'],
             'required'          => true,
-            'description'       => 'eIDAS signature level (ses = drawn).'
+            'description'       => 'Signature level (ses = drawn, qes = eIDAS).'
         ],
 
         'has_mandate' => [
@@ -75,7 +75,7 @@ use realestate\governance\AssemblyRepresentation;
         'owner_id' => [
             'type'              => 'many2one',
             'description'       => "The owner concerned by the invitation.",
-            'help'              => 'A single invite is generated for each Ownership (representative).',
+            'help'              => 'Is expected to be an Ownership representative owner.',
             'foreign_object'    => 'realestate\ownership\Owner',
             'visible'           => ['is_owner', '=', true]
         ],
@@ -83,13 +83,19 @@ use realestate\governance\AssemblyRepresentation;
         'firstname' => [
             'type'              => 'string',
             'description'       => "Full name of the contact (must be a person, not a role).",
-            'visible'           => [['is_owner', '=', true], ['sig_method', '=', 'ses']],
+            'visible'           => ['sig_method', '=', 'ses'],
         ],
 
         'lastname' => [
             'type'              => 'string',
             'description'       => 'Reference contact surname.',
-            'visible'           => [['is_owner', '=', true], ['sig_method', '=', 'ses']],
+            'visible'           => ['sig_method', '=', 'ses'],
+        ],
+
+        'citizen_identification' => [
+            'type'              => 'string',
+            'description'       => 'Reference contact surname.',
+            'visible'           => ['sig_method', '=', 'ses'],
         ]
 
     ],
@@ -205,20 +211,36 @@ if($params['is_owner']) {
     $identity_id = $owner['identity_id'];
 }
 else {
+    // handwritten signature - external identity
     if($params['sig_method'] === 'ses') {
-        // external without citizen ID (only firstname, lastname & drawn signature)
-        // create a new identity
-        // #memo - we have no way to avoid duplicates here
-        $identity = Identity::create([
-                'type_id'       => 1,
-                'firstname'     => $params['firstname'],
-                'lastname'      => $params['lastname']
+
+        $hash = hash('sha256', $params['citizen_identification'] . constant('AUTH_SECRET_KEY'));
+
+        $identity = Identity::search([
+                [
+                    ['citizen_identification', '=', $params['citizen_identification']]
+                ],
+                [
+                    ['hash_sha256', '=', $hash]
+                ]
             ])
             ->first();
 
+        if(!$identity) {
+            // external without citizen ID (only firstname, lastname & drawn signature)
+            // create a new identity
+            // #memo - we have no way to avoid duplicates here
+            $identity = Identity::create([
+                    'type_id'                   => 1,
+                    'firstname'                 => $params['firstname'],
+                    'lastname'                  => $params['lastname'],
+                    'citizen_identification'    => $params['citizen_identification']
+                ])
+                ->first();
+        }
         $identity_id = $identity['id'];
     }
-    // retrieve info from the certificate
+    // signature with certificate - retrieve info from the certificate
     else {
 
         $infos = $computeSignerInfoFromCert($params['sig_cert']);
@@ -293,7 +315,8 @@ $attendee = AssemblyAttendee::create([
         'is_owner'                       => $params['is_owner'],
         'has_mandate'                    => $params['has_mandate'],
         'register_document_signature_id' => $documentSignature['id'],
-        'has_signed_register'            => true
+        'has_signed_register'            => true,
+        'arrival_time'                   => (fn($now) => $now - strtotime('today', $now))(time())
     ])
     ->adapt('json')
     ->first(true);

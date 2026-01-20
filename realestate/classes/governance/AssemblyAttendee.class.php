@@ -192,6 +192,22 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'visible'     => ['is_valid', '=', false]
             ],
 
+            'arrival_time' => [
+                'type'              => 'time',
+                'description'       => "Actual arrival time of the attendee at the assembly."
+            ],
+
+            'departure_time' => [
+                'type'              => 'time',
+                'description'       => "Actual departure time of the attendee from the assembly."
+            ],
+
+            'has_left' => [
+                'type'              => 'boolean',
+                'description'       => "Indicates whether the attendee has definitively left the assembly.",
+                'default'           => false
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -247,6 +263,11 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'description'   => 'Assign location based on Condominium address.',
                 'policies'      => [],
                 'function'      => 'doDemotePresident'
+            ],
+            'leave_assembly' => [
+                'description'   => 'Mark the attendee as having left the Assembly.',
+                'policies'      => [],
+                'function'      => 'doLeaveAssembly'
             ]
         ];
     }
@@ -258,6 +279,13 @@ class AssemblyAttendee extends \equal\orm\Model {
 
     protected static function doDemotePresident($self) {
         $self->update(['attendee_role' => 'attendee']);
+    }
+
+    protected static function doLeaveAssembly($self) {
+        $self->update([
+                'has_left'          => true,
+                'departure_time'    => (fn($now) => $now - strtotime('today', $now))(time())
+            ]);
     }
 
     protected static function policyCanPromotePresident($self) {

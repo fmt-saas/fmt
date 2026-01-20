@@ -380,6 +380,7 @@ class Assembly extends \equal\orm\Model {
             'step' => [
                 'type'           => 'string',
                 'description'    => "Step at which the assembly is currently being.",
+                'help'           => "These steps are a sub-workflow of the `in_progress` status.",
                 'default'        => 'opening',
                 'selection'      => [
                     'opening',
@@ -733,11 +734,8 @@ class Assembly extends \equal\orm\Model {
                 'is_complete' => $is_complete
             ];
             if($is_complete) {
-                $tz = new \DateTimeZone(constant('L10N_TIMEZONE'));
-                $tz_offset = $tz->getOffset(new \DateTime('@' . time()));
-                $local_time = time() + $tz_offset;
-                $local_today = strtotime('today', $local_time);
-                $values['session_time_end'] = $local_time - $local_today;
+                // #memo - time is always stored UTC and PHP timezone is enforced to UTC by eQual
+                $values['session_time_end'] = (fn($now) => $now - strtotime('today', $now))(time());
             }
             self::id($id)->update($values);
         }

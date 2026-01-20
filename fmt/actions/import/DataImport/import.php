@@ -953,7 +953,8 @@ try {
                     'condo_id'              => $condominium['id'],
                     'apportionment_id'      => $apportionment_id,
                     'property_lot_id'       => $property_lot_id,
-                    'property_lot_shares'   => $apportionment_share['lot_shares']
+                    'property_lot_shares'   => $apportionment_share['lot_shares'],
+                    'is_statutory'          => $is_statutory
                 ]);
 
         }

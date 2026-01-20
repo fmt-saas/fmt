@@ -289,8 +289,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'location'          => $assembly['assembly_location'],
             'condo_city'        => $assembly['condo_id']['address_city'],
             'type'              => $map_types[$assembly['assembly_type']],
-            'time_start'        => $getFormattedTime($assembly['session_time_start']),
-            'time_end'          => $getFormattedTime($assembly['session_time_end']),
+            'time_start'        => $getFormattedTime($assembly['session_time_start'], true),
+            'time_end'          => $getFormattedTime($assembly['session_time_end'], true),
             'count_owners'      => $assembly['count_owners'],
             'count_represented_owners'=> $assembly['count_represented_owners'],
             'count_shares'      => $assembly['count_shares'],
@@ -313,7 +313,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'location'          => $assembly['assembly_location'],
             'condo_city'        => $assembly['condo_id']['address_city'],
             'type'              => $map_types[$assembly['assembly_type']],
-            'time_end'          => $getFormattedTime($assembly['session_time_end'])
+            'time_end'          => $getFormattedTime($assembly['session_time_end'], true)
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
