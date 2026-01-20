@@ -951,6 +951,8 @@ class Assembly extends \equal\orm\Model {
     }
 
     protected static function onafterAdjourn($self, $dispatch) {
+
+
         foreach($self as $id => $assembly) {
             // invalidity alert is not relevant anymore
             $dispatch->cancel('realestate.governance.assembly.invalid', 'realestate\governance\Assembly', $id);
@@ -972,6 +974,7 @@ class Assembly extends \equal\orm\Model {
      */
     protected static function onafterClose($self) {
         $self
+        // distinction entre send_minutes (generer correspondences) et send_correspondences (envoi)
             ->do('generate_minutes_correspondences')
             ->do('send_minutes');
 
@@ -1736,7 +1739,7 @@ class Assembly extends \equal\orm\Model {
                     break;
                 case 'held':
                 case 'adjourned':
-                    $allowed_fields = ['minutes_exporting_task_id'];
+                    $allowed_fields = ['minutes_exporting_task_id', 'has_second_session', 'second_session_assembly_id'];
                     if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                         return ['status' => ['not_allowed' => 'Published assembly cannot be modified.']];
                     }
@@ -2113,6 +2116,7 @@ class Assembly extends \equal\orm\Model {
                 'assembly_date'         => $assembly['assembly_date'] + (15 * 86400),
                 'is_second_session'     => true,
                 'related_assembly_id'   => $id,
+                // #memo #deprecated these fields are no longer used
                 'heading_text_call'     => $assembly['heading_text_call'],
                 'heading_text_minutes'  => $assembly['heading_text_minutes'],
                 'closing_text_call'     => $assembly['closing_text_call'],

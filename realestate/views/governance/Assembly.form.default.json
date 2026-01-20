@@ -114,6 +114,11 @@
             },
             "visible": [
                 [
+                    "is_valid",
+                    "=",
+                    true
+                ],
+                [
                     "status",
                     "=",
                     "in_progress"
@@ -588,8 +593,7 @@
                         "status",
                         "in",
                         [
-                            "held",
-                            "adjourned"
+                            "held"
                         ]
                     ]
                 ],
