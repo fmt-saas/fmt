@@ -361,7 +361,7 @@ TemplatePart::create([
     'name'          => 'subject',
     'value'         => 'Décompte de charges',
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "period"]'
+    'variables'     => '["condo", "period", "period_from", "period_to"]'
 ]);
 TemplatePart::create([
     'name'          => 'introduction',

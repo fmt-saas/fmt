@@ -264,7 +264,9 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
         $map_values = [
             'condo'             => $statement['condo_id']['name'],
-            'period'            => $fiscalPeriod['name']
+            'period'            => $getFormattedDate($fiscalPeriod['date_from']) . ' - ' . $getFormattedDate($fiscalPeriod['date_to']),
+            'period_from'       => $getFormattedDate($fiscalPeriod['date_from']),
+            'period_to'         => $getFormattedDate($fiscalPeriod['date_to'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
