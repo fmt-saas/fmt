@@ -664,10 +664,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 foreach($statementOwner['statement_owner_lines_ids'] as $line_id => $statementLine) {
 
+                    // #memo - seems to be incorrect - need to consider reserve fund usage and provisions
+                    /*
                     // ignore lines relating to use of reserve funds (already made when importing invoice)
                     if($statementLine['price'] <= 0.0) {
                         continue;
                     }
+                    */
 
                     $total_ownership += $statementLine['price'];
                 }
@@ -680,7 +683,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ->first();
 
                 if(!$ownershipAccount) {
-                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                    throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
                 // create a single debit line on the ownership account
