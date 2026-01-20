@@ -262,6 +262,15 @@
                 "section.main": {
                     "label": "Propriétaires & lots"
                 },
+                "label.information_request": {
+                    "label": "Demande d'information"
+                },
+                "label.condo_owner": {
+                    "label": "Copropriété et propriétaire"
+                },
+                "label.selected_property_lots": {
+                    "label": "Lots sélectionnés"
+                },
                 "section.transfer_details": {
                     "label": "Transfert"
                 },
@@ -277,8 +286,59 @@
                 "section.information_documents": {
                     "label": "Informations (3.94 §1)"
                 },
+                "label.contact": {
+                    "label": "Contact"
+                },
+                "label.funds_balances": {
+                    "label": "1) Soldes des fonds de copropriété"
+                },
+                "label.seller_arrears": {
+                    "label": "2) Arriérés vendeur"
+                },
+                "label.owner_arrears": {
+                    "label": "Arriérés propriétaire"
+                },
+                "label.transfer_file_fees": {
+                    "label": "2) bis Frais de dossier de transfert"
+                },
+                "label.voted_fund_requests": {
+                    "label": "3) Appels de fonds votés en AG"
+                },
+                "label.judiciary_procedures": {
+                    "label": "4) Procédures judiciaires"
+                },
+                "label.minutes_and_statements": {
+                    "label": "5) PV d'AG (3 dernières années) et relevés périodiques (2 dernières années)"
+                },
+                "label.latest_balance_sheet": {
+                    "label": "6) Dernier bilan validé en AG"
+                },
                 "section.information_statements": {
                     "label": "Informations (3.94 §2)"
+                },
+                "label.notary_confirmation_date": {
+                    "label": "Date de confirmation du notaire"
+                },
+                "label.contact_notary_office": {
+                    "label": "Étude notariale (contact)"
+                },
+                "label.maintenance_expenses": {
+                    "label": "1) Dépenses d'entretien"
+                },
+                "label.fund_requests": {
+                    "label": "2) Appels de fonds"
+                },
+                "label.common_acquisitions": {
+                    "label": "3) Acquisitions des parties communes"
+                },
+                "label.condo_debts": {
+                    "label": "4) Dettes de la copropriété"
+                },
+                "label.seller_arrears_debts": {
+                    "label": "5) Arriérés vendeur"
+                },
+                "label.additional_information": {
+                    "label": "Informations complémentaires"
                 },
                 "section.information_settlement": {
                     "label": "Informations (3.94 §3)"
