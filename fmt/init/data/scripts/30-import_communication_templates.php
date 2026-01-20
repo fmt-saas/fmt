@@ -126,7 +126,40 @@ TemplatePart::create([
 TemplatePart::create([
     'name'          => 'introduction',
     'value'         => "
-<p style=\"text-align: justify;\">Madame, Monsieur,</p><p><br></p><p style=\"text-align: justify;\">Vous êtes cordialement convié à l'{type} de l'association des copropriétaires dénommée&nbsp;{condo} qui se tiendra&nbsp;: &nbsp;</p><p><br></p><ul><li style=\"text-align: justify;\">Date : {date}</li><li style=\"text-align: justify;\">Lieu : {location}</li><li style=\"text-align: justify;\">Début de séance : {time_start}</li></ul><p><br></p><p style=\"text-align: justify;\">Afin de ne pas retarder l'ouverture de la séance, nous vous invitons à vous présenter au bureau de l'assemblée avec 15 minutes d'avance, muni de la présente convocation, pour y signer la liste de présences.</p><p><br></p><p style=\"text-align: justify;\">Suivant les dispositions de la loi du 4 février 2020 sur la copropriété, l'assemblée générale ne délibère valablement que si plus de la moitié des copropriétaires sont présents ou représentés, et pour autant qu'ils possèdent au moins la moitié des quotes-parts dans les parties communes. Si ce quorum n'est pas atteint, la loi nous contraint à convoquer une deuxième assemblée générale, ce qui entraîne à la fois des frais importants et une perte de temps regrettable.</p><p><br></p><p style=\"text-align: justify;\">Au cas où vous ne pourriez assister personnellement à la réunion, nous vous remercions de compléter le formulaire de procuration transmis en annexe de la présente et nous le renvoyer par email, par la poste ou le transmettre à votre mandataire.</p><p><br></p><p style=\"text-align: justify;\">Nous vous prions d'agréer, Madame, Monsieur, l'expression de nos sentiments distingués.</p><p style=\"text-align: justify;\"><br></p><p style=\"text-align: justify;\">Le syndic.</p>
+<p style=\"text-align: justify;\">Madame, Monsieur,</p>
+<p><br></p>
+<p style=\"text-align: justify;\">
+Vous êtes cordialement convié à l'{type} <strong>de seconde séance</strong> de l'association des copropriétaires dénommée&nbsp;{condo}, qui se tiendra&nbsp;:
+</p>
+<p><br></p>
+<ul>
+  <li style=\"text-align: justify;\">Date : {date}</li>
+  <li style=\"text-align: justify;\">Lieu : {location}</li>
+  <li style=\"text-align: justify;\">Début de séance : {time_start}</li>
+</ul>
+<p><br></p>
+<p style=\"text-align: justify;\">
+La présente assemblée générale est convoquée en <strong>seconde séance</strong>, la première assemblée générale n'ayant pu valablement délibérer faute d'avoir atteint le quorum légal.
+</p>
+<p><br></p>
+<p style=\"text-align: justify;\">
+<strong>En conséquence, aucun quorum de présence ou de représentation n'est requis pour cette assemblée générale de seconde séance.</strong>
+L'assemblée pourra donc délibérer et prendre des décisions valablement, quel que soit le nombre de copropriétaires présents ou représentés, sous réserve du respect des majorités légales applicables à chaque point de l'ordre du jour.
+</p>
+<p><br></p>
+<p style=\"text-align: justify;\">
+Afin de ne pas retarder l'ouverture de la séance, nous vous invitons à vous présenter au bureau de l'assemblée avec 15 minutes d'avance, muni de la présente convocation, pour y signer la liste de présences.
+</p>
+<p><br></p>
+<p style=\"text-align: justify;\">
+Au cas où vous ne pourriez assister personnellement à la réunion, nous vous remercions de compléter le formulaire de procuration transmis en annexe de la présente et de nous le renvoyer par email, par la poste ou de le remettre à votre mandataire.
+</p>
+<p><br></p>
+<p style=\"text-align: justify;\">
+Nous vous prions d'agréer, Madame, Monsieur, l'expression de nos sentiments distingués.
+</p>
+<p><br></p>
+<p style=\"text-align: justify;\">Le syndic.</p>
     ",
     'template_id'   => $template['id'],
     'variables'     => '["condo", "assembly", "date", "location", "type", "time_start"]'

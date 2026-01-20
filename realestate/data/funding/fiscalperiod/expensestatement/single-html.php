@@ -146,6 +146,7 @@ $fiscalPeriod = FiscalPeriod::id($params['fiscal_period_id'])
     ->read([
         'date_from',
         'date_to',
+        'name',
         'condo_id' => [
             'name', 'address_street', 'address_zip', 'address_city',
             'registration_number',
