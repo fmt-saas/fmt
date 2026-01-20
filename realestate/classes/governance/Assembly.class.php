@@ -2015,42 +2015,45 @@ class Assembly extends \equal\orm\Model {
 
     protected static function policyIsAssemblyValid($self) {
         $result = [];
-        $self->read(['condo_id', 'assembly_date', 'count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']);
+        $self->read(['condo_id', 'is_second_session', 'assembly_date', 'count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']);
 
         foreach($self as $id => $assembly) {
+
+            // check quorum conditions
+            if(!$assembly['is_second_session']) {
+                if($assembly['count_shares'] <= 0) {
+                    $result[$id] = [
+                        'quorum_shares_not_met' => 'Not enough shares represented.'
+                    ];
+                    continue;
+                }
+
+                // double-quorum is only applicable if less than 3/4 of the shares are represented
+                if( ($assembly['count_represented_shares'] / $assembly['count_shares']) <= 0.75 ) {
+
+                    // strictly more than 50% of the ownerships
+                    if( ($assembly['count_represented_owners'] / $assembly['count_owners']) <= 0.5 ) {
+                        $result[$id] = [
+                            'quorum_owners_not_met' => 'Not enough owners present or represented.'
+                        ];
+                        continue;
+                    }
+
+                    // at least half of the shares of the statutory apportionment
+                    if( ($assembly['count_represented_shares'] / $assembly['count_shares']) < 0.5) {
+                        $result[$id] = [
+                            'quorum_shares_not_met' => 'Less than 50% of the shares are censed for the assembly.'
+                        ];
+                        continue;
+                    }
+                }
+            }
 
             if($assembly['count_owners'] <= 0) {
                 $result[$id] = [
                     'invalid_count_owners' => 'No owners are censed for the assembly.'
                 ];
                 continue;
-            }
-
-            if($assembly['count_shares'] <= 0) {
-                $result[$id] = [
-                    'quorum_shares_not_met' => 'Not enough shares represented.'
-                ];
-                continue;
-            }
-
-            // double-quorum is only applicable if less than 3/4 of the shares are represented
-            if( ($assembly['count_represented_shares'] / $assembly['count_shares']) <= 0.75 ) {
-
-                // strictly more than 50% of the ownerships
-                if( ($assembly['count_represented_owners'] / $assembly['count_owners']) <= 0.5 ) {
-                    $result[$id] = [
-                        'quorum_owners_not_met' => 'Not enough owners present or represented.'
-                    ];
-                    continue;
-                }
-
-                // at least half of the shares of the statutory apportionment
-                if( ($assembly['count_represented_shares'] / $assembly['count_shares']) < 0.5) {
-                    $result[$id] = [
-                        'quorum_shares_not_met' => 'Less than 50% of the shares are censed for the assembly.'
-                    ];
-                    continue;
-                }
             }
 
             $ownerships_ids = self::computeOwnershipsIds($assembly['condo_id'], $assembly['assembly_date']);
