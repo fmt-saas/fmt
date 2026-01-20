@@ -221,6 +221,13 @@
             },
             {
                 "type": "field",
+                "label": "Choices",
+                "value": "has_choices",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "majority",
                 "width": "15%"
             },
