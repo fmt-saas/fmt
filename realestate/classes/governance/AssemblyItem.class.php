@@ -395,15 +395,30 @@ class AssemblyItem extends AssemblyItemTemplate {
                     }
                 }
 
-                // create an empty vote (`status` = 'pending', `vote_value`= 'abstain')
-                $assemblyVote = AssemblyVote::create([
-                        'condo_id'              => $assemblyItem['condo_id'],
-                        'assembly_id'           => $assemblyItem['assembly_id'],
-                        'assembly_item_id'      => $id,
-                        'ownership_id'          => $ownership_id,
-                        'assembly_attendee_id'  => $representation['attendee_id']['id']
+                // #memo - do not delete votes when reopening: only create the missing ones (if an attendee may have joined in the meantime)
+                $assemblyVote = AssemblyVote::search([
+                        ['condo_id', '=', $assemblyItem['condo_id']],
+                        ['assembly_id', '=', $assemblyItem['assembly_id']],
+                        ['assembly_item_id', '=', $id],
+                        ['ownership_id', '=', $ownership_id],
+                        ['assembly_attendee_id', '=', $representation['attendee_id']['id']]
                     ])
                     ->first();
+
+                if($assemblyVote) {
+                    AssemblyVote::id($assemblyVote['id'])->update(['status' => 'pending']);
+                }
+                else {
+                    // create an empty vote (`status` = 'pending', `vote_value`= 'abstain')
+                    $assemblyVote = AssemblyVote::create([
+                            'condo_id'              => $assemblyItem['condo_id'],
+                            'assembly_id'           => $assemblyItem['assembly_id'],
+                            'assembly_item_id'      => $id,
+                            'ownership_id'          => $ownership_id,
+                            'assembly_attendee_id'  => $representation['attendee_id']['id']
+                        ])
+                        ->first();
+                }
 
                 // search for a valid vote intention and, if it exists, assign values and cast the vote
                 $assemblyVoteIntention = AssemblyVoteIntention::search([
@@ -676,6 +691,15 @@ class AssemblyItem extends AssemblyItemTemplate {
     }
 
     protected static function onbeforeClose($self) {
+        // validate all votes (cast)
+        $self->read(['assembly_votes_ids' => ['status']]);
+        foreach($self as $id => $assemblyItem) {
+            foreach($assemblyItem['assembly_votes_ids'] as $assembly_vote_id => $assemblyVote) {
+                if($assemblyVote['status'] === 'pending') {
+                    AssemblyVote::id($assembly_vote_id)->transition('cast');
+                }
+            }
+        }
         $self->do('refresh_vote_result');
     }
 
@@ -703,13 +727,17 @@ class AssemblyItem extends AssemblyItemTemplate {
 
         foreach($self as $id => $assemblyItem) {
 
-            // 1) Delete all votes related to this item
+            // #memo - if the item had already been voted, keep the existing votes
+            // #memo - some attendee might have left in between
+            /*
+            1) Delete existing votes if any
             if($assemblyItem['has_vote_required']) {
                 AssemblyVote::search([
                         ['assembly_item_id', '=', $id]
                     ])
                     ->delete(true);
             }
+            */
 
             // 2) Revert parent group status if needed
             if($assemblyItem['has_parent_group'] && $assemblyItem['parent_group_id']) {
