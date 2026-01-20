@@ -102,7 +102,7 @@
         'extraordinary': 'Assemblée Générale Extraordinaire'
     } %}
     <p>
-        Liste des présences de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} tenue à l'adresse "{{ assembly.assembly_location }}" à la date du {{ assembly.assembly_date | date(date_format, timezone) }}.
+        Liste des présences de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} tenue à l'adresse {{ assembly.assembly_location }} à la date du {{ assembly.assembly_date | date(date_format, timezone) }}.
     </p>
 
     <table class="attendance-table">
