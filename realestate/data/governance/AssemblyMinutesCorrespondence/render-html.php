@@ -193,7 +193,7 @@ $subject = 'Compte rendu';
 $introduction = '';
 
 $template = Template::search([
-        ['code', '=', 'general_meetings_minutes'],
+        ['code', '=', 'general_meetings_minutes_correspondence'],
         ['type', '=', 'document']
     ])
     ->read( ['id','parts_ids' => ['name', 'value']])
