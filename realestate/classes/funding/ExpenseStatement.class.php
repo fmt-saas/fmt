@@ -993,7 +993,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 foreach($subAccountingEntryLines as $sub_accounting_entry_line_id => $subAccountingEntryLine) {
 
-                    $map_accounting_entry_lines_ids[$subAccountingEntryLine['id']] = true;
+                    // #memo - ownership accounts are handled at accounting entry generation
+                    // $map_accounting_entry_lines_ids[$subAccountingEntryLine['id']] = true;
 
                     $sourceLine = FundRequestExecutionLine::id($subAccountingEntryLine['sale_invoice_line_id'])
                         ->read([
