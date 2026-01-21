@@ -74,6 +74,8 @@ $buildOwnerExpenses = function (array $owner): array {
 
     foreach($owner['property_lots'] as $lot) {
 
+        $is_set_apport_shares = false;
+
         foreach($lot['expenses'] as $expense) {
             $expense_type = $expense['name'];
 
@@ -87,21 +89,21 @@ $buildOwnerExpenses = function (array $owner): array {
             foreach($expense['apportionments'] as $apportionment) {
                 $apportionment_id = $apportionment['id'];
 
+                if(!isset($expenses[$expense_type]['apportionments'][$apportionment_id])) {
+                    $expenses[$expense_type]['apportionments'][$apportionment_id] = [
+                        'id'            => $apportionment['id'],
+                        'name'          => $apportionment['name'],
+                        'total_shares'  => $apportionment['total_shares'],
+                        'shares'        => $apportionment['shares'],
+                        'accounts'      => []
+                    ];
+                }
+                else {
+                    $expenses[$expense_type]['apportionments'][$apportionment_id]['shares'] += $apportionment['shares'];
+                }
+
                 foreach($apportionment['accounts'] as $account) {
                     $account_code = $account['code'];
-
-                    if(!isset($expenses[$expense_type]['apportionments'][$apportionment_id])) {
-                        $expenses[$expense_type]['apportionments'][$apportionment_id] = [
-                            'id'            => $apportionment['id'],
-                            'name'          => $apportionment['name'],
-                            'total_shares'  => $apportionment['total_shares'],
-                            'shares'        => $apportionment['shares'],
-                            'accounts'      => []
-                        ];
-                    }
-                    else {
-                        $expenses[$expense_type]['apportionments'][$apportionment_id]['shares'] += $apportionment['shares'];
-                    }
 
                     if(!isset(
                         $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]
