@@ -663,15 +663,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $total_ownership = 0.0;
 
                 foreach($statementOwner['statement_owner_lines_ids'] as $line_id => $statementLine) {
-
-                    // #memo - this is incorrect - need to consider reserve fund usage and provisions
-                    /*
-                    // ignore lines relating to use of reserve funds (already made when importing invoice)
-                    if($statementLine['price'] <= 0.0) {
-                        continue;
-                    }
-                    */
-
                     $total_ownership += $statementLine['price'];
                 }
 

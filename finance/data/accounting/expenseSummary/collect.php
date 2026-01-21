@@ -248,7 +248,7 @@ $lines = AccountingEntryLine::search($domain->toArray())
     ->read([
         'account_id',
         'account_class',
-        'accounting_entry_id'       => ['name', 'journal_id'],
+        'accounting_entry_id'       => ['name', 'journal_id', 'expense_statement_id'],
         'fund_usage_line_id'        => ['apportionment_id', 'invoice_id'],
         'sale_invoice_line_id'      => ['invoice_id'],
         'purchase_invoice_line_id'  => ['is_private_expense', 'apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'invoice_id'],
@@ -430,9 +430,14 @@ foreach($lines as $line_id => $line) {
     }
     $account = $map_accounts[$account_id];
 
-    // ignore non 6/7
+    // ignore non income/expense accounts
     if(!in_array($line['account_class'], [6, 7], true)) {
         trigger_error("APP::line with invalid class in result set", EQ_REPORT_WARNING);
+        continue;
+    }
+
+    // skip lines generated for expense statements
+    if($line['accounting_entry_id']['expense_statement_id']) {
         continue;
     }
 

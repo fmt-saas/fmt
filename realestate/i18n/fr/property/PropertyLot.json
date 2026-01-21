@@ -99,7 +99,7 @@
             "help": ""
         },
         "has_grouped_statements": {
-            "label": "Regrouper sur l'état",
+            "label": "Regrouper sur les décomptes",
             "description": "Permet de regrouper ce lot et ses dépendances sur un même décompte.",
             "help": ""
         },
