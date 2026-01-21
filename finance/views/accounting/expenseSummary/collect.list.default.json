@@ -21,6 +21,14 @@
             }
         }
     ],
+    "operations": {
+        "total": {
+            "amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
     "group_by": [
         {
             "open": true,
