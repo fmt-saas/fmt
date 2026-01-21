@@ -241,7 +241,7 @@
 
                     {% for expense in owner.expenses %}
                         <!-- #memo - in the summary version 'common_expense' and 'reserve_fund' are merged into 'common_expense' -->
-                        {% if expense.name == 'common_expense' or expense.name == 'reserve_fund' %}
+                        {% if expense.name == 'common_expense' %}
                             {% for apport in expense.apportionments %}
                                 {% set quotites = apport.shares ~ ' / ' ~ apport.total_shares %}
 
@@ -443,7 +443,7 @@
                             {% set total_vat = 0 %}
 
                             {% for expense in lot.expenses %}
-                                {% if expense.name == 'common_expense' or expense.name == 'reserve_fund' %}
+                                {% if expense.name == 'common_expense' %}
                                     {% for apport in expense.apportionments %}
                                         {% set quotites = apport.shares ~ ' / ' ~ apport.total_shares %}
                                         {% set apport_total = 0 %}

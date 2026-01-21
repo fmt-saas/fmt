@@ -146,59 +146,6 @@ $buildOwnerExpenses = function (array $owner): array {
         $is_first_lot = false;
     }
 
-
-    // --------------------------------------------------
-    // merge reserve_fund into common_expense (post-process)
-    // --------------------------------------------------
-
-    if(isset($expenses['reserve_fund'])) {
-
-        // ensure common_expense exists
-        if(!isset($expenses['common_expense'])) {
-            $expenses['common_expense'] = [
-                'name'           => 'common_expense',
-                'apportionments' => []
-            ];
-        }
-
-        foreach($expenses['reserve_fund']['apportionments'] as $apportionment_id => $apportionment) {
-
-            if(!isset($expenses['common_expense']['apportionments'][$apportionment_id])) {
-                // direct transfer
-                $expenses['common_expense']['apportionments'][$apportionment_id] = $apportionment;
-            }
-            else {
-                // merge with existing apportionment
-                $target =& $expenses['common_expense']['apportionments'][$apportionment_id];
-
-                // shares
-                $target['shares'] = $apportionment['shares'];
-
-                // totals
-                $target['total_amount'] += $apportionment['total_amount'];
-                $target['total_vat']    += $apportionment['total_vat'];
-                $target['total_owner']  += $apportionment['total_owner'];
-                $target['total_tenant'] += $apportionment['total_tenant'];
-
-                // accounts
-                foreach($apportionment['accounts'] as $account_code => $account) {
-
-                    if(!isset($target['accounts'][$account_code])) {
-                        $target['accounts'][$account_code] = $account;
-                    }
-                    else {
-                        $target['accounts'][$account_code]['owner']  += $account['owner'];
-                        $target['accounts'][$account_code]['tenant'] += $account['tenant'];
-                        $target['accounts'][$account_code]['vat']    += $account['vat'];
-                    }
-                }
-            }
-        }
-
-        // remove reserve_fund block
-        unset($expenses['reserve_fund']);
-    }
-
     return $expenses;
 };
 
