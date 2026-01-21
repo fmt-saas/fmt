@@ -80,7 +80,8 @@ $buildOwnerExpenses = function (array $owner): array {
             if (!isset($expenses[$expense_type])) {
                 $expenses[$expense_type] = [
                     'name'           => $expense['name'],
-                    'apportionments' => []
+                    'apportionments' => [],
+                    'lines'          => $expense['lines'] ?? []
                 ];
             }
 
