@@ -79,7 +79,7 @@
             "help": ""
         },
         "active_ownership_id": {
-            "label": "Ownership actif",
+            "label": "Dossier de copropriété actif",
             "description": "Dossier de propriété actuellement associé à ce lot.",
             "help": ""
         },
@@ -110,6 +110,10 @@
         }
     },
     "view": {
+        "form.create": {
+            "name": "Création de Lot",
+            "description": "Assistant pour encoder un nouveau lot et ses paramètres principaux."
+        },
         "form.default": {
             "name": "Lot privatif",
             "description": "Fiche complète du lot (données juridiques, propriétaires, clés, dépendances).",
@@ -133,10 +137,6 @@
                     "label": "Commentaires"
                 }
             }
-        },
-        "form.create": {
-            "name": "Création de lot",
-            "description": "Assistant pour encoder un nouveau lot et ses paramètres principaux."
         },
         "list.default": {
             "name": "Liste des lots",
