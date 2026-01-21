@@ -306,23 +306,22 @@
                 {% for expense in owner.expenses %}
 
                     {% if expense.name == 'private_expense' %}
-                        <!-- there is a single account for private expenses -->
-                        {% for apport in expense.apportionments %}
-                        {% for account in apport.accounts %}
+                        <!-- struct differs for private expenses : there are only lines and no apport nor accounts -->
+                        {% for line in expense.lines %}
 
                             <tr>
-                                <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
+                                <td><div style="padding-left: 20px;">{{ line.name }}</div></td>
                                 <td>/</td>
                                 <td></td>
-                                <td>{{ (account.owner + account.tenant) | format_money(false) }}</td>
-                                <td>{{ account.vat | format_money(false) }}</td>
-                                <td>{{ account.owner | format_money(false) }}</td>
-                                <td>{{ account.tenant | format_money(false) }}</td>
+                                <td>{{ (line.owner + line.tenant) | format_money(false) }}</td>
+                                <td>{{ line.vat | format_money(false) }}</td>
+                                <td>{{ line.owner | format_money(false) }}</td>
+                                <td>{{ line.tenant | format_money(false) }}</td>
                             </tr>
 
-                            {% set total_owner = total_owner + account.owner %}
-                            {% set total_tenant = total_tenant + account.tenant %}
-                            {% set total_vat = total_vat + account.vat %}
+                            {% set total_owner = total_owner + line.owner %}
+                            {% set total_tenant = total_tenant + line.tenant %}
+                            {% set total_vat = total_vat + line.vat %}
                         {% endfor %}
                         {% endfor %}
                     {% endif %}

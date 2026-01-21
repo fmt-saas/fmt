@@ -273,7 +273,12 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                     $expense_ref['lines'][] = [
                         'id'            => $line_id,
                         'date'          => $line['date'],
-                        'name'          => $line['name'] ?? 'private'
+                        'name'          => $line['name'] ?? 'private',
+                        'total_amount'  => $line['total_amount'],
+                        'owner'         => $line['owner_amount'],
+                        'tenant'        => $line['tenant_amount'],
+                        'vat'           => $line['vat_amount'],
+                        'description'   => $line['description']
                     ];
                 }
                 else {
