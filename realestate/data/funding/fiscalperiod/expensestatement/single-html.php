@@ -71,9 +71,10 @@ $context = $providers['context'];
 $buildOwnerExpenses = function (array $owner): array {
 
     $expenses = [];
-    $is_first = true;
+    $is_first_lot = true;
     foreach($owner['property_lots'] as $lot) {
 
+        $is_first_expense = true;
         foreach($lot['expenses'] as $expense) {
             $expense_type = $expense['name'];
 
@@ -85,6 +86,7 @@ $buildOwnerExpenses = function (array $owner): array {
                 ];
             }
 
+            $is_first_apportionment = true;
             foreach($expense['apportionments'] as $apportionment) {
                 $apportionment_id = $apportionment['id'];
 
@@ -101,7 +103,7 @@ $buildOwnerExpenses = function (array $owner): array {
                         'total_tenant'  => 0.0
                     ];
                 }
-                elseif($is_first) {
+                elseif($is_first_expense) {
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['shares'] += $apportionment['shares'];
                 }
 
@@ -131,16 +133,18 @@ $buildOwnerExpenses = function (array $owner): array {
                             += $account['vat'];
                     }
                     // #memo total_amount is total under the account for given apportionment, and must not be summed for each lot
-                    if($is_first) {
+                    if($is_first_lot) {
                         $expenses[$expense_type]['apportionments'][$apportionment_id]['total_amount']   += $account['total_amount'];
                     }
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_vat']      += $account['vat'];
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_owner']    += $account['owner'];
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_tenant']   += $account['tenant'];
                 }
+                $is_first_apportionment = false;
             }
+            $is_first_expense = false;
         }
-        $is_first = false;
+        $is_first_lot = false;
     }
 
 
