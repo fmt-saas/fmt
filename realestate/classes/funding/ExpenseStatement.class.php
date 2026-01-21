@@ -791,7 +791,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
      * Build a resulting map with the following hierarchy:
      *  ownership > property_lot > {expense type} > apportionment > account > {share}
      *
-     *  - {expense type} : is based on on the code of the account associated to each accounting entry line, and can be amongst these: 'provisions', 'private_expense', 'common_expense', 'reserve_fund'
+     *  - {expense type} : is based on on the code of the account associated to each accounting entry line, and can be amongst these: 'provisions', 'private_expense', 'common_expense' ('reserve_fund' is merged with 'common_expense')
      *  - {share} : there are always two keys: 'owner' and 'tenant'. For reserve_fund, owner is always 100.
      *  - apportionment : for private expense, we usa a fake apportionment ('0'), so that the structure remains the same in all situations.
      *
@@ -1149,6 +1149,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 $line_amount = ($accountingEntryLine['credit'] > 0) ? -$accountingEntryLine['credit'] : $accountingEntryLine['debit'];
 
+                // #memo - reserve fund usage is considered as 'common_expense'
                 $common_total += $line_amount;
 
                 $apportionment_id = $reserveFund['apportionment_id'];
@@ -1176,8 +1177,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         // add up the delta (cents to reinvoice later): if delta is < 0, it will be reimbursed at some point
                         $delta_total += $amount - $amount_owner;
 
-                        if(!isset($map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']])) {
-                            $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']] = [
+                        if(!isset($map_result[$ownership_id][$property_lot_id]['common_expense'][$apportionment_id][$accountingEntryLine['account_id']])) {
+                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$apportionment_id][$accountingEntryLine['account_id']] = [
                                     'shares'        => $shares,
                                     'total_shares'  => $total_shares,
                                     'total_amount'  => $line_amount,
@@ -1187,8 +1188,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         }
                         else {
                             // use of reserve fund only applies to the owners
-                            $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']]['owner'] += round($amount, 2);
-                            $map_result[$ownership_id][$property_lot_id]['reserve_fund'][$apportionment_id][$accountingEntryLine['account_id']]['total_amount'] += $line_amount;
+                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$apportionment_id][$accountingEntryLine['account_id']]['owner'] += round($amount, 2);
+                            $map_result[$ownership_id][$property_lot_id]['common_expense'][$apportionment_id][$accountingEntryLine['account_id']]['total_amount'] += $line_amount;
                         }
 
                         $map_property_lots_ids[$property_lot_id] = true;

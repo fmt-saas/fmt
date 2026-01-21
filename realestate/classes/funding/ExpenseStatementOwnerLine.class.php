@@ -156,6 +156,7 @@ class ExpenseStatementOwnerLine extends \sale\accounting\invoice\SaleInvoiceLine
                 'selection'         => [
                     'private_expense',
                     'common_expense',
+                    // #deprecated #memo 'reserve_fund' has been merged with 'common_expense'
                     'reserve_fund',
                     'provisions',
                     'consumptions'
