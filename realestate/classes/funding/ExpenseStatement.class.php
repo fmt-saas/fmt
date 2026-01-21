@@ -917,12 +917,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
          */
         $common_total = 0.0;
         /**
-         * @var float $delta_total
-         * Total of diffs between line amounts and assigned amounts, considering deferred expenses, cumulating rounded values.
-         * This value is used for computing assigned_delta.
-         */
-        $delta_total = 0.0;
-        /**
          * @var float $private_total
          * Total amount of private expenses in the current statement (all owners included).
          */
@@ -932,6 +926,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
          * Total amount of provisions in the current statement (all owners included).
          */
         $provisions_total = 0.0;
+        /**
+         * @var float $delta_total
+         * Total of diffs between line amounts and assigned amounts, considering deferred expenses, cumulating rounded values.
+         * This value is used for computing assigned_delta.
+         */
+        $delta_total = 0.0;
 
         // pass-1 - identify private expenses that have been reinvoiced
         $map_private_expenses = [];
