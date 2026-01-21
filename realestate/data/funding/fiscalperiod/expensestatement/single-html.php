@@ -442,7 +442,7 @@ $values = array_merge($values, [
 
     'recipient'           => $owner['identity_id'],
     // #todo - base this on ownership options
-    'has_details'         => false,
+    'has_details'         => true,
 
 
 //    'payment_qr_code_uri' => $getPaymentQrCodeUri($invoice),
