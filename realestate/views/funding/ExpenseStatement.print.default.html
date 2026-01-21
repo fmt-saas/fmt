@@ -347,6 +347,7 @@
             </table>
             {% endif %}
             <!-- provisions -->
+            {% if owner.has_provisions %}
             <table>
                 <thead>
                     <tr>
@@ -360,62 +361,41 @@
                     </tr>
                 </thead>
                 <tbody>
+                {% set total_owner = 0 %}
+                {% for expense in owner.expenses %}
 
-                {% for lot in owner.property_lots %}
-                    {% if lot.has_provisions %}
-                        {% set total_owner = 0 %}
+                    {% if expense.name == 'provisions' %}
+                        <!-- there is a single account for private expenses -->
+                        {% for apport in expense.apportionments %}
+                        {% for account in apport.accounts %}
 
-                        <tr>
-                            <td colspan="7" style="border-bottom: solid 1px black;"><strong>{{ lot.code }} - {{ lot.ref }} ({{ lot.nature }})</strong></td>
-                        </tr>
+                            <tr>
+                                <td><div style="padding-left: 20px;">
+                                    <!--
+                                    {{ account.date | date('d/m/Y') }} -
+                                    {{account.description }}
+                                    -->
+                                    Provisions appelées
+                                    </div>
+                                </td>
+                                <td>/</td>
+                                <td></td>
+                                <td>{{ account.owner | format_money(false) }}</td>
+                                <td></td>
+                                <td>{{ account.owner | format_money(false) }}</td>
+                                <td></td>
+                            </tr>
 
-                        {% for expense in lot.expenses %}
-                            {% if expense.name == 'provisions' %}
-                                <!-- there is a single account for private expenses -->
-                                {% for apport in expense.apportionments %}
-                                {% for account in apport.accounts %}
-
-                                    <tr>
-                                        <td><div style="padding-left: 20px;">
-                                            <!--
-                                            {{ account.date | date('d/m/Y') }} -
-                                            {{account.description }}
-                                            -->
-                                            Provisions appelées
-                                            </div>
-                                        </td>
-                                        <td>/</td>
-                                        <td></td>
-                                        <td>{{ account.owner | format_money() }}</td>
-                                        <td></td>
-                                        <td>{{ account.owner | format_money() }}</td>
-                                        <td></td>
-                                    </tr>
-
-                                    {% set total_owner = total_owner + account.owner %}
-                                {% endfor %}
-                                {% endfor %}
-                            {% endif %}
+                            {% set total_owner = total_owner + account.owner %}
                         {% endfor %}
-
-                        <!--
-                        <tr class="total-loc">
-                            <td style="text-align: right;">Total {{ lot.code }} - {{ lot.ref }}</td>
-                            <td ></td>
-                            <td ></td>
-                            <td >{{ total_owner | format_money() }}</td>
-                            <td ></td>
-                            <td >{{ total_owner | format_money() }}</td>
-                            <td ></td>
-                        </tr>
-                        -->
+                        {% endfor %}
                         {% set provisions_total_owner = provisions_total_owner + total_owner  %}
-
                     {% endif %}
 
                 {% endfor %}
                 </tbody>
             </table>
+            {% endif %}
             <!-- consumptions -->
             <!-- #TODO -->
             <!-- TOTAL expense statement -->
