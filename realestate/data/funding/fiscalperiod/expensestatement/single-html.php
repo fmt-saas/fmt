@@ -280,9 +280,9 @@ $values = [
     ];
 
 foreach($statement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
-    $item = $statementOwner['schema'];
-    $item['expenses'] = $buildOwnerExpenses($owner);
-    $values['owners'][] = $item;
+    $owner = $statementOwner['schema'];
+    $owner['expenses'] = $buildOwnerExpenses($owner);
+    $values['owners'][] = $owner;
 }
 
 if(!count($values['owners'])) {
