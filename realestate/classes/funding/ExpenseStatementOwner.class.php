@@ -154,6 +154,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                 'fiscal_period_id' => ['date_from', 'date_to'],
                 'ownership_id' => ['id', 'name'],
                 'statement_owner_lines_ids' => [
+                    'name',
                     'apportionment_id',
                     'account_id',
                     'property_lot_id',
@@ -261,34 +262,42 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                 if (!isset($owner['property_lots'][$property_lot_id]['expenses'][$expense_type])) {
                     $owner['property_lots'][$property_lot_id]['expenses'][$expense_type] = [
                         'name'              => $expense_type,
-                        'apportionments'    => []
+                        'apportionments'    => [],
+                        'lines'             => []
                     ];
                 }
 
                 $expense_ref = &$owner['property_lots'][$property_lot_id]['expenses'][$expense_type];
 
-                if (!isset($expense_ref['apportionments'][$apportionment_id])) {
-                    $expense_ref['apportionments'][$apportionment_id] = [
-                        'id'            => $apportionment_id,
-                        'name'          => $apportionments[$apportionment_id]['name'] ?? 'private',
-                        'total_shares'  => $apportionments[$apportionment_id]['total_shares'],
-                        'shares'        => $line['shares'],
-                        'accounts'      => []
+                if($expense_type === 'private_expense') {
+                    $expense_ref['lines'][$line_id] = [
+                        'id'            => $line_id,
+                        'name'          => $line['name'] ?? 'private'
                     ];
                 }
+                else {
+                    if(!isset($expense_ref['apportionments'][$apportionment_id])) {
+                        $expense_ref['apportionments'][$apportionment_id] = [
+                            'id'            => $apportionment_id,
+                            'name'          => $apportionments[$apportionment_id]['name'] ?? 'private',
+                            'total_shares'  => $apportionments[$apportionment_id]['total_shares'],
+                            'shares'        => $line['shares'],
+                            'accounts'      => []
+                        ];
+                    }
 
-                $expense_ref['apportionments'][$apportionment_id]['accounts'][$account_id][] = [
-                    'id'            => $account_id,
-                    'name'          => $accounts[$account_id]['name'],
-                    'code'          => $accounts[$account_id]['code'],
-                    'total_amount'  => $line['total_amount'],
-                    'owner'         => $line['owner_amount'],
-                    'tenant'        => $line['tenant_amount'],
-                    'vat'           => $line['vat_amount'],
-                    'description'   => $line['description'],
-                    'date'          => $line['date']
-                ];
-
+                    $expense_ref['apportionments'][$apportionment_id]['accounts'][$account_id][] = [
+                        'id'            => $account_id,
+                        'name'          => $accounts[$account_id]['name'],
+                        'code'          => $accounts[$account_id]['code'],
+                        'total_amount'  => $line['total_amount'],
+                        'owner'         => $line['owner_amount'],
+                        'tenant'        => $line['tenant_amount'],
+                        'vat'           => $line['vat_amount'],
+                        'description'   => $line['description'],
+                        'date'          => $line['date']
+                    ];
+                }
                 $owner['property_lots'][$property_lot_id]['date_from'] = $line['date_from'];
                 $owner['property_lots'][$property_lot_id]['date_to'] = $line['date_to'];
                 $owner['property_lots'][$property_lot_id]['nb_days'] = $line['nb_days'];
