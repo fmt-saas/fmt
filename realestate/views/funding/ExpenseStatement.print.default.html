@@ -240,6 +240,7 @@
                 </thead>
                 <tbody>
                     {% for expense in owner.expenses %}
+                        <!-- #memo - in the summary version 'common_expense' and 'reserve_fund' are merged into 'common_expense' -->
                         {% if expense.name == 'common_expense' or expense.name == 'reserve_fund' %}
                             {% for apport in expense.apportionments %}
                                 {% set quotites = apport.shares ~ ' / ' ~ apport.total_shares %}
@@ -247,22 +248,22 @@
                                 <tr>
                                     <td style="background-color: #eaeaea; font-weight: bold;"><div style="padding-left: 10px;"><strong>{{ apport.name }}</strong></div></td>
                                     <td style="background-color: #eaeaea; font-weight: bold;"></td>
-                                    <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.total_amount | format_money() }}</td>
-                                    <td style="background-color: #eaeaea; font-weight: bold;">{{ (apport.total_owner + apport.total_tenant) | format_money() }}</td>
-                                    <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.total_vat | format_money() }}</td>
-                                    <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.total_owner | format_money() }}</td>
-                                    <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.total_tenant | format_money() }}</td>
+                                    <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.total_amount | format_money(false) }}</td>
+                                    <td style="background-color: #eaeaea; font-weight: bold;">{{ (apport.total_owner + apport.total_tenant) | format_money(false) }}</td>
+                                    <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.total_vat | format_money(false) }}</td>
+                                    <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.total_owner | format_money(false) }}</td>
+                                    <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.total_tenant | format_money(false) }}</td>
                                 </tr>
 
                                 {% for account in apport.accounts %}
                                     <tr>
                                         <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
                                         <td style="text-align: center;">{{ quotites }}</td>
-                                        <td>{{ account.total_amount | format_money() }}</td>
-                                        <td>{{ (account.owner + account.tenant) | format_money() }}</td>
-                                        <td>{{ account.vat | format_money() }}</td>
-                                        <td>{{ account.owner | format_money() }}</td>
-                                        <td>{{ account.tenant | format_money() }}</td>
+                                        <td>{{ account.total_amount | format_money(false) }}</td>
+                                        <td>{{ (account.owner + account.tenant) | format_money(false) }}</td>
+                                        <td>{{ account.vat | format_money(false) }}</td>
+                                        <td>{{ account.owner | format_money(false) }}</td>
+                                        <td>{{ account.tenant | format_money(false) }}</td>
                                     </tr>
                                 {% endfor %}
 
