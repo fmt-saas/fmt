@@ -101,7 +101,7 @@ $buildOwnerExpenses = function (array $owner): array {
                         'total_tenant'  => 0.0
                     ];
                 }
-                else {
+                elseif($is_first) {
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['shares'] += $apportionment['shares'];
                 }
 
