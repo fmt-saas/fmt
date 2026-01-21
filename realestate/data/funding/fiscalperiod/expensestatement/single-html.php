@@ -74,8 +74,6 @@ $buildOwnerExpenses = function (array $owner): array {
 
     foreach($owner['property_lots'] as $lot) {
 
-        $is_set_apport_shares = false;
-
         foreach($lot['expenses'] as $expense) {
             $expense_type = $expense['name'];
 
@@ -95,7 +93,11 @@ $buildOwnerExpenses = function (array $owner): array {
                         'name'          => $apportionment['name'],
                         'total_shares'  => $apportionment['total_shares'],
                         'shares'        => $apportionment['shares'],
-                        'accounts'      => []
+                        'accounts'      => [],
+                        'total_amount'  => 0.0,
+                        'total_vat'     => 0.0,
+                        'total_owner'   => 0.0,
+                        'total_tenant'  => 0.0
                     ];
                 }
                 else {
@@ -120,8 +122,6 @@ $buildOwnerExpenses = function (array $owner): array {
                             ];
                     }
                     else {
-                        $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]['total_amount']
-                            += $account['total_amount'];
                         $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]['owner']
                             += $account['owner'];
                         $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]['tenant']
@@ -129,6 +129,10 @@ $buildOwnerExpenses = function (array $owner): array {
                         $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]['vat']
                             += $account['vat'];
                     }
+                    $expenses[$expense_type]['apportionments'][$apportionment_id]['total_amount']   += $account['total_amount'];
+                    $expenses[$expense_type]['apportionments'][$apportionment_id]['total_vat']      += $account['vat'];
+                    $expenses[$expense_type]['apportionments'][$apportionment_id]['total_owner']    += $account['owner'];
+                    $expenses[$expense_type]['apportionments'][$apportionment_id]['total_tenant']   += $account['tenant'];
                 }
             }
         }

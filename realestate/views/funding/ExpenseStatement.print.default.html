@@ -221,6 +221,9 @@
 
         <!-- global summary -->
         {% if owner.has_common_expense or owner.has_reserve_fund %}
+        {% set total_tenant = 0 %}
+        {% set total_owner = 0 %}
+        {% set total_vat = 0 %}
         <div style="page-break-inside: avoid;">
             <h2>Charges communes <!-- (Prorata: {{ owner.nb_days }} / {{ nb_days }} jours) --></h2>
             <table>
@@ -240,20 +243,18 @@
                         {% if expense.name == 'common_expense' or expense.name == 'reserve_fund' %}
                             {% for apport in expense.apportionments %}
                                 {% set quotites = apport.shares ~ ' / ' ~ apport.total_shares %}
-                                {% set apport_total = 0 %}
-                                {% set apport_owner = 0 %}
-                                {% set apport_tenant = 0 %}
-                                {% set apport_vat = 0 %}
 
                                 <tr>
-                                    <td colspan="7" style="background-color: #eaeaea;"><div style="padding-left: 10px;"><strong>{{ apport.name }}</strong></div></td>
+                                    <td style="background-color: #eaeaea;"><div style="padding-left: 10px;"><strong>{{ apport.name }}</strong></div></td>
+                                    <td></td>
+                                    <td>{{ apport.total_amount | format_money() }}</td>
+                                    <td>{{ apport.total_owner + apport.total_tenant | format_money() }}</td>
+                                    <td>{{ apport.total_vat | format_money() }}</td>
+                                    <td>{{ apport.total_owner | format_money() }}</td>
+                                    <td>{{ apport.total_tenant | format_money() }}</td>
                                 </tr>
 
                                 {% for account in apport.accounts %}
-                                    {% set apport_total = apport_total + account.total_amount %}
-                                    {% set apport_owner = apport_owner + account.owner %}
-                                    {% set apport_tenant = apport_tenant + account.tenant %}
-                                    {% set apport_vat = apport_vat + account.vat %}
                                     <tr>
                                         <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
                                         <td style="text-align: center;">{{ quotites }}</td>
@@ -265,26 +266,12 @@
                                     </tr>
                                 {% endfor %}
 
-                                {% set total_apport = total_apport + apport_total %}
-                                {% set total_owner = total_owner + apport_owner %}
-                                {% set total_tenant = total_tenant + apport_tenant %}
-                                {% set total_vat = total_vat + apport_vat %}
+                                {% set common_total_owner = common_total_owner + apport.total_owner %}
+                                {% set common_total_tenant = common_total_tenant + apport.total_tenant %}
+                                {% set common_total_vat = common_total_vat + apport.total_vat %}
                             {% endfor %}
                         {% endif %}
                     {% endfor %}
-
-                    <tr class="total-footer">
-                        <td style="text-align: right;">Total</td>
-                        <td></td>
-                        <td>{{ total_apport | format_money() }}</td>
-                        <td>{{ (total_owner + total_tenant) | format_money() }}</td>
-                        <td>{{ total_vat | format_money() }}</td>
-                        <td>{{ total_owner | format_money() }}</td>
-                        <td>{{ total_tenant | format_money() }}</td>
-                    </tr>
-                    {% set common_total_owner = common_total_owner + total_owner  %}
-                    {% set common_total_tenant = common_total_tenant + total_tenant  %}
-                    {% set common_total_vat = common_total_vat + total_vat %}
                 </tbody>
                 <tfoot>
                     <tr class="total-footer">

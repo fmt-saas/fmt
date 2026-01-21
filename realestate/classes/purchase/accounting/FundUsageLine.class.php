@@ -67,6 +67,7 @@ class FundUsageLine extends \equal\orm\Model {
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
                 'relation'          => ['fund_account_id' => ['apportionment_id']],
                 'store'             => true,
+                'readonly'          => true,
                 'domain'            => [['condo_id', '=', 'object.condo_id']]
             ],
 
