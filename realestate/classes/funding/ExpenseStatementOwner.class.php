@@ -270,7 +270,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                 $expense_ref = &$owner['property_lots'][$property_lot_id]['expenses'][$expense_type];
 
                 if($expense_type === 'private_expense') {
-                    $expense_ref['lines'][$line_id] = [
+                    $expense_ref['lines'][] = [
                         'id'            => $line_id,
                         'name'          => $line['name'] ?? 'private'
                     ];
