@@ -248,7 +248,7 @@
                                     <td style="background-color: #eaeaea;"><div style="padding-left: 10px;"><strong>{{ apport.name }}</strong></div></td>
                                     <td></td>
                                     <td>{{ apport.total_amount | format_money() }}</td>
-                                    <td>{{ apport.total_owner + apport.total_tenant | format_money() }}</td>
+                                    <td>{{ (apport.total_owner + apport.total_tenant) | format_money() }}</td>
                                     <td>{{ apport.total_vat | format_money() }}</td>
                                     <td>{{ apport.total_owner | format_money() }}</td>
                                     <td>{{ apport.total_tenant | format_money() }}</td>
