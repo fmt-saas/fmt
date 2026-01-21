@@ -74,11 +74,10 @@ $buildOwnerExpenses = function (array $owner): array {
     $is_first_lot = true;
     foreach($owner['property_lots'] as $lot) {
 
-        $is_first_expense = true;
         foreach($lot['expenses'] as $expense) {
             $expense_type = $expense['name'];
 
-            if (!isset($expenses[$expense_type])) {
+            if(!isset($expenses[$expense_type])) {
                 $expenses[$expense_type] = [
                     'name'           => $expense['name'],
                     'apportionments' => [],
@@ -86,7 +85,6 @@ $buildOwnerExpenses = function (array $owner): array {
                 ];
             }
 
-            $is_first_apportionment = true;
             foreach($expense['apportionments'] as $apportionment) {
                 $apportionment_id = $apportionment['id'];
 
@@ -103,7 +101,8 @@ $buildOwnerExpenses = function (array $owner): array {
                         'total_tenant'  => 0.0
                     ];
                 }
-                elseif($is_first_expense) {
+                // we must sum total shares for all lots
+                else {
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['shares'] += $apportionment['shares'];
                 }
 
@@ -140,9 +139,9 @@ $buildOwnerExpenses = function (array $owner): array {
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_owner']    += $account['owner'];
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_tenant']   += $account['tenant'];
                 }
-                $is_first_apportionment = false;
+
             }
-            $is_first_expense = false;
+
         }
         $is_first_lot = false;
     }
@@ -173,7 +172,7 @@ $buildOwnerExpenses = function (array $owner): array {
                 $target =& $expenses['common_expense']['apportionments'][$apportionment_id];
 
                 // shares
-                $target['shares'] += $apportionment['shares'];
+                $target['shares'] = $apportionment['shares'];
 
                 // totals
                 $target['total_amount'] += $apportionment['total_amount'];
