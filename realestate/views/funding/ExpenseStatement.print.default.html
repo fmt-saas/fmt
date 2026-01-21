@@ -305,33 +305,31 @@
                 <tbody>
                 {% for lot in owner.expenses %}
 
-                        {% if expense.name == 'private_expense' %}
-                            <!-- there is a single account for private expenses -->
-                            {% for apport in expense.apportionments %}
-                            {% for account in apport.accounts %}
+                    {% if expense.name == 'private_expense' %}
+                        <!-- there is a single account for private expenses -->
+                        {% for apport in expense.apportionments %}
+                        {% for account in apport.accounts %}
 
-                                <tr>
-                                    <td><div style="padding-left: 20px;">{{ account.date | date('d/m/Y') }} - {{account.description }}</div></td>
-                                    <td>/</td>
-                                    <td></td>
-                                    <td>{{ (account.owner + account.tenant) | format_money(false) }}</td>
-                                    <td>{{ account.vat | format_money(false) }}</td>
-                                    <td>{{ account.owner | format_money(false) }}</td>
-                                    <td>{{ account.tenant | format_money(false) }}</td>
-                                </tr>
+                            <tr>
+                                <td><div style="padding-left: 20px;">{{ account.date | date('d/m/Y') }} - {{account.description }}</div></td>
+                                <td>/</td>
+                                <td></td>
+                                <td>{{ (account.owner + account.tenant) | format_money(false) }}</td>
+                                <td>{{ account.vat | format_money(false) }}</td>
+                                <td>{{ account.owner | format_money(false) }}</td>
+                                <td>{{ account.tenant | format_money(false) }}</td>
+                            </tr>
 
-                                {% set total_owner = total_owner + account.owner %}
-                                {% set total_tenant = total_tenant + account.tenant %}
-                                {% set total_vat = total_vat + account.vat %}
-                            {% endfor %}
-                            {% endfor %}
-                        {% endif %}
-
-                        {% set private_total_owner = private_total_owner + total_owner  %}
-                        {% set private_total_tenant = private_total_tenant + total_tenant  %}
-                        {% set private_total_vat = private_total_vat + total_vat %}
-
+                            {% set total_owner = total_owner + account.owner %}
+                            {% set total_tenant = total_tenant + account.tenant %}
+                            {% set total_vat = total_vat + account.vat %}
+                        {% endfor %}
+                        {% endfor %}
                     {% endif %}
+
+                    {% set private_total_owner = private_total_owner + total_owner  %}
+                    {% set private_total_tenant = private_total_tenant + total_tenant  %}
+                    {% set private_total_vat = private_total_vat + total_vat %}
 
                 {% endfor %}
                 </tbody>
