@@ -71,7 +71,7 @@ $context = $providers['context'];
 $buildOwnerExpenses = function (array $owner): array {
 
     $expenses = [];
-
+    $is_first = true;
     foreach($owner['property_lots'] as $lot) {
 
         foreach($lot['expenses'] as $expense) {
@@ -129,14 +129,17 @@ $buildOwnerExpenses = function (array $owner): array {
                         $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]['vat']
                             += $account['vat'];
                     }
-
-                    $expenses[$expense_type]['apportionments'][$apportionment_id]['total_amount']   += $account['total_amount'];
+                    // #memo total_amount is total under the account for given apportionment, and must not be summed for each lot
+                    if($is_first) {
+                        $expenses[$expense_type]['apportionments'][$apportionment_id]['total_amount']   += $account['total_amount'];
+                    }
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_vat']      += $account['vat'];
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_owner']    += $account['owner'];
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_tenant']   += $account['tenant'];
                 }
             }
         }
+        $is_first = false;
     }
 
     return $expenses;
