@@ -7,7 +7,7 @@
         "exports": false,
         "actions": false,
         "advanced_search": {
-            "open": false
+            "open": true
         }
     },
     "actions": [
