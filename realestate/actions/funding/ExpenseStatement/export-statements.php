@@ -26,7 +26,8 @@ use realestate\funding\ExpenseStatementCorrespondence;
                 'postal',
                 'postal_registered',
                 'postal_registered_receipt'
-            ]
+            ],
+            'required'          => true
         ]
     ],
     'response'      => [
@@ -67,7 +68,7 @@ foreach($expenseStatementCorrespondences as $expense_statement_correspondence_id
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
     if(!$expenseStatementCorrespondence['document_id']) {
         // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_funding_FundRequestCorrespondence_generate-document', ['id' => $expense_statement_correspondence_id]);
+        eQual::run('do', 'realestate_funding_ExpenseStatementCorrespondence_generate-document', ['id' => $expense_statement_correspondence_id]);
     }
 
     $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($expense_statement_correspondence_id)

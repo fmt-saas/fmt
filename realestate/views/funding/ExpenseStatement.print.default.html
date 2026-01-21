@@ -466,11 +466,11 @@
                                             <tr>
                                                 <td>{{ account.name }}</td>
                                                 <td style="text-align: center;">{{ quotites }}</td>
-                                                <td>{{ account.total_amount | format_money() }}</td>
-                                                <td>{{ (account.owner + account.tenant) | format_money() }}</td>
-                                                <td>{{ account.vat | format_money() }}</td>
-                                                <td>{{ account.owner | format_money() }}</td>
-                                                <td>{{ account.tenant | format_money() }}</td>
+                                                <td>{{ account.total_amount | format_money(false) }}</td>
+                                                <td>{{ (account.owner + account.tenant) | format_money(false) }}</td>
+                                                <td>{{ account.vat | format_money(false) }}</td>
+                                                <td>{{ account.owner | format_money(false) }}</td>
+                                                <td>{{ account.tenant | format_money(false) }}</td>
                                             </tr>
                                         {% endfor %}
 
@@ -526,9 +526,9 @@
                                                 <td>Provisions appelées</td>
                                                 <td>/</td>
                                                 <td></td>
-                                                <td>{{ account.owner | format_money() }}</td>
+                                                <td>{{ account.owner | format_money(false) }}</td>
                                                 <td></td>
-                                                <td>{{ account.owner | format_money() }}</td>
+                                                <td>{{ account.owner | format_money(false) }}</td>
                                                 <td></td>
                                             </tr>
 
@@ -574,10 +574,10 @@
                                             <td>{{ line.name }}<!--{{ account.date | date('d/m/Y') }} - {{ line.description }}--></td>
                                             <td>/</td>
                                             <td></td>
-                                            <td>{{ (line.owner + line.tenant) | format_money() }}</td>
-                                            <td>{{ line.vat | format_money() }}</td>
-                                            <td>{{ line.owner | format_money() }}</td>
-                                            <td>{{ line.tenant | format_money() }}</td>
+                                            <td>{{ (line.owner + line.tenant) | format_money(false) }}</td>
+                                            <td>{{ line.vat | format_money(false) }}</td>
+                                            <td>{{ line.owner | format_money(false) }}</td>
+                                            <td>{{ line.tenant | format_money(false) }}</td>
                                         </tr>
 
                                         {% set total_owner = total_owner + line.owner %}
