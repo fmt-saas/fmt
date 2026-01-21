@@ -272,6 +272,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                 if($expense_type === 'private_expense') {
                     $expense_ref['lines'][] = [
                         'id'            => $line_id,
+                        'date'          => $line['date'],
                         'name'          => $line['name'] ?? 'private'
                     ];
                 }
