@@ -129,7 +129,6 @@ $buildOwnerExpenses = function (array $owner): array {
                         $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]['vat']
                             += $account['vat'];
                     }
-                    $expenses[$expense_type]['apportionments'][$apportionment_id]['total_amount']   += $account['total_amount'];
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_vat']      += $account['vat'];
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_owner']    += $account['owner'];
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_tenant']   += $account['tenant'];
