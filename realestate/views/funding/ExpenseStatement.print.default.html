@@ -414,9 +414,7 @@
 
             {% for lot in owner.property_lots %}
 
-                {% if not loop.first %}
-                    <div class="page-break"></div>
-                {% endif %}
+                <div class="page-break"></div>
 
                 <h1>{{ lot.code }} - {{ lot.ref }} ({{ lot.nature }})</h1>
 
