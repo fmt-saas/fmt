@@ -68,6 +68,73 @@ use realestate\ownership\Owner;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
+$buildOwnerExpenses = function (array $owner): array {
+
+    $expenses = [];
+
+    foreach($owner['property_lots'] as $lot) {
+
+        foreach($lot['expenses'] as $expense) {
+            $expense_type = $expense['name'];
+
+            if (!isset($expenses[$expense_type])) {
+                $expenses[$expense_type] = [
+                    'name'           => $expense['name'],
+                    'apportionments' => []
+                ];
+            }
+
+            foreach($expense['apportionments'] as $apportionment) {
+                $apportionment_id = $apportionment['id'];
+
+                foreach($apportionment['accounts'] as $account) {
+                    $account_code = $account['code'];
+
+                    if(!isset($expenses[$expense_type]['apportionments'][$apportionment_id])) {
+                        $expenses[$expense_type]['apportionments'][$apportionment_id] = [
+                            'id'            => $apportionment['id'],
+                            'name'          => $apportionment['name'],
+                            'total_shares'  => $apportionment['total_shares'],
+                            'shares'        => $apportionment['shares'],
+                            'accounts'      => []
+                        ];
+                    }
+                    else {
+                        $expenses[$expense_type]['apportionments'][$apportionment_id]['shares'] += $apportionment['shares'];
+                    }
+
+                    if(!isset(
+                        $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]
+                    )) {
+                        $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]
+                            = [
+                                'id'            => $account['id'],
+                                'name'          => $account['name'],
+                                'code'          => $account['code'],
+                                'total_amount'  => $account['total_amount'],
+                                'owner'         => $account['owner'],
+                                'tenant'        => $account['tenant'],
+                                'vat'           => $account['vat']
+                            ];
+                    }
+                    else {
+                        $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]['total_amount']
+                            += $account['total_amount'];
+                        $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]['owner']
+                            += $account['owner'];
+                        $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]['tenant']
+                            += $account['tenant'];
+                        $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]['vat']
+                            += $account['vat'];
+                    }
+                }
+            }
+        }
+    }
+
+    return $expenses;
+};
+
 
 $getFormattedDate = function($timestamp) {
     $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
@@ -213,7 +280,9 @@ $values = [
     ];
 
 foreach($statement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
-    $values['owners'][] = $statementOwner['schema'];
+    $item = $statementOwner['schema'];
+    $item['expenses'] = $buildOwnerExpenses($owner);
+    $values['owners'][] = $item;
 }
 
 if(!count($values['owners'])) {
@@ -305,6 +374,9 @@ $values = array_merge($values, [
     'condominium'         => $fiscalPeriod['condo_id'],
 
     'recipient'           => $owner['identity_id'],
+    // #todo - base this on ownership options
+    'has_details'         => false,
+
 
 //    'payment_qr_code_uri' => $getPaymentQrCodeUri($invoice),
 
