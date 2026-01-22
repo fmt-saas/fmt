@@ -184,16 +184,6 @@ $organisation = Organisation::id(1)
     ])
     ->first();
 
-$map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']])
-    ->read([
-        'name',
-        'order',
-        'description_call',
-        'has_vote_required',
-        'majority'
-    ])
-    ->get();
-
 
 $lang = $params['lang'];
 
@@ -202,7 +192,7 @@ $subject = '';
 $introduction = '';
 
 $template = Template::search([
-        ['code', '=', 'general_meetings_invitation'],
+        ['code', '=', 'general_meetings_invitation_correspondence'],
         ['type', '=', 'document']
     ])
     ->read( ['id','parts_ids' => ['name', 'value']])
@@ -278,8 +268,6 @@ $values = [
     'date'                      => $assembly['assembly_invitation_date'],
     'recipient'                 => $assemblyInvitationCorrespondence['owner_id'],
 
-    'map_assembly_items'        => $map_assembly_items,
-
     // 'today_date'                => time(),
     'timezone'                  => constant('L10N_TIMEZONE'),
     'locale'                    => constant('L10N_LOCALE'),
@@ -316,7 +304,7 @@ try {
             })
         );
 
-    $template = $twig->load('AssemblyInvitation.'.$params['view_id'].'.html');
+    $template = $twig->load('AssemblyInvitationCorrespondence.'.$params['view_id'].'.html');
     $html = $template->render($values);
 }
 catch(Exception $e) {

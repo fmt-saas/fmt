@@ -174,9 +174,10 @@ $lang = $params['lang'];
 $subject = '';
 $introduction = '';
 $conclusion = '';
+$legal_notes = '';
 
 $template = Template::search([
-        ['code', '=', 'general_meetings_invitation'],
+        ['code', '=', 'general_meetings_agenda'],
         ['type', '=', 'document']
     ])
     ->read( ['id','parts_ids' => ['name', 'value']])
@@ -238,12 +239,19 @@ foreach($template['parts_ids'] as $part_id => $part) {
             return $map_values[$key] ?? '';
         }, $introduction);
     }
+    elseif($part['name'] == 'conclusion') {
+        $conclusion = $part['value'];
+    }
+    elseif($part['name'] == 'legal_notes') {
+        $legal_notes = $part['value'];
+    }
 }
 
 $values = [
     'title'                     => $subject,
     'introduction'              => $introduction,
     'conclusion'                => $conclusion,
+    'legal_notes'               => $legal_notes,
 
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
@@ -291,7 +299,7 @@ try {
             })
         );
 
-    $template = $twig->load('AssemblyInvitation.'.$params['view_id'].'.html');
+    $template = $twig->load('AssemblyAgenda.'.$params['view_id'].'.html');
     $html = $template->render($values);
 }
 catch(Exception $e) {

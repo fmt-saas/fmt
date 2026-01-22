@@ -73,10 +73,6 @@
 <body>
     {% include 'header.html.twig' %}
 
-    <div class="introduction" style="height: 450px; overflow: hidden; text-overflow: ellipsis;">
-        {{ introduction | raw }}
-    </div>
-
     {% set assemblyTypes = {
         'statutory': 'Assemblée Générale Statutaire',
         'takeover': 'Assemblée Générale de Reprise de gestion',
@@ -91,13 +87,10 @@
         '4_5': 'Majorité des 4/5'
     } %}
 
-    <div class="page-break"></div>
 
-    <p>
-        {{ assembly.heading_text_call | raw }}
-    </p>
-
-    <h3 style="text-align: center;">Ordre du jour de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} du {{ assembly.assembly_date | date(date_format, timezone) }}</h3>
+    <div class="introduction">
+        {{ introduction | raw }}
+    </div>
 
     {% for item in assembly.assembly_items_ids %}
         <p>
@@ -147,41 +140,13 @@
         </p>
     {% endfor %}
 
+    <div class="conclusion" style="margin-top: 40px; border: solid 1px black; padding: 10px; page-break-inside: avoid;">
+        {{ conclusion | raw }}
+    </div>
 
-    <p>
-        {{ assembly.closing_text_call | raw }}
-    </p>
-
-
-
-
-<div style="margin-top: 40px; border: solid 1px black; padding: 10px; page-break-inside: avoid;">
-    Pour que l’assemblée générale se déroule efficacement et ne dure pas plus longtemps que nécessaire, les copropriétaires sont invités à transmettre leurs questions au syndic par écrit dès qu’ils en ont connaissance, sans attendre la réunion.
-    Cela concerne notamment les points inscrits à l’ordre du jour, y compris les décomptes et la comptabilité.
-    Cette anticipation permettra d’apporter des réponses avant l’assemblée et d’éviter les prolongations inutiles.
-</div>
-
-<div style="margin-top: 20px; border: solid 1px black; padding: 10px; page-break-inside: avoid;">
-    IMPORTANT :<br />
-    <p>
-    1) Modalité de consultation des documents relatifs aux points inscrits à l’ordre du jour :<br />
-    Les documents sont disponibles sur simple demande au bureau du Syndic.
-    </p>
-    <p>
-    2) Au cas où votre emploi du temps ne vous permettrait pas d'assister à l'assemblée générale, nous vous demandons de donner procuration à un autre copropriétaire ou une personne de votre choix pour vous représenter ; ceci afin de permettre à l’assemblée générale de se tenir valablement.<br />
-    Dans le cas où le quorum n’est pas atteint, il est alors nécessaire de convoquer une deuxième assemblée générale ce qui représente des frais pour la copropriété et dérange une nouvelle fois les propriétaires.
-    </p>
-
-    <p>
-    3) En cas de division du droit de propriété portant sur un lot privatif ou lorsque la propriété d’un lot privatif est grevée d’un droit d’emphytéose, de superficie, d’usufruit, d’usage ou d’habitation, le droit de participation aux délibérations de l’Assemblée Générale est suspendu jusqu’à ce que les intéressés désignent la personne qui sera leur mandataire.
-    </p>
-
-    <p>
-    4) Toute demande ou remarque individuelle à propos de la comptabilité doit être faite 7 jours à l'avance.
-    </p>
-
-</div>
-
+    <div style="margin-top: 20px; border: solid 1px black; padding: 10px; page-break-inside: avoid;">
+        {{ legal_notes | raw }}
+    </div>
 
 {% include 'footer.html.twig' %}
 

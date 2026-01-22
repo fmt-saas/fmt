@@ -289,8 +289,8 @@
                     "label": "Toutes les pièces jointes",
                     "description": ""
                 },
-                "route.preview_invite": {
-                    "label": "Prévisualiser l'invitation",
+                "route.preview_agenda": {
+                    "label": "Prévisualiser l'ordre du jour",
                     "description": ""
                 },
                 "route.print_attendance_register_full": {

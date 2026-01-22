@@ -61,10 +61,16 @@ $temp = tempnam(sys_get_temp_dir(), 'pdf_');
 file_put_contents($temp, $data1 ?? '');
 $temp_files[] = $temp;
 
-$data2 = eQual::run('get', 'realestate_governance_Assembly_mandate_render-pdf', ['id' => $assemblyInvitationCorrespondence['assembly_id'], 'ownership_id' => $assemblyInvitationCorrespondence['ownership_id']]);
+$data2 = eQual::run('get', 'realestate_governance_Assembly_agenda_render-pdf', ['id' => $assemblyInvitationCorrespondence['assembly_id']]);
 
 $temp = tempnam(sys_get_temp_dir(), 'pdf_');
 file_put_contents($temp, $data2 ?? '');
+$temp_files[] = $temp;
+
+$data3 = eQual::run('get', 'realestate_governance_Assembly_mandate_render-pdf', ['id' => $assemblyInvitationCorrespondence['assembly_id'], 'ownership_id' => $assemblyInvitationCorrespondence['ownership_id']]);
+
+$temp = tempnam(sys_get_temp_dir(), 'pdf_');
+file_put_contents($temp, $data3 ?? '');
 $temp_files[] = $temp;
 
 

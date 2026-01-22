@@ -505,12 +505,12 @@
             }
         },
         {
-            "id": "route.preview_invite",
+            "id": "route.preview_agenda",
             "type": "entry",
-            "label": "Preview Invite",
+            "label": "Preview Agenda",
             "icon": "preview",
             "description": "",
-            "route": "/?get=realestate_governance_Assembly_invitation_render-pdf&id=object.id",
+            "route": "/?get=realestate_governance_Assembly_agenda_render-pdf&id=object.id",
             "target": "_blank",
             "absolute": true,
             "visible": [

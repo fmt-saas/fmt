@@ -41,7 +41,7 @@ if(!$assembly) {
 
 try {
 
-    $html = (string) eQual::run('get', 'realestate_governance_Assembly_invitation_render-html', [
+    $html = (string) eQual::run('get', 'realestate_governance_Assembly_agenda_render-html', [
             'id'        => $params['id']
         ]);
 
