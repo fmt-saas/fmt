@@ -163,8 +163,10 @@ Mail::queue($message, 'realestate\governance\AssemblyInvitationCorrespondence', 
 // mark invitation as sent
 AssemblyInvitationCorrespondence::id($assemblyInvitationCorrespondence['id'])
     ->update([
-        'is_sent'      => true,
         'sent_date'    => time()
+    ])
+    ->update([
+        'is_sent'      => true,
     ]);
 
 $context->httpResponse()

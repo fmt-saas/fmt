@@ -843,9 +843,11 @@ class Assembly extends \equal\orm\Model {
 
         AssemblyInvitationCorrespondence::ids(array_keys($map_invitations_ids))
             ->update([
-                    'is_sent'   => true,
-                    'sent_date' => time()
-                ]);
+                'sent_date'    => time()
+            ])
+            ->update([
+                'is_sent'      => true,
+            ]);
     }
 
     /**

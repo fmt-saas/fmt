@@ -159,8 +159,10 @@ Mail::queue($message, 'realestate\funding\FundRequestCorrespondence', $fundReque
 // mark invitation as sent
 FundRequestCorrespondence::id($fundRequestCorrespondence['id'])
     ->update([
-        'is_sent'      => true,
         'sent_date'    => time()
+    ])
+    ->update([
+        'is_sent'      => true,
     ]);
 
 $context->httpResponse()

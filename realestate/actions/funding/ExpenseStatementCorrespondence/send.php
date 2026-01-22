@@ -159,8 +159,10 @@ Mail::queue($message, 'realestate\governance\ExpenseStatementCorrespondence', $e
 // mark invitation as sent
 ExpenseStatementCorrespondence::id($expenseStatementCorrespondence['id'])
     ->update([
-        'is_sent'      => true,
         'sent_date'    => time()
+    ])
+    ->update([
+        'is_sent'      => true,
     ]);
 
 $context->httpResponse()
