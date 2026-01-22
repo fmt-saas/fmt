@@ -43,7 +43,7 @@ $events = $orm->disableEvents();
 
 // email
 $template = Template::create([
-        'code'          => 'general_meetings_call',
+        'code'          => 'general_meetings_invitation',
         'description'   => 'Convocation à une assemblée de la copropriété.',
         'category_id'   => 5,
         'type_id'       => 1
@@ -63,9 +63,9 @@ TemplatePart::create([
 ]);
 
 
-// invitation (call)
+// invitation (call - correspondence)
 $template = Template::create([
-        'code'          => 'general_meetings_call',
+        'code'          => 'general_meetings_invitation',
         'description'   => 'Convocation à une assemblée de la copropriété.',
         'category_id'   => 5,
         'type_id'       => 5
@@ -87,9 +87,9 @@ TemplatePart::create([
 ]);
 
 
-// email (second_session)
+// email (call_second_session - correspondence)
 $template = Template::create([
-        'code'          => 'general_meetings_call_second_session',
+        'code'          => 'general_meetings_invitation_second_session',
         'description'   => 'Convocation à une assemblée de la copropriété.',
         'category_id'   => 5,
         'type_id'       => 1
@@ -109,9 +109,9 @@ TemplatePart::create([
 ]);
 
 
-// invitation (call_second_session)
+// invitation (call_second_session - correspondence)
 $template = Template::create([
-        'code'          => 'general_meetings_call_second_session',
+        'code'          => 'general_meetings_invitation_second_session',
         'description'   => 'Convocation à une assemblée de la copropriété.',
         'category_id'   => 5,
         'type_id'       => 5

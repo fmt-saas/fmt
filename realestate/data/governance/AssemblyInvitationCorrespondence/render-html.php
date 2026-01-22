@@ -202,7 +202,7 @@ $subject = '';
 $introduction = '';
 
 $template = Template::search([
-        ['code', '=', 'general_meetings_call'],
+        ['code', '=', 'general_meetings_invitation'],
         ['type', '=', 'document']
     ])
     ->read( ['id','parts_ids' => ['name', 'value']])
