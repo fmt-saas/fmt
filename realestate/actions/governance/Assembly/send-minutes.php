@@ -80,7 +80,7 @@ foreach($assemblyMinutesCorrespondences as $assembly_invitation_id => $AssemblyM
 // send all generated documents
 foreach($assembly_minutes_correspondences_ids as $assembly_invitation_id) {
     try {
-        eQual::run('do', 'realestate_governance_AssemblyMinutesCorrespondence_send', ['id' => $assembly_invitation_id]);
+        eQual::run('do', 'realestate_governance_AssemblyMinutesCorrespondence_send-email', ['id' => $assembly_invitation_id]);
     }
     catch(Exception $e) {
         trigger_error('APP::Error while sending documents ' . $e->getMessage(), EQ_REPORT_ERROR);

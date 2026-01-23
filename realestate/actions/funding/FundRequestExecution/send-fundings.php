@@ -80,7 +80,7 @@ foreach($fundRequestCorrespondences as $fund_request_correspondence_id => $fundR
 // send all generated documents
 foreach($fund_request_correspondences_ids as $fund_request_correspondence_id) {
     try {
-        eQual::run('do', 'realestate_funding_FundRequestCorrespondence_send', ['id' => $fund_request_correspondence_id]);
+        eQual::run('do', 'realestate_funding_FundRequestCorrespondence_send-email', ['id' => $fund_request_correspondence_id]);
     }
     catch(Exception $e) {
         trigger_error('APP::Error while sending documents ' . $e->getMessage(), EQ_REPORT_ERROR);
