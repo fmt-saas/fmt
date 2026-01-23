@@ -370,7 +370,7 @@ class Identity extends Model {
             ],
 
             /*
-                Fields related to Entities that are linked to Identity by using field `owner_identity_id`
+                Fields related to entities that are linked to Identity by using field `owner_identity_id`
                 If used in children classes, these must be re-written in order to use a domain instead of foreign_field (which points to object id instead of object.owner_identity_id).
                     'foreign_field' => 'owner_identity_id'
                 should become:
@@ -378,6 +378,8 @@ class Identity extends Model {
 
                 #memo - since that kind of object might itself inherit from Identity, by convention, we use `owner_identity_id` for the relational field
             */
+
+            // #memo - on a Local instance there is always a relation 1-1 between an Identity and a User (linked through `instance_id`)
             'users_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'identity\User',

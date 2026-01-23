@@ -217,12 +217,21 @@ class AssemblyVote extends \equal\orm\Model {
                     'cast' => [
                         'description'   => 'Marks the Assembly vote as `casted`.',
                         'policies'      => ['can_cast'],
-                        'onafter'       => 'onafterCast',
                         'status'        => 'casted'
                     ]
                 ]
             ]
         ];
+    }
+
+    public static function getActions() {
+        return array_merge(parent::getActions(), [
+            'cast' => [
+                'description'   => 'Cast the vote. This action accepts an arg telling which user is casting the vote.',
+                'policies'      => ['can_cast'],
+                'function'      => 'doCast'
+            ]
+        ]);
     }
 
     public static function getPolicies(): array {
@@ -247,9 +256,13 @@ class AssemblyVote extends \equal\orm\Model {
         }
     }
 
-    protected static function onafterCast($self, $auth) {
+    protected static function doCast($self, $auth, $values) {
         $user_id = $auth->userId();
+        if(isset($values['user_id'])) {
+            $user_id = $user_id;
+        }
         $self->update(['cast_by' => $user_id]);
+        $self->transition('cast');
     }
 
     protected static function calcVoteDisplay($self) {

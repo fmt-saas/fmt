@@ -6,6 +6,7 @@
 */
 namespace realestate\governance;
 
+use identity\User;
 use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
@@ -49,6 +50,17 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'foreign_object'    => 'identity\Identity',
                 'required'          => true,
                 'dependents'        => ['name']
+            ],
+
+            // #memo - on a Local instance there is always a relation 1-1 between an Identity and a User (linked through `instance_id`)
+            'user_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'identity\User',
+                'function'          => 'calcUserId',
+                'description'       => 'User linked to the Attendee identity, if any.',
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'is_owner' => [
@@ -362,6 +374,21 @@ class AssemblyAttendee extends \equal\orm\Model {
                 continue;
             }
             $result[$id] = (bool) count($assemblyAttendee['assembly_representations_ids']);
+        }
+        return $result;
+    }
+
+    protected static function calcUserId($self) {
+        $result = [];
+        $self->read(['identity_id']);
+        foreach($self as $id => $assemblyAttendee) {
+            if(!$assemblyAttendee['identity_id']) {
+                continue;
+            }
+            $user = User::search(['identity_id', '=', $assemblyAttendee['identity_id']])->first();
+            if($user) {
+                $result[$id] = $user['id'];
+            }
         }
         return $result;
     }
