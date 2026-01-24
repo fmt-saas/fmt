@@ -150,7 +150,7 @@ class AssemblyVote extends \equal\orm\Model {
 
             'vote_shares_for' => [
                 'type'              => 'computed',
-                'result_type'       => 'integer',
+                'result_type'       => 'float',
                 'description'       => "Shares of the vote, if the vote was 'for'.",
                 'help'              => "This is used to ease the reading of the results.",
                 'function'          => 'calcVoteSharesFor',
@@ -160,7 +160,7 @@ class AssemblyVote extends \equal\orm\Model {
 
             'vote_shares_against' => [
                 'type'              => 'computed',
-                'result_type'       => 'integer',
+                'result_type'       => 'float',
                 'description'       => "Shares of the vote, if the vote was 'against'.",
                 'help'              => "This is used to ease the reading of the results.",
                 'function'          => 'calcVoteSharesAgainst',
@@ -170,7 +170,7 @@ class AssemblyVote extends \equal\orm\Model {
 
             'vote_shares_abstain' => [
                 'type'              => 'computed',
-                'result_type'       => 'integer',
+                'result_type'       => 'float',
                 'description'       => "Shares of the vote, if the vote was 'abstain'.",
                 'help'              => "This is used to ease the reading of the results.",
                 'function'          => 'calcVoteSharesAbstain',
@@ -288,6 +288,10 @@ class AssemblyVote extends \equal\orm\Model {
         return $result;
     }
 
+
+    /**
+     * The computation logic is similar to AssemblyItem::calcCountRepresentedShares(), but for a single ownership.
+     */
     protected static function calcVoteShares($self) {
         $result = [];
         $self->read(['assembly_id' => ['assembly_date'], 'assembly_item_id' => ['apportionment_id'], 'ownership_id']);
@@ -332,12 +336,13 @@ class AssemblyVote extends \equal\orm\Model {
      */
     protected static function calcVoteEffectiveShares($self) {
         $result = [];
-        $self->read(['ownership_id' => ['ownership_shares'], 'vote_shares', 'assembly_item_id' => ['count_represented_shares']]);
+        $self->read(['ownership_id' => ['statutory_shares'], 'vote_shares', 'assembly_item_id' => ['count_represented_shares']]);
         foreach($self as $id => $assemblyVote) {
             // #memo - Art. 3.87 §7 - Nul ne peut prendre part au vote, même comme mandant ou mandataire, pour un nombre de voix supérieur à la somme des voix dont disposent les autres copropriétaires présents ou représentés
-            $shares = $assemblyVote['vote_shares'];
-            $max = $assemblyVote['assembly_item_id']['count_represented_shares'] - $assemblyVote['ownership_id']['ownership_shares'];
-            $result[$id] = min($shares, $max);
+            $voter_shares = $assemblyVote['vote_shares'];
+            $total_shares = $assemblyVote['assembly_item_id']['count_represented_shares'];
+            $max = $total_shares - $voter_shares;
+            $result[$id] = min($voter_shares, $max);
         }
         return $result;
     }
@@ -369,9 +374,6 @@ class AssemblyVote extends \equal\orm\Model {
         $result = [];
         $self->read(['status', 'vote_value', 'vote_weight']);
         foreach($self as $id => $assemblyVote) {
-            if($assemblyVote['status'] !== 'casted') {
-                continue;
-            }
             $result[$id] = ($assemblyVote['vote_value'] === 'for') ? $assemblyVote['vote_weight'] : 0.0;
         }
         return $result;
@@ -381,9 +383,6 @@ class AssemblyVote extends \equal\orm\Model {
         $result = [];
         $self->read(['status', 'vote_value', 'vote_weight']);
         foreach($self as $id => $assemblyVote) {
-            if($assemblyVote['status'] !== 'casted') {
-                continue;
-            }
             $result[$id] = ($assemblyVote['vote_value'] === 'against') ? $assemblyVote['vote_weight'] : 0.0;
         }
         return $result;
@@ -393,9 +392,6 @@ class AssemblyVote extends \equal\orm\Model {
         $result = [];
         $self->read(['status', 'vote_value', 'vote_weight']);
         foreach($self as $id => $assemblyVote) {
-            if($assemblyVote['status'] !== 'casted') {
-                continue;
-            }
             $result[$id] = ($assemblyVote['vote_value'] === 'abstain') ? $assemblyVote['vote_weight'] : 0.0;
         }
         return $result;
@@ -406,9 +402,6 @@ class AssemblyVote extends \equal\orm\Model {
         $result = [];
         $self->read(['status', 'vote_value', 'vote_effective_shares']);
         foreach($self as $id => $assemblyVote) {
-            if($assemblyVote['status'] !== 'casted') {
-                continue;
-            }
             $result[$id] = ($assemblyVote['vote_value'] === 'for') ? $assemblyVote['vote_effective_shares'] : 0;
         }
         return $result;
@@ -418,9 +411,6 @@ class AssemblyVote extends \equal\orm\Model {
         $result = [];
         $self->read(['status', 'vote_value', 'vote_effective_shares']);
         foreach($self as $id => $assemblyVote) {
-            if($assemblyVote['status'] !== 'casted') {
-                continue;
-            }
             $result[$id] = ($assemblyVote['vote_value'] === 'against') ? $assemblyVote['vote_effective_shares'] : 0;
         }
         return $result;
@@ -430,9 +420,6 @@ class AssemblyVote extends \equal\orm\Model {
         $result = [];
         $self->read(['status', 'vote_value', 'vote_effective_shares']);
         foreach($self as $id => $assemblyVote) {
-            if($assemblyVote['status'] !== 'casted') {
-                continue;
-            }
             $result[$id] = ($assemblyVote['vote_value'] === 'abstain') ? $assemblyVote['vote_effective_shares'] : 0;
         }
         return $result;

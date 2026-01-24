@@ -487,6 +487,35 @@
                     "step", "=", "assembly_closing"
                 ]
             ]
+        },
+        {
+            "id": "action.send_minutes",
+            "label": "Send minutes",
+            "description": "Start sending process of the Assembly minutes according to Owners communication preferences.",
+            "controller": "core_model_do",
+            "confirm": true,
+            "params": {
+                "entity": "realestate\\governance\\Assembly",
+                "action": "send_minutes",
+                "ids": []
+            },
+            "visible": [
+                [
+                    "status",
+                    "=",
+                    "held"
+                ],
+                [
+                    "step",
+                    "=",
+                    "assembly_closing"
+                ],
+                [
+                    "has_minutes_sent",
+                    "=",
+                    false
+                ]
+            ]
         }
     ],
     "routes": [
@@ -893,11 +922,16 @@
                         "id": "section.correspondences",
                         "label": "Correspondences",
                         "visible": [
-                            "status",
-                            "not in",
                             [
-                                "pending",
-                                "published"
+                                "status",
+                                "not in",
+                                [
+                                    "pending",
+                                    "published"
+                                ]
+                            ],
+                            [
+                                "has_minutes_sent", "=", true
                             ]
                         ],
                         "rows": [

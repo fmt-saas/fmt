@@ -380,12 +380,16 @@
                     "description": "Clore la prise de présence."
                 },
                 "action.generate_minutes": {
-                    "label": "Générer le procès-verbal",
+                    "label": "Générer le PV",
                     "description": "Générer la version à signer du procès-verbal."
                 },
                 "action.validate_minutes": {
-                    "label": "Approuver le procès-verbal",
+                    "label": "Approuver le PV",
                     "description": "Générer la version à signer du procès-verbal."
+                },
+                "action.send_minutes": {
+                    "label": "Envoyer le PV",
+                    "description": "Lancer l'envoi du procès-verbal selon les préférences de communication des propriétaires."
                 },
                 "action.add_signature": {
                     "label": "Ajouter une signature",

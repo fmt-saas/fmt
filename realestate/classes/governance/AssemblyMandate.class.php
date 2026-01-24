@@ -91,7 +91,7 @@ class AssemblyMandate extends \equal\orm\Model {
                 'type'              => 'computed',
                 'result_type'       => 'float',
                 'description'       => "Computed weight of the vote, based on shares and majority type (via assembly_item_id).",
-                'function'          => 'calcProxyShares',
+                'function'          => 'calcMandateShares',
                 'store'             => true
             ],
 
@@ -176,7 +176,7 @@ class AssemblyMandate extends \equal\orm\Model {
         ];
     }
 
-    protected static function calcProxyShares($self) {
+    protected static function calcMandateShares($self) {
         $result = [];
         $self->read(['condo_id', 'ownership_id', 'assembly_id' => ['assembly_date']]);
         foreach($self as $id => $assemblyMandate) {

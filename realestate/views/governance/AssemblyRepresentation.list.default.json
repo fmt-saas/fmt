@@ -30,7 +30,12 @@
             {
                 "type": "field",
                 "value": "representation_type",
-                "width": "33%"
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "mandate_shares",
+                "width": "15%"
             }
         ]
     }

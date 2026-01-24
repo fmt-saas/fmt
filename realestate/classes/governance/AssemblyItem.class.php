@@ -409,11 +409,16 @@ class AssemblyItem extends AssemblyItemTemplate {
                 if($assemblyVote) {
                     // reset vote status (votes requires confirmation - except for votes already casted for which the attendee has left)
                     if($assemblyVote['status'] === 'casted' && $representation['attendee_id']['has_left']) {
-                        // if vote is casted and attendee has left, leave it as is (do not touch 'cast_by')
+                        // if vote is casted and attendee has left, leave it as is (must maintain 'cast_by')
                     }
                     else {
                         // #memo - all non casted votes will be validated to their current vote_value at AssemblyItem closing
-                        AssemblyVote::id($assemblyVote['id'])->update(['status' => 'pending', 'cast_by' => null]);
+                        AssemblyVote::id($assemblyVote['id'])
+                            ->update([
+                                'status'        => 'pending',
+                                'vote_value'    => 'abstain',
+                                'cast_by'       => null,
+                            ]);
                     }
                 }
                 else {
@@ -1017,7 +1022,7 @@ class AssemblyItem extends AssemblyItemTemplate {
     protected static function doReopen($self) {
         $self
             ->update(['status' => 'open'])
-            // set back to 'pending' (remove all votes)
+            // set back to 'pending'
             ->transition('revert')
             ->transition('open');
     }

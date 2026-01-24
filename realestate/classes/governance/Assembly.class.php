@@ -399,6 +399,18 @@ class Assembly extends \equal\orm\Model {
                 'dependents'      => ['count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']
             ],
 
+            'has_invitations_sent' => [
+                'type'              => 'boolean',
+                'description'       => "Flag marking the invitations as sent.",
+                'default'           => false
+            ],
+
+            'has_minutes_sent' => [
+                'type'              => 'boolean',
+                'description'       => "Flag marking the minutes as sent.",
+                'default'           => false
+            ],
+
             // #todo - add a is_minutes_sent (? calc from minutes correspondences)
             // +statut "held_sent" ?
             'status' => [
@@ -993,12 +1005,8 @@ class Assembly extends \equal\orm\Model {
      * and prevent further modifications to the assembly record.
      */
     protected static function onafterClose($self) {
-        $self
-        // distinction entre send_minutes (generer correspondences) et send_correspondences (envoi)
-            ->do('generate_minutes_correspondences')
-            ->do('send_minutes');
-
         // #todo - planifier les éventuelles tâches liées à des décisions prises durant l'assemblée
+
         // use dedicated action
         $self->read(['assembly_minutes_entries_ids' => ['id']]);
         foreach($self as $id => $assembly) {
@@ -1009,7 +1017,8 @@ class Assembly extends \equal\orm\Model {
         $self
             ->do('generate_ownerships')
             ->do('generate_invitation_correspondences')
-            ->do('send_invitation');
+            ->do('send_invitation')
+            ->update(['has_invitations_sent' => true]);
     }
 
 
@@ -1312,12 +1321,14 @@ class Assembly extends \equal\orm\Model {
      *
      */
     protected static function doSendMinutes($self, $cron) {
-        $self->read([
-            'name',
-            'condo_id',
-            'minutes_exporting_task_id',
-            'assembly_minutes_correspondences_ids' => ['communication_method']
-        ]);
+        $self
+            ->do('generate_minutes_correspondences')
+            ->read([
+                'name',
+                'condo_id',
+                'minutes_exporting_task_id',
+                'assembly_minutes_correspondences_ids' => ['communication_method']
+            ]);
 
         foreach($self as $id => $assembly) {
 
@@ -1373,7 +1384,8 @@ class Assembly extends \equal\orm\Model {
                 }
 
                 self::id($id)->update([
-                        'minutes_exporting_task_id' => $exportingTask['id']
+                        'minutes_exporting_task_id' => $exportingTask['id'],
+                        'has_minutes_sent'          => true
                     ]);
             }
         }
@@ -1667,11 +1679,11 @@ class Assembly extends \equal\orm\Model {
 
                 if($assemblyAttendee['is_owner']) {
                     $owner = Owner::search([['condo_id', '=', $assembly['condo_id']], ['identity_id', '=', $assemblyAttendee['identity_id']]])
-                        ->read(['ownership_id' => ['ownership_shares']])
+                        ->read(['ownership_id' => ['statutory_shares']])
                         ->first();
 
                     if($owner) {
-                        $count_mandate_shares = $owner['ownership_id']['ownership_shares'];
+                        $count_mandate_shares = $owner['ownership_id']['statutory_shares'];
                     }
                 }
 
@@ -1759,7 +1771,7 @@ class Assembly extends \equal\orm\Model {
                     break;
                 case 'held':
                 case 'adjourned':
-                    $allowed_fields = ['minutes_exporting_task_id', 'has_second_session', 'second_session_assembly_id'];
+                    $allowed_fields = ['has_minutes_sent', 'minutes_exporting_task_id', 'has_second_session', 'second_session_assembly_id'];
                     if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                         return ['status' => ['not_allowed' => 'Published assembly cannot be modified.']];
                     }

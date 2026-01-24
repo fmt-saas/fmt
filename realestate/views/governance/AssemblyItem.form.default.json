@@ -329,6 +329,28 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "id": "section.logs",
+                        "label": "logs",
+                        "visible": [["has_vote_required", "=", true], ["status", "=", "closed"]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "logs",
+                                                "height": 400,
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }

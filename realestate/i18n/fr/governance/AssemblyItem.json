@@ -269,7 +269,7 @@
                     "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé."
                 },
                 "action.cast_vote": {
-                    "label": "Voter",
+                    "label": "Emettre un vote",
                     "description": "Exprimer un vote."
                 },
                 "action.reopen": {
@@ -315,7 +315,7 @@
                     "description": "Clore le point. Aucun vote supplémentaire ne sera autorisé."
                 },
                 "action.cast_vote": {
-                    "label": "Voter",
+                    "label": "Emettre un vote",
                     "description": "Exprimer un vote."
                 },
                 "action.reopen": {
@@ -345,7 +345,7 @@
                     "description": "Ajourner la résolution. Aucun vote ne sera ensuite autorisé."
                 },
                 "action.cast_vote": {
-                    "label": "Voter",
+                    "label": "Emettre un vote",
                     "description": "Exprimer un vote."
                 },
                 "action.votes_board": {
@@ -376,7 +376,7 @@
                     "description": "Ajourner la résolution. Aucun vote ne sera ensuite autorisé."
                 },
                 "action.cast_vote": {
-                    "label": "Voter",
+                    "label": "Emettre un vote",
                     "description": "Exprimer un vote."
                 },
                 "action.votes_board": {
