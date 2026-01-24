@@ -54,7 +54,6 @@ $parentNode = Node::search([
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
-// generate document and add it to EDMS
 $data1 = eQual::run('get', 'realestate_governance_AssemblyInvitationCorrespondence_render-pdf', ['id' => $assemblyInvitationCorrespondence['id']]);
 
 $temp = tempnam(sys_get_temp_dir(), 'pdf_');
@@ -107,7 +106,7 @@ finally {
     }
 }
 
-
+// generate document and add it to EDMS
 $document = Document::create([
         'name'          => 'Convocation Assemblée - ' . $assemblyInvitationCorrespondence['name'],
         'data'          => $output,

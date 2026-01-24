@@ -71,7 +71,11 @@
                 "view": "form.upload",
                 "purpose": "create",
                 "mode": "edit",
-                "domain": [ ["condo_id", "=", "object.condo_id"], ["assembly_id", "=", "object.assembly_id"], ["assembly_item_id", "=", "object.id"] ]
+                "domain": [
+                    ["condo_id", "=", "object.condo_id"],
+                    ["assembly_id", "=", "object.assembly_id"],
+                    ["assembly_item_id", "=", "object.id"]
+                ]
             }
         }
     ],
@@ -343,8 +347,10 @@
                                             {
                                                 "type": "field",
                                                 "value": "logs",
-                                                "height": 400,
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "height": "500"
+                                                }
                                             }
                                         ]
                                     }

@@ -34,14 +34,19 @@ use realestate\governance\AssemblyMinutesCorrespondence;
 
 
 $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id'])
-    ->read(['status', 'condo_id', 'ownership_id', 'name', 'assembly_id' => ['signed_minutes_document_id']])
+    ->read([
+        'status', 'condo_id', 'ownership_id', 'name',
+        'assembly_id' => ['signed_minutes_document_id']
+    ])
     ->first();
 
 if(!$assemblyMinutesCorrespondence) {
     throw new Exception("unknown_assembly_invitation", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-
+if(!($assemblyMinutesCorrespondence['assembly_id']['signed_minutes_document_id'] ?? null)) {
+    throw new Exception('missing_signed_minutes_document', EQ_ERROR_INVALID_CONFIG);
+}
 
 // retrieve FS Node relating to general meetings (assemblies)
 $parentNode = Node::search([
@@ -52,18 +57,64 @@ $parentNode = Node::search([
     ->first();
 
 // generate document and add it to EDMS
+$temp_files = [];
+$output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
-// 1) page d'en-tête
-$data = eQual::run('get', 'realestate_governance_AssemblyMinutesCorrespondence_render-pdf', ['id' => $assemblyMinutesCorrespondence['id']]);
+// 1) correspondence first page
+$data1 = eQual::run('get', 'realestate_governance_AssemblyMinutesCorrespondence_render-pdf', ['id' => $assemblyMinutesCorrespondence['id']]);
+
+$temp = tempnam(sys_get_temp_dir(), 'pdf_');
+file_put_contents($temp, $data1 ?? '');
+$temp_files[] = $temp;
+
+// 2) signed version of the General Assembly minutes
+$data2 = eQual::run('get', 'documents_document', ['id' => $assemblyMinutesCorrespondence['assembly_id']['signed_minutes_document_id']]);
+
+$temp = tempnam(sys_get_temp_dir(), 'pdf_');
+file_put_contents($temp, $data2 ?? '');
+$temp_files[] = $temp;
 
 
-// 2) récupérer le PV de l'AG
+// 3) append attachments, if any
 
-// 3) fusionner
 
+// merge all generated documents
+try {
+    if(!count($temp_files)) {
+        throw new Exception('no_files_generated', EQ_ERROR_UNKNOWN);
+    }
+    $escaped_files = array_map('escapeshellarg', $temp_files);
+    $escaped_output = escapeshellarg($output_file);
+    $cmd = 'qpdf --empty --pages ' . implode(' ', $escaped_files) . ' -- ' . $escaped_output . ' 2>&1';
+
+    exec($cmd, $output_lines, $result_code);
+
+    if($result_code !== 0 || !file_exists($output_file)) {
+        trigger_error("APP::qpdf merge failed:\n" . implode("\n", $output_lines), EQ_REPORT_ERROR);
+        throw new Exception('pdf_merge_failed', EQ_ERROR_UNKNOWN);
+    }
+
+    $output = file_get_contents($output_file);
+}
+catch(Exception $e) {
+    trigger_error('APP::Error while merging documents ' . $e->getMessage(), EQ_REPORT_ERROR);
+    throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+}
+finally {
+    foreach($temp_files as $file) {
+        if(isset($file) && is_file($file)) {
+            @unlink($file);
+        }
+    }
+    if(isset($output_file) && is_file($output_file)) {
+        @unlink($output_file);
+    }
+}
+
+// generate document and add it to EDMS
 $document = Document::create([
         'name'          => 'Procès verbal Assemblée - ' . $assemblyMinutesCorrespondence['name'],
-        'data'          => $data,
+        'data'          => $output,
         'condo_id'      => $assemblyMinutesCorrespondence['condo_id']
     ])
     ->update([

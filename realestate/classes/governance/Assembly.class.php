@@ -665,7 +665,7 @@ class Assembly extends \equal\orm\Model {
             'send_minutes' => [
                 'description'   => 'Send invites.',
                 'help'          => 'Only email invites can be sent automatically. Mail & mandates must be sent manually.',
-                'policies'      => [],
+                'policies'      => ['can_send_minutes'],
                 'function'      => 'doSendMinutes'
             ]
 
@@ -710,8 +710,12 @@ class Assembly extends \equal\orm\Model {
             'can_close_minutes_signing' => [
                 'description' => 'Verifies that the signin of the minutes is complete (mandatory signatures have been collected).',
                 'function'    => 'policyCanCloseMinutesSigning'
-            ]
+            ],
 
+            'can_send_minutes' => [
+                'description' => 'Verifies that the minutes correspondences can be sent.',
+                'function'    => 'policyCanSendMinutes'
+            ]
             // 'can_be_open'
         ];
     }
@@ -1339,7 +1343,7 @@ class Assembly extends \equal\orm\Model {
 
             $map_communication_methods = [];
 
-            foreach($assembly['assembly_minutes_correspondences_ids'] as $assembly_invitation_id => $assemblyMinutesCorrespondence) {
+            foreach($assembly['assembly_minutes_correspondences_ids'] as $assembly_minutes_correspondence_id => $assemblyMinutesCorrespondence) {
                 // update global map to acknowledge that at least one invitation uses that communication method
                 $map_communication_methods[$assemblyMinutesCorrespondence['communication_method']] = true;
             }
@@ -2005,6 +2009,32 @@ class Assembly extends \equal\orm\Model {
             }
         }
 
+        return $result;
+    }
+
+    protected static function policyCanSendMinutes($self) {
+        $result = [];
+        $self->read(['status', 'step', 'has_minutes_sent']);
+        foreach($self as $id => $assembly) {
+            if($assembly['status'] !== 'held') {
+                $result[$id] = [
+                    'assembly_not_marked_as_held' => 'Status does not allow sending of minutes.'
+                ];
+                continue;
+            }
+            if($assembly['step'] !== 'assembly_closing') {
+                $result[$id] = [
+                    'assembly_not_marked_as_closing' => 'Step does not allow sending of minutes.'
+                ];
+                continue;
+            }
+            if($assembly['has_minutes_sent']) {
+                $result[$id] = [
+                    'minutes_already_sent' => 'Minutes have already been sent.'
+                ];
+                continue;
+            }
+        }
         return $result;
     }
 

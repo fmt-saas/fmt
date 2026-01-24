@@ -520,8 +520,8 @@
     ],
     "routes": [
         {
-            "id": "route.all_attachments",
-            "label": "All attachments",
+            "id": "route.all_items_attachments",
+            "label": "All Items attachments",
             "description": "",
             "icon": "attach_file",
             "visible": {
@@ -919,83 +919,6 @@
                         ]
                     },
                     {
-                        "id": "section.correspondences",
-                        "label": "Correspondences",
-                        "visible": [
-                            [
-                                "status",
-                                "not in",
-                                [
-                                    "pending",
-                                    "published"
-                                ]
-                            ],
-                            [
-                                "has_minutes_sent", "=", true
-                            ]
-                        ],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "id": "label.exporting_tasks",
-                                                "type": "label",
-                                                "value": "Export tasks",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "exporting_tasks_ids",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "id": "label.invitation_correspondences",
-                                                "type": "label",
-                                                "value": "Invitations correspondences",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "assembly_invitation_correspondences_ids",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "view": "list.assembly",
-                                                    "domain": ["communication_method", "=", "email"]
-                                                }
-                                            },
-                                            {
-                                                "id": "label.minutes_correspondences",
-                                                "type": "label",
-                                                "value": "Minutes correspondences",
-                                                "width": "100%",
-                                                "visible": [
-                                                    ["step", "=", "assembly_closing"],
-                                                    ["status", "in", ["in_progress", "held", "adjourned"]]
-                                                ]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "assembly_minutes_correspondences_ids",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "view": "list.assembly",
-                                                    "domain": ["communication_method", "=", "email"]
-                                                },
-                                                "visible": [
-                                                    ["step", "=", "assembly_closing"],
-                                                    ["status", "in", ["in_progress", "held", "adjourned"]]
-                                                ]
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
                         "id": "section.proxies",
                         "label": "Mandates",
                         "visible": [
@@ -1129,6 +1052,83 @@
                                                 "type": "field",
                                                 "value": "assembly_representations_ids",
                                                 "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.correspondences",
+                        "label": "Correspondences",
+                        "visible": [
+                            [
+                                "status",
+                                "not in",
+                                [
+                                    "pending",
+                                    "published"
+                                ]
+                            ],
+                            [
+                                "has_minutes_sent", "=", true
+                            ]
+                        ],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "id": "label.exporting_tasks",
+                                                "type": "label",
+                                                "value": "Export tasks",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "exporting_tasks_ids",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "id": "label.invitation_correspondences",
+                                                "type": "label",
+                                                "value": "Invitations correspondences",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_invitation_correspondences_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.assembly",
+                                                    "domain": ["communication_method", "=", "email"]
+                                                }
+                                            },
+                                            {
+                                                "id": "label.minutes_correspondences",
+                                                "type": "label",
+                                                "value": "Minutes correspondences",
+                                                "width": "100%",
+                                                "visible": [
+                                                    ["step", "=", "assembly_closing"],
+                                                    ["status", "in", ["in_progress", "held", "adjourned"]]
+                                                ]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_minutes_correspondences_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.assembly",
+                                                    "domain": ["communication_method", "=", "email"]
+                                                },
+                                                "visible": [
+                                                    ["step", "=", "assembly_closing"],
+                                                    ["status", "in", ["in_progress", "held", "adjourned"]]
+                                                ]
                                             }
                                         ]
                                     }

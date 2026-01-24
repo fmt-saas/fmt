@@ -5,7 +5,8 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 use documents\Document;
-use equal\http\HttpRequest;
+use identity\User;
+use realestate\ownership\Owner;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Return raw data (with original MIME) of a document identified by given identifier.',
@@ -26,7 +27,7 @@ use equal\http\HttpRequest;
         ]
     ],
     'access' => [
-        'visibility'        => 'public'
+        'visibility'        => 'protected'
     ],
     'response'      => [
         'accept-origin' => '*',
@@ -39,10 +40,6 @@ use equal\http\HttpRequest;
 ['context' => $context, 'orm' => $om, 'auth' => $auth, 'adapt' => $adapt] = $providers;
 
 $user_id = $auth->userId();
-
-// documents can be public : switch to root user to bypass any permission check
-$auth->su();
-
 
 /*
 // #memo - logic change, see @sync
@@ -91,7 +88,12 @@ else {
 */
 
 
-$document = Document::id($params['id'])->read(['document_visibility', 'ownership_id', 'name', 'data', 'content_type'])->first();
+$document = Document::id($params['id'])
+    ->read([
+        'document_visibility', 'condo_id', 'ownership_id', 'name', 'data', 'content_type'
+    ])
+    ->first();
+
 $content_type = $document['content_type'];
 $filename = $document['name'];
 $output = $document['data'];
@@ -99,20 +101,54 @@ $output = $document['data'];
 
 // #todo
 
-// if user is en employee, allow access
-
 // check visibility rules
 switch($document['document_visibility']) {
     case 'public':
         // visible to all condo owners + syndic
         // make sure user relates to condo_id of the document
+        $user = User::id($user_id)->read(['identity_id' => ['employee_id']])->first();
+
+        if(!($user['identity_id']['employee_id'] ?? null)) {
+            $owners = Owner::search(['identity_id', '=', $user['identity_id']['id']])->read(['condo_id']);
+            $found = false;
+            foreach($owners as $owner_id => $owner) {
+                if($owner['condo_id'] === $document['condo_id']) {
+                    $found = true;
+                    break;
+                }
+            }
+            if(!$found) {
+                throw new Exception('protected_document', EQ_ERROR_NOT_ALLOWED);
+            }
+        }
         break;
     case 'protected':
         // visible only to syndic
+        // user must be linked to an employee
+        $user = User::id($user_id)->read(['employee_id'])->first();
+
+        if(!$user || !($user['employee_id'] ?? null)) {
+            throw new Exception('protected_document', EQ_ERROR_NOT_ALLOWED);
+        }
         break;
     case 'private':
         // visible only a single owner (to which the document is linked) + syndic
         // make sure the user relates to the ownership_id of the document
+        $user = User::id($user_id)->read(['identity_id' => ['employee_id']])->first();
+
+        if(!($user['identity_id']['employee_id'] ?? null)) {
+            $owners = Owner::search(['identity_id', '=', $user['identity_id']['id']])->read(['ownership_id']);
+            $found = false;
+            foreach($owners as $owner_id => $owner) {
+                if($owner['ownership_id'] === $document['ownership_id']) {
+                    $found = true;
+                    break;
+                }
+            }
+            if(!$found) {
+                throw new Exception('protected_document', EQ_ERROR_NOT_ALLOWED);
+            }
+        }
         break;
 }
 

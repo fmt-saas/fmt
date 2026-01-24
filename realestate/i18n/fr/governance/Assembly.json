@@ -285,8 +285,8 @@
                 }
             },
             "routes": {
-                "route.all_attachments": {
-                    "label": "Toutes les pièces jointes",
+                "route.all_items_attachments": {
+                    "label": "Pièces jointes des résolutions",
                     "description": ""
                 },
                 "route.preview_agenda": {
