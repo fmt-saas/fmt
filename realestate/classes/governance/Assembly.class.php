@@ -84,6 +84,18 @@ class Assembly extends \equal\orm\Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
+            'minutes_attachment_documents_ids' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Generated document holding the minutes of the assembly.',
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['condo_id', '<>', null],
+                    ["assembly_id", "=", "object.id"],
+                    ["is_assembly_minutes_attachment", "=", true]
+                ]
+            ],
+
             // #deprecated
             'heading_text_call' => [
                 'deprecated'        => true,

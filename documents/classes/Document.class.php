@@ -397,7 +397,12 @@ class Document extends Model {
                 'visible'           => ['assembly_id', '<>', null]
             ],
 
-            // #todo - handle general_assembly_minutes
+            'is_assembly_minutes_attachment' => [
+                'type'              => 'bool',
+                'description'       => 'The document is part of the minutes correspondences of an assembly.',
+                'default'           => false,
+                'visible'           => ['assembly_id', '<>', null]
+            ],
 
             'ownership_transfer_ids' => [
                 'type'              => 'many2many',

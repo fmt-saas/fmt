@@ -666,6 +666,23 @@
                     ]
                 ]
             ]
+        },
+        {
+            "id": "route.add_minutes_attachment",
+            "label": "Add Minutes attachment",
+            "description": "",
+            "icon": "file_upload",
+            "context": {
+                "entity": "documents\\Document",
+                "view": "form.upload",
+                "purpose": "create",
+                "mode": "edit",
+                "domain": [
+                    ["condo_id", "=", "object.condo_id"],
+                    ["assembly_id", "=", "object.id"],
+                    ["is_assembly_minutes_attachment", "=", true]
+                ]
+            }
         }
     ],
     "layout": {

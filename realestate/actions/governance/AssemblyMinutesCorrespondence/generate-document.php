@@ -74,9 +74,15 @@ $temp = tempnam(sys_get_temp_dir(), 'pdf_');
 file_put_contents($temp, $data2 ?? '');
 $temp_files[] = $temp;
 
-
 // 3) append attachments, if any
+$documents = Document::search([['assembly_id', '=', $assemblyMinutesCorrespondence['assembly_id']['id']], ['is_assembly_minutes_attachment', '=', true]])
+    ->read(['data']);
 
+foreach($documents as $document_id => $document) {
+    $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+    file_put_contents($temp, $document['data'] ?? '');
+    $temp_files[] = $temp;
+}
 
 // merge all generated documents
 try {

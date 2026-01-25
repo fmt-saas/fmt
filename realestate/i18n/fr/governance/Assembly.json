@@ -38,6 +38,11 @@
             "description": "Version signée du procès-verbal.",
             "help": ""
         },
+        "minutes_attachment_documents_ids": {
+            "label": "Pièces jointes du PV",
+            "description": "Documents joints aux correspondances du PV.",
+            "help": ""
+        },
         "heading_text_call": {
             "label": "En-tête de convocation",
             "description": "Texte d'en-tête de la convocation.",
@@ -308,6 +313,10 @@
                 "route.view_minutes": {
                     "label": "Afficher le procès-verbal",
                     "description": "Afficher le procès-verbal imprimable."
+                },
+                "route.add_minutes_attachment": {
+                    "label": "Pièces jointes du PV",
+                    "description": "Ajouter des pièces jointes au procès-verbal."
                 }
             },
             "actions": {
