@@ -2320,45 +2320,48 @@ class Assembly extends \equal\orm\Model {
      *
      */
     protected static function doValidateAssembly($self, $access, $dispatch) {
-        $self->read(['step', 'count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']);
+        $self->read(['step', 'is_second_session', 'count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']);
 
         foreach($self as $id => $assembly) {
             if(!in_array($assembly['step'], ['representation_validation', 'assembly_validation'])) {
                 throw new \Exception('wrong_step', EQ_ERROR_INVALID_PARAM);
             }
-            $inconsistencies = $access->isCompliant('is_assembly_valid', self::getType(), [$id]);
-            if(count($inconsistencies)) {
-                if(isset($inconsistencies['quorum_owners_not_met'])) {
-                    self::id($id)->update([
-                            'is_valid'          => false,
-                            'invalidity_reason' => 'quorum_owners_not_met'
-                        ]);
+            if(!$assembly['is_second_session']) {
+                $inconsistencies = $access->isCompliant('is_assembly_valid', self::getType(), [$id]);
+                if(count($inconsistencies)) {
+                    if(isset($inconsistencies['quorum_owners_not_met'])) {
+                        self::id($id)->update([
+                                'is_valid'          => false,
+                                'invalidity_reason' => 'quorum_owners_not_met'
+                            ]);
+                    }
+                    elseif(isset($inconsistencies['quorum_shares_not_met'])) {
+                        self::id($id)->update([
+                                'is_valid'          => false,
+                                'invalidity_reason' => 'quorum_shares_not_met'
+                            ]);
+                    }
+                    // other errors are considered as blocking and mistake from the user
+                    /*
+                    'invalid_count_shares' => 'Less than 50% of the shares are censed for the assembly.'
+                    'invalid_count_owners' => 'No owners are censed for the assembly.'
+                    'invalid_count_owners' => 'Some Owners should be present but are missing.'
+                    'missing_president' => 'A president must be selected amongst attendees.'
+                    'multiple_presidents' => 'Only one president can be selected amongst attendees.'
+                    'missing_secretary' => 'A secretary must be selected amongst attendees.'
+                    'multiple_secretaries' => 'Only one secretary can be selected amongst attendees.'
+                    */
+                    else {
+                        throw new \Exception(serialize(['is_valid' => $inconsistencies]), EQ_ERROR_INVALID_PARAM);
+                    }
+                    $dispatch->dispatch('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $id, 'important');
+                    continue;
                 }
-                elseif(isset($inconsistencies['quorum_shares_not_met'])) {
-                    self::id($id)->update([
-                            'is_valid'          => false,
-                            'invalidity_reason' => 'quorum_shares_not_met'
-                        ]);
-                }
-                // other errors are considered as blocking and mistake from the user
-                /*
-                'invalid_count_shares' => 'Less than 50% of the shares are censed for the assembly.'
-                'invalid_count_owners' => 'No owners are censed for the assembly.'
-                'invalid_count_owners' => 'Some Owners should be present but are missing.'
-                'missing_president' => 'A president must be selected amongst attendees.'
-                'multiple_presidents' => 'Only one president can be selected amongst attendees.'
-                'missing_secretary' => 'A secretary must be selected amongst attendees.'
-                'multiple_secretaries' => 'Only one secretary can be selected amongst attendees.'
-                */
-                else {
-                    throw new \Exception(serialize(['is_valid' => $inconsistencies]), EQ_ERROR_INVALID_PARAM);
-                }
-                $dispatch->dispatch('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $id, 'important');
-                continue;
+
+                // remove previous alert (if any)
+                $dispatch->cancel('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $id);
             }
 
-            // remove previous alert (if any)
-            $dispatch->cancel('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $id);
             // assembly is valid, move one step forward
             self::id($id)->update(['step' => 'agenda_processing']);
         }
