@@ -85,14 +85,14 @@ class Assembly extends \equal\orm\Model {
             ],
 
             'minutes_attachment_documents_ids' => [
-                'type'              => 'many2one',
+                'type'              => 'one2many',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Generated document holding the minutes of the assembly.',
                 'domain'            => [
                     ['condo_id', '=', 'object.condo_id'],
                     ['condo_id', '<>', null],
-                    ["assembly_id", "=", "object.id"],
-                    ["is_assembly_minutes_attachment", "=", true]
+                    ['assembly_id', '=', 'object.id'],
+                    ['is_assembly_minutes_attachment', '=', true]
                 ]
             ],
 
@@ -413,13 +413,15 @@ class Assembly extends \equal\orm\Model {
 
             'has_invitations_sent' => [
                 'type'              => 'boolean',
-                'description'       => "Flag marking the invitations as sent.",
+                'description'       => 'Flag marking the invitations as sent.',
+                'help'              => 'Correspondences generated and scheduled for sending.',
                 'default'           => false
             ],
 
             'has_minutes_sent' => [
                 'type'              => 'boolean',
-                'description'       => "Flag marking the minutes as sent.",
+                'description'       => 'Flag marking the minutes as sent.',
+                'help'              => 'Correspondences generated and scheduled for sending.',
                 'default'           => false
             ],
 
@@ -901,6 +903,10 @@ class Assembly extends \equal\orm\Model {
                         'condo_id'  => $assembly['condo_id']
                     ])
                     ->first();
+
+                if(!$document) {
+                    throw new \Exception('unable_to_create_register_document', EQ_ERROR_UNKNOWN);
+                }
 
                 // #memo - original documents remain "invisible", only signed version should be accessible through EDMS fs tree
                 self::id($id)
@@ -2219,17 +2225,18 @@ class Assembly extends \equal\orm\Model {
                     'order',
                     'code',
                     'is_group',
+                    'assembly_template_id'
                 ]);
 
             foreach($assemblyItems as $assembly_item_id => $assemblyItem) {
                 $groupItem = AssemblyItem::create([
                         'condo_id'              => $assembly['condo_id'],
-                        'assembly_id'           => $id,
+                        'assembly_id'           => $secondSessionAssembly,
                         'name'                  => $assemblyItem['name'],
                         'code'                  => $assemblyItem['code'],
                         'order'                 => $assemblyItem['order'],
-                        'assembly_template_id'  => $assembly['assembly_template_id'],
-                        'is_group'              => $assemblyItem['is_group']
+                        'assembly_template_id'  => $assemblyItem['assembly_template_id'],
+                        'is_group'              => true
                     ])
                     ->first();
 
@@ -2246,7 +2253,6 @@ class Assembly extends \equal\orm\Model {
                     'code',
                     'order',
                     'assembly_template_id',
-                    'is_group',
                     'has_parent_group',
                     'parent_group_id',
                     'description_call',
@@ -2264,12 +2270,12 @@ class Assembly extends \equal\orm\Model {
                 }
                 $item = AssemblyItem::create([
                         'condo_id'              => $assembly['condo_id'],
-                        'assembly_id'           => $id,
+                        'assembly_id'           => $secondSessionAssembly,
                         'name'                  => $assemblyItem['name'],
                         'code'                  => $assemblyItem['code'],
                         'order'                 => $assemblyItem['order'],
-                        'assembly_template_id'  => $assembly['assembly_template_id'],
-                        'is_group'              => $assemblyItem['is_group'],
+                        'assembly_template_id'  => $assemblyItem['assembly_template_id'],
+                        'is_group'              => false,
                         'has_parent_group'      => $assemblyItem['has_parent_group'],
                         'parent_group_id'       => $parent_group_id,
                         'description_call'      => $assemblyItem['description_call'],

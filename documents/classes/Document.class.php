@@ -398,7 +398,7 @@ class Document extends Model {
             ],
 
             'is_assembly_minutes_attachment' => [
-                'type'              => 'bool',
+                'type'              => 'boolean',
                 'description'       => 'The document is part of the minutes correspondences of an assembly.',
                 'default'           => false,
                 'visible'           => ['assembly_id', '<>', null]

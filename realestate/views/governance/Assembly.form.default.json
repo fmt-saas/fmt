@@ -871,6 +871,7 @@
                                             },
                                             {
                                                 "type": "label",
+                                                "id": "label.options",
                                                 "value": "options",
                                                 "width": "100%",
                                                 "widget": {

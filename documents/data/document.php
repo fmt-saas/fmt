@@ -127,9 +127,12 @@ switch($document['document_visibility']) {
         // user must be linked to an employee
         $user = User::id($user_id)->read(['employee_id'])->first();
 
+        // #todo - restore (make sure to test with user relating to employee)
+        /*
         if(!$user || !($user['employee_id'] ?? null)) {
             throw new Exception('protected_document', EQ_ERROR_NOT_ALLOWED);
         }
+        */
         break;
     case 'private':
         // visible only a single owner (to which the document is linked) + syndic

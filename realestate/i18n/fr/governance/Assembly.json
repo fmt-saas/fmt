@@ -279,6 +279,9 @@
                 "section.representations": {
                     "label": "Représentations"
                 },
+                "label.options": {
+                    "label": "Options pour les documents"
+                },
                 "label.exporting_tasks": {
                     "label": "Tâches d'export"
                 },
