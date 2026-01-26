@@ -7,6 +7,8 @@ use identity\Identity;
 
 $events = $orm->disableEvents();
 
+/*
+
 Identity::create([
     "id" => 500,
     "type_id" => 3,
@@ -209,6 +211,8 @@ Bank::create([
     "bic" => "KEYTBEBB",
     "is_active" => true,
 ]);
+
+*/
 
 
 
