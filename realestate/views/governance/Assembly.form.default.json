@@ -373,23 +373,25 @@
             },
             "visible": [
                 [
-                    "status",
-                    "=",
-                    "in_progress"
-                ],
-                [
-                    "step",
-                    "in",
                     [
-                        "agenda_processing",
-                        "minutes_confirmation"
+                        "status",
+                        "=",
+                        "in_progress"
+                    ],
+                    [
+                        "step",
+                        "in",
+                        [
+                            "agenda_processing",
+                            "minutes_confirmation"
+                        ]
+                    ],
+                    [
+                        "is_complete",
+                        "=",
+                        true
                     ]
                 ]
-            ],
-            "visible1": [
-                "is_complete",
-                "=",
-                true
             ]
         },
         {

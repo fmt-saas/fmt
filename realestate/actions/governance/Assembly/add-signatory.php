@@ -25,6 +25,9 @@ use realestate\governance\AssemblyAttendee;
             'type'              => 'many2one',
             'description'       => "The assembly attendee that is signatory.",
             'foreign_object'    => 'realestate\governance\AssemblyAttendee',
+            'domain'            => [
+                'has_left', '=', false
+            ],
             'required'          => true
         ],
 

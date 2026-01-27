@@ -30,7 +30,7 @@
                                         "items": [
                                             {
                                                 "id": "item.fundings",
-                                                "label": "Payments",
+                                                "label": "Paiements",
                                                 "description": "",
                                                 "width": "100%",
                                                 "height": "50%",

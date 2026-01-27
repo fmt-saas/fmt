@@ -294,7 +294,7 @@
             },
             "routes": {
                 "route.all_items_attachments": {
-                    "label": "Pièces jointes des résolutions",
+                    "label": "Pièces jointes résolutions",
                     "description": ""
                 },
                 "route.preview_agenda": {
