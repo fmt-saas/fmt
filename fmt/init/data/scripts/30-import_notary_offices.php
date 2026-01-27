@@ -455,7 +455,7 @@ NotaryOffice::create([
 ]);
 
 Identity::create([
-    "id" => 520,
+    "id" => 220,
     "registration_number" => "0755885525",
     "type_id" => 3,
     "legal_name" => "Étude Bruno MICHAUX & Marie THIEBAUT, Notaires associés",
@@ -468,15 +468,15 @@ Identity::create([
     "is_active" => true
   ]);
 NotaryOffice::create([
-    "id" => 520,
-    "identity_id" => 520,
+    "id" => 220,
+    "identity_id" => 220,
     "supplier_type_id" => 6,
     "is_active" => true,
     "registry_ref" => "fednot:bruno-michaux-marie-thiebaut-notaires-associes"
 ]);
 
 Identity::create([
-    "id" => 521,
+    "id" => 221,
     "registration_number" => "0755885526",
     "type_id" => 3,
     "legal_name" => "Étude DAMIEN COLLON - ANTOINE LOGÉ, geassocieerde notarissen",
@@ -489,15 +489,15 @@ Identity::create([
     "is_active" => true
   ]);
 NotaryOffice::create([
-    "id" => 521,
-    "identity_id" => 521,
+    "id" => 221,
+    "identity_id" => 221,
     "supplier_type_id" => 6,
     "is_active" => true,
     "registry_ref" => "fednot:damien-collon-antoine-loge-geassocieerde-notarissen"
 ]);
 
 Identity::create([
-    "id" => 522,
+    "id" => 222,
     "registration_number" => "0755885527",
     "type_id" => 3,
     "legal_name" => "Étude In-Deed notaires",
@@ -517,15 +517,15 @@ Identity::create([
 
 */
 NotaryOffice::create([
-    "id" => 522,
-    "identity_id" => 522,
+    "id" => 222,
+    "identity_id" => 222,
     "supplier_type_id" => 6,
     "is_active" => true,
     "registry_ref" => "fednot:in-deed-notaires"
 ]);
 
 Identity::create([
-    "id" => 524,
+    "id" => 224,
     "registration_number" => "0755885528",
     "type_id" => 3,
     "legal_name" => "Étude MAITE BOUCLIER société notariale",
@@ -538,15 +538,15 @@ Identity::create([
     "is_active" => true
   ]);
 NotaryOffice::create([
-    "id" => 524,
-    "identity_id" => 524,
+    "id" => 224,
+    "identity_id" => 224,
     "supplier_type_id" => 6,
     "is_active" => true,
     "registry_ref" => "fednot:maite-bouclier-societe-notariale"
 ]);
 
 Identity::create([
-    "id" => 525,
+    "id" => 225,
     "registration_number" => "0755885529",
     "type_id" => 3,
     "legal_name" => "Étude Marc WILMUS et Ludovic du BUS de WARNAFFE, notaires associés",
@@ -559,15 +559,15 @@ Identity::create([
     "is_active" => true
   ]);
 NotaryOffice::create([
-    "id" => 525,
-    "identity_id" => 525,
+    "id" => 225,
+    "identity_id" => 225,
     "supplier_type_id" => 6,
     "is_active" => true,
     "registry_ref" => "fednot:marc-wilmus-ludovic-du-bus-de-warnaffe-notaires-associes"
 ]);
 
 Identity::create([
-    "id" => 526,
+    "id" => 226,
     "registration_number" => "0755885530",
     "type_id" => 3,
     "legal_name" => "Étude Nathalie d'Hennezel société notariale",
@@ -579,8 +579,8 @@ Identity::create([
 ]);
 
 NotaryOffice::create([
-    "id" => 526,
-    "identity_id" => 526,
+    "id" => 226,
+    "identity_id" => 226,
     "supplier_type_id" => 6,
     "is_active" => true,
     "registry_ref" => "fednot:nathalie-dhennezel-societe-notariale"
