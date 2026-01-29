@@ -20,6 +20,15 @@ class RoleAssignment extends \equal\orm\Model {
     public static function getColumns() {
 
         return [
+
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Short description of the assignment rule.',
+                'function'          => 'calcName',
+                'readonly'          => true
+            ],
+
             'organization_id' => [
                 'type'            => 'many2one',
                 'description'     => "Organization the Employee works for.",
@@ -108,6 +117,20 @@ class RoleAssignment extends \equal\orm\Model {
         ];
     }
 
+    protected static function calcName($self) {
+        $result = [];
+        $self->read(['state', 'user_id' => ['name'], 'condo_id' => ['name'], 'role_id' => ['name']]);
+        foreach($self as $id => $roleAssignment) {
+            if($roleAssignment['state'] === 'draft') {
+                continue;
+            }
+            $result[$id] = $roleAssignment['condo_id']['name'] . " - " .
+                $roleAssignment['role_id']['name'] . " -> " .
+                $roleAssignment['user_id']['name'];
+        }
+        return $result;
+    }
+
     /**
      * #memo - this will trigger `identity_id` refresh
      *
@@ -119,6 +142,10 @@ class RoleAssignment extends \equal\orm\Model {
                 self::id($id)->update(['user_id' => $assignment['employee_id']['identity_id']['user_id']]);
             }
         }
+    }
+
+    // #todo
+    protected static function onupdateUserId($self) {
     }
 
     public static function canupdate($self) {
