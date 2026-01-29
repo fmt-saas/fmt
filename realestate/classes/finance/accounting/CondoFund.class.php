@@ -53,6 +53,7 @@ class CondoFund extends \equal\orm\Model {
             'description' => [
                 'type'              => 'string',
                 'description'       => "Short description of the request, based on fiscal year and period.",
+                'dependents'        => ['name']
             ],
 
             'fund_account_id' => [
