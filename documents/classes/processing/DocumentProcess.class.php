@@ -448,17 +448,28 @@ class DocumentProcess extends Model {
         }
     }
 
+    /**
+     * Sync assigned employee id and document processing status towards targeted objects
+     */
     protected static function onupdateAssignedEmployeeId($self) {
-        $self->read(['status', 'has_target_object', 'document_type_id', 'condo_id', 'assigned_employee_id']);
+        $self->read(['status', 'has_target_object', 'assigned_employee_id', 'document_bank_statement_id', 'document_invoice_id']);
         foreach($self as $id => $documentProcess) {
-            if($documentProcess['status'] === 'created'
-                && $documentProcess['has_target_object']
-                && $documentProcess['document_type_id']
-                && $documentProcess['condo_id']
-                && $documentProcess['assigned_employee_id']
-            ) {
-                // auto mark assigned
-                self::id($id)->transition('assign');
+            if(!$documentProcess['has_target_object']) {
+                continue;
+            }
+            if($documentProcess['document_bank_statement_id']) {
+                BankStatement::id($documentProcess['document_bank_statement_id'])
+                    ->update([
+                            'assigned_employee_id'      => $documentProcess['assigned_employee_id'],
+                            'document_process_status'   => $documentProcess['status']
+                        ]);
+            }
+            if($documentProcess['document_invoice_id']) {
+                PurchaseInvoice::id($documentProcess['document_invoice_id'])
+                    ->update([
+                            'assigned_employee_id'      => $documentProcess['assigned_employee_id'],
+                            'document_process_status'   => $documentProcess['status']
+                        ]);
             }
         }
     }
@@ -482,7 +493,7 @@ class DocumentProcess extends Model {
 
     protected static function policyCanAssign($self) {
         $result = [];
-        $self->read(['condo_id', 'document_type_id', 'assigned_employee_id']);
+        $self->read(['condo_id', 'document_type_id']);
 
         foreach($self as $id => $documentProcess) {
             if(!isset($documentProcess['condo_id'])) {
@@ -493,11 +504,6 @@ class DocumentProcess extends Model {
             if(!isset($documentProcess['document_type_id'])) {
                 $result[$id] = [
                     'missing_document_type' => 'Missing document type for this document process.'
-                ];
-            }
-            if(!isset($documentProcess['assigned_employee_id'])) {
-                $result[$id] = [
-                    'missing_assigned_employee' => 'No employee assigned to this document process.'
                 ];
             }
         }
@@ -921,8 +927,6 @@ class DocumentProcess extends Model {
             if(isset($documentProcess['document_id'])) {
                 Document::id($documentProcess['document_id'])->update(['condo_id' => $documentProcess['condo_id']]);
             }
-
-            self::id($id)->do('attempt_auto_assign');
         }
     }
 
@@ -969,28 +973,6 @@ class DocumentProcess extends Model {
         foreach($self as $id => $documentProcess) {
             if(isset($documentProcess['document_id'])) {
                 Document::id($documentProcess['document_id'])->update(['ownership_id' => $documentProcess['ownership_id']]);
-            }
-        }
-    }
-
-    protected static function onafterAssign($self) {
-        $self->read(['status', 'assigned_employee_id', 'document_bank_statement_id', 'document_invoice_id']);
-        foreach($self as $id => $documentProcess) {
-            if($documentProcess['document_bank_statement_id']) {
-                BankStatement::id($documentProcess['document_bank_statement_id'])
-                    ->update([
-                            'assigned_employee_id'      => $documentProcess['assigned_employee_id'],
-                            'document_process_status'   => $documentProcess['status']
-                        ]);
-                continue;
-            }
-            if($documentProcess['document_invoice_id']) {
-                PurchaseInvoice::id($documentProcess['document_invoice_id'])
-                    ->update([
-                            'assigned_employee_id'      => $documentProcess['assigned_employee_id'],
-                            'document_process_status'   => $documentProcess['status']
-                        ]);
-                continue;
             }
         }
     }
@@ -1067,7 +1049,6 @@ class DocumentProcess extends Model {
                 // #memo - this will update assigned_employee_id on target objects via onupdateAssignedEmployeeId
                 self::id($id)->update(['assigned_employee_id' => $employee_id]);
             }
-
         }
     }
 
@@ -1878,6 +1859,23 @@ class DocumentProcess extends Model {
             }
         }
         return parent::canupdate($self);
+    }
+
+    protected static function onafterupdate($self) {
+        $self->read(['status', 'document_type_id', 'condo_id']);
+        foreach($self as $id => $documentProcess) {
+            if($documentProcess['status'] === 'created'
+                && $documentProcess['document_type_id']
+                && $documentProcess['condo_id']
+            ) {
+                // auto mark assigned
+                self::id($id)->transition('assign');
+            }
+        }
+    }
+
+    protected static function onafterAssign($self) {
+        $self->do('attempt_auto_assign');
     }
 
     protected static function onafterRevertFromAssigned($self) {
