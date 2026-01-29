@@ -68,9 +68,9 @@ if(!$purchaseInvoice) {
     throw new Exception("unknown_invoice", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+// check related DocumentProcess completeness - this can result in throwing an Exception
 DocumentProcess::id($purchaseInvoice['document_process_id'])
-    ->assert('is_complete')
-    ->assert('is_unique');
+    ->assert('is_complete');
 
 if(strlen($purchaseInvoice['invoice_type']) <= 0) {
     $dispatch->dispatch('purchase.accounting.invoice.missing_invoice_type', $class, $id, 'important', $script, ['id' => $id]);
