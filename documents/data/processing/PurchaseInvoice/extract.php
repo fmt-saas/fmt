@@ -133,7 +133,7 @@ if(!isset($data['buyer_reference']) && isset($info['ean_code'])) {
     $data['buyer_reference'] = $info['ean_code'];
 }
 
-$data['payment']['bic'] = $computeBicFromIban($data['payment']['iban'] ?? null);
+$data['payment']['bic'] = $computeBicFromIban($data['payment']['iban'] ?? '');
 
 
 $context->httpResponse()
