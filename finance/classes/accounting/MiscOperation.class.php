@@ -206,7 +206,8 @@ class MiscOperation extends Model {
                     'publish' => [
                         'description' => 'Update the document to `proforma`.',
                         'help'        => 'Entities inheriting from MiscOperation may create Fundings at this stage.',
-                        'status'      => 'proforma'
+                        'status'      => 'proforma',
+                        'policies'    => ['is_valid']
                     ]
                 ]
             ],
@@ -219,6 +220,10 @@ class MiscOperation extends Model {
                         'policies'    => ['is_valid'],
                         'onbefore'    => 'onbeforePost',
                         'status'      => 'posted'
+                    ],
+                    'revert' => [
+                        'description' => 'Revert the MiscOperation to `pending`.',
+                        'status'      => 'pending'
                     ]
                 ]
             ],

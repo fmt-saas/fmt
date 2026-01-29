@@ -26,6 +26,20 @@
             "visible": ["status", "=", "pending"]
         },
         {
+            "id": "action.revert",
+            "label": "Revert",
+            "icon": "play_arrow",
+            "description": "Revert to pending.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "finance\\accounting\\MiscOperation",
+                "transition": "revert",
+                "ids": []
+            },
+            "confirm": false,
+            "visible": ["status", "=", "proforma"]
+        },
+        {
             "id": "action.post",
             "label": "Post",
             "icon": "play_arrow",

@@ -130,12 +130,16 @@
             "description": "Formulaire de saisie du journal MISC (dates, lignes et publication).",
             "actions": {
                 "action.publish": {
-                    "label": "Publier",
-                    "description": "Générer la configuration obligatoire."
+                    "label": "Valider",
+                    "description": "Créer une OD Proforma."
+                },
+                "action.revert": {
+                    "label": "Remettre en brouillon",
+                    "description": "Remettre en brouillon."
                 },
                 "action.post": {
-                    "label": "Passer",
-                    "description": "Générer la configuration obligatoire."
+                    "label": "Intégrer",
+                    "description": "Intégrer l'OD à la comptabilité."
                 }
             }
         },
