@@ -323,6 +323,7 @@ class MiscOperation extends Model {
                     'entry_date'            => $miscOperation['posting_date'],
                     'origin_object_class'   => self::getType(),
                     'origin_object_id'      => $id,
+                    'misc_operation_id'     => $id,
                     'description'           => $miscOperation['description'],
                     'journal_id'            => $miscOperation['journal_id'],
                     'fiscal_year_id'        => $miscOperation['fiscal_year_id'],
@@ -634,7 +635,7 @@ class MiscOperation extends Model {
     public static function candelete($self) {
         $self->read(['status']);
         foreach($self as $miscOperation) {
-            if($miscOperation['status'] === 'posted') {
+            if(!in_array($miscOperation['status'], ['pending', 'proforma'])) {
                 return ['status' => ['non_removable' => 'Non-draft Document cannot be deleted.']];
             }
         }

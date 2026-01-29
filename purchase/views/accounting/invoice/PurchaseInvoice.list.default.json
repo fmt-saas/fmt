@@ -9,6 +9,22 @@
                     "view": "form.create"
                 }
             ]
+        },
+        "selection": {
+            "actions": [
+                {
+                    "id": "ACTION.EDIT_INLINE",
+                    "visible": false
+                },
+                {
+                    "id": "ACTION.CLONE",
+                    "visible": false
+                },
+                {
+                    "id": "ACTION.ARCHIVE",
+                    "visible": false
+                }
+            ]
         }
     },
     "routes": [

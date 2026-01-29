@@ -4,6 +4,9 @@
     "header": {
         "actions": {
             "ACTION.CREATE": false
+        },
+        "selection": {
+            "default" : false
         }
     },
     "routes": [
