@@ -245,12 +245,12 @@ $previousPurchaseInvoice = PurchaseInvoice::search([
     ->first();
 
 if($previousPurchaseInvoice) {
-    // invoice is a possible duplicate: issue an alert
+    // invoice is a duplicate for sure: issue an alert
     $links = [
         "[{$previousPurchaseInvoice['supplier_invoice_number']}](/app/#/accounting/purchase-invoice/{$previousPurchaseInvoice['id']})"
     ];
     // invoice is considered as a duplicate : this is a blocking error (cancel processing)
-    $dispatch->dispatch('purchase.accounting.invoice.duplicate_invoice', $class, $id, 'important', null, [], $links);
+    $dispatch->dispatch('purchase.accounting.invoice.duplicate_invoice', $class, $id, 'important', $script, ['id' => $id], $links);
     DocumentProcess::id($purchaseInvoice['document_process_id'])->do('cancel');
     throw new Exception("duplicate_invoice", EQ_ERROR_INVALID_PARAM);
 }
