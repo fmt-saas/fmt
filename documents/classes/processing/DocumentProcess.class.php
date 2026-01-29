@@ -685,6 +685,9 @@ class DocumentProcess extends Model {
             if(!isset($documentProcess['document_type_code'])) {
                 continue;
             }
+
+            // #todo - handle other document types (apart from purchaseInvoice & BankStatement)
+
             // duplicate invoice amongst purchase invoice of the Condominium
             if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
                 // check if there is a non-cancelled DocumentProcess concerning an invoice with the same characteristics

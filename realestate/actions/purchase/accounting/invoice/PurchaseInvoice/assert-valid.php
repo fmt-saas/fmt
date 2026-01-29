@@ -38,7 +38,7 @@ $id = $params['id'];
 // target object class
 $class = 'realestate\purchase\accounting\invoice\PurchaseInvoice';
 // current script for reference in dispatches
-$script = 'realestate_purchase_accounting_invoice_PurchaseInvoice_validate';
+$script = 'realestate_purchase_accounting_invoice_PurchaseInvoice_assert-valid';
 
 
 $purchaseInvoice = PurchaseInvoice::id($id)
@@ -222,69 +222,6 @@ else {
     pour le trouver il faut prendre la dernière balance périodique, et ajouter tous les mouvements jusqu'à la date de facture
 */
 
-
-
-/*
-    Invoice successfully validated
-    Additional test: check unicity of the invoice
-*/
-
-// a) supplier_id & invoice_number & date & total amount -> blocking error (cancel processing)
-$previousPurchaseInvoice = PurchaseInvoice::search([
-        ['id', '<>', $id],
-        ['supplier_id', '=', $purchaseInvoice['supplier_id']],
-        ['supplier_invoice_number', '=', $purchaseInvoice['supplier_invoice_number']],
-        ['emission_date', '=', $purchaseInvoice['emission_date']],
-        ['payable_amount', '=', $purchaseInvoice['payable_amount']]
-    ])
-    ->read(['supplier_invoice_number'])
-    ->first();
-
-if($previousPurchaseInvoice) {
-    // invoice is a possible duplicate: issue an alert
-    $links = [
-        "[{$previousPurchaseInvoice['supplier_invoice_number']}](/app/#/accounting/purchase-invoice/{$previousPurchaseInvoice['id']})"
-    ];
-    // invoice is considered as a duplicate : this is a blocking error (cancel processing)
-    $dispatch->dispatch('purchase.accounting.invoice.duplicate_invoice', $class, $id, 'important', null, [], $links);
-    DocumentProcess::id($purchaseInvoice['document_process_id'])->do('cancel');
-    throw new Exception("duplicate_invoice", EQ_ERROR_INVALID_PARAM);
-}
-
-// b) supplier_id & invoice number -> alert only
-$previousPurchaseInvoice = PurchaseInvoice::search([
-        ['id', '<>', $id],
-        ['supplier_id', '=', $purchaseInvoice['supplier_id']],
-        ['supplier_invoice_number', '=', $purchaseInvoice['supplier_invoice_number']]
-    ])
-    ->read(['supplier_invoice_number'])
-    ->first();
-
-if($previousPurchaseInvoice) {
-    // invoice is a possible duplicate: issue an alert
-    $links = [
-        "[{$previousPurchaseInvoice['supplier_invoice_number']}](/app/#/accounting/purchase-invoice/{$previousPurchaseInvoice['id']})"
-    ];
-    $dispatch->dispatch('purchase.accounting.invoice.possible_duplicate_invoice', $class, $id, 'important', null, [], $links);
-}
-
-// c) supplier_id & date & total amount -> alert only
-$previousPurchaseInvoice = PurchaseInvoice::search([
-        ['id', '<>', $id],
-        ['supplier_id', '=', $purchaseInvoice['supplier_id']],
-        ['emission_date', '=', $purchaseInvoice['emission_date']],
-        ['payable_amount', '=', $purchaseInvoice['payable_amount']]
-    ])
-    ->read(['supplier_invoice_number'])
-    ->first();
-
-if($previousPurchaseInvoice) {
-    // invoice is a possible duplicate: issue an alert
-    $links = [
-        "[{$previousPurchaseInvoice['supplier_invoice_number']}](/app/#/accounting/purchase-invoice/{$previousPurchaseInvoice['id']})"
-    ];
-    $dispatch->dispatch('purchase.accounting.invoice.possible_duplicate_invoice', $class, $id, 'important', null, [], $links);
-}
 
 
 // #memo - the `alert` field should be forced to be refreshed upon each validation attempt

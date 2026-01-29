@@ -468,47 +468,36 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             // #memo - it is the invoice (and not the DocumentProcess) that is responsible for ensuring all required information is complete
             // #todo - this should be called through a ValidationRule
             try {
-                // validate controller is called at `MarkValidated` step
-                // \eQual::run('do', 'realestate_purchase_accounting_invoice_PurchaseInvoice_validate', ['id' => $id]);
-
-                // #memo - an additional validation is made on the JSON schema (should always pass) - this ensures completeness but not consistency
-                try {
-                    DocumentProcess::id($purchaseInvoice['document_process_id'])->assert('is_complete');
-                }
-                catch(\Exception $e) {
-                    // resulting JSON violates the purchase-invoice schema in a way that is not covered by ValidationRule (shouldn't occur)
-
-                    $errors = unserialize($e->getMessage());
-                    $result[$id] = [
-                            'failing_policy_is_complete' => $errors
-                        ];
-
-                    // logs specific errors to ease debugging
-                    if(isset($errors['invalid_document'])) {
-                        foreach($errors['invalid_document'] as $error_id => $error_message) {
-                            if(is_array($error_message)) {
-                                $error_message = json_encode($error_message);
-                            }
-                            trigger_error("APP::unexpected error on PurchaseInvoice [{$id}]: {$error_id} - {$error_message}", EQ_REPORT_ERROR);
-                        }
-                    }
-                    elseif(isset($errors['missing_document'])) {
-                    }
-                    elseif(isset($errors['missing_document_type'])) {
-                    }
-                    elseif(isset($errors['invalid_document_type'])) {
-                    }
-                    elseif(isset($errors['missing_document_json'])) {
-                    }
-                    elseif(isset($errors['document_validation_error'])) {
-                    }
-                    throw $e;
-                }
+                // #memo - `assert-valid` controller is called at `MarkValidated` step
+                \eQual::run('do', 'realestate_purchase_accounting_invoice_PurchaseInvoice_assert-complete', ['id' => $id]);
             }
             catch(\Exception $e) {
                 trigger_error("APP::PurchaseInvoice [{$id}] cannot be marked as completed: " . $e->getMessage(), EQ_REPORT_WARNING);
+                // resulting JSON violates the purchase-invoice schema in a way that is not covered by ValidationRule (shouldn't occur)
+                $errors = unserialize($e->getMessage());
+
+                // logs specific errors to ease debugging
+                if(isset($errors['invalid_document'])) {
+                    foreach($errors['invalid_document'] as $error_id => $error_message) {
+                        if(is_array($error_message)) {
+                            $error_message = json_encode($error_message);
+                        }
+                        trigger_error("APP::unexpected error on PurchaseInvoice [{$id}]: {$error_id} - {$error_message}", EQ_REPORT_ERROR);
+                    }
+                }
+                elseif(isset($errors['missing_document'])) {
+                }
+                elseif(isset($errors['missing_document_type'])) {
+                }
+                elseif(isset($errors['invalid_document_type'])) {
+                }
+                elseif(isset($errors['missing_document_json'])) {
+                }
+                elseif(isset($errors['document_validation_error'])) {
+                }
+
                 $result[$id] = [
-                        ($e->getCode()) => 'Some mandatory fields are missing.'
+                        ($e->getCode()) => 'Some mandatory fields are missing or invalid.'
                     ];
             }
             finally {
@@ -531,7 +520,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
 
             try {
-                \eQual::run('do', 'realestate_purchase_accounting_invoice_PurchaseInvoice_validate', ['id' => $id]);
+                \eQual::run('do', 'realestate_purchase_accounting_invoice_PurchaseInvoice_assert-valid', ['id' => $id]);
             }
             catch(\Exception $e) {
                 trigger_error("APP::PurchaseInvoice [{$id}] cannot be marked as completed: " . $e->getMessage(), EQ_REPORT_WARNING);
@@ -572,7 +561,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('complete');
             }
             catch(\Exception $e) {
-                // ignore
+                // this should not occur (if so, check policy can_mark_complete)
                 trigger_error("APP::PurchaseInvoice [{$id}] cannot be marked as completed: " . $e->getMessage(), EQ_REPORT_WARNING);
                 // throw $e;
             }
