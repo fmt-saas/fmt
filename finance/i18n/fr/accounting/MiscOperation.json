@@ -14,7 +14,7 @@
             "help": ""
         },
         "description": {
-            "label": "Objet",
+            "label": "Description",
             "description": "Motif ou note interne décrivant l'opération.",
             "help": ""
         },
