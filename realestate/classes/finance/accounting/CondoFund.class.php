@@ -35,7 +35,8 @@ class CondoFund extends \equal\orm\Model {
                 'function'          => 'calcName',
                 'description'       => "Short description of the request, based on fiscal year and period.",
                 'instant'           => true,
-                'store'             => true
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'fund_type' => [
@@ -334,9 +335,9 @@ class CondoFund extends \equal\orm\Model {
         return $result;
     }
 
-    public static function canupdate($self, $values) {
+    protected static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['apportionment_id'];
+        $allowed_fields = ['apportionment_id', 'description'];
         foreach($self as $funding) {
             if($funding['status'] === 'validated') {
                 // in other cases, only allow editable fields
