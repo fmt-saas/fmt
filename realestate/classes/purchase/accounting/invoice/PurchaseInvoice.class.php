@@ -508,7 +508,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             catch(\Exception $e) {
                 trigger_error("APP::PurchaseInvoice [{$id}] cannot be marked as completed: " . $e->getMessage(), EQ_REPORT_WARNING);
                 $result[$id] = [
-                        ($e->getCode()) => 'Some mandatory fields are missing or invoice is a duplicate.'
+                        ($e->getCode()) => 'Some mandatory fields are missing.'
                     ];
             }
             finally {
@@ -573,6 +573,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
             catch(\Exception $e) {
                 // ignore
+                trigger_error("APP::PurchaseInvoice [{$id}] cannot be marked as completed: " . $e->getMessage(), EQ_REPORT_WARNING);
+                // throw $e;
             }
             // reset computed relation fields
             self::id($id)->update(['document_process_status' => null]);
