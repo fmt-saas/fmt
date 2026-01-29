@@ -5,6 +5,14 @@
         "items": [
             {
                 "type": "field",
+                "value": "user_id",
+                "label": "User",
+                "width": "25%",
+                "sortable": true,
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "employee_id",
                 "label": "Employee",
                 "width": "25%",

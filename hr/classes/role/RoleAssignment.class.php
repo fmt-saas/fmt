@@ -54,7 +54,6 @@ class RoleAssignment extends \equal\orm\Model {
             'user_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\User',
-                'onupdate'          => 'onupdateUserId',
                 'description'       => 'User (internal or external) the assignment applies to.',
                 'help'              => 'The user should always be set and is used for Access Control.
                     When `employee_id` is set, it is automatically retrieved from related Identity (in `onupdateEmployeeId`).',
@@ -142,10 +141,6 @@ class RoleAssignment extends \equal\orm\Model {
                 self::id($id)->update(['user_id' => $assignment['employee_id']['identity_id']['user_id']]);
             }
         }
-    }
-
-    // #todo
-    protected static function onupdateUserId($self) {
     }
 
     public static function canupdate($self) {
