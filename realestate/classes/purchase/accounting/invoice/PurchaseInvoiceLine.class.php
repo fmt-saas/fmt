@@ -248,9 +248,12 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             }
         }
         if(isset($event['expense_account_id'])) {
-            $expenseAccount = Account::id($event['expense_account_id'])->read(['id', 'apportionment_id', 'tenant_share', 'owner_share'])->first();
+            $expenseAccount = Account::id($event['expense_account_id'])->read(['id', 'apportionment_id' => ['id', 'name'], 'tenant_share', 'owner_share'])->first();
             if($expenseAccount) {
-                $result['apportionment_id'] = $expenseAccount['apportionment_id'];
+                $result['apportionment_id'] = [
+                    'id'    => $expenseAccount['apportionment_id']['id'],
+                    'name'  => $expenseAccount['apportionment_id']['name']
+                ];
                 $result['tenant_share'] = $expenseAccount['tenant_share'];
                 $result['owner_share'] = $expenseAccount['owner_share'];
             }
