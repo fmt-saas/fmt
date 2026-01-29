@@ -816,16 +816,15 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
      * @param  array                       $ids       List of objects identifiers.
      * @return array                       Returns an associative array mapping fields with their error messages. An empty array means that object has been successfully processed and can be deleted.
      */
-    public static function candelete($om, $ids) {
-        $res = $om->read(get_called_class(), $ids, ['status']);
+    public static function candelete($self) {
+        $self->read(['status']);
 
-        if($res > 0) {
-            foreach($res as $id => $invoice) {
-                if($invoice['status'] != 'proforma') {
-                    return ['status' => ['non_removable' => 'Invoice can only be deleted while its status is proforma.']];
-                }
+        foreach($self as $id => $invoice) {
+            if($invoice['status'] != 'proforma') {
+                return ['status' => ['non_removable' => 'Invoice can only be deleted while its status is proforma.']];
             }
         }
-        return parent::candelete($om, $ids);
+
+        return parent::candelete($self);
     }
 }
