@@ -27,13 +27,15 @@ class Apportionment extends \equal\orm\Model {
                 'function'          => 'calcName',
                 'description'       => "Name of the apportionment.",
                 'store'             => true,
-                'readonly'          => true
+                'readonly'          => true,
+                'multilang'         => true
             ],
 
             'description' => [
                 'type'              => 'string',
                 'description'       => "Short description of the apportionment.",
                 'required'          => true,
+                'multilang'         => true,
                 'dependents'        => ['name']
             ],
 

@@ -36,7 +36,8 @@ class CondoFund extends \equal\orm\Model {
                 'description'       => "Short description of the request, based on fiscal year and period.",
                 'instant'           => true,
                 'store'             => true,
-                'readonly'          => true
+                'readonly'          => true,
+                'multilang'         => true
             ],
 
             'fund_type' => [
@@ -53,7 +54,8 @@ class CondoFund extends \equal\orm\Model {
             'description' => [
                 'type'              => 'string',
                 'description'       => "Short description of the request, based on fiscal year and period.",
-                'dependents'        => ['name']
+                'dependents'        => ['name'],
+                'multilang'         => true
             ],
 
             'fund_account_id' => [
@@ -292,7 +294,8 @@ class CondoFund extends \equal\orm\Model {
                     'condo_id'              => $condoFund['condo_id']['id'],
                     'code'                  => '68' . $account_code . '0',
                     'is_control_account'    => false,
-                    'description'           => $condoFund['description'] ?? $templateAccount['description'] . ' (appel)',
+                    // #todo #translation
+                    'description'           => 'Appel ' . ($condoFund['description'] ?? $templateAccount['description']),
                     'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
                     'operation_assignment'  => $condoFund['fund_type'] . '_variation',
                     'apportionment_id'      => $condoFund['apportionment_id'],
@@ -306,7 +309,8 @@ class CondoFund extends \equal\orm\Model {
                     'condo_id'              => $condoFund['condo_id']['id'],
                     'code'                  => '68' . $account_code . '1',
                     'is_control_account'    => false,
-                    'description'           => $condoFund['description'] ?? $templateAccount['description'] . ' (prélèvement)',
+                    // #todo #translation
+                    'description'           => 'Prélèvement ' . ($condoFund['description'] ?? $templateAccount['description']),
                     'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
                     'operation_assignment'  => $condoFund['fund_type'] . '_variation',
                     'apportionment_id'      => $condoFund['apportionment_id'],
