@@ -922,23 +922,7 @@ class DocumentProcess extends Model {
                 Document::id($documentProcess['document_id'])->update(['condo_id' => $documentProcess['condo_id']]);
             }
 
-            // #memo - we use the document_dispatch_officer role (no document_type at this stage)
-            // if there is a specific assignment for this condo, use it
-            $roleAssignment = RoleAssignment::search([['role_code', '=','document_dispatch_officer'], ['condo_id', '=', $documentProcess['condo_id']]])
-                ->read(['employee_id'])
-                ->first();
-
-            // otherwise, fallback to a global assignment (no condo)
-            if(!$roleAssignment) {
-                $roleAssignment = RoleAssignment::search(['role_code', '=','document_dispatch_officer'])
-                    ->read(['employee_id'])
-                    ->first();
-            }
-
-            if($roleAssignment) {
-                self::id($id)->update(['assigned_employee_id' => $roleAssignment['employee_id']]);
-            }
-
+            self::id($id)->do('attempt_auto_assign');
         }
     }
 
@@ -1043,9 +1027,9 @@ class DocumentProcess extends Model {
                     ->read(['role_id'])
                     ->first();
 
-                if($documentAssignmentRule) {
+                if($documentAssignmentRule && $documentProcess['condo_id']) {
                     $roleAssignment = RoleAssignment::search([
-                            ['condo_id', '=', $documentProcess['condo_id'] ?? null],
+                            ['condo_id', '=', $documentProcess['condo_id']],
                             ['role_id', '=', $documentAssignmentRule['role_id']]
                         ])
                         ->read(['employee_id'])
@@ -1059,7 +1043,12 @@ class DocumentProcess extends Model {
 
             if(!$employee_id) {
                 // by default use `document_dispatch_officer`, if set
-                $roleAssignment = RoleAssignment::search(['role_code', '=', 'document_dispatch_officer'])->read(['employee_id'])->first();
+                $roleAssignment = RoleAssignment::search([
+                        ['condo_id', '=', null],
+                        ['role_code', '=', 'document_dispatch_officer']
+                    ])
+                    ->read(['employee_id'])
+                    ->first();
                 if($roleAssignment && $roleAssignment['employee_id']) {
                     $employee_id = $roleAssignment['employee_id'];
                 }
