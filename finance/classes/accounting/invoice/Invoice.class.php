@@ -427,4 +427,14 @@ class Invoice extends Model {
         }
     }
 
+    public static function candelete($self) {
+        $self->read(['status']);
+        foreach($self as $invoice) {
+            if(!in_array($invoice['status'], ['pending', 'proforma'])) {
+                return ['status' => ['non_removable' => 'Non-draft Invoice cannot be deleted.']];
+            }
+        }
+        return parent::candelete($self);
+    }
+
 }
