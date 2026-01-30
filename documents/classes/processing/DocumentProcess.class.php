@@ -894,15 +894,17 @@ class DocumentProcess extends Model {
      *  - and initiate the processing.
      */
     public static function onupdateData($self) {
-        $self->read(['name', 'data']);
+        $self->read(['name', 'data', 'document_type_id', 'document_subtype_id']);
         foreach($self as $id => $documentProcess) {
             // create a new document
             // #memo - at this stage the Document remains local (no UUID), an attempt to push to EDMS instance will be performed after assignment of condo_id, if matching succeeds
             $document = Document::create([
-                    'name'      => $documentProcess['name'],
-                    'data'      => $documentProcess['data'],
-                    'is_origin' => true,
-                    'is_source' => true
+                    'name'                  => $documentProcess['name'],
+                    'data'                  => $documentProcess['data'],
+                    'is_origin'             => true,
+                    'is_source'             => true,
+                    'document_type_id'      => $documentProcess['document_type_id'],
+                    'document_subtype_id'   => $documentProcess['document_subtype_id'],
                 ])
                 ->first();
             // remove data from current object (to avoid data redundancy)
@@ -992,7 +994,7 @@ class DocumentProcess extends Model {
     }
 
     protected static function doAttemptAutoAssign($self) {
-        $self->read(['condo_id', 'status', 'report_html', 'document_id' => ['creator', 'document_type_id']]);
+        $self->read(['condo_id' => ['id', 'name'], 'status', 'document_type_id' => ['id', 'name'], 'report_html', 'document_id' => ['creator']]);
 
         foreach($self as $id => $documentProcess) {
             if(!$documentProcess['document_id']) {
@@ -1009,18 +1011,18 @@ class DocumentProcess extends Model {
             // attempt to retrieve the employee the Document Processing must be assigned to
             $employee_id = null;
 
-            if($documentProcess['document_id']['document_type_id']) {
+            if($documentProcess['document_type_id']) {
 
                 $documentAssignmentRule = DocumentAssignmentRule::search([
                         ['process_step', '=', $documentProcess['status']],
-                        ['document_type_id', '=', $documentProcess['document_id']['document_type_id']]
+                        ['document_type_id', '=', $documentProcess['document_type_id']['id']]
                     ])
                     ->read(['role_id' => ['id', 'name']])
                     ->first();
 
                 if($documentAssignmentRule && $documentProcess['condo_id']) {
                     $roleAssignment = RoleAssignment::search([
-                            ['condo_id', '=', $documentProcess['condo_id']],
+                            ['condo_id', '=', $documentProcess['condo_id']['id']],
                             ['role_id', '=', $documentAssignmentRule['role_id']['id']]
                         ])
                         ->read(['employee_id' => ['id', 'name']])
@@ -1028,7 +1030,7 @@ class DocumentProcess extends Model {
 
                     if($roleAssignment) {
                         $employee_id = $roleAssignment['employee_id']['id'];
-                        $logs[] = "Role Assignment retrieved for step " . $documentProcess['status'] . " and type " . $documentProcess['document_id']['document_type_id'] . " with role " . $documentAssignmentRule['role_id']['name'] . " on condo " . $documentProcess['condo_id'];
+                        $logs[] = "Role Assignment retrieved for step " . $documentProcess['status'] . " on doc type " . $documentProcess['document_type_id']['name'] . " with role " . $documentAssignmentRule['role_id']['name'] . " on condo " . $documentProcess['condo_id']['name'];
                     }
                 }
             }
