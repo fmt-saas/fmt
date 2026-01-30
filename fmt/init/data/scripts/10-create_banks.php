@@ -1488,11 +1488,12 @@ $banks = json_decode($banks_json, true);
 
 $events = $orm->disableEvents();
 
+/*
 for($i = 0; $i < count($identities); $i++) {
     Identity::create($identities[$i]);
     Bank::create($banks[$i]);
 }
-
+*/
 $orm->enableEvents($events);
 
 // sync values from Identities to Suppliers (Banks)
