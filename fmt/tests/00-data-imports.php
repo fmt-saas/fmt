@@ -1,6 +1,7 @@
 <?php
 
 use documents\Document;
+use finance\bank\Bank;
 use fmt\import\DataImport;
 use identity\Identity;
 use purchase\supplier\Supplier;
@@ -92,7 +93,7 @@ $tests = [
     '0201' => [
         'description'       => "Tests that check data import works for banks_import.",
         'help'              => "
-            Creates a document and a data import for suppliers with banks_import.xls file.
+            Creates a document and a data import for banks with banks_import.xls file.
             Triggers action fmt_import_DataImport_check on data import.
             Assert that the check was successful.
             Removes the created data import and document.
@@ -127,10 +128,55 @@ $tests = [
             Document::search(['name', '=', 'Banks import test 1'])->delete(true);
         }
     ],
+    '0202' => [
+        'description'       => "Tests that import data import works for banks_import.",
+        'help'              => "
+            Creates a document and a data import for banks with banks_import.xls file.
+            Triggers action fmt_import_DataImport_import on data import.
+            Assert that the banks were successful imported.
+            Removes the created data import, document, identities and banks.
+        ",
+        'return'            => ['boolean'],
+        'arrange'           => function() {
+            $data = file_get_contents(EQ_BASEDIR . '/packages/fmt/tests/' . 'banks_import.xlsx');
+
+            $document = Document::create([
+                'name' => 'Banks import test 2'
+            ])
+                ->update(['data' => $data])
+                ->read(['id'])
+                ->first();
+
+            return DataImport::create([
+                'name'          => 'Banks import test 2',
+                'document_id'   => $document['id'],
+                'import_type'   => 'banks_import'
+            ])
+                ->update(['status' => 'ready'])
+                ->read(['id'])
+                ->first();
+        },
+        'act'               => function($data_import) {
+            eQual::run('do', 'fmt_import_DataImport_import', ['id' => $data_import['id']]);
+        },
+        'assert'            => function() {
+            $banks_ids = Bank::search(['registration_number', 'in', ['0869211432', '0443859893', '0446220001', '0454506981', '0153596651']])->ids();
+            $identities_ids = Identity::search(['registration_number', 'in', ['0869211432', '0443859893', '0446220001', '0454506981', '0153596651']])->ids();
+
+            return count($banks_ids) === 5 && count($identities_ids) === 5;
+        },
+        'rollback'          => function() {
+            DataImport::search(['name', '=', 'Banks import test 2'])->delete(true);
+            Document::search(['name', '=', 'Banks import test 2'])->delete(true);
+
+            Bank::search(['registration_number', 'in', ['0869211432', '0443859893', '0446220001', '0454506981', '0153596651']])->delete(true);
+            Identity::search(['registration_number', 'in', ['0869211432', '0443859893', '0446220001', '0454506981', '0153596651']])->delete(true);
+        }
+    ],
     '0301' => [
         'description'       => "Tests that check data import works for condominium_import.",
         'help'              => "
-            Creates a document and a data import for suppliers with condominium_import.xls file.
+            Creates a document and a data import for condominium with condominium_import.xls file.
             Triggers action fmt_import_DataImport_check on data import.
             Assert that the check was successful.
             Removes the created data import and document.
