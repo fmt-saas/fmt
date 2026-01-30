@@ -197,8 +197,8 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                                 'id'    => $account['id'],
                                 'name'  => $account['name']
                             ];
-                        $result['apportionment_id'] = null;
                     }
+                    $result['apportionment_id'] = null;
                 }
                 else {
                     $result['expense_account_id'] = null;
