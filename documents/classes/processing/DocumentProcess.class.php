@@ -1116,22 +1116,25 @@ class DocumentProcess extends Model {
             // logs specific errors to ease debugging
             if(isset($errors['can_perform_drafting'])) {
                 foreach($errors['can_perform_drafting'] as $error_id => $error_message) {
-                    switch($error_id) {
-                        case 'existing_target':
-                            $dispatch->dispatch('documents.import.existing_target', 'documents\processing\DocumentProcess', $id, 'important');
-                            break;
-                        case 'missing_condo_id':
-                            $dispatch->dispatch('documents.import.missing_condo_id', 'documents\processing\DocumentProcess', $id, 'important');
-                            break;
-                        case 'missing_supplier_id':
-                            $dispatch->dispatch('documents.import.missing_supplier_id', 'documents\processing\DocumentProcess', $id, 'important');
-                            break;
-                        case 'missing_document_type_id':
-                            $dispatch->dispatch('documents.import.missing_document_type_id', 'documents\processing\DocumentProcess', $id, 'important');
-                            break;
-                        case 'missing_suppliership':
-                            $dispatch->dispatch('documents.import.missing_suppliership', 'documents\processing\DocumentProcess', $id, 'important');
-                            break;
+                    foreach($self as $id => $documentProcess) {
+                        switch($error_id) {
+                            case 'existing_target':
+                                $dispatch->dispatch('documents.import.existing_target', 'documents\processing\DocumentProcess', $id, 'important');
+                                break;
+                            case 'missing_condo_id':
+                                $dispatch->dispatch('documents.import.missing_condo_id', 'documents\processing\DocumentProcess', $id, 'important');
+                                break;
+                            case 'missing_supplier_id':
+                                $dispatch->dispatch('documents.import.missing_supplier_id', 'documents\processing\DocumentProcess', $id, 'important');
+                                break;
+                            case 'missing_document_type_id':
+                                $dispatch->dispatch('documents.import.missing_document_type_id', 'documents\processing\DocumentProcess', $id, 'important');
+                                break;
+                            case 'missing_suppliership':
+                                $dispatch->dispatch('documents.import.missing_suppliership', 'documents\processing\DocumentProcess', $id, 'important');
+                                break;
+                        }
+                    }
                 }
             }
         }
