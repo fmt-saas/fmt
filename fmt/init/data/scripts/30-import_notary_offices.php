@@ -7,7 +7,7 @@ use realestate\property\NotaryOffice;
 
 $events = $orm->disableEvents();
 
-
+/*
 Identity::create([
     "id" => 200,
     "registration_number" => "0755885565",
@@ -509,13 +509,7 @@ Identity::create([
     "lang_id" => 2,
     "is_active" => true
   ]);
-/*
-#todo - add address
-    "address_street" => "Avenue de Tervuren 270",
-    "address_zip" => "1120",
-    "address_city" => "Woluwe-Saint-Pierre",
 
-*/
 NotaryOffice::create([
     "id" => 222,
     "identity_id" => 222,
@@ -586,7 +580,7 @@ NotaryOffice::create([
     "registry_ref" => "fednot:nathalie-dhennezel-societe-notariale"
 ]);
 
-
+*/
 
 $orm->enableEvents($events);
 
