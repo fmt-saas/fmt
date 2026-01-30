@@ -7,7 +7,6 @@ use hr\Team;
 use identity\Identity;
 use identity\Organisation;
 use identity\User;
-use realestate\management\ManagingAgent;
 
 ['orm' => $orm] = eQual::inject(['orm']);
 

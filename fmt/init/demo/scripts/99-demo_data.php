@@ -32,7 +32,6 @@ use realestate\finance\accounting\CondoFund;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestLine;
-use realestate\management\ManagingAgent;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\property\Condominium;
