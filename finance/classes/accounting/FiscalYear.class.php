@@ -321,6 +321,7 @@ class FiscalYear extends Model {
                     'unclose' => [
                         'description' => 'Handle actions related to fiscal year closing.',
                         'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        // on ne peut pas décloturer s'il ya une plus récente cloturée
                         'onafter' => 'onafterUnClose',
                         'status' => 'preclosed',
                     ],

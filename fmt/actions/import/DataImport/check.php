@@ -419,6 +419,22 @@ elseif($dataImport['import_type'] == 'suppliers_import') {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing mandatory `registration_number` in suppliers sheet at row " . ($index + 2);
         }
+        if(!$supplier['street']) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing mandatory `street` in suppliers sheet at row " . ($index + 2);
+        }
+        if(!$supplier['zip']) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing mandatory `zip` in suppliers sheet at row " . ($index + 2);
+        }
+        if(!$supplier['city']) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing mandatory `city` in suppliers sheet at row " . ($index + 2);
+        }
+        if(!$supplier['country']) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing mandatory `country` in suppliers sheet at row " . ($index + 2);
+        }
     }
 }
 elseif($dataImport['import_type'] == 'banks_import') {
