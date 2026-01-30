@@ -817,7 +817,7 @@ class BankStatement extends Model {
         return $result;
     }
 
-    public static function policyIsReconciled($self): array {
+    protected static function policyIsReconciled($self): array {
         $result = [];
         $self->read(['is_reconciled']);
         foreach($self as $id => $statement) {
@@ -830,7 +830,7 @@ class BankStatement extends Model {
         return $result;
     }
 
-    public static function policyIsBalanced($self): array {
+    protected static function policyIsBalanced($self): array {
         $result = [];
         $self->read(['is_balanced']);
         foreach($self as $id => $statement) {
@@ -842,6 +842,16 @@ class BankStatement extends Model {
             }
         }
         return $result;
+    }
+
+    protected static function onbeforedelete($self) {
+        $self->read(['document_process_id']);
+        foreach($self as $id => $bankStatement) {
+            if(!$bankStatement['document_process_id']) {
+                continue;
+            }
+            DocumentProcess::id($bankStatement['document_process_id'])->do('remove');
+        }
     }
 
     private static function convertBbanToIban($account_number) {

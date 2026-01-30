@@ -1787,4 +1787,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         $self->do('update_document_json');
     }
 
+    protected static function onbeforedelete($self) {
+        $self->read(['document_process_id']);
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['document_process_id']) {
+                continue;
+            }
+            DocumentProcess::id($purchaseInvoice['document_process_id'])->do('remove');
+        }
+    }
 }
