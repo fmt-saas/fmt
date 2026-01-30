@@ -470,6 +470,7 @@ class FiscalYear extends Model {
                 continue;
             }
 
+            /*
             if($fiscalYear['previous_fiscal_year_id']) {
                 if(!empty(self::policyCanBePreClosed(self::id($fiscalYear['previous_fiscal_year_id'])))) {
                     $result[$id] = [
@@ -478,6 +479,7 @@ class FiscalYear extends Model {
                     continue;
                 }
             }
+            */
 
             // fiscal year and periods must be consistent (each year and period must immediately follow the previous one)
             $inconsistency = self::computeIsValid($id);
