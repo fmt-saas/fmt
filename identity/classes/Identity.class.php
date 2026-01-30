@@ -910,7 +910,12 @@ class Identity extends Model {
             if(!$identity['bank_account_iban'] || strlen($identity['bank_account_iban']) <= 0) {
                 continue;
             }
-            $mainBankAccount = BankAccount::search([['owner_identity_id', '=', $id], ['is_primary', '=', true]])->first();
+            $mainBankAccount = BankAccount::search([
+                    ['owner_identity_id', '=', $id],
+                    ['bank_account_iban', '=', $identity['bank_account_iban']]
+                ])
+                ->read(['is_primary'])
+                ->first();
             if(!$mainBankAccount) {
                 BankAccount::create([
                     'owner_identity_id' => $id,
@@ -920,6 +925,12 @@ class Identity extends Model {
                     'bank_name'         => $identity['bank_name'],
                     'bank_country'      => $identity['bank_country']
                 ]);
+            }
+            else {
+                if(!$mainBankAccount['is_primary']) {
+                    BankAccount::search([['owner_identity_id', '=', $id]])->update(['is_primary' => false]);
+                    BankAccount::id($mainBankAccount['is_primary'])->update(['is_primary' => true]);
+                }
             }
         }
     }

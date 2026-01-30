@@ -143,7 +143,43 @@ class Supplier extends Identity {
                 // 'foreign_field'     => '',
                 'description'       => 'List of contacts related to the supplier.',
                 'domain'            => ['owner_identity_id', '=', 'object.identity_id']
-            ]
+            ],
+
+            /* duplicated from Identity for marking as mandatory */
+
+            'address_street' => [
+                'type'              => 'string',
+                'description'       => 'Street and number.',
+                'onupdate'          => 'onupdateAddressStreet',
+                'required'          => true,
+                'dependents'        => ['address_hash', 'address']
+            ],
+
+            'address_city' => [
+                'type'              => 'string',
+                'description'       => 'City.',
+                'onupdate'          => 'onupdateAddressCity',
+                'required'          => true,
+                'dependents'        => ['address_hash', 'address']
+            ],
+
+            'address_zip' => [
+                'type'              => 'string',
+                'description'       => 'Postal code.',
+                'onupdate'          => 'onupdateAddressZip',
+                'required'          => true,
+                'dependents'        => ['address_hash', 'identity_slug', 'slug_hash']
+            ],
+
+            'address_country' => [
+                'type'              => 'string',
+                'usage'             => 'country/iso-3166:2',
+                'description'       => 'Country.',
+                'required'          => true,
+                'default'           => 'BE',
+                'dependents'        => ['address_hash', 'identity_slug', 'slug_hash'],
+                'onupdate'          => 'onupdateAddressCountry'
+            ],
 
         ];
     }

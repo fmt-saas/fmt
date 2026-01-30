@@ -406,14 +406,19 @@ class FiscalYear extends Model {
 
         foreach($self as $id => $fiscalYear) {
             // status of fiscal year must be 'draft'
-            if($fiscalYear['status'] != 'draft') {
+            if(!in_array($fiscalYear['status'], ['draft', 'preopen'])) {
                 $result[$id] = [
                     'invalid_status' => 'Fiscal year status must be draft.'
                 ];
                 continue;
             }
             // a preopen year cannot preceed an open year
-            $fiscalYears = FiscalYear::search([['condo_id', '=', $fiscalYear['condo_id']], ['date_from', '>', $fiscalYear['date_to']], ['id', '<>', $id]]);
+            $fiscalYears = FiscalYear::search([
+                    ['condo_id', '=', $fiscalYear['condo_id']],
+                    ['date_from', '>', $fiscalYear['date_to']],
+                    ['id', '<>', $id],
+                    ['status', '=', 'open']
+                ]);
 
             if($fiscalYears->count() > 0) {
                 $result[$id] = [
