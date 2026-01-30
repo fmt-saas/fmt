@@ -138,7 +138,9 @@
             "label": "Draft target",
             "description": "Attempt to extract data from the Attachment.",
             "controller": "core_model_do",
-            "visible": [
+            "visible": false,
+            "visible_help": "disabled because gives little feedback to user if fails",
+            "visible1": [
                 ["status", "in", ["created", "assigned"]],
                 ["has_target_object", "=", false],
                 ["has_document_json", "=", true],
@@ -156,10 +158,9 @@
             "id": "action.attempt_auto_draft",
             "label": "Draft target",
             "description": "Attempt to perform auto-completion based on imported Attachment.",
+            "help": "No feedback is given to user in case of failure, but alerts are created if mandatory info is missing.",
             "controller": "core_model_do",
-            "visible": false,
-            "visible_help": "disabled because gives no feedback to user if fails",
-            "visible1": [
+            "visible": [
                 ["status", "in", ["created", "assigned"]],
                 ["has_target_object", "=", false],
                 ["document_type_id", "<>", null],

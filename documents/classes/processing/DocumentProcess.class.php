@@ -640,13 +640,25 @@ class DocumentProcess extends Model {
         foreach($self as $id => $documentProcess) {
             if($documentProcess['has_target_object']) {
                 $result[$id] = [
-                    'invalid_status' => 'Target document has already been created.'
+                    'existing_target' => 'Target document has already been created.'
+                ];
+                continue;
+            }
+            if(!isset($documentProcess['condo_id'])) {
+                $result[$id] = [
+                    'missing_condo_id' => 'Condominium is not provided.'
+                ];
+                continue;
+            }
+            if(!isset($documentProcess['supplier_id'])) {
+                $result[$id] = [
+                    'missing_supplier_id' => 'Supplier is not provided.'
                 ];
                 continue;
             }
             if(!isset($documentProcess['document_type_id'])) {
                 $result[$id] = [
-                    'invalid_status' => 'Document type is unknown.'
+                    'missing_document_type_id' => 'Document type is unknown.'
                 ];
                 continue;
             }
@@ -654,7 +666,7 @@ class DocumentProcess extends Model {
             $suppliership = Suppliership::search([['condo_id', '=', $documentProcess['condo_id']], ['supplier_id', '=', $documentProcess['supplier_id']]])->first();
             if(!$suppliership) {
                 $result[$id] = [
-                    'invalid_status' => 'No Suppliership set for condominium with assigned supplier.'
+                    'missing_suppliership' => 'No Suppliership set for condominium with assigned supplier.'
                 ];
                 continue;
             }
@@ -1075,7 +1087,7 @@ class DocumentProcess extends Model {
         }
     }
 
-    protected static function doAttemptAutoDraft($self) {
+    protected static function doAttemptAutoDraft($self, $dispatch) {
         // #todo - check if completion.auto enabled
         try {
             $self
@@ -1097,6 +1109,31 @@ class DocumentProcess extends Model {
             // do not interrupt - Documents might not be automatically analyzed
             // at early stage, user is allowed to manually encode data
             trigger_error("APP::issue in doAttemptAutoDraft tasks" . $e->getMessage(), EQ_REPORT_WARNING);
+
+            // one of the required constraint was not met
+            $errors = unserialize($e->getMessage());
+
+            // logs specific errors to ease debugging
+            if(isset($errors['can_perform_drafting'])) {
+                foreach($errors['can_perform_drafting'] as $error_id => $error_message) {
+                    switch($error_id) {
+                        case 'existing_target':
+                            $dispatch->dispatch('documents.import.existing_target', 'documents\processing\DocumentProcess', $id, 'important');
+                            break;
+                        case 'missing_condo_id':
+                            $dispatch->dispatch('documents.import.missing_condo_id', 'documents\processing\DocumentProcess', $id, 'important');
+                            break;
+                        case 'missing_supplier_id':
+                            $dispatch->dispatch('documents.import.missing_supplier_id', 'documents\processing\DocumentProcess', $id, 'important');
+                            break;
+                        case 'missing_document_type_id':
+                            $dispatch->dispatch('documents.import.missing_document_type_id', 'documents\processing\DocumentProcess', $id, 'important');
+                            break;
+                        case 'missing_suppliership':
+                            $dispatch->dispatch('documents.import.missing_suppliership', 'documents\processing\DocumentProcess', $id, 'important');
+                            break;
+                }
+            }
         }
     }
 

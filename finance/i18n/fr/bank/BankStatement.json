@@ -189,7 +189,7 @@
             "description": "Liste des relevés bancaires en traitement documentaire.",
             "routes": {
                 "item.import": {
-                    "label": "Importer un relevé bancaire",
+                    "label": "Importer relevé bancaire",
                     "description": ""
                 },
                 "route.bank_statement": {
