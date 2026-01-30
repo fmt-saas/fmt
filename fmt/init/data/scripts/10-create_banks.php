@@ -1494,6 +1494,39 @@ for($i = 0; $i < count($identities); $i++) {
     Bank::create($banks[$i]);
 }
 */
+
+
+
+Identity::create([
+        "id"=>518,
+        "type_id"=>3,
+        "legal_name"=>"BNP PARIBAS FORTIS",
+        "short_name"=>"BNP PARIBAS FORTIS - FINTRO",
+        "has_vat"=>true,
+        "vat_number"=>"BE0403199702",
+        "registration_number"=>"0403199702",
+        "nationality"=>"BE",
+        "address_street"=>"Rue Montagne du Parc, 3",
+        "address_city"=>"Bruxelles",
+        "address_zip"=>"1000",
+        "address_country"=>"BE",
+        "email"=>"info@bnpparibasfortis.com",
+        "phone"=>"+3227622000",
+        "bank_account_bic"=>"GEBABEBB",
+        "is_active"=>true
+    ]);
+Bank::create([
+        "id"=>518,
+        "identity_id"=>518,
+        "supplier_type_id"=>2,
+        "bic"=>"GEBABEBB",
+        "is_active"=>true,
+        "address_street"=>"Rue Montagne du Parc, 3",
+        "address_city"=>"Bruxelles",
+        "address_zip"=>"1000",
+        "address_country"=>"BE"
+    ]);
+
 $orm->enableEvents($events);
 
 // sync values from Identities to Suppliers (Banks)
