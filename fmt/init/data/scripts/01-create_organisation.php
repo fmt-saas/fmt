@@ -37,7 +37,11 @@ $organisation = Organisation::create([
     ->first();;
 
 $managingAgent = ManagingAgent::create([
-        'identity_id'           => $identity['id']
+        'identity_id'           => $identity['id'],
+        'address_street'        => 'Rue de l\'Eglise 1',
+        'address_zip'           => '1000',
+        'address_city'          => 'Bruxelles',
+        'address_country'       => 'BE',
     ])
     ->do('sync_from_identity')
     ->first();
