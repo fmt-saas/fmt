@@ -173,8 +173,7 @@ $map = [
         'Supplierships'             => ['supplier_code']
     ],
     'suppliers_import' => [
-        // 'supplier'  => ['fournisseur_code', 'fournisseur_type', 'fournisseur_nom', 'fournisseur_nom_usuel', 'fournisseur_rue', 'fournisseur_code_postal', 'fournisseur_ville', 'fournisseur_pays', 'fournisseur_tel_1', 'fournisseur_tel_2', 'fournisseur_mobile_1', 'fournisseur_mobile_2', 'fournisseur_email_1', 'fournisseur_email_2', 'fournisseur_iban_1', 'fournisseur_iban_2', 'fournisseur_iban_3', 'fournisseur_num_tva', 'fournisseur_num_entreprise'],
-        'suppliers'  => ['fournisseur_nom', 'fournisseur_nom_usuel', 'fournisseur_nom_rue', 'fournisseur_code_postal', 'fournisseur_localite', 'fournisseur_pays', 'fournisseur_tel_1', 'fournisseur_tel_2', 'fournisseur_tel_3', 'fournisseur_email_1', 'fournisseur_email_2', 'fournisseur_email_3', 'fournisseur_bic_1', 'fournisseur_iban_1', 'fournisseur_bic_2', 'fournisseur_iban_2', 'fournisseur_numero_tva', 'fournisseur_numero_entreprise']
+        'suppliers' => ['legal_name', 'short_name', 'street', 'zip', 'city', 'country', 'phone_1', 'phone_2', 'phone_3', 'email_1', 'email_2', 'email_3', 'bic_1', 'iban_1', 'bic_2', 'iban_2', 'vat_number', 'registration_number']
     ],
     'banks_import' => [
         'bank'      => ['legal_name', 'short_name', 'street', 'zip', 'city', 'country', 'phone_1', 'phone_2', 'email_1', 'email_2', 'website', 'vat_number', 'registration_number', 'bic']

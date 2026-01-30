@@ -62,7 +62,7 @@ class Supplier extends Identity {
                 'foreign_object'    => 'identity\IdentityType',
                 'onupdate'          => 'onupdateTypeId',
                 'default'           => 3,
-                'dependents  '      => ['type', 'name', 'identity_slug', 'slug_hash'],
+                'dependents'        => ['type', 'name', 'identity_slug', 'slug_hash'],
                 'description'       => 'Type of identity.'
             ],
 
