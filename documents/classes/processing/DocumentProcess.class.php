@@ -992,11 +992,20 @@ class DocumentProcess extends Model {
     }
 
     protected static function doAttemptAutoAssign($self) {
-        $self->read(['condo_id', 'status', 'document_id' => ['creator', 'document_type_id']]);
+        $self->read(['condo_id', 'status', 'report_html', 'document_id' => ['creator', 'document_type_id']]);
+
         foreach($self as $id => $documentProcess) {
             if(!$documentProcess['document_id']) {
                 continue;
             }
+            $logs = [];
+
+            if(strlen($documentProcess['report_html']) > 0) {
+                $logs[] = "";
+            }
+
+            $logs[] = "<b>Employee Assignment:</b>";
+
             // attempt to retrieve the employee the Document Processing must be assigned to
             $employee_id = null;
 
@@ -1006,19 +1015,20 @@ class DocumentProcess extends Model {
                         ['process_step', '=', $documentProcess['status']],
                         ['document_type_id', '=', $documentProcess['document_id']['document_type_id']]
                     ])
-                    ->read(['role_id'])
+                    ->read(['role_id' => ['id', 'name']])
                     ->first();
 
                 if($documentAssignmentRule && $documentProcess['condo_id']) {
                     $roleAssignment = RoleAssignment::search([
                             ['condo_id', '=', $documentProcess['condo_id']],
-                            ['role_id', '=', $documentAssignmentRule['role_id']]
+                            ['role_id', '=', $documentAssignmentRule['role_id']['id']]
                         ])
-                        ->read(['employee_id'])
+                        ->read(['employee_id' => ['id', 'name']])
                         ->first();
 
                     if($roleAssignment) {
-                        $employee_id = $roleAssignment['employee_id'];
+                        $employee_id = $roleAssignment['employee_id']['id'];
+                        $logs[] = "Role Assignment retrieved for step " . $documentProcess['status'] . " and type " . $documentProcess['document_id']['document_type_id'] . " with role " . $documentAssignmentRule['role_id']['name'] . " on condo " . $documentProcess['condo_id'];
                     }
                 }
             }
@@ -1029,25 +1039,32 @@ class DocumentProcess extends Model {
                         ['condo_id', '=', null],
                         ['role_code', '=', 'document_dispatch_officer']
                     ])
-                    ->read(['employee_id'])
+                    ->read(['employee_id' => ['id', 'name']])
                     ->first();
                 if($roleAssignment && $roleAssignment['employee_id']) {
-                    $employee_id = $roleAssignment['employee_id'];
+                    $employee_id = $roleAssignment['employee_id']['id'];
+                    $logs[] = "Global Role Assignment retrieved for `document_dispatch_officer`: " . $roleAssignment['employee_id']['name'];
                 }
                 // fallback to employee relating to current user (if set)
                 else {
                     $identity = Identity::search(['user_id', '=', $documentProcess['document_id']['creator']])
-                        ->read(['employee_id'])
+                        ->read(['employee_id' => ['id', 'name']])
                         ->first();
                     if($identity && $identity['employee_id']) {
-                        $employee_id = $identity['employee_id'];
+                        $employee_id = $identity['employee_id']['id'];
+                        $logs[] = "No Assignment retrieved, fallback to creator of the document: " . $identity['employee_id']['name'];
                     }
                 }
             }
 
             if($employee_id) {
+                $report_html = $documentProcess['report_html'] . implode("<br />", $logs);
                 // #memo - this will update assigned_employee_id on target objects via onupdateAssignedEmployeeId
-                self::id($id)->update(['assigned_employee_id' => $employee_id]);
+                self::id($id)->update(
+                    [
+                        'assigned_employee_id'  => $employee_id,
+                        'report_html'           => $report_html
+                    ]);
             }
         }
     }
@@ -1315,7 +1332,7 @@ class DocumentProcess extends Model {
 
             $report_html = $documentProcess['report_html'];
             if(strlen($report_html) > 0) {
-                $report_html .= "<br />";
+                $logs [] = "";
             }
 
             $values['report_html'] = $report_html . implode("<br />", $logs);
@@ -1846,7 +1863,7 @@ class DocumentProcess extends Model {
 
     public static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['assigned_employee_id', 'alert'];
+        $allowed_fields = ['assigned_employee_id', 'alert', 'report_html'];
         foreach($self as $id => $documentProcess) {
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                 if($documentProcess['status'] === 'integrated') {
