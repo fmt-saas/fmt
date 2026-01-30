@@ -620,22 +620,19 @@ class FiscalYear extends Model {
      *
      */
     public static function onafterOpen($self) {
-        $self->read(['condo_id', 'date_from', 'date_to', 'previous_fiscal_year_id', 'fiscal_periods_ids' => ['id', 'date_from', 'date_to']]);
+        $self->read(['condo_id', 'date_from', 'date_to', 'previous_fiscal_year_id' => ['status'], 'fiscal_periods_ids' => ['id', 'date_from', 'date_to']]);
 
         foreach($self as $id => $fiscalYear) {
 
             // 1 - transition previous fiscal year to 'preclosed' (transition has been checked in `policyCanBeOpened()`)
 
-            if($fiscalYear['previous_fiscal_year_id']) {
+            if($fiscalYear['previous_fiscal_year_id'] && $fiscalYear['previous_fiscal_year_id']['status'] === 'open') {
                 self::id($fiscalYear['previous_fiscal_year_id'])->transition('preclose');
             }
 
             // 2 - transition next fiscal year to 'preopen' (existence and transition have been checked in `policyCanBeOpened()`)
 
-            // #todo - le suivant en preopen
             $nextFiscalYear = self::search([['status', '=', 'draft'], ['condo_id', '=', $fiscalYear['condo_id']]])->transition('preopen')->first();
-
-            // #todo - le précédent en preclosed
 
 
             // 3 - finalize periods order
