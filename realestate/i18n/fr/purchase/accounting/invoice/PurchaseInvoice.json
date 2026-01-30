@@ -245,6 +245,20 @@
                     "description": ""
                 }
             }
+        },
+        "list.processing": {
+            "name": "Factures (traitement)",
+            "description": "Vue des factures en cours de traitement documentaire.",
+            "routes": {
+                "item.import": {
+                    "label": "Importer une facture",
+                    "description": ""
+                },
+                "route.purchase_invoice": {
+                    "label": "Facture",
+                    "description": ""
+                }
+            }
         }
     },
     "error": {

@@ -22,6 +22,14 @@
                     "description": ""
                 }
             }
+        },
+        "list.condo": {
+            "routes": {
+                "item.import": {
+                    "label": "Importer une facture",
+                    "description": ""
+                }
+            }
         }
     }
 }
