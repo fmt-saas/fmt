@@ -5,7 +5,6 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use core\Lang;
 use fmt\import\DataImport;
 use hr\employee\Employee;
 use identity\Identity;
@@ -14,7 +13,7 @@ use realestate\property\Condominium;
 use realestate\property\PropertyLotNature;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Return a JSON structure describing the import.',
+    'description'   => "Returns a JSON structure describing the import.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
@@ -23,17 +22,17 @@ use realestate\property\PropertyLotNature;
             'required'          => true
         ],
     ],
-    'access' => [
-        'visibility'        => 'protected'
+    'access'        => [
+        'visibility'    => 'protected'
     ],
     'response'      => [
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'providers'     => ['context', 'orm', 'auth']
+    'providers'     => ['context', 'orm']
 ]);
 
-['orm' => $orm] = $providers;
+['context' => $context, 'orm' => $orm] = $providers;
 
 
 $result = [
@@ -397,7 +396,7 @@ if($dataImport['import_type'] == 'condominium_import') {
         $total = $map_share_totals[$apportionment_key['code']] ?? 0;
         if($apportionment_key['total_shares'] !== $total) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - `total_shares` for apportionment key '" . $apportionment_key['code'] . "' ({$apport_key['total_shares']}) does not match total of shares ({$total})";
+            $result['logs'][] = "ERR - `total_shares` for apportionment key '" . $apportionment_key['code'] . "' ({$apportionment_key['total_shares']}) does not match total of shares ({$total})";
         }
     }
 
@@ -412,13 +411,13 @@ if($dataImport['import_type'] == 'condominium_import') {
 elseif($dataImport['import_type'] == 'suppliers_import') {
     $suppliers_data = current($data);
     foreach($suppliers_data as $index => $supplier) {
-        if(!$supplier['fournisseur_nom']) {
+        if(!$supplier['legal_name']) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - missing mandatory `fournisseur_nom` in suppliers sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - missing mandatory `legal_name` in suppliers sheet at row " . ($index + 2);
         }
-        if(!$supplier['fournisseur_numero_entreprise']) {
+        if(!$supplier['registration_number']) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - missing mandatory `fournisseur_numero_entreprise` in suppliers sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - missing mandatory `registration_number` in suppliers sheet at row " . ($index + 2);
         }
     }
 }
@@ -448,7 +447,5 @@ DataImport::id($params['id'])
     ]);
 
 $context->httpResponse()
-        ->body([
-            'result' => $result
-        ])
+        ->body(['result' => $result])
         ->send();

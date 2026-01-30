@@ -27,7 +27,7 @@ class DataImport extends \equal\orm\Model {
 
             'name' => [
                 'type'              => 'string',
-                'description'       => 'Name of the task, as set at creation.',
+                'description'       => 'Name of the data import.',
                 'required'          => true
             ],
 

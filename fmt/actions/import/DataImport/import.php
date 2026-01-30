@@ -92,27 +92,27 @@ $mapSupplierRowToJson = function (array $row): array {
         "source_type"         => "manual",
         "type_id"             => 3,
         "type"                => "CO",
-        "bank_account_iban"   => isset($row['fournisseur_iban_1']) && $row['fournisseur_iban_1'] !== null
-                ? preg_replace('/[^A-Z0-9]/i', '', $row['fournisseur_iban_1'])
+        "bank_account_iban"   => isset($row['iban_1']) && $row['iban_1'] !== null
+                ? preg_replace('/[^A-Z0-9]/i', '', $row['iban_1'])
                 : null,
-        "vat_number" => isset($row['fournisseur_numero_tva']) && $row['fournisseur_numero_tva'] !== null
-                ? preg_replace('/[^A-Z0-9]/i', '', $row['fournisseur_numero_tva'])
+        "vat_number" => isset($row['vat_number']) && $row['vat_number'] !== null
+                ? preg_replace('/[^A-Z0-9]/i', '', $row['vat_number'])
                 : null,
-        "registration_number" => isset($row['fournisseur_numero_entreprise']) && $row['fournisseur_numero_entreprise'] !== null
-                ? preg_replace('/[^0-9]/i', '', $row['fournisseur_numero_entreprise'])
+        "registration_number" => isset($row['registration_number']) && $row['registration_number'] !== null
+                ? preg_replace('/[^0-9]/i', '', $row['registration_number'])
                 : null,
-        "legal_name"          => $row['fournisseur_nom'] ?? '',
-        "short_name"          => $row['fournisseur_nom_usuel'] ?? '',
-        "has_vat"             => !empty($row['fournisseur_numero_tva']),
-        "nationality"         => strtoupper($row['fournisseur_pays'] ?? 'BE'),
+        "legal_name"          => $row['legal_name'] ?? '',
+        "short_name"          => $row['short_name'] ?? '',
+        "has_vat"             => !empty($row['vat_number']),
+        "nationality"         => strtoupper($row['country'] ?? 'BE'),
         "lang_id"             => 2,
-        "address_street"      => $row['fournisseur_nom_rue'] ?? null,
-        "address_city"        => $row['fournisseur_localite'] ?? null,
-        "address_zip"         => $row['fournisseur_code_postal'] ?? null,
-        "email"               => $row['fournisseur_email_1'] ?? null,
-        "email_alt"           => $row['fournisseur_email_2'] ?? null,
-        "phone"               => isset($row['fournisseur_tel_1']) ? str_replace(' ', '', $row['fournisseur_tel_1']) : null,
-        "phone_alt"           => isset($row['fournisseur_tel_2']) ? str_replace(' ', '', $row['fournisseur_tel_2']) : null
+        "address_street"      => $row['street'] ?? null,
+        "address_city"        => $row['city'] ?? null,
+        "address_zip"         => $row['zip'] ?? null,
+        "email"               => $row['email_1'] ?? null,
+        "email_alt"           => $row['email_2'] ?? null,
+        "phone"               => isset($row['phone_1']) ? str_replace(' ', '', $row['phone_1']) : null,
+        "phone_alt"           => isset($row['phone_2']) ? str_replace(' ', '', $row['phone_2']) : null
     ];
 };
 
