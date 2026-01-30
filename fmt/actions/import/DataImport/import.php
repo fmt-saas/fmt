@@ -33,26 +33,26 @@ use realestate\property\PropertyLotOwnership;
 use realestate\ownership\OwnershipCommunicationPreference;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Return a JSON structure describing the import.',
+    'description'   => "Imports the specified data import.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
             'description'       => "Identifier of the targeted DataImport object.",
             'foreign_object'    => 'fmt\governance\DataImport',
             'required'          => true
-        ],
+        ]
     ],
-    'access' => [
-        'visibility'        => 'protected'
+    'access'        => [
+        'visibility'    => 'protected'
     ],
     'response'      => [
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'providers'     => ['context', 'orm', 'auth']
+    'providers'     => ['context', 'orm']
 ]);
 
-['orm' => $orm] = $providers;
+['context' => $context, 'orm' => $orm] = $providers;
 
 $mapBankRowToJson = function (array $row): array {
     return [
@@ -1112,10 +1112,6 @@ finally {
 
 }
 
-
-
 $context->httpResponse()
         ->status(201)
         ->send();
-
-
