@@ -994,7 +994,12 @@ class DocumentProcess extends Model {
     }
 
     protected static function doAttemptAutoAssign($self) {
-        $self->read(['condo_id' => ['id', 'name'], 'status', 'document_type_id' => ['id', 'name'], 'report_html', 'document_id' => ['creator']]);
+        $self->read([
+                'status', 'report_html',
+                'condo_id' => ['id', 'name'],
+                'document_type_id' => ['id', 'name'],
+                'document_id' => ['creator']
+            ]);
 
         foreach($self as $id => $documentProcess) {
             if(!$documentProcess['document_id']) {
@@ -1006,7 +1011,7 @@ class DocumentProcess extends Model {
                 $logs[] = "";
             }
 
-            $logs[] = "<b>Employee Assignment:</b>";
+            $logs[] = "<b>Employee Assignment</b>";
 
             // attempt to retrieve the employee the Document Processing must be assigned to
             $employee_id = null;
@@ -1030,7 +1035,7 @@ class DocumentProcess extends Model {
 
                     if($roleAssignment) {
                         $employee_id = $roleAssignment['employee_id']['id'];
-                        $logs[] = "Role Assignment retrieved for step " . $documentProcess['status'] . " on doc type " . $documentProcess['document_type_id']['name'] . " with role " . $documentAssignmentRule['role_id']['name'] . " on condo " . $documentProcess['condo_id']['name'];
+                        $logs[] = "Role Assignment retrieved for step `" . $documentProcess['status'] . "` on doc type `" . $documentProcess['document_type_id']['name'] . "` with role `" . $documentAssignmentRule['role_id']['name'] . "` on condo `" . $documentProcess['condo_id']['name'] . "`";
                     }
                 }
             }
@@ -1054,7 +1059,7 @@ class DocumentProcess extends Model {
                         ->first();
                     if($identity && $identity['employee_id']) {
                         $employee_id = $identity['employee_id']['id'];
-                        $logs[] = "No Assignment retrieved, fallback to creator of the document: " . $identity['employee_id']['name'];
+                        $logs[] = "No Assignment retrieved, fallback to `creator` of the document: " . $identity['employee_id']['name'];
                     }
                 }
             }
@@ -1062,8 +1067,7 @@ class DocumentProcess extends Model {
             if($employee_id) {
                 $report_html = $documentProcess['report_html'] . implode("<br />", $logs);
                 // #memo - this will update assigned_employee_id on target objects via onupdateAssignedEmployeeId
-                self::id($id)->update(
-                    [
+                self::id($id)->update([
                         'assigned_employee_id'  => $employee_id,
                         'report_html'           => $report_html
                     ]);
@@ -1087,8 +1091,7 @@ class DocumentProcess extends Model {
 
         try {
             $self
-                ->do('perform_drafting')
-                ->transition('assign');
+                ->do('perform_drafting');
         }
         catch(\Exception $e) {
             // do not interrupt - Documents might not be automatically analyzed
@@ -1310,8 +1313,14 @@ class DocumentProcess extends Model {
             }
             catch(\Exception $e) {
                 // unexpected error
-                $logs[] = "Extraction error : " . $e->getMessage();
-                $logs[] = "Non supported document type  ({$documentProcess['document_type_id']['code']}) or Document does not match expected format.";
+                $message = $e->getMessage();
+
+                if(strlen($message) > 200) {
+                    $message = substr($message, 0, 197) . '...';
+                }
+
+                $logs[] = "Extraction error : " . $message;
+                $logs[] = "Non supported document type (`{$documentProcess['document_type_id']['code']}`) or Document does not match expected format.";
                 trigger_error("APP::unable to extract document for process {$id} ({$documentProcess['document_type_id']['code']}): " . $e->getMessage(), EQ_REPORT_WARNING);
                 $logs[] = "Attempting to fall back to default document descriptor.";
                 // extraction failed : populat with empty document_json descriptor

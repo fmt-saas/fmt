@@ -138,8 +138,7 @@
             "label": "Draft target",
             "description": "Attempt to extract data from the Attachment.",
             "controller": "core_model_do",
-            "visible": false,
-            "visible1": [
+            "visible": [
                 ["status", "in", ["created", "assigned"]],
                 ["has_target_object", "=", false],
                 ["has_document_json", "=", true],
@@ -158,7 +157,9 @@
             "label": "Draft target",
             "description": "Attempt to perform auto-completion based on imported Attachment.",
             "controller": "core_model_do",
-            "visible": [
+            "visible": false,
+            "visible_help": "disabled because gives no feedback to user if fails",
+            "visible1": [
                 ["status", "in", ["created", "assigned"]],
                 ["has_target_object", "=", false],
                 ["document_type_id", "<>", null],
