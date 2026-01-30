@@ -187,15 +187,21 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 }
             }
             // update expense account
-            if(isset($event['is_private_expense']) && $event['is_private_expense']) {
-                $account = Account::search([['condo_id', '=', $values['condo_id']], ['operation_assignment', '=', 'private_expenses']])
-                    ->read(['id', 'name'])
-                    ->first();
-                if($account) {
-                    $result['expense_account_id'] = [
-                            'id'    => $account['id'],
-                            'name'  => $account['name']
-                        ];
+            if(isset($event['is_private_expense'])) {
+                if($event['is_private_expense']) {
+                    $account = Account::search([['condo_id', '=', $values['condo_id']], ['operation_assignment', '=', 'private_expenses']])
+                        ->read(['id', 'name'])
+                        ->first();
+                    if($account) {
+                        $result['expense_account_id'] = [
+                                'id'    => $account['id'],
+                                'name'  => $account['name']
+                            ];
+                        $result['apportionment_id'] = null;
+                    }
+                }
+                else {
+                    $result['expense_account_id'] = null;
                 }
             }
         }
