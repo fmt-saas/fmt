@@ -142,7 +142,7 @@
             {% elseif representation is not null %}
             <tr>
                 <td>
-                    {{ ownership.name }}
+                    {{ ownership.address_recipient }}
                     {% if ownership.type == 'joint' %}
                     <br />[représentant théorique: {{ ownership.representative }}]
                     {% endif %}

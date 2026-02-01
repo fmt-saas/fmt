@@ -1084,15 +1084,14 @@
                         "label": "Correspondences",
                         "visible": [
                             [
-                                "status",
-                                "not in",
                                 [
-                                    "pending",
-                                    "published"
+                                    "has_invitations_sent", "=", true
                                 ]
                             ],
                             [
-                                "has_minutes_sent", "=", true
+                                [
+                                    "has_minutes_sent", "=", true
+                                ]
                             ]
                         ],
                         "rows": [

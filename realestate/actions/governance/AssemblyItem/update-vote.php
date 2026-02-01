@@ -8,6 +8,7 @@
 use realestate\governance\AssemblyAttendee;
 use realestate\governance\AssemblyItem;
 use realestate\governance\AssemblyVote;
+use realestate\governance\AssemblyVoteIntention;
 use realestate\property\PropertyLotApportionmentShare;
 use realestate\property\PropertyLotOwnership;
 
@@ -67,7 +68,12 @@ if(!isset($params['id'])) {
 }
 
 $assemblyItem = AssemblyItem::id($params['id'])
-    ->read(['name', 'assembly_id' => ['assembly_date', 'assembly_type'], 'condo_id', 'apportionment_id'])
+    ->read([
+        'name',
+        'condo_id',
+        'apportionment_id',
+        'assembly_id' => ['assembly_date', 'assembly_type']
+    ])
     ->first();
 
 if(!$assemblyItem) {
@@ -120,6 +126,18 @@ $assemblyVote = AssemblyVote::search([
 
 if(!$assemblyVote) {
     throw new Exception("unknown_assembly_vote", EQ_ERROR_INVALID_PARAM);
+}
+
+$assemblyVoteIntention = AssemblyVoteIntention::search([
+        ['condo_id', '=', $assemblyItem['condo_id']],
+        ['assembly_id', '=', $assemblyItem['assembly_id']['id']],
+        ['assembly_item_id', '=', $assemblyItem['id']],
+        ['ownership_id', '=', $params['ownership_id']]
+    ])
+    ->first();
+
+if($assemblyVoteIntention) {
+    throw new Exception("vote_intention_cannot_be_overwritten", EQ_ERROR_NOT_ALLOWED);
 }
 
 $user_id = $auth->userId();
