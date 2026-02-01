@@ -201,6 +201,8 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                     $result['apportionment_id'] = null;
                 }
                 else {
+                    // #memo - visibility might be impacted
+                    $result['apportionment_id'] = null;
                     $result['expense_account_id'] = null;
                 }
             }
