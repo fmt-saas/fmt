@@ -37,12 +37,10 @@
             "label": "Close",
             "icon": "done",
             "description": "Close the assembly resolution. No more vote will be allowed. This cannot be undone.",
-            "controller": "core_model_transition",
+            "controller": "realestate_governance_AssemblyItem_close",
             "confirm": true,
             "params": {
-                "entity": "realestate\\governance\\AssemblyItem",
-                "transition": "close",
-                "ids": []
+                "id": "object.id"
             },
             "visible": [ ["open", "=", "object.status"], [true, "=", "object.has_vote_required"] ]
         },

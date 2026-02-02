@@ -27,10 +27,9 @@
             "id": "action.close",
             "label": "Close",
             "description": "Close the assembly point. No more vote will be allowed.",
-            "controller": "core_model_transition",
+            "controller": "realestate_governance_AssemblyItem_close",
             "params": {
-                "entity": "realestate\\governance\\AssemblyItem",
-                "transition": "close"
+                "id": "object.id"
             },
             "visible": ["status", "=", "open"]
         },

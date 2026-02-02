@@ -145,10 +145,10 @@
 
             {% for vote in assemblyItem.assembly_votes_ids %}
                 {% if vote.vote_value == 'against' %}
-                    {% set ownerships_against = ownerships_against | merge([map_ownerships[vote.ownership_id].name]) %}
+                    {% set ownerships_against = ownerships_against | merge([map_ownerships[vote.ownership_id].code ~ ' - ' ~ map_ownerships[vote.ownership_id].address_recipient]) %}
                     {% set weights_against = weights_against + vote.vote_weight %}
                 {% elseif vote.vote_value == 'abstain' %}
-                    {% set ownerships_abstain = ownerships_abstain | merge([map_ownerships[vote.ownership_id].name]) %}
+                    {% set ownerships_abstain = ownerships_abstain | merge([map_ownerships[vote.ownership_id].code ~ ' - ' ~ map_ownerships[vote.ownership_id].address_recipient ]) %}
                     {% set weights_abstain = weights_abstain + vote.vote_weight %}
                 {% elseif vote.vote_value == 'for' %}
                     {% set weights_for = weights_for + vote.vote_weight %}
@@ -252,10 +252,10 @@
 
                                         {% for vote in assemblySubItem.assembly_votes_ids %}
                                             {% if vote.vote_value == 'against' %}
-                                                {% set ownerships_against = ownerships_against | merge([map_ownerships[vote.ownership_id].name]) %}
+                                                {% set ownerships_against = ownerships_against | merge([map_ownerships[vote.ownership_id].code ~ ' - ' ~ map_ownerships[vote.ownership_id].address_recipient]) %}
                                                 {% set weights_against = weights_against + vote.vote_weight %}
                                             {% elseif vote.vote_value == 'abstain' %}
-                                                {% set ownerships_abstain = ownerships_abstain | merge([map_ownerships[vote.ownership_id].name]) %}
+                                                {% set ownerships_abstain = ownerships_abstain | merge([map_ownerships[vote.ownership_id].code ~ ' - ' ~ map_ownerships[vote.ownership_id].address_recipient]) %}
                                                 {% set weights_abstain = weights_abstain + vote.vote_weight %}
                                             {% elseif vote.vote_value == 'for' %}
                                                 {% set weights_for = weights_for + vote.vote_weight %}

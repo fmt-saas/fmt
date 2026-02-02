@@ -134,7 +134,7 @@ $assembly = Assembly::id($params['id'])
         'minutes_document_id',
         'heading_text_minutes',
         'closing_text_minutes',
-        'ownerships_ids' => ['name'],
+        'ownerships_ids' => ['name', 'code', 'address_recipient'],
         'count_owners',
         'count_represented_owners',
         'count_shares',
