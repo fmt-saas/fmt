@@ -968,14 +968,17 @@
                         "id": "section.mandates",
                         "label": "Mandates",
                         "visible": [
-                            "status",
-                            "not in",
                             [
-                                "pending",
-                                "published",
-                                "sending",
-                                "sent"
-                            ]
+                                "status",
+                                "not in",
+                                [
+                                    "pending",
+                                    "published",
+                                    "sending",
+                                    "sent"
+                                ]
+                            ],
+                            ["admins", "in", "user.groups"]
                         ],
                         "rows": [
                             {
@@ -998,45 +1001,19 @@
                         "id": "section.attendees",
                         "label": "Attendees",
                         "visible": [
-                            "status",
-                            "not in",
                             [
-                                "pending",
-                                "published",
-                                "sending",
-                                "sent"
-                            ]
+                                "status",
+                                "not in",
+                                [
+                                    "pending",
+                                    "published",
+                                    "sending",
+                                    "sent"
+                                ]
+                            ],
+                            ["admins", "in", "user.groups"]
                         ],
                         "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "count_owners",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "count_represented_owners",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "count_shares",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "count_represented_shares",
-                                                "width": "25%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
                             {
                                 "columns": [
                                     {

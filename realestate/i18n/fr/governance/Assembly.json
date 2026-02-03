@@ -135,7 +135,7 @@
         },
         "assembly_attendees_ids": {
             "label": "Participants",
-            "description": "Participants enregistrés pour l'assemblée.",
+            "description": "Personnes physiquement présentes à l'assemblée.",
             "help": ""
         },
         "assembly_minutes_entries_ids": {
@@ -287,7 +287,7 @@
                     "label": "Participants"
                 },
                 "section.representations": {
-                    "label": "Représentations"
+                    "label": "Présences"
                 },
                 "section.minutes_attachments": {
                     "label": "Pièces jointes du PV"
