@@ -1,6 +1,10 @@
 {
     "name": "Ownerships",
     "description": "List of ownerships.",
+    "header": {
+        "layout": "inline",
+        "actions": false
+    },
     "layout": {
         "interactions": {
             "click": false

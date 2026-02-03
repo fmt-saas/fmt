@@ -1,6 +1,10 @@
 {
     "name": "Model",
     "description": "Represents a validated link between a person physically attending a general assembly and an ownership (group of lots) they are authorized to represent for that assembly.\r\n        Each representation is considered confirmed only after verification of legal validity (e.g., owner present, valid proxy, indivision rules). Used to generate the attendance sheet, determine quorum and voting rights. Only confirmed representations are taken into account.",
+    "header": {
+        "layout": "inline",
+        "actions": false
+    },
     "layout": {
         "items": [
             {
