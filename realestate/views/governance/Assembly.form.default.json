@@ -9,17 +9,6 @@
     },
     "actions": [
         {
-            "id": "action.test",
-            "label": "Test",
-            "description": "Publish the assembly (ready for sending).",
-            "controller": "fmt_test",
-            "confirm": true,
-            "params": {
-                "entity": "realestate\\governance\\Assembly",
-                "id": "object.id"
-            }
-        },
-        {
             "id": "action.publish",
             "label": "Publish",
             "description": "Publish the assembly (ready for sending).",
