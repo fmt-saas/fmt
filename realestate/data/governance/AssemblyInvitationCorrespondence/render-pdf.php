@@ -60,12 +60,11 @@ try {
     $dompdf->render();
     $canvas = $dompdf->getCanvas();
 
-    $page_count = $canvas->get_page_count();
-
     $font = $dompdf->getFontMetrics()->getFont("helvetica", "regular");
     $canvas->page_text(530, $canvas->get_height() - 35, "p. {PAGE_NUM} / {PAGE_COUNT}", $font, 9, [0,0,0]);
 
     // enforce odd amount of pages
+    $page_count = $canvas->get_page_count();
     if($page_count % 2 !== 0) {
         $canvas->new_page();
     }

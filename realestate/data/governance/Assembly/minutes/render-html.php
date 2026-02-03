@@ -250,8 +250,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $map_types = [
             'statutory' => 'Assemblée Générale Statutaire',
             'takeover' => 'Assemblée Générale de Reprise de gestion',
-            'ordinary' => 'Assemblée Générale Ordinaire',
-            'extraordinary' => 'Assemblée Générale Extraordinaire'
+            'extraordinary' => 'Assemblée Générale Extraordinaire',
+            'constitutive' => 'Assemblée Générale Constitutive'
         ];
 
         $map_values = [
@@ -275,7 +275,6 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $map_types = [
             'statutory' => 'Assemblée Générale Statutaire',
             'takeover' => 'Assemblée Générale de Reprise de gestion',
-            'ordinary' => 'Assemblée Générale Ordinaire',
             'extraordinary' => 'Assemblée Générale Extraordinaire',
             'constitutive' => 'Assemblée Générale Constitutive'
         ];
