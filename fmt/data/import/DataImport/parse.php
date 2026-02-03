@@ -9,7 +9,7 @@ use fmt\import\DataImport;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Return a JSON structure describing the import.',
+    'description'   => "Parses a data import to return its content as JSON.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
@@ -18,17 +18,17 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
             'required'          => true
         ],
     ],
-    'access' => [
-        'visibility'        => 'protected'
+    'access'        => [
+        'visibility'    => 'protected'
     ],
     'response'      => [
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'providers'     => ['context', 'orm', 'auth']
+    'providers'     => ['context', 'orm']
 ]);
 
-['orm' => $orm] = $providers;
+['context' => $context, 'orm' => $orm] = $providers;
 
 // convert a XLSX file to a set of JSON objects (consistency is not verified here)
 
@@ -213,7 +213,6 @@ foreach($spreadsheet->getWorksheetIterator() as $worksheet) {
 
     $result[$sheet_name] = $mappedData;
 }
-
 
 $context->httpResponse()
         ->body($result)

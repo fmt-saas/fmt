@@ -48,25 +48,25 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'required'          => true
             ],
 
-           'has_channel_email' => [
+            'has_channel_email' => [
                 'type'              => 'boolean',
                 'description'       => "Mark the preference for email as communication channel.",
                 'default'           => true
             ],
 
-           'has_channel_postal' => [
+            'has_channel_postal' => [
                 'type'              => 'boolean',
                 'description'       => "Mark the preference for courier as communication channel.",
                 'default'           => false
             ],
 
-           'has_channel_postal_registered' => [
+            'has_channel_postal_registered' => [
                 'type'              => 'boolean',
                 'description'       => "Mark the preference for registered courier as communication channel.",
                 'default'           => false
             ],
 
-           'has_channel_postal_registered_receipt' => [
+            'has_channel_postal_registered_receipt' => [
                 'type'              => 'boolean',
                 'description'       => "Mark the preference for registered courier + receipt as communication channel.",
                 'default'           => true
