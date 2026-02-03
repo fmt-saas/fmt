@@ -215,11 +215,6 @@
             },
             "visible": [
                 [
-                    "is_valid",
-                    "=",
-                    false
-                ],
-                [
                     "status",
                     "=",
                     "in_progress"
