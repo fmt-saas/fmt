@@ -33,26 +33,26 @@ use realestate\property\PropertyLotOwnership;
 use realestate\ownership\OwnershipCommunicationPreference;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Return a JSON structure describing the import.',
+    'description'   => "Imports the specified data import.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
             'description'       => "Identifier of the targeted DataImport object.",
             'foreign_object'    => 'fmt\governance\DataImport',
             'required'          => true
-        ],
+        ]
     ],
-    'access' => [
-        'visibility'        => 'protected'
+    'access'        => [
+        'visibility'    => 'protected'
     ],
     'response'      => [
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'providers'     => ['context', 'orm', 'auth']
+    'providers'     => ['context', 'orm']
 ]);
 
-['orm' => $orm] = $providers;
+['context' => $context, 'orm' => $orm] = $providers;
 
 $mapBankRowToJson = function (array $row): array {
     return [
@@ -60,15 +60,9 @@ $mapBankRowToJson = function (array $row): array {
         "source_type"         => "manual",
         "type_id"             => 3,
         "type"                => "CO",
-        "bank_account_iban"   => isset($row['bank_account_iban']) && $row['bank_account_iban'] !== null
-                ? preg_replace('/[^A-Z0-9]/i', '', $row['bank_account_iban'])
-                : null,
-        "vat_number" => isset($row['vat_number']) && $row['vat_number'] !== null
-                ? preg_replace('/[^A-Z0-9]/i', '', $row['vat_number'])
-                : null,
-        "registration_number" => isset($row['registration_number']) && $row['registration_number'] !== null
-                ? preg_replace('/[^0-9]/i', '', $row['registration_number'])
-                : null,
+        "bank_account_iban"   => isset($row['bank_account_iban']) ? preg_replace('/[^A-Z0-9]/i', '', $row['bank_account_iban']) : null,
+        "vat_number"          => isset($row['vat_number']) ? preg_replace('/[^A-Z0-9]/i', '', $row['vat_number']) : null,
+        "registration_number" => isset($row['registration_number']) ? preg_replace('/[^0-9]/i', '', $row['registration_number']) : null,
         "legal_name"          => $row['legal_name'] ?? '',
         "short_name"          => $row['short_name'] ?? '',
         "has_vat"             => !empty($row['vat_number']),
@@ -828,7 +822,7 @@ try {
 
             if(!$ownership_id) {
                 // alert: should not happen
-                $result['logs'][] = "ERR - unable to retrieve ownership_id for ownership_history {$ownership_history['ownership_code']} in 'Ownerships_history' at line " + ($index + 2);
+                $result['logs'][] = "ERR - unable to retrieve ownership_id for ownership_history {$ownership_history['ownership_code']} in 'Ownerships_history' at line " . ($index + 2);
                 continue;
             }
 
@@ -953,10 +947,8 @@ try {
                     'condo_id'              => $condominium['id'],
                     'apportionment_id'      => $apportionment_id,
                     'property_lot_id'       => $property_lot_id,
-                    'property_lot_shares'   => $apportionment_share['lot_shares'],
-                    'is_statutory'          => $is_statutory
+                    'property_lot_shares'   => $apportionment_share['lot_shares']
                 ]);
-
         }
 
         // Supplierships
@@ -1112,10 +1104,6 @@ finally {
 
 }
 
-
-
 $context->httpResponse()
         ->status(201)
         ->send();
-
-
