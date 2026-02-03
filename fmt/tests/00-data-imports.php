@@ -8,6 +8,7 @@ use hr\role\RoleAssignment;
 use identity\Identity;
 use purchase\supplier\Supplier;
 use purchase\supplier\Suppliership;
+use realestate\finance\accounting\CondoFund;
 use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
 use realestate\ownership\OwnershipCommunicationPreference;
@@ -370,7 +371,10 @@ $tests = [
                 return false;
             }
 
-            $communication_preferences = OwnershipCommunicationPreference::search(['condo_id', '=', $condominium['id']])
+            $communication_preferences = OwnershipCommunicationPreference::search([
+                ['condo_id', '=', $condominium['id']],
+                ['has_channel_email', '=', true]
+            ])
                 ->read(['id'])
                 ->get(true);
             $expected_communication_preferences = array_fill(0, 4, []);
@@ -394,7 +398,10 @@ $tests = [
                 return false;
             }
 
-            $supplierships = Suppliership::search(['condo_id', '=', $condominium['id']])
+            $supplierships = Suppliership::search([
+                ['condo_id', '=', $condominium['id']],
+                ['supplier_id', '<>', 1]
+            ])
                 ->read(['id'])
                 ->get(true);
             $expected_supplierships = array_fill(0, 1, []);
@@ -434,7 +441,8 @@ $tests = [
                 OwnershipCommunicationPreference::getType(),
                 Apportionment::getType(),
                 PropertyLotApportionmentShare::getType(),
-                Suppliership::getType()
+                Suppliership::getType(),
+                CondoFund::getType()
             ];
             foreach($types as $type) {
                 $items_ids = $type::search(['condo_id', '=', $condominium['id']])->ids();
