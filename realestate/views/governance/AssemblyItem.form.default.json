@@ -56,7 +56,10 @@
                 "entity": "realestate\\governance\\AssemblyItem",
                 "action": "reopen"
             },
-            "visible": [ ["status", "in", ["adjourned", "closed"]] ]
+            "visible": [
+                ["assembly_status", "=", "in_progress"],
+                ["status", "in", ["adjourned", "closed"]]
+            ]
         }
     ],
     "routes": [

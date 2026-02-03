@@ -3,11 +3,7 @@
     "description": "Represents an attendee at a condominium assembly, which can be an owner or a proxy (not necessarily an owner), or an owner with proxy from other owners.",
     "header": {
         "actions": {
-            "ACTION.SAVE": [
-                {"id": "SAVE_AND_CONTINUE"},
-                {"id": "SAVE_AND_VIEW"},
-                {"id": "SAVE_AND_CLOSE"}
-            ]
+            "ACTION.EDIT": false
         }
     },
     "actions": [
