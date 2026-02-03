@@ -2057,9 +2057,15 @@ class Assembly extends \equal\orm\Model {
 
     protected static function policyCanGenerateMinutes($self) {
         $result = [];
-        $self->read(['status', 'step', 'minutes_document_id', 'signed_minutes_document_id']);
+        $self->read(['status', 'step', 'is_complete', 'minutes_document_id', 'signed_minutes_document_id']);
 
         foreach($self as $id => $assembly) {
+            if($assembly['is_complete']) {
+                $result[$id] = [
+                    'assembly_item_still_pending' => 'At least one item has not been handled.'
+                ];
+                continue;
+            }
             if(!in_array($assembly['step'], ['agenda_processing', 'minutes_confirmation'])) {
                 $result[$id] = [
                     'minutes_generation_not_allowed' => 'Current step prohibits creation of the minutes document.'
