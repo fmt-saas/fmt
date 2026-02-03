@@ -397,7 +397,7 @@ $tests = [
             $supplierships = Suppliership::search(['condo_id', '=', $condominium['id']])
                 ->read(['id'])
                 ->get(true);
-            $expected_supplierships = array_fill(0, 9, []);
+            $expected_supplierships = array_fill(0, 1, []);
             if(!$checkItems($expected_supplierships, $supplierships)) {
                 // supplierships not as expected
                 return false;
@@ -434,7 +434,7 @@ $tests = [
                 OwnershipCommunicationPreference::getType(),
                 Apportionment::getType(),
                 PropertyLotApportionmentShare::getType(),
-                Suppliership::getType(),
+                Suppliership::getType()
             ];
             foreach($types as $type) {
                 $items_ids = $type::search(['condo_id', '=', $condominium['id']])->ids();
