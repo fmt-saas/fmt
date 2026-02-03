@@ -34,6 +34,11 @@
             },
             {
                 "type": "field",
+                "value": "ownership_shares",
+                "width": "15%"
+            },
+            {
+                "type": "field",
                 "value": "mandate_shares",
                 "width": "15%"
             }
