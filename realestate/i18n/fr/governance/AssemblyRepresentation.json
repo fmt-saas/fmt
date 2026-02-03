@@ -1,0 +1,57 @@
+{
+    "name": "Représentation",
+    "plural": "Représentations",
+    "description": "Lien validé entre un participant présent à l'assemblée et le dossier de propriété qu'il est autorisé à représenter (propriétaire ou mandataire).",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par la représentation.",
+            "help": ""
+        },
+        "assembly_id": {
+            "label": "Assemblée",
+            "description": "Assemblée générale à laquelle se rapporte la représentation.",
+            "help": ""
+        },
+        "attendee_id": {
+            "label": "Participant",
+            "description": "Participant porteur de la représentation.",
+            "help": "Personne physiquement présente et validée pour l'assemblée."
+        },
+        "ownership_id": {
+            "label": "Propriété",
+            "description": "Dossier de propriété représenté.",
+            "help": "Lot ou groupe de lots dont les droits sont exercés."
+        },
+        "representation_type": {
+            "label": "Type",
+            "description": "Façon dont la propriété est représentée.",
+            "help": "",
+            "selection": {
+                "owner": "Propriétaire présent",
+                "proxy": "Mandataire (procuration)"
+            }
+        },
+        "assembly_mandate_id": {
+            "label": "Procuration",
+            "description": "Mandat à l'origine de la représentation, le cas échéant.",
+            "help": "Renseigné uniquement lorsque la représentation se fait via procuration."
+        },
+        "mandate_shares": {
+            "label": "Quotes-parts du mandat",
+            "description": "Poids de vote calculé pour cette représentation.",
+            "help": "Valeur calculée selon le mandat et les majorités applicables."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Représentation",
+            "description": "Lien validé entre participant et propriété pour le calcul des quorums et droits de vote."
+        },
+        "list.default": {
+            "name": "Représentations",
+            "description": "Vue des représentations validées pour l'assemblée.",
+            "layout": {}
+        }
+    }
+}
