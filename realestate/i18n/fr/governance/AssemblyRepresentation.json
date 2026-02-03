@@ -38,12 +38,12 @@
             "help": "Renseigné uniquement lorsque la représentation se fait via procuration."
         },
         "ownership_shares": {
-            "label": "Quotités propriétaire",
+            "label": "Quotités présentes",
             "description": "Quotitiés du dossier de propriété."
         },
         "mandate_shares": {
-            "label": "Quotités du mandat",
-            "description": "Poids de vote calculé pour cette représentation.",
+            "label": "Quotités représentées",
+            "description": "Quotités du mandat pour cette représentation.",
             "help": "Valeur calculée selon le mandat et les majorités applicables."
         }
     },

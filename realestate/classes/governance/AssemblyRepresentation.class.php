@@ -68,7 +68,8 @@ class AssemblyRepresentation extends \equal\orm\Model {
                 'result_type'       => 'float',
                 'function'          => 'calcOwnershipShares',
                 'description'       => "Computed weight of the vote, based on shares and majority type (via assembly_item_id).",
-                'store'             => true
+                'store'             => true,
+                'visible'           => ['representation_type', '=', 'owner']
             ],
 
             'mandate_shares' => [
@@ -76,7 +77,8 @@ class AssemblyRepresentation extends \equal\orm\Model {
                 'result_type'       => 'float',
                 'relation'          => ['assembly_mandate_id' => 'mandate_shares'],
                 'description'       => "Computed weight of the vote, based on shares and majority type (via assembly_item_id).",
-                'store'             => false
+                'store'             => false,
+                'visible'           => ['representation_type', '=', 'proxy']
             ]
 
         ];
