@@ -941,8 +941,7 @@
                         "id": "section.owners",
                         "label": "Owners",
                         "visible": [
-                            [ "status", "not in", [ "pending", "published" ] ],
-                            ["admins", "in", "user.groups"]
+                            [ "status", "not in", [ "pending", "published" ] ]
                         ],
                         "rows": [
                             {
@@ -1065,6 +1064,31 @@
                             ]
                         ],
                         "rows": [
+                            {
+                                "width": "100%",
+                                "items": [
+                                    {
+                                        "type": "field",
+                                        "value": "count_owners",
+                                        "width": "25%"
+                                    },
+                                    {
+                                        "type": "field",
+                                        "value": "count_represented_owners",
+                                        "width": "25%"
+                                    },
+                                    {
+                                        "type": "field",
+                                        "value": "count_shares",
+                                        "width": "25%"
+                                    },
+                                    {
+                                        "type": "field",
+                                        "value": "count_represented_shares",
+                                        "width": "25%"
+                                    }
+                                ]
+                            },
                             {
                                 "columns": [
                                     {
