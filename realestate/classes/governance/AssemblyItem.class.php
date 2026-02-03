@@ -1129,9 +1129,15 @@ class AssemblyItem extends AssemblyItemTemplate {
     }
 
     protected static function canupdate($self, $values) {
-        $self->read(['assembly_id' => ['status']]);
-        foreach($self as $id => $assembly) {
-            if($assembly['assembly_id']['status'] !== 'pending') {
+        $self->read(['assembly_id' => ['status', 'is_second_session']]);
+        foreach($self as $id => $assemblyItem) {
+            if($assemblyItem['assembly_id']['is_second_session']) {
+                $allowed_fields = ['status', 'description_minutes', 'description_ballot', 'votes_ids', 'votes_count', 'vote_result', 'logs'];
+                if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
+                    return ['assembly_id' => ['second_session_assembly_cannot_be_changed' => 'Items from a second session assembly cannot be changed.']];
+                }
+            }
+            if($assemblyItem['assembly_id']['status'] !== 'pending') {
                 $allowed_fields = ['status', 'description_minutes', 'description_ballot', 'votes_ids', 'votes_count', 'vote_result', 'logs'];
                 if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                     return ['assembly_id' => ['published_assembly_cannot_be_changed' => 'Once published, assembly items cannot be changed.']];

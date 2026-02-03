@@ -177,7 +177,8 @@ class Assembly extends \equal\orm\Model {
                 'description'       => "Reference to the assembly template, if any.",
                 'foreign_object'    => 'realestate\governance\AssemblyTemplate',
                 'required'          => false,
-                'onupdate'          => 'onupdateAssemblyTemplateId'
+                'onupdate'          => 'onupdateAssemblyTemplateId',
+                'visible'           => ['is_second_session', '=', false]
             ],
 
             'assembly_items_ids' => [
@@ -391,6 +392,20 @@ class Assembly extends \equal\orm\Model {
                 'visible'           => ['status', 'in', ['in_progress', 'held', 'adjourned']]
             ],
 
+            'has_invitations_sent' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the invitations as sent.',
+                'help'              => 'Correspondences generated and scheduled for sending.',
+                'default'           => false
+            ],
+
+            'has_minutes_sent' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the minutes as sent.',
+                'help'              => 'Correspondences generated and scheduled for sending.',
+                'default'           => false
+            ],
+
             'step' => [
                 'type'           => 'string',
                 'description'    => "Step at which the assembly is currently being.",
@@ -411,22 +426,6 @@ class Assembly extends \equal\orm\Model {
                 'dependents'      => ['count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']
             ],
 
-            'has_invitations_sent' => [
-                'type'              => 'boolean',
-                'description'       => 'Flag marking the invitations as sent.',
-                'help'              => 'Correspondences generated and scheduled for sending.',
-                'default'           => false
-            ],
-
-            'has_minutes_sent' => [
-                'type'              => 'boolean',
-                'description'       => 'Flag marking the minutes as sent.',
-                'help'              => 'Correspondences generated and scheduled for sending.',
-                'default'           => false
-            ],
-
-            // #todo - add a is_minutes_sent (? calc from minutes correspondences)
-            // +statut "held_sent" ?
             'status' => [
                 'type'           => 'string',
                 'description'    => "Workflow status of the assembly.",
@@ -1953,7 +1952,7 @@ class Assembly extends \equal\orm\Model {
         foreach($self as $id => $assembly) {
             if($assembly['has_second_session']) {
                 $result[$id] = [
-                    'assembly_already_adjourned' => 'A second session has already been scheduled.'
+                    'second_session_already_scheduled' => 'A second session has already been scheduled.'
                 ];
                 continue;
             }
@@ -2209,7 +2208,8 @@ class Assembly extends \equal\orm\Model {
 
             self::id($id)->update([
                     'has_second_session' => true,
-                    'second_session_assembly_id' => $secondSessionAssembly['id']
+                    'second_session_assembly_id' => $secondSessionAssembly['id'],
+                    'session_time_end' => (fn($now) => $now - strtotime('today', $now))(time())
                 ]);
 
             // we must perform creation in 2-pass in order to map group ids, if any
@@ -2231,7 +2231,7 @@ class Assembly extends \equal\orm\Model {
             foreach($assemblyItems as $assembly_item_id => $assemblyItem) {
                 $groupItem = AssemblyItem::create([
                         'condo_id'              => $assembly['condo_id'],
-                        'assembly_id'           => $secondSessionAssembly,
+                        'assembly_id'           => $secondSessionAssembly['id'],
                         'name'                  => $assemblyItem['name'],
                         'code'                  => $assemblyItem['code'],
                         'order'                 => $assemblyItem['order'],
@@ -2270,7 +2270,7 @@ class Assembly extends \equal\orm\Model {
                 }
                 $item = AssemblyItem::create([
                         'condo_id'              => $assembly['condo_id'],
-                        'assembly_id'           => $secondSessionAssembly,
+                        'assembly_id'           => $secondSessionAssembly['id'],
                         'name'                  => $assemblyItem['name'],
                         'code'                  => $assemblyItem['code'],
                         'order'                 => $assemblyItem['order'],

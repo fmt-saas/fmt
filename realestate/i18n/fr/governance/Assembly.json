@@ -41,7 +41,7 @@
         "minutes_attachment_documents_ids": {
             "label": "Pièces jointes du PV",
             "description": "Documents joints aux correspondances du PV.",
-            "help": ""
+            "help": "Pièces annexes du procès-verbal générées ou ajoutées pour l'assemblée."
         },
         "heading_text_call": {
             "label": "En-tête de convocation",
@@ -222,6 +222,16 @@
             "description": "Nombre de propriétaires présents ou représentés.",
             "help": ""
         },
+        "has_invitations_sent": {
+            "label": "Convocations envoyées",
+            "description": "Indique que les convocations sont marquées comme envoyées.",
+            "help": "Renseigné quand les correspondances de convocation sont générées et planifiées pour l'envoi."
+        },
+        "has_minutes_sent": {
+            "label": "PV envoyé",
+            "description": "Indique que le procès-verbal est marqué comme envoyé.",
+            "help": "Renseigné quand les correspondances du procès-verbal sont générées et planifiées pour l'envoi."
+        },
         "step": {
             "label": "Étape",
             "description": "Étape actuelle de l'assemblée.",
@@ -279,6 +289,9 @@
                 "section.representations": {
                     "label": "Représentations"
                 },
+                "section.minutes_attachments": {
+                    "label": "Pièces jointes du PV"
+                },
                 "label.options": {
                     "label": "Options pour les documents"
                 },
@@ -318,7 +331,7 @@
                     "description": "Afficher le procès-verbal imprimable."
                 },
                 "route.add_minutes_attachment": {
-                    "label": "Pièces jointes du PV",
+                    "label": "Ajout pièce jointe PV",
                     "description": "Ajouter des pièces jointes au procès-verbal."
                 }
             },

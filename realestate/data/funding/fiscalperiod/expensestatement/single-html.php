@@ -335,7 +335,7 @@ $subject = 'Décompte Propriétaire';
 $introduction = '';
 
 $template = Template::search([
-        ['code', '=', 'expense_statement'],
+        ['code', '=', 'expense_statement_correspondence'],
         ['type', '=', 'document']
     ])
     ->read(['id','parts_ids' => ['name', 'value']])

@@ -59,7 +59,7 @@ $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params
         'communication_method',
         'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
         'ownership_id' => ['name'],
-        'assembly_id' => ['name', 'assembly_date', 'assembly_type'],
+        'assembly_id' => ['name', 'assembly_date', 'assembly_type', 'is_second_session'],
         'document_id' => ['data']
     ])
     ->first();
@@ -85,8 +85,14 @@ if(!$assemblyInvitationCorrespondence['document_id']) {
 $subject = '';
 $body = '';
 
+$template_code = 'general_meetings_invitation_correspondence';
+
+if($assemblyInvitationCorrespondence['assembly_id']['is_second_session']) {
+    $template_code = 'general_meetings_invitation_second_session_correspondence';
+}
+
 $template = Template::search([
-        ['code', '=', 'general_meetings_invitation'],
+        ['code', '=', $template_code],
         ['type', '=', 'email']
     ])
     ->read( ['id','parts_ids' => ['name', 'value']])

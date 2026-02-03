@@ -140,7 +140,7 @@ TemplatePart::create([
 
 // email (call_second_session - correspondence)
 $template = Template::create([
-        'code'          => 'general_meetings_invitation_second_session',
+        'code'          => 'general_meetings_invitation_second_session_correspondence',
         'description'   => 'Convocation à une assemblée de la copropriété.',
         'category_id'   => 5,
         'type_id'       => 1
@@ -162,7 +162,7 @@ TemplatePart::create([
 
 // invitation (call_second_session - correspondence)
 $template = Template::create([
-        'code'          => 'general_meetings_invitation_second_session',
+        'code'          => 'general_meetings_invitation_second_session_correspondence',
         'description'   => 'Convocation à une assemblée de la copropriété.',
         'category_id'   => 5,
         'type_id'       => 5
@@ -380,7 +380,7 @@ TemplatePart::create([
 
 // email
 $template = Template::create([
-        'code'          => 'expense_statement',
+        'code'          => 'expense_statement_correspondence',
         'description'   => 'Décompte de charges.',
         'category_id'   => 5,
         'type_id'       => 1
@@ -402,7 +402,7 @@ TemplatePart::create([
 
 // correspondence
 $template = Template::create([
-        'code'          => 'expense_statement',
+        'code'          => 'expense_statement_correspondence',
         'description'   => 'Décompte de charges',
         'category_id'   => 5,
         'type_id'       => 5
@@ -427,7 +427,7 @@ TemplatePart::create([
 
 // email
 $template = Template::create([
-        'code'          => 'fund_request',
+        'code'          => 'fund_request_correspondence',
         'description'   => 'Appel de fonds.',
         'category_id'   => 5,
         'type_id'       => 1
@@ -450,7 +450,7 @@ TemplatePart::create([
 
 // correspondence
 $template = Template::create([
-        'code'          => 'fund_request',
+        'code'          => 'fund_request_correspondence',
         'description'   => 'Appel de fonds',
         'category_id'   => 5,
         'type_id'       => 5
@@ -472,7 +472,7 @@ TemplatePart::create([
 
 // Fund Request Reminder
 $template = Template::create([
-        'code'          => 'fund_request_reminder',
+        'code'          => 'fund_request_reminder_correspondence',
         'description'   => 'Rappel de paiement - appel de fonds.',
         'category_id'   => 5,
         'type_id'       => 1
@@ -493,7 +493,7 @@ TemplatePart::create([
 
 // correspondence
 $template = Template::create([
-        'code'          => 'fund_request_reminder',
+        'code'          => 'fund_request_reminder_correspondence',
         'description'   => 'Appel de fonds - Rappel',
         'category_id'   => 5,
         'type_id'       => 5

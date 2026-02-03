@@ -148,6 +148,7 @@ $assembly = Assembly::id($assemblyInvitationCorrespondence['assembly_id'])
         'session_time_start',
         'assembly_invitation_date',
         'assembly_location',
+        'is_second_session',
         'heading_text_call',
         'closing_text_call',
         'assembly_items_ids' => [
@@ -191,8 +192,14 @@ $lang = $params['lang'];
 $subject = '';
 $introduction = '';
 
+$template_code = 'general_meetings_invitation_correspondence';
+
+if($assembly['is_second_session']) {
+    $template_code = 'general_meetings_invitation_second_session_correspondence';
+}
+
 $template = Template::search([
-        ['code', '=', 'general_meetings_invitation_correspondence'],
+        ['code', '=', $template_code],
         ['type', '=', 'document']
     ])
     ->read( ['id','parts_ids' => ['name', 'value']])

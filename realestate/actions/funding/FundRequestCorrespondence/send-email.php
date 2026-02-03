@@ -82,7 +82,7 @@ $subject = '';
 $body = '';
 
 $template = Template::search([
-        ['code', '=', 'fund_request'],
+        ['code', '=', 'fund_request_correspondence'],
         ['type', '=', 'email']
     ])
     ->read( ['id','parts_ids' => ['name', 'value']])
