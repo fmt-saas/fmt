@@ -84,13 +84,13 @@ class AssemblyRepresentation extends \equal\orm\Model {
 
     protected static function calcOwnershipShares($self) {
         $result = [];
-        $self->read(['state', 'ownership_id' => ['property_lots_ids' => ['statutory_shares']]]);
+        $self->read(['ownership_id' => ['property_lots_ids' => ['statutory_shares']]]);
         foreach($self as $id => $assemblyRepresentation) {
             if(!$assemblyRepresentation['ownership_id']) {
                 continue;
             }
             $result[$id] = 0.0;
-            foreach($assemblyRepresentation['ownership']['property_lots_ids'] as $property_lot_id => $propertyLot) {
+            foreach($assemblyRepresentation['ownership_id']['property_lots_ids'] as $property_lot_id => $propertyLot) {
                 $result[$id] += $propertyLot['statutory_shares'] ?? 0;
             }
         }
