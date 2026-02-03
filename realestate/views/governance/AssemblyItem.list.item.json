@@ -9,7 +9,7 @@
     "order": "order",
     "sort": "asc",
     "draggable": true,
-    "limit": 100,
+    "limit": 150,
     "actions": [
         {
             "id": "action.open",
@@ -34,12 +34,10 @@
             "label": "Close",
             "icon": "done",
             "description": "Close the assembly resolution. No more vote will be allowed. This cannot be undone.",
-            "controller": "core_model_transition",
+            "controller": "realestate_governance_AssemblyItem_close",
             "confirm": true,
             "params": {
-                "entity": "realestate\\governance\\AssemblyItem",
-                "transition": "close",
-                "ids": []
+                "id": "object.id"
             },
             "visible": [ ["open", "=", "object.status"], [true, "=", "object.has_vote_required"] ]
         },
@@ -94,7 +92,7 @@
             "id": "action.votes_board",
             "inline": true,
             "label": "Show board",
-            "icon": "visibility",
+            "icon": "how_to_vote",
             "description": "Show votes board.",
             "component": {
                 "name": "assemblyVoteBoard",
@@ -104,6 +102,30 @@
                 }
             },
             "visible": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ]
+        },
+        {
+            "id": "action.edit_notes",
+            "inline": true,
+            "label": "Edit minutes",
+            "icon": "edit",
+            "description": "Edit minutes notes.",
+            "component": {
+                "name": "assemblyEditItemMinutes",
+                "data": {
+                    "assembly_id": "object.assembly_id",
+                    "assembly_item_id": "object.id"
+                }
+            },
+            "visible": [
+                [
+                    ["in_progress", "=", "object.assembly_status"],
+                    ["agenda_processing", "=", "object.assembly_step"]
+                ],
+                [
+                    ["in_progress", "=", "object.assembly_status"],
+                    ["minutes_confirmation", "=", "object.assembly_step"]
+                ]
+            ]
         }
     ],
     "layout": {
@@ -135,17 +157,17 @@
             {
                 "type": "field",
                 "value": "order",
-                "width": "10%"
+                "width": "8%"
             },
             {
                 "type": "field",
                 "value": "name",
-                "width": "40%"
+                "width": "30%"
             },
             {
                 "type": "field",
                 "value": "is_group",
-                "width": "0%",
+                "width": "10%",
                 "visible": false
             },
             {
@@ -164,7 +186,27 @@
             {
                 "type": "field",
                 "value": "code",
-                "width": "25"
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Items",
+                "value": "items_count",
+                "width": "10%",
+                "widget": {
+                    "align": "center",
+                    "margin": "auto",
+                    "styles": {
+                        "text_align": "center",
+                        "text_width": "40px",
+                        "text_weight": "bold",
+                        "text_color": "white",
+                        "background_color": "#3f51b5",
+                        "border_radius": "40px"
+                    }
+                },
+                "visible": [ ["is_group", "=", true], ["items_count", ">=", 0] ]
             },
             {
                 "type": "field",
@@ -174,13 +216,25 @@
             },
             {
                 "type": "field",
+                "label": "Choices",
+                "value": "has_choices",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "majority",
                 "width": "15%"
             },
             {
                 "type": "field",
+                "value": "vote_result",
+                "width": "15%"
+            },
+            {
+                "type": "field",
                 "value": "status",
-                "width": "15%",
+                "width": "10%",
                 "visible": ["assembly_status", "=", "in_progress"]
             }
         ]

@@ -315,7 +315,7 @@
                     "description": ""
                 },
                 "route.print_attendance_register_full": {
-                    "label": "Feuille de présence vièrge",
+                    "label": "Feuille de présence vierge",
                     "description": "Afficher la feuille de présence théorique complète."
                 },
                 "route.view_attendance_register": {
