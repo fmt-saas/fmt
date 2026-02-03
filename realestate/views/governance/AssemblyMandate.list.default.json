@@ -2,6 +2,9 @@
     "name": "Assembly Mandate (proxy)",
     "domain": ["status", "=", "validated"],
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",

@@ -2,6 +2,9 @@
     "name": "Ownerships",
     "description": "List of ownerships.",
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",

@@ -221,8 +221,8 @@
                 ],
                 [
                     "step",
-                    "=",
-                    "assembly_validation"
+                    "in",
+                    ["mandate_validation", "representation_validation", "assembly_validation"]
                 ]
             ]
         },
@@ -965,7 +965,7 @@
                         ]
                     },
                     {
-                        "id": "section.proxies",
+                        "id": "section.mandates",
                         "label": "Mandates",
                         "visible": [
                             "status",

@@ -9,7 +9,8 @@
             {
                 "type": "field",
                 "value": "condo_id",
-                "width": "15%"
+                "width": "15%",
+                "sortable": true
             },
             {
                 "type": "field",
@@ -20,6 +21,7 @@
                 "type": "field",
                 "value": "assembly_date",
                 "width": "10%",
+                "sortable": true,
                 "widget": {
                     "usage": "date/plain.short"
                 }
@@ -32,7 +34,8 @@
             {
                 "type": "field",
                 "value": "assembly_type",
-                "width": "10%"
+                "width": "10%",
+                "sortable": true
             },
             {
                 "type": "field",
@@ -47,7 +50,8 @@
             {
                 "type": "field",
                 "value": "status",
-                "width": "10%"
+                "width": "10%",
+                "sortable": true
             },
             {
                 "type": "field",
