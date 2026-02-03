@@ -684,7 +684,16 @@
                     ["assembly_id", "=", "object.id"],
                     ["is_assembly_minutes_attachment", "=", true]
                 ]
-            }
+            },
+            "visible": [
+                [
+                    [
+                        "step",
+                        "=",
+                        "assembly_closing"
+                    ]
+                ]
+            ]
         }
     ],
     "layout": {
