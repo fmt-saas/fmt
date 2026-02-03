@@ -158,7 +158,7 @@
             {% set sum_votes = weights_for + weights_against %}
             {% set ratio = sum_votes > 0 ? (weights_for / sum_votes) : 0.0 %}
 
-            {% if assemblyItem.has_vote_required %}
+            {% if assemblyItem.has_vote_required and assemblyItem.status == 'closed' %}
                 {{ majorityLabels[assemblyItem.majority] }}
                 {% if assemblyItem.assembly_votes_ids is not empty and sum_votes > 0 %}
                     &nbsp;-&nbsp;
@@ -203,13 +203,13 @@
                 {{ assemblyItem.description_minutes | raw }}
             {% endif %}
 
-            {% if ownerships_against is not empty %}
+            {% if ownerships_against is not empty and assemblyItem.status == 'closed' %}
                 <p><strong>Contre :</strong>
                     <span style="font-size: 10px;">{{ ownerships_against|join(', ') }}</span>
                 </p>
             {% endif %}
 
-            {% if ownerships_abstain is not empty %}
+            {% if ownerships_abstain is not empty and assemblyItem.status == 'closed' %}
                 <p><strong>Abstention :</strong>
                     <span style="font-size: 10px;">{{ ownerships_abstain|join(', ') }}</span>
                 </p>
@@ -265,7 +265,7 @@
                                         {% set sum_votes = weights_for + weights_against %}
                                         {% set ratio = sum_votes > 0 ? (weights_for / sum_votes) : 0.0 %}
 
-                                        {% if assemblySubItem.has_vote_required %}
+                                        {% if assemblySubItem.has_vote_required and assemblySubItem.status == 'closed' %}
                                             {{ majorityLabels[assemblySubItem.majority] }}
                                             {% if assemblySubItem.assembly_votes_ids is not empty and sum_votes > 0 %}
                                                 &nbsp;-&nbsp;
@@ -278,13 +278,13 @@
 
                                         {{ assemblySubItem.description_minutes | raw }}
 
-                                        {% if ownerships_against is not empty %}
+                                        {% if ownerships_against is not empty and assemblySubItem.status == 'closed' %}
                                             <p><strong>Contre :</strong>
                                                 <span style="font-size: 10px;">{{ ownerships_against|join(', ') }}</span>
                                             </p>
                                         {% endif %}
 
-                                        {% if ownerships_abstain is not empty %}
+                                        {% if ownerships_abstain is not empty and assemblySubItem.status == 'closed' %}
                                             <p><strong>Abstention :</strong>
                                                 <span style="font-size: 10px;">{{ ownerships_abstain|join(', ') }}</span>
                                             </p>
