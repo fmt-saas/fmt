@@ -2060,7 +2060,7 @@ class Assembly extends \equal\orm\Model {
         $self->read(['status', 'step', 'is_complete', 'minutes_document_id', 'signed_minutes_document_id']);
 
         foreach($self as $id => $assembly) {
-            if($assembly['is_complete']) {
+            if(!$assembly['is_complete']) {
                 $result[$id] = [
                     'assembly_item_still_pending' => 'At least one item has not been handled.'
                 ];
