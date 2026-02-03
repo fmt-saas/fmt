@@ -63,6 +63,9 @@ use realestate\governance\AssemblyAttendee;
  */
 ['context' => $context, 'dispatch' => $dispatch] = $providers;
 
+if($params['president_attendee_id'] === $params['secretary_attendee_id']) {
+    throw new Exception("president_and_secretary_must_be_distinct", EQ_ERROR_INVALID_PARAM);
+}
 
 $assembly = Assembly::id($params['id'])
     ->read(['id', 'step', 'status'])

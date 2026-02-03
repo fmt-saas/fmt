@@ -75,6 +75,8 @@ file_put_contents($temp, $data2 ?? '');
 $temp_files[] = $temp;
 
 // 3) append attachments, if any
+// #memo - General Assembly attachments are not sent, but accessible through the platform
+/*
 $documents = Document::search([['assembly_id', '=', $assemblyMinutesCorrespondence['assembly_id']['id']], ['is_assembly_minutes_attachment', '=', true]])
     ->read(['data']);
 
@@ -83,6 +85,7 @@ foreach($documents as $document_id => $document) {
     file_put_contents($temp, $document['data'] ?? '');
     $temp_files[] = $temp;
 }
+*/
 
 // merge all generated documents
 try {

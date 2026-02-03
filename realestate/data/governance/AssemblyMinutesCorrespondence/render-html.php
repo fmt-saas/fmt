@@ -109,6 +109,8 @@ $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id']
         'assembly_id',
         'owner_id' => [
             'name',
+            'firstname',
+            'lastname',
             'address_street',
             'address_dispatch',
             'address_zip',
