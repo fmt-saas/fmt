@@ -1,8 +1,16 @@
 <?php
 
 use documents\Document;
+use documents\navigation\Node;
+use finance\accounting\Account;
+use finance\accounting\AccountChart;
+use finance\accounting\CurrentBalance;
+use finance\accounting\FiscalPeriod;
+use finance\accounting\FiscalYear;
+use finance\accounting\Journal;
 use finance\bank\Bank;
 use finance\bank\BankAccount;
+use finance\bank\SuppliershipBankAccount;
 use fmt\import\DataImport;
 use hr\role\RoleAssignment;
 use identity\Identity;
@@ -283,26 +291,58 @@ $tests = [
 
             $condominium = Condominium::search(['code', '=', $condominium_code])
                 ->read([
-                    'identity_id',
+                    'code',
+                    'legal_name',
+                    'managing_agent_id',
+                    'cadastral_number',
+                    'fiscal_year_start',
+                    'fiscal_year_end',
+                    'fiscal_period_frequency',
+                    'expense_management_mode',
                     'role_assignments_ids',
-                    'bank_accounts_ids',
+                    'identity_id'               => ['type_id', 'type', 'legal_name', 'nationality', 'has_vat', 'vat_number', 'registration_number', 'lang_id', 'address_street', 'address_zip', 'address_city', 'address_country'],
+                    'bank_accounts_ids'         => ['description', 'bank_account_iban', 'bank_account_type'],
                     'ownerships_ids'            => ['owners_ids', 'ownership_type'],
                     'property_entrances_ids'    => ['name', 'address_street', 'address_city', 'address_zip', 'address_country'],
-                    'property_lots_ids'         => [],
-                    'apportionments_ids'        => []
+                    'property_lots_ids'         => ['property_lot_ref'],
+                    'apportionments_ids'        => ['description', 'total_shares']
                 ])
                 ->first(true);
 
-            if(is_null($condominium)) {
+            $expected_condominiums = [
+                [
+                    'code'                      => '000017',
+                    'legal_name'                => 'ACP BRINDISI',
+                    'managing_agent_id'         => 1,
+                    'cadastral_number'          => '21392B0083/00E002',
+                    'fiscal_year_start'         => strtotime('2022-07-01'),
+                    'fiscal_year_end'           => strtotime('2023-06-30'),
+                    'fiscal_period_frequency'   => 'A',
+                    'expense_management_mode'   => 'provisions'
+                ]
+            ];
+            if(!$checkItems($expected_condominiums, [$condominium])) {
                 // condominium not created
                 return false;
             }
 
-            $condominium_identity = Identity::id($condominium['identity_id'])
-                ->read(['id'])
-                ->first();
-
-            if(is_null($condominium_identity)) {
+            $expected_identities = [
+                [
+                    'type_id'               => 3,
+                    'type'                  => 'CO',
+                    'legal_name'            => 'ACP BRINDISI',
+                    'nationality'           => 'BE',
+                    'has_vat'               => false,
+                    'vat_number'            => null,
+                    'registration_number'   => '0848605092',
+                    'lang_id'               => 2,
+                    'address_street'        => 'Avenue Van Overbeke, 56',
+                    'address_zip'           => 1083,
+                    'address_city'          => 'Ganshoren',
+                    'address_country'       => 'BE'
+                ]
+            ];
+            if(!$checkItems($expected_identities, [$condominium['identity_id']])) {
                 // condominium identity not created
                 return false;
             }
@@ -312,7 +352,11 @@ $tests = [
                 return false;
             }
 
-            if(count($condominium['bank_accounts_ids']) !== 2) {
+            $expected_bank_accounts = [
+                ['description' => 'Compte courant Belfius', 'bank_account_iban' => 'BE95068892422558', 'bank_account_type' => 'bank_current'],
+                ['description' => 'Compte épargne Belfius', 'bank_account_iban' => 'BE97088251565249', 'bank_account_type' => 'bank_savings']
+            ];
+            if(!$checkItems($expected_bank_accounts, $condominium['bank_accounts_ids'])) {
                 // condominium roles not assigned
                 return false;
             }
@@ -356,7 +400,22 @@ $tests = [
                 return false;
             }
 
-            $expected_property_lots = array_fill(0, 14, []);
+            $expected_property_lots = [
+                ['property_lot_ref' => 'A1'],
+                ['property_lot_ref' => 'A2'],
+                ['property_lot_ref' => 'B1'],
+                ['property_lot_ref' => 'B2'],
+                ['property_lot_ref' => 'C'],
+                ['property_lot_ref' => 'GAR1-2'],
+                ['property_lot_ref' => 'GAR3'],
+                ['property_lot_ref' => 'GAR4'],
+                ['property_lot_ref' => 'GAR5-6'],
+                ['property_lot_ref' => 'Cave 1A'],
+                ['property_lot_ref' => 'Cave 2A'],
+                ['property_lot_ref' => 'Cave 1B'],
+                ['property_lot_ref' => 'Cave 2B'],
+                ['property_lot_ref' => 'Cave C']
+            ];
             if(!$checkItems($expected_property_lots, $condominium['property_lots_ids'])) {
                 // lots not as expected
                 return false;
@@ -371,28 +430,59 @@ $tests = [
                 return false;
             }
 
+            // 'Madame HUGE Johanna' not created because no ownership history
+            $ownerships_address_recipient = ['Monsieur LINSKENS Cindy', 'Monsieur MEHMETI Sciprim', 'Madame VAN HAUWE Monique', 'Madame VAN HAUWE Yvette'];
+            $com_pref_ownerships_ids = Ownership::search(['address_recipient', 'in', $ownerships_address_recipient])->ids();
+            if(count($com_pref_ownerships_ids) !== count($ownerships_address_recipient)) {
+                // communication preferences ownerships not as expected
+                return false;
+            }
+
             $communication_preferences = OwnershipCommunicationPreference::search([
                 ['condo_id', '=', $condominium['id']],
-                ['has_channel_email', '=', true]
+                ['ownership_id', 'in', $com_pref_ownerships_ids]
             ])
                 ->read(['id'])
                 ->get(true);
-            $expected_communication_preferences = array_fill(0, 4, []);
+            $preferences = ['general_assembly_call', 'general_assembly_minutes', 'expense_statement', 'fund_request', 'technical_communication'];
+            $expected_communication_preferences = array_fill(0, count($preferences) * count($ownerships_address_recipient), []);
             if(!$checkItems($expected_communication_preferences, $communication_preferences)) {
                 // lot communication preferences not as expected
                 return false;
             }
 
-            $expected_apportionments = array_fill(0, 2, []);
+            $expected_apportionments = [
+                ['description' => 'Acte de base', 'total_shares' => 1000],
+                ['description' => 'Charges communes', 'total_shares' => 1000]
+            ];
             if(!$checkItems($expected_apportionments, $condominium['apportionments_ids'])) {
                 // apportionments not as expected
                 return false;
             }
 
             $apportionment_shares = PropertyLotApportionmentShare::search(['condo_id', '=', $condominium['id']])
-                ->read(['id'])
+                ->read(['property_lot_shares'])
                 ->get(true);
-            $expected_apportionment_shares = array_fill(0, 18, []);
+            $expected_apportionment_shares = [
+                ['property_lot_shares' => 163],
+                ['property_lot_shares' => 163],
+                ['property_lot_shares' => 124],
+                ['property_lot_shares' => 124],
+                ['property_lot_shares' => 263],
+                ['property_lot_shares' => 64],
+                ['property_lot_shares' => 16],
+                ['property_lot_shares' => 19],
+                ['property_lot_shares' => 64],
+                ['property_lot_shares' => 163],
+                ['property_lot_shares' => 163],
+                ['property_lot_shares' => 124],
+                ['property_lot_shares' => 124],
+                ['property_lot_shares' => 263],
+                ['property_lot_shares' => 64],
+                ['property_lot_shares' => 16],
+                ['property_lot_shares' => 19],
+                ['property_lot_shares' => 64]
+            ];
             if(!$checkItems($expected_apportionment_shares, $apportionment_shares)) {
                 // apportionment shares not as expected
                 return false;
@@ -442,7 +532,15 @@ $tests = [
                 Apportionment::getType(),
                 PropertyLotApportionmentShare::getType(),
                 Suppliership::getType(),
-                CondoFund::getType()
+                CondoFund::getType(),
+                Node::getType(),
+                Account::getType(),
+                AccountChart::getType(),
+                CurrentBalance::getType(),
+                FiscalPeriod::getType(),
+                FiscalYear::getType(),
+                Journal::getType(),
+                SuppliershipBankAccount::getType()
             ];
             foreach($types as $type) {
                 $items_ids = $type::search(['condo_id', '=', $condominium['id']])->ids();
