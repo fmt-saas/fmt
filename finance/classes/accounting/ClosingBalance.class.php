@@ -74,6 +74,10 @@ class ClosingBalance extends Balance {
         ];
     }
 
+    protected static function onafterValidate($self) {
+        $self->do('generate_balance_lines');
+    }
+
     public static function getActions() {
         return [
             'generate_balance_lines' => [
@@ -82,10 +86,6 @@ class ClosingBalance extends Balance {
                 'function'      => 'doGenerateBalanceLines'
             ]
         ];
-    }
-
-    protected static function onafterValidate($self) {
-        $self->do('generate_balance_lines');
     }
 
     /**
