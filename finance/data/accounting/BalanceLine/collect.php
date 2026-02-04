@@ -152,7 +152,7 @@ if(!$is_fiscal_year) {
     $prevFiscalYear = FiscalYear::search([
             ['condo_id', '=', $params['condo_id']],
             ['date_to', '<', $date_from],
-            ['status', 'in', ['closed', 'preclosed']]
+            ['status', 'in', ['closed']]
         ], ['sort' => ['date_to' => 'desc'], 'limit' => 1])
         ->read(['id', 'date_to'])
         ->first();
@@ -177,6 +177,16 @@ if(!$is_fiscal_year) {
 
         // update date_from to day following last day of $prevFiscalYear
         $date_from = strtotime(date('Y-m-d 00:00:00', $prevFiscalYear['date_to']) . ' +1 day');
+    }
+    else {
+        $firstFiscalYear = FiscalYear::search([
+                ['condo_id', '=', $params['condo_id']],
+                ['date_from', '<=', $date_from],
+                ['date_to', '>=', $date_from],
+            ])
+            ->read(['id', 'date_from'])
+            ->first();
+        $date_from = $firstFiscalYear['date_from'];
     }
 
 }
@@ -235,8 +245,20 @@ foreach($accounting_lines as $line) {
     $totals[$account_id]['debit']  = ($totals[$account_id]['debit'] ?? 0) + $debit;
     $totals[$account_id]['credit'] = ($totals[$account_id]['credit'] ?? 0) + $credit;
 
-    $totals[$account_id]['debit_balance']  = ($totals[$account_id]['debit_balance'] ?? 0) + max($delta, 0.0);
-    $totals[$account_id]['credit_balance'] = ($totals[$account_id]['credit_balance'] ?? 0) + max(-$delta, 0.0);
+    $debit_balance = ($totals[$account_id]['debit_balance'] ?? 0) + max($delta, 0.0);
+    $credit_balance = ($totals[$account_id]['credit_balance'] ?? 0) + max(-$delta, 0.0);
+
+    if($debit_balance > $credit_balance) {
+        $debit_balance  = $debit_balance - $credit_balance;
+        $credit_balance = 0.0;
+    }
+    elseif($credit_balance > $debit_balance) {
+        $credit_balance = $credit_balance - $debit_balance;
+        $debit_balance  = 0.0;
+    }
+
+    $totals[$account_id]['debit_balance']  = $debit_balance;
+    $totals[$account_id]['credit_balance'] = $credit_balance;
 }
 
 // fetch all (final) accounts at once

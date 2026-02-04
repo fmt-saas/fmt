@@ -296,6 +296,16 @@ class FiscalYear extends Model {
                         ],
                         'status' => 'preclosed',
                     ],
+                    'close' => [
+                        'description' => 'Handle actions related to fiscal year closing.',
+                        'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'onbefore' => 'onbeforeClose',
+                        'onafter' => 'onafterClose',
+                        'policies' => [
+                            'can_be_closed',
+                        ],
+                        'status' => 'closed',
+                    ],
                 ],
             ],
             'preclosed' => [

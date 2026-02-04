@@ -68,7 +68,9 @@
             "label": "Pre-close",
             "description": "Pre-close the fiscal year.",
             "controller": "core_model_transition",
-            "visible": ["status", "=", "open"],
+            "visible": false,
+            "visible_help": "This status has been removed",
+            "visible1": ["status", "=", "open"],
             "params": {
                 "entity": "finance\\accounting\\FiscalYear",
                 "transition": "preclose",
@@ -81,7 +83,10 @@
             "label": "Close",
             "description": "Close the fiscal year (this cannot be undone).",
             "controller": "core_model_transition",
-            "visible": ["status", "=", "preclosed"],
+            "visible": ["status", "=", "open"],
+            "visible1": false,
+            "visible_help": "This action has been removed : handled with expense statement",
+            "visible2": ["status", "=", "preclosed"],
             "params": {
                 "entity": "finance\\accounting\\FiscalYear",
                 "transition": "close",
