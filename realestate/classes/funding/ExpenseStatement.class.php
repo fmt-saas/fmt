@@ -879,6 +879,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 ['status', '=', 'validated'],
                 ['is_cleared', '=', false],
                 ['is_visible', '=', true],
+                ['is_carry_forward', '=', false],
                 ['account_class', 'in', [6, 7]]
             ])
             ->read([
