@@ -28,6 +28,11 @@
                 "type": "field",
                 "value": "date_to",
                 "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "15%"
             }
         ]
     }
