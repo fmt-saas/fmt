@@ -205,9 +205,17 @@ foreach($template['parts_ids'] as $part_id => $part) {
     if($part['name'] == 'subject') {
         $subject = strip_tags($part['value']);
 
+        $map_types = [
+            'statutory' => 'Assemblée Générale Statutaire',
+            'takeover' => 'Assemblée Générale de Reprise de gestion',
+            'extraordinary' => 'Assemblée Générale Extraordinaire',
+            'constitutive' => 'Assemblée Générale Constitutive'
+        ];
+
         $map_values = [
             'condo'             => $assembly['condo_id']['name'],
             'assembly'          => $assembly['name'],
+            'type'              => $map_types[$assembly['assembly_type']],
             'date'              => $assembly['assembly_date']
         ];
 
