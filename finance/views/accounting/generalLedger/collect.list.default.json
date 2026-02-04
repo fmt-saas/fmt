@@ -33,7 +33,7 @@
             }
         }
     },
-    "group_by1": [
+    "group_by": [
         {
             "open": true,
             "colspan": 3,
