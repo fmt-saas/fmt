@@ -64,10 +64,13 @@ class FiscalPeriod extends Model {
             ],
 
             'code' => [
-                'type'              => 'integer',
+                'type'              => 'computed',
+                'result_type'       => 'integer',
                 'description'       => 'Order of the period, based on its date within the fiscal year.',
                 'help'              => 'This value is assigned by parent Fiscal Year, and is needed for purchase invoice sequence numbering.',
-                'dependents'        => ['name']
+                'dependents'        => ['name'],
+                'store'             => true,
+                'function'          => 'calcCode'
             ],
 
             'status' => [
@@ -123,7 +126,7 @@ class FiscalPeriod extends Model {
         ];
     }
 
-    public static function calcName($self) {
+    protected static function calcName($self) {
         $result = [];
         $self->read(['code', 'date_from', 'date_to', 'condo_id' => ['name']]);
         foreach($self as $id => $period) {
@@ -132,6 +135,34 @@ class FiscalPeriod extends Model {
             }
             $result[$id] = (strlen($period['code']) > 0) ? ($period['code'] . ' - ') : '';
             $result[$id] .= date('Y-m-d', $period['date_from']) . ' - ' . date('Y-m-d', $period['date_to']) . " ({$period['condo_id']['name']})";
+        }
+        return $result;
+    }
+
+    protected static function calcCode($self) {
+        $result = [];
+        $self->read(['date_to', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from']]]);
+        foreach($self as $id => $fiscalPeriod) {
+            $periods = $fiscalPeriod['fiscal_year_id']['fiscal_periods_ids'] ?? [];
+
+            if(!is_array($periods) || !count($periods) || !$fiscalPeriod['date_to']) {
+                continue;
+            }
+
+            $nb_greater = 0;
+            foreach($periods as $period) {
+                if(!isset($period['date_from'])) {
+                    continue;
+                }
+                if($period['date_from'] > $fiscalPeriod['date_to']) {
+                    ++$nb_greater;
+                }
+            }
+
+            $code = count($periods) - $nb_greater;
+            if($code > 0) {
+                $result[$id] = $code;
+            }
         }
         return $result;
     }
