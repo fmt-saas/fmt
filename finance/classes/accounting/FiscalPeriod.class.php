@@ -157,7 +157,8 @@ class FiscalPeriod extends Model {
     }
 
     public static function onbeforeClose($self) {
-        $self->do('generate_accounting_entries');
+        // #todo #memo - on fait ca dans les décompte de charge et/ou dans la FiscalYear
+        // $self->do('generate_accounting_entries');
     }
 
     /**

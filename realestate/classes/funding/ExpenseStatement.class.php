@@ -227,6 +227,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'policies'      => [],
                 'function'      => 'doClearAccountingEntryLines'
             ],
+            'close_fiscal_period' => [
+                'description'   => 'Mark related fiscal period as closed.',
+                'policies'      => [],
+                'function'      => 'doCloseFiscalPeriod'
+            ],
             'send_expense_statements' => [
                 'description'   => 'Send expense statement correspondences.',
                 'policies'      => [],
@@ -353,9 +358,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ->do('assign_invoice_number')
             ->do('clear_accounting_entry_lines')
             ->do('validate_accounting_entries')
+            ->do('close_fiscal_period')
             ->do('generate_expense_statement_correspondences')
             ->do('send_expense_statements');
-
     }
 
     /**
@@ -813,6 +818,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         foreach($self as $id => $expenseStatement) {
             AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])
                 ->update(['is_cleared' => true]);
+        }
+    }
+
+    protected static function doCloseFiscalPeriod($self) {
+        $self->read(['fiscal_period_id']);
+        foreach($self as $id => $expenseStatement) {
+            FiscalPeriod::id($expenseStatement['fiscal_period_id'])->transition('close');
         }
     }
 
