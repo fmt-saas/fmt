@@ -146,9 +146,9 @@ class FiscalPeriod extends Model {
                 ];
                 continue;
             }
-            if($fiscalPeriod['fiscal_year_id']['status'] !== 'open') {
+            if(!in_array($fiscalPeriod['fiscal_year_id']['status'],  ['preopen', 'open'])) {
                 $result[$id] = [
-                    'invalid_fiscal_year_status' => 'Fiscal Year must be open for a period to be closed.'
+                    'invalid_fiscal_year_status' => 'Fiscal Year must be open or preopen for a period to be closed.'
                 ];
                 continue;
             }

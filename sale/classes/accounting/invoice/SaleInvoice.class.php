@@ -193,9 +193,15 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
 
     public static function policyCanBeInvoiced($self): array {
         $result = [];
-        $self->read(['fiscal_period_id' => ['status'], 'invoice_lines_ids']);
+        // #todo - on doit aussi vérifier le statut de l'année comptable
+        $self->read(['fiscal_year_id' => ['status'], 'fiscal_period_id' => ['status'], 'invoice_lines_ids']);
         foreach($self as $id => $invoice) {
-            if($invoice['fiscal_period_id']['status'] !== 'open') {
+            if(!in_array($invoice['fiscal_year_id']['status'],  ['preopen', 'open'])) {
+                $result[$id] = [
+                    'closed_fiscal_year' => 'Invoice cannot target a non-open or non-preopen fiscal year.'
+                ];
+            }
+            if($invoice['fiscal_period_id']['status']  !== 'open') {
                 $result[$id] = [
                     'closed_fiscal_period' => 'Invoice cannot target a closed fiscal period.'
                 ];
