@@ -588,6 +588,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ]);
 
         foreach($self as $id => $statement) {
+
             // remove any existing accounting entry (this should not occur, just in case of a previous unfinished action)
             AccountingEntry::search([
                     ['sale_invoice_id', '=', $id],
@@ -621,8 +622,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 ])
                 ->first();
 
+            // aggregate accounting entry lines by account
+            $linesByAccount = [];
 
-            // handle assigned delta (diff between paid to provider and reinvoiced to owners - rounding account), if any
+            // handle assigned delta (rounding adjustment), if any
             $assigned_delta = round($statement['assigned_delta'], 2);
             if($assigned_delta != 0.0) {
                 // find the account based on operation_assignment
@@ -632,38 +635,52 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ])
                     ->first();
 
-                AccountingEntryLine::create([
-                        'condo_id'              => $statement['condo_id'],
-                        'accounting_entry_id'   => $accountingEntry['id'],
-                        'description'           => $description,
-                        'account_id'            => $roundingAccount['id'],
-                        'debit'                 => ($assigned_delta > 0.0) ? abs($assigned_delta) : 0.0,
-                        'credit'                => ($assigned_delta < 0.0) ? abs($assigned_delta) : 0.0
-                    ]);
+                if(!$roundingAccount) {
+                    throw new \Exception('missing_rounding_account', EQ_ERROR_INVALID_CONFIG);
+                }
+
+                $account_id = $roundingAccount['id'];
+                if(!isset($linesByAccount[$account_id])) {
+                    $linesByAccount[$account_id] = ['debit' => 0.0, 'credit' => 0.0];
+                }
+
+                if($assigned_delta > 0.0) {
+                    $linesByAccount[$account_id]['debit'] += abs($assigned_delta);
+                }
+                else {
+                    $linesByAccount[$account_id]['credit'] += abs($assigned_delta);
+                }
             }
 
-            $accountingEntryLines = AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])->read(['account_id', 'debit', 'credit']);
+            // retrieve accounting entry lines cleared by the expense statement
+            $accountingEntryLines = AccountingEntryLine::search([
+                    ['clearing_expense_statement_id', '=', $id]
+                ])
+                ->read(['account_id', 'debit', 'credit']);
 
-            // create lines based on accounting records cleared by the expense statement
-            // #memo - we loose the link between statement lines and accounting entry lines
-            foreach($accountingEntryLines as $accounting_entry_line_id => $accountingEntryLine) {
-                AccountingEntryLine::create([
-                        'condo_id'              => $statement['condo_id'],
-                        'accounting_entry_id'   => $accountingEntry['id'],
-                        'description'           => $description,
-                        'account_id'            => $accountingEntryLine['account_id'],
-                        'debit'                 => $accountingEntryLine['credit'],
-                        'credit'                => $accountingEntryLine['debit']
-                    ]);
+            // reverse cleared lines and aggregate by account
+            foreach($accountingEntryLines as $accountingEntryLine) {
+                $account_id = $accountingEntryLine['account_id'];
+
+                if(!isset($linesByAccount[$account_id])) {
+                    $linesByAccount[$account_id] = ['debit' => 0.0, 'credit' => 0.0];
+                }
+
+                $linesByAccount[$account_id]['debit']  += $accountingEntryLine['credit'];
+                $linesByAccount[$account_id]['credit'] += $accountingEntryLine['debit'];
             }
 
-            foreach($statement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
+            // handle ownership debit lines
+            foreach($statement['statement_owners_ids'] as $statementOwner) {
 
                 // sum of field `price`, to be accounted on ownership debit
                 $total_ownership = 0.0;
-
-                foreach($statementOwner['statement_owner_lines_ids'] as $line_id => $statementLine) {
+                foreach($statementOwner['statement_owner_lines_ids'] as $statementLine) {
                     $total_ownership += $statementLine['price'];
+                }
+
+                if(round($total_ownership, 2) == 0.0) {
+                    continue;
                 }
 
                 $ownershipAccount = Account::search([
@@ -677,18 +694,38 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
-                // create a single debit line on the ownership account
+                $account_id = $ownershipAccount['id'];
+                if(!isset($linesByAccount[$account_id])) {
+                    $linesByAccount[$account_id] = ['debit' => 0.0, 'credit' => 0.0];
+                }
+
+                $linesByAccount[$account_id]['debit'] += round($total_ownership, 2);
+            }
+
+            // create final aggregated accounting entry lines (one per account)
+            foreach($linesByAccount as $account_id => $amounts) {
+
+                $debit  = round($amounts['debit'], 2);
+                $credit = round($amounts['credit'], 2);
+
+                if($debit == 0.0 && $credit == 0.0) {
+                    continue;
+                }
+
                 AccountingEntryLine::create([
                         'condo_id'              => $statement['condo_id'],
                         'accounting_entry_id'   => $accountingEntry['id'],
                         'description'           => $description,
-                        'account_id'            => $ownershipAccount['id'],
-                        'debit'                 => $total_ownership,
-                        'credit'                => 0.0
+                        'account_id'            => $account_id,
+                        'debit'                 => $debit,
+                        'credit'                => $credit
                     ]);
             }
 
-            self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
+            // link accounting entry to expense statement
+            self::id($id)->update([
+                    'accounting_entry_id' => $accountingEntry['id']
+                ]);
         }
     }
 
