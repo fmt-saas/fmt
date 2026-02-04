@@ -606,13 +606,19 @@ class FiscalYear extends Model {
                 ->read(['code']);
 
             // 2) create a dedicated balance for the fiscal year
-
-            $currentBalance = CurrentBalance::create([
-                    'condo_id'          => $fiscalYear['condo_id'],
-                    'fiscal_year_id'    => $id
+            $currentBalance = CurrentBalance::search([
+                    ['condo_id', '=', $fiscalYear['condo_id']],
+                    ['fiscal_year_id', '=', $id]
                 ])
                 ->first();
 
+            if(!$currentBalance) {
+                $currentBalance = CurrentBalance::create([
+                        'condo_id'          => $fiscalYear['condo_id'],
+                        'fiscal_year_id'    => $id
+                    ])
+                    ->first();
+            }
             self::id($id)->update(['name' => null, 'current_balance_id' => $currentBalance['id']]);
         }
 

@@ -177,4 +177,10 @@ class CurrentBalance extends Balance {
         }
     }
 
+    public function getUnique() {
+        return [
+            ['condo_id', 'fiscal_year_id']
+        ];
+    }
+
 }
