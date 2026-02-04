@@ -708,7 +708,16 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $debit  = round($amounts['debit'], 2);
                 $credit = round($amounts['credit'], 2);
 
-                if($debit == 0.0 && $credit == 0.0) {
+                if($debit > $credit) {
+                    $debit  = $debit - $credit;
+                    $credit = 0.0;
+                }
+                elseif($credit > $debit) {
+                    $credit = $credit - $debit;
+                    $debit  = 0.0;
+                }
+                else {
+                    // perfectly balanced, nothing to write
                     continue;
                 }
 
