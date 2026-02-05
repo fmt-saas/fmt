@@ -68,6 +68,11 @@ class ExportingTask extends \equal\orm\Model {
                 'default'           => false
             ],
 
+            'last_run' => [
+                'type'              => 'datetime',
+                'description'       => 'Moment at which the task was last executed.',
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [

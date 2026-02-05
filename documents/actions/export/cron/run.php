@@ -28,27 +28,47 @@ use documents\export\ExportingTaskLine;
 
 ['context' => $context, 'orm' => $orm, 'dispatch' => $dispatch] = $providers;
 
+// #todo - handle optional param `id`
 
 $now = time();
 
-// check if a task is already active, if so, do nothing and wait for the next cycle
-$runningExportingTask = ExportingTask::search(['status', '=', 'running'])->first();
-
-if($runningExportingTask) {
-    // exit wit no error code
-    throw new Exception('task_in_progress', 0);
-}
-
-// #todo - handle optional param `id`
-
-
 // take the first one by creation date
-$exportingTask = ExportingTask::search([
+$exportingTaskCandidate = ExportingTask::search([
             ['status', '=', 'idle'],
         ],
         ['limit' => 1, 'sort' => ['created' => 'asc']]
     )
-    ->update(['status' => 'running'])
+    ->first();
+
+if(!$exportingTaskCandidate) {
+    throw new Exception('no_task_awaiting', 0);
+}
+
+// check if a task is already active, if so, either force stopping it (timeout reached) or do nothing and wait for the next cycle
+$runningExportingTask = ExportingTask::search(['status', '=', 'running'])
+    ->read(['last_run'])
+    ->first();
+
+if($runningExportingTask) {
+    if($now - $runningExportingTask['last_run'] > 3600) {
+        // prevent a running exporting tasks from blocking longer than max timeout
+        ExportingTask::id($runningExportingTask['id'])->update(['status' => 'idle']);
+    }
+    else {
+        // exit with no error code
+        throw new Exception('task_in_progress', 0);
+    }
+}
+
+// atomic claim attempt
+$exportingTask = ExportingTask::search([
+        ['id', '=', $exportingTaskCandidate['id']],
+        ['status', '=', 'idle']
+    ])
+    ->update([
+        'status'    => 'running',
+        'last_run'  => $now
+    ])
     ->read(['condo_id', 'exporting_task_lines_ids' => ['controller', 'params']])
     ->first();
 
@@ -57,7 +77,6 @@ if(!$exportingTask) {
     // exit wit no error code
     throw new Exception('no_task_awaiting', 0);
 }
-
 
 $has_failing_line = false;
 
