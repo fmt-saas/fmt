@@ -112,6 +112,13 @@ class AccountingEntry extends Model {
                 'default'           => false
             ],
 
+            'is_closing' => [
+                'type'              => 'boolean',
+                'description'       => 'The accounting entry is a report and is handled depending on the status of its fiscal year.',
+                'help'              => 'Closing entries are balanced between a year and the one that follows (Y & Y+1).',
+                'default'           => false
+            ],
+
             'entry_number' => [
                 'type'              => 'string',
                 'description'       => 'Unique code for entry identification.',

@@ -233,6 +233,13 @@ class AccountingEntryLine extends Model {
                 'default'           => false
             ],
 
+            'is_closing' => [
+                'type'              => 'boolean',
+                'description'       => 'The accounting entry is a report and is handled depending on the status of its fiscal year.',
+                'help'              => 'Closing entries are balanced between a year and the one that follows (Y & Y+1).',
+                'default'           => false
+            ],
+
             // #memo - this field is only changed by parent Accounting Entry and should remain synced
             'status' => [
                 'type'              => 'string',

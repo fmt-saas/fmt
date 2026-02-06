@@ -1,8 +1,8 @@
 {
     "name": "Assembly Item",
-    "limit": 500,
     "header": {
-        "layout": "inline"
+        "layout": "inline",
+        "actions": false
     },
     "layout": {
         "groups": [
@@ -15,6 +15,12 @@
                                     {
                                         "width": "100%",
                                         "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "is_group",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "children_items_ids",

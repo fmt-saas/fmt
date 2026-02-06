@@ -3,6 +3,7 @@
     "limit": 500,
     "header": {
         "layout": "inline",
+        "exports": false,
         "actions": {
             "ACTION.CREATE_INLINE":  [
                 {

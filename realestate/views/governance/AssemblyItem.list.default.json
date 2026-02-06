@@ -13,6 +13,30 @@
     "domain": [
         ["has_parent_group", "=", false]
     ],
+    "routes": [
+        {
+            "id": "route.show_items",
+            "label": "Show items",
+            "inline": true,
+            "description": "",
+            "icon": "how_to_vote",
+            "context": {
+                "entity": "realestate\\governance\\AssemblyItem",
+                "view": "form.popup",
+                "mode": "view",
+                "purpose": "view",
+                "display_mode": "popup",
+                "domain": ["id", "=", "object.id"]
+            },
+            "visible": [
+                ["is_group", "=", true],
+                ["items_count", ">=", 0],
+                ["pending", "=", "object.status"],
+                ["in_progress", "=", "object.assembly_status"],
+                ["agenda_processing", "=", "object.assembly_step"]
+            ]
+        }
+    ],
     "actions": [
         {
             "id": "action.open",
@@ -131,26 +155,11 @@
             ]
         }
     ],
-    "routes": [
-        {
-            "id": "action.votes_board",
-            "inline": true,
-            "label": "Show board",
-            "icon": "how_to_vote",
-            "description": "Show sub items board.",
-            "context": {
-                "entity": "realestate\\governance\\AssemblyItem",
-                "view": "form.popup",
-                "mode": "view",
-                "purpose": "view",
-                "display_mode": "popup",
-                "order": "order",
-                "sort": "asc",
-                "domain": ["assembly_item_id", "=", "object.id"]
-            },
-            "visible": [ [0, "<", "object.items_count"], ["open", "=", "object.status"] ]
-        }
-    ],
+    "header": {
+        "layout": "inline",
+        "exports": false,
+        "actions": false
+    },
     "layout": {
         "items": [
             {

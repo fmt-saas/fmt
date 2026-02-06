@@ -600,7 +600,6 @@ class FiscalYear extends Model {
             }
 
             // 1) finalize periods order
-
             FiscalPeriod::ids($fiscalYear['fiscal_periods_ids'])
                 ->update(['code' => null])
                 ->read(['code']);
@@ -842,7 +841,7 @@ class FiscalYear extends Model {
                         'condo_id'          => $fiscalYear['condo_id'],
                         'journal_id'        => $carryForwardJournal['id'],
                         'description'       => "Ecritures de report",
-                        'is_carry_forward'  => true,
+                        'is_closing'        => true,
                         'fiscal_year_id'    => $id,
                         'entry_date'        => $fiscalYear['date_to']
                     ])
@@ -872,7 +871,7 @@ class FiscalYear extends Model {
                             'account_id'            => $line['account_id'],
                             'debit'                 => $line['debit'],
                             'credit'                => $line['credit'],
-                            'is_carry_forward'      => true,
+                            'is_closing'            => true,
                             'matching_id'           => $matching['id']
                         ]);
 
@@ -1288,30 +1287,33 @@ class FiscalYear extends Model {
     public static function canupdate($self, $values) {
         $self->read(['status', 'date_to']);
         foreach($self as $id => $fiscalYear) {
-            if(in_array($fiscalYear['status'], ['closed', 'archived'])) {
-                return ['status' => ['not_allowed_closed' => 'Closed fiscal year cannot be modified.']];
-            }
-            if($fiscalYear['status'] <> 'draft') {
-                // if modifying the end date AND there are no accounting entries for this fiscal year beyond that date: allow
-                if(isset($values['date_to'])) {
-                    $accounting_entries_ids = AccountingEntry::search([
-                            ['fiscal_year_id', '=', $id],
-                            ['entry_date', '>', $values['date_to']],
-                            ['is_cancelled', '=', false],
-                            ['status', '=', 'validated']
-                        ])
-                        ->ids();
-                    if(count($accounting_entries_ids) > 0) {
-                        return ['status' => ['not_allowed_entries' => 'There are accounting entries for the Fiscal year after given end date.']];
-                    }
+            $allowed_fields = ['name'];
+            if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
+                if(in_array($fiscalYear['status'], ['closed', 'archived'])) {
+                    return ['status' => ['not_allowed_closed' => 'Closed fiscal year cannot be modified.']];
                 }
-                // otherwise always refuse
-                elseif(isset($values['fiscal_periods_ids']) ||
-                    isset($values['date_from']) ||
-                    isset($values['condo_id']) ||
-                    isset($values['organisation_id'])
-                ) {
-                    return ['status' => ['not_allowed' => 'Fiscal year configuration cannot be modified once published.']];
+                if($fiscalYear['status'] <> 'draft') {
+                    // if modifying the end date AND there are no accounting entries for this fiscal year beyond that date: allow
+                    if(isset($values['date_to'])) {
+                        $accounting_entries_ids = AccountingEntry::search([
+                                ['fiscal_year_id', '=', $id],
+                                ['entry_date', '>', $values['date_to']],
+                                ['is_cancelled', '=', false],
+                                ['status', '=', 'validated']
+                            ])
+                            ->ids();
+                        if(count($accounting_entries_ids) > 0) {
+                            return ['status' => ['not_allowed_entries' => 'There are accounting entries for the Fiscal year after given end date.']];
+                        }
+                    }
+                    // otherwise always refuse
+                    elseif(isset($values['fiscal_periods_ids']) ||
+                        isset($values['date_from']) ||
+                        isset($values['condo_id']) ||
+                        isset($values['organisation_id'])
+                    ) {
+                        return ['status' => ['not_allowed' => 'Fiscal year configuration cannot be modified once published.']];
+                    }
                 }
             }
         }

@@ -129,6 +129,8 @@ if(!isset($params['condo_id'])) {
 $domain = new Domain($params['domain']);
 
 $domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
+$domain->addCondition(new DomainCondition('is_carry_forward', '=', false));
+$domain->addCondition(new DomainCondition('is_closing', '=', false));
 
 // Resolve date interval
 $dateFrom = null;

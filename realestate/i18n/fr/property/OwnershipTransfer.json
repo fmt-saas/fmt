@@ -99,12 +99,12 @@
             "help": ""
         },
         "old_ownership_id": {
-            "label": "Ownership cédant",
+            "label": "Cédant",
             "description": "Dossier de propriété actuel (avant transfert).",
             "help": ""
         },
         "new_ownership_id": {
-            "label": "Ownership acquéreur",
+            "label": "Acquéreur",
             "description": "Dossier de propriété de l'acquéreur.",
             "help": ""
         },
@@ -114,7 +114,7 @@
             "help": ""
         },
         "ownership_shares": {
-            "label": "Quotes-parts ownership",
+            "label": "Quotes-parts cédant",
             "description": "Quotes-parts détenues par le dossier cédant.",
             "help": ""
         },
@@ -225,7 +225,7 @@
         },
         "arrear_fundings_ids": {
             "label": "Financements en retard",
-            "description": "Demandes de paiement non soldées liées à l'ownership cédant.",
+            "description": "Demandes de paiement non soldées liées à le propriétaire cédant.",
             "help": ""
         },
         "mails_ids": {
