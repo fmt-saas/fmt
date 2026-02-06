@@ -145,7 +145,15 @@ class AssemblyMandate extends \equal\orm\Model {
                     'pending',
                     'validated'
                 ]
+            ],
+
+            'assembly_vote_intentions_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\governance\AssemblyVoteIntention',
+                'foreign_field'     => 'assembly_mandate_id',
+                'description'       => 'The vote intentions related to the assembly.'
             ]
+
         ];
     }
 
