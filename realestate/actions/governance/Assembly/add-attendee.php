@@ -213,10 +213,12 @@ if($params['is_owner']) {
 else {
     // handwritten signature - external identity
     if($params['sig_method'] === 'ses') {
+        $identity = null;
 
-        $hash = hash('sha256', $params['citizen_identification'] . constant('AUTH_SECRET_KEY'));
+        if(!empty($params['citizen_identification'])) {
+            $hash = hash('sha256', $params['citizen_identification'] . constant('AUTH_SECRET_KEY'));
 
-        $identity = Identity::search([
+            $identity = Identity::search([
                 [
                     ['citizen_identification', '=', $params['citizen_identification']]
                 ],
@@ -224,7 +226,8 @@ else {
                     ['hash_sha256', '=', $hash]
                 ]
             ])
-            ->first();
+                ->first();
+        }
 
         if(!$identity) {
             // external without citizen ID (only firstname, lastname & drawn signature)
@@ -260,7 +263,7 @@ else {
                     'type_id'       => 1,
                     'firstname'     => $infos['firstname'],
                     'lastname'      => $infos['lastname'],
-                    // #memo - store a computed hash for identitifcication, since we cannot store the citizen identification number
+                    // #memo - store a computed hash for identification, since we cannot store the citizen identification number
                     'hash_sha256'   => $hash
                 ])
                 ->first();

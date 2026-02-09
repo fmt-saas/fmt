@@ -92,6 +92,21 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "has_vote_intentions",
+                                                "width": "25%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "align": "left",
+                                        "items": [
+                                            {
+                                                "type": "field",
                                                 "value": "assembly_vote_intentions_ids",
                                                 "width": "100%",
                                                 "widget": {
@@ -102,7 +117,8 @@
                                                         ["assembly_id", "=", "object.assembly_id"],
                                                         ["ownership_id", "=", "object.ownership_id"]
                                                     ]
-                                                }
+                                                },
+                                                "visible": ["has_vote_intentions", "=", true]
                                             }
                                         ]
                                     }
