@@ -107,10 +107,11 @@ class AssemblyMandate extends \equal\orm\Model {
                 'default'           => false
             ],
 
-            'mandate_document_id' => [
+            'signed_mandate_document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
-                'description'       => "Original (immutable) document of the mandate, or scanned version."
+                'description'       => 'Targets the final printable version of the document.',
+                'help'              => 'Optional version of the document with signatures on it, applicable for signed documents only. Has no legal value.'
             ],
 
             'is_valid' => [
