@@ -134,11 +134,19 @@ if(!$assembly) {
 }
 
 $assemblyAttendee = AssemblyAttendee::id($params['attendee_id'])
-    ->read(['identity_id'])
+    ->read(['identity_id', 'is_valid', 'has_left'])
     ->first();
 
 if(!$assemblyAttendee) {
     throw new Exception("unknown_attendee", EQ_ERROR_INVALID_PARAM);
+}
+
+if(!$assemblyAttendee['is_valid']) {
+    throw new Exception("invalid_attendee", EQ_ERROR_INVALID_PARAM);
+}
+
+if($assemblyAttendee['has_left']) {
+    throw new Exception("non_present_attendee", EQ_ERROR_INVALID_PARAM);
 }
 
 if($params['sig_method'] === 'qes') {

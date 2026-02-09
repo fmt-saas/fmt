@@ -1,0 +1,67 @@
+{
+    "name": "Condominium - Financial statements",
+    "description": "Form holding basic information about an Organisation.",
+    "extends": {
+        "entity": "realestate\\property\\Condominium",
+        "view": "form.accounting"
+    },
+    "routes": [
+        {
+            "id": "route.current_balance",
+            "label": "Current Balance",
+            "description": "",
+            "icon": "balance",
+            "context": {
+                "entity": "finance\\accounting\\CurrentBalanceLine",
+                "view": "list.condo",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "route.general_ledger",
+            "label": "General Ledger",
+            "description": "",
+            "icon": "menu_book",
+            "context": {
+                "entity": "finance\\accounting\\generalLedger\\collect",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "route.general_balance",
+            "label": "General Balance",
+            "description": "",
+            "icon": "menu_book",
+            "context": {
+                "entity": "finance\\accounting\\generalBalance\\collect",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "route.balance_sheet",
+            "label": "Balance Sheet",
+            "description": "",
+            "icon": "menu_book",
+            "context": {
+                "entity": "finance\\accounting\\balanceSheet\\collect",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "route.expense_summary",
+            "label": "Expense Summary",
+            "description": "",
+            "icon": "menu_book",
+            "context": {
+                "entity": "finance\\accounting\\expenseSummary\\collect",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        }
+    ],
+    "layout": {
+    }
+}

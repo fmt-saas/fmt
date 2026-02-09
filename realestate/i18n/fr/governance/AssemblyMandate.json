@@ -99,7 +99,7 @@
             "description": "Fiche mandat : mandataire, dossier représenté, type, document et validité.",
             "layout": {
                 "section.assembly-vote-intentions": {
-                    "label": "Intentions de vote"
+                    "label": "Instructions de vote"
                 }
             }
         },

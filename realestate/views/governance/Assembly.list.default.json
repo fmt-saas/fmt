@@ -1,6 +1,20 @@
 {
     "name": "Assemblies",
     "description": "Overview of scheduled assemblies and their status.",
+    "header": {
+        "selection": {
+            "actions": [
+                {"id": "ACTION.EDIT_INLINE", "visible": false},
+                {"id": "ACTION.CLONE", "visible": false},
+                {
+                    "id": "action.duplicate",
+                    "label": "Clone Assembly",
+                    "icon": "content_copy",
+                    "controller": "realestate_governance_Assembly_clone"
+                }
+            ]
+        }
+    },
     "order": "assembly_date",
     "sort": "desc",
     "controller": "realestate_governance_Assembly_collect",

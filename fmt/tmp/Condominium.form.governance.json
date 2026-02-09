@@ -1,0 +1,171 @@
+{
+    "name": "Condominium Governance",
+    "description": "Details about bank accounts and related operations.",
+    "routes": [
+        {
+            "id": "item.assemblies",
+            "label": "Assemblies",
+            "description": "",
+            "icon": "diversity_3",
+            "context": {
+                "entity": "realestate\\governance\\Assembly",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "item.invitations",
+            "label": "Invitations",
+            "description": "",
+            "icon": "rsvp",
+            "context": {
+                "entity": "realestate\\governance\\AssemblyInvitationCorrespondence",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "item.council",
+            "label": "Council Members",
+            "description": "",
+            "icon": "psychology",
+            "context": {
+                "entity": "realestate\\governance\\CouncilMember",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        }
+    ],
+    "actions": [
+        {
+            "id": "action.create_assembly",
+            "label": "Create Assembly",
+            "icon": "play_arrow",
+            "description": "Create a new Assembly.",
+            "controller": "realestate_property_Condominium_create-assembly",
+            "params": {
+
+                "ids": []
+            },
+            "confirm": true
+        }
+    ],
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "legal_name",
+                                                "width": "66%",
+                                                "widget": {
+                                                    "header": false
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Language",
+                                                "value": "lang_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "registration_number",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "cadastral_number",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "16%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "type_id",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_vat",
+                                                "width": "50%",
+                                                "label": "Subject to VAT",
+                                                "help": "Do the company have a VAT number?"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%",
+                                                "visible": ["has_vat", "=", false]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "vat_number",
+                                                "width": "50%",
+                                                "visible": ["has_vat", "=", true]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "type",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_parent",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "identity_id",
+                                                "visible": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "label": "Assemblies",
+                        "id": "section.assemblies",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assemblies_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
