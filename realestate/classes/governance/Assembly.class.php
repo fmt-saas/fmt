@@ -176,7 +176,7 @@ class Assembly extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "Reference to the assembly template, if any.",
                 'foreign_object'    => 'realestate\governance\AssemblyTemplate',
-                'required'          => false,
+                'required'          => true,
                 'onupdate'          => 'onupdateAssemblyTemplateId',
                 'visible'           => ['is_second_session', '=', false]
             ],
@@ -2202,6 +2202,7 @@ class Assembly extends \equal\orm\Model {
                 'name'                  => $assembly['name'],
                 'assembly_type'         => $assembly['assembly_type'],
                 'assembly_date'         => $assembly['assembly_date'] + (15 * 86400),
+                'assembly_template_id'  => $assembly['assembly_template_id'],
                 'is_second_session'     => true,
                 'related_assembly_id'   => $id,
                 // #memo #deprecated these fields are no longer used
