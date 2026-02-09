@@ -1,10 +1,5 @@
 {
     "name": "Assembly Mandate (proxy)",
-    "domain": ["status", "=", "validated"],
-    "header": {
-        "layout": "inline",
-        "actions": false
-    },
     "layout": {
         "interactions": {
             "description": "confirm is click is allowed or not (necessary for manual encoding)",

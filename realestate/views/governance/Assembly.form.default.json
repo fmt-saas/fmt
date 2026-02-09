@@ -968,16 +968,11 @@
                         "label": "Mandates",
                         "visible": [
                             [
-                                "status",
-                                "not in",
-                                [
-                                    "pending",
-                                    "published",
-                                    "sending",
-                                    "sent"
-                                ]
+                                ["admins", "in", "user.groups"]
                             ],
-                            ["admins", "in", "user.groups"]
+                            [
+                                ["status", "=", "in_progress"]
+                            ]
                         ],
                         "rows": [
                             {
@@ -988,7 +983,18 @@
                                             {
                                                 "type": "field",
                                                 "value": "assembly_mandates_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": true
+                                                        }
+                                                    },
+                                                    "domain": [
+                                                        ["condo_id", "=", "object.condo_id"],
+                                                        ["assembly_id", "=", "object.id"]
+                                                    ]
+                                                }
                                             }
                                         ]
                                     }

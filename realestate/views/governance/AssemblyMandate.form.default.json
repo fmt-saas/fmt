@@ -82,6 +82,7 @@
                     {
                         "id": "section.assembly-vote-intentions",
                         "label": "Vote intentions",
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [
