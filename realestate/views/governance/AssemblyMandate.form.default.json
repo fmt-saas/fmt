@@ -9,7 +9,7 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "66%",
                                         "items": [
                                             {
                                                 "type": "field",
@@ -25,25 +25,20 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Attendee",
                                                 "value": "attendee_id",
-                                                "width": "100%",
-                                                "visible": true
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Owner",
                                                 "value": "ownership_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "mandate_date",
-                                                "width": "100%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "mandate_type",
-                                                "width": "100%",
+                                                "width": "33%",
                                                 "widget": {
                                                     "readonly": true
                                                 }
@@ -51,13 +46,79 @@
                                             {
                                                 "type": "field",
                                                 "value": "has_wet_signature",
-                                                "width": "100%"
+                                                "width": "66%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "mandate_document_id",
                                                 "width": "100%",
                                                 "visible": false
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "mandate_date",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.assembly-vote-intentions",
+                        "label": "Vote intentions",
+                        "visible": ["state", "<>", "draft"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "align": "left",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "has_vote_intentions",
+                                                "width": "25%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "align": "left",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_vote_intentions_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.creation",
+                                                    "domain": [
+                                                        ["representation_type", "=", "proxy"],
+                                                        ["condo_id", "=", "object.condo_id"],
+                                                        ["assembly_id", "=", "object.assembly_id"],
+                                                        ["ownership_id", "=", "object.ownership_id"]
+                                                    ]
+                                                },
+                                                "visible": ["has_vote_intentions", "=", true]
                                             }
                                         ]
                                     }

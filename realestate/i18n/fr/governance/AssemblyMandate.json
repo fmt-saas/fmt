@@ -97,7 +97,11 @@
         "form.default": {
             "name": "Mandat d'assemblée",
             "description": "Fiche mandat : mandataire, dossier représenté, type, document et validité.",
-            "layout": {}
+            "layout": {
+                "section.assembly-vote-intentions": {
+                    "label": "Intentions de vote"
+                }
+            }
         },
         "list.default": {
             "name": "Mandats d'assemblée",
