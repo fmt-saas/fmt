@@ -214,6 +214,12 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'description'       => "Actual departure time of the attendee from the assembly."
             ],
 
+            'has_late_arrival' => [
+                'type'              => 'boolean',
+                'description'       => "Indicates whether the attendee arrived after the beginning of the assembly.",
+                'default'           => false
+            ],
+
             'has_left' => [
                 'type'              => 'boolean',
                 'description'       => "Indicates whether the attendee has definitively left the assembly.",
