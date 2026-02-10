@@ -113,7 +113,7 @@ class AssemblyItem extends AssemblyItemTemplate {
 
             'has_subvote_required' => [
                 'type'              => 'boolean',
-                'description'       => 'Flag indicating if a vote is required for this item.',
+                'description'       => 'Flag indicating if a vote is required for a child of this item.',
                 'default'           => false
             ],
 

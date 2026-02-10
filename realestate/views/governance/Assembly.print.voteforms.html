@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<!--
+    Conventions for html templates:
+
+    * template must consist of a single file
+    * provide support for debug mode
+    * use embedded styling embedded in <style> (CSS3)
+    * avoid using `style` attribute in elements and favour classes
+    * in CSS styles use `px` as unit for font size
+    * in HTML elements, avoid using <br /> and favour blocks and inline-blocks
+    * twig format is implicit for template files: use `{entity}.print.{name}.html` as naming convention
+    * avoid assignment and computation of vars in template (when possible, compute values in controller)
+    * twig instructions should be limited to displaying values and providing conditional statements
+-->
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <title>
+        {{ title }}
+    </title>
+
+    <style type="text/css">
+        @page {
+            margin: 1cm 0.8cm;
+        }
+
+        .page-break {
+            page-break-after: always;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            /* margin-top must match header::height */
+            /* margin-top: 100px;*/
+            /* margin-bottom must match footer::height */
+            /* margin-bottom: 50px; */
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            text-align: justify;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            font-size: 15px;
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 15px;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        main.debug {
+            outline: solid 1px brown;
+        }
+
+        .ownership-wrapper {
+            width: 100%;
+        }
+
+        .ownership-wrapper .details-table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .ownership-wrapper .details-table td {
+            vertical-align: top;
+        }
+
+        .ownership-wrapper .details-table .col-assembly {
+            min-width: 150px;
+        }
+
+        .ownership-wrapper .vote-form-table {
+            width: 100%;
+        }
+
+        .ownership-wrapper .vote-form-table th {
+            text-align: left;
+        }
+
+        .ownership-wrapper .vote-form-table .col-vote .checkbox {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    {% for ownership in ownerships %}
+        <div class="ownership-wrapper">
+            <table class="details-table">
+                <tr>
+                    <td class="col-assembly">
+                        <div><span class="bold">Assemblée</span> : {{ assembly.name }}</div>
+                        <div><span class="bold">Date</span> : {{ assembly.assembly_date | date(date_format, timezone) }}</div>
+                    </td>
+                    <td>
+                        <div><span class="bold">Propriétaire</span> : {{ ownership.name }}</div>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="vote-form-table">
+                <tr>
+                    <th>N°</th>
+                    <th class="col-name-th">Nom</th>
+                    <th colspan="3"></th>
+                </tr>
+                {% for vote_item in vote_items %}
+                    <tr>
+                        <td>{{ vote_item.order }}</td>
+                        <td class="col-name-td">{{ vote_item.name }}</td>
+                        {% if vote_item.has_vote_required %}
+                            <td class="col-vote">
+                                <span>Oui</span>
+                                <div class="checkbox"></div>
+                            </td>
+                            <td class="col-vote">
+                                <span>Non</span>
+                                <div class="checkbox"></div>
+                            </td>
+                            <td class="col-vote">
+                                <span>Abstention</span>
+                                <div class="checkbox"></div>
+                            </td>
+                        {% else %}
+                            <td colspan="3"></td>
+                        {% endif %}
+                    </tr>
+                    {% for child_vote_item in vote_item.children %}
+                        <tr>
+                            <td class="col-order-child">{{ vote_item.order }}.{{ child_vote_item.order }}</td>
+                            <td>{{ child_vote_item.name }}</td>
+                            <td class="col-vote">
+                                <span>Oui</span>
+                                <div class="checkbox"></div>
+                            </td>
+                            <td class="col-vote">
+                                <span>Non</span>
+                                <div class="checkbox"></div>
+                            </td>
+                            <td class="col-vote">
+                                <span>Abstention</span>
+                                <div class="checkbox"></div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </table>
+        </div>
+        {% if not loop.last %}
+            <div class="page-break"></div>
+        {% endif %}
+    {% endfor %}
+</body>
+</html>
