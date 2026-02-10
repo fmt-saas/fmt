@@ -367,6 +367,7 @@ class AssemblyItem extends AssemblyItemTemplate {
         $self->read(['has_parent_group', 'parent_group_id', 'has_vote_required', 'condo_id', 'assembly_id', 'involved_ownerships_ids']);
 
         foreach($self as $id => $assemblyItem) {
+            // if item has a parent, force patent to "open"
             if($assemblyItem['has_parent_group'] && $assemblyItem['parent_group_id']) {
                 self::id($assemblyItem['parent_group_id'])->update(['status' => 'open']);
             }
@@ -824,6 +825,7 @@ class AssemblyItem extends AssemblyItemTemplate {
 
         $self->read([
             'status',
+            'has_parent_group', 'parent_group_id',
             'assembly_id' => ['status', 'step']
         ]);
 
@@ -845,14 +847,17 @@ class AssemblyItem extends AssemblyItemTemplate {
                 continue;
             }
 
-            // 3) No other item may be open
-            $openedItem = self::search([
+            // 3) No other item may be open (except parent)
+            $openedItems = self::search([
                     ['assembly_id', '=', $assemblyItem['assembly_id']['id']],
                     ['status', '=', 'open']
-                ])
-                ->first();
+                ]);
 
-            if($openedItem) {
+            foreach($openedItems as $openedItem) {
+                // ignore parent - should be open
+                if($assemblyItem['has_parent_group'] && $assemblyItem['parent_group_id'] === $openedItem['id']) {
+                    continue;
+                }
                 $result[$id] = [
                     'other_item_opened' => 'Another assembly item is already open.'
                 ];
