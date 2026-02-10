@@ -689,6 +689,16 @@
                     ]
                 ]
             ]
+        },
+        {
+            "id": "route.print_voteforms",
+            "type": "entry",
+            "label": "Voting forms",
+            "icon": "print",
+            "description": "View printable vote forms for each ownership.",
+            "route": "/?get=realestate_governance_Assembly_voteforms_render-pdf&id=object.id",
+            "target": "_blank",
+            "absolute": true
         }
     ],
     "layout": {
