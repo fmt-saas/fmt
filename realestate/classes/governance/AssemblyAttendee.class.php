@@ -423,7 +423,7 @@ class AssemblyAttendee extends \equal\orm\Model {
 
             $ownerships_ids = [];
             foreach($assemblyAttendee['assembly_representations_ids'] as $assemblyRepresentation) {
-                $assemblyRepresentation['ownership_id'];
+                $ownerships_ids[] = $assemblyRepresentation['ownership_id'];
             }
 
             // 1) identify the lots
