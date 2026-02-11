@@ -143,6 +143,10 @@ $assembly = Assembly::id($params['id'])
             '@domain' => [['is_valid', '=', true], ['has_signed_minutes', '=', true]],
             'name',
             'attendee_role',
+            'arrival_time',
+            'has_late_arrival',
+            'departure_time',
+            'has_early_departure',
             'has_signed_minutes',
             'minutes_document_signature_id' => ['sig_method', 'sig_drawn', 'sig_hash', 'sig_algo', 'sig_timestamp']
         ],
@@ -210,6 +214,17 @@ if($params['signed']) {
     }
 }
 
+$has_late_arrival = false;
+$has_early_departure = false;
+foreach($assembly['assembly_attendees_ids'] as $assemblyAttendee) {
+    if($assemblyAttendee['has_late_arrival']) {
+        $has_late_arrival = true;
+    }
+    if($assemblyAttendee['has_early_departure']) {
+        $has_early_departure = true;
+    }
+}
+
 $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']])
     ->read([
         'name',
@@ -235,6 +250,8 @@ $lang = $params['lang'];
 $subject = '';
 $introduction = '';
 $conclusion = '';
+$late_arrival_notice = '';
+$early_departure_notice = '';
 
 $template = Template::search([
         ['code', '=', 'general_meetings_minutes'],
@@ -243,16 +260,16 @@ $template = Template::search([
     ->read( ['id','parts_ids' => ['name', 'value']])
     ->first(true);
 
+$map_types = [
+    'statutory' => 'Assemblée Générale Statutaire',
+    'takeover' => 'Assemblée Générale de Reprise de gestion',
+    'extraordinary' => 'Assemblée Générale Extraordinaire',
+    'constitutive' => 'Assemblée Générale Constitutive'
+];
+
 foreach($template['parts_ids'] as $part_id => $part) {
     if($part['name'] == 'subject') {
         $subject = strip_tags($part['value']);
-
-        $map_types = [
-            'statutory' => 'Assemblée Générale Statutaire',
-            'takeover' => 'Assemblée Générale de Reprise de gestion',
-            'extraordinary' => 'Assemblée Générale Extraordinaire',
-            'constitutive' => 'Assemblée Générale Constitutive'
-        ];
 
         $map_values = [
             'condo'             => $assembly['condo_id']['name'],
@@ -272,28 +289,21 @@ foreach($template['parts_ids'] as $part_id => $part) {
     elseif($part['name'] == 'introduction') {
         $introduction = $part['value'];
 
-        $map_types = [
-            'statutory' => 'Assemblée Générale Statutaire',
-            'takeover' => 'Assemblée Générale de Reprise de gestion',
-            'extraordinary' => 'Assemblée Générale Extraordinaire',
-            'constitutive' => 'Assemblée Générale Constitutive'
-        ];
-
         $map_values = [
-            // 'firstname'         => $owner['identity_id']['firstname'],
-            // 'lastname'          => $owner['identity_id']['lastname'],
-            'condo'             => $assembly['condo_id']['name'],
-            'assembly'          => $assembly['name'],
-            'date'              => $getFormattedDate($assembly['assembly_date']),
-            'location'          => $assembly['assembly_location'],
-            'condo_city'        => $assembly['condo_id']['address_city'],
-            'type'              => $map_types[$assembly['assembly_type']],
-            'time_start'        => $getFormattedTime($assembly['session_time_start'], true),
-            'time_end'          => $getFormattedTime($assembly['session_time_end'], true),
-            'count_owners'      => $assembly['count_owners'],
-            'count_represented_owners'=> $assembly['count_represented_owners'],
-            'count_shares'      => $assembly['count_shares'],
-            'count_represented_shares'=> $assembly['count_represented_shares']
+            // 'firstname'                 => $owner['identity_id']['firstname'],
+            // 'lastname'                  => $owner['identity_id']['lastname'],
+            'condo'                     => $assembly['condo_id']['name'],
+            'assembly'                  => $assembly['name'],
+            'date'                      => $getFormattedDate($assembly['assembly_date']),
+            'location'                  => $assembly['assembly_location'],
+            'condo_city'                => $assembly['condo_id']['address_city'],
+            'type'                      => $map_types[$assembly['assembly_type']],
+            'time_start'                => $getFormattedTime($assembly['session_time_start'], true),
+            'time_end'                  => $getFormattedTime($assembly['session_time_end'], true),
+            'count_owners'              => $assembly['count_owners'],
+            'count_represented_owners'  => $assembly['count_represented_owners'],
+            'count_shares'              => $assembly['count_shares'],
+            'count_represented_shares'  => $assembly['count_represented_shares']
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -321,18 +331,63 @@ foreach($template['parts_ids'] as $part_id => $part) {
             return $map_values[$key] ?? '';
         }, $conclusion);
     }
+    elseif($part['name'] == 'late_arrival_notice') {
+        $late_arrival_notice = $part['value'];
+
+        $late_arrival = [];
+        foreach($assembly['assembly_attendees_ids'] as $attendee) {
+            if($attendee['has_late_arrival']) {
+                $late_arrival[] = $attendee['name'].' ('.$getFormattedTime($attendee['arrival_time']).')';
+            }
+        }
+
+        $map_values = [
+            'late_arrival' => implode(', ', $late_arrival)
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $late_arrival_notice = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $late_arrival_notice);
+    }
+    elseif($part['name'] == 'early_departure_notice') {
+        $early_departure_notice = $part['value'];
+
+        $early_departure = [];
+        foreach($assembly['assembly_attendees_ids'] as $attendee) {
+            if($attendee['has_early_departure']) {
+                $early_departure[] = $attendee['name'].' ('.$getFormattedTime($attendee['departure_time']).')';
+            }
+        }
+
+        $map_values = [
+            'early_departure' => implode(', ', $early_departure)
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $early_departure_notice = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $early_departure_notice);
+    }
 }
 
 $values = [
     'title'                     => $subject,
     'introduction'              => $introduction,
     'conclusion'                => $conclusion,
+    'late_arrival_notice'       => $late_arrival_notice,
+    'early_departure_notice'    => $early_departure_notice,
 
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
 
     'organisation'              => $organisation,
     'organisation_logo'         => $getOrganisationLogo($organisation['id']),
+
+    'has_late_arrival'          => $has_late_arrival,
+    'has_early_departure'       => $has_early_departure,
 
     'signed'                    => $params['signed'],
 

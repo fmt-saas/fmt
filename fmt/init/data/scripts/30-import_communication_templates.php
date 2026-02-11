@@ -345,6 +345,18 @@ TemplatePart::create([
     'template_id'   => $template['id'],
     'variables'     => '["condo", "date", "time_end", "condo_city"]'
 ]);
+TemplatePart::create([
+    'name'          => 'late_arrival_notice',
+    'value'         => '<p>Le(s) propriétaire(s) suivant(s) est(sont) arrivé(es) après l’ouverture de la séance : {late_arrival}</p>',
+    'template_id'   => $template['id'],
+    'variables'     => '["late_arrival"]'
+]);
+TemplatePart::create([
+    'name'          => 'early_departure_notice',
+    'value'         => '<p>Le(s) propriétaire(s) suivant(s) a(ont) quitté(es) l’assemblée avant la fin : {early_departure}</p>',
+    'template_id'   => $template['id'],
+    'variables'     => '["early_departure"]'
+]);
 
 TemplatePart::create([
     'name'          => 'introduction.adjourned',

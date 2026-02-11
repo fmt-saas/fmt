@@ -112,6 +112,22 @@
                 "pending": "En attente",
                 "validated": "Validé"
             }
+        },
+        "arrival_time": {
+            "label": "Heure d'arrivée",
+            "help": "L'heure d'arrivée du participant à l'assemblée."
+        },
+        "has_late_arrival": {
+            "label": "Arrivée après ouverture",
+            "help": "Le participant est arrivé après l’ouverture de l’assemblée."
+        },
+        "departure_time": {
+            "label": "Heure de départ",
+            "help": "L'heure de départ du participant de l'assemblée."
+        },
+        "has_early_departure": {
+            "label": "Départ avant clôture",
+            "help": "Le participant est parti avant la clôture de l'assemblée."
         }
     },
     "view": {

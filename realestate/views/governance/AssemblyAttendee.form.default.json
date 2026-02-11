@@ -49,7 +49,7 @@
                 "entity": "realestate\\governance\\AssemblyAttendee",
                 "action": "leave_assembly"
             },
-            "visible": ["has_left", "=", false]
+            "visible": ["has_early_departure", "=", false]
         }
     ],
     "layout": {
@@ -83,7 +83,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "has_left",
+                                                "value": "has_early_departure",
                                                 "width": "100%",
                                                 "visible": false
                                             },

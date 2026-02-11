@@ -380,7 +380,7 @@ class AssemblyItem extends AssemblyItemTemplate {
 
             // #memo AssemblyRepresentation are created only for validated mandates or for attendees present in person
             $representations = AssemblyRepresentation::search(['assembly_id', '=', $assemblyItem['assembly_id']])
-                ->read(['attendee_id' => ['id', 'has_left', 'user_id'], 'ownership_id', 'representation_type', 'assembly_mandate_id' => ['id', 'status', 'is_valid']]);
+                ->read(['attendee_id' => ['id', 'has_early_departure', 'user_id'], 'ownership_id', 'representation_type', 'assembly_mandate_id' => ['id', 'status', 'is_valid']]);
 
             foreach($representations as $representation) {
                 $ownership_id = $representation['ownership_id'];
@@ -409,7 +409,7 @@ class AssemblyItem extends AssemblyItemTemplate {
 
                 if($assemblyVote) {
                     // reset vote status (votes requires confirmation - except for votes already casted for which the attendee has left)
-                    if($assemblyVote['status'] === 'casted' && $representation['attendee_id']['has_left']) {
+                    if($assemblyVote['status'] === 'casted' && $representation['attendee_id']['has_early_departure']) {
                         // if vote is casted and attendee has left, leave it as is (must maintain 'cast_by')
                     }
                     else {

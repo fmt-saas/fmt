@@ -45,7 +45,8 @@
                     "assembly_item_id": "object.id"
                 }
             },
-            "visible": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ]
+            "visible": false,
+            "help": "[ [true, \"=\", \"object.has_vote_required\"], [\"open\", \"=\", \"object.status\"] ] was the visible value, but the component assemblyVoteCast needs to be modified to use the logic -> 1. select attendee -> 2. then select ownership (instead of the other way around -> 1. select ownership -> 2. then select attendee). Else it won't work with get realestate_governance_AssemblyItem_ownership-candidates."
         },
         {
             "id": "action.reopen",
