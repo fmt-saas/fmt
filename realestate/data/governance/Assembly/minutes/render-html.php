@@ -342,7 +342,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
         }
 
         $map_values = [
-            'late_arrival' => implode(', ', $late_arrival)
+            'late_arrival' => implode('; ', $late_arrival)
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -362,7 +362,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
         }
 
         $map_values = [
-            'early_departure' => implode(', ', $early_departure)
+            'early_departure' => implode('; ', $early_departure)
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
