@@ -534,6 +534,12 @@ class Assembly extends \equal\orm\Model {
     public static function getActions() {
         return [
 
+            'clone' => [
+                'description'   => 'Clone an Assembly.',
+                'policies'      => [],
+                'function'      => 'doCloneAssembly'
+            ],
+
             'auto_assign_location' => [
                 'description'   => 'Assign location based on Condominium address.',
                 'policies'      => [],
@@ -2568,9 +2574,110 @@ class Assembly extends \equal\orm\Model {
         return $result;
     }
 
+    /**
+     * Action handler for cloning a collection of Assembly objects
+     *
+     */
+    protected static function doCloneAssembly($self) {
+        $self->read(['condo_id', 'name', 'assembly_date', 'assembly_location', 'assembly_type', 'session_time_start', 'assembly_template_id']);
 
-    // #todo - ability to clone AG
-    protected static function doCloneAssembly() {
+        foreach($self as $id => $assembly) {
+
+            // 1) duplicate/create new assembly
+            $cloneAssembly = Assembly::create([
+                    'condo_id'              => $assembly['condo_id'],
+                    'name'                  => $assembly['name'] . " (copy)",
+                    'date'                  => $assembly['date'],
+                    'status'                => 'pending',
+                    'assembly_date'         => $assembly['assembly_date'],
+                    'assembly_location'     => $assembly['assembly_location'],
+                    'assembly_type'         => $assembly['assembly_type'],
+                    'session_time_start'    => $assembly['session_time_start'],
+                    'assembly_template_id'  => $assembly['assembly_template_id']
+                ])
+                ->first();
+
+            // 2) duplicate/create AssemblyItems
+            // we must perform creation in 2-pass in order to map group ids, if any
+            $map_parent_groups_ids = [];
+
+            // pass-1
+            $assemblyItems = AssemblyItem::search([
+                    ['assembly_id', '=', $id],
+                    ['is_group', '=', true]
+                ])
+                ->read([
+                    'name',
+                    'order',
+                    'code',
+                    'is_group',
+                    'has_parent_group'
+                ]);
+
+            foreach($assemblyItems as $assembly_item_id => $assemblyItem) {
+                $groupItem = AssemblyItem::create([
+                        'condo_id'              => $assembly['condo_id'],
+                        'assembly_id'           => $cloneAssembly['id'],
+                        'name'                  => $assemblyItem['name'],
+                        'code'                  => $assemblyItem['code'],
+                        'order'                 => $assemblyItem['order'],
+                        'assembly_template_id'  => $assembly['assembly_template_id'],
+                        'is_group'              => $assemblyItem['is_group'],
+                        'has_parent_group'      => $assemblyItem['has_parent_group']
+                    ])
+                    ->first();
+
+                $map_parent_groups_ids[$assembly_item_id] = $groupItem['id'];
+            }
+
+            // pass-2
+            $assemblyItems = AssemblyItem::search([
+                    ['assembly_id', '=', $id],
+                    ['is_group', '=', false]
+                ])
+                ->read([
+                    'name',
+                    'code',
+                    'order',
+                    'assembly_template_id',
+                    'is_group',
+                    'has_parent_group',
+                    'parent_group_id',
+                    'description_call',
+                    'description_minutes',
+                    'description_ballot',
+                    'has_vote_required',
+                    'majority',
+                    'apportionment_id'
+                ]);
+
+            foreach($assemblyItems as $assemblyItem) {
+                $parent_group_id = null;
+                if($assemblyItem['has_parent_group']) {
+                    $parent_group_id = $map_parent_groups_ids[$assemblyItem['parent_group_id']] ?? null;
+                }
+                AssemblyItem::create([
+                        'condo_id'              => $assembly['condo_id'],
+                        'assembly_id'           => $cloneAssembly['id'],
+                        'name'                  => $assemblyItem['name'],
+                        'code'                  => $assemblyItem['code'],
+                        'order'                 => $assemblyItem['order'],
+                        'assembly_template_id'  => $assembly['assembly_template_id'],
+                        'is_group'              => $assemblyItem['is_group'],
+                        'has_parent_group'      => ($assemblyItem['has_parent_group'] && boolval($parent_group_id)),
+                        'parent_group_id'       => $parent_group_id,
+                        'description_call'      => $assemblyItem['description_call'],
+                        'description_minutes'   => $assemblyItem['description_minutes'],
+                        'description_ballot'    => $assemblyItem['description_ballot'],
+                        'has_vote_required'     => $assemblyItem['has_vote_required'],
+                        'majority'              => $assemblyItem['majority'],
+                        'apportionment_id'      => $assemblyItem['apportionment_id']
+                    ])
+                    ->first();
+            }
+
+        }
+
     }
 
 }
