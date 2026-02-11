@@ -30,6 +30,10 @@ use realestate\sale\pay\Funding;
 
 class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
+    public static function getLink() {
+        return "/app/#/condo/:condo_id/accounting/purchase-invoice/object.id";
+    }
+
     public static function getColumns() {
         return [
             'condo_id' => [

@@ -11,6 +11,10 @@ use realestate\ownership\Ownership;
 
 class PropertyLot extends \equal\orm\Model {
 
+    public static function getLink() {
+        return "/app/#/condo/:condo_id/property-lot/object.id";
+    }
+
     public static function getColumns() {
         return [
             'condo_id' => [

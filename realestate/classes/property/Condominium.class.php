@@ -11,11 +11,9 @@ use equal\data\DataGenerator;
 use finance\accounting\AccountChart;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
-use finance\bank\Bank;
 use finance\bank\CondominiumBankAccount;
 use fmt\setting\Setting;
 use hr\role\Role;
-use hr\role\RoleAssignment;
 use identity\Identity;
 use purchase\supplier\Suppliership;
 
@@ -27,6 +25,10 @@ class Condominium extends Identity {
 
     public static function constants() {
         return ['FMT_INSTANCE_TYPE'];
+    }
+
+    public static function getLink() {
+        return "/app/#/condo/object.id";
     }
 
     public static function getColumns() {

@@ -15,6 +15,10 @@ class FiscalYear extends Model {
         return "Fiscal Year";
     }
 
+    public static function getLink() {
+        return "/app/#/condo/:condo_id/accounting/fiscal-year/object.id";
+    }
+
     public static function getColumns() {
         return [
 

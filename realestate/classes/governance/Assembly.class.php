@@ -26,6 +26,10 @@ class Assembly extends \equal\orm\Model {
         return ['L10N_TIMEZONE'];
     }
 
+    public static function getLink() {
+        return "/app/#/condo/:condo_id/accounting/general-assembly/object.id";
+    }
+
     public static function getColumns() {
 
         return [
