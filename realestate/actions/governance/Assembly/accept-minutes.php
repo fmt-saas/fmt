@@ -29,7 +29,7 @@ use realestate\governance\AssemblyAttendee;
                 ['attendee_role', 'in', ['attendee', 'president']],
                 ['is_valid', '=', true],
                 ['is_owner', '=', true],
-                ['has_left', '=', false]
+                ['has_early_departure', '=', false]
             ],
             'required'       => true
         ],
@@ -43,7 +43,7 @@ use realestate\governance\AssemblyAttendee;
                 ['assembly_id', '=', 'object.id'],
                 ['attendee_role', 'in', ['attendee', 'secretary']],
                 ['is_valid', '=', true],
-                ['has_left', '=', false]
+                ['has_early_departure', '=', false]
             ],
             'required'       => true
         ]

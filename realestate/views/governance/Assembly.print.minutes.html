@@ -85,6 +85,22 @@
             border: 1px solid black;
         }
 
+        .arrival-departure-notices {
+            margin-top: 30px;
+            padding: 10px;
+            border: 1px solid black;
+            page-break-inside: avoid;
+        }
+
+        .arrival-departure-notices > :nth-child(2) {
+            margin-top: 10px;
+        }
+
+        .late-arrival-notice,
+        .early-departure-notice {
+            /*margin-top: 10px;*/
+        }
+
     </style>
 </head>
 
@@ -300,12 +316,21 @@
     </div>
     {% endfor %}
 
-    <!-- <div>
+    {% if has_late_arrival or has_early_departure %}
+        <div class="arrival-departure-notices">
+            {% if has_late_arrival %}
+                <div class="late-arrival-notice">
+                    {{ late_arrival_notice | raw }}
+                </div>
+            {% endif %}
 
-        #todo - add `late_arrival_notice` & `early_leaving_notice`
-
-    </div> -->
-
+            {% if has_early_departure %}
+                <div class="early-departure-notice">
+                    {{ early_departure_notice | raw }}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
 
     <div class="conclusion" style="margin-top: 30px;">
         {{ conclusion | raw }}

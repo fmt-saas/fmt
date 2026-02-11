@@ -29,7 +29,7 @@ use realestate\governance\AssemblyAttendee;
             'domain'            => [
                 ['assembly_id', '=', 'object.id'],
                 ['is_valid', '=', true],
-                ['has_left', '=', false]
+                ['has_early_departure', '=', false]
             ],
             'required'          => true
         ],
@@ -134,7 +134,7 @@ if(!$assembly) {
 }
 
 $assemblyAttendee = AssemblyAttendee::id($params['attendee_id'])
-    ->read(['identity_id', 'is_valid', 'has_left'])
+    ->read(['identity_id', 'is_valid', 'has_early_departure'])
     ->first();
 
 if(!$assemblyAttendee) {
@@ -145,7 +145,7 @@ if(!$assemblyAttendee['is_valid']) {
     throw new Exception("invalid_attendee", EQ_ERROR_INVALID_PARAM);
 }
 
-if($assemblyAttendee['has_left']) {
+if($assemblyAttendee['has_early_departure']) {
     throw new Exception("non_present_attendee", EQ_ERROR_INVALID_PARAM);
 }
 
