@@ -216,7 +216,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'condo'             => $assembly['condo_id']['name'],
             'assembly'          => $assembly['name'],
             'type'              => $map_types[$assembly['assembly_type']],
-            'date'              => $assembly['assembly_date']
+            'date'              => $getFormattedDate($assembly['assembly_date'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -234,7 +234,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'firstname'         => $assemblyMinutesCorrespondence['owner_id']['firstname'],
             'lastname'          => $assemblyMinutesCorrespondence['owner_id']['lastname'],
             'condo'             => $assembly['condo_id']['name'],
-            'date'              => $getFormattedDate($assembly['assembly_date']),
+            'date'              => $getFormattedDate($assembly['assembly_date'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
