@@ -92,6 +92,7 @@ $tests = [
                             'bank_account_id'               => $savingsAccount['id'],
                             'counterpart_bank_account_id'   => $currentAccount['id']
                         ])
+                        ->read(['id'])
                         ->first();
 
                     return $moneyTransfer;
