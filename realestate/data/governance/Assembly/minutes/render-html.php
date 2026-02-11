@@ -148,6 +148,7 @@ $assembly = Assembly::id($params['id'])
             'departure_time',
             'has_early_departure',
             'has_signed_minutes',
+            'assembly_representations_ids' => ['ownership_id' => ['name']],
             'minutes_document_signature_id' => ['sig_method', 'sig_drawn', 'sig_hash', 'sig_algo', 'sig_timestamp']
         ],
         'assembly_items_ids' => [
@@ -337,7 +338,9 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $late_arrival = [];
         foreach($assembly['assembly_attendees_ids'] as $attendee) {
             if($attendee['has_late_arrival']) {
-                $late_arrival[] = $attendee['name'].' ('.$getFormattedTime($attendee['arrival_time']).')';
+                foreach($attendee['assembly_representations_ids'] as $representation) {
+                    $late_arrival[] = $representation['ownership_id']['name'].' ('.$getFormattedTime($attendee['arrival_time']).')';
+                }
             }
         }
 
@@ -357,7 +360,9 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $early_departure = [];
         foreach($assembly['assembly_attendees_ids'] as $attendee) {
             if($attendee['has_early_departure']) {
-                $early_departure[] = $attendee['name'].' ('.$getFormattedTime($attendee['departure_time']).')';
+                foreach($attendee['assembly_representations_ids'] as $representation) {
+                    $early_departure[] = $representation['ownership_id']['name'].' ('.$getFormattedTime($attendee['departure_time']).')';
+                }
             }
         }
 
