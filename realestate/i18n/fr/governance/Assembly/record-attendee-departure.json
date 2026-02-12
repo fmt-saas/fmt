@@ -1,0 +1,26 @@
+{
+    "name": "Acter le depart d'un participant",
+    "plural": "Acter le depart de participants",
+    "description": "Acter le depart d'un participant avant la clôture de l'assemblée.",
+    "model": {
+        "id": {
+            "label": "Assemblée",
+            "description": "Assemblée concernée par le départ du participant."
+        },
+        "attendee_id": {
+            "label": "Participant",
+            "description": "Participant quittant l'assemblée."
+        }
+    },
+    "error": {
+        "errors": {
+            "unknown_assembly": "Assemblée inconnue.",
+            "assembly_status_must_be_in_progress": "L'assemblée doit être en cours.",
+            "assembly_step_must_be_agenda_processing": "L'assemblée doit être en traitement de l'ordre du jour.",
+            "unknown_attendee": "Participant inconnu.",
+            "attendee_already_left": "Le participant a déjà quitté l'assemblée.",
+            "secretary_or_president_cannot_leave_early": "Le secrétaire ou président ne peuvent pas quitter l'assemblée avant sa clôture.",
+            "assembly_attendee_mismatch": "Le participant ne fait pas partie de l'assemblée."
+        }
+    }
+}
