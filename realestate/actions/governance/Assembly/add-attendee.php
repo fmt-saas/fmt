@@ -17,7 +17,7 @@ use realestate\governance\AssemblyRepresentation;
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
-            'description'       => "The assembly the invitation refers to.",
+            'description'       => "The assembly the attendee must be added to.",
             'foreign_object'    => 'realestate\governance\Assembly',
             'required'          => true
         ],
@@ -367,8 +367,21 @@ foreach($owners as $owner_id => $owner) {
     ]);
 }
 
+// 6) refresh assembly valid/invalid alert
+
 Assembly::id($params['id'])->update(['count_represented_shares' => null, 'count_represented_owners' => null]);
 
+$dispatch->cancel('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $params['id']);
+$dispatch->cancel('realestate.workflow.assembly.valid', 'realestate\governance\Assembly', $params['id']);
+
+try {
+    Assembly::id($params['id'])->assert('is_assembly_valid');
+
+    $dispatch->dispatch('realestate.workflow.assembly.valid', 'realestate\governance\Assembly', $params['id'], 'notice');
+}
+catch(Exception $e) {
+    $dispatch->dispatch('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $params['id'], 'important');
+}
 
 $context->httpResponse()
         ->body($attendee)

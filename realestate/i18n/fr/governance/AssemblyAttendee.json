@@ -158,6 +158,10 @@
                 "action.leave_assembly": {
                     "label": "Acter le départ",
                     "description": "Marquer le participant comme ayant quitté l'assemblée."
+                },
+                "action.delete": {
+                    "label": "Supprimer",
+                    "description": "Supprimer le participant."
                 }
             }
         }
