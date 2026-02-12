@@ -220,9 +220,9 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'default'           => false
             ],
 
-            'has_left' => [
+            'has_early_departure' => [
                 'type'              => 'boolean',
-                'description'       => "Indicates whether the attendee has definitively left the assembly.",
+                'description'       => "Indicates whether the attendee has definitively left the assembly early.",
                 'default'           => false
             ],
 
@@ -301,8 +301,8 @@ class AssemblyAttendee extends \equal\orm\Model {
 
     protected static function doLeaveAssembly($self) {
         $self->update([
-                'has_left'          => true,
-                'departure_time'    => (fn($now) => $now - strtotime('today', $now))(time())
+                'has_early_departure'   => true,
+                'departure_time'        => (fn($now) => $now - strtotime('today', $now))(time())
             ]);
     }
 
@@ -423,7 +423,7 @@ class AssemblyAttendee extends \equal\orm\Model {
 
             $ownerships_ids = [];
             foreach($assemblyAttendee['assembly_representations_ids'] as $assemblyRepresentation) {
-                $assemblyRepresentation['ownership_id'];
+                $ownerships_ids[] = $assemblyRepresentation['ownership_id'];
             }
 
             // 1) identify the lots

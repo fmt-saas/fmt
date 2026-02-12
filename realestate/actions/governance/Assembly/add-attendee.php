@@ -319,7 +319,8 @@ $attendee = AssemblyAttendee::create([
         'has_mandate'                    => $params['has_mandate'],
         'register_document_signature_id' => $documentSignature['id'],
         'has_signed_register'            => true,
-        'arrival_time'                   => (fn($now) => $now - strtotime('today', $now))(time())
+        'arrival_time'                   => (fn($now) => $now - strtotime('today', $now))(time()),
+        'has_late_arrival'               => $assembly['step'] === 'agenda_processing'
     ])
     ->adapt('json')
     ->first(true);

@@ -94,14 +94,14 @@ if($apportionmentShares->count() <= 0) {
 }
 
 $attendee = AssemblyAttendee::id($params['attendee_id'])
-    ->read(['has_left'])
+    ->read(['has_early_departure'])
     ->first();
 
 if(!$attendee) {
     throw new Exception("unknown_attendee", EQ_ERROR_INVALID_PARAM);
 }
 
-if($attendee['has_left']) {
+if($attendee['has_early_departure']) {
     throw new Exception("left_attendee_cannot_cast_vote", EQ_ERROR_INVALID_PARAM);
 }
 
