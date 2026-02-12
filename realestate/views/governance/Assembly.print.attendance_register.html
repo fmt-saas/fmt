@@ -95,15 +95,9 @@
 
     {% include 'header.html.twig' %}
 
-    {% set assemblyTypes = {
-        'statutory': 'Assemblée Générale Statutaire',
-        'takeover': 'Assemblée Générale de Reprise de gestion',
-        'ordinary': 'Assemblée Générale Ordinaire',
-        'extraordinary': 'Assemblée Générale Extraordinaire'
-    } %}
-    <p>
-        Liste des présences de l'{{ assemblyTypes[assembly.assembly_type] ?? 'Type inconnu' }} tenue à l'adresse {{ assembly.assembly_location }} à la date du {{ assembly.assembly_date | date(date_format, timezone) }}.
-    </p>
+    <div class="introduction" style="height: 250px; overflow: hidden; text-overflow: ellipsis;">
+        {{ introduction | raw }}
+    </div>
 
     <table class="attendance-table">
 

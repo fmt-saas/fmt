@@ -311,7 +311,7 @@
                     "description": ""
                 },
                 "route.preview_agenda": {
-                    "label": "Prévisualiser l'ordre du jour",
+                    "label": "Prévisualiser ordre du jour",
                     "description": ""
                 },
                 "route.print_attendance_register_full": {
@@ -433,6 +433,16 @@
         "list.default": {
             "name": "Assemblées",
             "description": "Vue des assemblées planifiées et de leur statut.",
+            "header": {
+                "selection": {
+                    "actions" : {
+                        "action.duplicate": {
+                            "label": "Dupliquer l'assemblée",
+                            "description": "Créer une nouvelle assemblée en copiant la sélection."
+                        }
+                    }
+                }
+            },
             "layout": {}
         },
         "list.condo": {

@@ -338,7 +338,7 @@ class Assembly extends \equal\orm\Model {
                 'rel_foreign_key'   => 'ownership_id',
                 'rel_local_key'     => 'assembly_id',
                 'description'       => 'Ownerships that are concerned by the assembly.',
-                'help'              => 'This field is filled automatically at assembly publication. Independently from attendance.'
+                'help'              => 'This field is filled automatically at assembly publication. Independently from attendance. Might differ from the ownerships of the condominium when the Assembly is actually held.'
             ],
 
             'assembly_mandates_ids' => [

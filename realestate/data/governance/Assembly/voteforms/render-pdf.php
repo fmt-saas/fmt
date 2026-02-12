@@ -17,11 +17,6 @@ use realestate\governance\Assembly;
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\governance\Assembly',
             'required'          => true
-        ],
-        'ownership_id' => [
-            'description'       => 'Identifier of the specific Ownership to consider, if any.',
-            'type'              => 'many2one',
-            'foreign_object'    => 'realestate\ownership\Ownership'
         ]
     ],
     'access'        => [
@@ -38,48 +33,67 @@ use realestate\governance\Assembly;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-$assembly = Assembly::id($params['id'])->first();
+$assembly = Assembly::id($params['id'])
+    ->read([
+        'ownerships_ids' => ['name']
+    ])
+    ->first();
 
 if(!$assembly) {
     throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+usort($assembly['ownerships_ids'], fn($a, $b) => strcmp($a['name'], $b['name']));
+
+$temp_files = [];
+$output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
+
 try {
-    $data = ['id' => $params['id']];
-    if(isset($params['ownership_id'])) {
-        $data['ownership_id'] = $params['ownership_id'];
+
+    foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
+        try {
+            $pdf = eQual::run('get', 'realestate_governance_Assembly_voteforms_single-pdf', [
+                    'id'            => $assembly['id'],
+                    'ownership_id'  => $ownership_id
+                ]);
+            $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+            file_put_contents($temp, $pdf);
+            $temp_files[] = $temp;
+        }
+        catch(Exception $e) {
+            // ignore (ownership with no expense ?)
+        }
     }
 
-    $html = (string) eQual::run('get', 'realestate_governance_Assembly_voteforms_render-html', $data);
+    $escaped_files = array_map('escapeshellarg', $temp_files);
+    $escaped_output = escapeshellarg($output_file);
+    $cmd = 'qpdf --empty --pages ' . implode(' ', $escaped_files) . ' -- ' . $escaped_output . ' 2>&1';
 
-    /*
-        Convert HTML to PDF
-    */
+    exec($cmd, $output_lines, $result_code);
 
-    // instantiate and use the dompdf class
-    $options = new DompdfOptions();
-    $options->set('isRemoteEnabled', true);
+    if ($result_code !== 0 || !file_exists($output_file)) {
+        trigger_error("APP::qpdf merge failed:\n" . implode("\n", $output_lines), EQ_REPORT_ERROR);
+        throw new Exception('pdf_merge_failed', EQ_ERROR_UNKNOWN);
+    }
 
-    $dompdf = new Dompdf($options);
-    $dompdf->setPaper('A4', 'portrait');
-    $dompdf->loadHtml($html);
-    $dompdf->render();
-    $canvas = $dompdf->getCanvas();
-
-    $page_count = $canvas->get_page_count();
-
-    $font = $dompdf->getFontMetrics()->getFont("helvetica", "regular");
-
-    // get generated PDF raw binary
-    $output = $dompdf->output();
+    $output = file_get_contents($output_file);
 }
 catch(Exception $e) {
     trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
+finally {
+    foreach($temp_files as $file) {
+        if(isset($file) && is_file($file)) {
+            @unlink($file);
+        }
+    }
+    if(isset($output_file) && is_file($output_file)) {
+        @unlink($output_file);
+    }
+}
 
 $context->httpResponse()
-        // ->header('Content-Disposition', 'attachment; filename="document.pdf"')
         ->header('Content-Disposition', 'inline; filename="document.pdf"')
         ->body($output)
         ->send();

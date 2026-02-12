@@ -104,57 +104,67 @@
 </head>
 
 <body>
-    {% for ownership in ownerships %}
-        <div class="ownership-wrapper">
-            <table class="details-table">
-                <tr>
-                    <td class="col-assembly">
-                        <div><span class="bold">Assemblée</span> : {{ assembly.name }}</div>
-                        <div><span class="bold">Date</span> : {{ assembly.assembly_date | date(date_format, timezone) }}</div>
-                    </td>
-                    <td>
-                        <div><span class="bold">Propriétaire</span> : {{ ownership.name }}</div>
-                    </td>
-                </tr>
-            </table>
 
-            <table class="vote-form-table">
+    <h2 style="margin-bottom: 10px;">{{ title }}</h2>
+
+    <div class="ownership-wrapper">
+        <table class="details-table">
+            <tr>
+                <td class="col-assembly">
+                    <div><span class="bold">Assemblée</span> : {{ assembly.name }}</div>
+                    <div><span class="bold">Date</span> : {{ assembly.assembly_date | date(date_format, timezone) }}</div>
+                </td>
+                <td>
+                    <div style="text-align: right;"><span class="bold">Propriétaire</span> : {{ ownership.name }}</div>
+                </td>
+            </tr>
+        </table>
+
+        <table class="vote-form-table">
+            <tr>
+                <th>N°</th>
+                <th class="col-name-th">Nom</th>
+                <th colspan="3"></th>
+            </tr>
+            {% for vote_item in vote_items %}
+                {% if vote_item.has_vote_required %}
                 <tr>
-                    <th>N°</th>
-                    <th class="col-name-th">Nom</th>
-                    <th colspan="3"></th>
+                    <td>{{ vote_item.order }}</td>
+                    <td class="col-name-td"><strong>{{ vote_item.name }}</strong></td>
+                    <td class="col-vote">
+                        <span>Pour</span>
+                        <div class="checkbox"></div>
+                    </td>
+                    <td class="col-vote">
+                        <span>Contre</span>
+                        <div class="checkbox"></div>
+                    </td>
+                    <td class="col-vote">
+                        <span>Abstention</span>
+                        <div class="checkbox"></div>
+                    </td>
                 </tr>
-                {% for vote_item in vote_items %}
+                <tr>
+                    <td colspan="5">
+                        <div style="margin-left: 20px; font-style: italic; margin-bottom: 10px;">{{ vote_item.description_ballot }}</div>
+                    </td>
+                </tr>
+                {% else %}
                     <tr>
                         <td>{{ vote_item.order }}</td>
                         <td class="col-name-td">{{ vote_item.name }}</td>
-                        {% if vote_item.has_vote_required %}
-                            <td class="col-vote">
-                                <span>Oui</span>
-                                <div class="checkbox"></div>
-                            </td>
-                            <td class="col-vote">
-                                <span>Non</span>
-                                <div class="checkbox"></div>
-                            </td>
-                            <td class="col-vote">
-                                <span>Abstention</span>
-                                <div class="checkbox"></div>
-                            </td>
-                        {% else %}
-                            <td colspan="3"></td>
-                        {% endif %}
+                        <td colspan="3"></td>
                     </tr>
                     {% for child_vote_item in vote_item.children %}
                         <tr>
                             <td class="col-order-child">{{ vote_item.order }}.{{ child_vote_item.order }}</td>
                             <td>{{ child_vote_item.name }}</td>
                             <td class="col-vote">
-                                <span>Oui</span>
+                                <span>Pour</span>
                                 <div class="checkbox"></div>
                             </td>
                             <td class="col-vote">
-                                <span>Non</span>
+                                <span>Contre</span>
                                 <div class="checkbox"></div>
                             </td>
                             <td class="col-vote">
@@ -162,13 +172,16 @@
                                 <div class="checkbox"></div>
                             </td>
                         </tr>
+                        <tr>
+                            <td colspan="5">
+                                <div style="margin-left: 20px; font-style: italic; margin-bottom: 10px;">{{ child_vote_item.description_ballot }}</div>
+                            </td>
+                        </tr>
                     {% endfor %}
-                {% endfor %}
-            </table>
-        </div>
-        {% if not loop.last %}
-            <div class="page-break"></div>
-        {% endif %}
-    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </table>
+    </div>
+
 </body>
 </html>
