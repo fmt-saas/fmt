@@ -405,7 +405,7 @@
                     "description": "Enregistrer un participant supplémentaire et recueillir ses mandats/signatures."
                 },
                 "action.attendee_record_departure": {
-                    "label": "Acter le départ d'un participant",
+                    "label": "Acter départ participant",
                     "description": "Acter le départ d'un participant avant la clôture de l'assemblée."
                 },
                 "action.close_attendance": {

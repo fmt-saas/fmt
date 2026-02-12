@@ -27,14 +27,13 @@ use realestate\governance\AssemblyRepresentation;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context', 'dispatch']
+    'providers'     => ['context']
 ]);
 
 /**
  * @var \equal\php\Context          $context
- * @var \equal\dispatch\Dispatcher  $dispatch
  */
-['context' => $context, 'dispatch' => $dispatch] = $providers;
+['context' => $context] = $providers;
 
 $attendee = AssemblyAttendee::id($params['id'])
     ->read([
@@ -67,27 +66,22 @@ if($attendee['assembly_id']['step'] !== 'opening') {
 // 1) delete attendee and object related to it
 
 if($attendee['register_document_signature_id']) {
-    DocumentSignature::id($attendee['register_document_signature_id'])->delete();
+    DocumentSignature::id($attendee['register_document_signature_id'])->delete(true);
 }
 
-AssemblyRepresentation::search(['attendee_id', '=', $attendee['id']])->delete();
+AssemblyRepresentation::search(['attendee_id', '=', $attendee['id']])->delete(true);
 
-AssemblyAttendee::id($attendee['id'])->delete();
+AssemblyAttendee::id($attendee['id'])->delete(true);
 
 // 2) refresh assembly valid/invalid alert
 
 Assembly::id($attendee['assembly_id']['id'])->update(['count_represented_shares' => null, 'count_represented_owners' => null]);
 
-$dispatch->cancel('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $attendee['assembly_id']['id']);
-$dispatch->cancel('realestate.workflow.assembly.valid', 'realestate\governance\Assembly', $attendee['assembly_id']['id']);
-
 try {
-    Assembly::id($attendee['assembly_id']['id'])->assert('is_assembly_valid');
-
-    $dispatch->dispatch('realestate.workflow.assembly.valid', 'realestate\governance\Assembly', $attendee['assembly_id']['id'], 'notice');
+    eQual::run('do', 'realestate_governance_Assembly_check-quorum', ['id' => $attendee['assembly_id']['id']]);
 }
 catch(Exception $e) {
-    $dispatch->dispatch('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $attendee['assembly_id']['id'], 'important');
+    // ignore in case of error (non critical)
 }
 
 $context->httpResponse()

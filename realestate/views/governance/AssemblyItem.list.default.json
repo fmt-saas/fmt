@@ -125,7 +125,8 @@
                 "name": "assemblyVoteBoard",
                 "data": {
                     "assembly_id": "object.assembly_id",
-                    "assembly_item_id": "object.id"
+                    "assembly_item_id": "object.id",
+                    "_isFullscreen": true
                 }
             },
             "visible": [ [true, "=", "object.has_vote_required"], ["open", "=", "object.status"] ]

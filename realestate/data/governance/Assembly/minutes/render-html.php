@@ -261,6 +261,7 @@ $template = Template::search([
     ->read( ['id','parts_ids' => ['name', 'value']])
     ->first(true);
 
+// #todo #translation
 $map_types = [
     'statutory' => 'Assemblée Générale Statutaire',
     'takeover' => 'Assemblée Générale de Reprise de gestion',

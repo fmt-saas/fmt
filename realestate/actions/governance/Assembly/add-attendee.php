@@ -105,14 +105,13 @@ use realestate\governance\AssemblyRepresentation;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context', 'dispatch']
+    'providers'     => ['context']
 ]);
 
 /**
  * @var \equal\php\Context                 $context
- * @var \equal\dispatch\Dispatcher         $dispatch
  */
-['context' => $context, 'dispatch' => $dispatch] = $providers;
+['context' => $context] = $providers;
 
 $computeSignerInfoFromCert = function (string $cert): array {
     $pem =  "-----BEGIN CERTIFICATE-----\n"
@@ -219,13 +218,13 @@ else {
             $hash = hash('sha256', $params['citizen_identification'] . constant('AUTH_SECRET_KEY'));
 
             $identity = Identity::search([
-                [
-                    ['citizen_identification', '=', $params['citizen_identification']]
-                ],
-                [
-                    ['hash_sha256', '=', $hash]
-                ]
-            ])
+                    [
+                        ['citizen_identification', '=', $params['citizen_identification']]
+                    ],
+                    [
+                        ['hash_sha256', '=', $hash]
+                    ]
+                ])
                 ->first();
         }
 
@@ -367,20 +366,15 @@ foreach($owners as $owner_id => $owner) {
     ]);
 }
 
-// 6) refresh assembly valid/invalid alert
+// 6) refresh assembly computed fields & alerts
 
 Assembly::id($params['id'])->update(['count_represented_shares' => null, 'count_represented_owners' => null]);
 
-$dispatch->cancel('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $params['id']);
-$dispatch->cancel('realestate.workflow.assembly.valid', 'realestate\governance\Assembly', $params['id']);
-
 try {
-    Assembly::id($params['id'])->assert('is_assembly_valid');
-
-    $dispatch->dispatch('realestate.workflow.assembly.valid', 'realestate\governance\Assembly', $params['id'], 'notice');
+    eQual::run('do', 'realestate_governance_Assembly_check-quorum', ['id' => $params['id']]);
 }
 catch(Exception $e) {
-    $dispatch->dispatch('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $params['id'], 'important');
+    // ignore in case of error (non critical)
 }
 
 $context->httpResponse()

@@ -210,6 +210,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
         $subject = strip_tags($part['value']);
 
+        // #todo #translation
         $map_types = [
             'statutory' => 'Assemblée Générale Statutaire',
             'takeover' => 'Assemblée Générale de Reprise de gestion',
@@ -235,6 +236,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
     elseif($part['name'] == 'introduction') {
         $introduction = $part['value'];
 
+        // #todo #translation
         $map_types = [
             'statutory' => 'Assemblée Générale Statutaire',
             'takeover' => 'Assemblée Générale de Reprise de gestion',

@@ -27,7 +27,10 @@
                                                 "type": "field",
                                                 "label": "Attendee",
                                                 "value": "attendee_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "autoselect": false
+                                                }
                                             },
                                             {
                                                 "type": "field",

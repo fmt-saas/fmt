@@ -42,7 +42,8 @@
                 "name": "assemblyVoteCast",
                 "data": {
                     "assembly_id": "object.assembly_id",
-                    "assembly_item_id": "object.id"
+                    "assembly_item_id": "object.id",
+                    "_isFullScreen": true
                 }
             },
             "visible": false,

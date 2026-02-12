@@ -38,7 +38,7 @@ class AssemblyMandate extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "Attendee holder of the mandate.",
                 'foreign_object'    => 'realestate\governance\AssemblyAttendee',
-                'ondelete'          => 'cascade',
+                'ondelete'          => 'null',
                 // 'required'          => true,
                 'dependents'        => ['identity_id']
             ],
