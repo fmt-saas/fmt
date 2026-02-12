@@ -41,17 +41,6 @@
             "visible": ["status", "=", "pending"]
         },
         {
-            "id": "action.leave_assembly",
-            "label": "Record departure",
-            "description": "Mark the attendee as having left the Assembly.",
-            "controller": "core_model_do",
-            "params": {
-                "entity": "realestate\\governance\\AssemblyAttendee",
-                "action": "leave_assembly"
-            },
-            "visible": ["has_early_departure", "=", false]
-        },
-        {
             "id": "action.delete",
             "label": "Delete attendee",
             "description": "Delete an attendee.",

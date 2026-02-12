@@ -1,0 +1,19 @@
+{
+    "name": "Supprimer participant",
+    "plural": "Supprimer participants",
+    "description": "Supprime un participant d'une assemblée.",
+    "model": {
+        "id": {
+            "label": "Participant",
+            "description": "Participant à supprimer."
+        }
+    },
+    "error": {
+        "errors": {
+            "unknown_assembly_attendee": "Aucun participant correspondant.",
+            "secretary_or_president_cannot_be_deleted": "Un secrétaire ou président ne peut pas être supprimé.",
+            "wrong_assembly_status": "L'assemblée doit être à l'état en cours.",
+            "wrong_assembly_step": "L'assemblée doit être en étape d'ouverture."
+        }
+    }
+}

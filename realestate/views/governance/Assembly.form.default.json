@@ -334,6 +334,24 @@
             ]
         },
         {
+            "id": "action.attendee_record_departure",
+            "label": "Record attendee's departure",
+            "description": "Mark the attendee as having left the Assembly early.",
+            "controller": "realestate_governance_Assembly_record-attendee-departure",
+            "visible": [
+                [
+                    "status",
+                    "=",
+                    "in_progress"
+                ],
+                [
+                    "step",
+                    "=",
+                    "agenda_processing"
+                ]
+            ]
+        },
+        {
             "id": "action.close_attendance",
             "label": "Close Attendance",
             "description": "Close the attendance part of the session: no more attendance will be registered afterward.",
