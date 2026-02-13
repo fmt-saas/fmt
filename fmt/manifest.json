@@ -32,6 +32,13 @@
                 "generic": "poppler-utils",
                 "macos": "poppler"
             }
+        },
+        "ghostscript": {
+            "version": ">=10.0",
+            "check": "ghostscript --version",
+            "package": {
+                "generic": "ghostscript"
+            }
         }
     },
     "config": {
