@@ -859,10 +859,10 @@ class Identity extends Model {
                 'address_country',
                 'nationality',
                 'registration_number',
+                'citizen_identification',
                 'short_name',
                 'bank_account_iban',
                 'bank_account_bic',
-                'citizen_identification',
                 'gender',
                 'title',
                 'date_of_birth',
@@ -874,10 +874,13 @@ class Identity extends Model {
 
         $self->read(['object_class', 'identity_id']);
         foreach($self as $id => $object) {
+            trigger_error("APP::checking identity " . $object['identity_id'], EQ_REPORT_ERROR);
             if(!$object['identity_id']) {
                 continue;
             }
-            if(!is_a($object['object_class'], Identity::class, true)) {
+            trigger_error("APP::checking class " . $object['object_class'], EQ_REPORT_ERROR);
+            if($object['object_class'] !== 'identity\\Identity') {
+                trigger_error("APP::loading parent", EQ_REPORT_ERROR);
                 $parentIdentity = Identity::id($object['identity_id'])
                     ->read($common_fields)
                     ->first(true);
@@ -894,12 +897,14 @@ class Identity extends Model {
                 }
                 try {
                     $orm_events = $orm->disableEvents();
+                    trigger_error("APP::updating values to target object", EQ_REPORT_ERROR);
                     $object['object_class']::id($id)->update($values);
                 }
                 finally {
                     $orm->enableEvents($orm_events);
                 }
             }
+            trigger_error("APP::updating backlink ref to identity", EQ_REPORT_ERROR);
             // force sync backlink from target Identity
             $object['object_class']::id($id)->update(['identity_id' => $object['identity_id']]);
         }
@@ -1146,36 +1151,36 @@ class Identity extends Model {
     protected static function onupdateUuid($self, $orm) {
         $self->read(['object_class', 'uuid', 'user_id', 'contact_id', 'tenant_id', 'employee_id', 'managing_agent_id', 'customer_id', 'supplier_id', 'condominium_id', 'organisation_id']);
         $events = $orm->disableEvents();
-        foreach($self as $id => $identity) {
-            if (!is_a($identity['object_class'], Identity::class, true)) {
+        foreach($self as $id => $object) {
+            if($object['object_class'] !== 'identity\\Identity') {
                 continue;
             }
-            if($identity['user_id']) {
-                User::id($identity['user_id'])->update(['identity_uuid' => $identity['uuid']]);
+            if($object['user_id']) {
+                User::id($object['user_id'])->update(['identity_uuid' => $object['uuid']]);
             }
-            if($identity['contact_id']) {
-                Contact::id($identity['contact_id'])->update(['identity_uuid' => $identity['uuid']]);
+            if($object['contact_id']) {
+                Contact::id($object['contact_id'])->update(['identity_uuid' => $object['uuid']]);
             }
-            if($identity['employee_id']) {
-                Employee::id($identity['employee_id'])->update(['identity_uuid' => $identity['uuid']]);
+            if($object['employee_id']) {
+                Employee::id($object['employee_id'])->update(['identity_uuid' => $object['uuid']]);
             }
-            if($identity['customer_id']) {
-                Customer::id($identity['customer_id'])->update(['identity_uuid' => $identity['uuid']]);
+            if($object['customer_id']) {
+                Customer::id($object['customer_id'])->update(['identity_uuid' => $object['uuid']]);
             }
-            if($identity['condominium_id']) {
-                Condominium::id($identity['condominium_id'])->update(['identity_uuid' => $identity['uuid']]);
+            if($object['condominium_id']) {
+                Condominium::id($object['condominium_id'])->update(['identity_uuid' => $object['uuid']]);
             }
-            if($identity['supplier_id']) {
-                Supplier::id($identity['supplier_id'])->update(['identity_uuid' => $identity['uuid']]);
+            if($object['supplier_id']) {
+                Supplier::id($object['supplier_id'])->update(['identity_uuid' => $object['uuid']]);
             }
-            if($identity['organisation_id']) {
-                Organisation::id($identity['organisation_id'])->update(['identity_uuid' => $identity['uuid']]);
+            if($object['organisation_id']) {
+                Organisation::id($object['organisation_id'])->update(['identity_uuid' => $object['uuid']]);
             }
-            if($identity['managing_agent_id']) {
-                ManagingAgent::id($identity['managing_agent_id'])->update(['identity_uuid' => $identity['uuid']]);
+            if($object['managing_agent_id']) {
+                ManagingAgent::id($object['managing_agent_id'])->update(['identity_uuid' => $object['uuid']]);
             }
-            if($identity['tenant_id']) {
-                Tenant::id($identity['tenant_id'])->update(['identity_uuid' => $identity['uuid']]);
+            if($object['tenant_id']) {
+                Tenant::id($object['tenant_id'])->update(['identity_uuid' => $object['uuid']]);
             }
         }
         $orm->enableEvents($events);
@@ -1561,7 +1566,7 @@ class Identity extends Model {
 
                 $object['object_class']::id($id)->update(['uuid' => $uuid]);
             }
-            if(!is_a($object['object_class'], Identity::class, true)) {
+            if($object['object_class'] !== 'identity\\Identity') {
                 continue;
             }
             if($object['type_id'] === 1 && (!$object['citizen_identification'] || strlen($object['citizen_identification']) <= 0)) {
@@ -1578,7 +1583,7 @@ class Identity extends Model {
         $self->read(['identity_id', 'type_id', 'citizen_identification', 'registration_number']);
 
         // Class inherits from Identity but uses a distinct table: check if a new Identity should be created
-        if(!is_a(static::getType(), Identity::class, true)) {
+        if(static::getType() !== 'identity\\Identity') {
             $common_fields = [
                     'source',
                     'type_id','has_vat','vat_number','legal_name','firstname','lastname','lang_id',
