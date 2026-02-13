@@ -11,6 +11,7 @@ use documents\Document;
     'description'   => "Returns the given PDF document with an overlay.",
     'help'          => "Can be used to add a watermark or extra information to a PDF document. Options are available to avoid overwriting any existing text or image.",
     'params'        => [
+
         'id' => [
             'type'              => 'many2one',
             'foreign_object'    => 'documents\Document',
@@ -59,6 +60,7 @@ use documents\Document;
             'description'       => "The text value to use as overlay.",
             'required'          => true
         ]
+
     ],
     'response'      => [
         'content-type'  => 'application/pdf',
