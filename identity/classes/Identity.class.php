@@ -873,13 +873,12 @@ class Identity extends Model {
             ];
 
         $self->read(['object_class', 'identity_id']);
-        foreach($self as $id => $identity) {
-            if(!$identity['identity_id']) {
+        foreach($self as $id => $object) {
+            if(!$object['identity_id']) {
                 continue;
             }
-            if(substr($identity['object_class'], strrpos($identity['object_class'], '\\') + 1) !== 'Identity') {
-                $orm_events = $orm->disableEvents();
-                $parentIdentity = Identity::id($identity['identity_id'])
+            if(!is_a($object['object_class'], Identity::class, true)) {
+                $parentIdentity = Identity::id($object['identity_id'])
                     ->read($common_fields)
                     ->first(true);
 
@@ -893,13 +892,17 @@ class Identity extends Model {
                         $values[$field] = $parentIdentity[$field];
                     }
                 }
-                self::id($id)->update($values);
-                $orm->enableEvents($orm_events);
+                try {
+                    $orm_events = $orm->disableEvents();
+                    $object['object_class']::id($id)->update($values);
+                }
+                finally {
+                    $orm->enableEvents($orm_events);
+                }
             }
             // force sync backlink from target Identity
-            self::id($id)->update(['identity_id' => $identity['identity_id']]);
+            $object['object_class']::id($id)->update(['identity_id' => $object['identity_id']]);
         }
-
     }
 
     // #memo - this is also done in onupdate handler
@@ -929,7 +932,7 @@ class Identity extends Model {
             else {
                 if(!$mainBankAccount['is_primary']) {
                     BankAccount::search([['owner_identity_id', '=', $id]])->update(['is_primary' => false]);
-                    BankAccount::id($mainBankAccount['is_primary'])->update(['is_primary' => true]);
+                    BankAccount::id($mainBankAccount['id'])->update(['is_primary' => true]);
                 }
             }
         }
@@ -948,7 +951,7 @@ class Identity extends Model {
             $mainAddress = Address::search([['owner_identity_id', '=', $identity_id], ['is_primary', '=', true]]);
             if(!$mainAddress) {
                 $mainAddress = Address::create([
-                    'owner_identity_id' => $id,
+                    'owner_identity_id' => $identity_id,
                     'is_primary'        => true,
                     'address_street'    => $identity['address_street'],
                     'address_dispatch'  => $identity['address_dispatch'],
@@ -1031,7 +1034,7 @@ class Identity extends Model {
         foreach($self as $id => $identity) {
             $address = $identity['address_street'];
             // add dispatch only if present
-            if($identity['address_dispatch'] && strlen($organization['address_dispatch']) > 0 ) {
+            if($identity['address_dispatch'] && strlen($identity['address_dispatch']) > 0 ) {
                 $address .= ' (' . $identity['address_dispatch'] . ')';
             }
             $address .= " {$identity['address_zip']} {$identity['address_city']}";
@@ -1129,12 +1132,12 @@ class Identity extends Model {
     */
 
     protected static function onupdateInstanceUuid($self) {
-        $self->read(['instance_uuid']);
-        foreach($self as $id => $identity) {
-            if($identity['instance_uuid']) {
-                $instance = Instance::search(['uuid', '=', $identity['instance_uuid']])->first();
+        $self->read(['instance_uuid', 'object_class']);
+        foreach($self as $id => $object) {
+            if($object['instance_uuid']) {
+                $instance = Instance::search(['uuid', '=', $object['instance_uuid']])->first();
                 if($instance) {
-                    self::id($id)->update(['instance_id' => $id]);
+                    $object['object_class']::id($id)->update(['instance_id' => $instance['id']]);
                 }
             }
         }
@@ -1144,7 +1147,7 @@ class Identity extends Model {
         $self->read(['object_class', 'uuid', 'user_id', 'contact_id', 'tenant_id', 'employee_id', 'managing_agent_id', 'customer_id', 'supplier_id', 'condominium_id', 'organisation_id']);
         $events = $orm->disableEvents();
         foreach($self as $id => $identity) {
-            if($identity['object_class'] !== 'identity\Identity') {
+            if (!is_a($identity['object_class'], Identity::class, true)) {
                 continue;
             }
             if($identity['user_id']) {
@@ -1187,21 +1190,21 @@ class Identity extends Model {
     }
 
     protected static function onupdateFirstname($self) {
-        $self->read(['firstname', 'lastname']);
+        $self->read(['firstname', 'lastname', 'object_class']);
         self::updateField($self, 'firstname');
-        foreach($self as $id => $identity) {
-            if(strlen($identity['firstname']) || strlen($identity['lastname'])) {
-                self::id($id)->update(['legal_name' => trim($identity['firstname'] . ' ' . mb_strtoupper($identity['lastname']))]);
+        foreach($self as $id => $object) {
+            if(strlen($object['firstname']) || strlen($object['lastname'])) {
+                $object['object_class']::id($id)->update(['legal_name' => trim($object['firstname'] . ' ' . mb_strtoupper($object['lastname']))]);
             }
         }
     }
 
     protected static function onupdateLastname($self) {
-        $self->read(['firstname', 'lastname']);
+        $self->read(['object_class', 'firstname', 'lastname']);
         self::updateField($self, 'lastname');
-        foreach($self as $id => $identity) {
-            if(strlen($identity['firstname']) || strlen($identity['lastname'])) {
-                self::id($id)->update(['legal_name' => trim($identity['firstname'] . ' ' . mb_strtoupper($identity['lastname']))]);
+        foreach($self as $id => $object) {
+            if(strlen($object['firstname']) || strlen($object['lastname'])) {
+                $object['object_class']::id($id)->update(['legal_name' => trim($object['firstname'] . ' ' . mb_strtoupper($object['lastname']))]);
             }
         }
     }
@@ -1277,9 +1280,9 @@ class Identity extends Model {
     protected static function onupdateCitizenIdentification($self) {
         self::updateField($self, 'citizen_identification');
         // #memo - for convenience, citizen_identification (individuals only) is copied into registration_number
-        $self->read(['citizen_identification']);
-        foreach($self as $id => $identity) {
-            self::id($id)->update(['registration_number' => $identity['citizen_identification']]);
+        $self->read(['citizen_identification', 'object_class']);
+        foreach($self as $id => $object) {
+            $object['object_class']::id($id)->update(['registration_number' => $object['citizen_identification']]);
         }
     }
 
@@ -1549,20 +1552,20 @@ class Identity extends Model {
 
     protected static function oncreate($self, $orm) {
         $self->read(['object_class', 'type_id', 'citizen_identification']);
-        foreach($self as $id => $identity) {
+        foreach($self as $id => $object) {
             if(constant('FMT_INSTANCE_TYPE') === 'global') {
                 do {
                     $uuid = DataGenerator::uuid();
                     $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
                 } while( $existing > 0 && count($existing) > 0 );
 
-                self::id($id)->update(['uuid' => $uuid]);
+                $object['object_class']::id($id)->update(['uuid' => $uuid]);
             }
-            if($identity['object_class'] !== 'identity\Identity') {
+            if(!is_a($object['object_class'], Identity::class, true)) {
                 continue;
             }
-            if($identity['type_id'] === 1 && (!$identity['citizen_identification'] || strlen($identity['citizen_identification']) <= 0)) {
-                self::id($id)->update(['registration_number' => self::computeVirtualCitizenIdentification()]);
+            if($object['type_id'] === 1 && (!$object['citizen_identification'] || strlen($object['citizen_identification']) <= 0)) {
+                $object['object_class']::id($id)->update(['registration_number' => self::computeVirtualCitizenIdentification()]);
             }
         }
     }
@@ -1575,7 +1578,7 @@ class Identity extends Model {
         $self->read(['identity_id', 'type_id', 'citizen_identification', 'registration_number']);
 
         // Class inherits from Identity but uses a distinct table: check if a new Identity should be created
-        if(substr(self::getType(), strrpos(self::getType(), '\\') + 1) !== 'Identity') {
+        if(!is_a(static::getType(), Identity::class, true)) {
             $common_fields = [
                     'source',
                     'type_id','has_vat','vat_number','legal_name','firstname','lastname','lang_id',
