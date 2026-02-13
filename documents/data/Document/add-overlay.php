@@ -44,7 +44,7 @@ use equal\text\TextTransformer;
             'type'              => 'int',
             'description'       => "The vertical position of the overlay.",
             'help'              => "Bottom-up relative (zero means bottom).",
-            'default'           => 830,
+            'default'           => 820,
             'min'               => 0,
             'max'               => 842
         ],
@@ -57,7 +57,7 @@ use equal\text\TextTransformer;
                 'courier'       => 'Courier'
             ],
             'description'       => "The font to use for rendering the overlay text.",
-            'default'           => 'Courier'
+            'default'           => 'courier'
         ],
 
         'font_size' => [
