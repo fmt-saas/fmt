@@ -6,10 +6,13 @@
 */
 
 use documents\Document;
+use equal\text\TextTransformer;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Returns the given PDF document with an overlay.",
-    'help'          => "Can be used to add a watermark or extra information to a PDF document. Options are available to avoid overwriting any existing text or image.",
+    'help'          => "Can be used to add a watermark or extra information to a PDF document.
+        Resize supports only downscaling and expects the document to be in A4 format (595x842 points).
+        Positioning options are available to avoid overwriting any existing text or image.",
     'params'        => [
 
         'id' => [
@@ -88,7 +91,7 @@ $resize = function($pdf_file, $scale) {
     $offset_y = $total_empty_height / 2;
 
     $gs_cmd = sprintf(
-        'gs -o %s -sDEVICE=pdfwrite -sPAPERSIZE=a4 -dFIXEDMEDIA -dPDFFitPage -c "<</BeginPage {%s %s translate %s %s scale}>> setpagedevice" -f %s',
+        'gs -o %s -dSAFER -sDEVICE=pdfwrite -sPAPERSIZE=a4 -dFIXEDMEDIA -dPDFFitPage -c "<</BeginPage {%s %s translate %s %s scale}>> setpagedevice" -f %s',
         escapeshellarg($output_file),
         $offset_x,
         $offset_y,
@@ -107,10 +110,10 @@ $resize = function($pdf_file, $scale) {
 };
 
 $addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) {
-    $output_file = tempnam(sys_get_temp_dir(), 'overlay_') . '.pdf';
+    $output_file = tempnam(sys_get_temp_dir(), 'overlay_');
 
-    // handle special characters for PostScript: convert utf8 -> latin
-    $overlay_text = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $overlay_text);
+    // handle special characters for PostScript: convert utf8 -> ascii
+    $overlay_text = TextTransformer::toAscii($overlay_text);
 
     $overlay_text = str_replace(
         ['\\',  '(',  ')',  "\r", "\n"],
@@ -118,21 +121,25 @@ $addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) {
         $overlay_text
     );
 
+    /*
+        #memo - in case other fonts are needed:
+        ```
+        % add latin encoding to handle special characters
+        /Helvetica findfont
+        dup length dict begin
+            {1 index /FID ne {def} {pop pop} ifelse} forall
+            /Encoding ISOLatin1Encoding def
+        currentdict
+        end
+        /Helvetica-Latin1 exch definefont pop
+        ```
+    */
     $ps_content = <<<PS
 %!PS
 <<
-  % add latin encoding to handle special characters
-  /Helvetica findfont
-  dup length dict begin
-    {1 index /FID ne {def} {pop pop} ifelse} forall
-    /Encoding ISOLatin1Encoding def
-  currentdict
-  end
-  /Helvetica-Latin1 exch definefont pop
-
   /BeginPage {
     gsave
-      /Helvetica-Latin1 findfont $font_size scalefont setfont
+      /Helvetica findfont $font_size scalefont setfont
       0 setgray
 
       $pos_x $pos_y moveto
@@ -191,11 +198,11 @@ if($scale < 1) {
     $temp_file = $temp_resized_file;
 }
 
-$temp_with_overlay_file = $addOverlay($temp_file, $params['overlay_text'], $params['font_size'], $params['pos_x'], $params['pos_y']);
+$tmp_file_with_overlay = $addOverlay($temp_file, $params['overlay_text'], $params['font_size'], $params['pos_x'], $params['pos_y']);
 @unlink($temp_file);
 
-$output = file_get_contents($temp_with_overlay_file);
-@unlink($temp_with_overlay_file);
+$output = file_get_contents($tmp_file_with_overlay);
+@unlink($tmp_file_with_overlay);
 
 $context->httpResponse()
         ->body($output)
