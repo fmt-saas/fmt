@@ -952,7 +952,7 @@
                                                                 {
                                                                     "view": "form.create",
                                                                     "description": "#todo - visibility conditions not implemented",
-                                                                    "visible": []
+                                                                    "visible": true
                                                                 }
                                                             ]
                                                         }

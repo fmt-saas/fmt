@@ -130,9 +130,11 @@
         }
     ],
     "header": {
-        "layout": "inline",
         "exports": false,
-        "actions": false
+        "actions": {
+            "ACTION.SELECT": true,
+            "ACTION.CREATE": true
+        }
     },
     "layout": {
         "items": [
