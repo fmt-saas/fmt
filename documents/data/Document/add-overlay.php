@@ -33,7 +33,7 @@ use documents\Document;
             'help'              => "Zero means left.",
             'default'           => 10,
             'min'               => 0,
-            'max'               => 0
+            'max'               => 595
         ],
 
         'pos_y' => [
