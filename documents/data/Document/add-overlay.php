@@ -31,7 +31,7 @@ use documents\Document;
         'pos_x' => [
             'type'              => 'int',
             'description'       => "The horizontal position of the overlay.",
-            'help'              => "Zero means left.",
+            'help'              => "Left-to-right relative (zero means left).",
             'default'           => 10,
             'min'               => 0,
             'max'               => 595
@@ -40,7 +40,7 @@ use documents\Document;
         'pos_y' => [
             'type'              => 'int',
             'description'       => "The vertical position of the overlay.",
-            'help'              => "Zero means bottom.",
+            'help'              => "Bottom-up relative (zero means bottom).",
             'default'           => 830,
             'min'               => 0,
             'max'               => 842
