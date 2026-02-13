@@ -49,7 +49,7 @@ use documents\Document;
         'font_size' => [
             'type'              => 'int',
             'description'       => "The font size to use for the overlay text.",
-            'help'              => "Less the 8 seems not readable.",
+            'help'              => "This might depend on the font (Helvetica by default). Less than 8 seems not readable.",
             'default'           => 12,
             'min'               => 1,
             'max'               => 50
@@ -142,7 +142,7 @@ $addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) {
 >> setpagedevice
 PS;
 
-    $ps_file = tempnam(sys_get_temp_dir(), 'overlay_ps_') . '.ps';
+    $ps_file = tempnam(sys_get_temp_dir(), 'overlay_ps_');
     file_put_contents($ps_file, $ps_content);
 
     $gs_cmd = sprintf(

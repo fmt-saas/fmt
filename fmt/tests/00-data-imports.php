@@ -102,17 +102,17 @@ $tests = [
             $data = file_get_contents(EQ_BASEDIR . '/packages/fmt/tests/' . 'suppliers_import.xlsx');
 
             $document = Document::create([
-                'name' => 'Suppliers import test 2'
-            ])
+                    'name' => 'Suppliers import test 2'
+                ])
                 ->update(['data' => $data])
                 ->read(['id'])
                 ->first();
 
             return DataImport::create([
-                'name'          => 'Suppliers import test 2',
-                'document_id'   => $document['id'],
-                'import_type'   => 'suppliers_import'
-            ])
+                    'name'          => 'Suppliers import test 2',
+                    'document_id'   => $document['id'],
+                    'import_type'   => 'suppliers_import'
+                ])
                 ->update(['status' => 'ready'])
                 ->read(['id'])
                 ->first();

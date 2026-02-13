@@ -226,12 +226,12 @@ try {
 
                 if(!$supplier) {
                     $supplier = Supplier::create([
-                        'identity_id'       => $identity['id'],
-                        'address_street'    => $values['address_street'],
-                        'address_city'      => $values['address_city'],
-                        'address_zip'       => $values['address_zip'],
-                        'address_country'   => $values['address_country']
-                    ])
+                            'identity_id'       => $identity['id'],
+                            'address_street'    => $values['address_street'],
+                            'address_city'      => $values['address_city'],
+                            'address_zip'       => $values['address_zip'],
+                            'address_country'   => $values['address_country']
+                        ])
                         ->do('sync_from_identity')
                         ->first();
 
