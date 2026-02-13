@@ -49,6 +49,17 @@ use equal\text\TextTransformer;
             'max'               => 842
         ],
 
+        'font' => [
+            'type'              => 'string',
+            'selection'         => [
+                'helvetica'     => 'Helvetica',
+                'times_roman'   => 'Times-Roman',
+                'courier'       => 'Courier'
+            ],
+            'description'       => "The font to use for rendering the overlay text.",
+            'default'           => 'Courier'
+        ],
+
         'font_size' => [
             'type'              => 'int',
             'description'       => "The font size to use for the overlay text.",
@@ -109,7 +120,7 @@ $resize = function($pdf_file, $scale) {
     return $output_file;
 };
 
-$addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) {
+$addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) use($params) {
     $output_file = tempnam(sys_get_temp_dir(), 'overlay_');
 
     // handle special characters for PostScript: convert utf8 -> ascii
@@ -134,12 +145,19 @@ $addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) {
         /Helvetica-Latin1 exch definefont pop
         ```
     */
+
+    $font = [
+        'helvetica'     => 'Helvetica',
+        'times_roman'   => 'Times-Roman',
+        'courier'       => 'Courier'
+    ][$params['font']] ?? 'Helvetica';
+
     $ps_content = <<<PS
 %!PS
 <<
   /BeginPage {
     gsave
-      /Helvetica findfont $font_size scalefont setfont
+      /$font findfont $font_size scalefont setfont
       0 setgray
 
       $pos_x $pos_y moveto

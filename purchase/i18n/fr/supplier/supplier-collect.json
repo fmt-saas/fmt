@@ -1,0 +1,63 @@
+{
+    "name": "Recherche fournisseur",
+    "plural": "Recherches fournisseur",
+    "description": "Collecteur avancé pour filtrer les fournisseurs.",
+    "model": {
+        "entity": {
+            "label": "Classe cible",
+            "description": "Nom complet de la classe retournée.",
+            "help": "Par défaut « purchase\\\\supplier\\\\Supplier »."
+        },
+        "type": {
+            "label": "Type d'identité",
+            "description": "Filtre sur le type d'identité (personne ou organisation).",
+            "help": "Choisir « all » pour ne pas limiter le type.",
+            "selection": {
+                "all": "Tous",
+                "IN": "Personne physique",
+                "SE": "Indépendant",
+                "CO": "Société",
+                "NP": "Association / ASBL",
+                "PA": "Autorité publique"
+            }
+        },
+        "registration_number": {
+            "label": "N° d'entreprise",
+            "description": "Numéro d'enregistrement de l'organisation.",
+            "help": "Inscrire le numéro BCE / entreprise."
+        },
+        "legal_name": {
+            "label": "Dénomination légale",
+            "description": "Nom complet de l'identité.",
+            "help": "Texte exact ou partiel."
+        },
+        "short_name": {
+            "label": "Nom abrégé",
+            "description": "Acronyme ou nom usuel de l'organisation.",
+            "help": "Recherche sur le mémo court."
+        },
+        "citizen_identification": {
+            "label": "N° d'identité",
+            "description": "Numéro d'identification citoyen, le cas échéant.",
+            "help": "Visible uniquement pour les personnes physiques."
+        },
+        "firstname": {
+            "label": "Prénom",
+            "description": "Prénom du contact (personne physique).",
+            "help": "Filtre partiel autorisé."
+        },
+        "lastname": {
+            "label": "Nom",
+            "description": "Nom du contact (personne physique).",
+            "help": "Filtre partiel autorisé."
+        }
+    },
+    "view": {
+        "supplier-collect.search.default": {
+            "name": "Recherche de fournisseurs",
+            "description": "Filtres avancés pour collecter les fournisseurs.",
+            "layout": {}
+        }
+    },
+    "error": {}
+}
