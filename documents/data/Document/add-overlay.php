@@ -35,7 +35,7 @@ use equal\text\TextTransformer;
             'type'              => 'int',
             'description'       => "The horizontal position of the overlay.",
             'help'              => "Left-to-right relative (zero means left).",
-            'default'           => 10,
+            'default'           => 20,
             'min'               => 0,
             'max'               => 595
         ],

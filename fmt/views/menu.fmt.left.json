@@ -504,6 +504,17 @@
                 "type": "parent",
                 "children": [
                     {
+                        "id": "users",
+                        "type": "entry",
+                        "label": "Users",
+                        "icon": "person_outline",
+                        "description": "Manage application user accounts.",
+                        "context": {
+                            "entity": "identity\\User",
+                            "view": "list.default"
+                        }
+                    },
+                    {
                         "id": "identities",
                         "type": "entry",
                         "label": "Identities",
@@ -511,17 +522,6 @@
                         "description": "Manage all registered identities.",
                         "context": {
                             "entity": "identity\\Identity",
-                            "view": "list.default"
-                        }
-                    },
-                    {
-                        "id": "users",
-                        "type": "entry",
-                        "label": "Users",
-                        "icon": "person",
-                        "description": "Manage application user accounts.",
-                        "context": {
-                            "entity": "identity\\User",
                             "view": "list.default"
                         }
                     },

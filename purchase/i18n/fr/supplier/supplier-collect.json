@@ -23,8 +23,8 @@
         },
         "registration_number": {
             "label": "N° d'entreprise",
-            "description": "Numéro d'enregistrement de l'organisation.",
-            "help": "Inscrire le numéro BCE / entreprise."
+            "description": "Numéro d'enregistrement du fournisseur.",
+            "help": "Numéro d'identification officiel de l'entreprise (numéro BCE)."
         },
         "legal_name": {
             "label": "Dénomination légale",
