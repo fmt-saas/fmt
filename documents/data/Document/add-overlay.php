@@ -47,9 +47,10 @@ use documents\Document;
 
         'font_size' => [
             'type'              => 'int',
-            'description'       => "The vertical position of the overlay.",
+            'description'       => "The font size to use for the overlay text.",
+            'help'              => "Less the 8 seems not readable.",
             'default'           => 12,
-            'min'               => 8,
+            'min'               => 1,
             'max'               => 50
         ],
 
