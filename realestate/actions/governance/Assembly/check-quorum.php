@@ -28,17 +28,16 @@ use realestate\governance\Assembly;
 ['context' => $context, 'dispatch' => $dispatch] = $providers;
 
 // cancel any existing alert (in case of multiple calls to this action in a short period of time, we want to avoid stacking multiple alerts of the same type)
-$dispatch->cancel('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $params['id']);
-$dispatch->cancel('realestate.workflow.assembly.valid', 'realestate\governance\Assembly', $params['id']);
+$dispatch->cancel('realestate.workflow.assembly.quorum_not_reached', 'realestate\governance\Assembly', $params['id']);
+$dispatch->cancel('realestate.workflow.assembly.quorum_reached', 'realestate\governance\Assembly', $params['id']);
 
 // check assembly validity and dispatch corresponding alert
 try {
-    Assembly::id($params['id'])->assert('is_assembly_valid');
-
-    $dispatch->dispatch('realestate.workflow.assembly.valid', 'realestate\governance\Assembly', $params['id'], 'notice');
+    Assembly::id($params['id'])->assert('is_quorum_reached');
+    $dispatch->dispatch('realestate.workflow.assembly.quorum_reached', 'realestate\governance\Assembly', $params['id'], 'notice');
 }
 catch(Exception $e) {
-    $dispatch->dispatch('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $params['id'], 'important');
+    $dispatch->dispatch('realestate.workflow.assembly.quorum_not_reached', 'realestate\governance\Assembly', $params['id'], 'important');
 }
 
 $context->httpResponse()

@@ -23,7 +23,7 @@ MessageModel::id($model['id'])->update([
 
 // The quorum of presence or represented shares is not reached
 $model = MessageModel::create([
-        'name'          => 'realestate.workflow.assembly.invalid',
+        'name'          => 'realestate.workflow.assembly.quorum_not_reached',
         'type'          => 'governance',
         'label'         => 'Quorum not reached',
         'description'   => "The quorum of presence or represented shares is not reached."
@@ -36,7 +36,7 @@ MessageModel::id($model['id'])->update([
     ], 'fr');
 
 $model = MessageModel::create([
-        'name'          => 'realestate.workflow.assembly.valid',
+        'name'          => 'realestate.workflow.assembly.quorum_reached',
         'type'          => 'governance',
         'label'         => 'Quorum reached',
         'description'   => "The quorum of presence or represented shares is reached."
@@ -48,6 +48,31 @@ MessageModel::id($model['id'])->update([
         'description'   => "Le quorum de présence ou de parts représentées est atteint.",
     ], 'fr');
 
+$model = MessageModel::create([
+        'name'          => 'realestate.workflow.assembly.invalid',
+        'type'          => 'governance',
+        'label'         => 'Assembly invalid',
+        'description'   => "Assembly is invalid  and cannot be opened."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Assemblée invalide',
+        'description'   => "L'assemblée est invalide et ne peut pas être ouverte.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'realestate.workflow.assembly.valid',
+        'type'          => 'governance',
+        'label'         => 'Assembly valid',
+        'description'   => "The Assembly is valid and is ready to be opened."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Assemblée valide',
+        'description'   => "L'assemblée est valide et prête à être ouverte."
+    ], 'fr');
 
 
 /**
