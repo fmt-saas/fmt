@@ -19,7 +19,7 @@
             "label": "Show items",
             "inline": true,
             "description": "",
-            "icon": "how_to_vote",
+            "icon": "visibility",
             "context": {
                 "entity": "realestate\\governance\\AssemblyItem",
                 "view": "form.popup",
