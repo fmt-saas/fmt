@@ -52,8 +52,9 @@ $mapXlsToJson = function (string $import_type, string $sheet, string $field, $va
             return preg_replace('/[^0-9]/', '', $value);
 
         // IBAN
+        case preg_match('/iban/i', $field):
         case preg_match('/_iban/i', $field):
-            return strtoupper(preg_replace('/[^A-Z0-9]/i', '', $value));
+            return preg_replace('/[^A-Z0-9]/i', '', strtoupper($value));
 
         // Email
         case preg_match('/_email/i', $field):
@@ -65,6 +66,7 @@ $mapXlsToJson = function (string $import_type, string $sheet, string $field, $va
 
 
         // Dates (attempt to convert to ISO format)
+        case preg_match('/year_/i', $field):
         case preg_match('/date_/i', $field):
             if($value instanceof \DateTimeInterface) {
                 return $value->format('Y-m-d');
@@ -110,14 +112,14 @@ $mapXlsToJson = function (string $import_type, string $sheet, string $field, $va
             switch ($sheet) {
                 case 'Owner':
                     // e.g., uppercase countries/languages
-                    if (in_array($field, ['owner_pays', 'owner_langue'])) {
+                    if(in_array($field, ['owner_pays', 'owner_langue'])) {
                         return strtoupper($value);
                     }
                     break;
 
                 case 'Ownership_histo':
                     // check coherence of dates
-                    if (preg_match('/date_/', $field)) {
+                    if(preg_match('/date_/', $field)) {
                         $ts = strtotime($value);
                         return $ts ? date('Y-m-d', $ts) : null;
                     }
