@@ -539,10 +539,6 @@
             "label": "All Items attachments",
             "description": "",
             "icon": "attach_file",
-            "visible": {
-                "view": true,
-                "edit": false
-            },
             "context": {
                 "entity": "documents\\Document",
                 "view": "list.assembly",
