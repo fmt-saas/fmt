@@ -2413,6 +2413,8 @@ class Assembly extends \equal\orm\Model {
                 }
 
                 // remove previous alert (if any)
+                $dispatch->cancel('realestate.workflow.assembly.quorum_not_reached', 'realestate\governance\Assembly', $id);
+                $dispatch->cancel('realestate.workflow.assembly.quorum_reached', 'realestate\governance\Assembly', $id);
                 $dispatch->cancel('realestate.workflow.assembly.invalid', 'realestate\governance\Assembly', $id);
             }
 

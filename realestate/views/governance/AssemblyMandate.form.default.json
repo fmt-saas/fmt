@@ -29,14 +29,27 @@
                                                 "value": "attendee_id",
                                                 "width": "50%",
                                                 "widget": {
-                                                    "autoselect": false
+                                                    "autoselect": false,
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
                                                 }
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Owner",
                                                 "value": "ownership_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "autoselect": false,
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",

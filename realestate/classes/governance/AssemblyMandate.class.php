@@ -30,6 +30,7 @@ class AssemblyMandate extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The assembly the proxy refers to.",
                 'foreign_object'    => 'realestate\governance\Assembly',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'ondelete'          => 'cascade',
                 'required'          => true
             ],
@@ -38,6 +39,7 @@ class AssemblyMandate extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "Attendee holder of the mandate.",
                 'foreign_object'    => 'realestate\governance\AssemblyAttendee',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'ondelete'          => 'null',
                 // 'required'          => true,
                 'dependents'        => ['identity_id']
@@ -56,6 +58,7 @@ class AssemblyMandate extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The ownership that is represented by the proxy.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
                 // 'required'          => true,
                 'dependents'        => ['mandate_shares']
             ],

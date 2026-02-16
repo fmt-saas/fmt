@@ -994,12 +994,22 @@
                     {
                         "id": "section.mandates",
                         "label": "Mandates",
-                        "visible": [
+                        "#memo": "not sure which conditions are necessary",
+                        "visible1": [
                             [
                                 ["admins", "in", "user.groups"]
-                            ],
+                            ]
+                        ],
+                        "visible": [
                             [
-                                ["status", "=", "in_progress"]
+                                "status",
+                                "not in",
+                                [
+                                    "pending",
+                                    "published",
+                                    "sending",
+                                    "sent"
+                                ]
                             ]
                         ],
                         "rows": [
