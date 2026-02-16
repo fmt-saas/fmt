@@ -26,7 +26,13 @@
                                                 "value": "children_items_ids",
                                                 "width": "100%",
                                                 "widget": {
-                                                    "view": "list.item"
+                                                    "view": "list.item",
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.SELECT": false,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
                                                 }
                                             }
                                         ]
