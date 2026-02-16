@@ -6,6 +6,7 @@
 */
 
 use fmt\setting\Setting;
+use identity\Organisation;
 use realestate\governance\Assembly;
 use realestate\ownership\Ownership;
 use Twig\Environment as TwigEnvironment;
@@ -84,6 +85,38 @@ $getFormattedTime = function($timestamp, $adapt = false) {
     return sprintf('%02d:%02d', $timestamp / 3600, ($timestamp % 3600) / 60);
 };
 
+$getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
+    $result = '';
+
+    $organisation = $object_class::id($organisation_id)->read(['profile_image_print'])->first();
+
+    if($organisation && $organisation['profile_image_print']) {
+        $result = sprintf('data:%s;base64,%s',
+            'image/jpeg',
+            base64_encode($organisation['profile_image_print'])
+        );
+    }
+    return $result;
+};
+
+$getLabels = function($lang) {
+    return [
+        'registration_number'            => Setting::get_value('sale', 'locale', 'label_registration-number', 'Registration n°', [], $lang),
+        'vat_number'                     => Setting::get_value('sale', 'locale', 'label_vat-number', 'VAT n°', [], $lang),
+        'number'                         => Setting::get_value('sale', 'locale', 'label_number', 'N°', [], $lang),
+        'date'                           => Setting::get_value('sale', 'locale', 'label_date', 'Date', [], $lang),
+        'status'                         => Setting::get_value('sale', 'locale', 'label_status', 'Status', [], $lang),
+        'communication'                  => Setting::get_value('sale', 'locale', 'label_communication', 'Communication', [], $lang),
+        'footer' => [
+            'registration_number'        => Setting::get_value('sale', 'locale', 'label_footer-registration-number', 'Registration number', [], $lang),
+            'iban'                       => Setting::get_value('sale', 'locale', 'label_footer-iban', 'IBAN', [], $lang),
+            'email'                      => Setting::get_value('sale', 'locale', 'label_footer-email', 'Email', [], $lang),
+            'web'                        => Setting::get_value('sale', 'locale', 'label_footer-web', 'Web', [], $lang),
+            'tel'                        => Setting::get_value('sale', 'locale', 'label_footer-tel', 'Tel', [], $lang)
+        ]
+    ];
+};
+
 /**
  * Action
  */
@@ -130,6 +163,18 @@ if(!$assembly) {
     throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+$organisation = Organisation::id(1)
+    ->read([
+        'name', 'address_street', 'address_dispatch', 'address_zip',
+        'address_city', 'address_country', 'has_vat', 'vat_number',
+        'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
+        'website', 'email', 'phone', 'has_vat', 'vat_number',
+        'profile_image_document_id' => [
+            'type', 'data'
+        ]
+    ])
+    ->first();
+
 $vote_items = [];
 foreach($assembly['assembly_items_ids'] as $parent_item) {
     if(!$parent_item['has_vote_required'] && count($parent_item['children_items_ids']) === 0) {
@@ -161,22 +206,26 @@ $introduction = '';
 $conclusion = '';
 
 $values = [
-    'title'         => $subject,
+    'title'                     => $subject,
     'introduction'              => $introduction,
     'conclusion'                => $conclusion,
 
-    'assembly'      => $assembly,
-    'condominium'   => $assembly['condo_id'],
+    'assembly'                  => $assembly,
+    'condominium'               => $assembly['condo_id'],
 
-    'ownership'     => $ownership,
-    'vote_items'    => $vote_items,
+    'organisation'              => $organisation,
+    'organisation_logo'         => $getOrganisationLogo($organisation['id']),
 
-    'today_date'    => time(),
-    'timezone'      => constant('L10N_TIMEZONE'),
-    'locale'        => constant('L10N_LOCALE'),
-    'date_format'   => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
+    'ownership'                 => $ownership,
+    'vote_items'                => $vote_items,
 
-    'debug'         => $params['debug']
+    'today_date'                => time(),
+    'timezone'                  => constant('L10N_TIMEZONE'),
+    'locale'                    => constant('L10N_LOCALE'),
+    'date_format'               => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
+
+    'labels'                    => $getLabels($lang),
+    'debug'                     => $params['debug']
 ];
 
 try {
