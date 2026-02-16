@@ -468,4 +468,23 @@ class AssemblyAttendee extends \equal\orm\Model {
         return $result;
     }
 
+    /**
+     * Upon deletion of an Attendee, refresh assembly computed fields & alerts.
+     *
+     */
+    protected static function onbeforedelete($self) {
+        $self
+            ->read(['assembly_id'])
+            ->update(['count_represented_shares' => null, 'count_represented_owners' => null]);
+
+        foreach($self as $id => $assemblyAttendee) {
+            try {
+                \eQual::run('do', 'realestate_governance_Assembly_check-quorum', ['id' => $assemblyAttendee['assembly_id']]);
+            }
+            catch(\Exception $e) {
+                // ignore in case of error (non critical)
+            }
+        }
+    }
+
 }

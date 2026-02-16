@@ -540,6 +540,7 @@
             "description": "",
             "icon": "attach_file",
             "visible": {
+                "view": true,
                 "edit": false
             },
             "context": {
