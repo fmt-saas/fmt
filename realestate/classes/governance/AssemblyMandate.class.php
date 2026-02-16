@@ -54,7 +54,7 @@ class AssemblyMandate extends \equal\orm\Model {
                 'store'             => true
             ],
 
-            // #memo #todo - allow to pre-encoding of mandates
+            // #memo #todo - allow to pre-encoding of mandates FMT-175
             /*
             'holder_ownership_id' => [
                 'type'              => 'many2one',

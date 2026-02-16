@@ -994,7 +994,7 @@
                     {
                         "id": "section.mandates",
                         "label": "Mandates",
-                        "#memo": "super-admins since there is a task on holde FMT-256",
+                        "#memo": "super-admins since there is a task on hold FMT-175",
                         "visible": [
                             ["super_admins", "in", "user.groups"],
                             [

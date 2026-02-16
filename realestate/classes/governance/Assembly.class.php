@@ -2103,7 +2103,6 @@ class Assembly extends \equal\orm\Model {
      */
     protected static function policyIsQuorumReached($self) {
         $result = [];
-        $delta = 1e-4;
         $self->read(['is_second_session', 'count_shares', 'count_represented_shares', 'count_owners', 'count_represented_owners']);
 
         foreach($self as $id => $assembly) {
@@ -2123,19 +2122,21 @@ class Assembly extends \equal\orm\Model {
                 continue;
             }
 
-            $share_ratio = $assembly['count_represented_shares'] / $assembly['count_shares'];
-            $owner_ratio = $assembly['count_represented_owners'] / $assembly['count_owners'];
+            $represented_shares = $assembly['count_represented_shares'];
+            $total_shares       = $assembly['count_shares'];
 
+            $represented_owners = $assembly['count_represented_owners'];
+            $total_owners       = $assembly['count_owners'];
 
             // If at least 75% of shares are represented: quorum reached automatically
-            if($share_ratio >= 0.75 - $delta) {
+            if($represented_shares * 4 >= $total_shares * 3) {
                 continue;
             }
 
-            // Otherwise, double-quorum required (less than 3/4 of the shares are represented)
+            // Otherwise (less than 3/4 of the shares are represented), double-quorum required
 
             // strictly more than 50% of the ownerships
-            if( $owner_ratio <= 0.5 + $delta) {
+            if($represented_owners * 2 <= $total_owners) {
                 $result[$id] = [
                     'quorum_owners_not_met' => 'Not enough owners present or represented.'
                 ];
@@ -2143,13 +2144,12 @@ class Assembly extends \equal\orm\Model {
             }
 
             // at least half of the shares of the statutory apportionment
-            if( $share_ratio < 0.5 - $delta) {
+            if($represented_shares * 2 < $total_shares) {
                 $result[$id] = [
-                    'quorum_shares_not_met' => 'Less than 50% of the shares are censed for the assembly.'
+                    'quorum_shares_not_met' => 'Less than 50% of the shares are counted for the assembly.'
                 ];
                 continue;
             }
-
 
         }
         return $result;
