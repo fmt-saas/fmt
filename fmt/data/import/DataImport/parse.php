@@ -57,10 +57,12 @@ $mapXlsToJson = function (string $import_type, string $sheet, string $field, $va
             return preg_replace('/[^A-Z0-9]/i', '', strtoupper($value));
 
         // Email
+        case preg_match('/email/i', $field):
         case preg_match('/_email/i', $field):
             return strtolower($value);
 
         // Phone (remove spaces and symbols)
+        case preg_match('/phone|mobile/i', $field):
         case preg_match('/_phone|_tel|_mobile/i', $field):
             return preg_replace('/[^0-9+]/', '', $value);
 

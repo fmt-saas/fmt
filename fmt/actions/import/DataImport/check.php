@@ -209,6 +209,29 @@ if($dataImport['import_type'] == 'condominium_import') {
             $result['logs'][] = "ERR - invalid `country` ({$owner['country']}) in Owner sheet at row " . ($index + 2);
 
         }
+
+        if(!preg_match('/^[^0-9+]$/', $owner['phone_1'])) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid `phone_1` ({$owner['phone_1']}) in Owner sheet at row " . ($index + 2);
+
+        }
+
+        if(!preg_match('/^[^0-9+]$/', $owner['phone_2'])) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid `phone_2` ({$owner['phone_2']}) in Owner sheet at row " . ($index + 2);
+
+        }
+
+        if(!preg_match('/^[^0-9+]$/', $owner['mobile_1'])) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid `mobile_1` ({$owner['mobile_1']}) in Owner sheet at row " . ($index + 2);
+        }
+
+        if(!preg_match('/^[^0-9+]$/', $owner['mobile_2'])) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid `mobile_2` ({$owner['mobile_2']}) in Owner sheet at row " . ($index + 2);
+        }
+
     }
 
     foreach($data['Ownerships'] as $index => $ownership) {
