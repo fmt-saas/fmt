@@ -244,7 +244,7 @@ TemplatePart::create([
 // General Meetings register
 $template = Template::create([
         'code'          => 'general_meetings_register',
-        'description'   => 'Registre des présences.',
+        'description'   => 'Liste des présences.',
         'category_id'   => 5,
         'type_id'       => 5
     ])

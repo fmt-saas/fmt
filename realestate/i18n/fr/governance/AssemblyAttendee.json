@@ -49,13 +49,13 @@
             "help": "Certains participants (ex. secrétaire) peuvent être présents sans voter."
         },
         "register_document_id": {
-            "label": "Registre de présence",
-            "description": "Document original du registre de présence.",
+            "label": "Liste des présences",
+            "description": "Document original de la liste des présences.",
             "help": ""
         },
         "register_document_signature_id": {
-            "label": "Signature du registre",
-            "description": "Signature du participant sur le registre de présence.",
+            "label": "Signature",
+            "description": "Signature du participant sur la liste des présences.",
             "help": "Filtrée sur l'identité et l'assemblée."
         },
         "minutes_document_id": {
@@ -70,7 +70,7 @@
         },
         "has_signed_register": {
             "label": "Registre signé",
-            "description": "Indique si le participant a signé le registre de présence.",
+            "description": "Indique si le participant a signé la liste des présence.",
             "help": ""
         },
         "has_signed_minutes": {
