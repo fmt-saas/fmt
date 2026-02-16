@@ -93,10 +93,8 @@ $ownership = Ownership::id($params['ownership_id'])->read(['name'])->first();
 $assembly = Assembly::id($params['id'])
     ->read([
         'name',
+        'assembly_type',
         'assembly_date',
-        'condo_id' => [
-            'name'
-        ],
         'ownerships_ids',
         'assembly_items_ids' => [
             '@domain' => ['parent_group_id', 'is', null],
@@ -110,6 +108,19 @@ $assembly = Assembly::id($params['id'])
                 'order',
                 'has_vote_required',
                 'description_ballot'
+            ]
+        ],
+        'condo_id' => [
+            'name', 'address_street', 'address_city', 'address_zip', 'address_city',
+            'registration_number',
+            'managing_agent_id' => [
+                'name', 'address_street', 'address_dispatch', 'address_zip',
+                'address_city', 'address_country', 'has_vat', 'vat_number',
+                'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
+                'website', 'email', 'phone', 'has_vat', 'vat_number',
+                'profile_image_document_id' => [
+                    'type', 'data'
+                ]
             ]
         ]
     ])
@@ -151,8 +162,12 @@ $conclusion = '';
 
 $values = [
     'title'         => $subject,
+    'introduction'              => $introduction,
+    'conclusion'                => $conclusion,
+
     'assembly'      => $assembly,
     'condominium'   => $assembly['condo_id'],
+
     'ownership'     => $ownership,
     'vote_items'    => $vote_items,
 
@@ -165,7 +180,12 @@ $values = [
 ];
 
 try {
-    $loader = new TwigFilesystemLoader(EQ_BASEDIR."/packages/realestate/views/governance");
+    // generate HTML
+    $loader = new TwigFilesystemLoader([
+            EQ_BASEDIR.'/packages/realestate/views/_parts',
+            EQ_BASEDIR.'/packages/realestate/views/governance'
+        ]);
+
     $twig = new TwigEnvironment($loader);
 
     /** @var ExtensionInterface $extension **/

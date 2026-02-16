@@ -335,8 +335,8 @@
                     "description": "Ajouter des pièces jointes au procès-verbal."
                 },
                 "route.print_voteforms": {
-                    "label": "Feuille de vote vierge",
-                    "description": "."
+                    "label": "Bulletins de votes vierges",
+                    "description": "Imprimer les bulletins de votes pour vote manuscrit."
                 }
             },
             "actions": {
