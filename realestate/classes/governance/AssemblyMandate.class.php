@@ -54,9 +54,30 @@ class AssemblyMandate extends \equal\orm\Model {
                 'store'             => true
             ],
 
+            // #memo #todo - allow to pre-encoding of mandates
+            /*
+            'holder_ownership_id' => [
+                'type'              => 'many2one',
+                'description'       => "The ownership holder of the proxy, if any.",
+                'help'              => "This is for encoding in 2 passes: the holder can be an identity from one of the ownerships of the condominium
+                    In such case, the mandates can be auto-populated at Attendee creation.",
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+            ],
+
+            'holder_identity_id' => [
+                'type'              => 'many2one',
+                'description'       => "The ownership holder of the proxy, if any.",
+                'help'              => "This is for encoding in 2 passes: the holder can be an identity from one of the ownerships of the condominium
+                    In such case, the mandates can be auto-puploated at Attendee creation.",
+                'foreign_object'    => 'identity\Identity',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], []],
+            ],
+            */
+
             'ownership_id' => [
                 'type'              => 'many2one',
-                'description'       => "The ownership that is represented by the proxy.",
+                'description'       => "The ownership that is represented by the proxy .",
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 // 'required'          => true,

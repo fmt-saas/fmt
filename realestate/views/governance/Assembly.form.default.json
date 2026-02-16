@@ -994,13 +994,9 @@
                     {
                         "id": "section.mandates",
                         "label": "Mandates",
-                        "#memo": "not sure which conditions are necessary",
-                        "visible1": [
-                            [
-                                ["admins", "in", "user.groups"]
-                            ]
-                        ],
+                        "#memo": "super-admins since there is a task on holde FMT-256",
                         "visible": [
+                            ["super_admins", "in", "user.groups"],
                             [
                                 "status",
                                 "not in",
