@@ -305,6 +305,15 @@ class AssemblyMandate extends \equal\orm\Model {
                 ]);
             }
             Assembly::id($assemblyMandate['assembly_id'])->update(['count_represented_shares' => null, 'count_represented_owners' => null]);
+
+            try {
+                \eQual::run('do', 'realestate_governance_Assembly_check-quorum', ['id' => $assemblyMandate['assembly_id']]);
+            }
+            catch(\Exception $e) {
+                // ignore in case of error (non critical)
+                trigger_error("APP::Failed to check assembly quorum after validating a mandate: " . $e->getMessage(), EQ_REPORT_WARNING);
+            }
+
         }
     }
 

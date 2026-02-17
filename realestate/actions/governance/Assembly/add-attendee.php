@@ -370,11 +370,13 @@ foreach($owners as $owner_id => $owner) {
 
 Assembly::id($params['id'])->update(['count_represented_shares' => null, 'count_represented_owners' => null]);
 
+// #memo checking quorum here might have no effect if one or more mandates are implied, since AttendeeMandates must be validated in order to be considered in the Quorum (generate an AssemblyRepresentation)
 try {
     eQual::run('do', 'realestate_governance_Assembly_check-quorum', ['id' => $params['id']]);
 }
 catch(Exception $e) {
     // ignore in case of error (non critical)
+    trigger_error("APP::Failed to check assembly quorum after adding an attendee: " . $e->getMessage(), EQ_REPORT_WARNING);
 }
 
 $context->httpResponse()
