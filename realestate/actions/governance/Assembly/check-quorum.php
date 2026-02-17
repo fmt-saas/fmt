@@ -37,7 +37,7 @@ try {
     $dispatch->dispatch('realestate.workflow.assembly.quorum_reached', 'realestate\governance\Assembly', $params['id'], 'notice');
 }
 catch(Exception $e) {
-    $dispatch->dispatch('realestate.workflow.assembly.quorum_not_reached', 'realestate\governance\Assembly', $params['id'], 'important', 'realestate_governance_Assembly', ['id' => $params['id']]);
+    $dispatch->dispatch('realestate.workflow.assembly.quorum_not_reached', 'realestate\governance\Assembly', $params['id'], 'important', 'realestate_governance_Assembly_check-quorum', ['id' => $params['id']]);
 }
 
 $context->httpResponse()
