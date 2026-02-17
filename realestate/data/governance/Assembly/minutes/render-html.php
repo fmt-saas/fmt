@@ -140,7 +140,7 @@ $assembly = Assembly::id($params['id'])
         'count_shares',
         'count_represented_shares',
         'assembly_attendees_ids' => [
-            '@domain' => [['is_valid', '=', true], ['has_signed_minutes', '=', true]],
+            '@domain' => [['is_valid', '=', true]],
             'name',
             'attendee_role',
             'arrival_time',
@@ -334,19 +334,20 @@ foreach($template['parts_ids'] as $part_id => $part) {
         }, $conclusion);
     }
     elseif($part['name'] == 'late_arrival_notice') {
+
         $late_arrival_notice = $part['value'];
 
-        $late_arrival = [];
+        $late_arrival_ownerships = [];
         foreach($assembly['assembly_attendees_ids'] as $attendee) {
             if($attendee['has_late_arrival']) {
                 foreach($attendee['assembly_representations_ids'] as $representation) {
-                    $late_arrival[] = $representation['ownership_id']['name'].' ('.$getFormattedTime($attendee['arrival_time']).')';
+                    $late_arrival_ownerships[] = $representation['ownership_id']['name'] . ' (' . $getFormattedTime($attendee['arrival_time']) . ')';
                 }
             }
         }
 
         $map_values = [
-            'late_arrival' => implode('; ', $late_arrival)
+            'late_arrival' => implode('; ', $late_arrival_ownerships)
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -358,17 +359,17 @@ foreach($template['parts_ids'] as $part_id => $part) {
     elseif($part['name'] == 'early_departure_notice') {
         $early_departure_notice = $part['value'];
 
-        $early_departure = [];
+        $early_departure_ownerships = [];
         foreach($assembly['assembly_attendees_ids'] as $attendee) {
             if($attendee['has_early_departure']) {
                 foreach($attendee['assembly_representations_ids'] as $representation) {
-                    $early_departure[] = $representation['ownership_id']['name'].' ('.$getFormattedTime($attendee['departure_time']).')';
+                    $early_departure_ownerships[] = $representation['ownership_id']['name'] . ' (' . $getFormattedTime($attendee['departure_time']) . ')';
                 }
             }
         }
 
         $map_values = [
-            'early_departure' => implode('; ', $early_departure)
+            'early_departure' => implode('; ', $early_departure_ownerships)
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
