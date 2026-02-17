@@ -1133,8 +1133,13 @@ class AssemblyItem extends AssemblyItemTemplate {
     }
 
     protected static function canupdate($self, $values) {
-        $self->read(['assembly_id' => ['status', 'is_second_session']]);
+        $self->read(['has_vote_required', 'assembly_id' => ['status', 'is_second_session']]);
         foreach($self as $id => $assemblyItem) {
+            if($assemblyItem['has_vote_required'] || (isset($values['has_vote_required']) && $values['has_vote_required'])) {
+                if(!isset($values['apportionment_id'])) {
+                    return ['apportionment_id' => ['apportionment_required' => 'If vote is required, an apportionment must be defined.']];
+                }
+            }
             if($assemblyItem['assembly_id']['is_second_session']) {
                 $allowed_fields = ['status', 'description_minutes', 'description_ballot', 'votes_ids', 'votes_count', 'vote_result', 'logs'];
                 if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
@@ -1156,4 +1161,20 @@ class AssemblyItem extends AssemblyItemTemplate {
         return parent::canupdate($self, $values);
     }
 
+    public static function onchange($event, $values) {
+        $result = [];
+        if(isset($event['has_vote_required']) && $event['has_vote_required']) {
+            if(isset($values['assembly_id'])) {
+                $assembly = Assembly::id($values['assembly_id'])->read(['condo_id'])->first();
+                $apportionment = Apportionment::search([['condo_id', '=', $assembly['condo_id']], ['is_statutory', '=', 'true']])->read(['id', 'name'])->first();
+                if($apportionment) {
+                    $result['apportionment_id'] = [
+                        'id' => $apportionment['id'],
+                        'name' => $apportionment['name']
+                    ];
+                }
+            }
+        }
+        return array_merge(parent::onchange($event, $values), $result);
+    }
 }

@@ -43,7 +43,7 @@ use realestate\governance\AssemblyAttendee;
 ['context' => $context] = $providers;
 
 $assembly = Assembly::id($params['id'])
-    ->read(['status', 'step'])
+    ->read(['status', 'step', 'assembly_organizer_identity_id'])
     ->first();
 
 if(!$assembly) {
@@ -59,11 +59,15 @@ if($assembly['step'] !== 'agenda_processing') {
 }
 
 $attendee = AssemblyAttendee::id($params['attendee_id'])
-    ->read(['assembly_id', 'has_early_departure', 'attendee_role'])
+    ->read(['assembly_id', 'has_early_departure', 'attendee_role', 'identity_id'])
     ->first();
 
 if(!$attendee) {
     throw new Exception("unknown_attendee", EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+if($attendee['identity_id'] === $assembly['assembly_organizer_identity_id']) {
+    throw new Exception("organizer_cannot_leave_early", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 if($attendee['has_early_departure']) {

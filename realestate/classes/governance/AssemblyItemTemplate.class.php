@@ -178,6 +178,7 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
                     '4_5',
                     /*'1_5'*/       /* amount of owners for requesting an Assembly */
                 ],
+                'default'           => 'absolute',
                 'visible'           => ['has_vote_required', '=', true]
             ],
 

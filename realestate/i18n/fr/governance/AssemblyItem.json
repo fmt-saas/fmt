@@ -386,5 +386,17 @@
             },
             "layout": {}
         }
+    },
+    "error": {
+        "apportionment_id": {
+            "apportionment_required": "Si un vote est requis, une clé de répartition doit être définie."
+        },
+        "assembly_id": {
+            "second_session_assembly_cannot_be_changed": "Les points d'une assemblée de seconde session ne peuvent pas être modifiés.",
+            "published_assembly_cannot_be_changed": "Une fois publiée, une assemblée ne permet plus de modifier ses points."
+        },
+        "parent_group_id": {
+            "parent_must_be_defined_for_subgroup": "Pour un sous-groupe, un groupe parent doit être renseigné."
+        }
     }
 }

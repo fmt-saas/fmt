@@ -713,7 +713,14 @@
             "description": "View printable vote forms for each ownership.",
             "route": "/?get=realestate_governance_Assembly_voteforms_render-pdf&id=object.id",
             "target": "_blank",
-            "absolute": true
+            "absolute": true,
+            "visible": [
+                [
+                    "step",
+                    "in",
+                    ["opening", "attendance_closure", "mandate_validation", "representation_validation", "assembly_validation", "agenda_processing"]
+                ]
+            ]
         }
     ],
     "layout": {
